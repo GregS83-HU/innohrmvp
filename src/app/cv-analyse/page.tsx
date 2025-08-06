@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 
-export const dynamic = 'force-dynamic'
+//export const dynamic = 'force-dynamic'
 
 export default function CVAnalysePage() {
   const [file, setFile] = useState<File | null>(null)
