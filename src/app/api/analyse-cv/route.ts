@@ -107,7 +107,7 @@ return NextResponse.json({ score, analysis })
 
 
 
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Erreur API:', err)
     return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 })
   }

@@ -60,7 +60,7 @@ export default function CVAnalysePage() {
 
   return (
     <main className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold text-center mb-6">📄 Analyse de CV avec ChatGPT</h1>
+      <h1 className="text-2xl font-bold text-center mb-6">📄 Analyse de CV avec ChatGPT pour la position </h1>
 
       <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-white shadow-sm">
         <input
