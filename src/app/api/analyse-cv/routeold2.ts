@@ -54,7 +54,8 @@ Fais une analyse complète :
     const result = completion.choices[0].message.content
 
     return NextResponse.json({ analysis: result })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Erreur lors de l’appel à OpenRouter.' }, { status: 500 })
+  } 
+    catch (err: unknown) {
+    return NextResponse.json('Erreur lors de l’appel à OpenRouter.', { status: 500 })
   }
 }

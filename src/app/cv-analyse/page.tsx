@@ -51,8 +51,11 @@ export default function CVAnalysePage() {
 
       //setResult(data.analysis)
       setResult({ analysis: data.analysis, score: data.score })
-    } catch (err: any) {
-      setError(err.message)
+    } 
+      //catch (err: any) {
+      //setError(err.message)
+      catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erreur inconnue'
     } finally {
       setLoading(false)
     }
