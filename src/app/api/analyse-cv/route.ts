@@ -82,6 +82,7 @@ IMPORTANT : Réponds uniquement avec un objet JSON valide, sans aucun commentair
   //  return NextResponse.json({ analysis: result })
 
 const rawResponse = completion.choices[0].message.content
+console.log('Raw AI response:', rawResponse)
 
 // Parse JSON safely - Récupération de la réponse de l'AI
 let parsedResponse
@@ -94,7 +95,7 @@ try {
     try {
       parsedResponse = JSON.parse(match[0])
     } catch (err) {
-      console.error('Erreur de parsing JSON:', err)
+      console.error('Erreur de parsing JSON:', err, 'avec la réponse:', rawResponse)
       return NextResponse.json({ error: 'Impossible de parser la réponse de l’IA.' }, { status: 500 })
     }
 } catch {
