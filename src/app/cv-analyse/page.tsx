@@ -1,12 +1,19 @@
+// src/app/cv-analyse/page.tsx
+
 import CVAnalyseClient from './CVAnalyseClient'
 
 interface PageProps {
-  searchParams: Record<string, string | string[] | undefined>
+  searchParams: { [key: string]: string | undefined }
 }
 
 export default function CVAnalysePage({ searchParams }: PageProps) {
-  const jobDescription = typeof searchParams.description === 'string' ? searchParams.description : ''
-  const positionName = typeof searchParams.position === 'string' ? searchParams.position : ''
+  const positionName = searchParams.position ?? ''
+  const jobDescription = searchParams.description ?? ''
 
-  return <CVAnalyseClient jobDescription={jobDescription} positionName={positionName} />
+  return (
+    <CVAnalyseClient
+      positionName={positionName}
+      jobDescription={jobDescription}
+    />
+  )
 }
