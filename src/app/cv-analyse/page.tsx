@@ -1,11 +1,12 @@
-// src/app/cv-analyse/page.tsx
-// Pas de 'use client' ici — c'est un Server Component
-
 import CVAnalyseClient from './CVAnalyseClient'
 
-export default function CVAnalysePage({ searchParams }: { searchParams: URLSearchParams }) {
-  const jobDescription = searchParams.get('description') ?? ''
-  const positionName = searchParams.get('position') ?? ''
+interface PageProps {
+  searchParams: Record<string, string | string[] | undefined>
+}
+
+export default function CVAnalysePage({ searchParams }: PageProps) {
+  const jobDescription = typeof searchParams.description === 'string' ? searchParams.description : ''
+  const positionName = typeof searchParams.position === 'string' ? searchParams.position : ''
 
   return <CVAnalyseClient jobDescription={jobDescription} positionName={positionName} />
 }
