@@ -1,4 +1,4 @@
-import fs from 'fs'
+//import fs from 'fs'
 import pdfParse from 'pdf-parse'
 
 export async function parsePdfBuffer(buffer: Buffer) {
