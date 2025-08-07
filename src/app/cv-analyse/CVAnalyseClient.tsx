@@ -46,9 +46,13 @@ export default function CVAnalyseClient({
 
       setAnalysis(data.analysis)
       setScore(data.score)
-    } catch (err: any) {
-      setError(err.message || 'Erreur inconnue.')
-    } finally {
+    } catch (err: unknown) {
+  if (err instanceof Error) {
+    setError(err.message)
+  } else {
+    setError('Erreur inconnue.')
+  }
+} finally {
       setLoading(false)
     }
   }
