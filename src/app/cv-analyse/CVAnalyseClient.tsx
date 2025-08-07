@@ -1,28 +1,36 @@
-// src/app/cv-analyse/CVAnalyseClient.tsx
 'use client'
 
 import { useState } from 'react'
 
-interface CVAnalyseClientProps {
-  jobDescription: string
+export default function CVAnalyseClient({
+  positionName,
+  jobDescription,
+}: {
   positionName: string
-}
-
-export default function CVAnalyseClient({ jobDescription, positionName }: CVAnalyseClientProps) {
+  jobDescription: string
+}) {
   const [file, setFile] = useState<File | null>(null)
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [analysis, setAnalysis] = useState('')
+  const [score, setScore] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<{ analysis: string; score: number } | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState('')
 
-  const handleUpload = async () => {
+  const handleUpload = async (e: React.FormEvent) => {
+    e.preventDefault()
     if (!file) return
-    setLoading(true)
-    setError(null)
-    setResult(null)
 
     const formData = new FormData()
     formData.append('file', file)
     formData.append('jobDescription', jobDescription)
+    formData.append('firstName', firstName)
+    formData.append('lastName', lastName)
+
+    setLoading(true)
+    setError('')
+    setAnalysis('')
+    setScore(null)
 
     try {
       const res = await fetch('/api/analyse-cv', {
@@ -30,68 +38,110 @@ export default function CVAnalyseClient({ jobDescription, positionName }: CVAnal
         body: formData,
       })
 
+      const data = await res.json()
+
       if (!res.ok) {
-        const text = await res.text()
-        throw new Error(`Erreur API: ${text || res.statusText}`)
+        throw new Error(data.error || 'Erreur serveur.')
       }
 
-      const data = await res.json()
-      setResult({ analysis: data.analysis, score: data.score })
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Erreur inconnue'
-      setError(message)
+      setAnalysis(data.analysis)
+      setScore(data.score)
+    } catch (err: any) {
+      setError(err.message || 'Erreur inconnue.')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <main className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold text-center mb-6">📄 Analyse de CV avec AI pour la position : {positionName || '-'}</h1>
+    <div className="max-w-2xl mx-auto mt-10 p-6 border rounded shadow bg-white">
+      <h1 className="text-2xl font-bold text-center mb-6">
+        📄 Analyse de CV AI pour le poste : <span className="text-blue-600">{positionName}</span>
+      </h1>
 
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-white shadow-sm">
-        <input
-          type="file"
-          accept=".pdf"
-          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          className="hidden"
-          id="cv-upload"
-        />
-        <label htmlFor="cv-upload" className="block cursor-pointer text-blue-600 hover:underline">
-          {file ? <span>✅ {file.name}</span> : <span>📎 Cliquez ici pour sélectionner un fichier PDF</span>}
-        </label>
-      </div>
+      <form onSubmit={handleUpload} className="space-y-4">
+        <div>
+          <label className="block font-medium">First Name</label>
+          <input
+            type="text"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            className="w-full border px-3 py-2 rounded"
+            required
+          />
+        </div>
 
-      <button
-        onClick={handleUpload}
-        disabled={!file || loading}
-        className={`mt-4 w-full py-2 px-4 rounded-lg font-semibold text-white ${
-          loading || !file ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-        }`}
-      >
-        {loading ? 'Analyse en cours...' : 'Analyser le CV'}
-      </button>
+        <div>
+          <label className="block font-medium">Last Name</label>
+          <input
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            className="w-full border px-3 py-2 rounded"
+            required
+          />
+        </div>
 
-      {error && <div className="mt-4 text-red-600 font-medium text-center">{error}</div>}
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-white shadow-sm">
+          <input
+            type="file"
+            accept=".pdf"
+            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            className="hidden"
+            id="cv-upload"
+          />
+          <label
+            htmlFor="cv-upload"
+            className="block cursor-pointer text-blue-600 hover:underline"
+          >
+            {file ? (
+              <span>✅ {file.name}</span>
+            ) : (
+              <span>📎 Cliquez ici pour sélectionner un fichier PDF</span>
+            )}
+          </label>
+        </div>
 
-      {result && (
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg shadow-sm">
-          <h2 className="text-lg font-semibold mb-2">🧠 Résultat de l’analyse :</h2>
-          <pre className="whitespace-pre-wrap text-sm">{result.analysis}</pre>
-          <h2 className="text-lg font-semibold mb-2">Votre score:</h2>
-          <pre className="whitespace-pre-wrap text-sm">{result.score}</pre>
+        <button
+          type="submit"
+          disabled={!file || loading}
+          className={`mt-4 w-full py-2 px-4 rounded-lg font-semibold text-white ${
+            loading || !file
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-blue-600 hover:bg-blue-700'
+          }`}
+        >
+          {loading ? 'Analyse en cours...' : 'Analyser le CV'}
+        </button>
+      </form>
 
-          {result.score < 5 ? (
-            <p className="mt-4 text-red-600 font-bold">
-              Thanks for your application. Unfortunately, we can’t proceed with your application as your CV doesn’t match the job description but we invite you to consult our website for other available positions.
-            </p>
-          ) : (
-            <p className="mt-4 text-green-600 font-bold">
-              Thanks for your application! Your CV is matching! One of our HR specialists will contact you shortly!
-            </p>
-          )}
+      {error && (
+        <div className="mt-4 text-red-600 font-semibold">
+          ❌ {error}
         </div>
       )}
-    </main>
+
+      {score !== null && analysis && (
+  <div className="mt-6 p-4 bg-gray-50 rounded-lg shadow-sm">
+    <h2 className="text-lg font-semibold mb-2">🧠 Résultat de l’analyse :</h2>
+    <pre className="whitespace-pre-wrap text-sm">{analysis}</pre>
+
+    <h2 className="text-lg font-semibold mt-4 mb-2">📊 Votre score :</h2>
+    <p className="text-sm font-semibold">{score}/10</p>
+
+    {score < 5 ? (
+      <p className="mt-4 text-red-600 font-bold">
+        Merci pour votre candidature. Malheureusement, votre CV ne correspond pas suffisamment au poste visé. Nous vous invitons à consulter nos autres offres sur notre site.
+      </p>
+    ) : (
+      <p className="mt-4 text-green-600 font-bold">
+        Merci pour votre candidature ! Votre CV correspond bien au poste. Un membre de notre équipe RH vous contactera prochainement.
+      </p>
+    )}
+  </div>
+    )}
+    </div>
+
   )
+  
 }

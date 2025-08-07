@@ -24,22 +24,28 @@ Voici la description du poste ciblé:
 '
 ${jobDescription}
 
+Analyse objectivement la correspondance entre le CV et le poste. Sois rigoureux et n'accorde une bonne note que si le profil correspond clairement.
+
 Fais une analyse complète :
 1. Résumé du profil
 2. Compétences clés
 3. Points à améliorer
-4. Suggestions de postes adaptés
+4. Suggestions de postes alternatifs si ce poste ne convient pas
 5. Ton avis global
 
-Donne aussi un score sur 10 de la correspondance du CV avec ce poste, avec 10 = parfaitement adapté.
-Répond en JSON au format suivant :
+Donne un score de correspondance sur 10 :
+- 9–10 : correspondance parfaite
+- 7-8 profil qui pourrait correspondre avec un accompagnement fort
+- 5-6 : bon candidat avec quelques écarts acceptables
+- <5 : profil non adapté
+
+Répond uniquement avec un JSON strictement valide, au format :
 {
   "score": number,
   "analysis": string
-  }
+}
 
-IMPORTANT : Réponds uniquement avec un objet JSON valide, sans aucun commentaire, explication ou texte en dehors de cet objet.
-
+IMPORTANT : Ne réponds avec rien d'autre que ce JSON.
 `
   //Local ML Lab
   /*  const res = await fetch('http://localhost:1234/v1/chat/completions', {
