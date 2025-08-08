@@ -5,9 +5,12 @@ import { useState } from 'react'
 export default function CVAnalyseClient({
   positionName,
   jobDescription,
+  positionId,
 }: {
   positionName: string
   jobDescription: string
+  positionId : String
+
 }) {
   const [file, setFile] = useState<File | null>(null)
   const [firstName, setFirstName] = useState('')
@@ -26,6 +29,7 @@ export default function CVAnalyseClient({
     formData.append('jobDescription', jobDescription)
     formData.append('firstName', firstName)
     formData.append('lastName', lastName)
+    formData.append('positionId', positionId.toString())
 
     setLoading(true)
     setError('')
@@ -135,11 +139,11 @@ export default function CVAnalyseClient({
 
     {score < 5 ? (
       <p className="mt-4 text-red-600 font-bold">
-        Merci pour votre candidature. Malheureusement, votre CV ne correspond pas suffisamment au poste visé. Nous vous invitons à consulter nos autres offres sur notre site.
+        Thank you for your application. Unfortunately, your resume does not sufficiently match the position in question. We invite you to explore our other openings on our website.
       </p>
     ) : (
       <p className="mt-4 text-green-600 font-bold">
-        Merci pour votre candidature ! Votre CV correspond bien au poste. Un membre de notre équipe RH vous contactera prochainement.
+        Thank you for your application   ! Your resume is a good match for the position. A member of our HR team will contact you shortly.
       </p>
     )}
   </div>

@@ -6,3 +6,5 @@ import { cookies } from 'next/headers'
 export function createClient(cookieStore = cookies()) {
   return createServerComponentClient({ cookies: () => cookieStore })
 }
+
+
