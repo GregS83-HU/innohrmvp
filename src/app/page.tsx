@@ -19,7 +19,7 @@ export default async function HomePage() {
 
   return (
     <main style={{ maxWidth: '700px', margin: 'auto', padding: '2rem' }}>
-      <h1>📄 Offres d’emploi ouvertes</h1>
+      <h1 className="text-2xl font-bold text-center mb-6">📄 Offres d’emploi ouvertes</h1>
       {positions.length === 0 && <p>Aucune offre disponible.</p>}
       <ul style={{ listStyle: 'none', padding: 0 }}>
         {positions.map((position) => (

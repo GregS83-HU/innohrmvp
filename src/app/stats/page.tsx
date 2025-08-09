@@ -6,7 +6,8 @@ type Candidat = {
   id: number
   candidat_firstname: string
   candidat_lastname: string
-  CV: string
+  cv_text: string
+  cv_file: string
 }
 
 type PositionToCandidatRow = {
@@ -54,10 +55,11 @@ export default async function StatsPage({
     candidats:candidat_id (
       candidat_firstname,
       candidat_lastname,
-      CV
+      cv_text,
+      cv_file
     )
   `)
-  .eq('position_id', Number(positionId))   
+  .eq('position_id', Number(positionId))
 //console.log({ data, error });
 //console.dir(data, { depth: null }) // ou
 console.log('This is the JSON answer',JSON.stringify(data, null, 2))
@@ -94,9 +96,9 @@ console.log('This is the JSON answer',JSON.stringify(data, null, 2))
               <td>{(row.candidats as any)?.candidat_lastname ?? '—'}</td>
               <td>{row.candidat_score ?? '—'}</td>
               <td>
-                {(row.candidats as any)?.CV ? (
+                {(row.candidats as any)?.cv_file ? (
                   <a
-                    href={(row.candidats as any)?.CV}
+                    href={(row.candidats as any)?.cv_file}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ color: '#0070f3' }}

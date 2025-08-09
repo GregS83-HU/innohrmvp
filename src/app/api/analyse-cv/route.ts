@@ -22,10 +22,46 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Fichier PDF requis.' }, { status: 400 })
     }
 
+    // reading of the PDF for parsing to AI model
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
     const cvText = await parsePdfBuffer(buffer)
 
+    //On prépare le fichier pour son enregistrement en base de données
+// 1. Nom unique pour éviter les collisions et nettoyage avant insertion dans Supabase
+function sanitizeFileName(filename: string) {
+  return filename
+    .normalize('NFD') // enlève accents
+    .replace(/[\u0300-\u036f]/g, '') // supprime diacritiques
+    .replace(/\s+/g, '_') // remplace espaces par underscores
+    .replace(/[^a-zA-Z0-9._-]/g, '') // enlève caractères interdits
+}
+
+const safeFileName = sanitizeFileName(file.name)
+const filePath = `cvs/${Date.now()}_${safeFileName}`
+
+
+// 2. Upload du fichier dans Supabase Storage
+const { error: uploadError } = await supabase.storage
+  .from('cvs')
+  .upload(filePath, buffer, {
+    contentType: 'application/pdf'
+  })
+
+if (uploadError) {
+  console.error('Erreur upload fichier:', uploadError)
+  return NextResponse.json({ error: 'Échec de l’upload du CV' }, { status: 500 })
+}
+
+// 3. Récupérer l’URL publique
+const { data: publicUrlData } = supabase.storage
+  .from('cvs')
+  .getPublicUrl(filePath)
+
+const cvFileUrl = publicUrlData.publicUrl
+// end of PDF file preparation for upload
+
+// AI model prompt
     const prompt = `
 Tu es un expert RH. Voici un CV :
 
@@ -57,6 +93,8 @@ Répond uniquement avec un JSON strictement valide, au format :
 }
 IMPORTANT : Ne réponds avec rien d'autre que ce JSON.
 `
+//End of AI Model Prompt
+
 
     const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -96,7 +134,8 @@ IMPORTANT : Ne réponds avec rien d'autre que ce JSON.
       .insert({
         candidat_firstname: firstname,
         candidat_lastname: lastname,
-        CV: cvText
+        cv_text: cvText,
+        cv_file: cvFileUrl
       })
       .select()
       .single()
