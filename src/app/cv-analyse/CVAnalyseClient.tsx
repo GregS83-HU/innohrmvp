@@ -9,7 +9,7 @@ export default function CVAnalyseClient({
 }: {
   positionName: string
   jobDescription: string
-  positionId : String
+  positionId : string
 
 }) {
   const [file, setFile] = useState<File | null>(null)
