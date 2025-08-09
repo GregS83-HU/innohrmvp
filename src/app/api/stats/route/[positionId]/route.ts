@@ -7,11 +7,22 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY! // On utilise la service key pour lecture complète
 )
 
+/*
 export async function GET(
   request: Request,
   { params }: { params: { positionId: string } }
 ) {
-  const { positionId } = params
+  const { positionId } = params */
+
+  export async function GET(request: Request) {
+  const url = new URL(request.url)
+  const segments = url.pathname.split('/')
+  const positionId = segments[segments.length - 1]
+
+  if (!positionId) {
+    return NextResponse.json({ error: 'Position ID manquant' }, { status: 400 })
+  }
+
 
   const { data, error } = await supabase
     .from('position_to_candidate')
