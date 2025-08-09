@@ -98,12 +98,27 @@ console.log('This is the JSON answer',JSON.stringify(data, null, 2))
   {data.map((row, index) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const candidat = row.candidats as any;  // désactive ESLint pour ce cast
+    const isLowScore = row.candidat_score !== null && row.candidat_score <=5;
+
+    const badgeStyle = {
+      display: 'inline-block',
+      padding: '4px 8px',
+      borderRadius: '12px',
+      backgroundColor: isLowScore ? '#f8d7da' : '#d4edda', // rouge clair ou vert clair
+      color: isLowScore ? 'red' : 'green',
+      fontWeight: 'bold' as const,
+    };
 
     return (
       <tr key={index}>
         <td>{candidat?.candidat_firstname ?? '—'}</td>
         <td>{candidat?.candidat_lastname ?? '—'}</td>
-        <td>{row.candidat_score ?? '—'}</td>
+        <td>
+          <span style={badgeStyle}>
+            {row.candidat_score ?? '—'}
+          </span>
+        </td>
+
         <td>
           {candidat?.cv_file ? (
             <a

@@ -17,6 +17,10 @@ export default async function HomePage() {
     return <p>Erreur lors du chargement des offres.</p>
   }
 
+
+
+
+
   return (
     <main style={{ maxWidth: '700px', margin: 'auto', padding: '2rem' }}>
       <h1 className="text-2xl font-bold text-center mb-6">📄 Offres d’emploi ouvertes</h1>
@@ -64,7 +68,6 @@ export default async function HomePage() {
             >
               📊 Stats
             </Link>
-
           </li>
         ))}
       </ul>
