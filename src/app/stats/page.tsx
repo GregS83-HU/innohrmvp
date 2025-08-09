@@ -19,12 +19,15 @@ type PositionToCandidatRow = {
 export default async function StatsPage({
   searchParams,
 }: {
-  searchParams: { positionId?: string }
+  searchParams: Promise<{ positionId?: string }>
 }) {
+  // On await la promesse ici
+  const params = await searchParams
+  const positionId = params.positionId
 
  // const params = await searchParams
  // const positionId = params.positionId
- const positionId = searchParams.positionId
+ //const positionId = searchParams.positionId
 
   if (!positionId) {
     return <p>Identifiant de la position manquant.</p>
