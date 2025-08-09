@@ -20,7 +20,8 @@ export async function GET(
       candidats (
         firstname,
         lastname,
-        cv
+        cv_text,
+        cv_file
       )
     `)
     .eq('position_id', positionId)
