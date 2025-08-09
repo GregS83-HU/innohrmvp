@@ -22,8 +22,9 @@ export default async function StatsPage({
   searchParams: { positionId?: string }
 }) {
 
-  const params = await searchParams
-  const positionId = params.positionId
+ // const params = await searchParams
+ // const positionId = params.positionId
+ const positionId = searchParams.positionId
 
   if (!positionId) {
     return <p>Identifiant de la position manquant.</p>
