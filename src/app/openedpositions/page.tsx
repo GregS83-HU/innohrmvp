@@ -1,11 +1,15 @@
-
 import Link from 'next/link'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-import { createClient } from '../../../lib/supabaseClient'
 
 export default async function HomePage() {
-  const cookieStore = cookies()
-  const supabase = createClient(cookieStore)
+  const supabase = createServerComponentClient({ cookies })
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
+console.log('session', session)
 
   const { data: positions, error } = await supabase
     .from('OpenedPositions')
@@ -17,9 +21,7 @@ export default async function HomePage() {
     return <p>Erreur lors du chargement des offres.</p>
   }
 
-
-
-
+  const isLoggedIn = !!session?.user
 
   return (
     <main style={{ maxWidth: '700px', margin: 'auto', padding: '2rem' }}>
@@ -53,21 +55,23 @@ export default async function HomePage() {
               📝 Postuler
             </Link>
 
-            <Link
-              href={`/stats?positionId=${position.id}`}
-              style={{
-                display: 'inline-block',
-                marginTop: '1rem',
-                marginLeft: '0.5rem',
-                backgroundColor: '#28a745',
-                color: 'white',
-                padding: '0.5rem 1rem',
-                borderRadius: '4px',
-                textDecoration: 'none',
-              }}
-            >
-              📊 Stats
-            </Link>
+            {isLoggedIn && (
+              <Link
+                href={`/stats?positionId=${position.id}`}
+                style={{
+                  display: 'inline-block',
+                  marginTop: '1rem',
+                  marginLeft: '0.5rem',
+                  backgroundColor: '#28a745',
+                  color: 'white',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '4px',
+                  textDecoration: 'none',
+                }}
+              >
+                📊 Stats
+              </Link>
+            )}
           </li>
         ))}
       </ul>
