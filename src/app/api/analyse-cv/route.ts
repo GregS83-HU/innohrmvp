@@ -86,6 +86,8 @@ Donne un score de correspondance sur 10 :
 - 5–6 : bon candidat avec quelques écarts acceptables
 - <5 : profil non adapté
 
+J'aimerais que tu sois assez strict avec ton analyse pour éviter les faux positifs.
+
 Répond uniquement avec un JSON strictement valide, au format :
 {
   "score": number,
