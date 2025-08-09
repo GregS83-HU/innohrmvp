@@ -22,31 +22,31 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr">
       <body>
-        <header style={{ padding: '1rem', borderBottom: '1px solid #ccc' }}>
-          <nav style={{ display: 'flex', gap: '1rem' }}>
-            <Link href="/">Accueil</Link>
-            <Link href="/OpendedPositions">Positions disponibles</Link>
-            {/* Ajoute d’autres liens si besoin */}
+        <header
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            padding: '1rem 2rem',
+            borderBottom: '1px solid #ccc',
+          }}
+        >
+          {/* Logo / nom de l'app */}
+          <div style={{ fontWeight: 'bold', fontSize: '1.5rem' }}>
+            <Link href="/">
+                <img src="/InnoHRLogo.jpeg" alt="InnoHR" style={{ height: 50 }} />
+            </Link>
+          </div>
+
+          {/* Menu à droite */}
+          <nav style={{ marginLeft: 'auto', display: 'flex', gap: '1.5rem' }}>
+            <Link href="/">Home</Link>
+            <Link href="/openedpositions">Available Positions</Link>
+            {/* Ajoute d'autres liens ici */}
           </nav>
         </header>
-        <main style={{ padding: '1rem' }}>{children}</main>
+
+        <main style={{ padding: '2rem' }}>{children}</main>
       </body>
     </html>
   )
 }
-
-/*export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
-    </html>
-  );*/
-
