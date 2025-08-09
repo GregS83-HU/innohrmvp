@@ -4,9 +4,9 @@ import { cookies } from 'next/headers'
 
 type Candidat = {
   id: number
-  candidat_firstname: string | null
-  candidat_lastname: string | null
-  CV: string | null
+  candidat_firstname: string
+  candidat_lastname: string
+  CV: string
 }
 
 type PositionToCandidatRow = {
@@ -27,20 +27,44 @@ export default async function StatsPage({
     return <p>Identifiant de la position manquant.</p>
   }
 
-  const supabase = createClient(cookies())
+  console.log('positionid=', positionId)
 
-  const { data, error } = await supabase
+ const supabase = createClient(cookies())
+
+
+
+  /*const { data, error } = await supabase
     .from('position_to_candidat')
     .select(`
       candidat_score,
       candidats (
-        id,
         candidat_firstname,
         candidat_lastname,
         CV
       )
     `)
-    .eq('position_id', Number(positionId))
+    .eq('position_id', Number(positionId))*/
+
+
+ const { data, error } = await supabase
+  .from('position_to_candidat')
+  .select(`
+    candidat_score,
+    candidat_id,
+    candidats:candidat_id (
+      candidat_firstname,
+      candidat_lastname,
+      CV
+    )
+  `)
+  .eq('position_id', Number(positionId))   
+//console.log({ data, error });
+//console.dir(data, { depth: null }) // ou
+console.log('This is the JSON answer',JSON.stringify(data, null, 2))
+
+//const rows = data as Row[];
+
+
 
   if (error) {
     console.error(error)
@@ -53,7 +77,7 @@ export default async function StatsPage({
 
   return (
     <main style={{ maxWidth: '700px', margin: 'auto', padding: '2rem' }}>
-      <h1>📊 Statistiques des candidats</h1>
+      <h1 className="text-2xl font-bold text-center mb-6">📊 Statistiques des candidats</h1>
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr>
@@ -66,13 +90,13 @@ export default async function StatsPage({
         <tbody>
           {data.map((row, index) => (
             <tr key={index}>
-              <td>{row.candidats?.[0]?.candidat_firstname ?? '—'}</td>
-              <td>{row.candidats?.[0]?.candidat_lastname ?? '—'}</td>
+              <td>{(row.candidats as any)?.candidat_firstname ?? '—'}</td>
+              <td>{(row.candidats as any)?.candidat_lastname ?? '—'}</td>
               <td>{row.candidat_score ?? '—'}</td>
               <td>
-                {row.candidats?.[0]?.CV ? (
+                {(row.candidats as any)?.CV ? (
                   <a
-                    href={row.candidats[0].CV}
+                    href={(row.candidats as any)?.CV}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ color: '#0070f3' }}

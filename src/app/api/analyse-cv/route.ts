@@ -14,8 +14,8 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData()
     const file = formData.get('file') as File
     const jobDescription = formData.get('jobDescription') as string
-    const firstname = formData.get('firstname') as string
-    const lastname = formData.get('lastname') as string
+    const firstname = formData.get('firstName') as string
+    const lastname = formData.get('lastName') as string
     const positionId = formData.get('positionId') as string
 
     if (!file || file.type !== 'application/pdf') {
