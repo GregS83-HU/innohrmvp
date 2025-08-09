@@ -91,28 +91,33 @@ console.log('This is the JSON answer',JSON.stringify(data, null, 2))
           </tr>
         </thead>
         <tbody>
-          {data.map((row, index) => (
-            <tr key={index}>
-              <td>{(row.candidats as any)?.candidat_firstname ?? '—'}</td>
-              <td>{(row.candidats as any)?.candidat_lastname ?? '—'}</td>
-              <td>{row.candidat_score ?? '—'}</td>
-              <td>
-                {(row.candidats as any)?.cv_file ? (
-                  <a
-                    href={(row.candidats as any)?.cv_file}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: '#0070f3' }}
-                  >
-                    Voir le CV
-                  </a>
-                ) : (
-                  '—'
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
+  {data.map((row, index) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const candidat = row.candidats as any;  // désactive ESLint pour ce cast
+
+    return (
+      <tr key={index}>
+        <td>{candidat?.candidat_firstname ?? '—'}</td>
+        <td>{candidat?.candidat_lastname ?? '—'}</td>
+        <td>{row.candidat_score ?? '—'}</td>
+        <td>
+          {candidat?.cv_file ? (
+            <a
+              href={candidat.cv_file}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: '#0070f3' }}
+            >
+              Voir le CV
+            </a>
+          ) : (
+            '—'
+          )}
+        </td>
+      </tr>
+    )
+  })}
+</tbody>
       </table>
     </main>
   )
