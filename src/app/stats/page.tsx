@@ -60,7 +60,7 @@ export default async function StatsPage({
       cv_file
     )
   `)
-  .eq('position_id', Number(positionId)) as {data : PositionToCandidatRow[] | null, error: any}
+  .eq('position_id', Number(positionId)) as {data : PositionToCandidatRow[] | null, error: unknown}
 //console.log({ data, error });
 //console.dir(data, { depth: null }) // ou
 console.log('This is the JSON answer',JSON.stringify(data, null, 2))
