@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
+import { useRouter } from 'next/navigation';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,6 +16,7 @@ export default function Header() {
   const [password, setPassword] = useState('');
   const [user, setUser] = useState<{ firstname: string; lastname: string } | null>(null);
   const [error, setError] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -68,6 +70,7 @@ export default function Header() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
+    router.push('/')
   };
 
   return (
@@ -192,7 +195,7 @@ export default function Header() {
               cursor: 'pointer',
             }}
           >
-            Se connecter
+            Connect
           </button>
           <button
             onClick={() => setIsLoginOpen(false)}
@@ -203,7 +206,7 @@ export default function Header() {
               marginTop: 'auto',
             }}
           >
-            Fermer
+            Close
           </button>
         </div>
       )}
