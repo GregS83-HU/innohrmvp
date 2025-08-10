@@ -1,20 +1,16 @@
 import Link from 'next/link'
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createServerClient } from '../../../lib/supabaseServerClient' // import serveur
 
 export default async function HomePage() {
-  const supabase = createServerComponentClient({ cookies })
+  const supabase = createServerClient() // crée le client côté serveur avec cookies
 
   const {
     data: { session },
   } = await supabase.auth.getSession()
 
-console.log('session', session)
-
   const { data: positions, error } = await supabase
     .from('OpenedPositions')
     .select('*')
-    //.gt('position_end_date', new Date().toISOString())
 
   if (error) {
     console.error(error)
@@ -41,7 +37,11 @@ console.log('session', session)
             <h2>{position.position_name}</h2>
             <p>{position.position_description}</p>
             <Link
-              href={`/cv-analyse?position=${encodeURIComponent(position.position_name)}&description=${encodeURIComponent(position.position_description)}&id=${position.id}`}
+              href={`/cv-analyse?position=${encodeURIComponent(
+                position.position_name
+              )}&description=${encodeURIComponent(
+                position.position_description
+              )}&id=${position.id}`}
               style={{
                 display: 'inline-block',
                 marginTop: '1rem',
@@ -55,7 +55,7 @@ console.log('session', session)
               📝 Postuler
             </Link>
 
-            {isLoggedIn && (
+            
               <Link
                 href={`/stats?positionId=${position.id}`}
                 style={{
@@ -71,7 +71,7 @@ console.log('session', session)
               >
                 📊 Stats
               </Link>
-            )}
+          
           </li>
         ))}
       </ul>

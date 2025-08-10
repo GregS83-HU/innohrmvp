@@ -100,6 +100,7 @@ export default function Header() {
         >
           <Link href="/">Home</Link>
           <Link href="/openedpositions">Available Positions</Link>
+          <Link href="/openedpositions/new">Create a position</Link>
         </nav>
 
         {/* Login/Welcome - à droite */}

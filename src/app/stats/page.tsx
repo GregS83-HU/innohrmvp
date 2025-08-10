@@ -1,9 +1,8 @@
 import Link from 'next/link'
-import { cookies } from 'next/headers'
-import { createClient } from '../../../lib/supabaseClient'
+import { createServerClient } from '../../../lib/supabaseServerClient'
 
 export default async function OpenedPositionsPage() {
-  const supabase = createClient() // utilise la valeur par défaut de cookies()
+  const supabase = createServerClient() // crée un client Supabase côté serveur avec les cookies Next.js
 
   // Récupérer la session utilisateur
   const {
