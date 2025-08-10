@@ -4,6 +4,8 @@ import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
+
+
 export default function NewOpenedPositionPage() {
   const router = useRouter()
   const session = useSession()
@@ -127,4 +129,4 @@ export default function NewOpenedPositionPage() {
       )}
     </div>
   )
-}
+} 
