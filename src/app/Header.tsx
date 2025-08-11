@@ -101,9 +101,10 @@ export default function Header() {
             gap: '1.5rem',
           }}
         >
-          <Link href="/">Home</Link>
           <Link href="/openedpositions">Available Positions</Link>
-          <Link href="/openedpositions/new">Create a position</Link>
+          {user && (
+            <Link href="/openedpositions/new">Create a position</Link>
+            )}
         </nav>
 
         {/* Login/Welcome - à droite */}

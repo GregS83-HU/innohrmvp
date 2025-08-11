@@ -5,7 +5,17 @@ import PositionsList from './PositionList'
 export default async function HomePage() {
   const supabase = createServerClient()
 
-  const { data: positions, error } = await supabase.from('OpenedPositions').select('*')
+  // Jointure pour récupérer aussi le logo
+ const { data: positions, error } = await supabase
+  .from('OpenedPositions')
+  .select(`
+    *,
+    company:company_id (
+      company_logo
+    )
+  `)
+
+
 
   if (error) {
     console.error(error)
