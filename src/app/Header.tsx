@@ -119,7 +119,7 @@ export default function Header() {
             )}
             {user ? (
               <>
-                <span className="font-semibold">
+                <span className="font-semibold hidden md:inline">
                   Welcome {user.firstname} {user.lastname}
                 </span>
                 <button
