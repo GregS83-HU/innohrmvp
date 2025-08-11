@@ -1,80 +1,143 @@
-import Link from 'next/link'
 import { createServerClient } from '../../../lib/supabaseServerClient'
+import { cookies } from 'next/headers'
 
-export default async function OpenedPositionsPage() {
-  const supabase = createServerClient() // crée un client Supabase côté serveur avec les cookies Next.js
 
-  // Récupérer la session utilisateur
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+type Candidat = {
+  id: number
+  candidat_firstname: string
+  candidat_lastname: string
+  cv_text: string
+  cv_file: string
+}
 
-  const { data: positions, error } = await supabase
-    .from('OpenedPositions')
-    .select('*')
-    //.gt('position_end_date', new Date().toISOString()) // tu peux décommenter si besoin
+type PositionToCandidatRow = {
+  candidat_score: number | null
+  candidats: Candidat[] | null
+}
+
+
+export default async function StatsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ positionId?: string }>
+}) {
+  // On await la promesse ici
+  const params = await searchParams
+  const positionId = params.positionId
+
+ // const params = await searchParams
+ // const positionId = params.positionId
+ //const positionId = searchParams.positionId
+
+  if (!positionId) {
+    return <p>Identifiant de la position manquant.</p>
+  }
+
+  console.log('positionid=', positionId)
+
+ const supabase = createServerClient()
+
+
+
+  /*const { data, error } = await supabase
+    .from('position_to_candidat')
+    .select(`
+      candidat_score,
+      candidats (
+        candidat_firstname,
+        candidat_lastname,
+        CV
+      )
+    `)
+    .eq('position_id', Number(positionId))*/
+
+
+ const { data, error } = await supabase
+  .from('position_to_candidat')
+  .select(`
+    candidat_score,
+    candidat_id,
+    candidats:candidat_id (
+      candidat_firstname,
+      candidat_lastname,
+      cv_text,
+      cv_file
+    )
+  `)
+  .eq('position_id', Number(positionId)) as {data : PositionToCandidatRow[] | null, error: unknown}
+//console.log({ data, error });
+//console.dir(data, { depth: null }) // ou
+console.log('This is the JSON answer',JSON.stringify(data, null, 2))
+
+//const rows = data as Row[];
+
+
 
   if (error) {
     console.error(error)
-    return <p>Erreur lors du chargement des offres.</p>
+    return <p>Erreur lors du chargement des statistiques.</p>
+  }
+
+  if (!data || data.length === 0) {
+    return <p>Aucun candidat pour ce poste.</p>
   }
 
   return (
     <main style={{ maxWidth: '700px', margin: 'auto', padding: '2rem' }}>
-      <h1 className="text-2xl font-bold text-center mb-6">📄 Offres d’emploi ouvertes</h1>
-      {positions.length === 0 && <p>Aucune offre disponible.</p>}
-      <ul style={{ listStyle: 'none', padding: 0 }}>
-        {positions.map((position) => (
-          <li
-            key={position.id}
-            style={{
-              border: '1px solid #ccc',
-              borderRadius: '6px',
-              padding: '1rem',
-              marginBottom: '1rem',
-            }}
-          >
-            <h2>{position.position_name}</h2>
-            <p>{position.position_description}</p>
-            <Link
-              href={`/cv-analyse?position=${encodeURIComponent(
-                position.position_name
-              )}&description=${encodeURIComponent(
-                position.position_description
-              )}&id=${position.id}`}
-              style={{
-                display: 'inline-block',
-                marginTop: '1rem',
-                backgroundColor: '#0070f3',
-                color: 'white',
-                padding: '0.5rem 1rem',
-                borderRadius: '4px',
-                textDecoration: 'none',
-              }}
-            >
-              📝 Postuler
-            </Link>
+      <h1 className="text-2xl font-bold text-center mb-6">📊 Statistiques des candidats</h1>
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr>
+            <th style={{ borderBottom: '1px solid #ccc', textAlign: 'left' }}>Prénom</th>
+            <th style={{ borderBottom: '1px solid #ccc', textAlign: 'left' }}>Nom</th>
+            <th style={{ borderBottom: '1px solid #ccc', textAlign: 'left' }}>Score</th>
+            <th style={{ borderBottom: '1px solid #ccc', textAlign: 'left' }}>CV</th>
+          </tr>
+        </thead>
+        <tbody>
+  {data.map((row, index) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const candidat = row.candidats as any;  // désactive ESLint pour ce cast
+    const isLowScore = row.candidat_score !== null && row.candidat_score <=5;
 
-            {session && (
-              <Link
-                href={`/stats?positionId=${position.id}`}
-                style={{
-                  display: 'inline-block',
-                  marginTop: '1rem',
-                  marginLeft: '0.5rem',
-                  backgroundColor: '#28a745',
-                  color: 'white',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '4px',
-                  textDecoration: 'none',
-                }}
-              >
-                📊 Stats
-              </Link>
-            )}
-          </li>
-        ))}
-      </ul>
+    const badgeStyle = {
+      display: 'inline-block',
+      padding: '4px 8px',
+      borderRadius: '12px',
+      backgroundColor: isLowScore ? '#f8d7da' : '#d4edda', // rouge clair ou vert clair
+      color: isLowScore ? 'red' : 'green',
+      fontWeight: 'bold' as const,
+    };
+
+    return (
+      <tr key={index}>
+        <td>{candidat?.candidat_firstname ?? '—'}</td>
+        <td>{candidat?.candidat_lastname ?? '—'}</td>
+        <td>
+          <span style={badgeStyle}>
+            {row.candidat_score ?? '—'}
+          </span>
+        </td>
+
+        <td>
+          {candidat?.cv_file ? (
+            <a
+              href={candidat.cv_file}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: '#0070f3' }}
+            >
+              Voir le CV
+            </a>
+          ) : (
+            '—'
+          )}
+        </td>
+      </tr>
+    )
+  })}
+</tbody>
+      </table>
     </main>
   )
 }
