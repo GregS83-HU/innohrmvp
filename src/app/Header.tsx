@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
+import { FiMenu, FiX } from 'react-icons/fi'; // icônes menu burger
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,7 +13,8 @@ const supabase = createClient(
 
 export default function Header() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [login, setLogin] = useState(''); // ici on considère que login = email
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [user, setUser] = useState<{ firstname: string; lastname: string } | null>(null);
   const [error, setError] = useState('');
@@ -20,34 +22,25 @@ export default function Header() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) {
-        fetchUserProfile(data.session.user.id);
-      }
+      if (data.session) fetchUserProfile(data.session.user.id);
     });
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        fetchUserProfile(session.user.id);
-      } else {
-        setUser(null);
-      }
+      if (session?.user) fetchUserProfile(session.user.id);
+      else setUser(null);
     });
 
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
+    return () => authListener.subscription.unsubscribe();
   }, []);
 
   const fetchUserProfile = async (userId: string) => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('users')
       .select('user_firstname, user_lastname')
       .eq('id', userId)
       .single();
 
-    if (!error && data) {
-      setUser({ firstname: data.user_firstname, lastname: data.user_lastname });
-    }
+    if (data) setUser({ firstname: data.user_firstname, lastname: data.user_lastname });
   };
 
   const handleLogin = async () => {
@@ -70,158 +63,120 @@ export default function Header() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    router.push('/')
+    router.push('/');
   };
 
   return (
     <>
-      <header
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          padding: '1rem 2rem',
-          borderBottom: '1px solid #ccc',
-          position: 'relative',
-          justifyContent: 'space-between',
-        }}
-      >
-        {/* Logo - à gauche */}
-        <div style={{ flex: '0 0 auto' }}>
-          <Link href="/">
-            <img src="/InnoHRLogo.jpeg" alt="InnoHR" style={{ height: 50 }} />
-          </Link>
-        </div>
+      <header className="flex items-center justify-between px-4 py-3 border-b relative bg-white">
+        {/* Logo */}
+        <Link href="/">
+          <img src="/InnoHRLogo.jpeg" alt="InnoHR" className="h-10 sm:h-12" />
+        </Link>
 
-        {/* Menu - au centre */}
-        <nav
-          style={{
-            flex: '1 1 auto',
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '1.5rem',
-          }}
-        >
+        {/* Menu Desktop */}
+        <nav className="hidden md:flex gap-6">
           <Link href="/openedpositions">Available Positions</Link>
-          {user && (
-            <Link href="/openedpositions/new">Create a position</Link>
-            )}
+          {user && <Link href="/openedpositions/new">Create a position</Link>}
         </nav>
 
-        {/* Login/Welcome - à droite */}
-        <div
-          style={{
-            flex: '0 0 auto',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem',
-          }}
-        >
+        {/* Boutons à droite */}
+        <div className="hidden md:flex items-center gap-4">
           {user ? (
             <>
-              <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>
+              <span className="font-semibold">
                 Welcome {user.firstname} {user.lastname}
               </span>
-              <button
-                onClick={handleLogout}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: '#0070f3',
-                }}
-              >
+              <button onClick={handleLogout} className="text-blue-600">
                 Logout
               </button>
             </>
           ) : (
-            <button
-              onClick={() => setIsLoginOpen(true)}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                color: '#0070f3',
-                fontSize: '1rem',
-              }}
-            >
+            <button onClick={() => setIsLoginOpen(true)} className="text-blue-600">
               Login
             </button>
           )}
         </div>
+
+        {/* Bouton Burger (Mobile) */}
+        <button
+          className="md:hidden text-2xl"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          {isMobileMenuOpen ? <FiX /> : <FiMenu />}
+        </button>
+
+        {/* Menu Mobile */}
+        {isMobileMenuOpen && (
+          <div className="absolute top-full left-0 w-full bg-white border-t shadow-md flex flex-col items-center gap-4 py-4 md:hidden z-50">
+            <Link href="/openedpositions" onClick={() => setIsMobileMenuOpen(false)}>
+              Available Positions
+            </Link>
+            {user && (
+              <Link href="/openedpositions/new" onClick={() => setIsMobileMenuOpen(false)}>
+                Create a position
+              </Link>
+            )}
+            {user ? (
+              <>
+                <span className="font-semibold">
+                  Welcome {user.firstname} {user.lastname}
+                </span>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="text-blue-600"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => {
+                  setIsLoginOpen(true);
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-blue-600"
+              >
+                Login
+              </button>
+            )}
+          </div>
+        )}
       </header>
 
-      {/* Panneau de login (drawer) */}
+      {/* Drawer Login */}
       {isLoginOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            right: 0,
-            width: '300px',
-            height: '100%',
-            backgroundColor: 'white',
-            borderLeft: '1px solid #ccc',
-            padding: '1rem',
-            boxShadow: '-2px 0 5px rgba(0,0,0,0.1)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1rem',
-            animation: 'slideIn 0.3s forwards',
-            zIndex: 1000,
-          }}
-        >
-          <h2>Login</h2>
+        <div className="fixed top-0 right-0 w-72 h-full bg-white border-l p-4 shadow-lg flex flex-col gap-4 z-50">
+          <h2 className="text-xl font-bold">Login</h2>
           <input
             type="email"
             placeholder="Email"
             value={login}
             onChange={(e) => setLogin(e.target.value)}
-            style={{ padding: '0.5rem', border: '1px solid #ccc' }}
+            className="border p-2"
           />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            style={{ padding: '0.5rem', border: '1px solid #ccc' }}
+            className="border p-2"
           />
-          {error && <p style={{ color: 'red' }}>{error}</p>}
-          <button
-            onClick={handleLogin}
-            style={{
-              backgroundColor: '#0070f3',
-              color: 'white',
-              padding: '0.5rem',
-              border: 'none',
-              cursor: 'pointer',
-            }}
-          >
+          {error && <p className="text-red-500">{error}</p>}
+          <button onClick={handleLogin} className="bg-blue-600 text-white p-2">
             Connect
           </button>
           <button
             onClick={() => setIsLoginOpen(false)}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              marginTop: 'auto',
-            }}
+            className="mt-auto text-gray-600"
           >
             Close
           </button>
         </div>
       )}
-
-      <style jsx>{`
-        @keyframes slideIn {
-          from {
-            transform: translateX(100%);
-          }
-          to {
-            transform: translateX(0);
-          }
-        }
-      `}</style>
     </>
   );
 }
