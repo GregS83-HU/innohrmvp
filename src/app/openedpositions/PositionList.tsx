@@ -13,15 +13,14 @@ type Position = {
   }
 }
 
-
 export default function PositionsList({ positions }: { positions: Position[] }) {
   const session = useSession()
   const isLoggedIn = !!session?.user
-  const [loadingClose, setLoadingClose] = useState<number | null>(null) // id de la position en cours de fermeture
+  const [loadingClose, setLoadingClose] = useState<number | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
 
   async function handleClose(positionId: number) {
     if (!confirm('Do you really want to close this position?')) return
-
     setLoadingClose(positionId)
     try {
       const res = await fetch('/api/close', {
@@ -31,124 +30,142 @@ export default function PositionsList({ positions }: { positions: Position[] }) 
       })
 
       const data = await res.json()
-
       if (!res.ok) {
-
         alert('Erreur lors de la fermeture de la position: ' + (data.error || 'Erreur inconnue'))
         setLoadingClose(null)
         return
       }
-
       alert('Position fermée avec succès. Merci !')
-      // Ici tu peux aussi rafraîchir la liste ou recharger la page si besoin
       location.reload()
-    } catch(e) {
-        alert('Erreur lors de la fermeture de la position : ' + (e as Error).message)
-        setLoadingClose
+    } catch (e) {
+      alert('Erreur lors de la fermeture de la position : ' + (e as Error).message)
+      setLoadingClose(null)
     }
-  }  
+  }
 
-
+  // Filtrage selon la recherche
+  const filteredPositions = positions.filter((p) =>
+    p.position_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.position_description.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   return (
-    
-    <ul style={{ listStyle: 'none', padding: 0 }}>
-      {positions.map((position) => (
-        <li
-          key={position.id}
+    <div>
+      {/* Barre de recherche en haut à droite */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <input
+          type="text"
+          placeholder="Search positions..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
           style={{
+            padding: '0.5rem',
             border: '1px solid #ccc',
-            borderRadius: '6px',
-            padding: '1rem',
-            marginBottom: '1rem',
-            display: 'flex',
-            flexDirection: 'column',
+            borderRadius: '4px',
+            minWidth: '250px',
           }}
-        >
-          {/* Header avec titre et logo */}
-          <div
+        />
+      </div>
+
+      {/* Liste filtrée */}
+      <ul style={{ listStyle: 'none', padding: 0 }}>
+        {filteredPositions.map((position) => (
+          <li
+            key={position.id}
             style={{
+              border: '1px solid #ccc',
+              borderRadius: '6px',
+              padding: '1rem',
+              marginBottom: '1rem',
               display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '0.5rem',
+              flexDirection: 'column',
             }}
           >
-            <h2 style={{ margin: 0, fontWeight: 'bold'}}>{position.position_name}</h2>
-            {position.company.company_logo && (
-              <img
-                src={position.company.company_logo}
-                alt="Logo entreprise"
-                style={{
-                  width: '64px',
-                  height: '64px',
-                  objectFit: 'contain',
-                  borderRadius: '4px',
-                  backgroundColor: 'white'
-                }}
-              />
-            )}
-          </div>
-
-          <p>{position.position_description}</p>
-
-          <div>
-            <Link
-              href={`/cv-analyse?position=${encodeURIComponent(position.position_name)}&description=${encodeURIComponent(
-                position.position_description
-              )}&id=${position.id}`}
+            {/* Header avec titre et logo */}
+            <div
               style={{
-                display: 'inline-block',
-                marginTop: '1rem',
-                backgroundColor: '#0070f3',
-                color: 'white',
-                padding: '0.5rem 1rem',
-                borderRadius: '4px',
-                textDecoration: 'none',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '0.5rem',
               }}
             >
-              📝 Postuler
-            </Link>
-
-            {isLoggedIn && (
-              <>
-                <Link
-                  href={`/stats?positionId=${position.id}`}
+              <h2 style={{ margin: 0, fontWeight: 'bold' }}>{position.position_name}</h2>
+              {position.company.company_logo && (
+                <img
+                  src={position.company.company_logo}
+                  alt="Logo entreprise"
                   style={{
-                    display: 'inline-block',
-                    marginTop: '1rem',
-                    marginLeft: '0.5rem',
-                    backgroundColor: '#28a745',
-                    color: 'white',
-                    padding: '0.5rem 1rem',
+                    width: '64px',
+                    height: '64px',
+                    objectFit: 'contain',
                     borderRadius: '4px',
-                    textDecoration: 'none',
+                    backgroundColor: 'white',
                   }}
-                >
-                  📊 Stats
-                </Link>
+                />
+              )}
+            </div>
 
-                <button
-                  onClick={() => handleClose(position.id)}
-                  disabled={loadingClose === position.id}
-                  style={{
-                    marginLeft: '0.5rem',
-                    marginTop: '1rem',
-                    backgroundColor: '#dc3545',
-                    color: 'white',
-                    padding: '0.5rem 1rem',
-                    borderRadius: '4px',
-                    border: 'none',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {loadingClose === position.id ? 'Fermeture...' : 'Fermer'}
-                </button>
-              </>
-            )}
-          </div>
-        </li>
-      ))}
-    </ul>
+            <p>{position.position_description}</p>
+
+            <div>
+              <Link
+                href={`/cv-analyse?position=${encodeURIComponent(position.position_name)}&description=${encodeURIComponent(
+                  position.position_description
+                )}&id=${position.id}`}
+                style={{
+                  display: 'inline-block',
+                  marginTop: '1rem',
+                  backgroundColor: '#0070f3',
+                  color: 'white',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '4px',
+                  textDecoration: 'none',
+                }}
+              >
+                📝 Postuler
+              </Link>
+
+              {isLoggedIn && (
+                <>
+                  <Link
+                    href={`/stats?positionId=${position.id}`}
+                    style={{
+                      display: 'inline-block',
+                      marginTop: '1rem',
+                      marginLeft: '0.5rem',
+                      backgroundColor: '#28a745',
+                      color: 'white',
+                      padding: '0.5rem 1rem',
+                      borderRadius: '4px',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    📊 Stats
+                  </Link>
+
+                  <button
+                    onClick={() => handleClose(position.id)}
+                    disabled={loadingClose === position.id}
+                    style={{
+                      marginLeft: '0.5rem',
+                      marginTop: '1rem',
+                      backgroundColor: '#dc3545',
+                      color: 'white',
+                      padding: '0.5rem 1rem',
+                      borderRadius: '4px',
+                      border: 'none',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {loadingClose === position.id ? 'Fermeture...' : 'Fermer'}
+                  </button>
+                </>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }
