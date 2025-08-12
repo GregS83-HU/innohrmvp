@@ -64,7 +64,7 @@ export default function CVAnalyseClient({
   return (
     <div className="max-w-2xl mx-auto mt-10 p-6 border rounded shadow bg-white">
       <h1 className="text-2xl font-bold text-center mb-6">
-        📄 Analyse de CV AI pour le poste : <span className="text-blue-600">{positionName}</span>
+        📄 AI CV Analyse for the position: <span className="text-blue-600">{positionName}</span>
       </h1>
 
       <form onSubmit={handleUpload} className="space-y-4">
@@ -105,7 +105,7 @@ export default function CVAnalyseClient({
             {file ? (
               <span>✅ {file.name}</span>
             ) : (
-              <span>📎 Cliquez ici pour sélectionner un fichier PDF</span>
+              <span>📎 Click here to select your CV (in PDF format only)</span>
             )}
           </label>
         </div>
@@ -131,10 +131,10 @@ export default function CVAnalyseClient({
 
       {score !== null && analysis && (
   <div className="mt-6 p-4 bg-gray-50 rounded-lg shadow-sm">
-    <h2 className="text-lg font-semibold mb-2">🧠 Résultat de l’analyse :</h2>
+    <h2 className="text-lg font-semibold mb-2">🧠 Result of the analyse:</h2>
     <pre className="whitespace-pre-wrap text-sm">{analysis}</pre>
 
-    <h2 className="text-lg font-semibold mt-4 mb-2">📊 Votre score :</h2>
+    <h2 className="text-lg font-semibold mt-4 mb-2">📊 Your score :</h2>
     <p className="text-sm font-semibold">{score}/10</p>
 
     {score < 5 ? (
