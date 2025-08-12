@@ -4,10 +4,12 @@ import { cookies } from 'next/headers'
 
 export async function GET() {
   const supabase = createServerComponentClient({ cookies })
-  console.log("Public GET start")
+  const now = new Date().toISOString();
+
   const { data, error } = await supabase
-    .from('openedpositions')
-    .select(`*, company:company_id (company_logo)`)
+  .from('openedpositions')
+  .select(`*, company:company_id (company_logo)`)
+  .or(`position_end_date.is.null,position_end_date.gt.${now}`);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 

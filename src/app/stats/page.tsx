@@ -39,19 +39,6 @@ export default async function StatsPage({
 
 
 
-  /*const { data, error } = await supabase
-    .from('position_to_candidat')
-    .select(`
-      candidat_score,
-      candidats (
-        candidat_firstname,
-        candidat_lastname,
-        CV
-      )
-    `)
-    .eq('position_id', Number(positionId))*/
-
-
  const { data, error } = await supabase
   .from('position_to_candidat')
   .select(`
@@ -75,21 +62,21 @@ console.log('This is the JSON answer',JSON.stringify(data, null, 2))
 
   if (error) {
     console.error(error)
-    return <p>Erreur lors du chargement des statistiques.</p>
+    return <p>Error in the loading of the stats.</p>
   }
 
   if (!data || data.length === 0) {
-    return <p>Aucun candidat pour ce poste.</p>
+    return <p>No candidate for this position</p>
   }
 
   return (
     <main style={{ maxWidth: '700px', margin: 'auto', padding: '2rem' }}>
-      <h1 className="text-2xl font-bold text-center mb-6">📊 Statistiques des candidats</h1>
+      <h1 className="text-2xl font-bold text-center mb-6">📊 Candidats Statistics</h1>
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr>
-            <th style={{ borderBottom: '1px solid #ccc', textAlign: 'left' }}>Prénom</th>
-            <th style={{ borderBottom: '1px solid #ccc', textAlign: 'left' }}>Nom</th>
+            <th style={{ borderBottom: '1px solid #ccc', textAlign: 'left' }}>First name</th>
+            <th style={{ borderBottom: '1px solid #ccc', textAlign: 'left' }}>Last Name</th>
             <th style={{ borderBottom: '1px solid #ccc', textAlign: 'left' }}>Score</th>
             <th style={{ borderBottom: '1px solid #ccc', textAlign: 'left' }}>CV</th>
           </tr>
@@ -127,7 +114,7 @@ console.log('This is the JSON answer',JSON.stringify(data, null, 2))
               rel="noopener noreferrer"
               style={{ color: '#0070f3' }}
             >
-              Voir le CV
+              See the CV
             </a>
           ) : (
             '—'

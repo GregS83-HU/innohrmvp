@@ -1,15 +1,12 @@
 'use client'
 
-import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
+import { useSession } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-
-
 
 export default function NewOpenedPositionPage() {
   const router = useRouter()
   const session = useSession()
-  const supabase = useSupabaseClient()
 
   const [positionName, setPositionName] = useState('')
   const [positionDescription, setPositionDescription] = useState('')
@@ -27,39 +24,41 @@ export default function NewOpenedPositionPage() {
     return <p>Loading user info...</p>
   }
 
-  const user = session.user
+  const userId = session.user.id
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setMessage(null)
 
-    if (!user) {
-      setMessage({ text: '❌ You must be logged in to create a position', type: 'error' })
-      return
-    }
-
     setLoading(true)
 
-    const { error } = await supabase.from('openedpositions').insert([
-      {
-        position_name: positionName,
-        position_description: positionDescription,
-        position_start_date: positionStartDate,
-        user_id: user.id
-      },
-    ])
+    try {
+      const res = await fetch('/api/new-position', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: userId,
+          position_name: positionName,
+          position_description: positionDescription,
+          position_start_date: positionStartDate,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setMessage({ text: `❌ ${data.error || 'Error creating position'}`, type: 'error' })
+      } else {
+        setMessage({ text: '✅ New position successfully created', type: 'success' })
+        setPositionName('')
+        setPositionDescription('')
+        setPositionStartDate('')
+      }
+    } catch (error) {
+      setMessage({ text: `❌ Unexpected error: ${(error as Error).message}`, type: 'error' })
+    }
 
     setLoading(false)
-
-    if (error) {
-      console.error('Error inserting position:', error)
-      setMessage({ text: '❌ Error during the creation of the position', type: 'error' })
-    } else {
-      setMessage({ text: '✅ New position successfully created', type: 'success' })
-      setPositionName('')
-      setPositionDescription('')
-      setPositionStartDate('')
-    }
   }
 
   return (
@@ -129,4 +128,4 @@ export default function NewOpenedPositionPage() {
       )}
     </div>
   )
-} 
+}

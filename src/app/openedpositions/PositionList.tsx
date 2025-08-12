@@ -61,14 +61,14 @@ export default function PositionsList() {
       })
       const data = await res.json()
       if (!res.ok) {
-        alert('Erreur lors de la fermeture de la position: ' + (data.error || 'Erreur inconnue'))
+        alert('Error during the closing of the position:' + (data.error || 'Erreur inconnue'))
         setLoadingClose(null)
         return
       }
-      alert('Position fermée avec succès. Merci !')
+      alert('Position closed successfully')
       setPositions((prev) => prev.filter((p) => p.id !== positionId))
     } catch (e) {
-      alert('Erreur lors de la fermeture de la position : ' + (e as Error).message)
+      alert('Error during the closing of the position:' + (e as Error).message)
     }
     setLoadingClose(null)
   }

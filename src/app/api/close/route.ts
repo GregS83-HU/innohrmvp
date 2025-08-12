@@ -11,15 +11,20 @@ export async function POST(request: Request) {
 
     const supabase = createServerClient()
 
-    const { error } = await supabase
-      .from('OpenedPositions')
+    console.log("ID to close:",positionId)
+
+    const {data, error } = await supabase
+      .from('openedpositions')
       .update({ position_end_date: new Date().toISOString() })
       .eq('id', positionId)
+      .select();
 
     if (error) {
       console.error('Supabase update error:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    console.log("Rows Updated:", data)
 
     return NextResponse.json({ message: 'Position closed' })
   } catch (error) {

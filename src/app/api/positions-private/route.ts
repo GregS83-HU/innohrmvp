@@ -5,6 +5,8 @@ import { cookies } from 'next/headers'
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const userId = searchParams.get('userId') // Doit matcher ton param dans l'URL
+  const now = new Date().toISOString();
+
 
   if (!userId) {
     return NextResponse.json({ error: 'userId is required' }, { status: 400 })
@@ -17,7 +19,7 @@ export async function GET(request: Request) {
     .from('company_to_users')
     .select('company_id')
     .eq('user_id', userId)
-    .single() // on attend un seul enregistrement
+    .single(); // on attend un seul enregistrement
 
   if (errorCompany) {
     return NextResponse.json({ error: errorCompany.message }, { status: 500 })
@@ -32,6 +34,7 @@ export async function GET(request: Request) {
     .from('openedpositions')
     .select(`*, company:company_id (company_logo)`)
     .eq('company_id', companyLink.company_id)
+    .or(`position_end_date.is.null,position_end_date.gt.${now}`)
 
   if (errorPositions) {
     return NextResponse.json({ error: errorPositions.message }, { status: 500 })

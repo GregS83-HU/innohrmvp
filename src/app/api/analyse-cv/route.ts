@@ -86,7 +86,9 @@ Donne un score de correspondance sur 10 :
 - 5–6 : bon candidat avec quelques écarts acceptables
 - <5 : profil non adapté
 
-J'aimerais que tu sois assez strict avec ton analyse pour éviter les faux positifs.
+L'analyse doit etre stricte. Ne remonte qu'un score au dessus de 5 uniquement si le candidat a vraiment un CV qui correspond á la description de poste.
+
+La réponse doit etre en anglais
 
 Répond uniquement avec un JSON strictement valide, au format :
 {
