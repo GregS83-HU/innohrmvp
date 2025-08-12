@@ -1,9 +1,7 @@
 import { createServerClient } from '../../../lib/supabaseServerClient'
-import { cookies } from 'next/headers'
-import StatsTable from './StatsTable' // <-- on suppose que ton composant est séparé ici
+import StatsTable from './StatsTable'
 
 type Candidat = {
-  id: number
   candidat_firstname: string
   candidat_lastname: string
   cv_text: string
@@ -14,7 +12,7 @@ type PositionToCandidatRow = {
   candidat_score: number | null
   candidat_id: number
   candidat_comment: string | null
-  candidats: Candidat[] | null
+  candidats: Candidat | null
 }
 
 export default async function StatsPage({
@@ -37,7 +35,7 @@ export default async function StatsPage({
       candidat_score,
       candidat_id,
       candidat_comment,
-      candidats:candidat_id (
+      candidats (
         candidat_firstname,
         candidat_lastname,
         cv_text,

@@ -14,7 +14,7 @@ type Row = {
   candidat_score: number | null
   candidat_id: number
   candidat_comment: string | null
-  candidats?: Candidat
+  candidats?: Candidat | null
 }
 
 export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
@@ -107,7 +107,8 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
                   '—'
                 )}
               </td>
-              <td>
+              <td style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>{row.candidat_comment ?? '—'}</span>
                 <Popover.Root
                   open={editingId === row.candidat_id}
                   onOpenChange={(open) =>
@@ -115,7 +116,7 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
                   }
                 >
                   <Popover.Trigger asChild>
-                    <button style={{ marginLeft: '8px' }}>✏️</button>
+                    <button>✏️</button>
                   </Popover.Trigger>
                   <Popover.Portal>
                     <Popover.Content
@@ -186,9 +187,6 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
                     </Popover.Content>
                   </Popover.Portal>
                 </Popover.Root>
-                <span style={{ marginLeft: 8 }}>
-                  {row.candidat_comment ?? '—'}
-                </span>
               </td>
             </tr>
           )
