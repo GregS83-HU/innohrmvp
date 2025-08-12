@@ -40,12 +40,12 @@ export default function NewOpenedPositionPage() {
 
     setLoading(true)
 
-    const { error } = await supabase.from('OpenedPositions').insert([
+    const { error } = await supabase.from('openedpositions').insert([
       {
         position_name: positionName,
         position_description: positionDescription,
         position_start_date: positionStartDate,
-        // Pas d'user_id ici car ta table ne l'a pas
+        user_id: user.id
       },
     ])
 

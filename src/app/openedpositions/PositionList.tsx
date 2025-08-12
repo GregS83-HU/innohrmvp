@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useSession } from '@supabase/auth-helpers-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 type Position = {
   id: number
@@ -13,11 +13,42 @@ type Position = {
   }
 }
 
-export default function PositionsList({ positions }: { positions: Position[] }) {
+export default function PositionsList() {
   const session = useSession()
   const isLoggedIn = !!session?.user
+  const userId = session?.user?.id
+
+  const [positions, setPositions] = useState<Position[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [loadingClose, setLoadingClose] = useState<number | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
+
+  console.log("userID in PositionList:",userId)
+  useEffect(() => {
+    async function fetchPositions() {
+      setLoading(true)
+      setError(null)
+      console.log("Start Getting Positions")
+      try {
+        const url = isLoggedIn
+          ? `/api/positions-private?userId=${encodeURIComponent(userId!)}`
+          : '/api/positions-public'
+        const res = await fetch(url)
+        if (!res.ok) throw new Error('Erreur lors du chargement des positions')
+        const data = await res.json()
+        setPositions(data.positions)
+      } catch (e) {
+        setError((e as Error).message)
+      }
+      setLoading(false)
+    }
+    if (isLoggedIn && userId) {
+      fetchPositions()
+    } else if (!isLoggedIn) {
+      fetchPositions()
+    }
+  }, [isLoggedIn, userId])
 
   async function handleClose(positionId: number) {
     if (!confirm('Do you really want to close this position?')) return
@@ -28,7 +59,6 @@ export default function PositionsList({ positions }: { positions: Position[] }) 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ positionId }),
       })
-
       const data = await res.json()
       if (!res.ok) {
         alert('Erreur lors de la fermeture de la position: ' + (data.error || 'Erreur inconnue'))
@@ -36,22 +66,34 @@ export default function PositionsList({ positions }: { positions: Position[] }) 
         return
       }
       alert('Position fermée avec succès. Merci !')
-      location.reload()
+      setPositions((prev) => prev.filter((p) => p.id !== positionId))
     } catch (e) {
       alert('Erreur lors de la fermeture de la position : ' + (e as Error).message)
-      setLoadingClose(null)
     }
+    setLoadingClose(null)
   }
 
-  // Filtrage selon la recherche
+  // Filtrer la liste selon la recherche
   const filteredPositions = positions.filter((p) =>
     p.position_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.position_description.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
+  if (loading) return <p>Chargement...</p>
+  if (error) return <p>Erreur : {error}</p>
+  if (positions.length === 0) return <p>No available position at the moment</p>
+
   return (
     <div>
-      {/* Barre de recherche en haut à droite */}
+      {/* Titre avec nombre de positions */}
+      <h1
+        className="text-2xl font-bold text-center mb-6"
+        style={{ userSelect: 'none' }}
+      >
+        📄 List of available positions <span style={{ color: '#0070f3' }}>({filteredPositions.length})</span>
+      </h1>
+
+      {/* Barre de recherche */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
         <input
           type="text"
@@ -67,8 +109,9 @@ export default function PositionsList({ positions }: { positions: Position[] }) 
         />
       </div>
 
-      {/* Liste filtrée */}
       <ul style={{ listStyle: 'none', padding: 0 }}>
+        {filteredPositions.length === 0 && <p>No available position at the moment</p>}
+
         {filteredPositions.map((position) => (
           <li
             key={position.id}
@@ -81,7 +124,6 @@ export default function PositionsList({ positions }: { positions: Position[] }) 
               flexDirection: 'column',
             }}
           >
-            {/* Header avec titre et logo */}
             <div
               style={{
                 display: 'flex',
@@ -91,7 +133,7 @@ export default function PositionsList({ positions }: { positions: Position[] }) 
               }}
             >
               <h2 style={{ margin: 0, fontWeight: 'bold' }}>{position.position_name}</h2>
-              {position.company.company_logo && (
+              {position.company?.company_logo && (
                 <img
                   src={position.company.company_logo}
                   alt="Logo entreprise"
@@ -109,23 +151,24 @@ export default function PositionsList({ positions }: { positions: Position[] }) 
             <p>{position.position_description}</p>
 
             <div>
-              <Link
-                href={`/cv-analyse?position=${encodeURIComponent(position.position_name)}&description=${encodeURIComponent(
-                  position.position_description
-                )}&id=${position.id}`}
-                style={{
-                  display: 'inline-block',
-                  marginTop: '1rem',
-                  backgroundColor: '#0070f3',
-                  color: 'white',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '4px',
-                  textDecoration: 'none',
-                }}
-              >
-                📝 Postuler
-              </Link>
-
+              {!isLoggedIn && (
+                <Link
+                  href={`/cv-analyse?position=${encodeURIComponent(position.position_name)}&description=${encodeURIComponent(
+                    position.position_description
+                  )}&id=${position.id}`}
+                  style={{
+                    display: 'inline-block',
+                    marginTop: '1rem',
+                    backgroundColor: '#0070f3',
+                    color: 'white',
+                    padding: '0.5rem 1rem',
+                    borderRadius: '4px',
+                    textDecoration: 'none',
+                  }}
+                >
+                  📝 Apply
+                </Link>
+              )}
               {isLoggedIn && (
                 <>
                   <Link
