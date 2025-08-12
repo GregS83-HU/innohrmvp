@@ -3,12 +3,27 @@
 import { useState } from 'react'
 import * as Popover from '@radix-ui/react-popover'
 
-export default function StatsTable({ rows: initialRows }: { rows: any[] }) {
-  const [rows, setRows] = useState(initialRows)
+type Candidat = {
+  id: number
+  candidat_firstname: string
+  candidat_lastname: string
+  cv_text: string
+  cv_file: string
+}
+
+type Row = {
+  candidat_score: number | null
+  candidat_id: number
+  candidat_comment: string | null
+  candidats?: Candidat[]
+}
+
+export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
+  const [rows, setRows] = useState<Row[]>(initialRows)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [commentValue, setCommentValue] = useState('')
 
-  const handleEditClick = (row: any) => {
+  const handleEditClick = (row: Row) => {
     setEditingId(row.candidat_id)
     setCommentValue(row.candidat_comment || '')
   }
@@ -60,7 +75,7 @@ export default function StatsTable({ rows: initialRows }: { rows: any[] }) {
       </thead>
       <tbody>
         {rows.map((row, index) => {
-          const candidat = row.candidats as any
+          const candidat = row.candidats?.[0] // prendre le premier candidat s'il existe
           const isLowScore =
             row.candidat_score !== null && row.candidat_score <= 5
 
@@ -98,9 +113,7 @@ export default function StatsTable({ rows: initialRows }: { rows: any[] }) {
                 <Popover.Root
                   open={editingId === row.candidat_id}
                   onOpenChange={(open) =>
-                    open
-                      ? handleEditClick(row)
-                      : setEditingId(null)
+                    open ? handleEditClick(row) : setEditingId(null)
                   }
                 >
                   <Popover.Trigger asChild>
@@ -115,16 +128,13 @@ export default function StatsTable({ rows: initialRows }: { rows: any[] }) {
                         padding: '10px',
                         border: '1px solid #ccc',
                         borderRadius: '6px',
-                        boxShadow:
-                          '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
                         width: '250px',
                       }}
                     >
                       <textarea
                         value={commentValue}
-                        onChange={(e) =>
-                          setCommentValue(e.target.value)
-                        }
+                        onChange={(e) => setCommentValue(e.target.value)}
                         rows={3}
                         style={{
                           width: '100%',
@@ -158,7 +168,7 @@ export default function StatsTable({ rows: initialRows }: { rows: any[] }) {
                           <button
                             style={{
                               backgroundColor: '#f7f7f7ff',
-                              color: 'white',
+                              color: 'black',
                               padding: '6px 10px',
                               border: '1px solid black',
                               borderRadius: '4px',
