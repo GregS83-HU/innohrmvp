@@ -3,27 +3,12 @@
 import { useState } from 'react'
 import * as Popover from '@radix-ui/react-popover'
 
-type Candidat = {
-  id: number
-  candidat_firstname: string
-  candidat_lastname: string
-  cv_text: string
-  cv_file: string
-}
-
-type Row = {
-  candidat_score: number | null
-  candidat_id: number
-  candidat_comment: string | null
-  candidats?: Candidat[]
-}
-
-export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
-  const [rows, setRows] = useState<Row[]>(initialRows)
+export default function StatsTable({ rows: initialRows }: { rows: any[] }) {
+  const [rows, setRows] = useState(initialRows)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [commentValue, setCommentValue] = useState('')
 
-  const handleEditClick = (row: Row) => {
+  const handleEditClick = (row: any) => {
     setEditingId(row.candidat_id)
     setCommentValue(row.candidat_comment || '')
   }
@@ -66,16 +51,16 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
       <thead>
         <tr>
-          <th>First name</th>
-          <th>Last Name</th>
-          <th>Score</th>
-          <th>CV</th>
-          <th>Comment</th>
+          <th style={{ textAlign: 'left'}}>First name</th>
+          <th style={{ textAlign: 'left'}}>Last Name</th>
+          <th style={{ textAlign: 'left'}}>Score</th>
+          <th style={{ textAlign: 'left'}}>CV</th>
+          <th style={{ textAlign: 'left'}} >Comment</th>
         </tr>
       </thead>
       <tbody>
         {rows.map((row, index) => {
-          const candidat = row.candidats?.[0] // prendre le premier candidat s'il existe
+          const candidat = row.candidats as any
           const isLowScore =
             row.candidat_score !== null && row.candidat_score <= 5
 
@@ -113,7 +98,9 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
                 <Popover.Root
                   open={editingId === row.candidat_id}
                   onOpenChange={(open) =>
-                    open ? handleEditClick(row) : setEditingId(null)
+                    open
+                      ? handleEditClick(row)
+                      : setEditingId(null)
                   }
                 >
                   <Popover.Trigger asChild>
@@ -128,13 +115,16 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
                         padding: '10px',
                         border: '1px solid #ccc',
                         borderRadius: '6px',
-                        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                        boxShadow:
+                          '0px 4px 6px rgba(0, 0, 0, 0.1)',
                         width: '250px',
                       }}
                     >
                       <textarea
                         value={commentValue}
-                        onChange={(e) => setCommentValue(e.target.value)}
+                        onChange={(e) =>
+                          setCommentValue(e.target.value)
+                        }
                         rows={3}
                         style={{
                           width: '100%',
@@ -168,7 +158,7 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
                           <button
                             style={{
                               backgroundColor: '#f7f7f7ff',
-                              color: 'black',
+                              color: 'white',
                               padding: '6px 10px',
                               border: '1px solid black',
                               borderRadius: '4px',

@@ -1,5 +1,6 @@
 import { createServerClient } from '../../../lib/supabaseServerClient'
-import StatsTable from './StatsTable'
+import { cookies } from 'next/headers'
+import StatsTable from './StatsTable' // <-- on suppose que ton composant est séparé ici
 
 type Candidat = {
   id: number
@@ -13,7 +14,7 @@ type PositionToCandidatRow = {
   candidat_score: number | null
   candidat_id: number
   candidat_comment: string | null
-  candidats?: Candidat[]  // candidats est optionnel, undefined possible
+  candidats: Candidat[] | null
 }
 
 export default async function StatsPage({
@@ -44,7 +45,7 @@ export default async function StatsPage({
       )
     `)
     .eq('position_id', Number(positionId)) as {
-      data: (Omit<PositionToCandidatRow, 'candidats'> & { candidats: Candidat[] | null })[] | null
+      data: PositionToCandidatRow[] | null
       error: unknown
     }
 
@@ -57,18 +58,12 @@ export default async function StatsPage({
     return <p>No candidate for this position</p>
   }
 
-  // Convertir candidats null en undefined
-  const safeData: PositionToCandidatRow[] = data.map(row => ({
-    ...row,
-    candidats: row.candidats ?? undefined,
-  }))
-
   return (
     <main style={{ maxWidth: '900px', margin: 'auto', padding: '2rem' }}>
       <h1 className="text-2xl font-bold text-center mb-6">
         📊 Candidats Statistics
       </h1>
-      <StatsTable rows={safeData} />
+      <StatsTable rows={data} />
     </main>
   )
 }
