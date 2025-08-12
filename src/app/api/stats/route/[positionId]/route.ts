@@ -27,7 +27,9 @@ export async function GET(
   const { data, error } = await supabase
     .from('position_to_candidate')
     .select(`
+      candidat_id,
       score,
+      candidat_comment,
       candidats (
         firstname,
         lastname,
