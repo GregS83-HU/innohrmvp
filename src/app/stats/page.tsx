@@ -1,13 +1,36 @@
 import { createServerClient } from '../../../lib/supabaseServerClient'
-import StatsTable from './StatsTable'
+import { cookies } from 'next/headers'
+import StatsTable from './StatsTable' // <-- on suppose que ton composant est séparé ici
 
-export default async function StatsPage({ searchParams }: { searchParams: Promise<{ positionId?: string }> }) {
+type Candidat = {
+  id: number
+  candidat_firstname: string
+  candidat_lastname: string
+  cv_text: string
+  cv_file: string
+}
+
+type PositionToCandidatRow = {
+  candidat_score: number | null
+  candidat_id: number
+  candidat_comment: string | null
+  candidats: Candidat[] | null
+}
+
+export default async function StatsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ positionId?: string }>
+}) {
   const params = await searchParams
   const positionId = params.positionId
 
-  if (!positionId) return <p>Identifiant de la position manquant.</p>
+  if (!positionId) {
+    return <p>Identifiant de la position manquant.</p>
+  }
 
   const supabase = createServerClient()
+
   const { data, error } = await supabase
     .from('position_to_candidat')
     .select(`
@@ -21,14 +44,25 @@ export default async function StatsPage({ searchParams }: { searchParams: Promis
         cv_file
       )
     `)
-    .eq('position_id', Number(positionId))
+    .eq('position_id', Number(positionId)) as {
+      data: PositionToCandidatRow[] | null
+      error: unknown
+    }
 
-  if (error) return <p>Error in the loading of the stats.</p>
-  if (!data || data.length === 0) return <p>No candidate for this position</p>
+  if (error) {
+    console.error(error)
+    return <p>Error in the loading of the stats.</p>
+  }
+
+  if (!data || data.length === 0) {
+    return <p>No candidate for this position</p>
+  }
 
   return (
-    <main style={{ maxWidth: '700px', margin: 'auto', padding: '2rem' }}>
-      <h1 className="text-2xl font-bold text-center mb-6">📊 Candidats Statistics</h1>
+    <main style={{ maxWidth: '900px', margin: 'auto', padding: '2rem' }}>
+      <h1 className="text-2xl font-bold text-center mb-6">
+        📊 Candidats Statistics
+      </h1>
       <StatsTable rows={data} />
     </main>
   )
