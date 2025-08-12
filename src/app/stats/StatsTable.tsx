@@ -3,21 +3,35 @@
 import { useState } from 'react'
 import * as Popover from '@radix-ui/react-popover'
 
-export default function StatsTable({ rows: initialRows }: { rows: any[] }) {
-  const [rows, setRows] = useState(initialRows)
+type Candidat = {
+  candidat_firstname: string
+  candidat_lastname: string
+  cv_text?: string
+  cv_file?: string
+}
+
+type Row = {
+  candidat_score: number | null
+  candidat_id: number
+  candidat_comment: string | null
+  candidats?: Candidat
+}
+
+export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
+  const [rows, setRows] = useState<Row[]>(initialRows)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [commentValue, setCommentValue] = useState('')
 
-  const handleEditClick = (row: any) => {
+  const handleEditClick = (row: Row) => {
     setEditingId(row.candidat_id)
-    setCommentValue(row.candidat_comment || '')
+    setCommentValue(row.candidat_comment ?? '')
   }
 
   const handleSave = async () => {
     if (editingId === null) return
 
     try {
-      const res: Response = await fetch('/api/update-comment', {
+      const res = await fetch('/api/update-comment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -51,18 +65,17 @@ export default function StatsTable({ rows: initialRows }: { rows: any[] }) {
     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
       <thead>
         <tr>
-          <th style={{ textAlign: 'left'}}>First name</th>
-          <th style={{ textAlign: 'left'}}>Last Name</th>
-          <th style={{ textAlign: 'left'}}>Score</th>
-          <th style={{ textAlign: 'left'}}>CV</th>
-          <th style={{ textAlign: 'left'}} >Comment</th>
+          <th style={{ textAlign: 'left' }}>First name</th>
+          <th style={{ textAlign: 'left' }}>Last Name</th>
+          <th style={{ textAlign: 'left' }}>Score</th>
+          <th style={{ textAlign: 'left' }}>CV</th>
+          <th style={{ textAlign: 'left' }}>Comment</th>
         </tr>
       </thead>
       <tbody>
         {rows.map((row, index) => {
-          const candidat = row.candidats as any
-          const isLowScore =
-            row.candidat_score !== null && row.candidat_score <= 5
+          const candidat = row.candidats
+          const isLowScore = row.candidat_score !== null && row.candidat_score <= 5
 
           const badgeStyle = {
             display: 'inline-block',
@@ -98,9 +111,7 @@ export default function StatsTable({ rows: initialRows }: { rows: any[] }) {
                 <Popover.Root
                   open={editingId === row.candidat_id}
                   onOpenChange={(open) =>
-                    open
-                      ? handleEditClick(row)
-                      : setEditingId(null)
+                    open ? handleEditClick(row) : setEditingId(null)
                   }
                 >
                   <Popover.Trigger asChild>
@@ -112,33 +123,30 @@ export default function StatsTable({ rows: initialRows }: { rows: any[] }) {
                       align="center"
                       style={{
                         background: 'white',
-                        padding: '10px',
+                        padding: 10,
                         border: '1px solid #ccc',
-                        borderRadius: '6px',
-                        boxShadow:
-                          '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                        width: '250px',
+                        borderRadius: 6,
+                        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                        width: 250,
                       }}
                     >
                       <textarea
                         value={commentValue}
-                        onChange={(e) =>
-                          setCommentValue(e.target.value)
-                        }
+                        onChange={(e) => setCommentValue(e.target.value)}
                         rows={3}
                         style={{
                           width: '100%',
                           border: '1px solid #ccc',
-                          borderRadius: '4px',
-                          padding: '6px',
+                          borderRadius: 4,
+                          padding: 6,
                         }}
                       />
                       <div
                         style={{
                           display: 'flex',
                           justifyContent: 'flex-end',
-                          marginTop: '6px',
-                          gap: '8px',
+                          marginTop: 6,
+                          gap: 8,
                         }}
                       >
                         <button
@@ -148,7 +156,7 @@ export default function StatsTable({ rows: initialRows }: { rows: any[] }) {
                             color: 'white',
                             padding: '6px 10px',
                             border: 'none',
-                            borderRadius: '4px',
+                            borderRadius: 4,
                             cursor: 'pointer',
                           }}
                         >
@@ -158,10 +166,10 @@ export default function StatsTable({ rows: initialRows }: { rows: any[] }) {
                           <button
                             style={{
                               backgroundColor: '#f7f7f7ff',
-                              color: 'white',
+                              color: 'black',
                               padding: '6px 10px',
                               border: '1px solid black',
-                              borderRadius: '4px',
+                              borderRadius: 4,
                               cursor: 'pointer',
                             }}
                           >
@@ -178,7 +186,7 @@ export default function StatsTable({ rows: initialRows }: { rows: any[] }) {
                     </Popover.Content>
                   </Popover.Portal>
                 </Popover.Root>
-                <span style={{ marginLeft: '8px' }}>
+                <span style={{ marginLeft: 8 }}>
                   {row.candidat_comment ?? '—'}
                 </span>
               </td>
