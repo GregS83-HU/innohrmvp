@@ -62,136 +62,159 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
   }
 
   return (
-    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-      <thead>
-        <tr>
-          <th style={{ textAlign: 'left' }}>First name</th>
-          <th style={{ textAlign: 'left' }}>Last Name</th>
-          <th style={{ textAlign: 'left' }}>Score</th>
-          <th style={{ textAlign: 'left' }}>CV</th>
-          <th style={{ textAlign: 'left' }}>Comment</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row, index) => {
-          const candidat = row.candidats
-          const isLowScore = row.candidat_score !== null && row.candidat_score <= 5
+    <>
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'left', padding: '8px 12px' }}>First name</th>
+              <th style={{ textAlign: 'left', padding: '8px 12px' }}>Last Name</th>
+              <th style={{ textAlign: 'left', padding: '8px 12px' }}>Score</th>
+              <th style={{ textAlign: 'left', padding: '8px 12px' }}>CV</th>
+              <th style={{ textAlign: 'left', padding: '8px 12px' }}>Comment</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, index) => {
+              const candidat = row.candidats
+              const isLowScore = row.candidat_score !== null && row.candidat_score <= 5
 
-          const badgeStyle = {
-            display: 'inline-block',
-            padding: '4px 8px',
-            borderRadius: '12px',
-            backgroundColor: isLowScore ? '#f8d7da' : '#d4edda',
-            color: isLowScore ? 'red' : 'green',
-            fontWeight: 'bold' as const,
-          }
+              const badgeStyle = {
+                display: 'inline-block',
+                padding: '4px 8px',
+                borderRadius: '12px',
+                backgroundColor: isLowScore ? '#f8d7da' : '#d4edda',
+                color: isLowScore ? 'red' : 'green',
+                fontWeight: 'bold' as const,
+              }
 
-          return (
-            <tr key={index}>
-              <td>{candidat?.candidat_firstname ?? '—'}</td>
-              <td>{candidat?.candidat_lastname ?? '—'}</td>
-              <td>
-                <span style={badgeStyle}>{row.candidat_score ?? '—'}</span>
-              </td>
-              <td>
-                {candidat?.cv_file ? (
-                  <a
-                    href={candidat.cv_file}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: '#0070f3' }}
-                  >
-                    See the CV
-                  </a>
-                ) : (
-                  '—'
-                )}
-              </td>
-              <td style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>{row.candidat_comment ?? '—'}</span>
-                <Popover.Root
-                  open={editingId === row.candidat_id}
-                  onOpenChange={(open) =>
-                    open ? handleEditClick(row) : setEditingId(null)
-                  }
-                >
-                  <Popover.Trigger asChild>
-                    <button>✏️</button>
-                  </Popover.Trigger>
-                  <Popover.Portal>
-                    <Popover.Content
-                      side="top"
-                      align="center"
-                      style={{
-                        background: 'white',
-                        padding: 10,
-                        border: '1px solid #ccc',
-                        borderRadius: 6,
-                        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                        width: 250,
-                      }}
-                    >
-                      <textarea
-                        value={commentValue}
-                        onChange={(e) => setCommentValue(e.target.value)}
-                        rows={3}
-                        style={{
-                          width: '100%',
-                          border: '1px solid #ccc',
-                          borderRadius: 4,
-                          padding: 6,
-                        }}
-                      />
-                      <div
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'flex-end',
-                          marginTop: 6,
-                          gap: 8,
-                        }}
+              return (
+                <tr key={index} style={{ borderBottom: '1px solid #ccc' }}>
+                  <td style={{ padding: '8px 12px' }}>{candidat?.candidat_firstname ?? '—'}</td>
+                  <td style={{ padding: '8px 12px' }}>{candidat?.candidat_lastname ?? '—'}</td>
+                  <td style={{ padding: '8px 12px' }}>
+                    <span style={badgeStyle}>{row.candidat_score ?? '—'}</span>
+                  </td>
+                  <td style={{ padding: '8px 12px', paddingRight: '20px' }}>
+                    {candidat?.cv_file ? (
+                      <a
+                        href={candidat.cv_file}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: '#0070f3' }}
                       >
-                        <button
-                          onClick={handleSave}
+                        See the CV
+                      </a>
+                    ) : (
+                      '—'
+                    )}
+                  </td>
+                  <td
+                    style={{
+                      padding: '8px 12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    <span>{row.candidat_comment ?? '—'}</span>
+                    <Popover.Root
+                      open={editingId === row.candidat_id}
+                      onOpenChange={(open) =>
+                        open ? handleEditClick(row) : setEditingId(null)
+                      }
+                    >
+                      <Popover.Trigger asChild>
+                        <button style={{ marginLeft: '8px' }}>✏️</button>
+                      </Popover.Trigger>
+                      <Popover.Portal>
+                        <Popover.Content
+                          side="top"
+                          align="end"
                           style={{
-                            backgroundColor: '#28a745',
-                            color: 'white',
-                            padding: '6px 10px',
-                            border: 'none',
-                            borderRadius: 4,
-                            cursor: 'pointer',
+                            background: 'white',
+                            padding: 10,
+                            border: '1px solid #ccc',
+                            borderRadius: 6,
+                            boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                            width: 250,
                           }}
                         >
-                          💾
-                        </button>
-                        <Popover.Close asChild>
-                          <button
+                          <textarea
+                            value={commentValue}
+                            onChange={(e) => setCommentValue(e.target.value)}
+                            rows={3}
                             style={{
-                              backgroundColor: '#f7f7f7ff',
-                              color: 'black',
-                              padding: '6px 10px',
-                              border: '1px solid black',
+                              width: '100%',
+                              border: '1px solid #ccc',
                               borderRadius: 4,
-                              cursor: 'pointer',
+                              padding: 6,
+                            }}
+                          />
+                          <div
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'flex-end',
+                              marginTop: 6,
+                              gap: 8,
                             }}
                           >
-                            ❌
-                          </button>
-                        </Popover.Close>
-                      </div>
-                      <Popover.Arrow
-                        offset={5}
-                        width={10}
-                        height={5}
-                        style={{ fill: 'white', stroke: '#ccc' }}
-                      />
-                    </Popover.Content>
-                  </Popover.Portal>
-                </Popover.Root>
-              </td>
-            </tr>
-          )
-        })}
-      </tbody>
-    </table>
+                            <button
+                              onClick={handleSave}
+                              style={{
+                                backgroundColor: '#28a745',
+                                color: 'white',
+                                padding: '6px 10px',
+                                border: 'none',
+                                borderRadius: 4,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              💾
+                            </button>
+                            <Popover.Close asChild>
+                              <button
+                                style={{
+                                  backgroundColor: '#f7f7f7ff',
+                                  color: 'black',
+                                  padding: '6px 10px',
+                                  border: '1px solid black',
+                                  borderRadius: 4,
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                ❌
+                              </button>
+                            </Popover.Close>
+                          </div>
+                          <Popover.Arrow
+                            offset={5}
+                            width={10}
+                            height={5}
+                            style={{ fill: 'white', stroke: '#ccc' }}
+                          />
+                        </Popover.Content>
+                      </Popover.Portal>
+                    </Popover.Root>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <style jsx>{`
+        @media (max-width: 600px) {
+          table {
+            font-size: 0.85rem;
+          }
+          th,
+          td {
+            padding: 6px 8px !important;
+          }
+        }
+      `}</style>
+    </>
   )
 }
