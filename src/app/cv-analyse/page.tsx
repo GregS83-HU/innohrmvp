@@ -16,17 +16,20 @@ export default async function CVAnalysePage({
     ? params.description[0]
     : params.description ?? ''
 
+  const jobDescriptionDetailed = Array.isArray(params.descriptiondetailed)
+    ? params.descriptiondetailed[0]
+    : params.descriptiondetailed ?? ''
+
   const positionId = Array.isArray(params.id)
     ? params.id[0]
-    : params.id ?? '' // ✅ ici
+    : params.id ?? ''
 
-  
   return (
     <CVAnalyseClient
       positionName={positionName}
       jobDescription={jobDescription}
-      positionId={positionId} // ✅ bien passé ici
-      
+      jobDescriptionDetailed={jobDescriptionDetailed}
+      positionId={positionId}
     />
   )
 }
