@@ -8,6 +8,7 @@ type Position = {
   id: number
   position_name: string
   position_description: string
+  position_description_detailed: string
   company: {
     company_logo?: string
   }
@@ -153,9 +154,10 @@ export default function PositionsList() {
             <div>
               {!isLoggedIn && (
                 <Link
-                  href={`/cv-analyse?position=${encodeURIComponent(position.position_name)}&description=${encodeURIComponent(
-                    position.position_description
-                  )}&id=${position.id}`}
+                  href={`/cv-analyse?position=${encodeURIComponent(position.position_name)}
+                  &description=${encodeURIComponent(
+                    position.position_description_detailed)}
+                  &id=${position.id}`}
                   style={{
                     display: 'inline-block',
                     marginTop: '1rem',

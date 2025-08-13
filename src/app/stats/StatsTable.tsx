@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
 import * as Popover from '@radix-ui/react-popover'
 
 type Candidat = {
@@ -14,13 +15,43 @@ type Row = {
   candidat_score: number | null
   candidat_id: number
   candidat_comment: string | null
+  candidat_next_step: string | null // 🔹 ajouté
   candidats?: Candidat | null
+}
+
+type RecruitmentStep = {
+  step_id: string
+  step_name: string
 }
 
 export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
   const [rows, setRows] = useState<Row[]>(initialRows)
+  const [steps, setSteps] = useState<RecruitmentStep[]>([])
   const [editingId, setEditingId] = useState<number | null>(null)
   const [commentValue, setCommentValue] = useState('')
+
+  const session = useSession()
+  const supabase = useSupabaseClient()
+
+  // 🔹 Récupération des étapes pour la dropdown
+  useEffect(() => {
+    if (!session) return
+
+    const fetchSteps = async () => {
+      try {
+        const res = await fetch(`/api/recruitment-step?user_id=${session.user.id}`)
+        if (!res.ok) {
+          console.error('Erreur API', await res.text())
+          return
+        }
+        const data = await res.json()
+        setSteps(data)
+      } catch (error) {
+        console.error('Erreur chargement steps', error)
+      }
+    }
+    fetchSteps()
+  }, [session])
 
   const handleEditClick = (row: Row) => {
     setEditingId(row.candidat_id)
@@ -61,17 +92,61 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
     }
   }
 
+  /*const handleStepChange = async (candidat_id: number, step_id: string) => {
+    console.log(`Candidat ${candidat_id} → Nouvelle étape ${step_id}`)
+    // 🔹 Ici tu peux ajouter un appel API pour sauvegarder step_id dans position_to_candidat
+    setRows((prev) =>
+      prev.map((row) =>
+        row.candidat_id === candidat_id ? { ...row, candidat_next_step: step_id } : row
+      )
+    )
+  }*/
+ 
+  const handleStepChange = async (candidat_id: number, step_name: string) => {
+  // Si step_name est vide, envoyer null au backend
+  const stepValueToSend = step_name === '' ? null : step_name
+
+  try {
+    const res = await fetch('/api/update-next-step', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ candidat_id, step_name: stepValueToSend }),
+    })
+
+    if (!res.ok) {
+      const errorData = await res.json()
+      console.error('Erreur mise à jour étape', errorData)
+      alert('Erreur lors de la mise à jour de l’étape')
+      return
+    }
+
+    setRows(prev =>
+      prev.map(row =>
+        row.candidat_id === candidat_id
+          ? { ...row, candidat_next_step: stepValueToSend }
+          : row
+      )
+    )
+  } catch (err) {
+    console.error('Erreur réseau', err)
+    alert('Erreur réseau lors de la mise à jour')
+  }
+}
+
+  
+
   return (
     <>
       <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 700 }}>
           <thead>
             <tr>
-              <th style={{ textAlign: 'left', padding: '8px 12px' }}>First name</th>
-              <th style={{ textAlign: 'left', padding: '8px 12px' }}>Last Name</th>
-              <th style={{ textAlign: 'left', padding: '8px 12px' }}>Score</th>
-              <th style={{ textAlign: 'left', padding: '8px 12px' }}>CV</th>
-              <th style={{ textAlign: 'left', padding: '8px 12px' }}>Comment</th>
+              <th>First name</th>
+              <th>Last Name</th>
+              <th>Score</th>
+              <th>CV</th>
+              <th>Next Step</th>
+              <th>Comment</th>
             </tr>
           </thead>
           <tbody>
@@ -90,12 +165,12 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
 
               return (
                 <tr key={index} style={{ borderBottom: '1px solid #ccc' }}>
-                  <td style={{ padding: '8px 12px' }}>{candidat?.candidat_firstname ?? '—'}</td>
-                  <td style={{ padding: '8px 12px' }}>{candidat?.candidat_lastname ?? '—'}</td>
-                  <td style={{ padding: '8px 12px' }}>
+                  <td>{candidat?.candidat_firstname ?? '—'}</td>
+                  <td>{candidat?.candidat_lastname ?? '—'}</td>
+                  <td>
                     <span style={badgeStyle}>{row.candidat_score ?? '—'}</span>
                   </td>
-                  <td style={{ padding: '8px 12px', paddingRight: '20px' }}>
+                  <td>
                     {candidat?.cv_file ? (
                       <a
                         href={candidat.cv_file}
@@ -109,14 +184,25 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
                       '—'
                     )}
                   </td>
-                  <td
-                    style={{
-                      padding: '8px 12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                    }}
-                  >
+                  <td>
+                    <select
+                      value={row.candidat_next_step ?? ''} // 🔹 valeur depuis la DB si existante
+                      onChange={(e) => handleStepChange(row.candidat_id, e.target.value)}
+                      style={{
+                        padding: '4px 8px',
+                        borderRadius: 4,
+                        border: '1px solid #ccc',
+                      }}
+                    >
+                      <option value="">Select step</option>
+                      {steps.map((step) => (
+                        <option key={step.step_id} value={step.step_name}>
+                          {step.step_name}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span>{row.candidat_comment ?? '—'}</span>
                     <Popover.Root
                       open={editingId === row.candidat_id}
@@ -125,7 +211,7 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
                       }
                     >
                       <Popover.Trigger asChild>
-                        <button style={{ marginLeft: '8px' }}>✏️</button>
+                        <button>✏️</button>
                       </Popover.Trigger>
                       <Popover.Portal>
                         <Popover.Content
@@ -203,18 +289,6 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
           </tbody>
         </table>
       </div>
-
-      <style jsx>{`
-        @media (max-width: 600px) {
-          table {
-            font-size: 0.85rem;
-          }
-          th,
-          td {
-            padding: 6px 8px !important;
-          }
-        }
-      `}</style>
     </>
   )
 }

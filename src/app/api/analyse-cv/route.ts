@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData()
     const file = formData.get('file') as File
     const jobDescription = formData.get('jobDescription') as string
+    const jobDescriptionDetailed = formData.get('jobDescriptionDetailed') as string
     const firstname = formData.get('firstName') as string
     const lastname = formData.get('lastName') as string
     const positionId = formData.get('positionId') as string
@@ -61,34 +62,58 @@ const { data: publicUrlData } = supabase.storage
 const cvFileUrl = publicUrlData.publicUrl
 // end of PDF file preparation for upload
 
+console.log("Job Description passed:",jobDescription)
+
 // AI model prompt
     const prompt = `
 Tu es un expert RH. Voici un CV :
 
 ${cvText}
 
-Voici la description du poste ciblé:
+Voici la description détaillée du poste ciblé:
 
 ${jobDescription}
 
-Analyse objectivement la correspondance entre le CV et le poste. Sois rigoureux et n'accorde une bonne note que si le profil correspond clairement.
+Analyze the CV only against the provided job description with extreme rigor.
+Do not guess, assume, or infer any skill, experience, or qualification that is not explicitly written in the CV.
+Be critical: even a single missing core requirement should significantly lower the score.
+If the CV shows little or no direct relevance, the score must be 3 or lower.
+Avoid “benefit of the doubt” scoring.
 
-Fais une analyse complète :
-1. Résumé du profil
-2. Compétences clés
-3. Points à améliorer
-4. Suggestions de postes alternatifs si ce poste ne convient pas
-5. Ton avis global
+Your output must strictly follow this structure:
 
-Donne un score de correspondance sur 10 :
-- 9–10 : correspondance parfaite
-- 7–8 : profil qui pourrait correspondre avec un accompagnement fort
-- 5–6 : bon candidat avec quelques écarts acceptables
-- <5 : profil non adapté
+Profile Summary – short and factual, based only on what is explicitly written in the CV.
 
-L'analyse doit etre stricte. Ne remonte qu'un score au dessus de 5 uniquement si le candidat a vraiment un CV qui correspond á la description de poste.
+Direct Skill Matches – list only the job-relevant skills that are directly evidenced in the CV.
 
-La réponse doit etre en anglais
+Critical Missing Requirements – list each key requirement from the job description that is missing or insufficient in the CV.
+
+Alternative Suitable Roles – suggest other roles the candidate may fit based on their actual CV content.
+
+Final Verdict – clear and decisive statement on whether this candidate should be considered.
+
+Scoring Rules (Extremely Strict):
+
+9–10 → Perfect fit: all key requirements explicitly met with proven, recent experience.
+
+7–8 → Strong potential: almost all requirements met; only minor gaps.
+
+5–6 → Marginal: some relevant experience but several major gaps. Unlikely to succeed without major upskilling.
+
+Below 5 → Not suitable: lacks multiple essential requirements or background is in a different field.
+
+Mandatory principles:
+
+Never award a score above 5 unless the CV matches at least 80% of the core requirements.
+
+When in doubt, choose the lower score.
+
+Always provide concrete examples from the CV to justify the score.
+
+Keep tone professional, concise, and free from speculation.
+
+
+
 
 Répond uniquement avec un JSON strictement valide, au format :
 {
@@ -96,6 +121,9 @@ Répond uniquement avec un JSON strictement valide, au format :
   "analysis": string
 }
 IMPORTANT : Ne réponds avec rien d'autre que ce JSON.
+
+La réponse doit etre en anglais parfait
+
 `
 //End of AI Model Prompt
 

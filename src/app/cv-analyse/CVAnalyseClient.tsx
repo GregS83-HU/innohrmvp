@@ -5,10 +5,12 @@ import { useState } from 'react'
 export default function CVAnalyseClient({
   positionName,
   jobDescription,
+  jobDescriptionDetailed,
   positionId,
 }: {
   positionName: string
   jobDescription: string
+  jobDescriptionDetailed: string
   positionId : string
 
 }) {

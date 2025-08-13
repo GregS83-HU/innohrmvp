@@ -25,14 +25,15 @@ export async function GET(
 
 
   const { data, error } = await supabase
-    .from('position_to_candidate')
+    .from('position_to_candidat')
     .select(`
+      candidat_score,
       candidat_id,
-      score,
       candidat_comment,
+      candidat_next_step,
       candidats (
-        firstname,
-        lastname,
+        candidat_firstname,
+        candidat_lastname,
         cv_text,
         cv_file
       )
