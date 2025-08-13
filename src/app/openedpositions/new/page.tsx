@@ -10,6 +10,7 @@ export default function NewOpenedPositionPage() {
 
   const [positionName, setPositionName] = useState('')
   const [positionDescription, setPositionDescription] = useState('')
+  const [positionDescriptionDetailed, setPositionDescriptionDetailed] = useState('')
   const [positionStartDate, setPositionStartDate] = useState('')
   const [message, setMessage] = useState<{ text: string; type: 'error' | 'success' } | null>(null)
   const [loading, setLoading] = useState(false)
@@ -40,6 +41,7 @@ export default function NewOpenedPositionPage() {
           user_id: userId,
           position_name: positionName,
           position_description: positionDescription,
+          position_description_detailed: positionDescriptionDetailed,
           position_start_date: positionStartDate,
         }),
       })
@@ -52,6 +54,7 @@ export default function NewOpenedPositionPage() {
         setMessage({ text: '✅ New position successfully created', type: 'success' })
         setPositionName('')
         setPositionDescription('')
+        setPositionDescriptionDetailed('')
         setPositionStartDate('')
       }
     } catch (error) {
@@ -82,12 +85,26 @@ export default function NewOpenedPositionPage() {
 
         <div>
           <label htmlFor="positionDescription" className="block mb-1 font-medium">
-            Description
+            Position Description (for display)
           </label>
           <textarea
             id="positionDescription"
             value={positionDescription}
             onChange={(e) => setPositionDescription(e.target.value)}
+            required
+            className="border rounded p-2 w-full"
+            rows={4}
+          />
+        </div>
+
+         <div>
+          <label htmlFor="positionDescriptionDetailed" className="block mb-1 font-medium">
+            Position Description Detailed(For AI analyse)
+          </label>
+          <textarea
+            id="positionDescriptionDetailed"
+            value={positionDescriptionDetailed}
+            onChange={(e) => setPositionDescriptionDetailed(e.target.value)}
             required
             className="border rounded p-2 w-full"
             rows={4}

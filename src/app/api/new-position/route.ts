@@ -6,9 +6,9 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
     console.log('Body received in API:', body)
-    const { user_id, position_name, position_description, position_start_date } = body
+    const { user_id, position_name, position_description, position_description_detailed,position_start_date } = body
 
-    if (!user_id || !position_name || !position_description || !position_start_date) {
+    if (!user_id || !position_name || !position_description || !position_description_detailed ||!position_start_date) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
@@ -30,6 +30,7 @@ export async function POST(request: Request) {
         {
           position_name,
           position_description,
+          position_description_detailed,
           position_start_date,
           user_id,
           company_id: company.company_id,
