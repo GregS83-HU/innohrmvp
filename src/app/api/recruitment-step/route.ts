@@ -31,8 +31,12 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json(data)
-  } catch (error: any) {
-    console.error('Unexpected error:', error.message || error)
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Unexpected error:', error.message)
+    } else {
+      console.error('Unexpected error:', error)
+    }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
