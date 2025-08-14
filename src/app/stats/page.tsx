@@ -10,6 +10,7 @@ type Candidat = {
 
 type PositionToCandidatRow = {
   candidat_score: number | null
+  candidat_ai_analyse: string | null
   candidat_id: number
   candidat_comment: string | null
   candidat_next_step: string | null
@@ -34,6 +35,7 @@ export default async function StatsPage({
     .from('position_to_candidat')
     .select(`
       candidat_score,
+      candidat_ai_analyse,
       candidat_id,
       candidat_comment,
       candidat_next_step,

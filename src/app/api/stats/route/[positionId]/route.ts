@@ -28,6 +28,7 @@ export async function GET(
     .from('position_to_candidat')
     .select(`
       candidat_score,
+      candidat_ai_analyse,
       candidat_id,
       candidat_comment,
       candidat_next_step,

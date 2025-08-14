@@ -182,7 +182,8 @@ La réponse doit etre en anglais parfait
       .insert({
         position_id: positionId,
         candidat_id: candidate.id,
-        candidat_score: score
+        candidat_score: score,
+        candidat_ai_analyse: analysis
       })
 
     if (relationError) {
