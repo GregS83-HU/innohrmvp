@@ -1,15 +1,15 @@
 // src/app/cv-analyse/page.tsx
 import CVAnalyseClient from './CVAnalyseClient';
 
-interface SearchParams {
+type SearchParams = {
   position?: string | string[];
   description?: string | string[];
   descriptiondetailed?: string | string[];
   id?: string | string[];
-}
+};
 
 interface CVAnalysePageProps {
-  searchParams?: Record<string, string | string[]>;
+  searchParams?: SearchParams;
 }
 
 export default function CVAnalysePage({ searchParams }: CVAnalysePageProps) {
