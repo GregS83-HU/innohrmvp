@@ -2,28 +2,33 @@
 
 import CVAnalyseClient from './CVAnalyseClient'
 
-export default function CVAnalysePage(
-  props: any // ⬅️ forcer `any` pour ignorer la contrainte globale
-) {
-  const searchParams = props.searchParams as {
-    [key: string]: string | string[] | undefined
-  }
 
+interface CVAnalysePageProps {
+  searchParams: {
+    position?: string | string[];
+    description?: string | string[];
+    descriptiondetailed?: string | string[];
+    id?: string | string[];
+    [key: string]: string | string[] | undefined; // pour rester flexible
+  };
+}
+
+export default function CVAnalysePage({ searchParams }: CVAnalysePageProps) {
   const positionName = Array.isArray(searchParams.position)
     ? searchParams.position[0]
-    : searchParams.position ?? ''
+    : searchParams.position ?? '';
 
   const jobDescription = Array.isArray(searchParams.description)
     ? searchParams.description[0]
-    : searchParams.description ?? ''
+    : searchParams.description ?? '';
 
   const jobDescriptionDetailed = Array.isArray(searchParams.descriptiondetailed)
     ? searchParams.descriptiondetailed[0]
-    : searchParams.descriptiondetailed ?? ''
+    : searchParams.descriptiondetailed ?? '';
 
   const positionId = Array.isArray(searchParams.id)
     ? searchParams.id[0]
-    : searchParams.id ?? ''
+    : searchParams.id ?? '';
 
   return (
     <CVAnalyseClient
@@ -32,5 +37,5 @@ export default function CVAnalysePage(
       jobDescriptionDetailed={jobDescriptionDetailed}
       positionId={positionId}
     />
-  )
+  );
 }
