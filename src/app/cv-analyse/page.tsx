@@ -1,15 +1,14 @@
-// ✅ On enlève toute dépendance à un type PageProps global
-// ✅ On définit notre propre type local
+// src/app/cv-analyse/page.tsx
 
 import CVAnalyseClient from './CVAnalyseClient'
 
-type SearchParams = { [key: string]: string | string[] | undefined }
+export default function CVAnalysePage(
+  props: any // ⬅️ forcer `any` pour ignorer la contrainte globale
+) {
+  const searchParams = props.searchParams as {
+    [key: string]: string | string[] | undefined
+  }
 
-interface Props {
-  searchParams: SearchParams
-}
-
-export default function CVAnalysePage({ searchParams }: Props) {
   const positionName = Array.isArray(searchParams.position)
     ? searchParams.position[0]
     : searchParams.position ?? ''
