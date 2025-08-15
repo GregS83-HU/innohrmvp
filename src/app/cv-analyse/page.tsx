@@ -1,21 +1,19 @@
 // src/app/cv-analyse/page.tsx
-import type { PageProps } from 'next';
 import CVAnalyseClient from './CVAnalyseClient';
 
-type SearchParams = {
+type Params = {
   position?: string | string[];
   description?: string | string[];
   descriptiondetailed?: string | string[];
   id?: string | string[];
 };
 
-// On étend PageProps pour typer searchParams correctement
-interface CVAnalysePageProps extends PageProps {
-  searchParams?: Promise<SearchParams>;
-}
-
-export default async function CVAnalysePage({ searchParams }: CVAnalysePageProps) {
-  // On attend toujours searchParams (Promise<SearchParams>)
+export default async function CVAnalysePage({
+  searchParams,
+}: {
+  searchParams?: Promise<Params>;
+}) {
+  // Compatible local (objet direct) et Vercel (Promise)
   const params = await searchParams;
 
   const getFirst = (value?: string | string[]) =>
