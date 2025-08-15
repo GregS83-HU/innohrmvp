@@ -1,19 +1,12 @@
 // src/app/cv-analyse/page.tsx
 
-import CVAnalyseClient from './CVAnalyseClient'
-
+import CVAnalyseClient from './CVAnalyseClient';
 
 interface CVAnalysePageProps {
-  searchParams: {
-    position?: string | string[];
-    description?: string | string[];
-    descriptiondetailed?: string | string[];
-    id?: string | string[];
-    [key: string]: string | string[] | undefined; // pour rester flexible
-  };
+  searchParams?: Record<string, string | string[] | undefined>;
 }
 
-export default function CVAnalysePage({ searchParams }: CVAnalysePageProps) {
+export default function CVAnalysePage({ searchParams = {} }: CVAnalysePageProps) {
   const positionName = Array.isArray(searchParams.position)
     ? searchParams.position[0]
     : searchParams.position ?? '';
