@@ -69,8 +69,7 @@ export default function CVAnalyseClient({
       </h1>
 
       <div className="mb-6 text-sm text-gray-600">
-        <p><strong>Brief Description:</strong> {jobDescription}</p>
-        <p><strong>Detailed Description:</strong> {jobDescriptionDetailed}</p>
+        <p><strong>Position Description:</strong> {jobDescription}</p>
       </div>
 
       <form onSubmit={handleUpload} className="space-y-4">
