@@ -124,7 +124,7 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
   }
 
   return (
-    <div style={{ overflowX: 'auto', padding: '1rem' }}>
+    <div style={{ overflowX: 'auto', padding: '1rem', paddingBottom: 'env(safe-area-inset-bottom, 24px)' }}>
       <table
         style={{
           width: '100%',
@@ -338,6 +338,7 @@ const aiPopoverStyle: React.CSSProperties = {
   overflowY: 'auto',
   whiteSpace: 'pre-wrap',
   fontSize: '0.9rem',
+  paddingBottom: 'env(safe-area-inset-bottom, 24px)', // marge de sécurité mobile
 }
 
 const textareaStyle: React.CSSProperties = {
