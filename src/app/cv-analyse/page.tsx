@@ -1,11 +1,21 @@
 // src/app/cv-analyse/page.tsx
 import CVAnalyseClient from './CVAnalyseClient';
 
-export default async function CVAnalysePage({ searchParams }: { searchParams?: Record<string, string | string[]> }) {
-  const positionName = Array.isArray(searchParams?.position) ? searchParams.position[0] : searchParams?.position ?? '';
-  const jobDescription = Array.isArray(searchParams?.description) ? searchParams.description[0] : searchParams?.description ?? '';
-  const jobDescriptionDetailed = Array.isArray(searchParams?.descriptiondetailed) ? searchParams.descriptiondetailed[0] : searchParams?.descriptiondetailed ?? '';
-  const positionId = Array.isArray(searchParams?.id) ? searchParams.id[0] : searchParams?.id ?? '';
+interface SearchParams {
+  position?: string | string[];
+  description?: string | string[];
+  descriptiondetailed?: string | string[];
+  id?: string | string[];
+}
+
+export default function CVAnalysePage({ searchParams }: { searchParams?: SearchParams }) {
+  const getFirst = (value?: string | string[]) =>
+    Array.isArray(value) ? value[0] : value ?? '';
+
+  const positionName = getFirst(searchParams?.position);
+  const jobDescription = getFirst(searchParams?.description);
+  const jobDescriptionDetailed = getFirst(searchParams?.descriptiondetailed);
+  const positionId = getFirst(searchParams?.id);
 
   return (
     <CVAnalyseClient
