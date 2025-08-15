@@ -1,31 +1,32 @@
 // src/app/cv-analyse/page.tsx
-import CVAnalyseClient from './CVAnalyseClient'
+import React from "react";
 
-interface SearchParams {
-  position?: string | string[]
-  description?: string | string[]
-  descriptiondetailed?: string | string[]
-  id?: string | string[]
+interface CVAnalysePageProps {
+  searchParams?: Record<string, string>; // Typage simple pour les query params
 }
 
-// Page server component
-export default function CVAnalysePage({ searchParams }: { searchParams?: SearchParams }) {
-  // Utility pour récupérer une seule valeur même si c'est un tableau
-  const getFirst = (value?: string | string[]) =>
-    Array.isArray(value) ? value[0] : value ?? ''
+const fetchSomeData = async () => {
+  // Exemple de récupération de données asynchrone
+  return { message: "Données chargées" };
+};
 
-  const positionName = getFirst(searchParams?.position)
-  const jobDescription = getFirst(searchParams?.description)
-  const jobDescriptionDetailed = getFirst(searchParams?.descriptiondetailed)
-  const positionId = getFirst(searchParams?.id)
+export default async function Page({ searchParams }: CVAnalysePageProps) {
+  // Si tu as besoin de faire des appels API, tu peux le faire ici
+  const data = await fetchSomeData();
 
-  // On passe tout à CVAnalyseClient qui est un Client Component
   return (
-    <CVAnalyseClient
-      positionName={positionName}
-      jobDescription={jobDescription}
-      jobDescriptionDetailed={jobDescriptionDetailed}
-      positionId={positionId}
-    />
-  )
+    <div className="cv-analyse-page">
+      <h1>Analyse CV</h1>
+      {searchParams && (
+        <div>
+          <h2>Paramètres de recherche :</h2>
+          <pre>{JSON.stringify(searchParams, null, 2)}</pre>
+        </div>
+      )}
+      <div>
+        <h2>Données récupérées :</h2>
+        <pre>{JSON.stringify(data, null, 2)}</pre>
+      </div>
+    </div>
+  );
 }
