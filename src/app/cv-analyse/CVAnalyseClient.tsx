@@ -11,8 +11,7 @@ export default function CVAnalyseClient({
   positionName: string
   jobDescription: string
   jobDescriptionDetailed: string
-  positionId : string
-
+  positionId: string
 }) {
   const [file, setFile] = useState<File | null>(null)
   const [firstName, setFirstName] = useState('')
@@ -31,7 +30,7 @@ export default function CVAnalyseClient({
     formData.append('jobDescription', jobDescription)
     formData.append('firstName', firstName)
     formData.append('lastName', lastName)
-    formData.append('positionId', positionId.toString())
+    formData.append('positionId', positionId)
 
     setLoading(true)
     setError('')
@@ -53,12 +52,12 @@ export default function CVAnalyseClient({
       setAnalysis(data.analysis)
       setScore(data.score)
     } catch (err: unknown) {
-  if (err instanceof Error) {
-    setError(err.message)
-  } else {
-    setError('Erreur inconnue.')
-  }
-} finally {
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError('Erreur inconnue.')
+      }
+    } finally {
       setLoading(false)
     }
   }
@@ -68,6 +67,11 @@ export default function CVAnalyseClient({
       <h1 className="text-2xl font-bold text-center mb-6">
         📄 AI CV Analyse for the position: <span className="text-blue-600">{positionName}</span>
       </h1>
+
+      <div className="mb-6 text-sm text-gray-600">
+        <p><strong>Brief Description:</strong> {jobDescription}</p>
+        <p><strong>Detailed Description:</strong> {jobDescriptionDetailed}</p>
+      </div>
 
       <form onSubmit={handleUpload} className="space-y-4">
         <div>
@@ -104,11 +108,7 @@ export default function CVAnalyseClient({
             htmlFor="cv-upload"
             className="block cursor-pointer text-blue-600 hover:underline"
           >
-            {file ? (
-              <span>✅ {file.name}</span>
-            ) : (
-              <span>📎 Click here to select your CV (in PDF format only)</span>
-            )}
+            {file ? <span>✅ {file.name}</span> : <span>📎 Click here to select your CV (PDF only)</span>}
           </label>
         </div>
 
@@ -116,42 +116,34 @@ export default function CVAnalyseClient({
           type="submit"
           disabled={!file || loading}
           className={`mt-4 w-full py-2 px-4 rounded-lg font-semibold text-white ${
-            loading || !file
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700'
+            loading || !file ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
           }`}
         >
           {loading ? 'Analyse en cours...' : 'Analyser le CV'}
         </button>
       </form>
 
-      {error && (
-        <div className="mt-4 text-red-600 font-semibold">
-          ❌ {error}
-        </div>
-      )}
+      {error && <div className="mt-4 text-red-600 font-semibold">❌ {error}</div>}
 
       {score !== null && analysis && (
-  <div className="mt-6 p-4 bg-gray-50 rounded-lg shadow-sm">
-    <h2 className="text-lg font-semibold mb-2">🧠 Result of the analyse:</h2>
-    <pre className="whitespace-pre-wrap text-sm">{analysis}</pre>
+        <div className="mt-6 p-4 bg-gray-50 rounded-lg shadow-sm">
+          <h2 className="text-lg font-semibold mb-2">🧠 Result of the analyse:</h2>
+          <pre className="whitespace-pre-wrap text-sm">{analysis}</pre>
 
-    <h2 className="text-lg font-semibold mt-4 mb-2">📊 Your score :</h2>
-    <p className="text-sm font-semibold">{score}/10</p>
+          <h2 className="text-lg font-semibold mt-4 mb-2">📊 Your score :</h2>
+          <p className="text-sm font-semibold">{score}/10</p>
 
-    {score < 5 ? (
-      <p className="mt-4 text-red-600 font-bold">
-        Thank you for your application. Unfortunately, your resume does not sufficiently match the position in question. We invite you to explore our other openings on our website.
-      </p>
-    ) : (
-      <p className="mt-4 text-green-600 font-bold">
-        Thank you for your application   ! Your resume is a good match for the position. A member of our HR team will contact you shortly.
-      </p>
-    )}
-  </div>
-    )}
+          {score < 5 ? (
+            <p className="mt-4 text-red-600 font-bold">
+              Thank you for your application. Unfortunately, your resume does not sufficiently match the position. Explore our other openings.
+            </p>
+          ) : (
+            <p className="mt-4 text-green-600 font-bold">
+              Thank you for your application! Your resume is a good match. A member of HR will contact you shortly.
+            </p>
+          )}
+        </div>
+      )}
     </div>
-
   )
-  
 }

@@ -4,9 +4,9 @@ import CVAnalyseClient from './CVAnalyseClient'
 export default async function CVAnalysePage({
   searchParams,
 }: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+  searchParams: { [key: string]: string | string[] | undefined }
 }) {
-  const params = await searchParams
+  const params = searchParams
 
   const positionName = Array.isArray(params.position)
     ? params.position[0]

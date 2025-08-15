@@ -1,5 +1,4 @@
 // src/app/api/analyse-cv/route.ts
-
 import { NextRequest, NextResponse } from 'next/server'
 import { parsePdfBuffer } from '../../../../lib/parsePdfSafe'
 import { createClient } from '@supabase/supabase-js'
@@ -18,53 +17,36 @@ export async function POST(req: NextRequest) {
     const firstname = formData.get('firstName') as string
     const lastname = formData.get('lastName') as string
     const positionId = formData.get('positionId') as string
+    const source = formData.get('source') as string || 'upload manuel'
 
     if (!file || file.type !== 'application/pdf') {
       return NextResponse.json({ error: 'Fichier PDF requis.' }, { status: 400 })
     }
 
-    // reading of the PDF for parsing to AI model
-    const arrayBuffer = await file.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
+    const buffer = Buffer.from(await file.arrayBuffer())
     const cvText = await parsePdfBuffer(buffer)
 
-    //On prépare le fichier pour son enregistrement en base de données
-// 1. Nom unique pour éviter les collisions et nettoyage avant insertion dans Supabase
-function sanitizeFileName(filename: string) {
-  return filename
-    .normalize('NFD') // enlève accents
-    .replace(/[\u0300-\u036f]/g, '') // supprime diacritiques
-    .replace(/\s+/g, '_') // remplace espaces par underscores
-    .replace(/[^a-zA-Z0-9._-]/g, '') // enlève caractères interdits
-}
+    function sanitizeFileName(filename: string) {
+      return filename
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, '_')
+        .replace(/[^a-zA-Z0-9._-]/g, '')
+    }
 
-const safeFileName = sanitizeFileName(file.name)
-const filePath = `cvs/${Date.now()}_${safeFileName}`
+    const safeFileName = sanitizeFileName(file.name)
+    const filePath = `cvs/${Date.now()}_${safeFileName}`
 
+    const { error: uploadError } = await supabase.storage
+      .from('cvs')
+      .upload(filePath, buffer, { contentType: 'application/pdf' })
 
-// 2. Upload du fichier dans Supabase Storage
-const { error: uploadError } = await supabase.storage
-  .from('cvs')
-  .upload(filePath, buffer, {
-    contentType: 'application/pdf'
-  })
+    if (uploadError) return NextResponse.json({ error: 'Échec upload CV' }, { status: 500 })
 
-if (uploadError) {
-  console.error('Erreur upload fichier:', uploadError)
-  return NextResponse.json({ error: 'Échec de l’upload du CV' }, { status: 500 })
-}
+    const { data: publicUrlData } = supabase.storage.from('cvs').getPublicUrl(filePath)
+    const cvFileUrl = publicUrlData.publicUrl
 
-// 3. Récupérer l’URL publique
-const { data: publicUrlData } = supabase.storage
-  .from('cvs')
-  .getPublicUrl(filePath)
-
-const cvFileUrl = publicUrlData.publicUrl
-// end of PDF file preparation for upload
-
-console.log("Job Description passed:",jobDescription)
-
-// AI model prompt
+    // Prompt AI
     const prompt = `
 Tu es un expert RH. Voici un CV :
 
@@ -125,16 +107,14 @@ IMPORTANT : Ne réponds avec rien d'autre que ce JSON.
 La réponse doit etre en anglais parfait
 
 `
-//End of AI Model Prompt
 
+//END PROMPT AI
 
     const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'http://localhost:3000',
-        'X-Title': 'CV Analyzer',
       },
       body: JSON.stringify({
         model: 'mistralai/mistral-7b-instruct',
@@ -144,23 +124,11 @@ La réponse doit etre en anglais parfait
 
     const completion = await res.json()
     const rawResponse = completion.choices?.[0]?.message?.content ?? ''
-
     const match = rawResponse.match(/\{[\s\S]*\}/)
-    if (!match) {
-      return NextResponse.json({ error: 'Réponse JSON invalide de l’IA.' }, { status: 500 })
-    }
+    if (!match) return NextResponse.json({ error: 'Réponse JSON IA invalide' }, { status: 500 })
 
-    let parsedResponse
-    try {
-      parsedResponse = JSON.parse(match[0])
-    } catch (err) {
-      console.error('Erreur de parsing JSON:', err, 'avec la réponse:', rawResponse)
-      return NextResponse.json({ error: 'Impossible de parser la réponse de l’IA.' }, { status: 500 })
-    }
+    const { score, analysis } = JSON.parse(match[0])
 
-    const { score, analysis } = parsedResponse
-
-    // 🔄 Enregistrement dans Supabase
     const { data: candidate, error: insertError } = await supabase
       .from('candidats')
       .insert({
@@ -172,10 +140,7 @@ La réponse doit etre en anglais parfait
       .select()
       .single()
 
-    if (insertError || !candidate) {
-      console.error('Erreur insertion candidat:', insertError)
-      return NextResponse.json({ error: 'Échec de l’enregistrement du candidat' }, { status: 500 })
-    }
+    if (insertError || !candidate) return NextResponse.json({ error: 'Échec enregistrement candidat' }, { status: 500 })
 
     const { error: relationError } = await supabase
       .from('position_to_candidat')
@@ -183,18 +148,15 @@ La réponse doit etre en anglais parfait
         position_id: positionId,
         candidat_id: candidate.id,
         candidat_score: score,
-        candidat_ai_analyse: analysis
+        candidat_ai_analyse: analysis,
+        source
       })
 
-    if (relationError) {
-      console.error('Erreur relation position/candidat:', relationError)
-      return NextResponse.json({ error: 'Échec de la liaison position/candidat' }, { status: 500 })
-    }
+    if (relationError) return NextResponse.json({ error: 'Échec liaison position/candidat' }, { status: 500 })
 
     return NextResponse.json({ score, analysis })
-
-  } catch (err: unknown) {
-    console.error('Erreur API:', err)
+  } catch (err) {
+    console.error(err)
     return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 })
   }
 }

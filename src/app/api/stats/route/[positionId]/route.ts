@@ -29,6 +29,7 @@ export async function GET(
     .select(`
       candidat_score,
       candidat_ai_analyse,
+      source,
       candidat_id,
       candidat_comment,
       candidat_next_step,
