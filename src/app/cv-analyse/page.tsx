@@ -1,4 +1,5 @@
 // src/app/cv-analyse/page.tsx
+import type { PageProps } from 'next';
 import CVAnalyseClient from './CVAnalyseClient';
 
 type SearchParams = {
@@ -8,21 +9,22 @@ type SearchParams = {
   id?: string | string[];
 };
 
-interface CVAnalysePageProps {
-  searchParams?: SearchParams | Promise<SearchParams>;
+// On étend PageProps pour typer searchParams correctement
+interface CVAnalysePageProps extends PageProps {
+  searchParams?: Promise<SearchParams>;
 }
 
 export default async function CVAnalysePage({ searchParams }: CVAnalysePageProps) {
-  // Si searchParams est un Promise (cas Vercel/Next.js strict)
-  const resolvedParams = searchParams instanceof Promise ? await searchParams : searchParams;
+  // On attend toujours searchParams (Promise<SearchParams>)
+  const params = await searchParams;
 
   const getFirst = (value?: string | string[]) =>
     Array.isArray(value) ? value[0] : value ?? '';
 
-  const positionName = getFirst(resolvedParams?.position);
-  const jobDescription = getFirst(resolvedParams?.description);
-  const jobDescriptionDetailed = getFirst(resolvedParams?.descriptiondetailed);
-  const positionId = getFirst(resolvedParams?.id);
+  const positionName = getFirst(params?.position);
+  const jobDescription = getFirst(params?.description);
+  const jobDescriptionDetailed = getFirst(params?.descriptiondetailed);
+  const positionId = getFirst(params?.id);
 
   return (
     <CVAnalyseClient
