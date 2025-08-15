@@ -1,28 +1,26 @@
 // src/app/cv-analyse/page.tsx
 import CVAnalyseClient from './CVAnalyseClient'
 
-export default async function CVAnalysePage({
-  searchParams,
-}: {
+interface CVAnalysePageProps {
   searchParams: { [key: string]: string | string[] | undefined }
-}) {
-  const params = searchParams
+}
 
-  const positionName = Array.isArray(params.position)
-    ? params.position[0]
-    : params.position ?? ''
+export default function CVAnalysePage({ searchParams }: CVAnalysePageProps) {
+  const positionName = Array.isArray(searchParams.position)
+    ? searchParams.position[0]
+    : searchParams.position ?? ''
 
-  const jobDescription = Array.isArray(params.description)
-    ? params.description[0]
-    : params.description ?? ''
+  const jobDescription = Array.isArray(searchParams.description)
+    ? searchParams.description[0]
+    : searchParams.description ?? ''
 
-  const jobDescriptionDetailed = Array.isArray(params.descriptiondetailed)
-    ? params.descriptiondetailed[0]
-    : params.descriptiondetailed ?? ''
+  const jobDescriptionDetailed = Array.isArray(searchParams.descriptiondetailed)
+    ? searchParams.descriptiondetailed[0]
+    : searchParams.descriptiondetailed ?? ''
 
-  const positionId = Array.isArray(params.id)
-    ? params.id[0]
-    : params.id ?? ''
+  const positionId = Array.isArray(searchParams.id)
+    ? searchParams.id[0]
+    : searchParams.id ?? ''
 
   return (
     <CVAnalyseClient
