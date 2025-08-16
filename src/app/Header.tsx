@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
-import { useRouter } from 'next/navigation';
-import { FiMenu, FiX } from 'react-icons/fi'; // icônes menu burger
+import { useRouter, usePathname } from 'next/navigation';
+import { FiMenu, FiX } from 'react-icons/fi';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,6 +19,11 @@ export default function Header() {
   const [user, setUser] = useState<{ firstname: string; lastname: string } | null>(null);
   const [error, setError] = useState('');
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Extraire le slug si on est sur /jobs/[slug]
+  const slugMatch = pathname.match(/^\/jobs\/([^/]+)$/);
+  const companySlug = slugMatch ? slugMatch[1] : null;
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -63,21 +68,27 @@ export default function Header() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    router.push('/');
+    // Redirige vers la page d'accueil en tenant compte du slug
+    router.push(companySlug ? `/jobs/${companySlug}` : '/');
+  };
+
+  // Helper pour construire les liens contextuels
+  const linkToCompany = (path: string) => {
+    return companySlug ? `/jobs/${companySlug}${path === '/' ? '' : path}` : path;
   };
 
   return (
     <>
       <header className="flex items-center justify-between px-4 py-3 border-b relative bg-white">
         {/* Logo */}
-        <Link href="/">
+        <Link href={linkToCompany('/')}>
           <img src="/InnoHRLogo.jpeg" alt="InnoHR" className="h-10 sm:h-12" />
         </Link>
 
         {/* Menu Desktop */}
         <nav className="hidden md:flex gap-6">
-          <Link href="/openedpositions">Available Positions</Link>
-          {user && <Link href="/openedpositions/new">Create a position</Link>}
+          <Link href={linkToCompany('/')}>Available Positions</Link>
+          {user && <Link href={linkToCompany('/new')}>Create a position</Link>}
         </nav>
 
         {/* Boutons à droite */}
@@ -109,17 +120,17 @@ export default function Header() {
         {/* Menu Mobile */}
         {isMobileMenuOpen && (
           <div className="absolute top-full left-0 w-full bg-white border-t shadow-md flex flex-col items-center gap-4 py-4 md:hidden z-50">
-            <Link href="/openedpositions" onClick={() => setIsMobileMenuOpen(false)}>
+            <Link href={linkToCompany('/')} onClick={() => setIsMobileMenuOpen(false)}>
               Available Positions
             </Link>
             {user && (
-              <Link href="/openedpositions/new" onClick={() => setIsMobileMenuOpen(false)}>
+              <Link href={linkToCompany('/new')} onClick={() => setIsMobileMenuOpen(false)}>
                 Create a position
               </Link>
             )}
             {user ? (
               <>
-                <span className="font-semibold hidden md:inline">
+                <span className="font-semibold">
                   Welcome {user.firstname} {user.lastname}
                 </span>
                 <button
