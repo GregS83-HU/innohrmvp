@@ -1,226 +1,216 @@
-'use client'
+'use client';
 
-import Link from "next/link"
-import { useSession } from "@supabase/auth-helpers-react"
-import { useEffect, useState } from "react"
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { createClient } from '@supabase/supabase-js';
+import { useRouter, usePathname } from 'next/navigation';
+import { FiMenu, FiX } from 'react-icons/fi';
 
-type Position = {
-  id: number
-  position_name: string
-  position_description: string
-  position_description_detailed: string
-  company?: {
-    company_logo?: string
-    company_name?: string
-    slug?: string
-  }
-}
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
-type Props = {
-  initialPositions?: Position[]
-  companySlug?: string
-}
+export default function Header() {
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [login, setLogin] = useState('');
+  const [password, setPassword] = useState('');
+  const [user, setUser] = useState<{ firstname: string; lastname: string } | null>(null);
+  const [companyLogo, setCompanyLogo] = useState<string | null>(null);
+  const [error, setError] = useState('');
+  const router = useRouter();
+  const pathname = usePathname();
 
-export default function PositionsList({ initialPositions = [], companySlug }: Props) {
-  const session = useSession()
-  const isLoggedIn = !!session?.user
-  const userId = session?.user?.id
-
-  const [positions, setPositions] = useState<Position[]>(initialPositions)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [loadingClose, setLoadingClose] = useState<number | null>(null)
-  const [searchTerm, setSearchTerm] = useState("")
+  // Extraire le slug si on est sur /jobs/[slug]
+  const slugMatch = pathname.match(/^\/jobs\/([^/]+)$/);
+  const companySlug = slugMatch ? slugMatch[1] : null;
 
   useEffect(() => {
-    if (initialPositions.length > 0) return
-    if (isLoggedIn && !userId) return
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) fetchUserProfile(data.session.user.id);
+    });
 
-    async function fetchPositions() {
-      setLoading(true)
-      setError(null)
-      try {
-        let url = ""
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) fetchUserProfile(session.user.id);
+      else setUser(null);
+    });
 
-        if (companySlug) {
-          // Positions publiques pour une entreprise spécifique
-          url = `/api/positions-public?slug=${encodeURIComponent(companySlug)}`
-        } else if (isLoggedIn && userId) {
-          // Positions privées filtrées par l'utilisateur
-          url = `/api/positions-private?userId=${encodeURIComponent(userId)}`
-        } else {
-          // Pas de slug et pas connecté → toutes les positions publiques
-          url = `/api/positions-public`
-        }
+    return () => authListener.subscription.unsubscribe();
+  }, []);
 
-        const res = await fetch(url)
-        if (!res.ok) throw new Error("Erreur lors du chargement des positions")
-        const data = await res.json()
-        setPositions(data.positions || [])
-      } catch (e) {
-        setError((e as Error).message)
-      } finally {
-        setLoading(false)
+  // Récupérer le logo si on est dans un contexte slug
+  useEffect(() => {
+    const fetchCompanyLogo = async () => {
+      if (!companySlug) {
+        setCompanyLogo(null);
+        return;
       }
+
+      const { data, error } = await supabase
+        .from('company')
+        .select('company_logo')
+        .eq('slug', companySlug)
+        .single();
+
+      if (!error && data?.company_logo) setCompanyLogo(data.company_logo);
+      else setCompanyLogo(null);
+    };
+
+    fetchCompanyLogo();
+  }, [companySlug]);
+
+  const fetchUserProfile = async (userId: string) => {
+    const { data } = await supabase
+      .from('users')
+      .select('user_firstname, user_lastname')
+      .eq('id', userId)
+      .single();
+
+    if (data) setUser({ firstname: data.user_firstname, lastname: data.user_lastname });
+  };
+
+  const handleLogin = async () => {
+    setError('');
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: login,
+      password,
+    });
+
+    if (error) {
+      setError('Invalid email or password!');
+      return;
     }
-
-    fetchPositions()
-  }, [companySlug, isLoggedIn, userId, initialPositions.length])
-
-  async function handleClose(positionId: number) {
-    if (!confirm("Do you really want to close this position?")) return
-    setLoadingClose(positionId)
-    try {
-      const res = await fetch("/api/close", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ positionId }),
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        alert("Error closing position: " + (data.error || "Erreur inconnue"))
-        setLoadingClose(null)
-        return
-      }
-      alert("Position closed successfully")
-      setPositions((prev) => prev.filter((p) => p.id !== positionId))
-    } catch (e) {
-      alert("Error closing position: " + (e as Error).message)
+    if (data.user) {
+      fetchUserProfile(data.user.id);
+      setIsLoginOpen(false);
     }
-    setLoadingClose(null)
-  }
+  };
 
-  const filteredPositions = positions.filter(
-    (p) =>
-      (!companySlug || p.company?.slug === companySlug) &&
-      (p.position_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       p.position_description.toLowerCase().includes(searchTerm.toLowerCase()))
-  )
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    router.push(companySlug ? `/jobs/${companySlug}` : '/');
+  };
 
-  if (loading) return <p>Chargement...</p>
-  if (error) return <p>Erreur : {error}</p>
-  if (filteredPositions.length === 0) return <p>No available position at the moment</p>
+  const linkToCompany = (defaultPath: string) =>
+    companySlug ? `/jobs/${companySlug}${defaultPath !== '/' ? defaultPath : ''}` : defaultPath;
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-center mb-6" style={{ userSelect: "none" }}>
-        📄 List of available positions{" "}
-        <span style={{ color: "#0070f3" }}>({filteredPositions.length})</span>
-      </h1>
+    <>
+      <header className="flex items-center justify-between px-4 py-3 border-b relative bg-white">
+        {/* Logo */}
+        <Link href={linkToCompany('/')}>
+          <img
+            src={companyLogo || '/InnoHRLogo.jpeg'}
+            alt="Logo"
+            className="h-10 sm:h-12 object-contain"
+          />
+        </Link>
 
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "1rem" }}>
-        <input
-          type="text"
-          placeholder="Search positions..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            padding: "0.5rem",
-            border: "1px solid #ccc",
-            borderRadius: "4px",
-            minWidth: "250px",
-          }}
-        />
-      </div>
+        {/* Menu Desktop */}
+        <nav className="hidden md:flex gap-6">
+          <Link href={linkToCompany('/')}>Available Positions</Link>
+          {user && <Link href="/new">Create a position</Link>}
+        </nav>
 
-      <ul style={{ listStyle: "none", padding: 0 }}>
-        {filteredPositions.map((position) => (
-          <li
-            key={position.id}
-            style={{
-              border: "1px solid #ccc",
-              borderRadius: "6px",
-              padding: "1rem",
-              marginBottom: "1rem",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "0.5rem",
-              }}
-            >
-              <h2 style={{ margin: 0, fontWeight: "bold" }}>{position.position_name}</h2>
-              {position.company?.company_logo && (
-                <img
-                  src={position.company.company_logo}
-                  alt="Logo entreprise"
-                  style={{
-                    width: "64px",
-                    height: "64px",
-                    objectFit: "contain",
-                    borderRadius: "4px",
-                    backgroundColor: "white",
+        {/* Boutons à droite */}
+        <div className="hidden md:flex items-center gap-4">
+          {user ? (
+            <>
+              <span className="font-semibold">
+                Welcome {user.firstname} {user.lastname}
+              </span>
+              <button onClick={handleLogout} className="text-blue-600">
+                Logout
+              </button>
+            </>
+          ) : (
+            <button onClick={() => setIsLoginOpen(true)} className="text-blue-600">
+              Login
+            </button>
+          )}
+        </div>
+
+        {/* Bouton Burger (Mobile) */}
+        <button
+          className="md:hidden text-2xl"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          {isMobileMenuOpen ? <FiX /> : <FiMenu />}
+        </button>
+
+        {/* Menu Mobile */}
+        {isMobileMenuOpen && (
+          <div className="absolute top-full left-0 w-full bg-white border-t shadow-md flex flex-col items-center gap-4 py-4 md:hidden z-50">
+            <Link href={linkToCompany('/')} onClick={() => setIsMobileMenuOpen(false)}>
+              Available Positions
+            </Link>
+            {user && (
+              <Link href="/new" onClick={() => setIsMobileMenuOpen(false)}>
+                Create a position
+              </Link>
+            )}
+            {user ? (
+              <>
+                <span className="font-semibold hidden md:inline">
+                  Welcome {user.firstname} {user.lastname}
+                </span>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setIsMobileMenuOpen(false);
                   }}
-                />
-              )}
-            </div>
-
-            <p>{position.position_description}</p>
-
-            <div>
-              {!isLoggedIn && (
-                <Link
-                  href={`/cv-analyse?position=${encodeURIComponent(position.position_name)}&description=${encodeURIComponent(
-                    position.position_description_detailed
-                  )}&id=${position.id}`}
-                  style={{
-                    display: "inline-block",
-                    marginTop: "1rem",
-                    backgroundColor: "#0070f3",
-                    color: "white",
-                    padding: "0.5rem 1rem",
-                    borderRadius: "4px",
-                    textDecoration: "none",
-                  }}
+                  className="text-blue-600"
                 >
-                  📝 Apply
-                </Link>
-              )}
-              {isLoggedIn && (
-                <>
-                  <Link
-                    href={`/stats?positionId=${position.id}`}
-                    style={{
-                      display: "inline-block",
-                      marginTop: "1rem",
-                      marginLeft: "0.5rem",
-                      backgroundColor: "#28a745",
-                      color: "white",
-                      padding: "0.5rem 1rem",
-                      borderRadius: "4px",
-                      textDecoration: "none",
-                    }}
-                  >
-                    📊 Stats
-                  </Link>
+                  Logout
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => {
+                  setIsLoginOpen(true);
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-blue-600"
+              >
+                Login
+              </button>
+            )}
+          </div>
+        )}
+      </header>
 
-                  <button
-                    onClick={() => handleClose(position.id)}
-                    disabled={loadingClose === position.id}
-                    style={{
-                      marginLeft: "0.5rem",
-                      marginTop: "1rem",
-                      backgroundColor: "#dc3545",
-                      color: "white",
-                      padding: "0.5rem 1rem",
-                      borderRadius: "4px",
-                      border: "none",
-                      cursor: "pointer",
-                    }}
-                  >
-                    {loadingClose === position.id ? "Fermeture..." : "Fermer"}
-                  </button>
-                </>
-              )}
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
+      {/* Drawer Login */}
+      {isLoginOpen && (
+        <div className="fixed top-0 right-0 w-72 h-full bg-white border-l p-4 shadow-lg flex flex-col gap-4 z-50">
+          <h2 className="text-xl font-bold">Login</h2>
+          <input
+            type="email"
+            placeholder="Email"
+            value={login}
+            onChange={(e) => setLogin(e.target.value)}
+            className="border p-2"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="border p-2"
+          />
+          {error && <p className="text-red-500">{error}</p>}
+          <button onClick={handleLogin} className="bg-blue-600 text-white p-2">
+            Connect
+          </button>
+          <button
+            onClick={() => setIsLoginOpen(false)}
+            className="mt-auto text-gray-600"
+          >
+            Close
+          </button>
+        </div>
+      )}
+    </>
+  );
 }
