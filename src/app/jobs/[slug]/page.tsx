@@ -12,12 +12,8 @@ type Position = {
   };
 };
 
-// [slug]/page.tsx
-interface PageParams {
-  params: { slug: string };
-}
-
-export default async function Page({ params }: PageParams) {
+// src/app/jobs/[slug]/page.tsx
+export default async function Page({ params }: { params: { slug: string } }) {
   const slug = params.slug;
 
   // ✅ URL absolue côté serveur (Vercel ou local)
