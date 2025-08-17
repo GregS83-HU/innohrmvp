@@ -13,13 +13,8 @@ type Position = {
   };
 };
 
-// Typage correct pour App Router
-type JobPageProps = {
-  params: { slug: string };
-};
-
-export default async function JobPage({ params }: JobPageProps) {
-  const { slug } = params;
+export default async function JobPage({ params }: { params: { slug: string } }) {
+  const slug = params.slug;
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
