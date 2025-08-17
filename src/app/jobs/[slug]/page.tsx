@@ -1,46 +1,50 @@
-import PositionsList from "app/openedpositions/PositionList"
+import PositionsList from "app/openedpositions/PositionList";
+
 type Position = {
-  id: number
-  position_name: string
-  position_description: string
-  position_description_detailed: string
+  id: number;
+  position_name: string;
+  position_description: string;
+  position_description_detailed: string;
   company?: {
-    company_logo?: string
-    company_name?: string
-    slug?: string
-  }
-}
+    company_logo?: string;
+    company_name?: string;
+    slug?: string;
+  };
+};
 
-type Props = {
-  params: Promise<{ slug: string }>
-}
+type PageProps = {
+  params: { slug: string };
+};
 
-export default async function CompanyJobsPage({ params }: Props) {
-  // ✅ Attendre params (Next.js App Router)
-  const { slug } = await params
-
-  // ✅ URL côté serveur (Next.js App Router)
-  const baseUrl = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : "http://localhost:3000";
+export default async function Page({ params }: PageProps) {
+  const { slug } = params;
 
   // ✅ URL absolue côté serveur
- // const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-  const res = await fetch(`${baseUrl}/api/positions-public?slug=${slug}`, {
-    cache: "no-store",
-  })
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
-  if (!res.ok) {
-    throw new Error("Impossible de charger les positions")
+  let positions: Position[] = [];
+  try {
+    const res = await fetch(`${baseUrl}/api/positions-public?slug=${slug}`, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      throw new Error("Impossible de charger les positions");
+    }
+
+    const data = await res.json();
+    positions = data.positions || [];
+  } catch (err) {
+    console.error("Erreur récupération positions:", err);
   }
 
-  const data = await res.json()
-  const positions: Position[] = data.positions || []
   return (
     <main style={{ maxWidth: "900px", margin: "auto", padding: "2rem" }}>
+      <h1 className="text-3xl font-bold text-center mb-8">
+        Offres d’emploi – {positions[0]?.company?.company_name || slug}
+      </h1>
 
-      {/* ✅ Réutilisation du composant avec bouton Apply */}
       <PositionsList initialPositions={positions} companySlug={slug} />
     </main>
-  )
+  );
 }
