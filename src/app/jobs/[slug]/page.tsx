@@ -12,14 +12,15 @@ type Position = {
   };
 };
 
-type PageProps = {
+// [slug]/page.tsx
+interface PageParams {
   params: { slug: string };
-};
+}
 
-export default async function Page({ params }: PageProps) {
-  const { slug } = params;
+export default async function Page({ params }: PageParams) {
+  const slug = params.slug;
 
-  // ✅ URL absolue côté serveur
+  // ✅ URL absolue côté serveur (Vercel ou local)
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
   let positions: Position[] = [];
