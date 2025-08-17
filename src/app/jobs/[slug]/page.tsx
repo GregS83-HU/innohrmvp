@@ -1,4 +1,4 @@
-import PositionsList from "app/openedpositions/PositionList";
+import PositionsList from "../../openedpositions/PositionList";
 
 type Position = {
   id: number;
@@ -12,13 +12,12 @@ type Position = {
   };
 };
 
-type PageParams = {
-  params: {
-    slug: string;
-  };
-};
-
-export default async function Page({ params }: PageParams) {
+// Pour App Router, on ne met pas "PageProps", juste les params
+export default async function JobPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
   const { slug } = params;
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -30,9 +29,7 @@ export default async function Page({ params }: PageParams) {
       cache: "no-store",
     });
 
-    if (!res.ok) {
-      throw new Error("Impossible de charger les positions");
-    }
+    if (!res.ok) throw new Error("Impossible de charger les positions");
 
     const data = await res.json();
     positions = data.positions || [];
