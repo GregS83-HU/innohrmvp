@@ -1,11 +1,7 @@
 import PositionsList, { Position } from "../../openedpositions/PositionList"
 
-export default async function CompanyJobsPage({
-  params,
-}: {
-  params: { slug: string }
-}) {
-  const { slug } = params
+export default async function CompanyJobsPage({ params }: any) {
+  const slug = params?.slug as string
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
 
