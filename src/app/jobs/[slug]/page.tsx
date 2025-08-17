@@ -1,7 +1,7 @@
 import PositionsList, { Position } from "../../openedpositions/PositionList"
 
 type Props = {
-  params: { slug: string }
+  params: { slug: string } // 👈 plus besoin de Promise
 }
 
 export default async function CompanyJobsPage({ params }: Props) {
@@ -27,8 +27,8 @@ export default async function CompanyJobsPage({ params }: Props) {
         Offres d’emploi – {positions[0]?.company?.name || slug}
       </h1>
 
-      {/* ✅ Passe les props correctement typées */}
       <PositionsList initialPositions={positions} companySlug={slug} />
     </main>
   )
 }
+
