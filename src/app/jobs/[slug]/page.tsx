@@ -43,10 +43,6 @@ export default async function JobPage({
 
   return (
     <main style={{ maxWidth: "900px", margin: "auto", padding: "2rem" }}>
-      <h1 className="text-3xl font-bold text-center mb-8">
-        Offres d’emploi – {positions[0]?.company?.company_name || slug}
-      </h1>
-
       <PositionsList initialPositions={positions} companySlug={slug} />
     </main>
   );

@@ -130,9 +130,11 @@ export default function Header() {
               </button>
             </>
           ) : (
-            <button onClick={() => setIsLoginOpen(true)} className="text-blue-600">
-              Login
-            </button>
+            !companySlug && (
+              <button onClick={() => setIsLoginOpen(true)} className="text-blue-600">
+                Login
+              </button>
+            )
           )}
         </div>
 
@@ -171,22 +173,24 @@ export default function Header() {
                 </button>
               </>
             ) : (
-              <button
-                onClick={() => {
-                  setIsLoginOpen(true);
-                  setIsMobileMenuOpen(false);
-                }}
-                className="text-blue-600"
-              >
-                Login
-              </button>
+              !companySlug && (
+                <button
+                  onClick={() => {
+                    setIsLoginOpen(true);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="text-blue-600"
+                >
+                  Login
+                </button>
+              )
             )}
           </div>
         )}
       </header>
 
       {/* Drawer Login */}
-      {isLoginOpen && (
+      {isLoginOpen && !companySlug && (
         <div className="fixed top-0 right-0 w-72 h-full bg-white border-l p-4 shadow-lg flex flex-col gap-4 z-50">
           <h2 className="text-xl font-bold">Login</h2>
           <input
