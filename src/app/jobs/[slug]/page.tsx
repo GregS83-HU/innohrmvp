@@ -12,14 +12,19 @@ type Position = {
   };
 };
 
-// src/app/jobs/[slug]/page.tsx
-export default async function Page({ params }: { params: { slug: string } }) {
-  const slug = params.slug;
+type PageParams = {
+  params: {
+    slug: string;
+  };
+};
 
-  // ✅ URL absolue côté serveur (Vercel ou local)
+export default async function Page({ params }: PageParams) {
+  const { slug } = params;
+
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
   let positions: Position[] = [];
+
   try {
     const res = await fetch(`${baseUrl}/api/positions-public?slug=${slug}`, {
       cache: "no-store",
