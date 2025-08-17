@@ -1,3 +1,4 @@
+// src/app/jobs/[slug]/page.tsx
 import PositionsList from "../../openedpositions/PositionList";
 
 type Position = {
@@ -12,7 +13,6 @@ type Position = {
   };
 };
 
-// Pour App Router, on ne met pas "PageProps", juste les params
 export default async function JobPage({
   params,
 }: {
@@ -28,13 +28,12 @@ export default async function JobPage({
     const res = await fetch(`${baseUrl}/api/positions-public?slug=${slug}`, {
       cache: "no-store",
     });
-
     if (!res.ok) throw new Error("Impossible de charger les positions");
 
     const data = await res.json();
     positions = data.positions || [];
   } catch (err) {
-    console.error("Erreur récupération positions:", err);
+    console.error(err);
   }
 
   return (
