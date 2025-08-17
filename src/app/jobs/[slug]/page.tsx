@@ -13,9 +13,14 @@ type Position = {
   };
 };
 
-// ⚡ pas de typage manuel ici
-export default async function JobPage({ params }: any) {
-  const slug = params.slug;
+interface JobPageProps {
+  params: {
+    slug: string;
+  };
+}
+
+export default async function JobPage({ params }: JobPageProps) {
+  const { slug } = params;
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
