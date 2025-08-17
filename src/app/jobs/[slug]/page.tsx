@@ -1,13 +1,12 @@
 import PositionsList, { Position } from "../../openedpositions/PositionList"
 
 type Props = {
-  params: { slug: string } // 👈 plus besoin de Promise
+  params: { slug: string }
 }
 
 export default async function CompanyJobsPage({ params }: Props) {
   const { slug } = params
 
-  // ✅ URL absolue côté serveur
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
 
   const res = await fetch(`${baseUrl}/api/positions-public?slug=${slug}`, {
@@ -31,4 +30,3 @@ export default async function CompanyJobsPage({ params }: Props) {
     </main>
   )
 }
-
