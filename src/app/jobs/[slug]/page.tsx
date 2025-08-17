@@ -13,13 +13,15 @@ type Position = {
   };
 };
 
-interface JobPageProps {
-  params: {
-    slug: string;
-  };
-}
+type PositionsApiResponse = {
+  positions: Position[];
+};
 
-export default async function JobPage({ params }: JobPageProps) {
+export default async function JobPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
   const { slug } = params;
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -32,7 +34,7 @@ export default async function JobPage({ params }: JobPageProps) {
     });
     if (!res.ok) throw new Error("Impossible de charger les positions");
 
-    const data = await res.json();
+    const data: PositionsApiResponse = await res.json();
     positions = data.positions || [];
   } catch (err) {
     console.error(err);
