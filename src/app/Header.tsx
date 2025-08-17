@@ -18,12 +18,37 @@ export default function Header() {
   const [password, setPassword] = useState('');
   const [user, setUser] = useState<{ firstname: string; lastname: string } | null>(null);
   const [error, setError] = useState('');
+  const [companyLogo, setCompanyLogo] = useState<string | null>(null);
+
   const router = useRouter();
   const pathname = usePathname();
 
   // Extraire le slug si on est sur /jobs/[slug]
   const slugMatch = pathname.match(/^\/jobs\/([^/]+)$/);
   const companySlug = slugMatch ? slugMatch[1] : null;
+
+  // Récupérer le logo de l’entreprise si slug présent
+  useEffect(() => {
+    if (companySlug) {
+      const fetchCompanyLogo = async () => {
+        const { data, error } = await supabase
+          .from('company')
+          .select('company_logo')
+          .eq('slug', companySlug)
+          .single();
+
+        if (!error && data) {
+          setCompanyLogo(data.company_logo || null);
+        } else {
+          setCompanyLogo(null);
+        }
+      };
+
+      fetchCompanyLogo();
+    } else {
+      setCompanyLogo(null);
+    }
+  }, [companySlug]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -68,11 +93,9 @@ export default function Header() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    // Redirige vers la page d'accueil en tenant compte du slug
     router.push(companySlug ? `/jobs/${companySlug}` : '/');
   };
 
-  // Helper pour construire les liens contextuels
   const linkToCompany = (path: string) => {
     return companySlug ? `/jobs/${companySlug}${path === '/' ? '' : path}` : path;
   };
@@ -82,7 +105,11 @@ export default function Header() {
       <header className="flex items-center justify-between px-4 py-3 border-b relative bg-white">
         {/* Logo */}
         <Link href={linkToCompany('/')}>
-          <img src="/InnoHRLogo.jpeg" alt="InnoHR" className="h-10 sm:h-12" />
+          <img
+            src={companyLogo || '/InnoHRLogo.jpeg'}
+            alt="Logo"
+            className="h-10 sm:h-12"
+          />
         </Link>
 
         {/* Menu Desktop */}
