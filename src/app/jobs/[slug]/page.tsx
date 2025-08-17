@@ -13,18 +13,19 @@ type Position = {
   };
 };
 
-type PositionsApiResponse = {
-  positions: Position[];
-};
+type ApiResponse = { positions?: Position[] };
 
 export default async function JobPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const { slug } = params;
+  // Votre environnement (Vercel) impose params en Promise -> on l'attend.
+  const { slug } = await params;
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
   let positions: Position[] = [];
 
@@ -34,8 +35,8 @@ export default async function JobPage({
     });
     if (!res.ok) throw new Error("Impossible de charger les positions");
 
-    const data: PositionsApiResponse = await res.json();
-    positions = data.positions || [];
+    const data: ApiResponse = await res.json();
+    positions = data.positions ?? [];
   } catch (err) {
     console.error(err);
   }
