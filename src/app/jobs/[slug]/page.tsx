@@ -1,26 +1,15 @@
-import PositionsList from "app/openedpositions/PositionList"
-type Position = {
-  id: number
-  position_name: string
-  position_description: string
-  position_description_detailed: string
-  company?: {
-    company_logo?: string
-    company_name?: string
-    slug?: string
-  }
-}
+import PositionsList, { Position } from "../../openedpositions/PositionList"
 
 type Props = {
-  params: Promise<{ slug: string }>
+  params: { slug: string }
 }
 
 export default async function CompanyJobsPage({ params }: Props) {
-  // ✅ Attendre params (Next.js App Router)
-  const { slug } = await params
+  const { slug } = params
 
   // ✅ URL absolue côté serveur
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+
   const res = await fetch(`${baseUrl}/api/positions-public?slug=${slug}`, {
     cache: "no-store",
   })
@@ -35,10 +24,10 @@ export default async function CompanyJobsPage({ params }: Props) {
   return (
     <main style={{ maxWidth: "900px", margin: "auto", padding: "2rem" }}>
       <h1 className="text-3xl font-bold text-center mb-8">
-        Offres d’emploi – {positions[0]?.company?.company_name || slug}
+        Offres d’emploi – {positions[0]?.company?.name || slug}
       </h1>
 
-      {/* ✅ Réutilisation du composant avec bouton Apply */}
+      {/* ✅ Passe les props correctement typées */}
       <PositionsList initialPositions={positions} companySlug={slug} />
     </main>
   )

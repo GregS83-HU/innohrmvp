@@ -1,216 +1,115 @@
-'use client';
+"use client"
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { createClient } from '@supabase/supabase-js';
-import { useRouter, usePathname } from 'next/navigation';
-import { FiMenu, FiX } from 'react-icons/fi';
+import { useEffect, useState } from "react"
+import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+)
 
-export default function Header() {
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [login, setLogin] = useState('');
-  const [password, setPassword] = useState('');
-  const [user, setUser] = useState<{ firstname: string; lastname: string } | null>(null);
-  const [companyLogo, setCompanyLogo] = useState<string | null>(null);
-  const [error, setError] = useState('');
-  const router = useRouter();
-  const pathname = usePathname();
+export interface Position {
+  id: number
+  position_name: string
+  position_description: string
+  position_description_detailed: string
+  company?: {
+    company_logo?: string
+    name?: string
+    slug?: string
+  }
+}
 
-  // Extraire le slug si on est sur /jobs/[slug]
-  const slugMatch = pathname.match(/^\/jobs\/([^/]+)$/);
-  const companySlug = slugMatch ? slugMatch[1] : null;
+interface PositionsListProps {
+  initialPositions?: Position[]
+  companySlug?: string
+}
+
+export default function PositionsList({
+  initialPositions = [],
+  companySlug,
+}: PositionsListProps) {
+  const [positions, setPositions] = useState<Position[]>(initialPositions)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) fetchUserProfile(data.session.user.id);
-    });
+    const fetchPositions = async () => {
+      if (companySlug) {
+        // ⚡ Mode public : fetch par slug
+        const { data, error } = await supabase
+          .from("openedpositions")
+          .select(
+            `
+            id,
+            position_name,
+            position_description,
+            position_description_detailed,
+            company:company(
+              company_logo,
+              name,
+              slug
+            )
+          `
+          )
+          .eq("company.slug", companySlug)
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) fetchUserProfile(session.user.id);
-      else setUser(null);
-    });
+        if (!error && data) {
+          setPositions(data as Position[])
+        }
+      } else {
+        // 🔒 Mode privé : récupérer les positions de l’utilisateur connecté
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
 
-    return () => authListener.subscription.unsubscribe();
-  }, []);
+        if (session) {
+          const { data, error } = await supabase
+            .from("openedpositions")
+            .select(
+              `
+              id,
+              position_name,
+              position_description,
+              position_description_detailed,
+              company:company(
+                company_logo,
+                name,
+                slug
+              )
+            `
+            )
+            .eq("user_id", session.user.id)
 
-  // Récupérer le logo si on est dans un contexte slug
-  useEffect(() => {
-    const fetchCompanyLogo = async () => {
-      if (!companySlug) {
-        setCompanyLogo(null);
-        return;
+          if (!error && data) {
+            setPositions(data as Position[])
+          }
+        }
       }
-
-      const { data, error } = await supabase
-        .from('company')
-        .select('company_logo')
-        .eq('slug', companySlug)
-        .single();
-
-      if (!error && data?.company_logo) setCompanyLogo(data.company_logo);
-      else setCompanyLogo(null);
-    };
-
-    fetchCompanyLogo();
-  }, [companySlug]);
-
-  const fetchUserProfile = async (userId: string) => {
-    const { data } = await supabase
-      .from('users')
-      .select('user_firstname, user_lastname')
-      .eq('id', userId)
-      .single();
-
-    if (data) setUser({ firstname: data.user_firstname, lastname: data.user_lastname });
-  };
-
-  const handleLogin = async () => {
-    setError('');
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: login,
-      password,
-    });
-
-    if (error) {
-      setError('Invalid email or password!');
-      return;
     }
-    if (data.user) {
-      fetchUserProfile(data.user.id);
-      setIsLoginOpen(false);
-    }
-  };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    router.push(companySlug ? `/jobs/${companySlug}` : '/');
-  };
-
-  const linkToCompany = (defaultPath: string) =>
-    companySlug ? `/jobs/${companySlug}${defaultPath !== '/' ? defaultPath : ''}` : defaultPath;
+    fetchPositions()
+  }, [companySlug])
 
   return (
-    <>
-      <header className="flex items-center justify-between px-4 py-3 border-b relative bg-white">
-        {/* Logo */}
-        <Link href={linkToCompany('/')}>
-          <img
-            src={companyLogo || '/InnoHRLogo.jpeg'}
-            alt="Logo"
-            className="h-10 sm:h-12 object-contain"
-          />
-        </Link>
-
-        {/* Menu Desktop */}
-        <nav className="hidden md:flex gap-6">
-          <Link href={linkToCompany('/')}>Available Positions</Link>
-          {user && <Link href="/new">Create a position</Link>}
-        </nav>
-
-        {/* Boutons à droite */}
-        <div className="hidden md:flex items-center gap-4">
-          {user ? (
-            <>
-              <span className="font-semibold">
-                Welcome {user.firstname} {user.lastname}
-              </span>
-              <button onClick={handleLogout} className="text-blue-600">
-                Logout
-              </button>
-            </>
-          ) : (
-            <button onClick={() => setIsLoginOpen(true)} className="text-blue-600">
-              Login
-            </button>
-          )}
-        </div>
-
-        {/* Bouton Burger (Mobile) */}
-        <button
-          className="md:hidden text-2xl"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          {isMobileMenuOpen ? <FiX /> : <FiMenu />}
-        </button>
-
-        {/* Menu Mobile */}
-        {isMobileMenuOpen && (
-          <div className="absolute top-full left-0 w-full bg-white border-t shadow-md flex flex-col items-center gap-4 py-4 md:hidden z-50">
-            <Link href={linkToCompany('/')} onClick={() => setIsMobileMenuOpen(false)}>
-              Available Positions
-            </Link>
-            {user && (
-              <Link href="/new" onClick={() => setIsMobileMenuOpen(false)}>
-                Create a position
-              </Link>
+    <div>
+      <h2 className="text-xl font-bold mb-4">Available positions</h2>
+      <ul>
+        {positions.map((p) => (
+          <li key={p.id} className="border p-2 mb-2 rounded">
+            {p.company?.company_logo && (
+              <img
+                src={p.company.company_logo}
+                alt={`${p.company.name} logo`}
+                className="h-8 mb-2"
+              />
             )}
-            {user ? (
-              <>
-                <span className="font-semibold hidden md:inline">
-                  Welcome {user.firstname} {user.lastname}
-                </span>
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="text-blue-600"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={() => {
-                  setIsLoginOpen(true);
-                  setIsMobileMenuOpen(false);
-                }}
-                className="text-blue-600"
-              >
-                Login
-              </button>
-            )}
-          </div>
-        )}
-      </header>
-
-      {/* Drawer Login */}
-      {isLoginOpen && (
-        <div className="fixed top-0 right-0 w-72 h-full bg-white border-l p-4 shadow-lg flex flex-col gap-4 z-50">
-          <h2 className="text-xl font-bold">Login</h2>
-          <input
-            type="email"
-            placeholder="Email"
-            value={login}
-            onChange={(e) => setLogin(e.target.value)}
-            className="border p-2"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="border p-2"
-          />
-          {error && <p className="text-red-500">{error}</p>}
-          <button onClick={handleLogin} className="bg-blue-600 text-white p-2">
-            Connect
-          </button>
-          <button
-            onClick={() => setIsLoginOpen(false)}
-            className="mt-auto text-gray-600"
-          >
-            Close
-          </button>
-        </div>
+            <h3 className="font-semibold">{p.position_name}</h3>
+            <p className="text-sm">{p.position_description}</p>
+          </li>
+        ))}
+      </ul>
+      {positions.length === 0 && (
+        <p className="text-gray-500">Aucune offre disponible.</p>
       )}
-    </>
-  );
+    </div>
+  )
 }
