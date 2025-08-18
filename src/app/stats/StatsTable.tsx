@@ -209,6 +209,11 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
                       <Popover.Content
                         side="top"
                         align="end"
+                        sideOffset={5}
+                        collisionPadding={16}
+                        avoidCollisions={true}
+                        // ✅ Fallback en bas si pas la place en haut
+                        sticky="always"
                         style={popoverStyle}
                       >
                         <textarea
@@ -249,6 +254,10 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
                         <Popover.Content
                           side="top"
                           align="center"
+                          sideOffset={5}
+                          collisionPadding={16}
+                          avoidCollisions={true}
+                          sticky="always" // ✅ permet de fallback en bas si pas la place
                           style={aiPopoverStyle}
                         >
                           {row.candidat_ai_analyse}
@@ -325,6 +334,8 @@ const popoverStyle: React.CSSProperties = {
   borderRadius: 6,
   boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
   width: 'min(250px, 90vw)',
+  maxHeight: '60vh',
+  overflowY: 'auto',
 }
 
 const aiPopoverStyle: React.CSSProperties = {
@@ -338,7 +349,7 @@ const aiPopoverStyle: React.CSSProperties = {
   overflowY: 'auto',
   whiteSpace: 'pre-wrap',
   fontSize: '0.9rem',
-  paddingBottom: 'env(safe-area-inset-bottom, 24px)', // marge de sécurité mobile
+  paddingBottom: 'calc(env(safe-area-inset-bottom, 24px) + 48px)',
 }
 
 const textareaStyle: React.CSSProperties = {
