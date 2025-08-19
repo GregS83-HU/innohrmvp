@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
 import { useRouter, usePathname } from 'next/navigation';
@@ -14,41 +14,17 @@ const supabase = createClient(
 export default function Header() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMedicalMenuOpen, setIsMedicalMenuOpen] = useState(false);
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [user, setUser] = useState<{ firstname: string; lastname: string } | null>(null);
   const [error, setError] = useState('');
-  const [companyLogo, setCompanyLogo] = useState<string | null>(null);
-
   const router = useRouter();
   const pathname = usePathname();
+  const medicalMenuRef = useRef<HTMLDivElement>(null);
 
-  // Extraire le slug si on est sur /jobs/[slug]
   const slugMatch = pathname.match(/^\/jobs\/([^/]+)$/);
   const companySlug = slugMatch ? slugMatch[1] : null;
-
-  // Récupérer le logo de l’entreprise si slug présent
-  useEffect(() => {
-    if (companySlug) {
-      const fetchCompanyLogo = async () => {
-        const { data, error } = await supabase
-          .from('company')
-          .select('company_logo')
-          .eq('slug', companySlug)
-          .single();
-
-        if (!error && data) {
-          setCompanyLogo(data.company_logo || null);
-        } else {
-          setCompanyLogo(null);
-        }
-      };
-
-      fetchCompanyLogo();
-    } else {
-      setCompanyLogo(null);
-    }
-  }, [companySlug]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -60,7 +36,18 @@ export default function Header() {
       else setUser(null);
     });
 
-    return () => authListener.subscription.unsubscribe();
+    // Fermer dropdown Medical si clic à l'extérieur
+    const handleClickOutside = (event: MouseEvent) => {
+      if (medicalMenuRef.current && !medicalMenuRef.current.contains(event.target as Node)) {
+        setIsMedicalMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      authListener.subscription.unsubscribe();
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const fetchUserProfile = async (userId: string) => {
@@ -105,17 +92,62 @@ export default function Header() {
       <header className="flex items-center justify-between px-4 py-3 border-b relative bg-white">
         {/* Logo */}
         <Link href={linkToCompany('/')}>
-          <img
-            src={companyLogo || '/InnoHRLogo.jpeg'}
-            alt="Logo"
-            className="h-10 sm:h-12"
-          />
+          <img src="/InnoHRLogo.jpeg" alt="InnoHR" className="h-10 sm:h-12" />
         </Link>
 
         {/* Menu Desktop */}
-        <nav className="hidden md:flex gap-6">
-          <Link href={linkToCompany('/')}>Available Positions</Link>
-          {user && <Link href={linkToCompany('/new')}>Create a position</Link>}
+        <nav className="hidden md:flex gap-6 items-center">
+          <Link href={linkToCompany('/')} className="hover:text-blue-600 transition">
+            Available Positions
+          </Link>
+          {user && (
+            <Link href={linkToCompany('/new')} className="hover:text-blue-600 transition">
+              Create a position
+            </Link>
+          )}
+          {/* Dropdown Medical Certificate */}
+          <div className="relative" ref={medicalMenuRef}>
+            <button
+              onClick={() => setIsMedicalMenuOpen(!isMedicalMenuOpen)}
+              className="flex items-center gap-1 px-3 py-2 rounded-md hover:bg-blue-50 text-gray-700 font-medium transition"
+            >
+              Medical Certificate
+              <svg
+                className={`w-3 h-3 mt-1 transition-transform duration-200 ${
+                  isMedicalMenuOpen ? 'rotate-180' : ''
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {isMedicalMenuOpen && (
+              <div className="absolute top-full mt-2 right-0 w-52 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50 animate-fadeIn">
+                <Link
+                  href="/medical-certificate/upload"
+                  className="block px-4 py-3 hover:bg-blue-50 hover:text-blue-600 transition font-medium"
+                  onClick={() => setIsMedicalMenuOpen(false)}
+                >
+                  Upload Certificate
+                </Link>
+                {user && (
+                  <Link
+                    href="/medical-certificate/list"
+                    className="block px-4 py-3 hover:bg-blue-50 hover:text-blue-600 transition font-medium"
+                    onClick={() => setIsMedicalMenuOpen(false)}
+                  >
+                    List of Certificates
+                  </Link>
+                )}
+              </div>
+            )}
+          </div>
+
+          
         </nav>
 
         {/* Boutons à droite */}
@@ -130,15 +162,13 @@ export default function Header() {
               </button>
             </>
           ) : (
-            !companySlug && (
-              <button onClick={() => setIsLoginOpen(true)} className="text-blue-600">
-                Login
-              </button>
-            )
+            <button onClick={() => setIsLoginOpen(true)} className="text-blue-600">
+              Login
+            </button>
           )}
         </div>
 
-        {/* Bouton Burger (Mobile) */}
+        {/* Mobile Burger */}
         <button
           className="md:hidden text-2xl"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -146,17 +176,32 @@ export default function Header() {
           {isMobileMenuOpen ? <FiX /> : <FiMenu />}
         </button>
 
-        {/* Menu Mobile */}
+        {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="absolute top-full left-0 w-full bg-white border-t shadow-md flex flex-col items-center gap-4 py-4 md:hidden z-50">
             <Link href={linkToCompany('/')} onClick={() => setIsMobileMenuOpen(false)}>
               Available Positions
             </Link>
+            <Link
+              href="/medical-certificate/upload"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Upload Certificate
+            </Link>
+            {user && (
+              <Link
+                href="/medical-certificate/list"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                List of Certificates
+              </Link>
+            )}
             {user && (
               <Link href={linkToCompany('/new')} onClick={() => setIsMobileMenuOpen(false)}>
                 Create a position
               </Link>
             )}
+
             {user ? (
               <>
                 <span className="font-semibold">
@@ -173,24 +218,22 @@ export default function Header() {
                 </button>
               </>
             ) : (
-              !companySlug && (
-                <button
-                  onClick={() => {
-                    setIsLoginOpen(true);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="text-blue-600"
-                >
-                  Login
-                </button>
-              )
+              <button
+                onClick={() => {
+                  setIsLoginOpen(true);
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-blue-600"
+              >
+                Login
+              </button>
             )}
           </div>
         )}
       </header>
 
       {/* Drawer Login */}
-      {isLoginOpen && !companySlug && (
+      {isLoginOpen && (
         <div className="fixed top-0 right-0 w-72 h-full bg-white border-l p-4 shadow-lg flex flex-col gap-4 z-50">
           <h2 className="text-xl font-bold">Login</h2>
           <input
@@ -208,7 +251,7 @@ export default function Header() {
             className="border p-2"
           />
           {error && <p className="text-red-500">{error}</p>}
-          <button onClick={handleLogin} className="bg-blue-600 text-white p-2">
+          <button onClick={handleLogin} className="bg-blue-600 text-white p-2 rounded-md">
             Connect
           </button>
           <button
