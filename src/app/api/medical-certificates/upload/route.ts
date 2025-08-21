@@ -71,6 +71,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
+    // Détection type fichier
+    const fileType = file.type;
+    const isPdf = fileType === "application/pdf";
+    const isImage = fileType.startsWith("image/");
+
+    if (!isPdf && !isImage) {
+      return NextResponse.json({ error: "File must be an image or PDF" }, { status: 400 });
+    }
+
     // 1) Upload dans Supabase Storage
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
@@ -98,7 +107,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Could not create signed URL for OCR" }, { status: 500 });
     }
 
-    // 3) Appel OCR.Space
+    // 2) Appel OCR.Space
     const params = new URLSearchParams();
     params.set("url", signed.signedUrl);
     params.set("language", "hun");
@@ -107,6 +116,10 @@ export async function POST(req: NextRequest) {
     params.set("isTable", "true");
     params.set("scale", "true");
     params.set("OCREngine", "1");
+
+    if (isPdf) {
+      params.set("filetype", "pdf"); // OCR.Space gère les PDF
+    }
 
     const ocrRes = await fetch("https://api.ocr.space/parse/image", {
       method: "POST",
@@ -132,7 +145,7 @@ export async function POST(req: NextRequest) {
         .join("\n")
         .trim() || "";
 
-    // 4) Extraction JSON via OpenRouter
+    // 3) Extraction JSON via OpenRouter
     const extractPrompt = `
 You will receive raw OCR text from a Hungarian medical certificate. Be careful, the language is Hungarian. 
 I would like to return from this raw text: 

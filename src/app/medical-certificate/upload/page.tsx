@@ -12,8 +12,10 @@ export default function UploadCertificatePage() {
     absenceDateEnd?: string
     doctor_name?: string
   } | null>(null)
+  const [comment, setComment] = useState('')
   const [saving, setSaving] = useState(false)
 
+  // 1️⃣ Upload et extraction infos
   const handleUpload = async () => {
     if (!file) return setError('Please select a file')
     setLoading(true)
@@ -34,10 +36,8 @@ export default function UploadCertificatePage() {
         throw new Error(text || 'Upload failed')
       }
 
-
       const data = await res.json()
       const extracted = data.extracted_data || {}
-      // Return from API
       setResult({
         employee_name: extracted.employee_name,
         absenceDateStart: extracted.sickness_start_date,
@@ -52,16 +52,25 @@ export default function UploadCertificatePage() {
     }
   }
 
+  // 2️⃣ Enregistrement Supabase (avec FormData)
   const handleConfirm = async () => {
-    if (!result) return
+    if (!result || !file) return
     setSaving(true)
     try {
+      const formData = new FormData()
+      formData.append('employee_name', result.employee_name || '')
+      formData.append('absenceDateStart', result.absenceDateStart || '')
+      formData.append('absenceDateEnd', result.absenceDateEnd || '')
+      formData.append('comment', comment || '')
+      formData.append('file', file)
+
       const res = await fetch('/api/medical-certificates/confirm', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(result),
+        body: formData,
       })
+
       if (!res.ok) throw new Error(await res.text())
+
       alert('Certificate saved successfully!')
       window.location.reload()
     } catch (err: unknown) {
@@ -125,8 +134,21 @@ export default function UploadCertificatePage() {
           <h2 className="text-lg font-semibold mb-2">📋 Certificate Details:</h2>
           <p><strong>Employee Name:</strong> {result.employee_name}</p>
           <p><strong>Start Absence date:</strong> {result.absenceDateStart}</p>
-           <p><strong>End Absence date:</strong> {result.absenceDateEnd}</p>
+          <p><strong>End Absence date:</strong> {result.absenceDateEnd}</p>
           <p><strong>Doctor Name:</strong> {result.doctor_name}</p>
+
+          {/* Bloc Commentaire */}
+          <div className="mt-4">
+            <label htmlFor="comment" className="block mb-1 font-medium">Comment</label>
+            <textarea
+              id="comment"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Write your comment..."
+              className="w-full border rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-300"
+              rows={3}
+            />
+          </div>
 
           <div className="flex space-x-4 mt-4">
             <button
