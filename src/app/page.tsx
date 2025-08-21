@@ -1,9 +1,9 @@
-import PositionsList from './openedpositions/PositionList'
+import Home from './Home/page'
 
 export default function HomePage() {
   return (
     <main style={{ maxWidth: '700px', margin: 'auto', padding: '2rem' }}>
-      <PositionsList />
+      <Home />
     </main>
   )
 }
