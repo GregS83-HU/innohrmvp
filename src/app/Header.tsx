@@ -219,7 +219,7 @@ export default function Header() {
         {/* Mobile Menu */}
         {isMobileMenuOpen && !companySlug && (
           <div className="absolute top-full left-0 w-full bg-white border-t shadow-md flex flex-col items-center gap-4 py-4 md:hidden z-50">
-            <Link href={linkToCompany('/')} onClick={() => setIsMobileMenuOpen(false)} className="cursor-pointer">
+            <Link href={linkToCompany('/openedpositions')} onClick={() => setIsMobileMenuOpen(false)} className="cursor-pointer">
               Available Positions
             </Link>
             {user && (
