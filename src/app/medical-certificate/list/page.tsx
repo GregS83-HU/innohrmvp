@@ -25,9 +25,8 @@ export default function MedicalCertificatesPage() {
   const session = useSession()
   const supabase = useSupabaseClient()
 
-  /** ==== FETCH DES CERTIFICATS ==== */
   useEffect(() => {
-    if (!session || certificates.length > 0) return
+    if (!session) return
 
     const fetchCertificates = async () => {
       setLoading(true)
@@ -42,20 +41,16 @@ export default function MedicalCertificatesPage() {
           return
         }
 
-              const certificatesWithPublicUrl: MedicalCertificate[] = (data || []).map(
-          (cert: MedicalCertificate) => {
-            let publicUrl = cert.certificate_file
-            if (cert.certificate_file) {
-              const { data: urlData } = supabase.storage
-                .from('medical-certificates')
-                .getPublicUrl(cert.certificate_file)
-              publicUrl = urlData?.publicUrl ?? cert.certificate_file
-            }
-            return { ...cert, document_url: publicUrl }
-          }
+        // Ici, on utilise directement l'URL complète depuis la base
+        const certificatesWithUrl: MedicalCertificate[] = (data || []).map(
+          (cert: MedicalCertificate) => ({
+            ...cert,
+            document_url: cert.certificate_file,
+            treated: !!cert.treated,
+          })
         )
 
-       setCertificates(certificatesWithPublicUrl)
+        setCertificates(certificatesWithUrl)
       } catch (err) {
         console.error('Erreur réseau', err)
         setCertificates([])
@@ -65,28 +60,25 @@ export default function MedicalCertificatesPage() {
     }
 
     fetchCertificates()
-  }, [session, supabase, certificates.length])
+  }, [session, supabase])
 
-  /** ==== UPDATE CHECKBOX ==== */
   const handleCheckboxChange = async (certId: number, newValue: boolean) => {
-    // Mise à jour locale immédiate
-    setCertificates((prev) =>
-      prev.map((cert) =>
-        cert.id === certId ? { ...cert, treated: newValue } : cert
-      )
-    )
-
     try {
       const { data, error } = await supabase
         .from('medical_certificates')
         .update({ treated: newValue })
         .eq('id', certId)
         .select()
-
+      
       if (error) {
         console.error('Erreur mise à jour traité:', error)
       } else {
-        console.log('Mise à jour réussie:', data)
+        // Mise à jour locale immédiate pour que le checkbox ne se décoche pas
+        setCertificates((prev) =>
+          prev.map((cert) =>
+            cert.id === certId ? { ...cert, treated: newValue } : cert
+          )
+        )
       }
     } catch (err) {
       console.error('Erreur réseau lors de update treated:', err)
