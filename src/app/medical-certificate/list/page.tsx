@@ -13,6 +13,8 @@ type MedicalCertificate = {
   absence_end_date: string
   employee_comment: string | null
   created_at: string
+  treated: boolean
+  document_url?: string
 }
 
 export default function MedicalCertificatesPage() {
@@ -23,8 +25,9 @@ export default function MedicalCertificatesPage() {
   const session = useSession()
   const supabase = useSupabaseClient()
 
- useEffect(() => {
-    if (!session) return
+  /** ==== FETCH DES CERTIFICATS ==== */
+  useEffect(() => {
+    if (!session || certificates.length > 0) return
 
     const fetchCertificates = async () => {
       setLoading(true)
@@ -39,7 +42,7 @@ export default function MedicalCertificatesPage() {
           return
         }
 
-        const certificatesWithPublicUrl: MedicalCertificate[] = (data || []).map(
+              const certificatesWithPublicUrl: MedicalCertificate[] = (data || []).map(
           (cert: MedicalCertificate) => {
             let publicUrl = cert.certificate_file
             if (cert.certificate_file) {
@@ -62,7 +65,33 @@ export default function MedicalCertificatesPage() {
     }
 
     fetchCertificates()
-  }, [session, supabase])
+  }, [session, supabase, certificates.length])
+
+  /** ==== UPDATE CHECKBOX ==== */
+  const handleCheckboxChange = async (certId: number, newValue: boolean) => {
+    // Mise à jour locale immédiate
+    setCertificates((prev) =>
+      prev.map((cert) =>
+        cert.id === certId ? { ...cert, treated: newValue } : cert
+      )
+    )
+
+    try {
+      const { data, error } = await supabase
+        .from('medical_certificates')
+        .update({ treated: newValue })
+        .eq('id', certId)
+        .select()
+
+      if (error) {
+        console.error('Erreur mise à jour traité:', error)
+      } else {
+        console.log('Mise à jour réussie:', data)
+      }
+    } catch (err) {
+      console.error('Erreur réseau lors de update treated:', err)
+    }
+  }
 
   const filteredCertificates = certificates.filter((cert) =>
     cert.employee_name.toLowerCase().includes(search.toLowerCase())
@@ -106,12 +135,13 @@ export default function MedicalCertificatesPage() {
               <th style={thStyle}>Absence end date</th>
               <th style={thStyle}>Medical Certificate</th>
               <th style={thStyle}>Comment</th>
+              <th style={thStyle}>Treated</th>
             </tr>
           </thead>
           <tbody>
             {filteredCertificates.length === 0 ? (
               <tr>
-                <td colSpan={5} style={{ textAlign: 'center', padding: 16 }}>
+                <td colSpan={6} style={{ textAlign: 'center', padding: 16 }}>
                   No Medical Certificate found
                 </td>
               </tr>
@@ -122,9 +152,9 @@ export default function MedicalCertificatesPage() {
                   <td style={tdStyle}>{cert.absence_start_date}</td>
                   <td style={tdStyle}>{cert.absence_end_date}</td>
                   <td style={tdStyle}>
-                    {cert.certificate_file ? (
+                    {cert.document_url ? (
                       <a
-                        href={cert.certificate_file}
+                        href={cert.document_url}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{
@@ -164,6 +194,15 @@ export default function MedicalCertificatesPage() {
                     ) : (
                       '—'
                     )}
+                  </td>
+                  <td style={tdStyle}>
+                    <input
+                      type="checkbox"
+                      checked={cert.treated}
+                      onChange={(e) =>
+                        handleCheckboxChange(cert.id, e.target.checked)
+                      }
+                    />
                   </td>
                 </tr>
               ))
