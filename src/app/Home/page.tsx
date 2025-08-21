@@ -9,8 +9,8 @@ export default function HomePage() {
       {/* Logo */}
       <div className="mb-6">
         <Image
-          src="/innohrlogo.jpeg" // Mets ton logo ici (dans public/)
-          alt="InnoHR Logo"
+          src="/InnoHRLogo.jpeg" // Mets ton logo ici (dans public/)
+          alt="InnoHR"
           width={200}
           height={200}
           className="rounded-full shadow-lg"
