@@ -21,6 +21,7 @@ export default function MedicalCertificatesPage() {
   const [certificates, setCertificates] = useState<MedicalCertificate[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [search, setSearch] = useState<string>('')
+  const [showAll, setShowAll] = useState<boolean>(false) // <-- nouvel état
 
   const session = useSession()
   const supabase = useSupabaseClient()
@@ -41,7 +42,7 @@ export default function MedicalCertificatesPage() {
           return
         }
 
-        // Ici, on utilise directement l'URL complète depuis la base
+        // On utilise directement l'URL complète stockée en base
         const certificatesWithUrl: MedicalCertificate[] = (data || []).map(
           (cert: MedicalCertificate) => ({
             ...cert,
@@ -73,7 +74,7 @@ export default function MedicalCertificatesPage() {
       if (error) {
         console.error('Erreur mise à jour traité:', error)
       } else {
-        // Mise à jour locale immédiate pour que le checkbox ne se décoche pas
+        // Mise à jour locale immédiate
         setCertificates((prev) =>
           prev.map((cert) =>
             cert.id === certId ? { ...cert, treated: newValue } : cert
@@ -85,9 +86,12 @@ export default function MedicalCertificatesPage() {
     }
   }
 
-  const filteredCertificates = certificates.filter((cert) =>
-    cert.employee_name.toLowerCase().includes(search.toLowerCase())
-  )
+  /** ==== Application des filtres ==== */
+  const filteredCertificates = certificates
+    .filter((cert) =>
+      cert.employee_name.toLowerCase().includes(search.toLowerCase())
+    )
+    .filter((cert) => (showAll ? true : !cert.treated)) // <-- filtrage par défaut
 
   return (
     <div style={{ overflowX: 'auto', padding: '1rem' }}>
@@ -95,20 +99,36 @@ export default function MedicalCertificatesPage() {
         📄 Medical Certificates
       </h1>
 
-      <input
-        type="text"
-        placeholder="Search by employee..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        style={{
-          width: '100%',
-          maxWidth: 400,
-          padding: '8px 12px',
-          border: '1px solid #ccc',
-          borderRadius: 6,
-          marginBottom: '1rem',
-        }}
-      />
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+        <input
+          type="text"
+          placeholder="Search by employee..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{
+            flex: 1,
+            maxWidth: 400,
+            padding: '8px 12px',
+            border: '1px solid #ccc',
+            borderRadius: 6,
+          }}
+        />
+
+        <button
+          onClick={() => setShowAll((prev) => !prev)}
+          style={{
+            padding: '8px 12px',
+            border: '1px solid #ccc',
+            borderRadius: 6,
+            background: showAll ? '#0070f3' : '#f0f0f0',
+            color: showAll ? 'white' : 'black',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+          }}
+        >
+          {showAll ? 'Hide treated' : 'See all certificates'}
+        </button>
+      </div>
 
       {loading ? (
         <p>Loading...</p>
@@ -126,7 +146,7 @@ export default function MedicalCertificatesPage() {
               <th style={thStyle}>Absence start date</th>
               <th style={thStyle}>Absence end date</th>
               <th style={thStyle}>Medical Certificate</th>
-              <th style={thStyle}>Comment</th>
+              <th style={thStyle}>Employee Comment</th>
               <th style={thStyle}>Treated</th>
             </tr>
           </thead>
