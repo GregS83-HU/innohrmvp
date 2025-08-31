@@ -3,8 +3,6 @@
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-
-
 export default function UploadCertificateClient() {
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
