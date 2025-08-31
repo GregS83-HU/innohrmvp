@@ -21,7 +21,7 @@ export default function UploadCertificateClient() {
   const searchParams = useSearchParams()
   const companyId = searchParams.get('company_id')
 
-  const MAX_SIZE = 1 * 1024 * 1024
+  const MAX_SIZE = 1 * 1024 * 1024 // 1MB
 
   const handleFileChange = (file: File | null) => {
     setError('')
@@ -49,10 +49,7 @@ export default function UploadCertificateClient() {
         body: formData,
       })
 
-      if (!res.ok) {
-        const text = await res.text()
-        throw new Error(text || 'Upload failed')
-      }
+      if (!res.ok) throw new Error(await res.text())
 
       const data = await res.json()
       const extracted = data.extracted_data || {}
@@ -125,6 +122,7 @@ export default function UploadCertificateClient() {
   return (
     <div className="max-w-2xl mx-auto mt-10 p-6 border rounded shadow bg-white">
       <h1 className="text-2xl font-bold text-center mb-6">📄 Upload Medical Certificate</h1>
+
       {!result && !successMessage && (
         <form
           onSubmit={(e) => {
@@ -141,13 +139,11 @@ export default function UploadCertificateClient() {
               className="hidden"
               id="certificate-upload"
             />
-            <label
-              htmlFor="certificate-upload"
-              className="block cursor-pointer text-blue-600 hover:underline"
-            >
+            <label htmlFor="certificate-upload" className="block cursor-pointer text-blue-600 hover:underline">
               {file ? <span>✅ {file.name}</span> : <span>📎 Click here to select your file (PDF or Image) - 1MB max</span>}
             </label>
           </div>
+
           <button
             type="submit"
             disabled={!file || loading}

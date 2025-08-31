@@ -1,4 +1,3 @@
-// app/medical-certificate/upload/page.tsx
 'use client'
 
 import UploadCertificateClient from './UploadCertificateClient'
