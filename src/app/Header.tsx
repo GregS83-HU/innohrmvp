@@ -176,6 +176,16 @@ export default function Header() {
                       List of Certificates
                     </Link>
                   )}
+
+                  {user && (
+  <Link
+    href="/medical-certificate/download"
+    className="block px-4 py-3 hover:bg-blue-50 hover:text-blue-600 transition font-medium cursor-pointer"
+    onClick={() => setIsMedicalMenuOpen(false)}
+  >
+    Certificates Download
+  </Link>
+)}
                 </div>
               )}
             </div>
@@ -247,6 +257,15 @@ export default function Header() {
                 List of Certificates
               </Link>
             )}
+            {user && (
+  <Link
+    href="/medical-certificate/download"
+    onClick={() => setIsMobileMenuOpen(false)}
+    className="cursor-pointer"
+  >
+    Certificate Download
+  </Link>
+)}
             {user ? (
               <>
                 <span className="font-semibold">Welcome {user.firstname} {user.lastname}</span>
