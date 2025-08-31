@@ -1,5 +1,5 @@
 // app/medical-certificate/upload/page.tsx
-'use client' // la page est maintenant un client component
+'use client'
 
 import UploadCertificateClient from './UploadCertificateClient'
 
