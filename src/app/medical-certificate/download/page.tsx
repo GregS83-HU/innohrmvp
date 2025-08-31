@@ -5,6 +5,17 @@ import { createClient } from '@supabase/supabase-js';
 import * as XLSX from 'xlsx';
 import JSZip from 'jszip';
 
+// Define the type for one row of medical_certificates
+interface MedicalCertificate {
+  id: number;
+  employee_name: string | null;
+  absence_start_date: string | null;
+  absence_end_date: string | null;
+  hr_comment: string | null;
+  treated: boolean;
+  certificate_file: string | null;
+}
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -13,7 +24,7 @@ const supabase = createClient(
 export default function CertificateDownloadPage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [certificates, setCertificates] = useState<any[]>([]);
+  const [certificates, setCertificates] = useState<MedicalCertificate[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
