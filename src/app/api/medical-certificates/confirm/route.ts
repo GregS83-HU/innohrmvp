@@ -1,3 +1,4 @@
+// /api/medical-certificates/confirm/route.ts
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
@@ -17,10 +18,18 @@ export async function POST(request: Request) {
     const file = formData.get('file') as File | null
     const company_id = formData.get('company_id') as string | null
 
-    console.log("company_id:", company_id)
-    
+    if (!company_id) {
+      return NextResponse.json(
+        { error: 'Missing company_id' },
+        { status: 400 }
+      )
+    }
+
     if (!file) {
-      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'No file uploaded' },
+        { status: 400 }
+      )
     }
 
     // 🔹 Upload fichier dans Supabase Storage
@@ -29,13 +38,14 @@ export async function POST(request: Request) {
 
     const { error: uploadError } = await supabase.storage
       .from('medical-certificates')
-      .upload(filePath, fileBuffer, {
-        contentType: file.type,
-      })
+      .upload(filePath, fileBuffer, { contentType: file.type })
 
     if (uploadError) {
       console.error(uploadError)
-      return NextResponse.json({ error: 'Error uploading file' }, { status: 500 })
+      return NextResponse.json(
+        { error: 'Error uploading file' },
+        { status: 500 }
+      )
     }
 
     // 🔹 Récupérer l’URL publique
@@ -45,26 +55,34 @@ export async function POST(request: Request) {
 
     const publicUrl = publicUrlData.publicUrl
 
-    // 🔹 Insérer les métadonnées en base (avec company_id)
-    const { error: dbError } = await supabase.from('medical_certificates').insert([
-      {
-        employee_name,
-        absence_start_date: absenceDateStart,
-        absence_end_date: absenceDateEnd,
-        employee_comment,
-        certificate_file: publicUrl,
-        company_id: company_id || null,
-      },
-    ])
+    // 🔹 Insérer les métadonnées en base
+    const { error: dbError } = await supabase
+      .from('medical_certificates')
+      .insert([
+        {
+          employee_name,
+          absence_start_date: absenceDateStart,
+          absence_end_date: absenceDateEnd,
+          employee_comment,
+          certificate_file: publicUrl,
+          company_id: parseInt(company_id, 10),
+        },
+      ])
 
     if (dbError) {
       console.error(dbError)
-      return NextResponse.json({ error: 'Error inserting into database' }, { status: 500 })
+      return NextResponse.json(
+        { error: 'Error inserting into database' },
+        { status: 500 }
+      )
     }
 
     return NextResponse.json({ message: 'Certificate saved successfully!' })
   } catch (e) {
     console.error(e)
-    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Server error' },
+      { status: 500 }
+    )
   }
 }

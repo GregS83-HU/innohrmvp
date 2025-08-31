@@ -15,13 +15,15 @@ type MedicalCertificate = {
   created_at: string
   treated: boolean
   document_url?: string
+  company_id?: number
 }
 
 export default function MedicalCertificatesPage() {
   const [certificates, setCertificates] = useState<MedicalCertificate[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [search, setSearch] = useState<string>('')
-  const [showAll, setShowAll] = useState<boolean>(false) // <-- nouvel état
+  const [showAll, setShowAll] = useState<boolean>(false)
+  const [companyId, setCompanyId] = useState<number | null>(null)
 
   const session = useSession()
   const supabase = useSupabaseClient()
@@ -29,20 +31,46 @@ export default function MedicalCertificatesPage() {
   useEffect(() => {
     if (!session) return
 
-    const fetchCertificates = async () => {
+    const fetchCompanyIdAndCertificates = async () => {
       setLoading(true)
       try {
+        // 1️⃣ Récupérer company_id de l'utilisateur connecté
+        const { data: userProfile, error: userError } = await supabase
+          .from('users')
+          .select('company_id')
+          .eq('id', session.user.id)
+          .single()
+
+        if (userError) {
+          console.error('Erreur récupération company_id:', userError.message)
+          setCertificates([])
+          setLoading(false)
+          return
+        }
+
+        if (!userProfile || !userProfile.company_id) {
+          console.warn('Utilisateur sans company_id')
+          setCertificates([])
+          setLoading(false)
+          return
+        }
+
+        const currentCompanyId = userProfile.company_id
+        setCompanyId(currentCompanyId)
+
+        // 2️⃣ Récupérer uniquement les certificats de cette entreprise
         const { data, error } = await supabase
           .from('medical_certificates')
           .select('*')
+          .eq('company_id', currentCompanyId)
+          .order('created_at', { ascending: false })
 
         if (error) {
-          console.error('Erreur chargement certificats:', error)
+          console.error('Erreur chargement certificats:', error.message)
           setCertificates([])
           return
         }
 
-        // On utilise directement l'URL complète stockée en base
         const certificatesWithUrl: MedicalCertificate[] = (data || []).map(
           (cert: MedicalCertificate) => ({
             ...cert,
@@ -60,7 +88,7 @@ export default function MedicalCertificatesPage() {
       }
     }
 
-    fetchCertificates()
+    fetchCompanyIdAndCertificates()
   }, [session, supabase])
 
   const handleCheckboxChange = async (certId: number, newValue: boolean) => {
@@ -70,11 +98,10 @@ export default function MedicalCertificatesPage() {
         .update({ treated: newValue })
         .eq('id', certId)
         .select()
-      
+
       if (error) {
-        console.error('Erreur mise à jour traité:', error)
+        console.error('Erreur mise à jour traité:', error.message)
       } else {
-        // Mise à jour locale immédiate
         setCertificates((prev) =>
           prev.map((cert) =>
             cert.id === certId ? { ...cert, treated: newValue } : cert
@@ -91,7 +118,7 @@ export default function MedicalCertificatesPage() {
     .filter((cert) =>
       cert.employee_name.toLowerCase().includes(search.toLowerCase())
     )
-    .filter((cert) => (showAll ? true : !cert.treated)) // <-- filtrage par défaut
+    .filter((cert) => (showAll ? true : !cert.treated))
 
   return (
     <div style={{ overflowX: 'auto', padding: '1rem' }}>
