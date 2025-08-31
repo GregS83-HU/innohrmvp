@@ -20,6 +20,7 @@ export default function Header() {
   const [user, setUser] = useState<{ firstname: string; lastname: string } | null>(null);
   const [error, setError] = useState('');
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
+  const [companyId, setCompanyId] = useState<string | null>(null);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -38,7 +39,9 @@ export default function Header() {
       else setUser(null);
     });
 
-    if (companySlug) fetchCompanyLogo(companySlug);
+    if (companySlug) {
+      fetchCompanyLogoAndId(companySlug);
+    }
 
     const handleClickOutside = (event: MouseEvent) => {
       if (medicalMenuRef.current && !medicalMenuRef.current.contains(event.target as Node)) {
@@ -63,14 +66,15 @@ export default function Header() {
     if (data) setUser({ firstname: data.user_firstname, lastname: data.user_lastname });
   };
 
-  const fetchCompanyLogo = async (slug: string) => {
+  const fetchCompanyLogoAndId = async (slug: string) => {
     const { data } = await supabase
       .from('company')
-      .select('company_logo')
+      .select('company_logo, id')
       .eq('slug', slug)
       .single();
 
     setCompanyLogo(data?.company_logo || null);
+    setCompanyId(data?.id || null);
   };
 
   const handleLogin = async () => {
@@ -100,8 +104,10 @@ export default function Header() {
     return companySlug ? `/jobs/${companySlug}${path === '/' ? '' : path}` : path;
   };
 
-  // Afficher menu Medical si slug ou utilisateur connecté
   const showMedicalMenu = companySlug || user;
+
+  // 🔹 Upload Certificate : toujours passer company_id
+  const uploadCertificateLink = `/medical-certificate/upload${companyId ? `?company_id=${companyId}` : ''}`;
 
   return (
     <>
@@ -152,15 +158,13 @@ export default function Header() {
 
               {isMedicalMenuOpen && (
                 <div className="absolute top-full mt-2 right-0 w-52 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50 animate-fadeIn">
-                  {(companySlug || user) && (
-                    <Link
-                      href="/medical-certificate/upload"
-                      className="block px-4 py-3 hover:bg-blue-50 hover:text-blue-600 transition font-medium cursor-pointer"
-                      onClick={() => setIsMedicalMenuOpen(false)}
-                    >
-                      Upload Certificate
-                    </Link>
-                  )}
+                  <Link
+                    href={uploadCertificateLink}
+                    className="block px-4 py-3 hover:bg-blue-50 hover:text-blue-600 transition font-medium cursor-pointer"
+                    onClick={() => setIsMedicalMenuOpen(false)}
+                  >
+                    Upload Certificate
+                  </Link>
                   {user && (
                     <>
                       <Link
@@ -191,19 +195,13 @@ export default function Header() {
               <span className="font-semibold">
                 Welcome {user.firstname} {user.lastname}
               </span>
-              <button
-                onClick={handleLogout}
-                className="text-blue-600 cursor-pointer"
-              >
+              <button onClick={handleLogout} className="text-blue-600 cursor-pointer">
                 Logout
               </button>
             </>
           ) : (
             !companySlug && (
-              <button
-                onClick={() => setIsLoginOpen(true)}
-                className="text-blue-600 cursor-pointer"
-              >
+              <button onClick={() => setIsLoginOpen(true)} className="text-blue-600 cursor-pointer">
                 Login
               </button>
             )
@@ -232,9 +230,9 @@ export default function Header() {
               </Link>
             )}
 
-            {(companySlug || user) && (
+            {showMedicalMenu && (
               <Link
-                href="/medical-certificate/upload"
+                href={uploadCertificateLink}
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="cursor-pointer"
               >

@@ -15,7 +15,10 @@ export async function POST(request: Request) {
     const absenceDateEnd = formData.get('absenceDateEnd') as string | null
     const employee_comment = formData.get('comment') as string | null
     const file = formData.get('file') as File | null
+    const company_id = formData.get('company_id') as string | null
 
+    console.log("company_id:", company_id)
+    
     if (!file) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 })
     }
@@ -42,7 +45,7 @@ export async function POST(request: Request) {
 
     const publicUrl = publicUrlData.publicUrl
 
-    // 🔹 Insérer les métadonnées en base
+    // 🔹 Insérer les métadonnées en base (avec company_id)
     const { error: dbError } = await supabase.from('medical_certificates').insert([
       {
         employee_name,
@@ -50,6 +53,7 @@ export async function POST(request: Request) {
         absence_end_date: absenceDateEnd,
         employee_comment,
         certificate_file: publicUrl,
+        company_id: company_id || null,
       },
     ])
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function UploadCertificatePage() {
   const [file, setFile] = useState<File | null>(null)
@@ -15,11 +15,13 @@ export default function UploadCertificatePage() {
   } | null>(null)
   const [comment, setComment] = useState('')
   const [saving, setSaving] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const companyId = searchParams.get('company_id')
 
   const MAX_SIZE = 1 * 1024 * 1024 // 1MB
 
-  // Called right after file selection
   const handleFileChange = (file: File | null) => {
     setError('')
     if (!file) {
@@ -35,7 +37,6 @@ export default function UploadCertificatePage() {
     }
   }
 
-  // 1️⃣ Upload et extraction infos
   const handleUpload = async () => {
     if (!file) return setError('Please select a file')
     setLoading(true)
@@ -72,10 +73,10 @@ export default function UploadCertificatePage() {
     }
   }
 
-  // 2️⃣ Enregistrement Supabase (avec FormData)
   const handleConfirm = async () => {
     if (!result || !file) return
     setSaving(true)
+    setError('')
     try {
       const formData = new FormData()
       formData.append('employee_name', result.employee_name || '')
@@ -83,6 +84,7 @@ export default function UploadCertificatePage() {
       formData.append('absenceDateEnd', result.absenceDateEnd || '')
       formData.append('comment', comment || '')
       formData.append('file', file)
+      if (companyId) formData.append('company_id', companyId)
 
       const res = await fetch('/api/medical-certificates/confirm', {
         method: 'POST',
@@ -91,8 +93,11 @@ export default function UploadCertificatePage() {
 
       if (!res.ok) throw new Error(await res.text())
 
-      alert('Certificate saved successfully!')
-      window.location.reload()
+      const data = await res.json()
+      setSuccessMessage(data.message || 'Certificate saved successfully!')
+      setResult(null)
+      setFile(null)
+      setComment('')
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message)
       else setError('Unknown error occurred while saving')
@@ -102,18 +107,17 @@ export default function UploadCertificatePage() {
   }
 
   const handleCancel = () => {
-    window.location.reload()
-  }
-
-  const handleRetry = () => {
-    window.location.reload()
+    setResult(null)
+    setFile(null)
+    setComment('')
+    setSuccessMessage('')
+    setError('')
   }
 
   const handleGoHome = () => {
     router.push('/')
   }
 
-  // Check if any extracted field is "non recognised" OR "not recognised"
   const hasUnrecognised =
     result &&
     [result.employee_name, result.absenceDateStart, result.absenceDateEnd, result.doctor_name].some(
@@ -130,7 +134,7 @@ export default function UploadCertificatePage() {
         📄 Upload Medical Certificate
       </h1>
 
-      {!result && (
+      {!result && !successMessage && (
         <form
           onSubmit={(e) => {
             e.preventDefault()
@@ -174,9 +178,8 @@ export default function UploadCertificatePage() {
         </form>
       )}
 
-      {error && (
-        <div className="mt-4 text-red-600 font-semibold">❌ {error}</div>
-      )}
+      {error && <div className="mt-4 text-red-600 font-semibold">❌ {error}</div>}
+      {successMessage && <div className="mt-4 text-green-600 font-semibold">✅ {successMessage}</div>}
 
       {result && (
         <div className="mt-6 p-6 bg-gray-50 rounded-lg shadow-sm space-y-4">
@@ -194,13 +197,9 @@ export default function UploadCertificatePage() {
             <strong>Doctor Name:</strong> {result.doctor_name}
           </p>
 
-          {/* Bloc Commentaire */}
           {!hasUnrecognised && (
             <div className="mt-4">
-              <label
-                htmlFor="comment"
-                className="block mb-1 font-medium"
-              >
+              <label htmlFor="comment" className="block mb-1 font-medium">
                 Comment
               </label>
               <textarea
@@ -242,7 +241,7 @@ export default function UploadCertificatePage() {
                 </p>
                 <div className="flex space-x-4">
                   <button
-                    onClick={handleRetry}
+                    onClick={handleCancel}
                     className="flex-1 py-2 px-4 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700"
                   >
                     Yes
