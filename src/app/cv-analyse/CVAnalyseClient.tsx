@@ -169,15 +169,24 @@ export default function CVAnalyseClient({
           <h2 className="text-lg font-semibold mt-4 mb-2">📊 Your score :</h2>
           <p className="text-sm font-semibold">{score}/10</p>
 
-          {score < 5 ? (
-            <p className="mt-4 text-red-600 font-bold">
-              Thank you for your application. Unfortunately, your resume does not sufficiently match the position. Explore our other openings.
-            </p>
-          ) : (
-            <p className="mt-4 text-green-600 font-bold">
-              Thank you for your application! Your resume is a good match. A member of HR will contact you shortly.
-            </p>
-          )}
+          {score !== null && (
+  <>
+    {score < 5 ? (
+      <p className="mt-4 text-red-600 font-bold">
+        Thank you for your application. Unfortunately, your resume does not sufficiently match the position. Explore our other openings.
+      </p>
+    ) : score >= 5 && score < 8 ? (
+      <p className="mt-4 text-orange-400 font-bold">
+        Your CV partially matches the position. Our HR specialist will analyse it.
+      </p>
+    ) : (
+      <p className="mt-4 text-green-600 font-bold">
+        Thank you for your application! Your resume is a good match. A member of HR will contact you shortly.
+      </p>
+    )}
+  </>
+)}
+
         </div>
       )}
     </div>

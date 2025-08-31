@@ -49,7 +49,7 @@ export default async function CVAnalysePage({
         .eq('id', position.company_id)
         .single();
 
-      if (!compError && company?.gdpr_file_url) {
+      if (!compError && company?.gdpr_file_url) { 
         gdprUrl = company.gdpr_file_url;
       }
     }
