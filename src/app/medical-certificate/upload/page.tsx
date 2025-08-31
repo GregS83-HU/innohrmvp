@@ -1,13 +1,8 @@
 // app/medical-certificate/upload/page.tsx
-import dynamic from 'next/dynamic'
+'use client' // la page est maintenant un client component
 
-// Dynamic import forcé côté client uniquement
-const UploadCertificateClient = dynamic(
-  () => import('./UploadCertificateClient'),
-  { ssr: false } // ❌ pas de server-side render
-)
+import UploadCertificateClient from './UploadCertificateClient'
 
 export default function UploadCertificatePage() {
   return <UploadCertificateClient />
 }
- 

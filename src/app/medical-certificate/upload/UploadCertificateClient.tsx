@@ -126,9 +126,7 @@ export default function UploadCertificateClient() {
 
   return (
     <div className="max-w-2xl mx-auto mt-10 p-6 border rounded shadow bg-white">
-      <h1 className="text-2xl font-bold text-center mb-6">
-        📄 Upload Medical Certificate
-      </h1>
+      <h1 className="text-2xl font-bold text-center mb-6">📄 Upload Medical Certificate</h1>
 
       {!result && !successMessage && (
         <form
