@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import * as XLSX from 'xlsx';
 import JSZip from 'jszip';
@@ -22,11 +22,15 @@ const supabase = createClient(
 );
 
 export default function CertificateDownloadPage() {
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  // today's date in YYYY-MM-DD
+  const today = new Date().toISOString().split('T')[0];
+
+  const [startDate, setStartDate] = useState(today);
+  const [endDate, setEndDate] = useState(today);
   const [certificates, setCertificates] = useState<MedicalCertificate[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [noResults, setNoResults] = useState(false);
 
   const fetchCertificates = async () => {
     if (!startDate || !endDate) {
@@ -35,17 +39,26 @@ export default function CertificateDownloadPage() {
     }
 
     setError('');
+    setNoResults(false);
     setLoading(true);
 
     try {
       const { data, error } = await supabase
         .from('medical_certificates')
-        .select('id, employee_name, absence_start_date, absence_end_date, hr_comment, treated, certificate_file')
+        .select(
+          'id, employee_name, absence_start_date, absence_end_date, hr_comment, treated, certificate_file'
+        )
         .gte('absence_start_date', startDate)
         .lte('absence_end_date', endDate);
 
       if (error) throw error;
-      setCertificates(data || []);
+
+      if (!data || data.length === 0) {
+        setNoResults(true);
+        setCertificates([]);
+      } else {
+        setCertificates(data);
+      }
     } catch (e) {
       console.error(e);
       setError('Failed to fetch certificates.');
@@ -53,6 +66,12 @@ export default function CertificateDownloadPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // fetch today's certificates when the page loads
+    fetchCertificates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const downloadBlob = (blob: Blob, filename: string) => {
     const url = window.URL.createObjectURL(blob);
@@ -75,7 +94,7 @@ export default function CertificateDownloadPage() {
     setLoading(true);
 
     try {
-      // 1) Créer Excel
+      // 1) Create Excel
       const worksheet = XLSX.utils.json_to_sheet(
         certificates.map((c) => ({
           Employee: c.employee_name ?? '',
@@ -88,13 +107,16 @@ export default function CertificateDownloadPage() {
       );
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Certificates');
-      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: 'xlsx',
+        type: 'array',
+      });
 
-      // 2) Créer ZIP
+      // 2) Create ZIP
       const zip = new JSZip();
       zip.file('certificates.xlsx', excelBuffer);
 
-      // 3) Télécharger les fichiers directement depuis leur URL publique
+      // 3) Download files directly from public URL
       for (const c of certificates) {
         if (!c.certificate_file) continue;
 
@@ -109,11 +131,11 @@ export default function CertificateDownloadPage() {
 
           zip.file(filename, blob);
         } catch (err) {
-          console.warn(`❌ Impossible de télécharger ${c.certificate_file}`, err);
+          console.warn(`❌ Failed to fetch ${c.certificate_file}`, err);
         }
       }
 
-      // 4) Générer le ZIP final
+      // 4) Generate final ZIP
       const content = await zip.generateAsync({ type: 'blob' });
       downloadBlob(content, `medical_certificates_${startDate}_${endDate}.zip`);
     } catch (e) {
@@ -151,6 +173,11 @@ export default function CertificateDownloadPage() {
       </div>
 
       {error && <p className="text-red-600 mb-4">{error}</p>}
+      {noResults && !error && (
+        <p className="text-gray-600 mb-4">
+          No certificate found for the selected dates.
+        </p>
+      )}
 
       {/* Results table */}
       {certificates.length > 0 && (

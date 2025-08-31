@@ -25,7 +25,6 @@ export default function Header() {
   const pathname = usePathname();
   const medicalMenuRef = useRef<HTMLDivElement>(null);
 
-  // Vérifier si on est dans un contexte de slug
   const slugMatch = pathname.match(/^\/jobs\/([^/]+)$/);
   const companySlug = slugMatch ? slugMatch[1] : null;
 
@@ -39,12 +38,8 @@ export default function Header() {
       else setUser(null);
     });
 
-    // Charger le logo de l'entreprise si on est dans un contexte slug
-    if (companySlug) {
-      fetchCompanyLogo(companySlug);
-    }
+    if (companySlug) fetchCompanyLogo(companySlug);
 
-    // Fermer dropdown Medical si clic à l'extérieur
     const handleClickOutside = (event: MouseEvent) => {
       if (medicalMenuRef.current && !medicalMenuRef.current.contains(event.target as Node)) {
         setIsMedicalMenuOpen(false);
@@ -75,11 +70,7 @@ export default function Header() {
       .eq('slug', slug)
       .single();
 
-    if (data?.company_logo) {
-      setCompanyLogo(data.company_logo);
-    } else {
-      setCompanyLogo(null); // fallback vers le logo par défaut
-    }
+    setCompanyLogo(data?.company_logo || null);
   };
 
   const handleLogin = async () => {
@@ -109,10 +100,12 @@ export default function Header() {
     return companySlug ? `/jobs/${companySlug}${path === '/' ? '' : path}` : path;
   };
 
+  // Afficher menu Medical si slug ou utilisateur connecté
+  const showMedicalMenu = companySlug || user;
+
   return (
     <>
       <header className="flex items-center justify-between px-4 py-3 border-b relative bg-white">
-        {/* Logo dynamique */}
         <Link href={linkToCompany('/')}>
           <img
             src={companySlug && companyLogo ? companyLogo : '/InnoHRLogo.jpeg'}
@@ -121,24 +114,23 @@ export default function Header() {
           />
         </Link>
 
-        {/* Menu Desktop (masqué si contexte slug) */}
-        {!companySlug && (
-          <nav className="hidden md:flex gap-6 items-center">
+        <nav className="hidden md:flex gap-6 items-center">
+          <Link
+            href={linkToCompany('/openedpositions')}
+            className="hover:text-blue-600 transition cursor-pointer"
+          >
+            Available Positions
+          </Link>
+          {user && (
             <Link
-              href={linkToCompany('/openedpositions')}
+              href={linkToCompany('/openedpositions/new')}
               className="hover:text-blue-600 transition cursor-pointer"
             >
-              Available Positions
+              Create a position
             </Link>
-            {user && (
-              <Link
-                href={linkToCompany('/openedpositions/new')}
-                className="hover:text-blue-600 transition cursor-pointer"
-              >
-                Create a position
-              </Link>
-            )}
-            {/* Dropdown Medical Certificate */}
+          )}
+
+          {showMedicalMenu && (
             <div className="relative" ref={medicalMenuRef}>
               <button
                 onClick={() => setIsMedicalMenuOpen(!isMedicalMenuOpen)}
@@ -160,65 +152,64 @@ export default function Header() {
 
               {isMedicalMenuOpen && (
                 <div className="absolute top-full mt-2 right-0 w-52 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50 animate-fadeIn">
-                  <Link
-                    href="/medical-certificate/upload"
-                    className="block px-4 py-3 hover:bg-blue-50 hover:text-blue-600 transition font-medium cursor-pointer"
-                    onClick={() => setIsMedicalMenuOpen(false)}
-                  >
-                    Upload Certificate
-                  </Link>
-                  {user && (
+                  {(companySlug || user) && (
                     <Link
-                      href="/medical-certificate/list"
+                      href="/medical-certificate/upload"
                       className="block px-4 py-3 hover:bg-blue-50 hover:text-blue-600 transition font-medium cursor-pointer"
                       onClick={() => setIsMedicalMenuOpen(false)}
                     >
-                      List of Certificates
+                      Upload Certificate
                     </Link>
                   )}
-
                   {user && (
-  <Link
-    href="/medical-certificate/download"
-    className="block px-4 py-3 hover:bg-blue-50 hover:text-blue-600 transition font-medium cursor-pointer"
-    onClick={() => setIsMedicalMenuOpen(false)}
-  >
-    Certificates Download
-  </Link>
-)}
+                    <>
+                      <Link
+                        href="/medical-certificate/list"
+                        className="block px-4 py-3 hover:bg-blue-50 hover:text-blue-600 transition font-medium cursor-pointer"
+                        onClick={() => setIsMedicalMenuOpen(false)}
+                      >
+                        List of Certificates
+                      </Link>
+                      <Link
+                        href="/medical-certificate/download"
+                        className="block px-4 py-3 hover:bg-blue-50 hover:text-blue-600 transition font-medium cursor-pointer"
+                        onClick={() => setIsMedicalMenuOpen(false)}
+                      >
+                        Certificates Download
+                      </Link>
+                    </>
+                  )}
                 </div>
               )}
             </div>
-          </nav>
-        )}
+          )}
+        </nav>
 
-        {/* Boutons à droite (masqués si contexte slug) */}
-        {!companySlug && (
-          <div className="hidden md:flex items-center gap-4">
-            {user ? (
-              <>
-                <span className="font-semibold">
-                  Welcome {user.firstname} {user.lastname}
-                </span>
-                <button
-                  onClick={handleLogout}
-                  className="text-blue-600 cursor-pointer"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
+        <div className="hidden md:flex items-center gap-4">
+          {user ? (
+            <>
+              <span className="font-semibold">
+                Welcome {user.firstname} {user.lastname}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="text-blue-600 cursor-pointer"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            !companySlug && (
               <button
                 onClick={() => setIsLoginOpen(true)}
                 className="text-blue-600 cursor-pointer"
               >
                 Login
               </button>
-            )}
-          </div>
-        )}
+            )
+          )}
+        </div>
 
-        {/* Mobile Burger */}
         <button
           className="md:hidden text-2xl cursor-pointer"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -226,8 +217,7 @@ export default function Header() {
           {isMobileMenuOpen ? <FiX /> : <FiMenu />}
         </button>
 
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && !companySlug && (
+        {isMobileMenuOpen && (
           <div className="absolute top-full left-0 w-full bg-white border-t shadow-md flex flex-col items-center gap-4 py-4 md:hidden z-50">
             <Link href={linkToCompany('/openedpositions')} onClick={() => setIsMobileMenuOpen(false)} className="cursor-pointer">
               Available Positions
@@ -241,31 +231,36 @@ export default function Header() {
                 Create a position
               </Link>
             )}
-            <Link
-              href="/medical-certificate/upload"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="cursor-pointer"
-            >
-              Upload Certificate
-            </Link>
-            {user && (
+
+            {(companySlug || user) && (
               <Link
-                href="/medical-certificate/list"
+                href="/medical-certificate/upload"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="cursor-pointer"
               >
-                List of Certificates
+                Upload Certificate
               </Link>
             )}
+
             {user && (
-  <Link
-    href="/medical-certificate/download"
-    onClick={() => setIsMobileMenuOpen(false)}
-    className="cursor-pointer"
-  >
-    Certificate Download
-  </Link>
-)}
+              <>
+                <Link
+                  href="/medical-certificate/list"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="cursor-pointer"
+                >
+                  List of Certificates
+                </Link>
+                <Link
+                  href="/medical-certificate/download"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="cursor-pointer"
+                >
+                  Certificates Download
+                </Link>
+              </>
+            )}
+
             {user ? (
               <>
                 <span className="font-semibold">Welcome {user.firstname} {user.lastname}</span>
@@ -280,21 +275,22 @@ export default function Header() {
                 </button>
               </>
             ) : (
-              <button
-                onClick={() => {
-                  setIsLoginOpen(true);
-                  setIsMobileMenuOpen(false);
-                }}
-                className="text-blue-600 cursor-pointer"
-              >
-                Login
-              </button>
+              !companySlug && (
+                <button
+                  onClick={() => {
+                    setIsLoginOpen(true);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="text-blue-600 cursor-pointer"
+                >
+                  Login
+                </button>
+              )
             )}
           </div>
         )}
       </header>
 
-      {/* Drawer Login */}
       {isLoginOpen && !companySlug && (
         <div className="fixed top-0 right-0 w-72 h-full bg-white border-l p-4 shadow-lg flex flex-col gap-4 z-50">
           <h2 className="text-xl font-bold">Login</h2>
