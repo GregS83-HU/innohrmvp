@@ -36,7 +36,7 @@ export default async function CVAnalysePage({
   if (positionId) {
     // 1. Récupérer la position avec son company_id
     const { data: position, error: posError } = await supabase
-      .from('opened_position')
+      .from('openedpositions')
       .select('company_id')
       .eq('id', positionId)
       .single();
@@ -55,6 +55,7 @@ export default async function CVAnalysePage({
     }
   }
 
+  console.log("GDPR URL:", gdprUrl)
   return (
     <CVAnalyseClient
       positionName={positionName}

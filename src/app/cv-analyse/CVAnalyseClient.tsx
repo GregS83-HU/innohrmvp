@@ -40,6 +40,7 @@ export default function CVAnalyseClient({
     setAnalysis('')
     setScore(null)
 
+    
     try {
       const res = await fetch('/api/analyse-cv', {
         method: 'POST',
@@ -64,6 +65,8 @@ export default function CVAnalyseClient({
       setLoading(false)
     }
   }
+
+  
 
   return (
     <div className="max-w-2xl mx-auto mt-10 p-6 border rounded shadow bg-white">
