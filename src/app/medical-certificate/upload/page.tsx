@@ -1,10 +1,6 @@
-import dynamic from 'next/dynamic'
+'use client'
 
-// wrapper dynamique côté client
-const UploadCertificateClient = dynamic(
-  () => import('./UploadCertificateClient'),
-  { ssr: false } // ❌ force uniquement client-side
-)
+import UploadCertificateClient from './UploadCertificateClient'
 
 export default function UploadCertificatePage() {
   return <UploadCertificateClient />
