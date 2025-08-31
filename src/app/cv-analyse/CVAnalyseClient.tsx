@@ -7,11 +7,13 @@ export default function CVAnalyseClient({
   jobDescription,
   jobDescriptionDetailed,
   positionId,
+  gdpr_file_url, // <--- ajout du champ GDPR
 }: {
   positionName: string
   jobDescription: string
   jobDescriptionDetailed: string
   positionId: string
+  gdpr_file_url: string
 }) {
   const [file, setFile] = useState<File | null>(null)
   const [firstName, setFirstName] = useState('')
@@ -20,10 +22,11 @@ export default function CVAnalyseClient({
   const [score, setScore] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [gdprAccepted, setGdprAccepted] = useState(false)
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!file) return
+    if (!file || !gdprAccepted) return
 
     const formData = new FormData()
     formData.append('file', file)
@@ -95,6 +98,11 @@ export default function CVAnalyseClient({
           />
         </div>
 
+        {/* Message avant upload */}
+        <p className="text-sm text-gray-700 font-semibold">
+          ⚠️ Please insure that you have your phone number and email address in your CV
+        </p>
+
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-white shadow-sm">
           <input
             type="file"
@@ -111,11 +119,37 @@ export default function CVAnalyseClient({
           </label>
         </div>
 
+        {/* Checkbox GDPR */}
+        {file && (
+          <div className="flex items-center space-x-2">
+            <input
+              id="gdpr"
+              type="checkbox"
+              checked={gdprAccepted}
+              onChange={(e) => setGdprAccepted(e.target.checked)}
+              className="h-4 w-4"
+            />
+            <label htmlFor="gdpr" className="text-sm text-gray-700">
+              Please read and validated our{' '}
+              <a
+                href={gdpr_file_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline"
+              >
+                GDPR policy
+              </a>
+            </label>
+          </div>
+        )}
+
         <button
           type="submit"
-          disabled={!file || loading}
+          disabled={!file || !gdprAccepted || loading}
           className={`mt-4 w-full py-2 px-4 rounded-lg font-semibold text-white ${
-            loading || !file ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+            loading || !file || !gdprAccepted
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-blue-600 hover:bg-blue-700'
           }`}
         >
           {loading ? 'Analyse en cours...' : 'Analyser le CV'}
