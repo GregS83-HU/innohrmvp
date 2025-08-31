@@ -1,123 +1,120 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState } from 'react';
 
-export default function UploadCertificateClient() {
-  const [file, setFile] = useState<File | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+type UploadCertificateClientProps = {
+  companyId: string;
+};
+
+export default function UploadCertificateClient({ companyId }: UploadCertificateClientProps) {
+  const [file, setFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [result, setResult] = useState<{
-    employee_name?: string
-    absenceDateStart?: string
-    absenceDateEnd?: string
-    doctor_name?: string
-  } | null>(null)
-  const [comment, setComment] = useState('')
-  const [saving, setSaving] = useState(false)
-  const [successMessage, setSuccessMessage] = useState('')
+    employee_name?: string;
+    absenceDateStart?: string;
+    absenceDateEnd?: string;
+    doctor_name?: string;
+  } | null>(null);
+  const [comment, setComment] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const companyId = searchParams.get('company_id')
-
-  const MAX_SIZE = 1 * 1024 * 1024 // 1MB
+  const MAX_SIZE = 1 * 1024 * 1024; // 1MB
 
   const handleFileChange = (file: File | null) => {
-    setError('')
-    if (!file) return setFile(null)
+    setError('');
+    if (!file) return setFile(null);
     if (file.size > MAX_SIZE) {
-      setError('File is too large. Maximum allowed size is 1MB.')
-      setFile(null)
+      setError('File is too large. Maximum allowed size is 1MB.');
+      setFile(null);
     } else {
-      setFile(file)
+      setFile(file);
     }
-  }
+  };
 
   const handleUpload = async () => {
-    if (!file) return setError('Please select a file')
-    setLoading(true)
-    setError('')
-    setResult(null)
+    if (!file) return setError('Please select a file');
+    setLoading(true);
+    setError('');
+    setResult(null);
 
     try {
-      const formData = new FormData()
-      formData.append('file', file)
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('company_id', companyId);
 
       const res = await fetch('/api/medical-certificates/upload', {
         method: 'POST',
         body: formData,
-      })
+      });
 
-      if (!res.ok) throw new Error(await res.text())
+      if (!res.ok) throw new Error(await res.text());
 
-      const data = await res.json()
-      const extracted = data.extracted_data || {}
+      const data = await res.json();
+      const extracted = data.extracted_data || {};
       setResult({
         employee_name: extracted.employee_name,
         absenceDateStart: extracted.sickness_start_date,
         absenceDateEnd: extracted.sickness_end_date,
         doctor_name: extracted.doctor_name,
-      })
+      });
     } catch (err: unknown) {
-      if (err instanceof Error) setError(err.message)
-      else setError('Unknown error occurred')
+      if (err instanceof Error) setError(err.message);
+      else setError('Unknown error occurred');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleConfirm = async () => {
-    if (!result || !file || !companyId)
-      return setError('Cannot save: missing file, extracted data, or company association.')
+    if (!result || !file) return setError('Cannot save: missing file or extracted data.');
 
-    setSaving(true)
-    setError('')
+    setSaving(true);
+    setError('');
 
     try {
-      const formData = new FormData()
-      formData.append('employee_name', result.employee_name || '')
-      formData.append('absenceDateStart', result.absenceDateStart || '')
-      formData.append('absenceDateEnd', result.absenceDateEnd || '')
-      formData.append('comment', comment || '')
-      formData.append('file', file)
-      formData.append('company_id', companyId)
+      const formData = new FormData();
+      formData.append('employee_name', result.employee_name || '');
+      formData.append('absenceDateStart', result.absenceDateStart || '');
+      formData.append('absenceDateEnd', result.absenceDateEnd || '');
+      formData.append('comment', comment || '');
+      formData.append('file', file);
+      formData.append('company_id', companyId);
 
       const res = await fetch('/api/medical-certificates/confirm', {
         method: 'POST',
         body: formData,
-      })
+      });
 
-      if (!res.ok) throw new Error(await res.text())
+      if (!res.ok) throw new Error(await res.text());
 
-      const data = await res.json()
-      setSuccessMessage(data.message || 'Certificate saved successfully!')
-      setResult(null)
-      setFile(null)
-      setComment('')
+      const data = await res.json();
+      setSuccessMessage(data.message || 'Certificate saved successfully!');
+      setResult(null);
+      setFile(null);
+      setComment('');
     } catch (err: unknown) {
-      if (err instanceof Error) setError(err.message)
-      else setError('Unknown error occurred while saving')
+      if (err instanceof Error) setError(err.message);
+      else setError('Unknown error occurred while saving');
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const handleCancel = () => {
-    setResult(null)
-    setFile(null)
-    setComment('')
-    setSuccessMessage('')
-    setError('')
-  }
-
-  const handleGoHome = () => router.push('/')
+    setResult(null);
+    setFile(null);
+    setComment('');
+    setSuccessMessage('');
+    setError('');
+  };
 
   const hasUnrecognised =
     result &&
     [result.employee_name, result.absenceDateStart, result.absenceDateEnd, result.doctor_name].some(
       (val) => val && ['non recognised', 'not recognised'].includes(val.trim().toLowerCase())
-    )
+    );
 
   return (
     <div className="max-w-2xl mx-auto mt-10 p-6 border rounded shadow bg-white">
@@ -126,8 +123,8 @@ export default function UploadCertificateClient() {
       {!result && !successMessage && (
         <form
           onSubmit={(e) => {
-            e.preventDefault()
-            handleUpload()
+            e.preventDefault();
+            handleUpload();
           }}
           className="space-y-4"
         >
@@ -211,7 +208,7 @@ export default function UploadCertificateClient() {
                     Yes
                   </button>
                   <button
-                    onClick={handleGoHome}
+                    onClick={() => window.location.href = '/'}
                     className="flex-1 py-2 px-4 rounded-lg font-semibold text-white bg-gray-600 hover:bg-gray-700"
                   >
                     No
@@ -223,5 +220,5 @@ export default function UploadCertificateClient() {
         </div>
       )}
     </div>
-  )
+  );
 }
