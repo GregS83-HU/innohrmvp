@@ -106,7 +106,6 @@ export default function Header() {
 
   const showMedicalMenu = companySlug || user;
 
-  // 🔹 Upload Certificate : toujours passer company_id
   const uploadCertificateLink = `/medical-certificate/upload${companyId ? `?company_id=${companyId}` : ''}`;
 
   return (
@@ -158,13 +157,16 @@ export default function Header() {
 
               {isMedicalMenuOpen && (
                 <div className="absolute top-full mt-2 right-0 w-52 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50 animate-fadeIn">
-                  <Link
-                    href={uploadCertificateLink}
-                    className="block px-4 py-3 hover:bg-blue-50 hover:text-blue-600 transition font-medium cursor-pointer"
-                    onClick={() => setIsMedicalMenuOpen(false)}
-                  >
-                    Upload Certificate
-                  </Link>
+                  {/* Upload only visible if NOT logged in */}
+                  {!user && (
+                    <Link
+                      href={uploadCertificateLink}
+                      className="block px-4 py-3 hover:bg-blue-50 hover:text-blue-600 transition font-medium cursor-pointer"
+                      onClick={() => setIsMedicalMenuOpen(false)}
+                    >
+                      Upload Certificate
+                    </Link>
+                  )}
                   {user && (
                     <>
                       <Link
@@ -230,7 +232,8 @@ export default function Header() {
               </Link>
             )}
 
-            {showMedicalMenu && (
+            {/* Upload only if NOT logged in */}
+            {showMedicalMenu && !user && (
               <Link
                 href={uploadCertificateLink}
                 onClick={() => setIsMobileMenuOpen(false)}
