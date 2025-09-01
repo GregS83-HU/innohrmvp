@@ -14,6 +14,7 @@ type MedicalCertificate = {
   employee_comment: string | null
   created_at: string
   treated: boolean
+  treatment_date: string | null
   document_url?: string
   company_id?: number
 }
@@ -36,9 +37,9 @@ export default function MedicalCertificatesPage() {
       try {
         // 1️⃣ Récupérer company_id de l'utilisateur connecté
         const { data: userProfile, error: userError } = await supabase
-          .from('users')
+          .from('company_to_users')
           .select('company_id')
-          .eq('id', session.user.id)
+          .eq('user_id', session.user.id)
           .single()
 
         if (userError) {
@@ -76,6 +77,7 @@ export default function MedicalCertificatesPage() {
             ...cert,
             document_url: cert.certificate_file,
             treated: !!cert.treated,
+            treatment_date: cert.treatment_date,
           })
         )
 
@@ -93,23 +95,53 @@ export default function MedicalCertificatesPage() {
 
   const handleCheckboxChange = async (certId: number, newValue: boolean) => {
     try {
+      // Définir treatment_date : maintenant si coché, null si décoché
+      const treatmentDate = newValue ? new Date().toISOString() : null
+
       const { data, error } = await supabase
         .from('medical_certificates')
-        .update({ treated: newValue })
+        .update({ 
+          treated: newValue,
+          treatment_date: treatmentDate
+        })
         .eq('id', certId)
         .select()
 
       if (error) {
         console.error('Erreur mise à jour traité:', error.message)
+        alert('Erreur lors de la mise à jour')
       } else {
         setCertificates((prev) =>
           prev.map((cert) =>
-            cert.id === certId ? { ...cert, treated: newValue } : cert
+            cert.id === certId 
+              ? { 
+                  ...cert, 
+                  treated: newValue,
+                  treatment_date: treatmentDate
+                } 
+              : cert
           )
         )
       }
     } catch (err) {
       console.error('Erreur réseau lors de update treated:', err)
+      alert('Erreur réseau lors de la mise à jour')
+    }
+  }
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return '—'
+    try {
+      const date = new Date(dateString)
+      return date.toLocaleDateString('fr-FR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    } catch {
+      return dateString
     }
   }
 
@@ -164,7 +196,7 @@ export default function MedicalCertificatesPage() {
           style={{
             width: '100%',
             borderCollapse: 'collapse',
-            minWidth: 600,
+            minWidth: 700,
           }}
         >
           <thead>
@@ -175,12 +207,13 @@ export default function MedicalCertificatesPage() {
               <th style={thStyle}>Medical Certificate</th>
               <th style={thStyle}>Employee Comment</th>
               <th style={thStyle}>Treated</th>
+              <th style={thStyle}>Treatment Date</th>
             </tr>
           </thead>
           <tbody>
             {filteredCertificates.length === 0 ? (
               <tr>
-                <td colSpan={6} style={{ textAlign: 'center', padding: 16 }}>
+                <td colSpan={7} style={{ textAlign: 'center', padding: 16 }}>
                   No Medical Certificate found
                 </td>
               </tr>
@@ -241,7 +274,13 @@ export default function MedicalCertificatesPage() {
                       onChange={(e) =>
                         handleCheckboxChange(cert.id, e.target.checked)
                       }
+                      style={checkboxStyle}
                     />
+                  </td>
+                  <td style={tdStyle}>
+                    <span style={cert.treated ? treatmentDateStyle : {}}>
+                      {formatDate(cert.treatment_date)}
+                    </span>
                   </td>
                 </tr>
               ))
@@ -281,4 +320,14 @@ const popoverStyle: React.CSSProperties = {
   boxShadow: '0px 4px 8px rgba(0,0,0,0.15)',
   maxWidth: 'min(400px, 90vw)',
   whiteSpace: 'pre-wrap',
+}
+
+const checkboxStyle: React.CSSProperties = {
+  cursor: 'pointer',
+  transform: 'scale(1.1)',
+}
+
+const treatmentDateStyle: React.CSSProperties = {
+  color: '#28a745',
+  fontWeight: 'bold',
 }

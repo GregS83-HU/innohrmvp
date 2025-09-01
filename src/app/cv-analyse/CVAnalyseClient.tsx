@@ -155,7 +155,7 @@ export default function CVAnalyseClient({
               : 'bg-blue-600 hover:bg-blue-700'
           }`}
         >
-          {loading ? 'Analyse en cours...' : 'Analyser le CV'}
+          {loading ? 'Analyse running...' : 'Analyse your CV'}
         </button>
       </form>
 

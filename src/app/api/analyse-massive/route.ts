@@ -9,9 +9,7 @@ const supabase = createClient(
 
 // Fonction pour analyser un CV via l'IA
 async function analyseCvWithAi(cvText: string, jobDescription: string, jobDescriptionDetailed: string) {
-  
-  //START PROMPT AI
-    const prompt = `
+  const prompt = `
 Tu es un expert RH. Voici un CV :
 
 ${cvText}
@@ -58,9 +56,6 @@ Always provide concrete examples from the CV to justify the score.
 
 Keep tone professional, concise, and free from speculation.
 
-
-
-
 Répond uniquement avec un JSON strictement valide, au format :
 {
   "score": number,
@@ -69,9 +64,7 @@ Répond uniquement avec un JSON strictement valide, au format :
 IMPORTANT : Ne réponds avec rien d'autre que ce JSON.
 
 La réponse doit etre en anglais parfait
-
-`;
-// END PROMT AI
+`
 
   const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
@@ -83,27 +76,34 @@ La réponse doit etre en anglais parfait
       model: 'mistralai/mistral-7b-instruct',
       messages: [{ role: 'user', content: prompt }],
     }),
-  });
+  })
 
-  const completion = await res.json();
-  const rawResponse = completion.choices?.[0]?.message?.content ?? '';
-  const match = rawResponse.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error('Réponse JSON IA invalide');
-  return JSON.parse(match[0]);
+  const completion = await res.json()
+  const rawResponse = completion.choices?.[0]?.message?.content ?? ''
+  const match = rawResponse.match(/\{[\s\S]*\}/)
+  if (!match) throw new Error('Réponse JSON IA invalide')
+  return JSON.parse(match[0])
 }
 
 // SSE handler
 export async function GET(req: NextRequest) {
-  const url = new URL(req.url);
-  const position_id_str = url.searchParams.get('position_id');
+  const url = new URL(req.url)
+  const position_id_str = url.searchParams.get('position_id')
+  const user_id = url.searchParams.get('user_id')
 
-  if (!position_id_str) return new Response(JSON.stringify({ error: 'position_id requis' }), { status: 400 });
+  if (!position_id_str) {
+    return new Response(JSON.stringify({ error: 'position_id requis' }), { status: 400 })
+  }
+  if (!user_id) {
+    return new Response(JSON.stringify({ error: 'user_id requis' }), { status: 400 })
+  }
 
-  const positionId = Number(position_id_str);
-  if (isNaN(positionId)) return new Response(JSON.stringify({ error: 'position_id invalide' }), { status: 400 });
+  const positionId = Number(position_id_str)
+  if (isNaN(positionId)) {
+    return new Response(JSON.stringify({ error: 'position_id invalide' }), { status: 400 })
+  }
 
-  // Créer la connexion SSE
-  const encoder = new TextEncoder();
+  const encoder = new TextEncoder()
   const stream = new ReadableStream({
     async start(controller) {
       try {
@@ -111,33 +111,42 @@ export async function GET(req: NextRequest) {
           .from('openedpositions')
           .select('*')
           .eq('id', positionId)
-          .single();
+          .single()
 
         if (posErr || !position) {
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'error', error: 'Position non trouvée' })}\n\n`));
-          controller.close();
-          return;
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'error', error: 'Position non trouvée' })}\n\n`))
+          controller.close()
+          return
         }
 
-        const { data: candidats, error: candErr } = await supabase.from('candidats').select('*');
+        // ✅ Appel RPC avec user_id passé dans l’URL
+        const { data: candidats, error: candErr } = await supabase
+          .rpc('get_company_candidates', { user_uuid: user_id })
+
         if (candErr) {
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'error', error: 'Impossible de récupérer les candidats' })}\n\n`));
-          controller.close();
-          return;
+          console.error('Erreur RPC get_company_candidates:', candErr)
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'error', error: 'Impossible de récupérer les candidats' })}\n\n`))
+          controller.close()
+          return
         }
+
         if (!candidats || candidats.length === 0) {
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'done', matched: 0, total: 0 })}\n\n`));
-          controller.close();
-          return;
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'done', matched: 0, total: 0 })}\n\n`))
+          controller.close()
+          return
         }
 
-        let matched = 0;
+        let matched = 0
         for (let i = 0; i < candidats.length; i++) {
-          const candidat = candidats[i];
+          const candidat = candidats[i]
           try {
-            const { score, analysis } = await analyseCvWithAi(candidat.cv_text, position.position_description, position.position_description_detailed);
+            const { score, analysis } = await analyseCvWithAi(
+              candidat.cv_text,
+              position.position_description,
+              position.position_description_detailed
+            )
 
-            if (score > 0.5) matched++;
+            if (score > 0.5) matched++
 
             await supabase.from('position_to_candidat').upsert({
               position_id: positionId,
@@ -145,28 +154,26 @@ export async function GET(req: NextRequest) {
               candidat_score: score,
               candidat_ai_analyse: analysis,
               source: 'analyse massive',
-            });
+            })
           } catch (err) {
-            console.error(`Erreur analyse CV ${candidat.id}:`, err);
+            console.error(`Erreur analyse CV ${candidat.id}:`, err)
           }
 
-          // Envoyer la progression
-          const progress = Math.floor(((i + 1) / candidats.length) * 100);
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'progress', progress })}\n\n`));
+          const progress = Math.floor(((i + 1) / candidats.length) * 100)
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'progress', progress })}\n\n`))
         }
 
-        // Analyse terminée
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'done', matched, total: candidats.length })}\n\n`));
-        controller.close();
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'done', matched, total: candidats.length })}\n\n`))
+        controller.close()
       } catch (err) {
-        console.error(err);
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'error', error: 'Erreur serveur.' })}\n\n`));
-        controller.close();
+        console.error(err)
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'error', error: 'Erreur serveur.' })}\n\n`))
+        controller.close()
       }
     }
-  });
+  })
 
   return new Response(stream, {
     headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' },
-  });
+  })
 }
