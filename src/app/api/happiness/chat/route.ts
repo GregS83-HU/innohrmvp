@@ -1,200 +1,265 @@
 // src/app/api/happiness/chat/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { NextRequest, NextResponse } from 'next/server';
 
-const PERMA_QUESTIONS = [
-  {
-    category: 'positive',
-    question: "On a scale from 1 to 10, how much do you experience positive emotions at work? (joy, satisfaction, pride in your daily tasks)",
-    followup: "What brings you the most satisfaction in your work right now?"
-  },
-  {
-    category: 'engagement',
-    question: "To what extent do you feel engaged and absorbed in your professional tasks? (1 = never in flow, 10 = fully absorbed)",
-    followup: "In which types of tasks do you lose track of time?"
-  },
-  {
-    category: 'relationships',
-    question: "How would you rate the quality of your relationships with your colleagues and your team? (1 = isolated, 10 = excellent cohesion)",
-    followup: "What could improve the atmosphere in your team?"
-  },
-  {
-    category: 'meaning',
-    question: "To what extent do you find meaning and purpose in your work? (1 = no meaning, 10 = very meaningful)",
-    followup: "What would make your work feel more meaningful?"
-  },
-  {
-    category: 'accomplishment',
-    question: "How would you evaluate your accomplishments and sense of achievement at work? (1 = no accomplishment, 10 = very proud of my achievements)",
-    followup: "What type of recognition would motivate you the most?"
-  },
-  {
-    category: 'work_life_balance',
-    question: "How would you rate your work-life balance? (1 = very unbalanced, 10 = perfect balance)",
-    followup: "What would help you better balance your professional and personal life?"
-  }
-]
-
-async function generateAIResponse(sessionData: any, userMessage: string, step: number) {
-  const prompt = `You are a supportive workplace wellbeing assistant conducting an anonymous happiness assessment.
-
-Current conversation context:
-- Step: ${step} of 12
-- User's current scores so far: ${JSON.stringify(sessionData.perma_scores || {})}
-- Latest user message: "${userMessage}"
-
-Your role:
-1. If step <= 6: Ask the next PERMA question naturally and conversationally
-2. If step 7-9: Ask follow-up questions for lowest scoring areas
-3. If step 10-12: Provide personalized recommendations
-
-Questions to ask (in order):
-${PERMA_QUESTIONS.map((q, i) => `${i + 1}. ${q.question}`).join('\n')}
-
-Guidelines:
-- Be empathetic and supportive
-- Keep responses under 100 words
-- If user provides a score (1-10), acknowledge it warmly
-- Never be clinical or robotic
-- End questions with encouragement
-
-Respond in English with a warm, professional tone.`
-
-  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'mistralai/mistral-7b-instruct',
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  })
-
-  const completion = await res.json()
-  return completion.choices?.[0]?.message?.content ?? "I'm sorry, there is an error somewhere..."
+// Types
+interface PermaScores {
+  positive?: number;
+  engagement?: number;
+  relationships?: number;
+  meaning?: number;
+  accomplishment?: number;
+  work_life_balance?: number;
 }
 
-export async function POST(req: NextRequest) {
+interface SessionData {
+  id: string;
+  step: number;
+  completed: boolean;
+  permaScores: PermaScores;
+  messages: Array<{
+    role: 'user' | 'assistant';
+    content: string;
+    timestamp: Date;
+  }>;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Simulation d'une base de données en mémoire (à remplacer par une vraie DB)
+const sessions = new Map<string, SessionData>();
+
+// Questions structurées basées sur PERMA-W
+const permaQuestions = [
+  {
+    step: 1,
+    dimension: 'positive',
+    question: "Pour commencer, parlez-moi de votre humeur générale au travail cette semaine. Comment vous sentez-vous quand vous arrivez au bureau le matin ?"
+  },
+  {
+    step: 2,
+    dimension: 'positive',
+    question: "Quand avez-vous ressenti de la joie ou du plaisir dans votre travail récemment ? Pouvez-vous me donner un exemple concret ?"
+  },
+  {
+    step: 3,
+    dimension: 'engagement',
+    question: "Décrivez-moi un moment récent où vous étiez complètement absorbé(e) par votre travail, où le temps passait sans que vous vous en rendiez compte."
+  },
+  {
+    step: 4,
+    dimension: 'engagement',
+    question: "Dans quelle mesure sentez-vous que vos compétences sont bien utilisées dans votre poste actuel ?"
+  },
+  {
+    step: 5,
+    dimension: 'relationships',
+    question: "Comment décririez-vous la qualité de vos relations avec vos collègues ? Avez-vous des personnes sur qui vous pouvez compter au travail ?"
+  },
+  {
+    step: 6,
+    dimension: 'relationships',
+    question: "Vous sentez-vous écouté(e) et valorisé(e) par votre manager et votre équipe ?"
+  },
+  {
+    step: 7,
+    dimension: 'meaning',
+    question: "En quoi votre travail a-t-il du sens pour vous ? Comment contribuez-vous à quelque chose de plus grand ?"
+  },
+  {
+    step: 8,
+    dimension: 'meaning',
+    question: "Vos valeurs personnelles sont-elles alignées avec celles de votre entreprise ? Pouvez-vous m'expliquer ?"
+  },
+  {
+    step: 9,
+    dimension: 'accomplishment',
+    question: "De quoi êtes-vous le plus fier/fière dans votre travail ces derniers mois ?"
+  },
+  {
+    step: 10,
+    dimension: 'accomplishment',
+    question: "Comment percevez-vous votre progression professionnelle ? Atteignez-vous vos objectifs ?"
+  },
+  {
+    step: 11,
+    dimension: 'work_life_balance',
+    question: "Comment gérez-vous l'équilibre entre votre vie professionnelle et personnelle ? Arrivez-vous à déconnecter ?"
+  },
+  {
+    step: 12,
+    dimension: 'work_life_balance',
+    question: "Pour terminer, y a-t-il quelque chose que vous aimeriez changer dans votre situation professionnelle actuelle ?"
+  }
+];
+
+// Fonction pour analyser la réponse et attribuer un score
+function analyzeResponseAndScore(response: string, dimension: keyof PermaScores): number {
+  const lowerResponse = response.toLowerCase();
+  
+  // Mots positifs et négatifs par dimension
+  const positiveWords: Record<string, string[]> = {
+    positive: ['heureux', 'content', 'joyeux', 'motivé', 'enthousiaste', 'satisfait', 'épanoui', 'bien', 'super', 'génial', 'excellent', 'formidable'],
+    engagement: ['passionné', 'absorbé', 'concentré', 'impliqué', 'engagé', 'stimulant', 'défi', 'flow', 'compétences', 'talents'],
+    relationships: ['soutien', 'équipe', 'collaboration', 'confiance', 'amical', 'respectueux', 'communication', 'écoute', 'bienveillant'],
+    meaning: ['sens', 'mission', 'impact', 'contribution', 'valeurs', 'purpose', 'utile', 'important', 'significatif', 'aligné'],
+    accomplishment: ['fier', 'réussite', 'objectifs', 'progression', 'succès', 'accomplissement', 'performance', 'résultats'],
+    work_life_balance: ['équilibre', 'déconnexion', 'temps', 'famille', 'loisirs', 'repos', 'flexible', 'horaires', 'vacances']
+  };
+
+  const negativeWords: Record<string, string[]> = {
+    positive: ['triste', 'démotivé', 'ennuyé', 'frustré', 'déprimé', 'malheureux', 'stress', 'anxieux', 'difficile', 'pénible'],
+    engagement: ['ennuyeux', 'répétitif', 'monotone', 'désengagé', 'sous-utilisé', 'compétences gâchées', 'routine'],
+    relationships: ['conflit', 'isolé', 'incompris', 'tension', 'communication difficile', 'seul', 'ignoré'],
+    meaning: ['inutile', 'vide', 'sans sens', 'désalignement', 'contradiction', 'valeurs opposées'],
+    accomplishment: ['échec', 'stagnation', 'régression', 'objectifs non atteints', 'déçu', 'insatisfait'],
+    work_life_balance: ['débordé', 'épuisé', 'burn-out', 'pas de temps', 'toujours connecté', 'sacrifice']
+  };
+
+  let score = 5; // Score neutre de base
+  
+  // Compter les mots positifs
+  const dimPositive = positiveWords[dimension] || [];
+  const positiveCount = dimPositive.filter(word => lowerResponse.includes(word)).length;
+  
+  // Compter les mots négatifs
+  const dimNegative = negativeWords[dimension] || [];
+  const negativeCount = dimNegative.filter(word => lowerResponse.includes(word)).length;
+  
+  // Ajuster le score
+  score += positiveCount * 1.5;
+  score -= negativeCount * 1.5;
+  
+  // Analyse de la longueur et du sentiment général
+  if (response.length > 100) {
+    score += 0.5; // Réponse détaillée = engagement
+  }
+  
+  // Assurer que le score reste entre 1 et 10
+  return Math.min(10, Math.max(1, Math.round(score * 10) / 10));
+}
+
+export async function POST(request: NextRequest) {
   try {
-    const sessionToken = req.headers.get('x-session-token')
-    const { message } = await req.json()
-
-    if (!sessionToken || !message) {
-      return NextResponse.json({ error: 'Token session et message requis' }, { status: 400 })
+    const body = await request.json();
+    const { message } = body;
+    
+    // Récupérer le token de session
+    const sessionToken = request.headers.get('x-session-token');
+    
+    if (!sessionToken) {
+      return NextResponse.json(
+        { error: 'Token de session manquant' },
+        { status: 401 }
+      );
     }
 
-    // Get session
-    const { data: session, error: sessionError } = await supabase
-      .from('happiness_sessions')
-      .select('*')
-      .eq('session_token', sessionToken)
-      .single()
-
-    if (sessionError || !session) {
-      return NextResponse.json({ error: 'Session non trouvée' }, { status: 404 })
+    // Récupérer la session
+    let session = sessions.get(sessionToken);
+    
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Session introuvable' },
+        { status: 404 }
+      );
     }
 
-    // Update last activity
-    await supabase
-      .from('happiness_sessions')
-      .update({ 
-        last_activity: new Date().toISOString(),
-        status: 'in_progress'
-      })
-      .eq('session_token', sessionToken)
-
-    // Store user message
-    await supabase
-      .from('chat_messages')
-      .insert({
-        session_id: session.id,
-        message_text: message,
-        is_bot_message: false,
-        step_number: session.current_step
-      })
-
-    // Extract score if present
-    const scoreMatch = message.match(/(?:^|\s)([1-9]|10)(?:\s|$)/)
-    let extractedScore = null
-    let currentCategory = null
-
-    if (scoreMatch && session.current_step <= 6) {
-      extractedScore = parseInt(scoreMatch[1])
-      currentCategory = PERMA_QUESTIONS[session.current_step - 1]?.category
+    if (session.completed) {
+      return NextResponse.json(
+        { error: 'Évaluation déjà terminée' },
+        { status: 400 }
+      );
     }
 
-    // Update session with score
-    let updatedPermaScores = session.perma_scores || {}
-    if (extractedScore && currentCategory) {
-      updatedPermaScores[currentCategory] = extractedScore
+    // Ajouter le message de l'utilisateur
+    session.messages.push({
+      role: 'user',
+      content: message,
+      timestamp: new Date()
+    });
+
+    // Analyser la réponse et mettre à jour les scores PERMA
+    const currentQuestion = permaQuestions[session.step - 1];
+    if (currentQuestion) {
+      const score = analyzeResponseAndScore(message, currentQuestion.dimension as keyof PermaScores);
       
-      await supabase
-        .from('happiness_sessions')
-        .update({ perma_scores: updatedPermaScores })
-        .eq('session_token', sessionToken)
+      // Correction 1: Utiliser const au lieu de let car updatedPermaScores n'est jamais réassigné
+      const updatedPermaScores = {
+        ...session.permaScores,
+        [currentQuestion.dimension]: score
+      };
+      
+      session.permaScores = updatedPermaScores;
     }
 
-    // Generate AI response
-    const aiResponse = await generateAIResponse(
-      { ...session, perma_scores: updatedPermaScores }, 
-      message, 
-      session.current_step + 1
-    )
+    // Passer à l'étape suivante
+    session.step += 1;
 
-    // Determine message type
-    let messageType = 'question'
-    if (session.current_step >= 10) messageType = 'recommendation'
-    else if (session.current_step >= 7) messageType = 'followup'
+    let response: string;
+    let completed = false;
 
-    // Store AI response
-    await supabase
-      .from('chat_messages')
-      .insert({
-        session_id: session.id,
-        message_text: aiResponse,
-        is_bot_message: true,
-        message_type: messageType,
-        step_number: session.current_step + 1,
-        score_value: extractedScore,
-        perma_category: currentCategory
-      })
+    if (session.step <= permaQuestions.length) {
+      // Poser la question suivante
+      const nextQuestion = permaQuestions[session.step - 1];
+      response = nextQuestion.question;
+    } else {
+      // Évaluation terminée
+      completed = true;
+      session.completed = true;
+      
+      const scores = session.permaScores;
+      const avgScore = Object.keys(scores).length > 0 
+        ? Object.values(scores).reduce((a, b) => a + b, 0) / Object.keys(scores).length
+        : 5;
 
-    // Update session step
-    const newStep = session.current_step + 1
-    let sessionUpdate: any = { current_step: newStep }
+      response = `Merci beaucoup pour vos réponses sincères ! 🎉
 
-    // Complete session if finished
-    if (newStep >= 12) {
-      const scores = Object.values(updatedPermaScores) as number[]
-      const avgScore = scores.length > 0 
-        ? scores.reduce((a, b) => a + b, 0) / scores.length 
-        : 0
-      sessionUpdate.status = 'completed'
-      sessionUpdate.completed_at = new Date().toISOString()
-      sessionUpdate.overall_happiness_score = Math.round(avgScore)
+Votre évaluation est maintenant terminée. Voici un bref aperçu de vos résultats :
+
+**Score général de bien-être au travail : ${Math.round(avgScore * 10) / 10}/10**
+
+${avgScore >= 8 
+  ? "Félicitations ! Vous semblez très épanoui(e) dans votre travail. Continuez ainsi ! 😊"
+  : avgScore >= 6 
+  ? "Votre bien-être au travail est globalement positif, avec quelques axes d'amélioration possibles. 🙂"
+  : "Il semble y avoir des défis importants dans votre bien-être professionnel. N'hésitez pas à en parler avec votre manager ou RH. 💙"
+}
+
+Cette évaluation est anonyme et aidera à améliorer le bien-être général dans l'entreprise.`;
     }
 
-    await supabase
-      .from('happiness_sessions')
-      .update(sessionUpdate)
-      .eq('session_token', sessionToken)
+    // Ajouter la réponse du bot
+    session.messages.push({
+      role: 'assistant',
+      content: response,
+      timestamp: new Date()
+    });
 
-    return NextResponse.json({ 
-      response: aiResponse,
-      step: newStep,
-      completed: newStep >= 12,
-      scores: updatedPermaScores
-    })
+    session.updatedAt = new Date();
 
-  } catch (err) {
-    console.error('Chat error:', err)
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+    // Correction 2: Utiliser const au lieu de let et définir le type explicitement
+    const sessionUpdate: {
+      response: string;
+      step: number;
+      completed: boolean;
+      scores: PermaScores;
+    } = {
+      response,
+      step: session.step,
+      completed,
+      scores: session.permaScores
+    };
+
+    // Sauvegarder la session mise à jour
+    sessions.set(sessionToken, session);
+
+    return NextResponse.json(sessionUpdate);
+
+  } catch (error) {
+    console.error('Erreur dans POST /api/happiness/chat:', error);
+    return NextResponse.json(
+      { error: 'Erreur serveur interne' },
+      { status: 500 }
+    );
   }
 }

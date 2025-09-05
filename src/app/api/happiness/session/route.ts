@@ -1,7 +1,7 @@
 // src/app/api/happiness/session/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { randomBytes } from 'crypto'
+import { randomBytes, createHash } from 'crypto'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,8 +13,8 @@ function generateSessionToken(): string {
 }
 
 function hashIP(ip: string): string {
-  const crypto = require('crypto')
-  return crypto.createHash('sha256').update(ip + process.env.IP_SALT || 'default_salt').digest('hex')
+  // Correction: Utilisation d'un import ES6 au lieu de require()
+  return createHash('sha256').update(ip + process.env.IP_SALT || 'default_salt').digest('hex')
 }
 
 export async function POST(req: NextRequest) {
