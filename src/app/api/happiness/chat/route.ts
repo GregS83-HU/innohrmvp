@@ -246,7 +246,7 @@ Cette évaluation est anonyme et aidera à améliorer le bien-être général da
 
     // Préparer les données de mise à jour avec les colonnes existantes
     const updateData: Record<string, string | number | PermaScores> = {
-      step: currentStep,
+      current_step: currentStep,
       status: completed ? 'completed' : 'in_progress'
     };
 
