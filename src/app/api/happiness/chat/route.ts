@@ -1,6 +1,12 @@
 // src/app/api/happiness/chat/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 // Types
 interface PermaScores {
@@ -11,23 +17,6 @@ interface PermaScores {
   accomplishment?: number;
   work_life_balance?: number;
 }
-
-interface SessionData {
-  id: string;
-  step: number;
-  completed: boolean;
-  permaScores: PermaScores;
-  messages: Array<{
-    role: 'user' | 'assistant';
-    content: string;
-    timestamp: Date;
-  }>;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-// Simulation d'une base de données en mémoire (à remplacer par une vraie DB)
-const sessions = new Map<string, SessionData>();
 
 // Questions structurées basées sur PERMA-W
 const permaQuestions = [
@@ -154,62 +143,74 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Récupérer la session
-    const session = sessions.get(sessionToken);
+    // Récupérer la session depuis Supabase
+    const { data: session, error: sessionError } = await supabase
+      .from('happiness_sessions')
+      .select('*')
+      .eq('session_token', sessionToken)
+      .single();
     
-    if (!session) {
+    if (sessionError || !session) {
+      console.error('Session retrieval error:', sessionError);
       return NextResponse.json(
         { error: 'Session introuvable' },
         { status: 404 }
       );
     }
 
-    if (session.completed) {
+    // Vérifier si la session est expirée
+    if (session.timeout_at && new Date() > new Date(session.timeout_at)) {
+      await supabase
+        .from('happiness_sessions')
+        .update({ status: 'timeout' })
+        .eq('session_token', sessionToken);
+      
+      return NextResponse.json(
+        { error: 'Session expirée' },
+        { status: 410 }
+      );
+    }
+
+    if (session.status === 'completed') {
       return NextResponse.json(
         { error: 'Évaluation déjà terminée' },
         { status: 400 }
       );
     }
 
-    // Ajouter le message de l'utilisateur
-    session.messages.push({
-      role: 'user',
-      content: message,
-      timestamp: new Date()
-    });
-
+    // Récupérer les données actuelles de la session
+    let currentStep = session.current_step || 0;
+    let permaScores: PermaScores = session.perma_scores || {};
+    
     // Analyser la réponse et mettre à jour les scores PERMA
-    const currentQuestion = permaQuestions[session.step - 1];
+    const currentQuestion = permaQuestions[currentStep - 1];
     if (currentQuestion) {
       const score = analyzeResponseAndScore(message, currentQuestion.dimension as keyof PermaScores);
       
-      // Correction 1: Utiliser const au lieu de let car updatedPermaScores n'est jamais réassigné
       const updatedPermaScores = {
-        ...session.permaScores,
+        ...permaScores,
         [currentQuestion.dimension]: score
       };
       
-      session.permaScores = updatedPermaScores;
+      permaScores = updatedPermaScores;
     }
 
     // Passer à l'étape suivante
-    session.step += 1;
+    currentStep += 1;
 
     let response: string;
     let completed = false;
 
-    if (session.step <= permaQuestions.length) {
+    if (currentStep <= permaQuestions.length) {
       // Poser la question suivante
-      const nextQuestion = permaQuestions[session.step - 1];
+      const nextQuestion = permaQuestions[currentStep - 1];
       response = nextQuestion.question;
     } else {
       // Évaluation terminée
       completed = true;
-      session.completed = true;
       
-      const scores = session.permaScores;
-      const avgScore = Object.keys(scores).length > 0 
-        ? Object.values(scores).reduce((a, b) => a + b, 0) / Object.keys(scores).length
+      const avgScore = Object.keys(permaScores).length > 0 
+        ? Object.values(permaScores).reduce((a, b) => a + b, 0) / Object.keys(permaScores).length
         : 5;
 
       response = `Merci beaucoup pour vos réponses sincères ! 🎉
@@ -228,16 +229,51 @@ ${avgScore >= 8
 Cette évaluation est anonyme et aidera à améliorer le bien-être général dans l'entreprise.`;
     }
 
-    // Ajouter la réponse du bot
-    session.messages.push({
-      role: 'assistant',
-      content: response,
-      timestamp: new Date()
-    });
+    // Mettre à jour la session dans Supabase
+    const updateData = {
+      current_step: currentStep,
+      perma_scores: permaScores,
+      status: completed ? 'completed' : 'in_progress',
+      updated_at: new Date().toISOString(),
+      ...(completed && { completed_at: new Date().toISOString() })
+    };
 
-    session.updatedAt = new Date();
+    const { error: updateError } = await supabase
+      .from('happiness_sessions')
+      .update(updateData)
+      .eq('session_token', sessionToken);
 
-    // Correction 2: Utiliser const au lieu de let et définir le type explicitement
+    if (updateError) {
+      console.error('Session update error:', updateError);
+      return NextResponse.json(
+        { error: 'Erreur mise à jour session' },
+        { status: 500 }
+      );
+    }
+
+    // Sauvegarder le message et la réponse dans les messages
+    const { error: messageError } = await supabase
+      .from('happiness_messages')
+      .insert([
+        {
+          session_id: session.id,
+          message_type: 'user',
+          content: message,
+          created_at: new Date().toISOString()
+        },
+        {
+          session_id: session.id,
+          message_type: 'assistant',
+          content: response,
+          created_at: new Date().toISOString()
+        }
+      ]);
+
+    if (messageError) {
+      console.error('Message save error:', messageError);
+      // Ne pas faire échouer la requête pour ça
+    }
+
     const sessionUpdate: {
       response: string;
       step: number;
@@ -245,13 +281,10 @@ Cette évaluation est anonyme et aidera à améliorer le bien-être général da
       scores: PermaScores;
     } = {
       response,
-      step: session.step,
+      step: currentStep,
       completed,
-      scores: session.permaScores
+      scores: permaScores
     };
-
-    // Sauvegarder la session mise à jour
-    sessions.set(sessionToken, session);
 
     return NextResponse.json(sessionUpdate);
 
