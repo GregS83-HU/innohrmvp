@@ -135,6 +135,15 @@ export default function Header() {
             </Link>
           )}
 
+          {/* Happy Check Menu - Accessible à tous */}
+          <Link
+            href="/happiness-check"
+            className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-yellow-50 hover:text-yellow-600 text-gray-700 font-medium transition cursor-pointer border border-yellow-200"
+          >
+            <span className="text-lg">😊</span>
+            Happy Check
+          </Link>
+
           {showMedicalMenu && (
             <div className="relative" ref={medicalMenuRef}>
               <button
@@ -231,6 +240,16 @@ export default function Header() {
                 Create a position
               </Link>
             )}
+
+            {/* Happy Check dans le menu mobile */}
+            <Link
+              href="/happiness-check"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-yellow-50 text-gray-700 font-medium cursor-pointer"
+            >
+              <span className="text-lg">😊</span>
+              Happy Check
+            </Link>
 
             {/* Upload only if NOT logged in */}
             {showMedicalMenu && !user && (
