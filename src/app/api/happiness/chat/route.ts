@@ -23,57 +23,57 @@ const permaQuestions = [
   {
     step: 1,
     dimension: 'positive',
-    question: "To start, how would you describe your overall mood at work this week? How do you usually feel when arriving in the morning?"
+    question: "To start, how would you describe your overall mood at work this week? How do you usually feel when you arrive in the morning?"
   },
   {
     step: 2,
-    dimension: 'positive',
-    question: "Can you recall a recent moment at work when you felt joy or genuine pleasure? Please share a specific example."
+    dimension: 'positive', 
+    question: "Can you tell me about a recent moment at work when you felt joy or real pleasure? Please share a concrete example."
   },
   {
     step: 3,
     dimension: 'engagement',
-    question: "Describe a recent time when you were fully absorbed in your work—when time seemed to fly by."
+    question: "Describe a recent time when you were completely absorbed in your work—when time seemed to fly by."
   },
   {
     step: 4,
     dimension: 'engagement',
-    question: "To what extent do you feel your skills and talents are being well utilized in your current role?"
+    question: "To what extent do you feel your skills and talents are being used well in your current role?"
   },
   {
     step: 5,
     dimension: 'relationships',
-    question: "How would you describe the quality of your relationships with colleagues? Do you feel you have people you can rely on at work?"
+    question: "How would you describe the quality of your relationships with your colleagues? Do you feel you have people you can rely on at work?"
   },
   {
     step: 6,
     dimension: 'relationships',
-    question: "Do you feel heard and valued by your manager and your team?"
+    question: "Do you feel listened to and valued by your manager and your team?"
   },
   {
     step: 7,
     dimension: 'meaning',
-    question: "In what ways does your work feel meaningful to you? How do you feel you are contributing to something larger?"
+    question: "In what ways does your work feel meaningful to you? How do you feel you’re contributing to something bigger?"
   },
   {
     step: 8,
     dimension: 'meaning',
-    question: "Do your personal values feel aligned with those of your organization? Can you give an example?"
+    question: "Do your personal values feel aligned with those of your organization? Can you give me an example?"
   },
   {
     step: 9,
     dimension: 'accomplishment',
-    question: "What achievements from the past few months are you most proud of?"
+    question: "Which achievements from the past few months are you most proud of?"
   },
   {
     step: 10,
     dimension: 'accomplishment',
-    question: "How do you view your professional growth? Do you feel you’re meeting your goals?"
+    question: "How do you see your professional growth? Do you feel you are reaching your goals?"
   },
   {
     step: 11,
     dimension: 'work_life_balance',
-    question: "How do you manage the balance between your professional and personal life? Are you able to switch off and recharge?"
+    question: "How do you manage the balance between your work and personal life? Are you able to disconnect and recharge?"
   },
   {
     step: 12,
@@ -86,22 +86,22 @@ const permaQuestions = [
 function analyzeResponseAndScore(response: string, dimension: keyof PermaScores): number {
   const lowerResponse = response.toLowerCase();
   
-  // Positive and negative words by dimension
+  // Positive and negative words per dimension (in English equivalents of French keywords)
   const positiveWords: Record<string, string[]> = {
-    positive: ['happy', 'content', 'joyful', 'motivated', 'enthusiastic', 'satisfied', 'fulfilled', 'good', 'great', 'awesome', 'excellent', 'fantastic'],
+    positive: ['happy', 'content', 'joyful', 'motivated', 'enthusiastic', 'satisfied', 'fulfilled', 'good', 'great', 'amazing', 'excellent', 'fantastic', 'pleasure'],
     engagement: ['passionate', 'absorbed', 'focused', 'involved', 'engaged', 'stimulating', 'challenge', 'flow', 'skills', 'talents'],
-    relationships: ['support', 'team', 'collaboration', 'trust', 'friendly', 'respectful', 'communication', 'listening', 'caring'],
+    relationships: ['support', 'team', 'collaboration', 'trust', 'friendly', 'respectful', 'communication', 'listened', 'caring'],
     meaning: ['meaning', 'mission', 'impact', 'contribution', 'values', 'purpose', 'useful', 'important', 'significant', 'aligned'],
     accomplishment: ['proud', 'success', 'goals', 'progress', 'achievement', 'accomplishment', 'performance', 'results'],
-    work_life_balance: ['balance', 'disconnect', 'time', 'family', 'leisure', 'rest', 'flexible', 'hours', 'vacation']
+    work_life_balance: ['balance', 'disconnect', 'time', 'family', 'hobbies', 'rest', 'flexible', 'schedule', 'vacation']
   };
 
   const negativeWords: Record<string, string[]> = {
-    positive: ['sad', 'unmotivated', 'bored', 'frustrated', 'depressed', 'unhappy', 'stressed', 'anxious', 'difficult', 'painful'],
-    engagement: ['boring', 'repetitive', 'monotonous', 'disengaged', 'underused', 'wasted skills', 'routine'],
+    positive: ['sad', 'unmotivated', 'bored', 'frustrated', 'depressed', 'unhappy', 'stressed', 'anxious', 'difficult', 'hard'],
+    engagement: ['boring', 'repetitive', 'monotonous', 'disengaged', 'underused', 'waste', 'routine'],
     relationships: ['conflict', 'isolated', 'misunderstood', 'tension', 'poor communication', 'alone', 'ignored'],
-    meaning: ['useless', 'empty', 'meaningless', 'misalignment', 'contradiction', 'opposite values'],
-    accomplishment: ['failure', 'stagnation', 'regression', 'unmet goals', 'disappointed', 'unsatisfied'],
+    meaning: ['useless', 'empty', 'meaningless', 'misaligned', 'contradiction', 'opposing values'],
+    accomplishment: ['failure', 'stagnation', 'regression', 'goals not reached', 'disappointed', 'unsatisfied'],
     work_life_balance: ['overwhelmed', 'exhausted', 'burnout', 'no time', 'always connected', 'sacrifice']
   };
 
@@ -119,7 +119,7 @@ function analyzeResponseAndScore(response: string, dimension: keyof PermaScores)
   score += positiveCount * 1.5;
   score -= negativeCount * 1.5;
   
-  // Longer, detailed responses suggest higher engagement
+  // Longer, detailed answers suggest higher engagement
   if (response.length > 100) {
     score += 0.5;
   }
@@ -133,7 +133,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { message } = body;
     
-    // Retrieve session token
+    // Get session token
     const sessionToken = request.headers.get('x-session-token');
     
     if (!sessionToken) {
@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
       .single();
     
     if (sessionError || !session) {
-      console.error('Session retrieval error:', sessionError);
+      console.error('Error retrieving session:', sessionError);
       return NextResponse.json(
         { error: 'Session not found' },
         { status: 404 }
@@ -182,32 +182,32 @@ export async function POST(request: NextRequest) {
     }
 
     // Get current session data
-    let currentStep = session.step || 0;
+    let currentStep = session.current_step || 0;
     let permaScores: PermaScores = {};
     
     // Parse existing scores if available
-    if (session.scores) {
+    if (session.perma_scores) {
       try {
-        permaScores = typeof session.scores === 'string' 
-          ? JSON.parse(session.scores) 
-          : session.scores;
+        permaScores = typeof session.perma_scores === 'string' 
+          ? JSON.parse(session.perma_scores) 
+          : session.perma_scores;
       } catch (e) {
         console.error('Error parsing existing scores:', e);
         permaScores = {};
       }
     }
     
-    // Analyze response and update scores
-    const currentQuestion = permaQuestions[currentStep - 1];
-    if (currentQuestion) {
+    // Analyze response and update scores if not first message
+    if (currentStep > 0 && currentStep <= permaQuestions.length) {
+      const currentQuestion = permaQuestions[currentStep - 1];
       const score = analyzeResponseAndScore(message, currentQuestion.dimension as keyof PermaScores);
       
-      const updatedPermaScores = {
+      permaScores = {
         ...permaScores,
         [currentQuestion.dimension]: score
       };
       
-      permaScores = updatedPermaScores;
+      console.log(`Step ${currentStep}: Analyzed response for ${currentQuestion.dimension}, score: ${score}`);
     }
 
     // Move to next step
@@ -221,7 +221,7 @@ export async function POST(request: NextRequest) {
       const nextQuestion = permaQuestions[currentStep - 1];
       response = nextQuestion.question;
     } else {
-      // Assessment finished
+      // Assessment completed
       completed = true;
       
       const avgScore = Object.keys(permaScores).length > 0 
@@ -230,62 +230,88 @@ export async function POST(request: NextRequest) {
 
       response = `Thank you for sharing your honest reflections! 🎉
 
-Your well-being check is now complete. Here’s a quick summary of your results:
+Your well-being assessment is now complete. Here’s a quick summary of your results:
 
 **Overall workplace well-being score: ${Math.round(avgScore * 10) / 10}/10**
 
-${avgScore >= 8 
-  ? "Fantastic! You appear highly fulfilled in your work—keep building on this momentum. 😊"
-  : avgScore >= 6 
-  ? "Your workplace well-being is generally positive, though there may be areas where you could improve. 🙂"
-  : "It looks like you may be facing significant challenges with your professional well-being. Consider reaching out to your manager or HR for support. 💙"
+${
+  avgScore >= 8 
+    ? "Fantastic! You seem to be thriving at work—keep building on this positive momentum. 😊"
+    : avgScore >= 6 
+    ? "Your workplace well-being is generally positive, though there may be areas to improve. 🙂"
+    : "It looks like you may be facing some significant challenges regarding your professional well-being. Don’t hesitate to reach out to your manager or HR for support. 💙"
 }
 
-This assessment is fully anonymous and designed to support the improvement of overall employee well-being within the company.`;
+This assessment is fully anonymous and designed to help improve the overall well-being of employees within the company.`;
     }
 
-    // Prepare session update data
-    const updateData: Record<string, string | number | PermaScores> = {
+    // Prepare update data
+    const updateData: any = {
       current_step: currentStep,
-      status: completed ? 'completed' : 'in_progress'
+      status: completed ? 'completed' : 'in_progress',
+      last_activity: new Date().toISOString()
     };
 
     // Add scores
     if (permaScores && Object.keys(permaScores).length > 0) {
-      updateData.scores = JSON.stringify(permaScores);
+      updateData.perma_scores = permaScores;
     }
 
     // Add completion timestamp
     if (completed) {
       updateData.completed_at = new Date().toISOString();
+      
+      // Calculate and store overall score
+      const avgScore = Object.keys(permaScores).length > 0 
+        ? Object.values(permaScores).reduce((a, b) => a + b, 0) / Object.keys(permaScores).length
+        : 5;
+      updateData.overall_happiness_score = Math.round(avgScore);
     }
 
-    console.log('Attempting to update session with data:', updateData);
+    console.log('Attempting to update session with:', updateData);
 
+    // Update session
     const { error: updateError } = await supabase
       .from('happiness_sessions')
       .update(updateData)
       .eq('session_token', sessionToken);
 
     if (updateError) {
-      console.error('Session update error:', updateError);
+      console.error('Error updating session:', updateError);
       return NextResponse.json(
         { error: 'Error updating session' },
         { status: 500 }
       );
     }
 
-    const sessionUpdate: {
-      response: string;
-      step: number;
-      completed: boolean;
-      scores: PermaScores;
-    } = {
+    // Store messages in history
+    await supabase
+      .from('chat_messages')
+      .insert([
+        {
+          session_id: session.id,
+          message_text: message,
+          is_bot_message: false,
+          step_number: currentStep - 1,
+          message_type: currentStep <= permaQuestions.length ? 'question' : 'completion'
+        },
+        {
+          session_id: session.id,
+          message_text: response,
+          is_bot_message: true,
+          step_number: currentStep,
+          message_type: completed ? 'completion' : 'question'
+        }
+      ]);
+
+    const sessionUpdate = {
       response,
       step: currentStep,
       completed,
       scores: permaScores
     };
+
+    console.log('Response sent:', sessionUpdate);
 
     return NextResponse.json(sessionUpdate);
 

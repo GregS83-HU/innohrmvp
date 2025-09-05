@@ -31,8 +31,9 @@ export async function POST(req: NextRequest) {
       .from('happiness_sessions')
       .select('created_at')
       .eq('ip_hash', ipHash)
-      .gte('created_at', new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()) // 2 hours cooldown
-      .eq('status', 'completed')
+     //.gte('created_at', new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()) // 2 hours cooldown
+     .gte('created_at', new Date(Date.now()).toISOString())
+     .eq('status', 'completed')
 
     if (recentSessions && recentSessions.length > 0) {
       return NextResponse.json({ 
