@@ -245,8 +245,9 @@ ${
 This assessment is fully anonymous and designed to help improve the overall well-being of employees within the company.`;
     }
 
+    
     // Prepare update data
-    const updateData: any = {
+   const updateData: Record<string, unknown> = {
       current_step: currentStep,
       status: completed ? 'completed' : 'in_progress',
       last_activity: new Date().toISOString()
