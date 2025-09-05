@@ -162,7 +162,10 @@ export async function POST(request: NextRequest) {
     if (session.timeout_at && new Date() > new Date(session.timeout_at)) {
       await supabase
         .from('happiness_sessions')
-        .update({ status: 'timeout' })
+        .update({ 
+          status: 'timeout',
+          last_activity: new Date().toISOString()
+        })
         .eq('session_token', sessionToken);
       
       return NextResponse.json(
@@ -179,8 +182,20 @@ export async function POST(request: NextRequest) {
     }
 
     // Récupérer les données actuelles de la session
-    let currentStep = session.current_step || 0;
-    let permaScores: PermaScores = session.perma_scores || {};
+    let currentStep = session.step || 0;
+    let permaScores: PermaScores = {};
+    
+    // Essayer de parser les scores existants s'ils existent
+    if (session.scores) {
+      try {
+        permaScores = typeof session.scores === 'string' 
+          ? JSON.parse(session.scores) 
+          : session.scores;
+      } catch (e) {
+        console.error('Error parsing existing scores:', e);
+        permaScores = {};
+      }
+    }
     
     // Analyser la réponse et mettre à jour les scores PERMA
     const currentQuestion = permaQuestions[currentStep - 1];
@@ -222,21 +237,30 @@ Votre évaluation est maintenant terminée. Voici un bref aperçu de vos résult
 ${avgScore >= 8 
   ? "Félicitations ! Vous semblez très épanoui(e) dans votre travail. Continuez ainsi ! 😊"
   : avgScore >= 6 
-  ? "Votre bien-être au travail est globalement positif, avec quelques axes d'amélioration possibles. 🙂"
+  ? "Votre bien-être au travail is globalement positif, avec quelques axes d'amélioration possibles. 🙂"
   : "Il semble y avoir des défis importants dans votre bien-être professionnel. N'hésitez pas à en parler avec votre manager ou RH. 💙"
 }
 
 Cette évaluation est anonyme et aidera à améliorer le bien-être général dans l'entreprise.`;
     }
 
-    // Mettre à jour la session dans Supabase
-    const updateData = {
-      current_step: currentStep,
-      perma_scores: permaScores,
-      status: completed ? 'completed' : 'in_progress',
-      updated_at: new Date().toISOString(),
-      ...(completed && { completed_at: new Date().toISOString() })
+    // Préparer les données de mise à jour avec les colonnes existantes
+    const updateData: Record<string, any> = {
+      step: currentStep,
+      status: completed ? 'completed' : 'in_progress'
     };
+
+    // Ajouter les scores de manière flexible
+    if (permaScores && Object.keys(permaScores).length > 0) {
+      updateData.scores = JSON.stringify(permaScores);
+    }
+
+    // Ajouter completed_at si terminé
+    if (completed) {
+      updateData.completed_at = new Date().toISOString();
+    }
+
+    console.log('Attempting to update session with data:', updateData);
 
     const { error: updateError } = await supabase
       .from('happiness_sessions')
@@ -249,29 +273,6 @@ Cette évaluation est anonyme et aidera à améliorer le bien-être général da
         { error: 'Erreur mise à jour session' },
         { status: 500 }
       );
-    }
-
-    // Sauvegarder le message et la réponse dans les messages
-    const { error: messageError } = await supabase
-      .from('happiness_messages')
-      .insert([
-        {
-          session_id: session.id,
-          message_type: 'user',
-          content: message,
-          created_at: new Date().toISOString()
-        },
-        {
-          session_id: session.id,
-          message_type: 'assistant',
-          content: response,
-          created_at: new Date().toISOString()
-        }
-      ]);
-
-    if (messageError) {
-      console.error('Message save error:', messageError);
-      // Ne pas faire échouer la requête pour ça
     }
 
     const sessionUpdate: {
