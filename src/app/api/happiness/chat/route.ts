@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Récupérer la session
-    let session = sessions.get(sessionToken);
+    const session = sessions.get(sessionToken);
     
     if (!session) {
       return NextResponse.json(
