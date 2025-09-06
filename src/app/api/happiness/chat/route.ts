@@ -428,7 +428,14 @@ Cette évaluation est entièrement anonyme et conçue pour soutenir l'améliorat
     }
 
     // Préparer les données de mise à jour de la session
-    const updateData: any = {
+    const updateData: {
+      current_step: number;
+      status: 'completed' | 'in_progress';
+      last_activity: string;
+      perma_scores?: PermaScores;
+      completed_at?: string;
+      overall_happiness_score?: number;
+    } = {
       current_step: currentStep,
       status: completed ? 'completed' : 'in_progress',
       last_activity: new Date().toISOString()

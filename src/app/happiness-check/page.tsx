@@ -268,7 +268,7 @@ const HappinessCheck = () => {
 
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
               <p className="text-yellow-800 text-sm">
-                <strong>Confidentialité :</strong> Vos réponses sont complètement anonymes et contribuent à améliorer le bien-être général dans l'entreprise.
+                <strong>Confidentialité :</strong> Vos réponses sont complètement anonymes et contribuent à améliorer le bien-être général dans l&apos;entreprise.
               </p>
             </div>
 
@@ -285,7 +285,7 @@ const HappinessCheck = () => {
                 onClick={() => window.location.href = '/'}
                 className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                Retour à l'accueil
+                Retour à l&apos;accueil
               </button>
             </div>
           </div>
@@ -334,11 +334,11 @@ const HappinessCheck = () => {
               onClick={createSession}
               className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105"
             >
-              Commencer l'évaluation
+              Commencer l&apos;évaluation
             </button>
 
             <p className="text-xs text-gray-500 mt-4">
-              Aucune donnée personnelle n'est collectée • Résultats agrégés anonymes uniquement
+              Aucune donnée personnelle n&apos;est collectée • Résultats agrégés anonymes uniquement
             </p>
           </div>
         </div>
