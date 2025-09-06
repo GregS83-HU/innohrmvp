@@ -42,9 +42,7 @@ export default function Header() {
       else setUser(null);
     });
 
-    if (companySlug) {
-      fetchCompanyLogoAndId(companySlug);
-    }
+    if (companySlug) fetchCompanyLogoAndId(companySlug);
 
     const handleClickOutside = (event: MouseEvent) => {
       if (hrToolsMenuRef.current && !hrToolsMenuRef.current.contains(event.target as Node)) {
@@ -68,7 +66,6 @@ export default function Header() {
       .select('user_firstname, user_lastname')
       .eq('id', userId)
       .single();
-
     if (data) setUser({ firstname: data.user_firstname, lastname: data.user_lastname });
   };
 
@@ -78,7 +75,6 @@ export default function Header() {
       .select('company_logo, id')
       .eq('slug', slug)
       .single();
-
     setCompanyLogo(data?.company_logo || null);
     setCompanyId(data?.id || null);
   };
@@ -89,7 +85,6 @@ export default function Header() {
       email: login,
       password,
     });
-
     if (error) {
       setError('Invalid email or password!');
       return;
@@ -106,19 +101,18 @@ export default function Header() {
     router.push(companySlug ? `/jobs/${companySlug}` : '/');
   };
 
-  const linkToCompany = (path: string) => {
-    return companySlug ? `/jobs/${companySlug}${path === '/' ? '' : path}` : path;
-  };
-
+  const linkToCompany = (path: string) => companySlug ? `/jobs/${companySlug}${path === '/' ? '' : path}` : path;
   const uploadCertificateLink = `/medical-certificate/upload${companyId ? `?company_id=${companyId}` : ''}`;
+
+  const buttonBaseClasses = 'flex items-center gap-2 px-5 py-2 rounded-xl font-semibold transition-all shadow-sm hover:shadow-md';
 
   return (
     <>
       <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
-        <div className="w-full px-4 py-4">
-          <div className="flex items-center justify-between w-full">
+        <div className="w-full px-9 py-4">
+          <div className="flex items-center justify-between w-full max-w-8xl mx-auto">
             
-            {/* LOGO - Complètement à gauche */}
+            {/* LOGO - aligné à gauche */}
             <div className="flex-shrink-0">
               <Link href={linkToCompany('/')}>
                 <img
@@ -129,47 +123,29 @@ export default function Header() {
               </Link>
             </div>
 
-            {/* NAVIGATION CENTRALE - Desktop uniquement */}
-            <nav className="hidden lg:flex items-center gap-2 flex-1 justify-center">
-              
-              {/* Available Positions */}
-              <Link
-                href={linkToCompany('/openedpositions')}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition-colors"
-              >
-                <Briefcase className="w-4 h-4" />
-                Available Positions
+            {/* NAVIGATION - au centre mais flexible */}
+            <nav className="hidden lg:flex items-center gap-3 flex-1 justify-center mx-8">
+              <Link href={linkToCompany('/openedpositions')} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700`}>
+                <Briefcase className="w-4 h-4" /> Available Positions
               </Link>
 
-              {/* Create Position - Si connecté */}
               {user && (
-                <Link
-                  href={linkToCompany('/openedpositions/new')}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                  Create Position
+                <Link href={linkToCompany('/openedpositions/new')} className={`${buttonBaseClasses} bg-green-50 hover:bg-green-100 text-green-700`}>
+                  <Plus className="w-4 h-4" /> Create Position
                 </Link>
               )}
 
-              {/* Happy Check - Toujours visible */}
-              <Link
-                href="/happiness-check"
-                className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-yellow-50 hover:text-yellow-600 text-gray-700 font-medium transition-colors border border-yellow-200 bg-yellow-50/30"
-              >
-                <Smile className="w-4 h-4" />
-                Happy Check
+              <Link href="/happiness-check" className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700`}>
+                <Smile className="w-4 h-4" /> Happy Check
               </Link>
 
-              {/* HR Tools Menu - Uniquement si connecté */}
               {user && (
                 <div className="relative" ref={hrToolsMenuRef}>
                   <button
                     onClick={() => setIsHRToolsMenuOpen(!isHRToolsMenuOpen)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-50 hover:text-blue-600 text-gray-700 font-medium transition-colors border border-blue-200 bg-blue-50/30"
+                    className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700`}
                   >
-                    <Heart className="w-4 h-4" />
-                    HR Tools
+                    <Heart className="w-4 h-4" /> HR Tools
                     <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isHRToolsMenuOpen ? 'rotate-180' : ''}`} />
                   </button>
 
@@ -178,76 +154,43 @@ export default function Header() {
                       <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
                         <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Outils RH</p>
                       </div>
-                      
-                      <Link
-                        href="/happiness-dashboard"
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 hover:text-blue-600 text-gray-700 transition-colors border-b border-gray-100"
-                        onClick={() => setIsHRToolsMenuOpen(false)}
-                      >
-                        <BarChart3 className="w-4 h-4" />
-                        <div>
-                          <p className="font-medium">Happiness Dashboard</p>
-                          <p className="text-xs text-gray-500">Analytics du bien-être</p>
-                        </div>
+
+                      <Link href="/happiness-dashboard" className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
+                        <BarChart3 className="w-4 h-4" /> Happiness Dashboard
                       </Link>
-                      
-                      <Link
-                        href="/medical-certificate/list"
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 hover:text-blue-600 text-gray-700 transition-colors border-b border-gray-100"
-                        onClick={() => setIsHRToolsMenuOpen(false)}
-                      >
-                        <Stethoscope className="w-4 h-4" />
-                        <div>
-                          <p className="font-medium">List of Certificates</p>
-                          <p className="text-xs text-gray-500">Gestion des certificats</p>
-                        </div>
+
+                      <Link href="/medical-certificate/list" className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
+                        <Stethoscope className="w-4 h-4" /> List of Certificates
                       </Link>
-                      
-                      <Link
-                        href="/medical-certificate/download"
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 hover:text-blue-600 text-gray-700 transition-colors"
-                        onClick={() => setIsHRToolsMenuOpen(false)}
-                      >
-                        <Stethoscope className="w-4 h-4" />
-                        <div>
-                          <p className="font-medium">Certificates Download</p>
-                          <p className="text-xs text-gray-500">Téléchargement</p>
-                        </div>
+
+                      <Link href="/medical-certificate/download" className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3`}>
+                        <Stethoscope className="w-4 h-4" /> Certificates Download
                       </Link>
                     </div>
                   )}
                 </div>
               )}
 
-              {/* Upload Certificate - Uniquement si PAS connecté et showMedicalMenu */}
               {!user && (companySlug || companyId) && (
-                <Link
-                  href={uploadCertificateLink}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition-colors"
-                >
-                  <Stethoscope className="w-4 h-4" />
-                  Upload Certificate
+                <Link href={uploadCertificateLink} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700`}>
+                  <Stethoscope className="w-4 h-4" /> Upload Certificate
                 </Link>
               )}
-              
             </nav>
 
-            {/* USER MENU - Complètement à droite */}
-            <div className="flex-shrink-0 ml-8">
-              {/* Menu utilisateur - Desktop */}
+            {/* LOGIN / USER BLOCK - aligné à droite */}
+            <div className="flex-shrink-0 flex items-center gap-2 pr-4 sm:pr-6 lg:pr-8">
               <div className="hidden lg:flex items-center">
                 {user ? (
                   <div className="relative" ref={userMenuRef}>
                     <button
                       onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                      className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition-colors"
+                      className={`${buttonBaseClasses} bg-gray-50 hover:bg-gray-100 text-gray-700`}
                     >
                       <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                         <User className="w-4 h-4 text-blue-600" />
                       </div>
-                      <span className="font-semibold">
-                        {user.firstname} {user.lastname}
-                      </span>
+                      <span>{user.firstname} {user.lastname}</span>
                       <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
                     </button>
 
@@ -257,171 +200,75 @@ export default function Header() {
                           <p className="text-sm text-gray-600">Connecté en tant que</p>
                           <p className="font-semibold text-gray-900">{user.firstname} {user.lastname}</p>
                         </div>
-                        <button
-                          onClick={() => {
-                            handleLogout();
-                            setIsUserMenuOpen(false);
-                          }}
-                          className="flex items-center gap-3 w-full px-4 py-3 hover:bg-red-50 hover:text-red-600 text-gray-700 font-medium transition-colors text-left"
-                        >
-                          <LogOut className="w-4 h-4" />
-                          Logout
+                        <button onClick={() => { handleLogout(); setIsUserMenuOpen(false); }} className={`${buttonBaseClasses} bg-white hover:bg-red-50 text-red-600 w-full px-4 py-3 text-left`}>
+                          <LogOut className="w-4 h-4" /> Logout
                         </button>
                       </div>
                     )}
                   </div>
                 ) : (
                   !companySlug && (
-                    <button
-                      onClick={() => setIsLoginOpen(true)}
-                      className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
-                    >
-                      <User className="w-4 h-4" />
-                      Login
+                    <button onClick={() => setIsLoginOpen(true)} className={`${buttonBaseClasses} bg-blue-600 hover:bg-blue-700 text-white`}>
+                      <User className="w-4 h-4" /> Login
                     </button>
                   )
                 )}
               </div>
 
-              {/* Mobile menu button */}
-              <button
-                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              >
+              {/* MOBILE BUTTON */}
+              <button className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors mr-4" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                 {isMobileMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
               </button>
             </div>
-
           </div>
         </div>
 
-        {/* MENU MOBILE */}
+        {/* MOBILE MENU */}
         {isMobileMenuOpen && (
           <div className="lg:hidden bg-white border-t border-gray-200 shadow-lg">
             <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
-              
-              <Link
-                href={linkToCompany('/openedpositions')}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition-colors"
-              >
-                <Briefcase className="w-4 h-4" />
-                Available Positions
+              <Link href={linkToCompany('/openedpositions')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full`}>
+                <Briefcase className="w-4 h-4" /> Available Positions
               </Link>
 
               {user && (
-                <Link
-                  href={linkToCompany('/openedpositions/new')}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                  Create Position
+                <Link href={linkToCompany('/openedpositions/new')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-green-50 hover:bg-green-100 text-green-700 w-full`}>
+                  <Plus className="w-4 h-4" /> Create Position
                 </Link>
               )}
 
-              <Link
-                href="/happiness-check"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-yellow-50 text-gray-700 font-medium transition-colors border border-yellow-200"
-              >
-                <Smile className="w-4 h-4" />
-                Happy Check
+              <Link href="/happiness-check" onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700 w-full`}>
+                <Smile className="w-4 h-4" /> Happy Check
               </Link>
 
-              {/* HR Tools dans mobile - uniquement si connecté */}
               {user && (
                 <>
                   <div className="px-4 py-2 border-t border-gray-200">
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Outils RH</p>
                   </div>
-                  
-                  <Link
-                    href="/happiness-dashboard"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-6 py-3 rounded-lg hover:bg-blue-50 text-gray-700 font-medium transition-colors"
-                  >
-                    <BarChart3 className="w-4 h-4" />
-                    Happiness Dashboard
+                  <Link href="/happiness-dashboard" onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full`}>
+                    <BarChart3 className="w-4 h-4" /> Happiness Dashboard
                   </Link>
-                  
-                  <Link
-                    href="/medical-certificate/list"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-6 py-3 rounded-lg hover:bg-blue-50 text-gray-700 font-medium transition-colors"
-                  >
-                    <Stethoscope className="w-4 h-4" />
-                    List of Certificates
+                  <Link href="/medical-certificate/list" onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full`}>
+                    <Stethoscope className="w-4 h-4" /> List of Certificates
                   </Link>
-                  
-                  <Link
-                    href="/medical-certificate/download"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-6 py-3 rounded-lg hover:bg-blue-50 text-gray-700 font-medium transition-colors"
-                  >
-                    <Stethoscope className="w-4 h-4" />
-                    Certificates Download
+                  <Link href="/medical-certificate/download" onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full`}>
+                    <Stethoscope className="w-4 h-4" /> Certificates Download
                   </Link>
                 </>
               )}
 
-              {/* Upload Certificate pour non connectés */}
               {!user && (companySlug || companyId) && (
-                <Link
-                  href={uploadCertificateLink}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition-colors"
-                >
-                  <Stethoscope className="w-4 h-4" />
-                  Upload Certificate
+                <Link href={uploadCertificateLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full`}>
+                  <Stethoscope className="w-4 h-4" /> Upload Certificate
                 </Link>
               )}
-
-              {/* Section utilisateur mobile */}
-              <div className="border-t border-gray-200 pt-4">
-                {user ? (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-3 px-4 py-3">
-                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                        <User className="w-4 h-4 text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900">{user.firstname} {user.lastname}</p>
-                        <p className="text-sm text-gray-600">Connecté</p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        handleLogout();
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="flex items-center gap-3 w-full px-4 py-3 rounded-lg hover:bg-red-50 hover:text-red-600 text-gray-700 font-medium transition-colors text-left"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      Logout
-                    </button>
-                  </div>
-                ) : (
-                  !companySlug && (
-                    <button
-                      onClick={() => {
-                        setIsLoginOpen(true);
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="flex items-center gap-3 w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
-                    >
-                      <User className="w-4 h-4" />
-                      Login
-                    </button>
-                  )
-                )}
-              </div>
             </div>
           </div>
         )}
       </header>
 
-      {/* MODAL DE LOGIN */}
+      {/* LOGIN MODAL */}
       {isLoginOpen && !companySlug && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
@@ -429,50 +276,20 @@ export default function Header() {
               <h2 className="text-2xl font-bold text-gray-900">Connexion</h2>
               <p className="text-gray-600 mt-1">Connectez-vous à votre compte</p>
             </div>
-            
             <div className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                <input
-                  type="email"
-                  placeholder="votre@email.com"
-                  value={login}
-                  onChange={(e) => setLogin(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                />
+                <input type="email" placeholder="votre@email.com" value={login} onChange={(e) => setLogin(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"/>
               </div>
-              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Mot de passe</label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                />
+                <input type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"/>
               </div>
-              
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <p className="text-red-700 text-sm">{error}</p>
-                </div>
-              )}
+              {error && <div className="bg-red-50 border border-red-200 rounded-lg p-3"><p className="text-red-700 text-sm">{error}</p></div>}
             </div>
-            
             <div className="p-6 border-t border-gray-200 flex gap-3">
-              <button
-                onClick={() => setIsLoginOpen(false)}
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={handleLogin}
-                className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
-              >
-                Se connecter
-              </button>
+              <button onClick={() => setIsLoginOpen(false)} className="flex-1 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors">Annuler</button>
+              <button onClick={handleLogin} className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">Se connecter</button>
             </div>
           </div>
         </div>
