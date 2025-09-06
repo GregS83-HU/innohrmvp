@@ -216,7 +216,7 @@ EXACT FORMAT:
 2. [emoji] [short actionable tip]
 3. [emoji] [short actionable tip]
 
-Respond ONLY with the 3 numbered tips.`;
+Respond ONLY with the 3 numbered tips and in a proper English`;
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -378,7 +378,9 @@ export async function POST(request: NextRequest) {
         ? Object.values(permaScores).reduce((a, b) => a + b, 0) / Object.keys(permaScores).length
         : 6;
 
+      // FIX : Génération des conseils personnalisés
       personalizedAdvice = await generatePersonalizedAdvice(permaScores, session.id);
+      console.log('Conseils générés dans route:', personalizedAdvice);
 
       let endMessage = "";
       if (avgScore >= 8) {
@@ -393,7 +395,7 @@ export async function POST(request: NextRequest) {
 
       response = `Thank you for sharing your sincere thoughts! 🎉
 
-Your well-being assessment is now complete. Here’s a summary of your results:
+Your well-being assessment is now complete. Here's a summary of your results:
 
 **Overall workplace well-being score: ${Math.round(avgScore * 10) / 10}/10**
 
@@ -461,6 +463,7 @@ This assessment is completely anonymous and designed to support overall employee
         }
       ]);
 
+    // FIX : Retourner les conseils personnalisés dans la réponse
     const sessionUpdate = {
       response,
       step: currentStep,
@@ -469,6 +472,7 @@ This assessment is completely anonymous and designed to support overall employee
       personalizedAdvice: completed ? personalizedAdvice : undefined
     };
 
+    console.log('Réponse envoyée au frontend:', sessionUpdate);
     return NextResponse.json(sessionUpdate);
 
   } catch (error) {
@@ -477,5 +481,4 @@ This assessment is completely anonymous and designed to support overall employee
       { error: 'Internal server error' },
       { status: 500 }
     );
-  }
-}
+  }}

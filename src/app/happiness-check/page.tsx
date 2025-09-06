@@ -29,7 +29,7 @@ const HappinessCheck = () => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [permaScores, setPermaScores] = useState<PermaScores>({});
   const [sessionStarted, setSessionStarted] = useState(false);
-  const [personalizedAdvice, setPersonalizedAdvice] = useState<string[]>([]); // <-- added here
+  const [personalizedAdvice, setPersonalizedAdvice] = useState<string[]>([]);
 
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -127,6 +127,12 @@ const HappinessCheck = () => {
           setCurrentStep(data.step);
           setPermaScores(data.scores || {});
           setIsCompleted(data.completed);
+          
+          // FIX : Récupération des conseils personnalisés
+          if (data.completed && data.personalizedAdvice) {
+            setPersonalizedAdvice(data.personalizedAdvice);
+            console.log('Conseils reçus:', data.personalizedAdvice);
+          }
         }, 1000);
         
       } else {
@@ -186,6 +192,7 @@ const HappinessCheck = () => {
     setSessionStarted(false);
     setIsLoading(false);
     setInputValue('');
+    setPersonalizedAdvice([]); // FIX : Reset des conseils
   };
 
   if (isCompleted) {
@@ -204,6 +211,23 @@ const HappinessCheck = () => {
               </h1>
               <p className="text-gray-600 text-lg">
                 Your workplace well-being assessment is now complete.
+              </p>
+            </div>
+
+            {/* FIX : Affichage du message de fin conditionnel basé sur le score */}
+            <div className="mb-6 p-4 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200">
+              <h3 className="text-lg font-semibold text-blue-800 mb-2">
+                Your Well-being Summary
+              </h3>
+              <p className="text-blue-700">
+                {avgScore >= 8
+                  ? "Fantastic! Your workplace well-being is shining positively. Keep cultivating this great energy! 🌟"
+                  : avgScore >= 6.5
+                  ? "Very good! You have solid foundations for your professional well-being. A few tweaks can make you shine even more! ✨"
+                  : avgScore >= 5
+                  ? "Your situation has good potential for improvement. The tips below will help you reach new heights! 🚀"
+                  : "Thank you for your honesty. Your answers show real challenges, but remember that everything can improve with the right strategies and support. 💙"
+                }
               </p>
             </div>
 
@@ -231,8 +255,8 @@ const HappinessCheck = () => {
               </div>
             </div>
 
-            {/* Personalized Advice Section */}
-            {personalizedAdvice.length > 0 && (
+            {/* FIX : Section des conseils personnalisés avec debug */}
+            {personalizedAdvice && personalizedAdvice.length > 0 ? (
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-6 mb-8">
                 <h3 className="text-xl font-semibold text-purple-800 mb-4 flex items-center gap-2">
                   <span className="text-2xl">💡</span>
@@ -263,6 +287,14 @@ const HappinessCheck = () => {
                     ✨ AI-generated tips tailored for you
                   </p>
                 </div>
+              </div>
+            ) : (
+              // FIX : Message de debug pour comprendre pourquoi les conseils n'apparaissent pas
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <p className="text-yellow-800 text-sm">
+                  <strong>Debug:</strong> Personalized advice not loaded. 
+                  Advice count: {personalizedAdvice?.length || 0}
+                </p>
               </div>
             )}
 
