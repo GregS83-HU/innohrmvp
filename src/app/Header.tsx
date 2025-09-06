@@ -205,7 +205,7 @@ export default function Header() {
                 Mode Démonstration - Temps restant: {formatTime(demoTimeLeft)}
               </span>
               <div className="hidden sm:block text-xs opacity-90">
-                L'application se fermera automatiquement à la fin du timer
+                L&apos;application se fermera automatiquement à la fin du timer
               </div>
             </div>
           </div>
