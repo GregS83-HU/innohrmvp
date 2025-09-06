@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
 import { useRouter, usePathname } from 'next/navigation';
 import { FiMenu, FiX } from 'react-icons/fi';
+import { Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown, User, LogOut } from 'lucide-react';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -14,7 +15,8 @@ const supabase = createClient(
 export default function Header() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isMedicalMenuOpen, setIsMedicalMenuOpen] = useState(false);
+  const [isHRToolsMenuOpen, setIsHRToolsMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [user, setUser] = useState<{ firstname: string; lastname: string } | null>(null);
@@ -24,7 +26,8 @@ export default function Header() {
 
   const router = useRouter();
   const pathname = usePathname();
-  const medicalMenuRef = useRef<HTMLDivElement>(null);
+  const hrToolsMenuRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   const slugMatch = pathname.match(/^\/jobs\/([^/]+)$/);
   const companySlug = slugMatch ? slugMatch[1] : null;
@@ -44,8 +47,11 @@ export default function Header() {
     }
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (medicalMenuRef.current && !medicalMenuRef.current.contains(event.target as Node)) {
-        setIsMedicalMenuOpen(false);
+      if (hrToolsMenuRef.current && !hrToolsMenuRef.current.contains(event.target as Node)) {
+        setIsHRToolsMenuOpen(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -104,240 +110,371 @@ export default function Header() {
     return companySlug ? `/jobs/${companySlug}${path === '/' ? '' : path}` : path;
   };
 
-  const showMedicalMenu = companySlug || user;
-
   const uploadCertificateLink = `/medical-certificate/upload${companyId ? `?company_id=${companyId}` : ''}`;
 
   return (
     <>
-      <header className="flex items-center justify-between px-4 py-3 border-b relative bg-white">
-        <Link href={linkToCompany('/')}>
-          <img
-            src={companySlug && companyLogo ? companyLogo : '/InnoHRLogo.jpeg'}
-            alt="Logo"
-            className="h-10 sm:h-12 object-contain"
-          />
-        </Link>
+      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+        <div className="w-full px-4 py-4">
+          <div className="flex items-center justify-between w-full">
+            
+            {/* LOGO - Complètement à gauche */}
+            <div className="flex-shrink-0">
+              <Link href={linkToCompany('/')}>
+                <img
+                  src={companySlug && companyLogo ? companyLogo : '/InnoHRLogo.jpeg'}
+                  alt="Logo"
+                  className="h-10 sm:h-12 object-contain"
+                />
+              </Link>
+            </div>
 
-        <nav className="hidden md:flex gap-6 items-center">
-          <Link
-            href={linkToCompany('/openedpositions')}
-            className="hover:text-blue-600 transition cursor-pointer"
-          >
-            Available Positions
-          </Link>
-          {user && (
-            <Link
-              href={linkToCompany('/openedpositions/new')}
-              className="hover:text-blue-600 transition cursor-pointer"
-            >
-              Create a position
-            </Link>
-          )}
-
-          {/* Happy Check Menu - Accessible à tous */}
-          <Link
-            href="/happiness-check"
-            className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-yellow-50 hover:text-yellow-600 text-gray-700 font-medium transition cursor-pointer border border-yellow-200"
-          >
-            <span className="text-lg">😊</span>
-            Happy Check
-          </Link>
-
-          {showMedicalMenu && (
-            <div className="relative" ref={medicalMenuRef}>
-              <button
-                onClick={() => setIsMedicalMenuOpen(!isMedicalMenuOpen)}
-                className="flex items-center gap-1 px-3 py-2 rounded-md hover:bg-blue-50 text-gray-700 font-medium transition cursor-pointer"
+            {/* NAVIGATION CENTRALE - Desktop uniquement */}
+            <nav className="hidden lg:flex items-center gap-2 flex-1 justify-center">
+              
+              {/* Available Positions */}
+              <Link
+                href={linkToCompany('/openedpositions')}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition-colors"
               >
-                Medical Certificate
-                <svg
-                  className={`w-3 h-3 mt-1 transition-transform duration-200 ${
-                    isMedicalMenuOpen ? 'rotate-180' : ''
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
+                <Briefcase className="w-4 h-4" />
+                Available Positions
+              </Link>
 
-              {isMedicalMenuOpen && (
-                <div className="absolute top-full mt-2 right-0 w-52 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50 animate-fadeIn">
-                  {/* Upload only visible if NOT logged in */}
-                  {!user && (
-                    <Link
-                      href={uploadCertificateLink}
-                      className="block px-4 py-3 hover:bg-blue-50 hover:text-blue-600 transition font-medium cursor-pointer"
-                      onClick={() => setIsMedicalMenuOpen(false)}
-                    >
-                      Upload Certificate
-                    </Link>
-                  )}
-                  {user && (
-                    <>
+              {/* Create Position - Si connecté */}
+              {user && (
+                <Link
+                  href={linkToCompany('/openedpositions/new')}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  Create Position
+                </Link>
+              )}
+
+              {/* Happy Check - Toujours visible */}
+              <Link
+                href="/happiness-check"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-yellow-50 hover:text-yellow-600 text-gray-700 font-medium transition-colors border border-yellow-200 bg-yellow-50/30"
+              >
+                <Smile className="w-4 h-4" />
+                Happy Check
+              </Link>
+
+              {/* HR Tools Menu - Uniquement si connecté */}
+              {user && (
+                <div className="relative" ref={hrToolsMenuRef}>
+                  <button
+                    onClick={() => setIsHRToolsMenuOpen(!isHRToolsMenuOpen)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-50 hover:text-blue-600 text-gray-700 font-medium transition-colors border border-blue-200 bg-blue-50/30"
+                  >
+                    <Heart className="w-4 h-4" />
+                    HR Tools
+                    <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isHRToolsMenuOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {isHRToolsMenuOpen && (
+                    <div className="absolute top-full mt-2 left-0 w-64 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
+                      <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
+                        <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Outils RH</p>
+                      </div>
+                      
+                      <Link
+                        href="/happiness-dashboard"
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 hover:text-blue-600 text-gray-700 transition-colors border-b border-gray-100"
+                        onClick={() => setIsHRToolsMenuOpen(false)}
+                      >
+                        <BarChart3 className="w-4 h-4" />
+                        <div>
+                          <p className="font-medium">Happiness Dashboard</p>
+                          <p className="text-xs text-gray-500">Analytics du bien-être</p>
+                        </div>
+                      </Link>
+                      
                       <Link
                         href="/medical-certificate/list"
-                        className="block px-4 py-3 hover:bg-blue-50 hover:text-blue-600 transition font-medium cursor-pointer"
-                        onClick={() => setIsMedicalMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 hover:text-blue-600 text-gray-700 transition-colors border-b border-gray-100"
+                        onClick={() => setIsHRToolsMenuOpen(false)}
                       >
-                        List of Certificates
+                        <Stethoscope className="w-4 h-4" />
+                        <div>
+                          <p className="font-medium">List of Certificates</p>
+                          <p className="text-xs text-gray-500">Gestion des certificats</p>
+                        </div>
                       </Link>
+                      
                       <Link
                         href="/medical-certificate/download"
-                        className="block px-4 py-3 hover:bg-blue-50 hover:text-blue-600 transition font-medium cursor-pointer"
-                        onClick={() => setIsMedicalMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 hover:text-blue-600 text-gray-700 transition-colors"
+                        onClick={() => setIsHRToolsMenuOpen(false)}
                       >
-                        Certificates Download
+                        <Stethoscope className="w-4 h-4" />
+                        <div>
+                          <p className="font-medium">Certificates Download</p>
+                          <p className="text-xs text-gray-500">Téléchargement</p>
+                        </div>
                       </Link>
-                    </>
+                    </div>
                   )}
                 </div>
               )}
-            </div>
-          )}
-        </nav>
 
-        <div className="hidden md:flex items-center gap-4">
-          {user ? (
-            <>
-              <span className="font-semibold">
-                Welcome {user.firstname} {user.lastname}
-              </span>
-              <button onClick={handleLogout} className="text-blue-600 cursor-pointer">
-                Logout
+              {/* Upload Certificate - Uniquement si PAS connecté et showMedicalMenu */}
+              {!user && (companySlug || companyId) && (
+                <Link
+                  href={uploadCertificateLink}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition-colors"
+                >
+                  <Stethoscope className="w-4 h-4" />
+                  Upload Certificate
+                </Link>
+              )}
+              
+            </nav>
+
+            {/* USER MENU - Complètement à droite */}
+            <div className="flex-shrink-0 ml-8">
+              {/* Menu utilisateur - Desktop */}
+              <div className="hidden lg:flex items-center">
+                {user ? (
+                  <div className="relative" ref={userMenuRef}>
+                    <button
+                      onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                      className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition-colors"
+                    >
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <User className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <span className="font-semibold">
+                        {user.firstname} {user.lastname}
+                      </span>
+                      <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {isUserMenuOpen && (
+                      <div className="absolute top-full mt-2 right-0 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
+                        <div className="px-4 py-3 border-b border-gray-100">
+                          <p className="text-sm text-gray-600">Connecté en tant que</p>
+                          <p className="font-semibold text-gray-900">{user.firstname} {user.lastname}</p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            handleLogout();
+                            setIsUserMenuOpen(false);
+                          }}
+                          className="flex items-center gap-3 w-full px-4 py-3 hover:bg-red-50 hover:text-red-600 text-gray-700 font-medium transition-colors text-left"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Logout
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  !companySlug && (
+                    <button
+                      onClick={() => setIsLoginOpen(true)}
+                      className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                    >
+                      <User className="w-4 h-4" />
+                      Login
+                    </button>
+                  )
+                )}
+              </div>
+
+              {/* Mobile menu button */}
+              <button
+                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                {isMobileMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
               </button>
-            </>
-          ) : (
-            !companySlug && (
-              <button onClick={() => setIsLoginOpen(true)} className="text-blue-600 cursor-pointer">
-                Login
-              </button>
-            )
-          )}
+            </div>
+
+          </div>
         </div>
 
-        <button
-          className="md:hidden text-2xl cursor-pointer"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          {isMobileMenuOpen ? <FiX /> : <FiMenu />}
-        </button>
-
+        {/* MENU MOBILE */}
         {isMobileMenuOpen && (
-          <div className="absolute top-full left-0 w-full bg-white border-t shadow-md flex flex-col items-center gap-4 py-4 md:hidden z-50">
-            <Link href={linkToCompany('/openedpositions')} onClick={() => setIsMobileMenuOpen(false)} className="cursor-pointer">
-              Available Positions
-            </Link>
-            {user && (
+          <div className="lg:hidden bg-white border-t border-gray-200 shadow-lg">
+            <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
+              
               <Link
-                href={linkToCompany('/openedpositions/new')}
+                href={linkToCompany('/openedpositions')}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="cursor-pointer"
+                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition-colors"
               >
-                Create a position
+                <Briefcase className="w-4 h-4" />
+                Available Positions
               </Link>
-            )}
 
-            {/* Happy Check dans le menu mobile */}
-            <Link
-              href="/happiness-check"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-yellow-50 text-gray-700 font-medium cursor-pointer"
-            >
-              <span className="text-lg">😊</span>
-              Happy Check
-            </Link>
+              {user && (
+                <Link
+                  href={linkToCompany('/openedpositions/new')}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  Create Position
+                </Link>
+              )}
 
-            {/* Upload only if NOT logged in */}
-            {showMedicalMenu && !user && (
               <Link
-                href={uploadCertificateLink}
+                href="/happiness-check"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="cursor-pointer"
+                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-yellow-50 text-gray-700 font-medium transition-colors border border-yellow-200"
               >
-                Upload Certificate
+                <Smile className="w-4 h-4" />
+                Happy Check
               </Link>
-            )}
 
-            {user && (
-              <>
-                <Link
-                  href="/medical-certificate/list"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="cursor-pointer"
-                >
-                  List of Certificates
-                </Link>
-                <Link
-                  href="/medical-certificate/download"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="cursor-pointer"
-                >
-                  Certificates Download
-                </Link>
-              </>
-            )}
+              {/* HR Tools dans mobile - uniquement si connecté */}
+              {user && (
+                <>
+                  <div className="px-4 py-2 border-t border-gray-200">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Outils RH</p>
+                  </div>
+                  
+                  <Link
+                    href="/happiness-dashboard"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 px-6 py-3 rounded-lg hover:bg-blue-50 text-gray-700 font-medium transition-colors"
+                  >
+                    <BarChart3 className="w-4 h-4" />
+                    Happiness Dashboard
+                  </Link>
+                  
+                  <Link
+                    href="/medical-certificate/list"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 px-6 py-3 rounded-lg hover:bg-blue-50 text-gray-700 font-medium transition-colors"
+                  >
+                    <Stethoscope className="w-4 h-4" />
+                    List of Certificates
+                  </Link>
+                  
+                  <Link
+                    href="/medical-certificate/download"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 px-6 py-3 rounded-lg hover:bg-blue-50 text-gray-700 font-medium transition-colors"
+                  >
+                    <Stethoscope className="w-4 h-4" />
+                    Certificates Download
+                  </Link>
+                </>
+              )}
 
-            {user ? (
-              <>
-                <span className="font-semibold">Welcome {user.firstname} {user.lastname}</span>
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="text-blue-600 cursor-pointer"
+              {/* Upload Certificate pour non connectés */}
+              {!user && (companySlug || companyId) && (
+                <Link
+                  href={uploadCertificateLink}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition-colors"
                 >
-                  Logout
-                </button>
-              </>
-            ) : (
-              !companySlug && (
-                <button
-                  onClick={() => {
-                    setIsLoginOpen(true);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="text-blue-600 cursor-pointer"
-                >
-                  Login
-                </button>
-              )
-            )}
+                  <Stethoscope className="w-4 h-4" />
+                  Upload Certificate
+                </Link>
+              )}
+
+              {/* Section utilisateur mobile */}
+              <div className="border-t border-gray-200 pt-4">
+                {user ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3 px-4 py-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <User className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">{user.firstname} {user.lastname}</p>
+                        <p className="text-sm text-gray-600">Connecté</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="flex items-center gap-3 w-full px-4 py-3 rounded-lg hover:bg-red-50 hover:text-red-600 text-gray-700 font-medium transition-colors text-left"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  !companySlug && (
+                    <button
+                      onClick={() => {
+                        setIsLoginOpen(true);
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="flex items-center gap-3 w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                    >
+                      <User className="w-4 h-4" />
+                      Login
+                    </button>
+                  )
+                )}
+              </div>
+            </div>
           </div>
         )}
       </header>
 
+      {/* MODAL DE LOGIN */}
       {isLoginOpen && !companySlug && (
-        <div className="fixed top-0 right-0 w-72 h-full bg-white border-l p-4 shadow-lg flex flex-col gap-4 z-50">
-          <h2 className="text-xl font-bold">Login</h2>
-          <input
-            type="email"
-            placeholder="Email"
-            value={login}
-            onChange={(e) => setLogin(e.target.value)}
-            className="border p-2"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="border p-2"
-          />
-          {error && <p className="text-red-500">{error}</p>}
-          <button onClick={handleLogin} className="bg-blue-600 text-white p-2 rounded-md cursor-pointer">
-            Connect
-          </button>
-          <button
-            onClick={() => setIsLoginOpen(false)}
-            className="mt-auto text-gray-600 cursor-pointer"
-          >
-            Close
-          </button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-900">Connexion</h2>
+              <p className="text-gray-600 mt-1">Connectez-vous à votre compte</p>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <input
+                  type="email"
+                  placeholder="votre@email.com"
+                  value={login}
+                  onChange={(e) => setLogin(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Mot de passe</label>
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                />
+              </div>
+              
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                  <p className="text-red-700 text-sm">{error}</p>
+                </div>
+              )}
+            </div>
+            
+            <div className="p-6 border-t border-gray-200 flex gap-3">
+              <button
+                onClick={() => setIsLoginOpen(false)}
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleLogin}
+                className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+              >
+                Se connecter
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </>
