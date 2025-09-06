@@ -1,6 +1,6 @@
-'use client'    
+'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -11,7 +11,6 @@ import {
   Calendar,
   Download,
   RefreshCw,
-  Filter,
   ChevronDown,
   Smile,
   Meh,
@@ -57,10 +56,9 @@ const HRDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState('30');
-  const [selectedMetric, setSelectedMetric] = useState('avg_overall_happiness');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -73,11 +71,11 @@ const HRDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedPeriod]);
 
   useEffect(() => {
     fetchData();
-  }, [selectedPeriod]);
+  }, [fetchData]);
 
   const getHappinessLevel = (score: number) => {
     if (score >= 8) return { label: 'Excellent', color: 'text-green-600', bg: 'bg-green-50', icon: Smile };
@@ -101,6 +99,15 @@ const HRDashboard = () => {
   };
 
   const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+
+  const recommendations = {
+    positive: "Organiser des événements d&apos;équipe, célébrer les succès, améliorer la reconnaissance",
+    engagement: "Proposer des projets challengeants, développement des compétences, autonomie accrue",
+    relationships: "Team building, formations communication, espaces de collaboration",
+    meaning: "Clarifier la mission, montrer l&apos;impact, aligner avec les valeurs personnelles",
+    accomplishment: "Objectifs clairs, feedback régulier, opportunités d&apos;évolution",
+    work_life_balance: "Flexibilité horaire, télétravail, politique de déconnexion"
+  };
 
   if (loading) {
     return (
@@ -138,7 +145,6 @@ const HRDashboard = () => {
   const happinessLevel = getHappinessLevel(data.summary.avgHappiness);
   const HappinessIcon = happinessLevel.icon;
 
-  // Préparer les données pour les graphiques
   const trendData = data.dailyMetrics.map(item => ({
     date: new Date(item.metric_date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }),
     happiness: item.avg_overall_happiness,
@@ -216,9 +222,10 @@ const HRDashboard = () => {
         </div>
       </div>
 
+      {/* Métriques principales */}
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Métriques principales */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          {/* Score moyen */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -235,6 +242,7 @@ const HRDashboard = () => {
             </div>
           </div>
 
+          {/* Participations */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -253,19 +261,18 @@ const HRDashboard = () => {
             </div>
           </div>
 
+          {/* Domaine le plus fort */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Domaine le plus fort</p>
                 <p className="text-sm font-semibold text-gray-900">
-                  {Object.entries(data.permaAverages)
-                    .sort(([,a], [,b]) => b - a)[0]
-                    ? permaLabels[Object.entries(data.permaAverages).sort(([,a], [,b]) => b - a)[0][0] as keyof typeof permaLabels]
-                    : 'N/A'
-                  }
+                  {Object.entries(data.permaAverages).sort(([,a],[,b])=>b-a)[0]
+                    ? permaLabels[Object.entries(data.permaAverages).sort(([,a],[,b])=>b-a)[0][0] as keyof typeof permaLabels]
+                    : 'N/A'}
                 </p>
                 <p className="text-2xl font-bold text-green-600 mt-1">
-                  {Object.entries(data.permaAverages).sort(([,a], [,b]) => b - a)[0]?.[1].toFixed(1) || 'N/A'}/10
+                  {Object.entries(data.permaAverages).sort(([,a],[,b])=>b-a)[0]?.[1].toFixed(1) || 'N/A'}/10
                 </p>
               </div>
               <div className="w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center">
@@ -274,15 +281,15 @@ const HRDashboard = () => {
             </div>
           </div>
 
+          {/* Zone d'amélioration */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Zone d'amélioration</p>
+                <p className="text-sm text-gray-600">Zone d&apos;amélioration</p>
                 <p className="text-sm font-semibold text-gray-900">
                   {data.areasForImprovement[0]
                     ? permaLabels[data.areasForImprovement[0].area as keyof typeof permaLabels]
-                    : 'N/A'
-                  }
+                    : 'N/A'}
                 </p>
                 <p className="text-2xl font-bold text-red-600 mt-1">
                   {data.areasForImprovement[0]?.score.toFixed(1) || 'N/A'}/10
@@ -305,24 +312,12 @@ const HRDashboard = () => {
                 <LineChart data={trendData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis dataKey="date" stroke="#6b7280" fontSize={12} />
-                  <YAxis domain={[0, 10]} stroke="#6b7280" fontSize={12} />
+                  <YAxis domain={[0,10]} stroke="#6b7280" fontSize={12} />
                   <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#fff', 
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                    }}
-                    formatter={(value: number) => [value?.toFixed(1), 'Score moyen']}
+                    contentStyle={{ backgroundColor:'#fff', border:'1px solid #e5e7eb', borderRadius:'8px', boxShadow:'0 4px 6px -1px rgba(0,0,0,0.1)'}}
+                    formatter={(value:number)=>[value?.toFixed(1),'Score moyen']}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="happiness" 
-                    stroke="#3B82F6" 
-                    strokeWidth={3}
-                    dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6, fill: '#1D4ED8' }}
-                  />
+                  <Line type="monotone" dataKey="happiness" stroke="#3B82F6" strokeWidth={3} dot={{ fill:'#3B82F6', strokeWidth:2, r:4 }} activeDot={{ r:6, fill:'#1D4ED8' }}/>
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -334,31 +329,11 @@ const HRDashboard = () => {
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={permaData}>
-                  <PolarGrid stroke="#e5e7eb" />
-                  <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 11 }} />
-                  <PolarRadiusAxis 
-                    angle={90} 
-                    domain={[0, 10]} 
-                    tick={{ fontSize: 10 }}
-                    tickCount={6}
-                  />
-                  <Radar
-                    name="Score"
-                    dataKey="score"
-                    stroke="#3B82F6"
-                    fill="#3B82F6"
-                    fillOpacity={0.1}
-                    strokeWidth={2}
-                    dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
-                  />
-                  <Tooltip 
-                    formatter={(value: number) => [value?.toFixed(1), 'Score']}
-                    contentStyle={{ 
-                      backgroundColor: '#fff', 
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px'
-                    }}
-                  />
+                  <PolarGrid stroke="#e5e7eb"/>
+                  <PolarAngleAxis dataKey="dimension" tick={{ fontSize:11 }}/>
+                  <PolarRadiusAxis angle={90} domain={[0,10]} tick={{ fontSize:10 }} tickCount={6}/>
+                  <Radar name="Score" dataKey="score" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.1} strokeWidth={2} dot={{ fill:'#3B82F6', strokeWidth:2, r:4 }}/>
+                  <Tooltip formatter={(value:number)=>[value?.toFixed(1),'Score']} contentStyle={{backgroundColor:'#fff',border:'1px solid #e5e7eb',borderRadius:'8px'}}/>
                 </RadarChart>
               </ResponsiveContainer>
             </div>
@@ -373,20 +348,10 @@ const HRDashboard = () => {
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={40}
-                    outerRadius={80}
-                    paddingAngle={2}
-                    dataKey="value"
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
+                  <Pie data={pieData} cx="50%" cy="50%" innerRadius={40} outerRadius={80} paddingAngle={2} dataKey="value">
+                    {pieData.map((entry, index)=><Cell key={`cell-${index}`} fill={entry.color}/>)}
                   </Pie>
-                  <Tooltip formatter={(value: number) => [value?.toFixed(1), 'Score']} />
+                  <Tooltip formatter={(value:number)=>[value?.toFixed(1),'Score']}/>
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -397,29 +362,13 @@ const HRDashboard = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Comparaison détaillée</h3>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={permaData} margin={{ left: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis 
-                    dataKey="dimension" 
-                    stroke="#6b7280" 
-                    fontSize={11}
-                    angle={-45}
-                    textAnchor="end"
-                    height={80}
-                  />
-                  <YAxis domain={[0, 10]} stroke="#6b7280" fontSize={12} />
-                  <Tooltip 
-                    formatter={(value: number) => [value?.toFixed(1), 'Score']}
-                    contentStyle={{ 
-                      backgroundColor: '#fff', 
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px'
-                    }}
-                  />
-                  <Bar dataKey="score" radius={[4, 4, 0, 0]}>
-                    {permaData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={colors[index]} />
-                    ))}
+                <BarChart data={permaData} margin={{ left:20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
+                  <XAxis dataKey="dimension" stroke="#6b7280" fontSize={11} angle={-45} textAnchor="end" height={80}/>
+                  <YAxis domain={[0,10]} stroke="#6b7280" fontSize={12}/>
+                  <Tooltip formatter={(value:number)=>[value?.toFixed(1),'Score']} contentStyle={{backgroundColor:'#fff',border:'1px solid #e5e7eb',borderRadius:'8px'}}/>
+                  <Bar dataKey="score" radius={[4,4,0,0]}>
+                    {permaData.map((entry,index)=><Cell key={`cell-${index}`} fill={colors[index]}/>)}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -431,57 +380,34 @@ const HRDashboard = () => {
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Actions recommandées</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {data.areasForImprovement.slice(0, 3).map((area, index) => {
-              const recommendations = {
-                positive: "Organiser des événements d'équipe, célébrer les succès, améliorer la reconnaissance",
-                engagement: "Proposer des projets challengeants, développement des compétences, autonomie accrue",
-                relationships: "Team building, formations communication, espaces de collaboration",
-                meaning: "Clarifier la mission, montrer l'impact, aligner avec les valeurs personnelles",
-                accomplishment: "Objectifs clairs, feedback régulier, opportunités d'évolution",
-                work_life_balance: "Flexibilité horaire, télétravail, politique de déconnexion"
-              };
-
-              return (
-                <div key={area.area} className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <AlertTriangle className="w-4 h-4 text-red-600" />
-                    <h4 className="font-semibold text-red-800">
-                      {permaLabels[area.area as keyof typeof permaLabels]}
-                    </h4>
-                    <span className="text-sm text-red-600">({area.score.toFixed(1)}/10)</span>
-                  </div>
-                  <p className="text-sm text-red-700">
-                    {recommendations[area.area as keyof typeof recommendations]}
-                  </p>
+            {data.areasForImprovement.slice(0,3).map((area)=>(
+              <div key={area.area} className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="w-4 h-4 text-red-600"/>
+                  <h4 className="font-semibold text-red-800">{permaLabels[area.area as keyof typeof permaLabels]}</h4>
+                  <span className="text-sm text-red-600">({area.score.toFixed(1)}/10)</span>
                 </div>
-              );
-            })}
+                <p className="text-sm text-red-700">{recommendations[area.area as keyof typeof recommendations]}</p>
+              </div>
+            ))}
           </div>
         </div>
 
         {/* Footer */}
-        <div className="mt-8 bg-gray-100 rounded-xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">
-                <strong>Confidentialité :</strong> Toutes les données sont complètement anonymisées.
-                Aucune information personnelle n'est stockée ou affichée.
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Dernière mise à jour : {new Date().toLocaleString('fr-FR')}
-              </p>
-            </div>
-            <button
-              onClick={() => {
-                // Export functionality could be implemented here
-                alert('Fonctionnalité d\'export à implémenter');
-              }}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              <Download className="w-4 h-4" />
-              Exporter
-            </button>
+        <div className="mt-8 bg-gray-100 rounded-xl p-6 flex items-center justify-between">
+          <div>
+            <p className="text-sm text-gray-600">
+              <strong>Confidentialité :</strong> Toutes les données sont complètement anonymisées. Aucune information personnelle n&apos;est stockée ou affichée.
+            </p>
+            <p className="text-xs text-gray-500 mt-1">Dernière mise à jour : {new Date().toLocaleString('fr-FR')}</p>
           </div>
+          <button
+            onClick={()=>alert('Fonctionnalité d&apos;export à implémenter')}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+          >
+            <Download className="w-4 h-4"/>
+            Exporter
+          </button>
         </div>
       </div>
     </div>
