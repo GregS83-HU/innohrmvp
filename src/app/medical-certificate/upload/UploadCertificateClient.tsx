@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Upload, FileText, User, Calendar, Stethoscope, MessageCircle, Check, X, AlertTriangle, CheckCircle } from 'lucide-react';
 
 type UploadCertificateClientProps = {
   companyId: string;
@@ -117,108 +118,239 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
     );
 
   return (
-    <div className="max-w-2xl mx-auto mt-10 p-6 border rounded shadow bg-white">
-      <h1 className="text-2xl font-bold text-center mb-6">📄 Upload Medical Certificate</h1>
-
-      {!result && !successMessage && (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleUpload();
-          }}
-          className="space-y-4"
-        >
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-white shadow-sm">
-            <input
-              type="file"
-              accept=".pdf,image/*"
-              onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
-              className="hidden"
-              id="certificate-upload"
-            />
-            <label htmlFor="certificate-upload" className="block cursor-pointer text-blue-600 hover:underline">
-              {file ? <span>✅ {file.name}</span> : <span>📎 Click here to select your file (PDF or Image) - 1MB max</span>}
-            </label>
-          </div>
-
-          <button
-            type="submit"
-            disabled={!file || loading}
-            className={`mt-4 w-full py-2 px-4 rounded-lg font-semibold text-white ${
-              loading || !file ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-            }`}
-          >
-            {loading ? 'Uploading...' : 'Upload'}
-          </button>
-        </form>
-      )}
-
-      {error && <div className="mt-4 text-red-600 font-semibold">❌ {error}</div>}
-      {successMessage && <div className="mt-4 text-green-600 font-semibold">✅ {successMessage}</div>}
-
-      {result && (
-        <div className="mt-6 p-6 bg-gray-50 rounded-lg shadow-sm space-y-4">
-          <h2 className="text-lg font-semibold mb-2">📋 Certificate Details:</h2>
-          <p><strong>Employee Name:</strong> {result.employee_name}</p>
-          <p><strong>Start Absence date:</strong> {result.absenceDateStart}</p>
-          <p><strong>End Absence date:</strong> {result.absenceDateEnd}</p>
-          <p><strong>Doctor Name:</strong> {result.doctor_name}</p>
-
-          {!hasUnrecognised && (
-            <div className="mt-4">
-              <label htmlFor="comment" className="block mb-1 font-medium">Comment</label>
-              <textarea
-                id="comment"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Write your comment..."
-                className="w-full border rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-300"
-                rows={3}
-              />
-            </div>
-          )}
-
-          <div className="flex space-x-4 mt-4">
-            {!hasUnrecognised ? (
-              <>
-                <button
-                  onClick={handleConfirm}
-                  disabled={saving}
-                  className={`flex-1 py-2 px-4 rounded-lg font-semibold text-white ${
-                    saving ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
-                  }`}
-                >
-                  {saving ? 'Saving...' : 'Confirm'}
-                </button>
-                <button
-                  onClick={handleCancel}
-                  className="flex-1 py-2 px-4 rounded-lg font-semibold text-white bg-red-600 hover:bg-red-700"
-                >
-                  Cancel
-                </button>
-              </>
-            ) : (
-              <div className="w-full text-center">
-                <p className="text-red-600 font-semibold mb-4">❌ The upload failed, would you like to try again?</p>
-                <div className="flex space-x-4">
-                  <button
-                    onClick={handleCancel}
-                    className="flex-1 py-2 px-4 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700"
-                  >
-                    Yes
-                  </button>
-                  <button
-                    onClick={() => window.location.href = '/'}
-                    className="flex-1 py-2 px-4 rounded-lg font-semibold text-white bg-gray-600 hover:bg-gray-700"
-                  >
-                    No
-                  </button>
-                </div>
-              </div>
-            )}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div style={{ maxWidth: '800px', margin: '0 auto', width: '100%' }}>
+        
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <Upload className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              Upload Medical Certificate
+            </h1>
+            <p className="text-gray-600">Upload your medical certificate for automatic processing</p>
           </div>
         </div>
-      )}
+
+        {/* Success Message */}
+        {successMessage && (
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+              <p className="font-medium text-green-800">{successMessage}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Upload Form */}
+        {!result && !successMessage && (
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
+            <div className="p-6">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleUpload();
+                }}
+                className="space-y-6"
+              >
+                {/* File Upload Area */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Select Certificate File
+                  </label>
+                  <div 
+                    className={`border-2 border-dashed rounded-xl p-8 text-center transition-all ${
+                      file 
+                        ? 'border-green-300 bg-green-50' 
+                        : 'border-gray-300 bg-gray-50 hover:border-blue-300 hover:bg-blue-50'
+                    }`}
+                  >
+                    <input
+                      type="file"
+                      accept=".pdf,image/*"
+                      onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
+                      className="hidden"
+                      id="certificate-upload"
+                    />
+                    <label htmlFor="certificate-upload" className="block cursor-pointer">
+                      {file ? (
+                        <div className="flex items-center justify-center gap-3">
+                          <CheckCircle className="w-6 h-6 text-green-600" />
+                          <span className="font-medium text-green-800">{file.name}</span>
+                        </div>
+                      ) : (
+                        <div>
+                          <FileText className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                          <p className="text-blue-600 font-medium hover:text-blue-700">
+                            Click here to select your file
+                          </p>
+                          <p className="text-sm text-gray-500 mt-2">
+                            PDF or Image • Maximum 1MB
+                          </p>
+                        </div>
+                      )}
+                    </label>
+                  </div>
+                </div>
+
+                {/* Upload Button */}
+                <button
+                  type="submit"
+                  disabled={!file || loading}
+                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-5 h-5" />
+                      Upload & Process
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
+              <p className="font-medium text-red-800">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Results */}
+        {result && (
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="p-6">
+              <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-800 mb-6">
+                <FileText className="w-6 h-6" />
+                Extracted Certificate Details
+              </h2>
+
+              <div className="grid gap-4 mb-6">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <User className="w-4 h-4 text-blue-600" />
+                    <label className="font-medium text-gray-700">Employee Name</label>
+                  </div>
+                  <p className="text-gray-800 font-medium">{result.employee_name || '—'}</p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Calendar className="w-4 h-4 text-blue-600" />
+                      <label className="font-medium text-gray-700">Start Date</label>
+                    </div>
+                    <p className="text-gray-800 font-medium">{result.absenceDateStart || '—'}</p>
+                  </div>
+
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Calendar className="w-4 h-4 text-blue-600" />
+                      <label className="font-medium text-gray-700">End Date</label>
+                    </div>
+                    <p className="text-gray-800 font-medium">{result.absenceDateEnd || '—'}</p>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Stethoscope className="w-4 h-4 text-blue-600" />
+                    <label className="font-medium text-gray-700">Doctor Name</label>
+                  </div>
+                  <p className="text-gray-800 font-medium">{result.doctor_name || '—'}</p>
+                </div>
+              </div>
+
+              {!hasUnrecognised && (
+                <div className="mb-6">
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
+                    <MessageCircle className="w-4 h-4" />
+                    Additional Comment (Optional)
+                  </label>
+                  <textarea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder="Add any additional information or comments..."
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                    rows={4}
+                  />
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-4">
+                {!hasUnrecognised ? (
+                  <>
+                    <button
+                      onClick={handleConfirm}
+                      disabled={saving}
+                      className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-6 rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    >
+                      {saving ? (
+                        <>
+                          <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-5 h-5" />
+                          Confirm & Save
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={handleCancel}
+                      className="flex-1 flex items-center justify-center gap-2 bg-gray-500 hover:bg-gray-600 text-white py-3 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+                    >
+                      <X className="w-5 h-5" />
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <div className="w-full">
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <AlertTriangle className="w-5 h-5 text-red-600" />
+                        <h3 className="font-semibold text-red-800">Processing Failed</h3>
+                      </div>
+                      <p className="text-red-700">
+                        Some information could not be recognized automatically. Would you like to try uploading a different file?
+                      </p>
+                    </div>
+                    
+                    <div className="flex gap-4">
+                      <button
+                        onClick={handleCancel}
+                        className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+                      >
+                        <Upload className="w-5 h-5" />
+                        Try Again
+                      </button>
+                      <button
+                        onClick={() => window.location.href = '/'}
+                        className="flex-1 flex items-center justify-center gap-2 bg-gray-500 hover:bg-gray-600 text-white py-3 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+                      >
+                        <X className="w-5 h-5" />
+                        Exit
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

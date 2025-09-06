@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
 import { useRouter, usePathname } from 'next/navigation';
 import { FiMenu, FiX } from 'react-icons/fi';
-import { Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown, User, LogOut } from 'lucide-react';
+import { Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown, User, LogOut, Clock } from 'lucide-react';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -24,6 +24,11 @@ export default function Header() {
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
   const [companyId, setCompanyId] = useState<string | null>(null);
 
+  // Demo timer state
+  const [demoTimeLeft, setDemoTimeLeft] = useState<number | null>(null);
+  const [isDemoMode, setIsDemoMode] = useState(false);
+  const demoTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   const router = useRouter();
   const pathname = usePathname();
   const hrToolsMenuRef = useRef<HTMLDivElement>(null);
@@ -31,6 +36,81 @@ export default function Header() {
 
   const slugMatch = pathname.match(/^\/jobs\/([^/]+)$/);
   const companySlug = slugMatch ? slugMatch[1] : null;
+
+  // Demo timer logic - check both current slug and localStorage
+  useEffect(() => {
+    const DEMO_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+    const DEMO_START_KEY = 'demo_start_time';
+    const DEMO_MODE_KEY = 'demo_mode_active';
+    
+    // If current page is demo slug, activate demo mode
+    if (companySlug === 'demo') {
+      localStorage.setItem(DEMO_MODE_KEY, 'true');
+      
+      let demoStartTime = localStorage.getItem(DEMO_START_KEY);
+      if (!demoStartTime) {
+        demoStartTime = Date.now().toString();
+        localStorage.setItem(DEMO_START_KEY, demoStartTime);
+      }
+    }
+
+    // Check if demo mode is active (either from current page or localStorage)
+    const isDemoActive = companySlug === 'demo' || localStorage.getItem(DEMO_MODE_KEY) === 'true';
+    
+    if (isDemoActive) {
+      const demoStartTime = localStorage.getItem(DEMO_START_KEY);
+      
+      if (!demoStartTime) {
+        // Demo mode is active but no start time, clean up
+        localStorage.removeItem(DEMO_MODE_KEY);
+        setIsDemoMode(false);
+        setDemoTimeLeft(null);
+        return;
+      }
+
+      const startTime = parseInt(demoStartTime);
+      const elapsed = Date.now() - startTime;
+      const remaining = DEMO_DURATION - elapsed;
+
+      if (remaining <= 0) {
+        // Demo expired, redirect immediately and clean up
+        localStorage.removeItem(DEMO_START_KEY);
+        localStorage.removeItem(DEMO_MODE_KEY);
+        window.location.href = 'https://google.com';
+        return;
+      }
+
+      setIsDemoMode(true);
+      setDemoTimeLeft(Math.ceil(remaining / 1000)); // Convert to seconds
+
+      // Start countdown timer
+      demoTimerRef.current = setInterval(() => {
+        const currentElapsed = Date.now() - startTime;
+        const currentRemaining = DEMO_DURATION - currentElapsed;
+
+        if (currentRemaining <= 0) {
+          localStorage.removeItem(DEMO_START_KEY);
+          localStorage.removeItem(DEMO_MODE_KEY);
+          window.location.href = 'https://google.com';
+          return;
+        }
+
+        setDemoTimeLeft(Math.ceil(currentRemaining / 1000));
+      }, 1000);
+
+      return () => {
+        if (demoTimerRef.current) {
+          clearInterval(demoTimerRef.current);
+        }
+      };
+    } else {
+      setIsDemoMode(false);
+      setDemoTimeLeft(null);
+      if (demoTimerRef.current) {
+        clearInterval(demoTimerRef.current);
+      }
+    }
+  }, [companySlug]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -106,9 +186,31 @@ export default function Header() {
 
   const buttonBaseClasses = 'flex items-center gap-2 px-5 py-2 rounded-xl font-semibold transition-all shadow-sm hover:shadow-md';
 
+  // Format time for display
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   return (
     <>
       <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+        {/* Demo Timer Banner */}
+        {isDemoMode && demoTimeLeft !== null && (
+          <div className="bg-gradient-to-r from-orange-400 to-red-500 text-white px-4 py-2">
+            <div className="max-w-8xl mx-auto flex items-center justify-center gap-3">
+              <Clock className="w-4 h-4" />
+              <span className="font-semibold text-sm">
+                Mode Démonstration - Temps restant: {formatTime(demoTimeLeft)}
+              </span>
+              <div className="hidden sm:block text-xs opacity-90">
+                L'application se fermera automatiquement à la fin du timer
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="w-full px-9 py-4">
           <div className="flex items-center justify-between w-full max-w-8xl mx-auto">
             
@@ -180,6 +282,14 @@ export default function Header() {
 
             {/* LOGIN / USER BLOCK - aligné à droite */}
             <div className="flex-shrink-0 flex items-center gap-2 pr-4 sm:pr-6 lg:pr-8">
+              {/* Demo Timer Mobile */}
+              {isDemoMode && demoTimeLeft !== null && (
+                <div className="lg:hidden flex items-center gap-2 px-3 py-1 bg-orange-100 text-orange-800 rounded-lg text-sm font-medium">
+                  <Clock className="w-3 h-3" />
+                  {formatTime(demoTimeLeft)}
+                </div>
+              )}
+
               <div className="hidden lg:flex items-center">
                 {user ? (
                   <div className="relative" ref={userMenuRef}>

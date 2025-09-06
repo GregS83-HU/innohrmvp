@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
 import * as Popover from '@radix-ui/react-popover'
-import { Edit, Save, X, Search } from 'lucide-react'
+import { Edit, Save, X, Search, BarChart3, Users, CheckSquare, Square, ArrowUp, ArrowDown, ArrowUpDown, FileText, User } from 'lucide-react'
 
 type Candidat = {
   candidat_firstname: string
@@ -109,14 +109,12 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
   const handleStepChange = async (candidat_id: number, step_name: string) => {
     const stepValueToSend = step_name === '' ? null : step_name
     
-    // Si la ligne est sélectionnée et qu'il y a d'autres lignes sélectionnées, mettre à jour toutes les lignes sélectionnées
     const isRowSelected = selectedRows.has(candidat_id)
     const candidatsToUpdate = isRowSelected && selectedRows.size > 1 
       ? Array.from(selectedRows) 
       : [candidat_id]
 
     try {
-      // Mettre à jour tous les candidats concernés
       const updatePromises = candidatsToUpdate.map(id => 
         fetch('/api/update-next-step', {
           method: 'POST',
@@ -130,11 +128,10 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
 
       if (hasError) {
         console.error('Erreur mise à jour étape')
-        alert("Erreur lors de la mise à jour de l'étape'ó")
+        alert("Erreur lors de la mise à jour de l'étape")
         return
       }
 
-      // Mettre à jour l'état local
       setRows((prev) =>
         prev.map((row) =>
           candidatsToUpdate.includes(row.candidat_id) 
@@ -143,7 +140,6 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
         )
       )
 
-      // Si on a mis à jour plusieurs lignes, on peut désélectionner après la mise à jour
       if (candidatsToUpdate.length > 1) {
         setSelectedRows(new Set())
       }
@@ -175,153 +171,287 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
 
   const renderSortIcon = () => {
     if (sortOrder === 'asc') {
-      return <span style={{ color: 'red', marginLeft: 6 }}>↑</span> // ascending → red
+      return <ArrowUp className="w-4 h-4 text-red-500 ml-1" />
     }
     if (sortOrder === 'desc') {
-      return <span style={{ color: 'green', marginLeft: 6 }}>↓</span> // descending → green
+      return <ArrowDown className="w-4 h-4 text-green-500 ml-1" />
     }
-    return <span style={{ color: 'grey', marginLeft: 6 }}>↕</span> // neutral
+    return <ArrowUpDown className="w-4 h-4 text-gray-400 ml-1" />
   }
 
   const isAllSelected = rows.length > 0 && selectedRows.size === rows.length
   const isIndeterminate = selectedRows.size > 0 && selectedRows.size < rows.length
 
+  const getScoreBadgeStyle = (score: number | null) => {
+    if (score === null) return "bg-gray-100 text-gray-600"
+    if (score <= 5) return "bg-red-100 text-red-700"
+    if (score <= 7) return "bg-yellow-100 text-yellow-700"
+    return "bg-green-100 text-green-700"
+  }
+
   return (
-    <div style={{ overflowX: 'auto', padding: '1rem', paddingBottom: 'env(safe-area-inset-bottom, 24px)' }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 700 }}>
-        <thead>
-          <tr style={{ backgroundColor: '#f8f9fa' }}>
-            <th style={thStyle}>
-              <input
-                type="checkbox"
-                checked={isAllSelected}
-                ref={input => {
-                  if (input) input.indeterminate = isIndeterminate
-                }}
-                onChange={(e) => handleSelectAll(e.target.checked)}
-                style={checkboxStyle}
-              />
-            </th>
-            <th style={thStyle}>First name</th>
-            <th style={thStyle}>Last Name</th>
-            <th style={{ ...thStyle, cursor: 'pointer' }} onClick={handleSort}>
-              Score {renderSortIcon()}
-            </th>
-            <th style={thStyle}>CV</th>
-            <th style={thStyle}>Next Step</th>
-            <th style={thStyle}>Comment</th>
-            <th style={thStyle}>AI Analyse</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, index) => {
-            const candidat = row.candidats
-            const isLowScore = row.candidat_score !== null && row.candidat_score <= 5
-            const isSelected = selectedRows.has(row.candidat_id)
-            const badgeStyle = {
-              display: 'inline-block',
-              padding: '4px 8px',
-              borderRadius: '12px',
-              backgroundColor: isLowScore ? '#f8d7da' : '#d4edda',
-              color: isLowScore ? 'red' : 'green',
-              fontWeight: 'bold' as const,
-            }
-            return (
-              <tr 
-                key={index} 
-                style={{ 
-                  borderBottom: '1px solid #ccc',
-                  backgroundColor: isSelected ? '#e3f2fd' : 'transparent'
-                }}
-              >
-                <td style={tdStyle}>
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={(e) => handleSelectRow(row.candidat_id, e.target.checked)}
-                    style={checkboxStyle}
-                  />
-                </td>
-                <td style={tdStyle}>{candidat?.candidat_firstname ?? '—'}</td>
-                <td style={tdStyle}>{candidat?.candidat_lastname ?? '—'}</td>
-                <td style={tdStyle}><span style={badgeStyle}>{row.candidat_score ?? '—'}</span></td>
-                <td style={tdStyle}>
-                  {candidat?.cv_file ? (
-                    <a href={candidat.cv_file} target="_blank" rel="noopener noreferrer" style={{ color: '#0070f3', textDecoration: 'underline' }}>
-                      Voir CV
-                    </a>
-                  ) : '—'}
-                </td>
-                <td style={tdStyle}>
-                  <select
-                    value={row.candidat_next_step ?? ''}
-                    onChange={(e) => handleStepChange(row.candidat_id, e.target.value)}
-                    style={selectStyle}
-                  >
-                    <option value="">Select step</option>
-                    {steps.map((step) => (
-                      <option key={step.step_id} value={step.step_name}>
-                        {step.step_name}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td style={{ ...tdStyle, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ flex: 1 }}>{row.candidat_comment ?? '—'}</span>
-                  <Popover.Root
-                    open={editingId === row.candidat_id}
-                    onOpenChange={(open) => open ? handleEditClick(row) : setEditingId(null)}
-                  >
-                    <Popover.Trigger asChild>
-                      <button style={iconBtnStyle}><Edit size={16} /></button>
-                    </Popover.Trigger>
-                    <Popover.Portal>
-                      <Popover.Content side="top" align="end" sideOffset={5} collisionPadding={16} avoidCollisions sticky="always" style={popoverStyle}>
-                        <textarea value={commentValue} onChange={(e) => setCommentValue(e.target.value)} rows={3} style={textareaStyle}/>
-                        <div style={btnContainerStyle}>
-                          <button onClick={handleSave} style={iconBtnGreen}><Save size={16} /></button>
-                          <Popover.Close asChild>
-                            <button style={iconBtnRed}><X size={16} /></button>
-                          </Popover.Close>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+        
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <BarChart3 className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              Candidates Analysis
+            </h1>
+            <div className="flex items-center justify-center gap-6">
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full">
+                <Users className="w-4 h-4" />
+                <span className="font-semibold">{rows.length}</span>
+                <span>candidates</span>
+              </div>
+              {selectedRows.size > 0 && (
+                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-full">
+                  <CheckSquare className="w-4 h-4" />
+                  <span className="font-semibold">{selectedRows.size}</span>
+                  <span>selected</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Table Container */}
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div className="overflow-x-auto" style={{ paddingBottom: 'env(safe-area-inset-bottom, 24px)' }}>
+            <table className="w-full" style={{ minWidth: '800px' }}>
+              <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                <tr>
+                  <th className="px-4 py-4 text-left">
+                    <div className="flex items-center">
+                      {isAllSelected ? (
+                        <CheckSquare 
+                          className="w-5 h-5 text-blue-600 cursor-pointer hover:text-blue-700" 
+                          onClick={() => handleSelectAll(false)}
+                        />
+                      ) : isIndeterminate ? (
+                        <div className="w-5 h-5 bg-blue-600 rounded border-2 border-blue-600 cursor-pointer hover:bg-blue-700 flex items-center justify-center"
+                             onClick={() => handleSelectAll(true)}>
+                          <div className="w-2 h-2 bg-white rounded-sm"></div>
                         </div>
-                        <Popover.Arrow offset={5} width={10} height={5} style={{ fill: 'white', stroke: '#ccc' }} />
-                      </Popover.Content>
-                    </Popover.Portal>
-                  </Popover.Root>
-                </td>
-                <td style={tdStyle}>
-                  {row.candidat_ai_analyse ? (
-                    <Popover.Root>
-                      <Popover.Trigger asChild>
-                        <button style={iconBtnStyle}><Search size={16} /></button>
-                      </Popover.Trigger>
-                      <Popover.Portal>
-                        <Popover.Content side="top" align="center" sideOffset={5} collisionPadding={16} avoidCollisions sticky="always" style={aiPopoverStyle}>
-                          {row.candidat_ai_analyse}
-                          <Popover.Arrow offset={5} width={10} height={5} style={{ fill: 'white', stroke: '#ccc' }} />
-                        </Popover.Content>
-                      </Popover.Portal>
-                    </Popover.Root>
-                  ) : '—'}
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+                      ) : (
+                        <Square 
+                          className="w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600" 
+                          onClick={() => handleSelectAll(true)}
+                        />
+                      )}
+                    </div>
+                  </th>
+                  <th className="px-4 py-4 text-left font-semibold text-gray-700">
+                    <div className="flex items-center gap-2">
+                      <User className="w-4 h-4" />
+                      First Name
+                    </div>
+                  </th>
+                  <th className="px-4 py-4 text-left font-semibold text-gray-700">
+                    Last Name
+                  </th>
+                  <th 
+                    className="px-4 py-4 text-left font-semibold text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors"
+                    onClick={handleSort}
+                  >
+                    <div className="flex items-center">
+                      Score
+                      {renderSortIcon()}
+                    </div>
+                  </th>
+                  <th className="px-4 py-4 text-left font-semibold text-gray-700">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4" />
+                      CV
+                    </div>
+                  </th>
+                  <th className="px-4 py-4 text-left font-semibold text-gray-700">
+                    Next Step
+                  </th>
+                  <th className="px-4 py-4 text-left font-semibold text-gray-700">
+                    Comment
+                  </th>
+                  <th className="px-4 py-4 text-left font-semibold text-gray-700">
+                    AI Analysis
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row, index) => {
+                  const candidat = row.candidats
+                  const isSelected = selectedRows.has(row.candidat_id)
+                  
+                  return (
+                    <tr 
+                      key={index} 
+                      className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+                        isSelected ? 'bg-blue-50' : ''
+                      }`}
+                    >
+                      <td className="px-3 py-4 w-12">
+                        {isSelected ? (
+                          <CheckSquare 
+                            className="w-5 h-5 text-blue-600 cursor-pointer hover:text-blue-700" 
+                            onClick={() => handleSelectRow(row.candidat_id, false)}
+                          />
+                        ) : (
+                          <Square 
+                            className="w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600" 
+                            onClick={() => handleSelectRow(row.candidat_id, true)}
+                          />
+                        )}
+                      </td>
+                      
+                      <td className="px-3 py-4 font-medium text-gray-800 w-32 truncate">
+                        {candidat?.candidat_firstname ?? '—'}
+                      </td>
+                      
+                      <td className="px-3 py-4 font-medium text-gray-800 w-32 truncate">
+                        {candidat?.candidat_lastname ?? '—'}
+                      </td>
+                      
+                      <td className="px-3 py-4 w-24">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getScoreBadgeStyle(row.candidat_score)}`}>
+                          {row.candidat_score ?? '—'}
+                        </span>
+                      </td>
+                      
+                      <td className="px-3 py-4 w-24">
+                        {candidat?.cv_file ? (
+                          <a 
+                            href={candidat.cv_file} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium transition-colors text-sm"
+                          >
+                            <FileText className="w-3 h-3" />
+                          </a>
+                        ) : (
+                          <span className="text-gray-500">—</span>
+                        )}
+                      </td>
+                      
+                      <td className="px-3 py-4 w-40">
+                        <select
+                          value={row.candidat_next_step ?? ''}
+                          onChange={(e) => handleStepChange(row.candidat_id, e.target.value)}
+                          className="px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-xs w-full"
+                        >
+                          <option value="">Select step</option>
+                          {steps.map((step) => (
+                            <option key={step.step_id} value={step.step_name}>
+                              {step.step_name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      
+                      <td className="px-3 py-4 w-48">
+                        <div className="flex items-center gap-2">
+                          <span className="flex-1 text-gray-700 text-xs truncate" title={row.candidat_comment ?? ''}>
+                            {row.candidat_comment ?? '—'}
+                          </span>
+                          <Popover.Root
+                            open={editingId === row.candidat_id}
+                            onOpenChange={(open) => open ? handleEditClick(row) : setEditingId(null)}
+                          >
+                            <Popover.Trigger asChild>
+                              <button className="p-1 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors">
+                                <Edit className="w-3 h-3" />
+                              </button>
+                            </Popover.Trigger>
+                            <Popover.Portal>
+                              <Popover.Content 
+                                side="top" 
+                                align="end" 
+                                sideOffset={5} 
+                                collisionPadding={16} 
+                                avoidCollisions 
+                                sticky="always"
+                                className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 z-50"
+                                style={{ width: 'min(300px, 90vw)', maxHeight: '60vh', overflowY: 'auto' }}
+                              >
+                                <textarea 
+                                  value={commentValue} 
+                                  onChange={(e) => setCommentValue(e.target.value)} 
+                                  rows={3} 
+                                  className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
+                                  placeholder="Add your comment here..."
+                                />
+                                <div className="flex justify-end gap-2 mt-3">
+                                  <button 
+                                    onClick={handleSave} 
+                                    className="p-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
+                                  >
+                                    <Save className="w-4 h-4" />
+                                  </button>
+                                  <Popover.Close asChild>
+                                    <button className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg transition-colors">
+                                      <X className="w-4 h-4" />
+                                    </button>
+                                  </Popover.Close>
+                                </div>
+                                <Popover.Arrow className="fill-white stroke-gray-200" />
+                              </Popover.Content>
+                            </Popover.Portal>
+                          </Popover.Root>
+                        </div>
+                      </td>
+                      
+                      <td className="px-3 py-4 w-28 text-center">
+                        {row.candidat_ai_analyse ? (
+                          <Popover.Root>
+                            <Popover.Trigger asChild>
+                              <button className="p-1 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors">
+                                <Search className="w-3 h-3" />
+                              </button>
+                            </Popover.Trigger>
+                            <Popover.Portal>
+                              <Popover.Content 
+                                side="top" 
+                                align="center" 
+                                sideOffset={5} 
+                                collisionPadding={16} 
+                                avoidCollisions 
+                                sticky="always"
+                                className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 z-50"
+                                style={{ 
+                                  maxWidth: 'min(450px, 90vw)', 
+                                  maxHeight: '60vh', 
+                                  overflowY: 'auto',
+                                  paddingBottom: 'calc(env(safe-area-inset-bottom, 24px) + 24px)'
+                                }}
+                              >
+                                <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                                  {row.candidat_ai_analyse}
+                                </div>
+                                <Popover.Arrow className="fill-white stroke-gray-200" />
+                              </Popover.Content>
+                            </Popover.Portal>
+                          </Popover.Root>
+                        ) : (
+                          <span className="text-gray-500">—</span>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Empty State */}
+        {rows.length === 0 && (
+          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+            <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-gray-600 mb-2">No candidates found</h2>
+            <p className="text-gray-500">There are no candidates to analyze for this position yet.</p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
-
-/* ==== Styles ==== */
-const thStyle: React.CSSProperties = { textAlign: 'left', padding: '8px', fontWeight: 'bold' }
-const tdStyle: React.CSSProperties = { padding: '8px', verticalAlign: 'middle' }
-const selectStyle: React.CSSProperties = { padding: '4px 8px', borderRadius: 4, border: '1px solid #ccc' }
-const iconBtnStyle: React.CSSProperties = { background: '#f0f0f0', border: '1px solid #ccc', borderRadius: 4, padding: '4px', cursor: 'pointer' }
-const iconBtnGreen: React.CSSProperties = { backgroundColor: '#28a745', color: 'white', padding: '4px', border: 'none', borderRadius: 4, cursor: 'pointer' }
-const iconBtnRed: React.CSSProperties = { backgroundColor: '#f8d7da', color: 'black', padding: '4px', border: '1px solid #ccc', borderRadius: 4, cursor: 'pointer' }
-const popoverStyle: React.CSSProperties = { background: 'white', padding: 10, border: '1px solid #ccc', borderRadius: 6, boxShadow: '0px 4px 6px rgba(0,0,0,0.1)', width: 'min(250px, 90vw)', maxHeight: '60vh', overflowY: 'auto' }
-const aiPopoverStyle: React.CSSProperties = { background: 'white', padding: 12, border: '1px solid #ccc', borderRadius: 6, boxShadow: '0px 4px 8px rgba(0,0,0,0.15)', maxWidth: 'min(400px, 90vw)', maxHeight: '60vh', overflowY: 'auto', whiteSpace: 'pre-wrap', fontSize: '0.9rem', paddingBottom: 'calc(env(safe-area-inset-bottom, 24px) + 48px)' }
-const textareaStyle: React.CSSProperties = { width: '100%', border: '1px solid #ccc', borderRadius: 4, padding: 6 }
-const btnContainerStyle: React.CSSProperties = { display: 'flex', justifyContent: 'flex-end', marginTop: 6, gap: 8 }
-const checkboxStyle: React.CSSProperties = { cursor: 'pointer', transform: 'scale(1.1)' }

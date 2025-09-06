@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
 import * as Popover from '@radix-ui/react-popover'
-import { Search } from 'lucide-react'
+import { Search, FileText, User, Calendar, MessageCircle, CheckCircle, Clock, Filter, Eye } from 'lucide-react'
 
 type MedicalCertificate = {
   id: number
@@ -145,6 +145,16 @@ export default function MedicalCertificatesPage() {
     }
   }
 
+  const formatSimpleDate = (dateString: string | null) => {
+    if (!dateString) return '—'
+    try {
+      const date = new Date(dateString)
+      return date.toLocaleDateString('fr-FR')
+    } catch {
+      return dateString
+    }
+  }
+
   /** ==== Application des filtres ==== */
   const filteredCertificates = certificates
     .filter((cert) =>
@@ -152,182 +162,231 @@ export default function MedicalCertificatesPage() {
     )
     .filter((cert) => (showAll ? true : !cert.treated))
 
-  return (
-    <div style={{ overflowX: 'auto', padding: '1rem' }}>
-      <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>
-        📄 Medical Certificates
-      </h1>
+  const treatedCount = certificates.filter(cert => cert.treated).length
+  const pendingCount = certificates.filter(cert => !cert.treated).length
 
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-        <input
-          type="text"
-          placeholder="Search by employee..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{
-            flex: 1,
-            maxWidth: 400,
-            padding: '8px 12px',
-            border: '1px solid #ccc',
-            borderRadius: 6,
-          }}
-        />
-
-        <button
-          onClick={() => setShowAll((prev) => !prev)}
-          style={{
-            padding: '8px 12px',
-            border: '1px solid #ccc',
-            borderRadius: 6,
-            background: showAll ? '#0070f3' : '#f0f0f0',
-            color: showAll ? 'white' : 'black',
-            cursor: 'pointer',
-            fontWeight: 'bold',
-          }}
-        >
-          {showAll ? 'Hide treated' : 'See all certificates'}
-        </button>
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading certificates...</p>
+        </div>
       </div>
+    )
+  }
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <table
-          style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            minWidth: 700,
-          }}
-        >
-          <thead>
-            <tr style={{ backgroundColor: '#f8f9fa' }}>
-              <th style={thStyle}>Employee Name</th>
-              <th style={thStyle}>Absence start date</th>
-              <th style={thStyle}>Absence end date</th>
-              <th style={thStyle}>Medical Certificate</th>
-              <th style={thStyle}>Employee Comment</th>
-              <th style={thStyle}>Treated</th>
-              <th style={thStyle}>Treatment Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredCertificates.length === 0 ? (
-              <tr>
-                <td colSpan={7} style={{ textAlign: 'center', padding: 16 }}>
-                  No Medical Certificate found
-                </td>
-              </tr>
-            ) : (
-              filteredCertificates.map((cert) => (
-                <tr key={cert.id} style={{ borderBottom: '1px solid #ccc' }}>
-                  <td style={tdStyle}>{cert.employee_name}</td>
-                  <td style={tdStyle}>{cert.absence_start_date}</td>
-                  <td style={tdStyle}>{cert.absence_end_date}</td>
-                  <td style={tdStyle}>
-                    {cert.document_url ? (
-                      <a
-                        href={cert.document_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          color: '#0070f3',
-                          textDecoration: 'underline',
-                          fontWeight: 'bold',
-                        }}
-                      >
-                        See Certificate
-                      </a>
-                    ) : (
-                      '—'
-                    )}
-                  </td>
-                  <td style={tdStyle}>
-                    {cert.employee_comment ? (
-                      <Popover.Root>
-                        <Popover.Trigger asChild>
-                          <button style={iconBtnStyle} aria-label="Voir commentaire">
-                            <Search size={16} />
-                          </button>
-                        </Popover.Trigger>
-                        <Popover.Portal>
-                          <Popover.Content side="top" align="center" sideOffset={5}>
-                            <div style={popoverStyle}>
-                              {cert.employee_comment}
-                              <Popover.Arrow
-                                offset={5}
-                                width={10}
-                                height={5}
-                                style={{ fill: 'white', stroke: '#ccc' }}
-                              />
-                            </div>
-                          </Popover.Content>
-                        </Popover.Portal>
-                      </Popover.Root>
-                    ) : (
-                      '—'
-                    )}
-                  </td>
-                  <td style={tdStyle}>
-                    <input
-                      type="checkbox"
-                      checked={cert.treated}
-                      onChange={(e) =>
-                        handleCheckboxChange(cert.id, e.target.checked)
-                      }
-                      style={checkboxStyle}
-                    />
-                  </td>
-                  <td style={tdStyle}>
-                    <span style={cert.treated ? treatmentDateStyle : {}}>
-                      {formatDate(cert.treatment_date)}
-                    </span>
-                  </td>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div style={{ maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
+        
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <FileText className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              Medical Certificates
+            </h1>
+            <div className="flex items-center justify-center gap-6">
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full">
+                <FileText className="w-4 h-4" />
+                <span className="font-semibold">{certificates.length}</span>
+                <span>total certificates</span>
+              </div>
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-600 text-white px-4 py-2 rounded-full">
+                <Clock className="w-4 h-4" />
+                <span className="font-semibold">{pendingCount}</span>
+                <span>pending</span>
+              </div>
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-full">
+                <CheckCircle className="w-4 h-4" />
+                <span className="font-semibold">{treatedCount}</span>
+                <span>treated</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Search and Filter */}
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1 relative max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search by employee name..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              />
+            </div>
+            
+            <button
+              onClick={() => setShowAll((prev) => !prev)}
+              className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] ${
+                showAll 
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700' 
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+              }`}
+            >
+              <Filter className="w-4 h-4" />
+              {showAll ? 'Hide treated' : 'Show all certificates'}
+            </button>
+          </div>
+        </div>
+
+        {/* Table Container */}
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full" style={{ minWidth: '1000px' }}>
+              <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                <tr>
+                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-40">
+                    <div className="flex items-center gap-2">
+                      <User className="w-4 h-4" />
+                      Employee Name
+                    </div>
+                  </th>
+                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-32">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      Start Date
+                    </div>
+                  </th>
+                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-32">
+                    End Date
+                  </th>
+                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-32">
+                    Certificate
+                  </th>
+                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-40">
+                    <div className="flex items-center gap-2">
+                      <MessageCircle className="w-4 h-4" />
+                      Comment
+                    </div>
+                  </th>
+                  <th className="px-4 py-4 text-center font-semibold text-gray-700 w-24">
+                    Status
+                  </th>
+                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-40">
+                    Treatment Date
+                  </th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      )}
+              </thead>
+              <tbody>
+                {filteredCertificates.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-4 py-12 text-center">
+                      <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-gray-600 mb-2">No certificates found</h3>
+                      <p className="text-gray-500">
+                        {search ? 'Try adjusting your search terms.' : 'No medical certificates match your current filters.'}
+                      </p>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredCertificates.map((cert, index) => (
+                    <tr 
+                      key={cert.id} 
+                      className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+                        !cert.treated ? 'bg-yellow-25' : ''
+                      }`}
+                    >
+                      <td className="px-4 py-4 font-medium text-gray-800 w-40">
+                        <div className="truncate" title={cert.employee_name}>
+                          {cert.employee_name}
+                        </div>
+                      </td>
+                      
+                      <td className="px-4 py-4 text-gray-700 w-32">
+                        {formatSimpleDate(cert.absence_start_date)}
+                      </td>
+                      
+                      <td className="px-4 py-4 text-gray-700 w-32">
+                        {formatSimpleDate(cert.absence_end_date)}
+                      </td>
+                      
+                      <td className="px-4 py-4 w-32">
+                        {cert.document_url ? (
+                          <a
+                            href={cert.document_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                          >
+                            <Eye className="w-4 h-4" />
+                            View
+                          </a>
+                        ) : (
+                          <span className="text-gray-500">—</span>
+                        )}
+                      </td>
+                      
+                      <td className="px-4 py-4 w-40">
+                        {cert.employee_comment ? (
+                          <Popover.Root>
+                            <Popover.Trigger asChild>
+                              <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" aria-label="View comment">
+                                <MessageCircle className="w-4 h-4" />
+                              </button>
+                            </Popover.Trigger>
+                            <Popover.Portal>
+                              <Popover.Content 
+                                side="top" 
+                                align="center" 
+                                sideOffset={5}
+                                className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 z-50"
+                                style={{ 
+                                  maxWidth: 'min(400px, 90vw)',
+                                  maxHeight: '60vh',
+                                  overflowY: 'auto'
+                                }}
+                              >
+                                <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                                  {cert.employee_comment}
+                                </div>
+                                <Popover.Arrow className="fill-white stroke-gray-200" />
+                              </Popover.Content>
+                            </Popover.Portal>
+                          </Popover.Root>
+                        ) : (
+                          <span className="text-gray-500">—</span>
+                        )}
+                      </td>
+                      
+                      <td className="px-4 py-4 text-center w-24">
+                        <label className="inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={cert.treated}
+                            onChange={(e) => handleCheckboxChange(cert.id, e.target.checked)}
+                            className="sr-only"
+                          />
+                          <div className={`relative w-6 h-6 rounded border-2 transition-all ${
+                            cert.treated 
+                              ? 'bg-green-500 border-green-500' 
+                              : 'bg-white border-gray-300 hover:border-gray-400'
+                          }`}>
+                            {cert.treated && (
+                              <CheckCircle className="w-4 h-4 text-white absolute top-0 left-0" />
+                            )}
+                          </div>
+                        </label>
+                      </td>
+                      
+                      <td className="px-4 py-4 w-40">
+                        <span className={cert.treated ? 'text-green-700 font-medium' : 'text-gray-500'}>
+                          {formatDate(cert.treatment_date)}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   )
-}
-
-/* ==== Styles ==== */
-const thStyle: React.CSSProperties = {
-  textAlign: 'left',
-  padding: '8px',
-  fontWeight: 'bold',
-}
-
-const tdStyle: React.CSSProperties = {
-  padding: '8px',
-  verticalAlign: 'middle',
-}
-
-const iconBtnStyle: React.CSSProperties = {
-  background: '#f0f0f0',
-  border: '1px solid #ccc',
-  borderRadius: 4,
-  padding: '4px',
-  cursor: 'pointer',
-}
-
-const popoverStyle: React.CSSProperties = {
-  background: 'white',
-  padding: 12,
-  border: '1px solid #ccc',
-  borderRadius: 6,
-  boxShadow: '0px 4px 8px rgba(0,0,0,0.15)',
-  maxWidth: 'min(400px, 90vw)',
-  whiteSpace: 'pre-wrap',
-}
-
-const checkboxStyle: React.CSSProperties = {
-  cursor: 'pointer',
-  transform: 'scale(1.1)',
-}
-
-const treatmentDateStyle: React.CSSProperties = {
-  color: '#28a745',
-  fontWeight: 'bold',
 }

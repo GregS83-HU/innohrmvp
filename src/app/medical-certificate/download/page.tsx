@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import * as XLSX from 'xlsx';
 import JSZip from 'jszip';
+import { Download, Search, Calendar, FileText, Users, AlertCircle, CheckCircle, User } from 'lucide-react';
 
 // Define the type for one row of medical_certificates
 interface MedicalCertificate {
@@ -147,78 +148,211 @@ export default function CertificateDownloadPage() {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Download Medical Certificates</h1>
-
-      {/* Date selectors */}
-      <div className="flex gap-4 mb-6">
-        <input
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          className="border p-2 rounded"
-        />
-        <input
-          type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          className="border p-2 rounded"
-        />
-        <button
-          onClick={fetchCertificates}
-          className="bg-blue-600 text-white px-4 py-2 rounded cursor-pointer"
-        >
-          Search
-        </button>
-      </div>
-
-      {error && <p className="text-red-600 mb-4">{error}</p>}
-      {noResults && !error && (
-        <p className="text-gray-600 mb-4">
-          No certificate found for the selected dates.
-        </p>
-      )}
-
-      {/* Results table */}
-      {certificates.length > 0 && (
-        <div className="overflow-x-auto mb-6">
-          <table className="min-w-full border border-gray-200">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="border px-4 py-2">Employee</th>
-                <th className="border px-4 py-2">Start</th>
-                <th className="border px-4 py-2">End</th>
-                <th className="border px-4 py-2">HR Comment</th>
-                <th className="border px-4 py-2">Treated</th>
-              </tr>
-            </thead>
-            <tbody>
-              {certificates.map((c) => (
-                <tr key={c.id}>
-                  <td className="border px-4 py-2">{c.employee_name}</td>
-                  <td className="border px-4 py-2">{c.absence_start_date}</td>
-                  <td className="border px-4 py-2">{c.absence_end_date}</td>
-                  <td className="border px-4 py-2">{c.hr_comment}</td>
-                  <td className="border px-4 py-2 text-center">
-                    <input type="checkbox" checked={c.treated} readOnly />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+        
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <Download className="w-12 h-12 text-green-600 mx-auto mb-4" />
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              Download Medical Certificates
+            </h1>
+            <p className="text-gray-600">Select date range and download certificates with Excel summary</p>
+          </div>
         </div>
-      )}
 
-      {/* Download button */}
-      {certificates.length > 0 && (
-        <button
-          onClick={handleDownload}
-          disabled={loading}
-          className="bg-green-600 text-white px-4 py-2 rounded cursor-pointer"
-        >
-          {loading ? 'Preparing...' : 'Download'}
-        </button>
-      )}
+        {/* Date Selection */}
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
+          <div className="p-6">
+            <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-4">
+              <Calendar className="w-5 h-5" />
+              Select Date Range
+            </h3>
+            
+            <div className="flex flex-col sm:flex-row gap-4 items-end">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+              </div>
+              
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+              </div>
+              
+              <button
+                onClick={fetchCertificates}
+                disabled={loading}
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                    Searching...
+                  </>
+                ) : (
+                  <>
+                    <Search className="w-5 h-5" />
+                    Search
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Messages */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-red-600" />
+              <p className="font-medium text-red-800">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {noResults && !error && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-yellow-600" />
+              <p className="font-medium text-yellow-800">
+                No certificate found for the selected dates.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Results Summary */}
+        {certificates.length > 0 && (
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-full">
+                  <FileText className="w-4 h-4" />
+                  <span className="font-semibold">{certificates.length}</span>
+                  <span>certificates found</span>
+                </div>
+                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full">
+                  <Users className="w-4 h-4" />
+                  <span className="font-semibold">{new Set(certificates.map(c => c.employee_name)).size}</span>
+                  <span>employees</span>
+                </div>
+              </div>
+              
+              <button
+                onClick={handleDownload}
+                disabled={loading}
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-6 rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                    Preparing...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-5 h-5" />
+                    Download ZIP
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Results Table */}
+        {certificates.length > 0 && (
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full" style={{ minWidth: '800px' }}>
+                <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                  <tr>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700">
+                      <div className="flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        Employee
+                      </div>
+                    </th>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        Start Date
+                      </div>
+                    </th>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700">
+                      End Date
+                    </th>
+                    <th className="px-4 py-4 text-left font-semibold text-gray-700">
+                      HR Comment
+                    </th>
+                    <th className="px-4 py-4 text-center font-semibold text-gray-700">
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {certificates.map((c, index) => (
+                    <tr 
+                      key={c.id} 
+                      className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+                        index % 2 === 0 ? 'bg-white' : 'bg-gray-25'
+                      }`}
+                    >
+                      <td className="px-4 py-4 font-medium text-gray-800">
+                        {c.employee_name || '—'}
+                      </td>
+                      <td className="px-4 py-4 text-gray-700">
+                        {c.absence_start_date ? new Date(c.absence_start_date).toLocaleDateString() : '—'}
+                      </td>
+                      <td className="px-4 py-4 text-gray-700">
+                        {c.absence_end_date ? new Date(c.absence_end_date).toLocaleDateString() : '—'}
+                      </td>
+                      <td className="px-4 py-4 text-gray-700 max-w-xs">
+                        <span className="truncate block" title={c.hr_comment || ''}>
+                          {c.hr_comment || '—'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 text-center">
+                        {c.treated ? (
+                          <div className="inline-flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded-full text-sm font-medium">
+                            <CheckCircle className="w-3 h-3" />
+                            Treated
+                          </div>
+                        ) : (
+                          <div className="inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-sm font-medium">
+                            <AlertCircle className="w-3 h-3" />
+                            Pending
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!loading && certificates.length === 0 && !noResults && !error && (
+          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+            <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-gray-600 mb-2">No certificates loaded</h2>
+            <p className="text-gray-500">Select a date range and click search to view medical certificates.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
