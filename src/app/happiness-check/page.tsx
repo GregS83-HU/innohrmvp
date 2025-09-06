@@ -29,7 +29,7 @@ const HappinessCheck = () => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [permaScores, setPermaScores] = useState<PermaScores>({});
   const [sessionStarted, setSessionStarted] = useState(false);
-  const [personalizedAdvice, setPersonalizedAdvice] = useState<string[]>([]); // <-- ajouté ici
+  const [personalizedAdvice, setPersonalizedAdvice] = useState<string[]>([]); // <-- added here
 
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -55,10 +55,10 @@ const HappinessCheck = () => {
         setSessionToken(data.sessionToken);
         setSessionStarted(true);
         
-        // Message de bienvenue
+        // Welcome message
         const welcomeMessage: Message = {
           id: 'welcome',
-          text: "Bonjour ! 😊 Je suis là pour vous aider à évaluer votre bien-être au travail. Cette évaluation est complètement anonyme et confidentielle. Nous allons discuter pendant quelques minutes de différents aspects de votre vie professionnelle. Êtes-vous prêt(e) à commencer ?",
+          text: "Hello! 😊 I'm here to help you assess your workplace well-being. This evaluation is completely anonymous and confidential. We'll discuss various aspects of your work life for a few minutes. Are you ready to start?",
           isBot: true,
           timestamp: new Date()
         };
@@ -67,10 +67,10 @@ const HappinessCheck = () => {
           setMessages([welcomeMessage]);
         }, 500);
       } else {
-        console.error('Erreur création session:', data.error);
+        console.error('Session creation error:', data.error);
       }
     } catch (error) {
-      console.error('Erreur:', error);
+      console.error('Error:', error);
     }
   };
 
@@ -88,7 +88,7 @@ const HappinessCheck = () => {
     setInputValue('');
     setIsLoading(true);
 
-    // Message de typing
+    // Typing message
     const typingMessage: Message = {
       id: 'typing',
       text: '...',
@@ -111,7 +111,7 @@ const HappinessCheck = () => {
 
       const data = await response.json();
       
-      // Retirer le message de typing
+      // Remove typing message
       setMessages(prev => prev.filter(msg => msg.id !== 'typing'));
       
       if (response.ok) {
@@ -130,11 +130,11 @@ const HappinessCheck = () => {
         }, 1000);
         
       } else {
-        console.error('Erreur chat:', data.error);
+        console.error('Chat error:', data.error);
         setMessages(prev => prev.filter(msg => msg.id !== 'typing'));
       }
     } catch (error) {
-      console.error('Erreur:', error);
+      console.error('Error:', error);
       setMessages(prev => prev.filter(msg => msg.id !== 'typing'));
     } finally {
       setIsLoading(false);
@@ -169,12 +169,12 @@ const HappinessCheck = () => {
   };
 
   const permaLabels = {
-    positive: 'Émotions positives',
+    positive: 'Positive Emotions',
     engagement: 'Engagement',
-    relationships: 'Relations',
-    meaning: 'Sens du travail',
-    accomplishment: 'Accomplissement',
-    work_life_balance: 'Équilibre vie pro/perso'
+    relationships: 'Relationships',
+    meaning: 'Work Meaning',
+    accomplishment: 'Accomplishment',
+    work_life_balance: 'Work-Life Balance'
   };
 
   const resetSession = () => {
@@ -200,22 +200,22 @@ const HappinessCheck = () => {
             <div className="mb-6">
               <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
               <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                Merci pour votre participation ! 🎉
+                Thank you for your participation! 🎉
               </h1>
               <p className="text-gray-600 text-lg">
-                Votre évaluation de bien-être au travail est terminée.
+                Your workplace well-being assessment is now complete.
               </p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-8 mb-8">
               <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-6 text-white">
-                <h2 className="text-xl font-semibold mb-2">Score global</h2>
+                <h2 className="text-xl font-semibold mb-2">Overall Score</h2>
                 <div className="text-4xl font-bold mb-2">{avgScore}/10</div>
-                <p className="text-blue-100">Votre niveau de bonheur au travail</p>
+                <p className="text-blue-100">Your workplace happiness level</p>
               </div>
 
               <div className="bg-gray-50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4 text-gray-800">Détail par domaine</h3>
+                <h3 className="text-lg font-semibold mb-4 text-gray-800">Score by domain</h3>
                 <div className="space-y-2">
                   {Object.entries(permaScores).map(([key, score]) => (
                     <div key={key} className="flex justify-between items-center">
@@ -231,15 +231,15 @@ const HappinessCheck = () => {
               </div>
             </div>
 
-            {/* Section Conseils Personnalisés */}
+            {/* Personalized Advice Section */}
             {personalizedAdvice.length > 0 && (
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-6 mb-8">
                 <h3 className="text-xl font-semibold text-purple-800 mb-4 flex items-center gap-2">
                   <span className="text-2xl">💡</span>
-                  Vos conseils personnalisés
+                  Your Personalized Advice
                 </h3>
                 <p className="text-purple-700 text-sm mb-4">
-                  Basés sur votre profil de bien-être, voici 3 conseils sur mesure pour vous épanouir davantage :
+                  Based on your well-being profile, here are 3 tailored tips to help you thrive:
                 </p>
                 <div className="space-y-3">
                   {personalizedAdvice.map((advice, index) => (
@@ -260,7 +260,7 @@ const HappinessCheck = () => {
                 </div>
                 <div className="mt-4 text-center">
                   <p className="text-xs text-purple-600">
-                    ✨ Conseils générés par IA spécialement pour vous
+                    ✨ AI-generated tips tailored for you
                   </p>
                 </div>
               </div>
@@ -268,7 +268,7 @@ const HappinessCheck = () => {
 
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
               <p className="text-yellow-800 text-sm">
-                <strong>Confidentialité :</strong> Vos réponses sont complètement anonymes et contribuent à améliorer le bien-être général dans l&apos;entreprise.
+                <strong>Privacy:</strong> Your responses are fully anonymous and help improve overall workplace well-being.
               </p>
             </div>
 
@@ -278,14 +278,14 @@ const HappinessCheck = () => {
                 className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Nouvelle évaluation
+                Start a New Assessment
               </button>
               
               <button
                 onClick={() => window.location.href = '/'}
                 className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                Retour à l&apos;accueil
+                Back to Home
               </button>
             </div>
           </div>
@@ -302,30 +302,30 @@ const HappinessCheck = () => {
             <div className="mb-6">
               <Heart className="w-16 h-16 text-red-500 mx-auto mb-4" />
               <h1 className="text-3xl font-bold text-gray-800 mb-4">
-                Évaluation du Bien-être au Travail
+                Workplace Well-Being Assessment
               </h1>
               <p className="text-gray-600 text-lg mb-6">
-                Prenez quelques minutes pour évaluer votre bonheur et bien-être professionnel. 
-                Cette évaluation est <strong>100% anonyme</strong> et confidentielle.
+                Take a few minutes to evaluate your happiness and professional well-being. 
+                This assessment is <strong>100% anonymous</strong> and confidential.
               </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-4 mb-8">
               <div className="flex flex-col items-center p-4 bg-blue-50 rounded-lg">
                 <MessageCircle className="w-8 h-8 text-blue-600 mb-2" />
-                <h3 className="font-semibold text-blue-800">Conversationnel</h3>
-                <p className="text-sm text-blue-600 text-center">Discussion naturelle et bienveillante</p>
+                <h3 className="font-semibold text-blue-800">Conversational</h3>
+                <p className="text-sm text-blue-600 text-center">Natural and supportive discussion</p>
               </div>
               
               <div className="flex flex-col items-center p-4 bg-green-50 rounded-lg">
                 <BarChart3 className="w-8 h-8 text-green-600 mb-2" />
-                <h3 className="font-semibold text-green-800">Scientifique</h3>
-                <p className="text-sm text-green-600 text-center">Basé sur le modèle PERMA-W</p>
+                <h3 className="font-semibold text-green-800">Scientific</h3>
+                <p className="text-sm text-green-600 text-center">Based on the PERMA-W model</p>
               </div>
               
               <div className="flex flex-col items-center p-4 bg-purple-50 rounded-lg">
                 <CheckCircle className="w-8 h-8 text-purple-600 mb-2" />
-                <h3 className="font-semibold text-purple-800">Rapide</h3>
+                <h3 className="font-semibold text-purple-800">Quick</h3>
                 <p className="text-sm text-purple-600 text-center">5-10 minutes maximum</p>
               </div>
             </div>
@@ -334,11 +334,11 @@ const HappinessCheck = () => {
               onClick={createSession}
               className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105"
             >
-              Commencer l&apos;évaluation
+              Start the Assessment
             </button>
 
             <p className="text-xs text-gray-500 mt-4">
-              Aucune donnée personnelle n&apos;est collectée • Résultats agrégés anonymes uniquement
+              No personal data is collected • Only anonymous aggregated results
             </p>
           </div>
         </div>
@@ -349,16 +349,16 @@ const HappinessCheck = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="max-w-4xl mx-auto p-4">
-        {/* Header avec progression */}
+        {/* Header with progress */}
         <div className="bg-white rounded-t-xl p-4 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-xl font-bold text-gray-800">Happy Check 😊</h1>
             <div className="text-sm text-gray-500">
-              Étape {currentStep}/12
+              Step {currentStep}/12
             </div>
           </div>
           
-          {/* Barre de progression */}
+          {/* Progress bar */}
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div 
               className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
@@ -366,7 +366,7 @@ const HappinessCheck = () => {
             />
           </div>
 
-          {/* Scores PERMA actuels */}
+          {/* Current PERMA scores */}
           {Object.keys(permaScores).length > 0 && (
             <div className="mt-4 flex flex-wrap gap-2">
               {Object.entries(permaScores).map(([key, score]) => (
@@ -378,7 +378,7 @@ const HappinessCheck = () => {
           )}
         </div>
 
-        {/* Zone de chat */}
+        {/* Chat area */}
         <div className="bg-white shadow-lg h-96 flex flex-col">
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -409,7 +409,7 @@ const HappinessCheck = () => {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input de message */}
+          {/* Message input */}
           <div className="p-4 border-t">
             <div className="flex space-x-2">
               <input
@@ -418,7 +418,7 @@ const HappinessCheck = () => {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Tapez votre réponse..."
+                placeholder="Type your response..."
                 className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 disabled={isLoading}
               />
@@ -435,7 +435,7 @@ const HappinessCheck = () => {
 
         <div className="bg-white rounded-b-xl p-4 shadow-sm">
           <p className="text-xs text-gray-500 text-center">
-            💬 Conversation confidentielle et anonyme • Vos données ne sont pas stockées personnellement
+            💬 Confidential and anonymous conversation • Your data is not stored personally
           </p>
         </div>
       </div>

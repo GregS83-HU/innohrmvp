@@ -1,4 +1,4 @@
-// src/app/api/happiness/chat/route.ts (version IA complète bienveillante)
+// src/app/api/happiness/chat/route.ts (friendly AI version)
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
@@ -23,93 +23,93 @@ const permaQuestions = [
   {
     step: 1,
     dimension: 'positive',
-    question: "Pour commencer, comment décririez-vous votre humeur générale au travail cette semaine ? Comment vous sentez-vous habituellement en arrivant le matin ?"
+    question: "To start, how would you describe your overall mood at work this week? How do you usually feel when arriving in the morning?"
   },
   {
     step: 2,
     dimension: 'positive', 
-    question: "Pouvez-vous me parler d'un moment récent au travail où vous avez ressenti de la joie ou un vrai plaisir ? Partagez-moi un exemple concret."
+    question: "Can you tell me about a recent moment at work where you felt joy or genuine pleasure? Please give a concrete example."
   },
   {
     step: 3,
     dimension: 'engagement',
-    question: "Décrivez-moi une fois récente où vous étiez complètement absorbé(e) par votre travail—où le temps semblait passer très vite."
+    question: "Describe a recent time when you were fully absorbed in your work—where time seemed to fly by."
   },
   {
     step: 4,
     dimension: 'engagement',
-    question: "Dans quelle mesure sentez-vous que vos compétences et talents sont bien utilisés dans votre poste actuel ?"
+    question: "To what extent do you feel your skills and talents are being well utilized in your current role?"
   },
   {
     step: 5,
     dimension: 'relationships',
-    question: "Comment décririez-vous la qualité de vos relations avec vos collègues ? Avez-vous le sentiment d'avoir des personnes sur qui compter au travail ?"
+    question: "How would you describe the quality of your relationships with colleagues? Do you feel you have people you can rely on at work?"
   },
   {
     step: 6,
     dimension: 'relationships',
-    question: "Vous sentez-vous écouté(e) et valorisé(e) par votre manager et votre équipe ?"
+    question: "Do you feel heard and valued by your manager and team?"
   },
   {
     step: 7,
     dimension: 'meaning',
-    question: "De quelles manières votre travail vous semble-t-il avoir du sens ? Comment sentez-vous que vous contribuez à quelque chose de plus grand ?"
+    question: "In what ways does your work feel meaningful to you? How do you feel you contribute to something bigger?"
   },
   {
     step: 8,
     dimension: 'meaning',
-    question: "Vos valeurs personnelles vous semblent-elles alignées avec celles de votre organisation ? Pouvez-vous me donner un exemple ?"
+    question: "Do your personal values align with those of your organization? Can you give an example?"
   },
   {
     step: 9,
     dimension: 'accomplishment',
-    question: "De quelles réalisations des derniers mois êtes-vous le/la plus fier(ère) ?"
+    question: "Which achievements from the past months are you most proud of?"
   },
   {
     step: 10,
     dimension: 'accomplishment',
-    question: "Comment voyez-vous votre évolution professionnelle ? Avez-vous le sentiment d'atteindre vos objectifs ?"
+    question: "How do you see your professional growth? Do you feel you are reaching your goals?"
   },
   {
     step: 11,
     dimension: 'work_life_balance',
-    question: "Comment gérez-vous l'équilibre entre votre vie professionnelle et personnelle ? Arrivez-vous à déconnecter et vous ressourcer ?"
+    question: "How do you manage the balance between your work and personal life? Are you able to disconnect and recharge?"
   },
   {
     step: 12,
     dimension: 'work_life_balance',
-    question: "Enfin, y a-t-il quelque chose que vous aimeriez changer dans votre situation de travail actuelle ?"
+    question: "Finally, is there anything you would like to change about your current work situation?"
   }
 ];
 
-// Fonction de scoring IA bienveillante
+// Friendly AI scoring function
 async function analyzeResponseWithAI(response: string, dimension: string, questionText: string): Promise<number> {
   try {
-    const prompt = `Tu es un psychologue du travail expérimenté et bienveillant. Analyse cette réponse à une question sur le bien-être professionnel.
+    const prompt = `You are an experienced and empathetic workplace psychologist. Analyze this response to a question about professional well-being.
 
-DIMENSION ÉVALUÉE: ${dimension}
-QUESTION POSÉE: "${questionText}"
-RÉPONSE DE L'EMPLOYÉ: "${response}"
+EVALUATED DIMENSION: ${dimension}
+QUESTION ASKED: "${questionText}"
+EMPLOYEE RESPONSE: "${response}"
 
-Donne un score de 1 à 10 en étant bienveillant mais réaliste selon cette grille:
+Give a score from 1 to 10, being kind but realistic, based on this scale:
 
-9-10: Excellent - Très épanoui, positif, proactif dans cette dimension
-7-8: Bon - Satisfaisant avec des aspects positifs identifiables 
-5-6: Correct - Situation acceptable, quelques défis normaux
-3-4: En développement - Défis présents mais pas alarmants
-1-2: Difficile - Situation préoccupante nécessitant attention
+9-10: Excellent - Very fulfilled, positive, proactive in this dimension
+7-8: Good - Satisfactory with identifiable positive aspects
+5-6: Fair - Acceptable situation, some normal challenges
+3-4: Developing - Challenges exist but not alarming
+1-2: Difficult - Concerning situation needing attention
 
-PRINCIPES BIENVEILLANTS:
-- Valorise les efforts et intentions positives exprimés
-- Reconnaît que les défis temporaires sont normaux au travail
-- L'auto-réflexion et l'honnêteté sont des signes positifs
-- Ne pénalise pas la vulnérabilité ou les émotions naturelles
-- Considère le contexte professionnel comme perfectible par nature
-- Les mots comme "assez bien", "ça va", "correct" méritent 6-7/10
-- L'absence de problème majeur = minimum 5-6/10
-- Les réponses longues et réfléchies sont valorisées
+KIND PRINCIPLES:
+- Value expressed efforts and positive intentions
+- Acknowledge that temporary challenges are normal at work
+- Self-reflection and honesty are positive signs
+- Do not penalize vulnerability or natural emotions
+- Consider the professional context as inherently improvable
+- Words like "fairly good", "okay", "acceptable" deserve 6-7/10
+- Absence of major issues = minimum 5-6/10
+- Long and thoughtful responses are valued
 
-Réponds uniquement avec un nombre décimal (ex: 6.5):`;
+Respond ONLY with a decimal number (e.g., 6.5):`;
 
     const aiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -120,7 +120,7 @@ Réponds uniquement avec un nombre décimal (ex: 6.5):`;
       body: JSON.stringify({
         model: 'mistralai/mistral-7b-instruct',
         messages: [{ role: 'user', content: prompt }],
-        temperature: 0.2, // Consistance importante pour le scoring
+        temperature: 0.2,
         max_tokens: 50
       }),
     });
@@ -128,51 +128,44 @@ Réponds uniquement avec un nombre décimal (ex: 6.5):`;
     const completion = await aiResponse.json();
     const scoreText = completion.choices?.[0]?.message?.content?.trim() || '6';
     
-    // Extraire le score (gérer différents formats de réponse)
     const scoreMatch = scoreText.match(/(\d+\.?\d*)/);
     const score = scoreMatch ? parseFloat(scoreMatch[1]) : 6;
     
-    // Validation et ajustements bienveillants
     let finalScore = isNaN(score) ? 6 : Math.min(10, Math.max(1, score));
     
-    // Ajustement bienveillant : si score trop bas sans raison évidente
     if (finalScore < 4 && response.length > 50 && !response.toLowerCase().includes('terrible') && !response.toLowerCase().includes('horrible')) {
       finalScore = Math.max(4, finalScore);
     }
     
-    console.log(`Scoring IA - Dimension: ${dimension}, Réponse: "${response.substring(0, 100)}...", Score: ${finalScore}`);
+    console.log(`AI Scoring - Dimension: ${dimension}, Response: "${response.substring(0, 100)}...", Score: ${finalScore}`);
     
     return finalScore;
     
   } catch (error) {
-    console.error('Erreur scoring IA:', error);
+    console.error('AI scoring error:', error);
     
-    // Fallback bienveillant basé sur la longueur et mots-clés basiques
     const lowerResponse = response.toLowerCase();
-    const positiveIndicators = ['bien', 'bon', 'content', 'satisfait', 'heureux', 'motivé', 'plaisir', 'équipe', 'objectifs', 'progrès'];
-    const negativeIndicators = ['mal', 'terrible', 'horrible', 'déteste', 'impossible', 'jamais', 'aucun'];
+    const positiveIndicators = ['good', 'well', 'happy', 'satisfied', 'motivated', 'pleasure', 'team', 'goals', 'progress'];
+    const negativeIndicators = ['bad', 'terrible', 'horrible', 'hate', 'impossible', 'never', 'none'];
     
-    let fallbackScore = 6; // Score bienveillant par défaut
+    let fallbackScore = 6;
     
-    // Bonus pour réponse détaillée
     if (response.length > 100) fallbackScore += 0.5;
     if (response.length > 200) fallbackScore += 0.5;
     
-    // Ajustements basiques
     const positiveCount = positiveIndicators.filter(word => lowerResponse.includes(word)).length;
     const negativeCount = negativeIndicators.filter(word => lowerResponse.includes(word)).length;
     
     fallbackScore += positiveCount * 0.5;
     fallbackScore -= negativeCount * 0.8;
     
-    return Math.min(10, Math.max(3, Math.round(fallbackScore * 2) / 2)); // Scores par 0.5
+    return Math.min(10, Math.max(3, Math.round(fallbackScore * 2) / 2));
   }
 }
 
-// Nouvelle fonction pour générer des conseils personnalisés
+// Generate personalized advice
 async function generatePersonalizedAdvice(permaScores: PermaScores, sessionId: string): Promise<string[]> {
   try {
-    // Récupérer les réponses de l'utilisateur depuis la DB
     const { data: messages, error } = await supabase
       .from('chat_messages')
       .select('message_text, step_number')
@@ -181,52 +174,49 @@ async function generatePersonalizedAdvice(permaScores: PermaScores, sessionId: s
       .order('created_at', { ascending: true });
 
     if (error) {
-      console.error('Erreur récupération messages:', error);
+      console.error('Error fetching messages:', error);
     }
 
-    // Identifier les 2-3 domaines les plus faibles
     const sortedScores = Object.entries(permaScores)
       .sort(([,a], [,b]) => a - b)
       .slice(0, 3);
 
-    // Extraire un échantillon de réponses pour le contexte
     const contextResponses = messages && messages.length > 0 
       ? messages.slice(0, 6).map(m => m.message_text).join(' ') 
       : '';
 
-    // Score moyen pour adapter le ton
     const avgScore = Object.values(permaScores).reduce((a, b) => a + b, 0) / Object.keys(permaScores).length;
 
-    const prompt = `Tu es un coach en bien-être au travail expert et bienveillant. 
+    const prompt = `You are an expert and empathetic workplace well-being coach. 
 
-PROFIL DE L'UTILISATEUR:
-- Score moyen: ${avgScore.toFixed(1)}/10
+USER PROFILE:
+- Average score: ${avgScore.toFixed(1)}/10
 ${Object.entries(permaScores).map(([dim, score]) => `- ${dim}: ${score}/10`).join('\n')}
 
-DOMAINES PRIORITAIRES (plus faibles):
+PRIORITY AREAS (lowest scores):
 ${sortedScores.map(([dim, score]) => `- ${dim}: ${score}/10`).join('\n')}
 
-CONTEXTE (extraits réponses): "${contextResponses.substring(0, 400)}..."
+CONTEXT (sample responses): "${contextResponses.substring(0, 400)}..."
 
-MISSION: Crée 3 conseils personnalisés, courts et encourageants (max 4 lignes chacun).
+TASK: Create 3 short, encouraging, actionable tips (max 4 lines each).
 
-TONE: ${avgScore >= 7 ? 'Encourageant et optimisant' : avgScore >= 5 ? 'Soutenant et constructif' : 'Bienveillant et rassurant'}
+TONE: ${avgScore >= 7 ? 'Encouraging and optimizing' : avgScore >= 5 ? 'Supportive and constructive' : 'Kind and reassuring'}
 
-RÈGLES:
-✅ Ton décontracté et amical
-✅ Conseils pratiques et réalisables 
-✅ Focus sur les domaines faibles MAIS rester positif
-✅ Maximum 4-5 lignes par conseil
-✅ Commencer par un emoji approprié
-✅ Éviter les termes médicaux/cliniques
-✅ Valoriser ce qui fonctionne déjà
+RULES:
+✅ Casual and friendly tone
+✅ Practical and achievable tips
+✅ Focus on weak areas BUT stay positive
+✅ Max 4-5 lines per tip
+✅ Start with an appropriate emoji
+✅ Avoid medical/clinical terms
+✅ Highlight what already works
 
-FORMAT EXACT:
-1. [emoji] [conseil court et actionnable]
-2. [emoji] [conseil court et actionnable]
-3. [emoji] [conseil court et actionnable]
+EXACT FORMAT:
+1. [emoji] [short actionable tip]
+2. [emoji] [short actionable tip]
+3. [emoji] [short actionable tip]
 
-Réponds UNIQUEMENT avec les 3 conseils numérotés.`;
+Respond ONLY with the 3 numbered tips.`;
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -237,7 +227,7 @@ Réponds UNIQUEMENT avec les 3 conseils numérotés.`;
       body: JSON.stringify({
         model: 'mistralai/mistral-7b-instruct',
         messages: [{ role: 'user', content: prompt }],
-        temperature: 0.8, // Plus de créativité pour les conseils
+        temperature: 0.8,
         max_tokens: 600
       }),
     });
@@ -245,50 +235,47 @@ Réponds UNIQUEMENT avec les 3 conseils numérotés.`;
     const completion = await response.json();
     const aiResponse = completion.choices?.[0]?.message?.content ?? '';
     
-    // Parser les 3 conseils avec regex plus robuste
     const adviceLines = aiResponse
       .split('\n')
       .filter((line: string) => /^\d+\.\s/.test(line.trim()))
       .map((line: string) => line.replace(/^\d+\.\s*/, '').trim())
       .slice(0, 3);
 
-    // Si l'IA n'a pas donné 3 conseils, compléter avec des conseils adaptés au score
     while (adviceLines.length < 3) {
       const fallbackAdvice = avgScore >= 7 
-        ? "🚀 Continue sur ta lancée ! Partage tes bonnes pratiques avec tes collègues"
+        ? "🚀 Keep up the great work! Share your best practices with colleagues"
         : avgScore >= 5
-        ? "💡 Identifie une petite chose que tu peux améliorer cette semaine et lance-toi"
-        : "🌱 Rappelle-toi que chaque petit pas compte, tu n'es pas seul(e) dans cette aventure";
+        ? "💡 Identify one small thing to improve this week and go for it"
+        : "🌱 Remember that every small step counts; you're not alone in this journey";
       
       adviceLines.push(fallbackAdvice);
     }
 
-    console.log('Conseils générés:', adviceLines);
+    console.log('Generated advice:', adviceLines);
     return adviceLines;
 
   } catch (error) {
-    console.error('Erreur génération conseils:', error);
+    console.error('Advice generation error:', error);
     
-    // Conseils de fallback adaptés au score moyen si disponible
     const avgScore = Object.values(permaScores).reduce((a, b) => a + b, 0) / Object.keys(permaScores).length;
     
     if (avgScore >= 7) {
       return [
-        "🎯 Tu es sur la bonne voie ! Continue à cultiver ce qui te rend heureux au travail",
-        "🤝 Pense à partager ton énergie positive avec tes collègues, ça peut faire des merveilles",
-        "📈 Profite de cette dynamique pour te fixer un nouveau défi stimulant"
+        "🎯 You're on the right track! Keep nurturing what makes you happy at work",
+        "🤝 Share your positive energy with colleagues—it can do wonders",
+        "📈 Use this momentum to set a new stimulating challenge"
       ];
     } else if (avgScore >= 5) {
       return [
-        "🌱 Choisis un aspect de ton travail que tu aimerais améliorer et commence petit",
-        "☕ Prends le temps d'échanger avec tes collègues, les relations font souvent la différence",
-        "⏸️ Accorde-toi des vraies pauses dans ta journée, ton cerveau a besoin de souffler"
+        "🌱 Pick one aspect of your work to improve and start small",
+        "☕ Take time to chat with colleagues; relationships often make the difference",
+        "⏸️ Give yourself real breaks during the day; your brain needs to rest"
       ];
     } else {
       return [
-        "🫂 Rappelle-toi que tu n'es pas seul(e), n'hésite pas à parler de tes difficultés",
-        "🎯 Fixe-toi des objectifs très simples pour retrouver confiance progressivement",
-        "🌅 Chaque nouveau jour est une occasion de voir les choses différemment"
+        "🫂 Remember, you are not alone—feel free to share your struggles",
+        "🎯 Set very simple goals to gradually regain confidence",
+        "🌅 Each new day is a chance to see things differently"
       ];
     }
   }
@@ -299,17 +286,15 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { message } = body;
     
-    // Récupérer le token de session
     const sessionToken = request.headers.get('x-session-token');
     
     if (!sessionToken) {
       return NextResponse.json(
-        { error: 'Token de session manquant' },
+        { error: 'Missing session token' },
         { status: 401 }
       );
     }
 
-    // Récupérer la session depuis Supabase
     const { data: session, error: sessionError } = await supabase
       .from('happiness_sessions')
       .select('*')
@@ -317,14 +302,13 @@ export async function POST(request: NextRequest) {
       .single();
     
     if (sessionError || !session) {
-      console.error('Erreur récupération session:', sessionError);
+      console.error('Session fetch error:', sessionError);
       return NextResponse.json(
-        { error: 'Session non trouvée' },
+        { error: 'Session not found' },
         { status: 404 }
       );
     }
 
-    // Vérifier si la session a expiré
     if (session.timeout_at && new Date() > new Date(session.timeout_at)) {
       await supabase
         .from('happiness_sessions')
@@ -335,39 +319,35 @@ export async function POST(request: NextRequest) {
         .eq('session_token', sessionToken);
       
       return NextResponse.json(
-        { error: 'Session expirée' },
+        { error: 'Session expired' },
         { status: 410 }
       );
     }
 
     if (session.status === 'completed') {
       return NextResponse.json(
-        { error: 'Cette évaluation est déjà terminée' },
+        { error: 'This assessment has already been completed' },
         { status: 400 }
       );
     }
 
-    // Récupérer les données actuelles de la session
     let currentStep = session.current_step || 0;
     let permaScores: PermaScores = {};
     
-    // Parser les scores existants si disponibles
     if (session.perma_scores) {
       try {
         permaScores = typeof session.perma_scores === 'string' 
           ? JSON.parse(session.perma_scores) 
           : session.perma_scores;
       } catch (e) {
-        console.error('Erreur parsing scores existants:', e);
+        console.error('Error parsing existing scores:', e);
         permaScores = {};
       }
     }
     
-    // Analyser la réponse avec l'IA si on n'est pas au premier message
     if (currentStep > 0 && currentStep <= permaQuestions.length) {
       const currentQuestion = permaQuestions[currentStep - 1];
       
-      // Utiliser le scoring IA bienveillant
       const score = await analyzeResponseWithAI(
         message, 
         currentQuestion.dimension, 
@@ -379,10 +359,9 @@ export async function POST(request: NextRequest) {
         [currentQuestion.dimension]: score
       };
       
-      console.log(`Step ${currentStep}: Score IA pour ${currentQuestion.dimension}: ${score}`);
+      console.log(`Step ${currentStep}: AI Score for ${currentQuestion.dimension}: ${score}`);
     }
 
-    // Passer à l'étape suivante
     currentStep += 1;
 
     let response: string;
@@ -390,44 +369,39 @@ export async function POST(request: NextRequest) {
     let personalizedAdvice: string[] = [];
 
     if (currentStep <= permaQuestions.length) {
-      // Poser la question suivante
       const nextQuestion = permaQuestions[currentStep - 1];
       response = nextQuestion.question;
     } else {
-      // Évaluation terminée - Générer les conseils personnalisés
       completed = true;
       
       const avgScore = Object.keys(permaScores).length > 0 
         ? Object.values(permaScores).reduce((a, b) => a + b, 0) / Object.keys(permaScores).length
         : 6;
 
-      // Générer les conseils personnalisés avec l'IA
       personalizedAdvice = await generatePersonalizedAdvice(permaScores, session.id);
 
-      // Message de fin adapté au score (plus bienveillant)
       let endMessage = "";
       if (avgScore >= 8) {
-        endMessage = "Fantastique ! Votre bien-être au travail rayonne positivement. Continuez à cultiver cette belle énergie ! 🌟";
+        endMessage = "Fantastic! Your workplace well-being is shining positively. Keep cultivating this great energy! 🌟";
       } else if (avgScore >= 6.5) {
-        endMessage = "Très bien ! Vous avez de bonnes bases pour votre bien-être professionnel. Quelques ajustements peuvent vous faire briller encore plus ! ✨";
+        endMessage = "Very good! You have solid foundations for your professional well-being. A few tweaks can make you shine even more! ✨";
       } else if (avgScore >= 5) {
-        endMessage = "Votre situation présente un bon potentiel d'amélioration. Les conseils ci-dessous vous aideront à franchir de nouveaux caps ! 🚀";
+        endMessage = "Your situation has good potential for improvement. The tips below will help you reach new heights! 🚀";
       } else {
-        endMessage = "Merci pour votre sincérité. Vos réponses montrent des défis réels, mais souvenez-vous que tout peut s'améliorer avec les bonnes stratégies et du soutien. 💙";
+        endMessage = "Thank you for your honesty. Your answers show real challenges, but remember that everything can improve with the right strategies and support. 💙";
       }
 
-      response = `Merci d'avoir partagé vos réflexions sincères ! 🎉
+      response = `Thank you for sharing your sincere thoughts! 🎉
 
-Votre évaluation de bien-être est maintenant terminée. Voici un résumé de vos résultats :
+Your well-being assessment is now complete. Here’s a summary of your results:
 
-**Score global de bien-être au travail : ${Math.round(avgScore * 10) / 10}/10**
+**Overall workplace well-being score: ${Math.round(avgScore * 10) / 10}/10**
 
 ${endMessage}
 
-Cette évaluation est entièrement anonyme et conçue pour soutenir l'amélioration du bien-être général des employés au sein de l'entreprise.`;
+This assessment is completely anonymous and designed to support overall employee well-being within the company.`;
     }
 
-    // Préparer les données de mise à jour de la session
     const updateData: {
       current_step: number;
       status: 'completed' | 'in_progress';
@@ -441,39 +415,33 @@ Cette évaluation est entièrement anonyme et conçue pour soutenir l'améliorat
       last_activity: new Date().toISOString()
     };
 
-    // Ajouter les scores
     if (permaScores && Object.keys(permaScores).length > 0) {
       updateData.perma_scores = permaScores;
     }
 
-    // Ajouter l'horodatage de fin
     if (completed) {
       updateData.completed_at = new Date().toISOString();
-      
-      // Calculer et stocker le score global
       const avgScore = Object.keys(permaScores).length > 0 
         ? Object.values(permaScores).reduce((a, b) => a + b, 0) / Object.keys(permaScores).length
         : 6;
       updateData.overall_happiness_score = Math.round(avgScore);
     }
 
-    console.log('Mise à jour session:', { sessionId: session.id, currentStep, scores: permaScores });
+    console.log('Session update:', { sessionId: session.id, currentStep, scores: permaScores });
 
-    // Mettre à jour la session
     const { error: updateError } = await supabase
       .from('happiness_sessions')
       .update(updateData)
       .eq('session_token', sessionToken);
 
     if (updateError) {
-      console.error('Erreur mise à jour session:', updateError);
+      console.error('Session update error:', updateError);
       return NextResponse.json(
-        { error: 'Erreur mise à jour session' },
+        { error: 'Session update error' },
         { status: 500 }
       );
     }
 
-    // Stocker le message dans l'historique
     await supabase
       .from('chat_messages')
       .insert([
@@ -504,9 +472,9 @@ Cette évaluation est entièrement anonyme et conçue pour soutenir l'améliorat
     return NextResponse.json(sessionUpdate);
 
   } catch (error) {
-    console.error('Erreur dans POST /api/happiness/chat:', error);
+    console.error('Error in POST /api/happiness/chat:', error);
     return NextResponse.json(
-      { error: 'Erreur serveur interne' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
