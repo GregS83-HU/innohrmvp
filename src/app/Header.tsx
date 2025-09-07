@@ -202,7 +202,7 @@ export default function Header() {
             <div className="max-w-8xl mx-auto flex items-center justify-center gap-3">
               <Clock className="w-4 h-4" />
               <span className="font-semibold text-sm">
-                Mode Démonstration - Temps restant: {formatTime(demoTimeLeft)} - Demo Login: demo@hrinno.hu, pwd: demo
+                Demo Mode - Remaining time: {formatTime(demoTimeLeft)} - Demo Login: demo@hrinno.hu, pwd: demo
               </span>
               <div className="hidden sm:block text-xs opacity-90">
                 L&apos;application se fermera automatiquement à la fin du timer
