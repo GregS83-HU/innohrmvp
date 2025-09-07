@@ -236,15 +236,15 @@ export default function Header() {
                   <Plus className="w-4 h-4" /> Create Position
                 </Link>
               )}
-{!user && (companySlug || companyId) && (
-  <Link 
-    href={companySlug ? `/jobs/${companySlug}/happiness-check` : `/happiness-check${companyId ? `?company_id=${companyId}` : ''}`} 
-    className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700`}
-  >
-    <Smile className="w-4 h-4" /> Happy Check
-  </Link>
-)}
 
+              {!user && (companySlug || companyId) && (
+                <Link 
+                  href={companySlug ? `/jobs/${companySlug}/happiness-check` : `/happiness-check${companyId ? `?company_id=${companyId}` : ''}`} 
+                  className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700`}
+                >
+                  <Smile className="w-4 h-4" /> Happy Check
+                </Link>
+              )}
 
               {user && (
                 <div className="relative" ref={hrToolsMenuRef}>
@@ -322,11 +322,10 @@ export default function Header() {
                     )}
                   </div>
                 ) : (
-                  !companySlug && (
-                    <button onClick={() => setIsLoginOpen(true)} className={`${buttonBaseClasses} bg-blue-600 hover:bg-blue-700 text-white`}>
-                      <User className="w-4 h-4" /> Login
-                    </button>
-                  )
+                  // CHANGEMENT ICI : Retirer la condition !companySlug pour afficher le bouton login partout
+                  <button onClick={() => setIsLoginOpen(true)} className={`${buttonBaseClasses} bg-blue-600 hover:bg-blue-700 text-white`}>
+                    <User className="w-4 h-4" /> Login
+                  </button>
                 )}
               </div>
 
@@ -351,15 +350,17 @@ export default function Header() {
                   <Plus className="w-4 h-4" /> Create Position
                 </Link>
               )}
-{!user && (companySlug || companyId) && (
-  <Link 
-    href={companySlug ? `/jobs/${companySlug}/happiness-check` : `/happiness-check${companyId ? `?company_id=${companyId}` : ''}`} 
-    onClick={() => setIsMobileMenuOpen(false)} 
-    className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700 w-full`}
-  >
-    <Smile className="w-4 h-4" /> Happy Check
-  </Link>
-)}
+
+              {!user && (companySlug || companyId) && (
+                <Link 
+                  href={companySlug ? `/jobs/${companySlug}/happiness-check` : `/happiness-check${companyId ? `?company_id=${companyId}` : ''}`} 
+                  onClick={() => setIsMobileMenuOpen(false)} 
+                  className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700 w-full`}
+                >
+                  <Smile className="w-4 h-4" /> Happy Check
+                </Link>
+              )}
+
               {user && (
                 <>
                   <div className="px-4 py-2 border-t border-gray-200">
@@ -382,13 +383,20 @@ export default function Header() {
                   <Stethoscope className="w-4 h-4" /> Upload Certificate
                 </Link>
               )}
+
+              {/* AJOUT : Bouton login pour mobile aussi */}
+              {!user && (
+                <button onClick={() => { setIsLoginOpen(true); setIsMobileMenuOpen(false); }} className={`${buttonBaseClasses} bg-blue-600 hover:bg-blue-700 text-white w-full`}>
+                  <User className="w-4 h-4" /> Login
+                </button>
+              )}
             </div>
           </div>
         )}
       </header>
 
-      {/* LOGIN MODAL */}
-      {isLoginOpen && !companySlug && (
+      {/* LOGIN MODAL - CHANGEMENT ICI : Retirer la condition !companySlug */}
+      {isLoginOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
             <div className="p-6 border-b border-gray-200">
