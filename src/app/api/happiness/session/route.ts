@@ -8,6 +8,20 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+// Interface pour le body de la requête
+interface CreateSessionRequestBody {
+  company_id?: number;
+}
+
+// Interface pour les données de session
+interface SessionData {
+  session_token: string;
+  ip_hash: string;
+  user_agent_hash: string;
+  status: string;
+  company_id?: number;
+}
+
 function generateSessionToken(): string {
   return randomBytes(32).toString('hex')
 }
@@ -18,7 +32,7 @@ function hashIP(ip: string): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
+    const body: CreateSessionRequestBody = await req.json()
     const { company_id } = body // Extract company_id from request body
     
     const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
@@ -43,7 +57,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Prepare session data
-    const sessionData: any = {
+    const sessionData: SessionData = {
       session_token: sessionToken,
       ip_hash: ipHash,
       user_agent_hash: userAgentHash,

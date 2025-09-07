@@ -27,6 +27,11 @@ interface PermaScores {
   work_life_balance?: number;
 }
 
+// Interface pour le body de la requête de création de session
+interface CreateSessionRequest {
+  company_id?: number;
+}
+
 const HappinessCheck = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -113,7 +118,7 @@ const HappinessCheck = () => {
 
   const createSession = async () => {
     try {
-      const requestBody: any = {};
+      const requestBody: CreateSessionRequest = {};
       
       // Include company_id if available
       if (companyId) {
