@@ -37,6 +37,15 @@ export default function Header() {
   const slugMatch = pathname.match(/^\/jobs\/([^/]+)$/);
   const companySlug = slugMatch ? slugMatch[1] : null;
 
+  // ⚡ Pré-remplissage login/password si slug = "demo"
+  useEffect(() => {
+    if (companySlug === 'demo') {
+      setLogin('demo@hrinno.hu');
+      setPassword('demo');
+    }
+  }, [companySlug]);
+
+
   // Demo timer logic - check both current slug and localStorage
   useEffect(() => {
     const DEMO_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
@@ -205,7 +214,7 @@ export default function Header() {
                 Mode Démonstration - Temps restant: {formatTime(demoTimeLeft)} - Demo Login: demo@hrinno.hu, pwd: demo
               </span>
               <div className="hidden sm:block text-xs opacity-90">
-                L&apos;application se fermera automatiquement à la fin du timer
+                The application will close automatically at the end of the timer
               </div>
             </div>
           </div>
