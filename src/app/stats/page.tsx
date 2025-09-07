@@ -1,5 +1,6 @@
 import { createServerClient } from '../../../lib/supabaseServerClient'
 import StatsTable from './StatsTable'
+import { Analytics } from "@vercel/analytics/next"
 
 type Candidat = {
   candidat_firstname: string

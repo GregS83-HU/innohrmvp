@@ -1,6 +1,7 @@
 'use client'
 
 import PositionsList from './PositionList'
+import { Analytics } from "@vercel/analytics/next"
 
 export default function HomePage() {
   return (

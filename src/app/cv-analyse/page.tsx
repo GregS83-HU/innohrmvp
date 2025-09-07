@@ -1,6 +1,7 @@
 // src/app/cv-analyse/page.tsx
 import CVAnalyseClient from './CVAnalyseClient';
 import { createClient } from '@supabase/supabase-js';
+import { Analytics } from "@vercel/analytics/next"
 
 // ⚠️ on crée un client supabase côté serveur
 const supabase = createClient(

@@ -1,6 +1,7 @@
 // src/app/api/medical-certificates/upload/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { Analytics } from "@vercel/analytics/next"
 
 export const dynamic = "force-dynamic"; // évite le cache
 export const maxDuration = 60; // Vercel: laisse le temps à l'OCR
