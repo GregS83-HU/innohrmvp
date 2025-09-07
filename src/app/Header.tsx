@@ -236,10 +236,15 @@ export default function Header() {
                   <Plus className="w-4 h-4" /> Create Position
                 </Link>
               )}
+{!user && (companySlug || companyId) && (
+  <Link 
+    href={companySlug ? `/jobs/${companySlug}/happiness-check` : `/happiness-check${companyId ? `?company_id=${companyId}` : ''}`} 
+    className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700`}
+  >
+    <Smile className="w-4 h-4" /> Happy Check
+  </Link>
+)}
 
-              <Link href="/happiness-check" className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700`}>
-                <Smile className="w-4 h-4" /> Happy Check
-              </Link>
 
               {user && (
                 <div className="relative" ref={hrToolsMenuRef}>
@@ -346,11 +351,15 @@ export default function Header() {
                   <Plus className="w-4 h-4" /> Create Position
                 </Link>
               )}
-
-              <Link href="/happiness-check" onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700 w-full`}>
-                <Smile className="w-4 h-4" /> Happy Check
-              </Link>
-
+{!user && (companySlug || companyId) && (
+  <Link 
+    href={companySlug ? `/jobs/${companySlug}/happiness-check` : `/happiness-check${companyId ? `?company_id=${companyId}` : ''}`} 
+    onClick={() => setIsMobileMenuOpen(false)} 
+    className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700 w-full`}
+  >
+    <Smile className="w-4 h-4" /> Happy Check
+  </Link>
+)}
               {user && (
                 <>
                   <div className="px-4 py-2 border-t border-gray-200">

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -14,7 +15,9 @@ import {
   ChevronDown,
   Smile,
   Meh,
-  Frown
+  Frown,
+  Lock,
+  LogIn
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 
@@ -49,6 +52,8 @@ interface DashboardData {
     avg_work_life_balance: number;
   }>;
   period: string;
+  companyId?: number;
+  companyName?: string;
 }
 
 const HRDashboard = () => {
@@ -58,12 +63,37 @@ const HRDashboard = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('30');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
+  const session = useSession()
+  const supabase = useSupabaseClient()
+
   const fetchData = useCallback(async () => {
+    if (!session?.user) {
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/happiness/dashboard?days=${selectedPeriod}`);
-      if (!response.ok) throw new Error('Erreur lors du chargement des données');
+      // Get current session for auth token
+      const { data: { session: currentSession } } = await supabase.auth.getSession()
+      
+      const response = await fetch(`/api/happiness/dashboard?days=${selectedPeriod}`, {
+        headers: {
+          'Authorization': `Bearer ${currentSession?.access_token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Non authentifié - veuillez vous reconnecter');
+        } else if (response.status === 403) {
+          throw new Error('Accès refusé - aucune entreprise associée à votre compte');
+        }
+        throw new Error('Erreur lors du chargement des données');
+      }
+      
       const result = await response.json();
       setData(result);
     } catch (err) {
@@ -71,7 +101,7 @@ const HRDashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedPeriod]);
+  }, [selectedPeriod, session, supabase]);
 
   useEffect(() => {
     fetchData();
@@ -108,6 +138,28 @@ const HRDashboard = () => {
     accomplishment: "Objectifs clairs, feedback régulier, opportunités d&apos;évolution",
     work_life_balance: "Flexibilité horaire, télétravail, politique de déconnexion"
   };
+
+  // Authentication check
+  if (!session?.user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-white rounded-xl shadow-lg p-8 text-center max-w-md">
+          <Lock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Authentification requise</h2>
+          <p className="text-gray-600 mb-6">
+            Vous devez être connecté pour accéder au dashboard RH.
+          </p>
+          <button
+            onClick={() => window.location.href = '/login'}
+            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors mx-auto"
+          >
+            <LogIn className="w-4 h-4" />
+            Se connecter
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -178,6 +230,12 @@ const HRDashboard = () => {
               <p className="text-gray-600 mt-1">
                 Analytics anonymes du bonheur au travail • {data.period}
               </p>
+              {data.companyName && (
+                <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium mt-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  {data.companyName}
+                </div>
+              )}
             </div>
             
             <div className="flex items-center gap-4">
@@ -400,6 +458,9 @@ const HRDashboard = () => {
               <strong>Confidentialité :</strong> Toutes les données sont complètement anonymisées. Aucune information personnelle n&apos;est stockée ou affichée.
             </p>
             <p className="text-xs text-gray-500 mt-1">Dernière mise à jour : {new Date().toLocaleString('fr-FR')}</p>
+            {data.companyName && (
+              <p className="text-xs text-blue-600 mt-1">Données filtrées pour : {data.companyName}</p>
+            )}
           </div>
           <button
             onClick={()=>alert('Fonctionnalité d&apos;export à implémenter')}

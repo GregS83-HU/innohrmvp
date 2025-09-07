@@ -13,15 +13,16 @@ function generateSessionToken(): string {
 }
 
 function hashIP(ip: string): string {
-  // Correction: Utilisation d'un import ES6 au lieu de require()
   return createHash('sha256').update(ip + process.env.IP_SALT || 'default_salt').digest('hex')
 }
 
 export async function POST(req: NextRequest) {
   try {
+    const body = await req.json()
+    const { company_id } = body // Extract company_id from request body
+    
     const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
     const userAgent = req.headers.get('user-agent') || 'unknown'
-    
     const sessionToken = generateSessionToken()
     const ipHash = hashIP(ip)
     const userAgentHash = hashIP(userAgent)
@@ -31,24 +32,32 @@ export async function POST(req: NextRequest) {
       .from('happiness_sessions')
       .select('created_at')
       .eq('ip_hash', ipHash)
-     //.gte('created_at', new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()) // 2 hours cooldown
-     .gte('created_at', new Date(Date.now()).toISOString())
-     .eq('status', 'completed')
+      //.gte('created_at', new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()) // 2 hours cooldown
+      .gte('created_at', new Date(Date.now()).toISOString())
+      .eq('status', 'completed')
 
     if (recentSessions && recentSessions.length > 0) {
-      return NextResponse.json({ 
-        error: 'Une évaluation récente a déjà été effectuée. Merci de réessayer plus tard.' 
+      return NextResponse.json({
+        error: 'Une évaluation récente a déjà été effectuée. Merci de réessayer plus tard.'
       }, { status: 429 })
+    }
+
+    // Prepare session data
+    const sessionData: any = {
+      session_token: sessionToken,
+      ip_hash: ipHash,
+      user_agent_hash: userAgentHash,
+      status: 'created'
+    }
+
+    // Add company_id if provided
+    if (company_id) {
+      sessionData.company_id = company_id
     }
 
     const { data: session, error } = await supabase
       .from('happiness_sessions')
-      .insert({
-        session_token: sessionToken,
-        ip_hash: ipHash,
-        user_agent_hash: userAgentHash,
-        status: 'created'
-      })
+      .insert(sessionData)
       .select()
       .single()
 
@@ -57,10 +66,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Erreur création session' }, { status: 500 })
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       sessionToken,
       sessionId: session.id,
-      message: 'Session créée avec succès' 
+      message: 'Session créée avec succès',
+      company_id: session.company_id // Return company_id in response for confirmation
     })
 
   } catch (err) {
