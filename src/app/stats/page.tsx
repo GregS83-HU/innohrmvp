@@ -6,6 +6,7 @@ type Candidat = {
   candidat_lastname: string
   cv_text: string
   cv_file: string
+  created_at: string
 }
 
 type PositionToCandidatRow = {
@@ -43,7 +44,8 @@ export default async function StatsPage({
         candidat_firstname,
         candidat_lastname,
         cv_text,
-        cv_file
+        cv_file,
+        created_at
       )
     `)
     .eq('position_id', Number(positionId)) as {

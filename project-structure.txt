@@ -9,7 +9,7 @@
 ./README.md
 ./public
 ./public/file.svg
-./public/InnoHRLogo.jpeg
+./public/HRInnoLogo.jpeg
 ./public/vercel.svg
 ./public/next.svg
 ./public/globe.svg

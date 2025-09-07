@@ -3,13 +3,14 @@
 import { useState, useEffect } from 'react'
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
 import * as Popover from '@radix-ui/react-popover'
-import { Edit, Save, X, Search, BarChart3, Users, CheckSquare, Square, ArrowUp, ArrowDown, ArrowUpDown, FileText, User } from 'lucide-react'
+import { Edit, Save, X, Search, BarChart3, Users, CheckSquare, Square, ArrowUp, ArrowDown, ArrowUpDown, FileText, User, Calendar } from 'lucide-react'
 
 type Candidat = {
   candidat_firstname: string
   candidat_lastname: string
   cv_text?: string
   cv_file?: string
+  created_at: string // Retiré le ? pour le rendre obligatoire
 }
 
 type Row = {
@@ -26,11 +27,14 @@ type RecruitmentStep = {
   step_name: string
 }
 
+type SortField = 'score' | 'date' | null
+
 export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
   const [rows, setRows] = useState<Row[]>(initialRows)
   const [steps, setSteps] = useState<RecruitmentStep[]>([])
   const [editingId, setEditingId] = useState<number | null>(null)
   const [commentValue, setCommentValue] = useState('')
+  const [sortField, setSortField] = useState<SortField>(null)
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null)
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set())
 
@@ -149,34 +153,102 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
     }
   }
 
-  const handleSort = () => {
+  const handleSort = (field: SortField) => {
     let newOrder: 'asc' | 'desc' | null = null
-    if (sortOrder === null) newOrder = 'asc'
-    else if (sortOrder === 'asc') newOrder = 'desc'
-    else newOrder = null
+    
+    if (sortField !== field) {
+      // Nouveau champ de tri
+      setSortField(field)
+      newOrder = 'desc' // Commencer par desc pour les dates (plus récent d'abord)
+    } else {
+      // Même champ, changer l'ordre
+      if (sortOrder === null) newOrder = 'desc'
+      else if (sortOrder === 'desc') newOrder = 'asc'
+      else newOrder = null
+    }
+    
     setSortOrder(newOrder)
 
     if (newOrder === null) {
+      setSortField(null)
       setRows(initialRows)
     } else {
       const sorted = [...rows].sort((a, b) => {
-        if (a.candidat_score === null) return 1
-        if (b.candidat_score === null) return -1
-        if (newOrder === 'asc') return a.candidat_score - b.candidat_score
-        return b.candidat_score - a.candidat_score
+        if (field === 'score') {
+          if (a.candidat_score === null) return 1
+          if (b.candidat_score === null) return -1
+          if (newOrder === 'asc') return a.candidat_score - b.candidat_score
+          return b.candidat_score - a.candidat_score
+        } else if (field === 'date') {
+          const dateA = a.candidats?.created_at ? new Date(a.candidats.created_at).getTime() : 0
+          const dateB = b.candidats?.created_at ? new Date(b.candidats.created_at).getTime() : 0
+          if (newOrder === 'asc') return dateA - dateB
+          return dateB - dateA
+        }
+        return 0
       })
       setRows(sorted)
     }
   }
 
-  const renderSortIcon = () => {
+  const renderSortIcon = (field: SortField) => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="w-4 h-4 text-gray-400 ml-1" />
+    }
     if (sortOrder === 'asc') {
-      return <ArrowUp className="w-4 h-4 text-red-500 ml-1" />
+      return <ArrowUp className="w-4 h-4 text-blue-500 ml-1" />
     }
     if (sortOrder === 'desc') {
-      return <ArrowDown className="w-4 h-4 text-green-500 ml-1" />
+      return <ArrowDown className="w-4 h-4 text-blue-500 ml-1" />
     }
     return <ArrowUpDown className="w-4 h-4 text-gray-400 ml-1" />
+  }
+
+  // Fonction améliorée pour formater les dates
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '—'
+    try {
+      // Support pour différents formats de date de Supabase
+      const date = new Date(dateString)
+      
+      // Vérifier si la date est valide
+      if (isNaN(date.getTime())) {
+        console.warn('Date invalide:', dateString)
+        return '—'
+      }
+      
+      return date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      })
+    } catch (error) {
+      console.error('Erreur formatage date:', error, 'Date string:', dateString)
+      return '—'
+    }
+  }
+
+  const formatDateTime = (dateString?: string) => {
+    if (!dateString) return '—'
+    try {
+      const date = new Date(dateString)
+      
+      if (isNaN(date.getTime())) {
+        console.warn('DateTime invalide:', dateString)
+        return '—'
+      }
+      
+      return date.toLocaleString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    } catch (error) {
+      console.error('Erreur formatage datetime:', error, 'Date string:', dateString)
+      return '—'
+    }
   }
 
   const isAllSelected = rows.length > 0 && selectedRows.size === rows.length
@@ -191,7 +263,7 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
         
         {/* Header */}
         <div className="text-center mb-8">
@@ -220,7 +292,7 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
         {/* Table Container */}
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           <div className="overflow-x-auto" style={{ paddingBottom: 'env(safe-area-inset-bottom, 24px)' }}>
-            <table className="w-full" style={{ minWidth: '800px' }}>
+            <table className="w-full" style={{ minWidth: '1000px' }}>
               <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                 <tr>
                   <th className="px-4 py-4 text-left">
@@ -254,11 +326,21 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
                   </th>
                   <th 
                     className="px-4 py-4 text-left font-semibold text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors"
-                    onClick={handleSort}
+                    onClick={() => handleSort('score')}
                   >
                     <div className="flex items-center">
                       Score
-                      {renderSortIcon()}
+                      {renderSortIcon('score')}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-4 py-4 text-left font-semibold text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors"
+                    onClick={() => handleSort('date')}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      Application Date
+                      {renderSortIcon('date')}
                     </div>
                   </th>
                   <th className="px-4 py-4 text-left font-semibold text-gray-700">
@@ -316,6 +398,12 @@ export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getScoreBadgeStyle(row.candidat_score)}`}>
                           {row.candidat_score ?? '—'}
                         </span>
+                      </td>
+                      
+                      <td className="px-3 py-4 w-32">
+                        <div className="text-sm text-gray-600" title={formatDateTime(candidat?.created_at)}>
+                          {formatDate(candidat?.created_at)}
+                        </div>
                       </td>
                       
                       <td className="px-3 py-4 w-24">

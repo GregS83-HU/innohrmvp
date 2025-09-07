@@ -218,7 +218,7 @@ export default function Header() {
             <div className="flex-shrink-0">
               <Link href={linkToCompany('/')}>
                 <img
-                  src={companySlug && companyLogo ? companyLogo : '/InnoHRLogo.jpeg'}
+                  src={companySlug && companyLogo ? companyLogo : '/HRInnoLogo.jpeg'}
                   alt="Logo"
                   className="h-10 sm:h-12 object-contain"
                 />

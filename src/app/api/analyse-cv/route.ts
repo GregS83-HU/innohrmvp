@@ -46,8 +46,8 @@ export async function POST(req: NextRequest) {
     const { data: publicUrlData } = supabase.storage.from('cvs').getPublicUrl(filePath)
     const cvFileUrl = publicUrlData.publicUrl
 
-    // Prompt AI
-    const prompt = `
+    // Prompt AI pour l'analyse RH (interne)
+    const hrPrompt = `
 Tu es un expert RH. Voici un CV :
 
 ${cvText}
@@ -60,7 +60,7 @@ Analyze the CV only against the provided job description with extreme rigor.
 Do not guess, assume, or infer any skill, experience, or qualification that is not explicitly written in the CV.
 Be critical: even a single missing core requirement should significantly lower the score.
 If the CV shows little or no direct relevance, the score must be 3 or lower.
-Avoid “benefit of the doubt” scoring.
+Avoid "benefit of the doubt" scoring.
 
 Your output must strictly follow this structure:
 
@@ -94,9 +94,6 @@ Always provide concrete examples from the CV to justify the score.
 
 Keep tone professional, concise, and free from speculation.
 
-
-
-
 Répond uniquement avec un JSON strictement valide, au format :
 {
   "score": number,
@@ -105,12 +102,56 @@ Répond uniquement avec un JSON strictement valide, au format :
 IMPORTANT : Ne réponds avec rien d'autre que ce JSON.
 
 La réponse doit etre en anglais parfait
-
 `
 
-//END PROMPT AI
+    // Prompt AI pour le feedback candidat (externe)
+    const candidateFeedbackPrompt = `
+Tu es un consultant en carrière bienveillant. Voici un CV d'un candidat :
 
-    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+${cvText}
+
+Voici la description du poste pour lequel il/elle a postulé:
+
+${jobDescription}
+
+Provide constructive and encouraging feedback directly to the candidate. Your goal is to help them understand how their profile matches the position and give actionable advice for improvement.
+
+Structure your response as follows:
+
+**Your Strengths**
+- Highlight the positive aspects of their CV that align with the position
+- Mention transferable skills and relevant experiences
+
+**Areas for Development**
+- Identify skill gaps in a supportive way
+- Suggest specific ways to address these gaps (training, certifications, projects, etc.)
+
+**Career Advice**
+- Provide constructive suggestions for their career path
+- Mention alternative positions that might be a good fit
+- Give tips for improving their CV or application
+
+**Next Steps**
+- Actionable recommendations they can implement immediately
+- Resources or learning paths they could pursue
+
+Keep the tone:
+- Professional but warm and encouraging
+- Constructive rather than critical
+- Focused on growth opportunities
+- Honest but supportive
+
+Respond only with a valid JSON in this format:
+{
+  "feedback": "string containing the full feedback message"
+}
+IMPORTANT: Respond with nothing other than this JSON.
+
+The response must be in perfect English.
+`
+
+    // Appel API pour l'analyse RH
+    const hrRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
@@ -118,16 +159,36 @@ La réponse doit etre en anglais parfait
       },
       body: JSON.stringify({
         model: 'mistralai/mistral-7b-instruct',
-        messages: [{ role: 'user', content: prompt }],
+        messages: [{ role: 'user', content: hrPrompt }],
       }),
     })
 
-    const completion = await res.json()
-    const rawResponse = completion.choices?.[0]?.message?.content ?? ''
-    const match = rawResponse.match(/\{[\s\S]*\}/)
-    if (!match) return NextResponse.json({ error: 'Réponse JSON IA invalide' }, { status: 500 })
+    const hrCompletion = await hrRes.json()
+    const hrRawResponse = hrCompletion.choices?.[0]?.message?.content ?? ''
+    const hrMatch = hrRawResponse.match(/\{[\s\S]*\}/)
+    if (!hrMatch) return NextResponse.json({ error: 'Réponse JSON IA invalide pour analyse RH' }, { status: 500 })
 
-    const { score, analysis } = JSON.parse(match[0])
+    const { score, analysis } = JSON.parse(hrMatch[0])
+
+    // Appel API pour le feedback candidat
+    const candidateRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'mistralai/mistral-7b-instruct',
+        messages: [{ role: 'user', content: candidateFeedbackPrompt }],
+      }),
+    })
+
+    const candidateCompletion = await candidateRes.json()
+    const candidateRawResponse = candidateCompletion.choices?.[0]?.message?.content ?? ''
+    const candidateMatch = candidateRawResponse.match(/\{[\s\S]*\}/)
+    if (!candidateMatch) return NextResponse.json({ error: 'Réponse JSON IA invalide pour feedback candidat' }, { status: 500 })
+
+    const { feedback } = JSON.parse(candidateMatch[0])
 
     const { data: candidate, error: insertError } = await supabase
       .from('candidats')
@@ -154,7 +215,11 @@ La réponse doit etre en anglais parfait
 
     if (relationError) return NextResponse.json({ error: 'Échec liaison position/candidat' }, { status: 500 })
 
-    return NextResponse.json({ score, analysis })
+    return NextResponse.json({ 
+      score, 
+      analysis, 
+      candidateFeedback: feedback 
+    })
   } catch (err) {
     console.error(err)
     return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 })

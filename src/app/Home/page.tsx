@@ -14,15 +14,12 @@ export default function HomePage() {
         <div className="bg-white rounded-xl shadow-lg p-8 mb-8 transform hover:scale-105 transition-all duration-300">
           <div className="text-center">
             <Image
-              src="/InnoHRLogo.jpeg"
+              src="/HRInnoLogo.jpeg"
               alt="InnoHR"
-              width={150}
-              height={150}
+              width={450}
+              height={450}
               className="rounded-full shadow-lg mx-auto mb-4"
             />
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full inline-block">
-              <span className="font-semibold">InnoHR Platform</span>
-            </div>
           </div>
         </div>
 

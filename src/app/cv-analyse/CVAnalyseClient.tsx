@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Upload, FileText, CheckCircle, AlertCircle, User, Brain, BarChart3, Shield } from 'lucide-react'
+import { Upload, FileText, CheckCircle, AlertCircle, User, Brain, BarChart3, Shield, MessageSquare } from 'lucide-react'
 
 export default function CVAnalyseClient({
   positionName,
@@ -20,18 +20,21 @@ export default function CVAnalyseClient({
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [analysis, setAnalysis] = useState('')
+  const [candidateFeedback, setCandidateFeedback] = useState('')
   const [score, setScore] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [gdprAccepted, setGdprAccepted] = useState(false)
+  const [analysisCompleted, setAnalysisCompleted] = useState(false)
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!file || !gdprAccepted) return
+    if (!file || !gdprAccepted || analysisCompleted) return
 
     const formData = new FormData()
     formData.append('file', file)
     formData.append('jobDescription', jobDescription)
+    formData.append('jobDescriptionDetailed', jobDescriptionDetailed)
     formData.append('firstName', firstName)
     formData.append('lastName', lastName)
     formData.append('positionId', positionId)
@@ -39,6 +42,7 @@ export default function CVAnalyseClient({
     setLoading(true)
     setError('')
     setAnalysis('')
+    setCandidateFeedback('')
     setScore(null)
 
     try {
@@ -54,7 +58,9 @@ export default function CVAnalyseClient({
       }
 
       setAnalysis(data.analysis)
+      setCandidateFeedback(data.candidateFeedback)
       setScore(data.score)
+      setAnalysisCompleted(true) // Marquer l'analyse comme terminée
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message)
@@ -134,6 +140,7 @@ export default function CVAnalyseClient({
                   onChange={(e) => setFirstName(e.target.value)}
                   className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
+                  disabled={analysisCompleted}
                 />
               </div>
               
@@ -148,45 +155,67 @@ export default function CVAnalyseClient({
                   onChange={(e) => setLastName(e.target.value)}
                   className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
+                  disabled={analysisCompleted}
                 />
               </div>
             </div>
 
             {/* Important Notice */}
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <div className="flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-yellow-600" />
-                <p className="text-yellow-800 font-medium">
-                  Please ensure that you have your phone number and email address in your CV
-                </p>
+            {!analysisCompleted && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5 text-yellow-600" />
+                  <p className="text-yellow-800 font-medium">
+                    Please ensure that you have your phone number and email address in your CV
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Analysis Completed Notice */}
+            {analysisCompleted && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <p className="text-green-800 font-medium">
+                    Analysis completed successfully! Your CV has been processed and saved.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* File Upload */}
             <div>
               <label className="block text-gray-700 font-medium mb-3">CV Upload</label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50 hover:bg-gray-100 transition-colors">
+              <div className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                analysisCompleted 
+                  ? 'border-gray-200 bg-gray-50' 
+                  : 'border-gray-300 bg-gray-50 hover:bg-gray-100'
+              }`}>
                 <input
                   type="file"
                   accept=".pdf"
                   onChange={(e) => setFile(e.target.files?.[0] ?? null)}
                   className="hidden"
                   id="cv-upload"
+                  disabled={analysisCompleted}
                 />
                 <label
                   htmlFor="cv-upload"
-                  className="cursor-pointer"
+                  className={analysisCompleted ? 'cursor-not-allowed' : 'cursor-pointer'}
                 >
                   {file ? (
                     <div className="flex flex-col items-center gap-3">
                       <CheckCircle className="w-12 h-12 text-green-500" />
                       <span className="text-green-600 font-semibold">{file.name}</span>
-                      <span className="text-sm text-gray-500">Click to change file</span>
+                      {!analysisCompleted && (
+                        <span className="text-sm text-gray-500">Click to change file</span>
+                      )}
                     </div>
                   ) : (
                     <div className="flex flex-col items-center gap-3">
                       <Upload className="w-12 h-12 text-gray-400" />
-                      <span className="text-blue-600 font-semibold hover:underline">
+                      <span className={`font-semibold ${analysisCompleted ? 'text-gray-400' : 'text-blue-600 hover:underline'}`}>
                         Click here to select your CV
                       </span>
                       <span className="text-sm text-gray-500">(PDF only)</span>
@@ -197,7 +226,7 @@ export default function CVAnalyseClient({
             </div>
 
             {/* GDPR Checkbox */}
-            {file && (
+            {file && !analysisCompleted && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <div className="flex items-start gap-3">
                   <input
@@ -206,6 +235,7 @@ export default function CVAnalyseClient({
                     checked={gdprAccepted}
                     onChange={(e) => setGdprAccepted(e.target.checked)}
                     className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    disabled={analysisCompleted}
                   />
                   <label htmlFor="gdpr" className="text-sm text-gray-700 flex-1">
                     <Shield className="w-4 h-4 inline mr-1" />
@@ -226,14 +256,19 @@ export default function CVAnalyseClient({
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={!file || !gdprAccepted || loading}
+              disabled={!file || !gdprAccepted || loading || analysisCompleted}
               className={`w-full py-4 px-6 rounded-lg font-semibold text-white text-lg transition-all shadow-md hover:shadow-lg transform ${
-                loading || !file || !gdprAccepted
+                loading || !file || !gdprAccepted || analysisCompleted
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:scale-105'
               }`}
             >
-              {loading ? (
+              {analysisCompleted ? (
+                <div className="flex items-center justify-center gap-2">
+                  <CheckCircle className="w-5 h-5" />
+                  Analysis Completed
+                </div>
+              ) : loading ? (
                 <div className="flex items-center justify-center gap-3">
                   <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
                   Analysis running...
@@ -262,7 +297,7 @@ export default function CVAnalyseClient({
         )}
 
         {/* Results */}
-        {score !== null && analysis && (
+        {score !== null && candidateFeedback && (
           <div className="space-y-6">
             
             {/* Score Card */}
@@ -284,16 +319,16 @@ export default function CVAnalyseClient({
               </div>
             </div>
 
-            {/* Analysis Results */}
+            {/* Candidate Feedback (Shown to candidate) */}
             <div className="bg-white rounded-xl shadow-lg p-6">
               <div className="flex items-center gap-3 mb-4">
-                <Brain className="w-6 h-6 text-blue-600" />
-                <h2 className="text-xl font-semibold text-gray-800">Analysis Results</h2>
+                <MessageSquare className="w-6 h-6 text-blue-600" />
+                <h2 className="text-xl font-semibold text-gray-800">Personalized Feedback</h2>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <pre className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed">
-                  {analysis}
-                </pre>
+              <div className="bg-blue-50 rounded-lg p-4">
+                <div className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed">
+                  {candidateFeedback}
+                </div>
               </div>
             </div>
           </div>
