@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { Suspense, useState, useEffect, useRef } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 import { Send, MessageCircle, Heart, BarChart3, CheckCircle, ArrowLeft } from 'lucide-react';
@@ -32,7 +32,8 @@ interface CreateSessionRequest {
   company_id?: number;
 }
 
-const HappinessCheck = () => {
+// Composant interne qui utilise useSearchParams
+const HappinessCheckInner = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -564,6 +565,22 @@ const HappinessCheck = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+// Composant principal avec Suspense boundary
+const HappinessCheck = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading assessment...</p>
+        </div>
+      </div>
+    }>
+      <HappinessCheckInner />
+    </Suspense>
   );
 };
 
