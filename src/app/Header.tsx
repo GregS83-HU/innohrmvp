@@ -202,7 +202,7 @@ export default function Header() {
             <div className="max-w-8xl mx-auto flex items-center justify-center gap-3">
               <Clock className="w-4 h-4" />
               <span className="font-semibold text-sm">
-                Demo Mode - Remaining time: {formatTime(demoTimeLeft)} - Demo Login: demo@hrinno.hu, pwd: demo
+                Mode Démonstration - Temps restant: {formatTime(demoTimeLeft)} - Demo Login: demo@hrinno.hu, pwd: demo
               </span>
               <div className="hidden sm:block text-xs opacity-90">
                 L&apos;application se fermera automatiquement à la fin du timer
@@ -312,7 +312,7 @@ export default function Header() {
                     {isUserMenuOpen && (
                       <div className="absolute top-full mt-2 right-0 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
                         <div className="px-4 py-3 border-b border-gray-100">
-                          <p className="text-sm text-gray-600">Connecté en tant que</p>
+                          <p className="text-sm text-gray-600">Connected as</p>
                           <p className="font-semibold text-gray-900">{user.firstname} {user.lastname}</p>
                         </div>
                         <button onClick={() => { handleLogout(); setIsUserMenuOpen(false); }} className={`${buttonBaseClasses} bg-white hover:bg-red-50 text-red-600 w-full px-4 py-3 text-left`}>
@@ -401,7 +401,7 @@ export default function Header() {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-2xl font-bold text-gray-900">Connexion</h2>
-              <p className="text-gray-600 mt-1">Connectez-vous à votre compte</p>
+              <p className="text-gray-600 mt-1">Connect to your account</p>
             </div>
             <div className="p-6 space-y-4">
               <div>
@@ -409,14 +409,14 @@ export default function Header() {
                 <input type="email" placeholder="votre@email.com" value={login} onChange={(e) => setLogin(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"/>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Mot de passe</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
                 <input type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"/>
               </div>
               {error && <div className="bg-red-50 border border-red-200 rounded-lg p-3"><p className="text-red-700 text-sm">{error}</p></div>}
             </div>
             <div className="p-6 border-t border-gray-200 flex gap-3">
-              <button onClick={() => setIsLoginOpen(false)} className="flex-1 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors">Annuler</button>
-              <button onClick={handleLogin} className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">Se connecter</button>
+              <button onClick={() => setIsLoginOpen(false)} className="flex-1 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors">Cancel</button>
+              <button onClick={handleLogin} className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">Connect</button>
             </div>
           </div>
         </div>
