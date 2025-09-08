@@ -34,7 +34,8 @@ export default function Header() {
   const hrToolsMenuRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  const slugMatch = pathname.match(/^\/jobs\/([^/]+)$/);
+  // ✅ CORRECTION : Détection du slug sur toutes les pages /jobs/[slug]/*
+  const slugMatch = pathname.match(/^\/jobs\/([^/]+)/);
   const companySlug = slugMatch ? slugMatch[1] : null;
 
   // ⚡ Pré-remplissage login/password si slug = "demo"
@@ -205,7 +206,18 @@ export default function Header() {
     router.push(companySlug ? `/jobs/${companySlug}` : '/');
   };
 
-  const linkToCompany = (path: string) => companySlug ? `/jobs/${companySlug}${path === '/' ? '' : path}` : path;
+  // ✅ CORRECTION : Fonction améliorée pour gérer les liens avec contexte slug
+  const linkToCompany = (path: string) => {
+    if (companySlug) {
+      // Si on a un slug, on construit toujours le chemin complet
+      if (path === '/') {
+        return `/jobs/${companySlug}`; // Page d'accueil avec contexte slug
+      }
+      return `/jobs/${companySlug}${path}`;
+    }
+    return path; // Pas de slug, chemin normal
+  };
+
   const uploadCertificateLink = `/medical-certificate/upload${companyId ? `?company_id=${companyId}` : ''}`;
 
   const buttonBaseClasses = 'flex items-center gap-2 px-5 py-2 rounded-xl font-semibold transition-all shadow-sm hover:shadow-md';
@@ -238,7 +250,7 @@ export default function Header() {
         <div className="w-full px-9 py-4">
           <div className="flex items-center justify-between w-full max-w-8xl mx-auto">
             
-            {/* LOGO - aligné à gauche */}
+            {/* ✅ LOGO - correction du lien */}
             <div className="flex-shrink-0">
               <Link href={linkToCompany('/')}>
                 <img
@@ -251,6 +263,7 @@ export default function Header() {
 
             {/* NAVIGATION - au centre mais flexible */}
             <nav className="hidden lg:flex items-center gap-3 flex-1 justify-center mx-8">
+              {/* ✅ CORRECTION : Lien "Available Positions" avec contexte slug maintenu */}
               <Link href={linkToCompany('/openedpositions')} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700`}>
                 <Briefcase className="w-4 h-4" /> Available Positions
               </Link>
@@ -346,7 +359,6 @@ export default function Header() {
                     )}
                   </div>
                 ) : (
-                  // CHANGEMENT ICI : Retirer la condition !companySlug pour afficher le bouton login partout
                   <button onClick={() => setIsLoginOpen(true)} className={`${buttonBaseClasses} bg-blue-600 hover:bg-blue-700 text-white`}>
                     <User className="w-4 h-4" /> Login
                   </button>
@@ -365,6 +377,7 @@ export default function Header() {
         {isMobileMenuOpen && (
           <div className="lg:hidden bg-white border-t border-gray-200 shadow-lg">
             <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
+              {/* ✅ CORRECTION : Lien mobile "Available Positions" avec contexte slug maintenu */}
               <Link href={linkToCompany('/openedpositions')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full`}>
                 <Briefcase className="w-4 h-4" /> Available Positions
               </Link>
@@ -408,7 +421,6 @@ export default function Header() {
                 </Link>
               )}
 
-              {/* AJOUT : Bouton login pour mobile aussi */}
               {!user && (
                 <button onClick={() => { setIsLoginOpen(true); setIsMobileMenuOpen(false); }} className={`${buttonBaseClasses} bg-blue-600 hover:bg-blue-700 text-white w-full`}>
                   <User className="w-4 h-4" /> Login
@@ -419,7 +431,7 @@ export default function Header() {
         )}
       </header>
 
-      {/* LOGIN MODAL - CHANGEMENT ICI : Retirer la condition !companySlug */}
+      {/* LOGIN MODAL */}
       {isLoginOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
@@ -436,8 +448,7 @@ export default function Header() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
                 <input type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"/>
               </div>
-              {error && <div className="bg-red-50 border border-red-200 rounded-lg p-3"><p className="text-red-700 text-sm">{error}</p></div>}
-            </div>
+              {error && <div className="bg-red-50 border border-red-200 rounded-lg p-3"><p className="text-red-700 text-sm">{error}</p></div>}</div>
             <div className="p-6 border-t border-gray-200 flex gap-3">
               <button onClick={() => setIsLoginOpen(false)} className="flex-1 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors">Cancel</button>
               <button onClick={handleLogin} className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">Connect</button>
