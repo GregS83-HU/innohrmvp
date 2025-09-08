@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
 import * as Popover from '@radix-ui/react-popover'
-import { Search, FileText, User, Calendar, MessageCircle, CheckCircle, Clock, Filter, Eye } from 'lucide-react'
+import { Search, FileText, User, Calendar, MessageCircle, CheckCircle, Clock, Filter, Eye, Upload } from 'lucide-react'
 
 type MedicalCertificate = {
   id: number
@@ -35,7 +35,6 @@ export default function MedicalCertificatesPage() {
     const fetchCompanyIdAndCertificates = async () => {
       setLoading(true)
       try {
-        // 1️⃣ Récupérer company_id de l'utilisateur connecté
         const { data: userProfile, error: userError } = await supabase
           .from('company_to_users')
           .select('company_id')
@@ -59,7 +58,6 @@ export default function MedicalCertificatesPage() {
         const currentCompanyId = userProfile.company_id
         setCompanyId(currentCompanyId)
 
-        // 2️⃣ Récupérer uniquement les certificats de cette entreprise
         const { data, error } = await supabase
           .from('medical_certificates')
           .select('*')
@@ -95,7 +93,6 @@ export default function MedicalCertificatesPage() {
 
   const handleCheckboxChange = async (certId: number, newValue: boolean) => {
     try {
-      // Définir treatment_date : maintenant si coché, null si décoché
       const treatmentDate = newValue ? new Date().toISOString() : null
 
       const { data, error } = await supabase
@@ -155,7 +152,6 @@ export default function MedicalCertificatesPage() {
     }
   }
 
-  /** ==== Application des filtres ==== */
   const filteredCertificates = certificates
     .filter((cert) =>
       cert.employee_name.toLowerCase().includes(search.toLowerCase())
@@ -238,7 +234,7 @@ export default function MedicalCertificatesPage() {
         {/* Table Container */}
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full" style={{ minWidth: '1000px' }}>
+            <table className="w-full" style={{ minWidth: '1100px' }}>
               <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                 <tr>
                   <th className="px-4 py-4 text-left font-semibold text-gray-700 w-40">
@@ -259,6 +255,12 @@ export default function MedicalCertificatesPage() {
                   <th className="px-4 py-4 text-left font-semibold text-gray-700 w-32">
                     Certificate
                   </th>
+                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-32">
+                    <div className="flex items-center gap-2">
+                      <Upload className="w-4 h-4" />
+                      Upload Date
+                    </div>
+                  </th>
                   <th className="px-4 py-4 text-left font-semibold text-gray-700 w-40">
                     <div className="flex items-center gap-2">
                       <MessageCircle className="w-4 h-4" />
@@ -276,7 +278,7 @@ export default function MedicalCertificatesPage() {
               <tbody>
                 {filteredCertificates.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-4 py-12 text-center">
+                    <td colSpan={8} className="px-4 py-12 text-center">
                       <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                       <h3 className="text-lg font-semibold text-gray-600 mb-2">No certificates found</h3>
                       <p className="text-gray-500">
@@ -320,6 +322,10 @@ export default function MedicalCertificatesPage() {
                         ) : (
                           <span className="text-gray-500">—</span>
                         )}
+                      </td>
+
+                      <td className="px-4 py-4 text-gray-700 w-32">
+                        {formatSimpleDate(cert.created_at)}
                       </td>
                       
                       <td className="px-4 py-4 w-40">

@@ -20,7 +20,7 @@ function UploadCertificatePageContent() {
         <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
           <h1 className="text-2xl font-bold text-red-600 mb-4">Erreur</h1>
           <p className="text-gray-700 mb-4">
-            Aucun ID d'entreprise fourni. Veuillez accéder à cette page via le lien approprié.
+            Aucun ID d&apos;entreprise fourni. Veuillez accéder à cette page via le lien approprié.
           </p>
           <button 
             onClick={() => window.history.back()}

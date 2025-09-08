@@ -1,5 +1,5 @@
 // src/app/jobs/[slug]/page.tsx
-import PositionsList from "../../openedpositions/PositionList";
+import PositionsList from "../../../openedpositions/PositionList";
 import { Analytics } from "@vercel/analytics/next"
 
 type Position = {
