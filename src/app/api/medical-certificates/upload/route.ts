@@ -38,7 +38,7 @@ function sanitizeFileName(filename: string) {
     .replace(/[^a-zA-Z0-9._-]/g, "");
 }
 
-// Tente d’extraire un JSON depuis un texte (au cas où le LLM renvoie du texte autour)
+// Tente d'extraire un JSON depuis un texte (au cas où le LLM renvoie du texte autour)
 function safeExtractJson(text: string): CertificateData | null {
   const match = text.match(/\{[\s\S]*\}/);
   if (!match) return null;
@@ -67,9 +67,14 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
+    const companyId = formData.get("company_id") as string | null; // AJOUT: récupération du company_id
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    }
+
+    if (!companyId) {
+      return NextResponse.json({ error: "Company ID is required" }, { status: 400 });
     }
 
     // Détection type fichier
@@ -81,11 +86,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "File must be an image or PDF" }, { status: 400 });
     }
 
-    // 1) Upload dans Supabase Storage
+    // 1) Upload dans Supabase Storage avec le company_id dans le chemin
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     const safeName = sanitizeFileName(file.name);
-    const filePath = `uploads/${Date.now()}_${safeName}`;
+    const filePath = `uploads/${companyId}/${Date.now()}_${safeName}`; // MODIFICATION: inclure company_id dans le chemin
 
     const { error: uploadError } = await supabase.storage
       .from("medical-certificates")
@@ -197,6 +202,7 @@ ${rawText}
 
     return NextResponse.json({
       success: true,
+      company_id: companyId, // AJOUT: retourner le company_id dans la réponse
       storage_path: filePath,
       signed_url: signed.signedUrl,
       public_url: publicUrl,
