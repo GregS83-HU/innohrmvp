@@ -45,6 +45,25 @@ export default function Header() {
     }
   }, [companySlug]);
 
+  // Function to handle demo expiration with logout
+  const handleDemoExpiration = async () => {
+    // Clean up localStorage
+    localStorage.removeItem('demo_start_time');
+    localStorage.removeItem('demo_mode_active');
+    
+    // If user is connected, log them out first
+    if (user) {
+      try {
+        await supabase.auth.signOut();
+        setUser(null);
+      } catch (error) {
+        console.error('Error logging out:', error);
+      }
+    }
+    
+    // Redirect to Google
+    window.location.href = 'https://google.com';
+  };
 
   // Demo timer logic - check both current slug and localStorage
   useEffect(() => {
@@ -82,10 +101,8 @@ export default function Header() {
       const remaining = DEMO_DURATION - elapsed;
 
       if (remaining <= 0) {
-        // Demo expired, redirect immediately and clean up
-        localStorage.removeItem(DEMO_START_KEY);
-        localStorage.removeItem(DEMO_MODE_KEY);
-        window.location.href = 'https://google.com';
+        // Demo expired, handle logout and redirect
+        handleDemoExpiration();
         return;
       }
 
@@ -98,9 +115,7 @@ export default function Header() {
         const currentRemaining = DEMO_DURATION - currentElapsed;
 
         if (currentRemaining <= 0) {
-          localStorage.removeItem(DEMO_START_KEY);
-          localStorage.removeItem(DEMO_MODE_KEY);
-          window.location.href = 'https://google.com';
+          handleDemoExpiration();
           return;
         }
 
@@ -119,7 +134,7 @@ export default function Header() {
         clearInterval(demoTimerRef.current);
       }
     }
-  }, [companySlug]);
+  }, [companySlug, user]); // Added 'user' as dependency
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
