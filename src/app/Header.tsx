@@ -34,8 +34,7 @@ export default function Header() {
   const hrToolsMenuRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  // ✅ CORRECTION : Détection du slug sur toutes les pages /jobs/[slug]/*
-  const slugMatch = pathname.match(/^\/jobs\/([^/]+)/);
+  const slugMatch = pathname.match(/^\/jobs\/([^/]+)$/);
   const companySlug = slugMatch ? slugMatch[1] : null;
 
   // ⚡ Pré-remplissage login/password si slug = "demo"
