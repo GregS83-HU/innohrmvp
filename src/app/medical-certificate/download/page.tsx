@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import * as XLSX from 'xlsx';
 import JSZip from 'jszip';
 import { Download, Search, Calendar, FileText, Users, AlertCircle, CheckCircle, User, Clock } from 'lucide-react';
@@ -17,11 +17,6 @@ interface MedicalCertificate {
   certificate_file: string | null;
 }
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
 export default function CertificateDownloadPage() {
   // today's date in YYYY-MM-DD
   const today = new Date().toISOString().split('T')[0];
@@ -32,10 +27,61 @@ export default function CertificateDownloadPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [noResults, setNoResults] = useState(false);
+  const [companyId, setCompanyId] = useState<number | null>(null);
+
+  const session = useSession();
+  const supabase = useSupabaseClient();
+
+  // Fetch company ID when session is available
+  useEffect(() => {
+    if (!session) return;
+
+    const fetchCompanyId = async () => {
+      try {
+        const { data: userProfile, error: userError } = await supabase
+          .from('company_to_users')
+          .select('company_id')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (userError) {
+          console.error('Error fetching company_id:', userError.message);
+          setError('Unable to fetch user company information.');
+          return;
+        }
+
+        if (!userProfile || !userProfile.company_id) {
+          console.warn('User without company_id');
+          setError('User is not associated with any company.');
+          return;
+        }
+
+        setCompanyId(userProfile.company_id);
+      } catch (err) {
+        console.error('Network error fetching company:', err);
+        setError('Network error while fetching company information.');
+      }
+    };
+
+    fetchCompanyId();
+  }, [session, supabase]);
+
+  // Fetch certificates for today when companyId is available
+  useEffect(() => {
+    if (companyId) {
+      fetchCertificates();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId]);
 
   const fetchCertificates = async () => {
     if (!startDate || !endDate) {
       setError('Please select both start and end dates.');
+      return;
+    }
+
+    if (!companyId) {
+      setError('Company information not available.');
       return;
     }
 
@@ -49,6 +95,7 @@ export default function CertificateDownloadPage() {
         .select(
           'id, employee_name, absence_start_date, absence_end_date, hr_comment, treated, certificate_file'
         )
+        .eq('company_id', companyId)
         .gte('absence_start_date', startDate)
         .lte('absence_end_date', endDate);
 
@@ -67,12 +114,6 @@ export default function CertificateDownloadPage() {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    // fetch today's certificates when the page loads
-    fetchCertificates();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const downloadBlob = (blob: Blob, filename: string) => {
     const url = window.URL.createObjectURL(blob);
@@ -162,12 +203,15 @@ export default function CertificateDownloadPage() {
   const pendingCount = certificates.filter(cert => !cert.treated).length;
   const uniqueEmployeesCount = new Set(certificates.map(c => c.employee_name)).size;
 
-  if (loading && certificates.length === 0) {
+  // Show loading screen if no session or company ID not yet fetched
+  if (!session || (loading && certificates.length === 0)) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-lg p-8 text-center">
           <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading certificates...</p>
+          <p className="text-gray-600">
+            {!session ? 'Please log in to access certificates...' : 'Loading certificates...'}
+          </p>
         </div>
       </div>
     )
@@ -230,7 +274,7 @@ export default function CertificateDownloadPage() {
             <div className="flex gap-2">
               <button
                 onClick={fetchCertificates}
-                disabled={loading}
+                disabled={loading || !companyId}
                 className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {loading ? (
