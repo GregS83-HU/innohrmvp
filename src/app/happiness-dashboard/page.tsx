@@ -76,8 +76,9 @@ const HRDashboard = () => {
     setError(null);
     try {
       const { data: { session: currentSession } } = await supabase.auth.getSession()
+      const userId = session.user.id
       
-      const response = await fetch(`/api/happiness/dashboard?days=${selectedPeriod}`, {
+      const response = await fetch(`/api/happiness/dashboard?days=${selectedPeriod}&user_id=${userId}`, {
         headers: {
           'Authorization': `Bearer ${currentSession?.access_token}`,
           'Content-Type': 'application/json'

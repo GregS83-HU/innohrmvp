@@ -3,6 +3,7 @@
 // src/app/api/happiness/dashboard/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,9 +16,27 @@ export async function GET(req: NextRequest) {
     // Add your authentication check here
     
     const url = new URL(req.url)
-    const days = parseInt(url.searchParams.get('days') || '30')
+
+    const days = parseInt(url.searchParams.get('days') || '30', 10)
+    const user_id = url.searchParams.get('user_id')
+
+    if (!user_id) {
+      return NextResponse.json({ error: 'user_id manquant' }, { status: 400 })
+    }
+
+
+
     const startDate = new Date()
     startDate.setDate(startDate.getDate() - days)
+    
+    //Get company from session.user
+
+    // Récupère le company_id
+    const { data: company, error: companyError } = await supabase
+      .from('company_to_users')
+      .select('company_id')
+      .eq('user_id', user_id)
+      .single()
 
     // Get recent metrics
     const { data: metrics, error: metricsError } = await supabase
