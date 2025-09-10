@@ -34,7 +34,8 @@ export default function Header() {
   const hrToolsMenuRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  const slugMatch = pathname.match(/^\/jobs\/([^/]+)$/);
+  // capture du slug même si on est sur /jobs/:slug/whatever
+  const slugMatch = pathname.match(/^\/jobs\/([^/]+)/);
   const companySlug = slugMatch ? slugMatch[1] : null;
 
   // ⚡ Pré-remplissage login/password si slug = "demo"
@@ -50,7 +51,7 @@ export default function Header() {
     // Clean up localStorage
     localStorage.removeItem('demo_start_time');
     localStorage.removeItem('demo_mode_active');
-    
+
     // If user is connected, log them out first
     if (user) {
       try {
@@ -60,7 +61,7 @@ export default function Header() {
         console.error('Error logging out:', error);
       }
     }
-    
+
     // Redirect to Google
     window.location.href = 'https://google.com';
   };
@@ -70,11 +71,11 @@ export default function Header() {
     const DEMO_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
     const DEMO_START_KEY = 'demo_start_time';
     const DEMO_MODE_KEY = 'demo_mode_active';
-    
+
     // If current page is demo slug, activate demo mode
     if (companySlug === 'demo') {
       localStorage.setItem(DEMO_MODE_KEY, 'true');
-      
+
       let demoStartTime = localStorage.getItem(DEMO_START_KEY);
       if (!demoStartTime) {
         demoStartTime = Date.now().toString();
@@ -84,10 +85,10 @@ export default function Header() {
 
     // Check if demo mode is active (either from current page or localStorage)
     const isDemoActive = companySlug === 'demo' || localStorage.getItem(DEMO_MODE_KEY) === 'true';
-    
+
     if (isDemoActive) {
       const demoStartTime = localStorage.getItem(DEMO_START_KEY);
-      
+
       if (!demoStartTime) {
         // Demo mode is active but no start time, clean up
         localStorage.removeItem(DEMO_MODE_KEY);
@@ -137,13 +138,27 @@ export default function Header() {
   }, [companySlug, user]); // Added 'user' as dependency
 
   useEffect(() => {
+    // ✅ Do NOT change login or user fetching: keep fetchUserProfile as-is.
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) fetchUserProfile(data.session.user.id);
+      if (data.session) {
+        const uid = data.session.user.id;
+        fetchUserProfile(uid);
+        // fetch company_id separately without touching fetchUserProfile
+        fetchUserCompanyId(uid);
+      }
     });
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) fetchUserProfile(session.user.id);
-      else setUser(null);
+      if (session?.user) {
+        const uid = session.user.id;
+        fetchUserProfile(uid);
+        // fetch company_id separately
+        fetchUserCompanyId(uid);
+      } else {
+        setUser(null);
+        // when logged out, fall back to slug company
+        if (companySlug) fetchCompanyLogoAndId(companySlug);
+      }
     });
 
     if (companySlug) fetchCompanyLogoAndId(companySlug);
@@ -164,6 +179,7 @@ export default function Header() {
     };
   }, [companySlug]);
 
+  // ⛔️ Unchanged: only firstname/lastname (as in your original)
   const fetchUserProfile = async (userId: string) => {
     const { data } = await supabase
       .from('users')
@@ -171,6 +187,18 @@ export default function Header() {
       .eq('id', userId)
       .single();
     if (data) setUser({ firstname: data.user_firstname, lastname: data.user_lastname });
+  };
+
+  // ✅ New: fetch company_id of the connected user (kept separate from fetchUserProfile)
+  const fetchUserCompanyId = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('users')
+      .select('company_id')
+      .eq('id', userId)
+      .single();
+    if (!error && data?.company_id) {
+      setCompanyId(data.company_id);
+    }
   };
 
   const fetchCompanyLogoAndId = async (slug: string) => {
@@ -183,6 +211,7 @@ export default function Header() {
     setCompanyId(data?.id || null);
   };
 
+  // ⛔️ Unchanged: login logic
   const handleLogin = async () => {
     setError('');
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -194,7 +223,10 @@ export default function Header() {
       return;
     }
     if (data.user) {
+      // keep original behavior
       fetchUserProfile(data.user.id);
+      // and separately ensure we have the user's company_id
+      fetchUserCompanyId(data.user.id);
       setIsLoginOpen(false);
     }
   };
@@ -202,10 +234,11 @@ export default function Header() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
+    // after logout, companyId will be set by slug fetch if on /jobs/[slug]
     router.push(companySlug ? `/jobs/${companySlug}` : '/');
   };
 
-  // ✅ CORRECTION : Fonction améliorée pour gérer les liens avec contexte slug
+  // ✅ CORRECTION : Fonction pour gérer les liens avec contexte slug
   const linkToCompany = (path: string) => {
     if (companySlug) {
       // Si on a un slug, on construit toujours le chemin complet
@@ -217,7 +250,23 @@ export default function Header() {
     return path; // Pas de slug, chemin normal
   };
 
-  const uploadCertificateLink = `/medical-certificate/upload${companyId ? `?company_id=${companyId}` : ''}`;
+  // ---------- NEW: buildLink to handle the three contexts ----------
+  // - If we're inside a slug *and* no user is connected => keep /jobs/[slug] prefix
+  // - If user is connected => use root path (no slug prefix)
+  // - Public (no slug, no user) => use root path
+  const buildLink = (basePath: string) => {
+    const query = companyId ? `?company_id=${companyId}` : '';
+    if (companySlug && !user) {
+      // slug context, use prefixed route
+      return `/jobs/${companySlug}${basePath}${query}`;
+    }
+    // user connected or public context
+    return `${basePath}${query}`;
+  };
+
+  const happyCheckLink = buildLink('/happiness-check');
+  const uploadCertificateLink = buildLink('/medical-certificate/upload');
+  // ----------------------------------------------------------------
 
   const buttonBaseClasses = 'flex items-center gap-2 px-5 py-2 rounded-xl font-semibold transition-all shadow-sm hover:shadow-md';
 
@@ -237,7 +286,7 @@ export default function Header() {
             <div className="max-w-8xl mx-auto flex items-center justify-center gap-3">
               <Clock className="w-4 h-4" />
               <span className="font-semibold text-sm">
-                Mode Démonstration - Temps restant: {formatTime(demoTimeLeft)} - Demo Login: demo@hrinno.hu, pwd: demo
+                Mode Démonstration - Temps restant: {formatTime(demoTimeLeft)}
               </span>
               <div className="hidden sm:block text-xs opacity-90">
                 The application will close automatically at the end of the timer
@@ -262,7 +311,7 @@ export default function Header() {
 
             {/* NAVIGATION - au centre mais flexible */}
             <nav className="hidden lg:flex items-center gap-3 flex-1 justify-center mx-8">
-              {/* ✅ CORRECTION : Lien "Available Positions" avec contexte slug maintenu */}
+              {/* Available Positions (kept with linkToCompany) */}
               <Link href={linkToCompany('/openedpositions')} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700`}>
                 <Briefcase className="w-4 h-4" /> Available Positions
               </Link>
@@ -273,9 +322,10 @@ export default function Header() {
                 </Link>
               )}
 
-              {!user && (companySlug || companyId) && (
+              {/* Happy Check: show only when we have companyId (ensures company_id in URL) */}
+              {companyId && (
                 <Link 
-                  href={companySlug ? `/jobs/${companySlug}/happiness-check` : `/happiness-check${companyId ? `?company_id=${companyId}` : ''}`} 
+                  href={happyCheckLink}
                   className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700`}
                 >
                   <Smile className="w-4 h-4" /> Happy Check
@@ -314,7 +364,8 @@ export default function Header() {
                 </div>
               )}
 
-              {!user && (companySlug || companyId) && (
+              {/* Upload Certificate: only show when companyId available (guarantee company_id param) */}
+              {!user && companyId && (
                 <Link href={uploadCertificateLink} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700`}>
                   <Stethoscope className="w-4 h-4" /> Upload Certificate
                 </Link>
@@ -376,7 +427,7 @@ export default function Header() {
         {isMobileMenuOpen && (
           <div className="lg:hidden bg-white border-t border-gray-200 shadow-lg">
             <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
-              {/* ✅ CORRECTION : Lien mobile "Available Positions" avec contexte slug maintenu */}
+              {/* Available Positions */}
               <Link href={linkToCompany('/openedpositions')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full`}>
                 <Briefcase className="w-4 h-4" /> Available Positions
               </Link>
@@ -387,9 +438,10 @@ export default function Header() {
                 </Link>
               )}
 
-              {!user && (companySlug || companyId) && (
+              {/* Happy Check (mobile) */}
+              {companyId && (
                 <Link 
-                  href={companySlug ? `/jobs/${companySlug}/happiness-check` : `/happiness-check${companyId ? `?company_id=${companyId}` : ''}`} 
+                  href={happyCheckLink}
                   onClick={() => setIsMobileMenuOpen(false)} 
                   className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700 w-full`}
                 >
@@ -408,13 +460,18 @@ export default function Header() {
                   <Link href="/medical-certificate/list" onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full`}>
                     <Stethoscope className="w-4 h-4" /> List of Certificates
                   </Link>
-                  <Link href="/medical-certificate/download" onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full`}>
+                  <Link
+                    href="/medical-certificate/download"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full`}
+                  >
                     <Stethoscope className="w-4 h-4" /> Certificates Download
                   </Link>
                 </>
               )}
 
-              {!user && (companySlug || companyId) && (
+              {/* Upload Certificate (mobile) - only if companyId present */}
+              {!user && companyId && (
                 <Link href={uploadCertificateLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full`}>
                   <Stethoscope className="w-4 h-4" /> Upload Certificate
                 </Link>
