@@ -33,6 +33,7 @@ export async function GET(
       candidat_id,
       candidat_comment,
       candidat_next_step,
+      source,
       candidats (
         candidat_firstname,
         candidat_lastname,

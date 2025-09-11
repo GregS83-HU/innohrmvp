@@ -34,6 +34,7 @@ type Row = {
   candidat_id: number
   candidat_comment: string | null
   candidat_next_step: string | null
+  source: string | null
   candidats?: Candidat | null
 }
 
@@ -377,9 +378,6 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     const stepIdStr = String(stepId)
     const foundStep = steps.find(s => String(s.step_id) === stepIdStr)
     
-    console.log('🔍 Modal Debug - Looking for step:', stepIdStr, 'Found:', foundStep?.step_name)
-    console.log('🔍 Available steps:', steps.map(s => ({ id: String(s.step_id), name: s.step_name })))
-    
     return foundStep?.step_name ?? 'Unknown'
   }
 
@@ -412,42 +410,6 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
               <span className="font-semibold text-lg">{rows.length}</span>
               <span>candidates</span>
             </div>
-          </div>
-        </div>
-
-        {/* Enhanced Debug info */}
-        <div className="mb-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-          <p className="text-sm text-yellow-800 mb-2">
-            <strong>🐛 Enhanced Debug Info:</strong> Total rows: {rows.length}, Steps: {steps.length}
-          </p>
-          
-          <div className="text-xs text-yellow-700 mb-1">
-            <strong>Steps:</strong> {steps.map(s => `${s.step_name} (ID: ${s.step_id}, type: ${typeof s.step_id})`).join(', ')}
-          </div>
-          
-          <div className="text-xs text-yellow-700 mb-2">
-            <strong>Candidates detailed:</strong>
-            <br />
-            {rows.map(r => (
-              <div key={r.candidat_id} className="ml-2">
-                • {r.candidats?.candidat_firstname}#{r.candidat_id} → step: &quot;{r.candidat_next_step}&quot; (type: {typeof r.candidat_next_step})
-              </div>
-            ))}
-          </div>
-          
-          <div className="text-xs text-yellow-700 mb-1">
-            <strong>Column Distribution:</strong>
-            {columns.map(col => {
-              const stepId = col.step_id === 'unassigned' ? null : col.step_id
-              const count = getRowsByStepId(stepId).length
-              const candidatesInColumn = getRowsByStepId(stepId).map(r => `${r.candidats?.candidat_firstname}#${r.candidat_id}`)
-              return (
-                <div key={col.step_id} className="ml-2">
-                  • {col.step_name} (searching for: {stepId === null ? 'null' : `&quot;${stepId}&quot;`}): {count} candidates
-                  {candidatesInColumn.length > 0 && <span className="ml-2">→ {candidatesInColumn.join(', ')}</span>}
-                </div>
-              )
-            })}
           </div>
         </div>
 
@@ -518,9 +480,16 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                       {selectedCandidate.candidats?.candidat_firstname?.charAt(0) ?? '?'}
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-800">
-                        {selectedCandidate.candidats?.candidat_firstname ?? '—'} {selectedCandidate.candidats?.candidat_lastname ?? ''} (ID: {selectedCandidate.candidat_id})
-                      </p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-semibold text-gray-800">
+                          {selectedCandidate.candidats?.candidat_firstname ?? '—'} {selectedCandidate.candidats?.candidat_lastname ?? ''} (ID: {selectedCandidate.candidat_id})
+                        </p>
+                        {selectedCandidate.source && (
+                          <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-medium">
+                            {selectedCandidate.source}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-sm text-gray-600">
                         Applied: {selectedCandidate.candidats?.created_at ? new Date(selectedCandidate.candidats.created_at).toLocaleDateString('en-GB') : '—'}
                       </p>

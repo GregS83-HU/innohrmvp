@@ -9,10 +9,6 @@ function UploadCertificatePageContent() {
   const searchParams = useSearchParams();
   const companyId = searchParams.get('company_id');
 
-  console.log('=== DEBUG UPLOAD PAGE ===');
-  console.log('URL search params:', searchParams.toString());
-  console.log('Company ID from URL:', companyId);
-  console.log('========================');
 
   if (!companyId) {
     return (

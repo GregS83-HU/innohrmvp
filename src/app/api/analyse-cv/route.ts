@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     const firstname = formData.get('firstName') as string
     const lastname = formData.get('lastName') as string
     const positionId = formData.get('positionId') as string
-    const source = formData.get('source') as string || 'upload manuel'
+    const source = formData.get('source') as string || 'Candidate Upload'
 
     if (!file || file.type !== 'application/pdf') {
       return NextResponse.json({ error: 'Fichier PDF requis.' }, { status: 400 })

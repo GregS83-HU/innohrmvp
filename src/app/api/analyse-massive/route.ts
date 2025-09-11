@@ -153,7 +153,7 @@ export async function GET(req: NextRequest) {
               candidat_id: candidat.id,
               candidat_score: score,
               candidat_ai_analyse: analysis,
-              source: 'analyse massive',
+              source: 'Analyse from Database',
             })
           } catch (err) {
             console.error(`Erreur analyse CV ${candidat.id}:`, err)
