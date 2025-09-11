@@ -163,38 +163,39 @@ export default function MedicalCertificatesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8 text-center">
           <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
           <p className="text-gray-600">Loading certificates...</p>
         </div>
-      </div>
+      </main>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div style={{ maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
+    <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="space-y-6">
         
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <div className="text-center">
+          <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
             <FileText className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-4">
               Medical Certificates
             </h1>
-            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full">
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 lg:gap-6">
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 sm:px-4 py-2 rounded-full text-sm sm:text-base">
                 <FileText className="w-4 h-4" />
                 <span className="font-semibold">{certificates.length}</span>
-                <span>total certificates</span>
+                <span className="hidden sm:inline">total certificates</span>
+                <span className="sm:hidden">total</span>
               </div>
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-600 text-white px-4 py-2 rounded-full">
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-600 text-white px-3 sm:px-4 py-2 rounded-full text-sm sm:text-base">
                 <Clock className="w-4 h-4" />
                 <span className="font-semibold">{pendingCount}</span>
                 <span>pending</span>
               </div>
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-full">
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 sm:px-4 py-2 rounded-full text-sm sm:text-base">
                 <CheckCircle className="w-4 h-4" />
                 <span className="font-semibold">{treatedCount}</span>
                 <span>treated</span>
@@ -204,7 +205,7 @@ export default function MedicalCertificatesPage() {
         </div>
 
         {/* Search and Filter */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1 relative max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -219,58 +220,66 @@ export default function MedicalCertificatesPage() {
             
             <button
               onClick={() => setShowAll((prev) => !prev)}
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] ${
+              className={`flex items-center gap-2 px-4 sm:px-6 py-3 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] text-sm sm:text-base ${
                 showAll 
                   ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700' 
                   : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
               }`}
             >
               <Filter className="w-4 h-4" />
-              {showAll ? 'Hide treated' : 'Show all certificates'}
+              <span className="hidden sm:inline">
+                {showAll ? 'Hide treated' : 'Show all certificates'}
+              </span>
+              <span className="sm:hidden">
+                {showAll ? 'Hide' : 'Show all'}
+              </span>
             </button>
           </div>
         </div>
 
         {/* Table Container */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full" style={{ minWidth: '1100px' }}>
+            <table className="w-full min-w-[800px] lg:min-w-[1100px]">
               <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                 <tr>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-40">
+                  <th className="px-3 sm:px-4 py-3 sm:py-4 text-left font-semibold text-gray-700 text-sm sm:text-base">
                     <div className="flex items-center gap-2">
                       <User className="w-4 h-4" />
-                      Employee Name
+                      <span className="hidden sm:inline">Employee Name</span>
+                      <span className="sm:hidden">Employee</span>
                     </div>
                   </th>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-32">
+                  <th className="px-3 sm:px-4 py-3 sm:py-4 text-left font-semibold text-gray-700 text-sm sm:text-base">
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4" />
-                      Start Date
+                      <span className="hidden sm:inline">Start Date</span>
+                      <span className="sm:hidden">Start</span>
                     </div>
                   </th>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-32">
+                  <th className="px-3 sm:px-4 py-3 sm:py-4 text-left font-semibold text-gray-700 text-sm sm:text-base hidden sm:table-cell">
                     End Date
                   </th>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-32">
+                  <th className="px-3 sm:px-4 py-3 sm:py-4 text-left font-semibold text-gray-700 text-sm sm:text-base">
                     Certificate
                   </th>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-32">
+                  <th className="px-3 sm:px-4 py-3 sm:py-4 text-left font-semibold text-gray-700 text-sm sm:text-base hidden lg:table-cell">
                     <div className="flex items-center gap-2">
                       <Upload className="w-4 h-4" />
                       Upload Date
                     </div>
                   </th>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-40">
+                  <th className="px-3 sm:px-4 py-3 sm:py-4 text-left font-semibold text-gray-700 text-sm sm:text-base">
                     <div className="flex items-center gap-2">
                       <MessageCircle className="w-4 h-4" />
-                      Comment
+                      <span className="hidden sm:inline">Comment</span>
+                      <span className="sm:hidden">Note</span>
                     </div>
                   </th>
-                  <th className="px-4 py-4 text-center font-semibold text-gray-700 w-24">
+                  <th className="px-3 sm:px-4 py-3 sm:py-4 text-center font-semibold text-gray-700 text-sm sm:text-base">
                     Status
                   </th>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-40">
+                  <th className="px-3 sm:px-4 py-3 sm:py-4 text-left font-semibold text-gray-700 text-sm sm:text-base hidden lg:table-cell">
                     Treatment Date
                   </th>
                 </tr>
@@ -281,7 +290,7 @@ export default function MedicalCertificatesPage() {
                     <td colSpan={8} className="px-4 py-12 text-center">
                       <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                       <h3 className="text-lg font-semibold text-gray-600 mb-2">No certificates found</h3>
-                      <p className="text-gray-500">
+                      <p className="text-gray-500 text-sm sm:text-base">
                         {search ? 'Try adjusting your search terms.' : 'No medical certificates match your current filters.'}
                       </p>
                     </td>
@@ -294,41 +303,41 @@ export default function MedicalCertificatesPage() {
                         !cert.treated ? 'bg-yellow-25' : ''
                       }`}
                     >
-                      <td className="px-4 py-4 font-medium text-gray-800 w-40">
-                        <div className="truncate" title={cert.employee_name}>
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 font-medium text-gray-800 text-sm sm:text-base">
+                        <div className="truncate max-w-[120px] sm:max-w-[160px]" title={cert.employee_name}>
                           {cert.employee_name}
                         </div>
                       </td>
                       
-                      <td className="px-4 py-4 text-gray-700 w-32">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-gray-700 text-sm sm:text-base">
                         {formatSimpleDate(cert.absence_start_date)}
                       </td>
                       
-                      <td className="px-4 py-4 text-gray-700 w-32">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-gray-700 text-sm sm:text-base hidden sm:table-cell">
                         {formatSimpleDate(cert.absence_end_date)}
                       </td>
                       
-                      <td className="px-4 py-4 w-32">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4">
                         {cert.document_url ? (
                           <a
                             href={cert.document_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors text-sm sm:text-base"
                           >
                             <Eye className="w-4 h-4" />
-                            View
+                            <span className="hidden sm:inline">View</span>
                           </a>
                         ) : (
                           <span className="text-gray-500">—</span>
                         )}
                       </td>
 
-                      <td className="px-4 py-4 text-gray-700 w-32">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-gray-700 text-sm sm:text-base hidden lg:table-cell">
                         {formatSimpleDate(cert.created_at)}
                       </td>
                       
-                      <td className="px-4 py-4 w-40">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4">
                         {cert.employee_comment ? (
                           <Popover.Root>
                             <Popover.Trigger asChild>
@@ -360,7 +369,7 @@ export default function MedicalCertificatesPage() {
                         )}
                       </td>
                       
-                      <td className="px-4 py-4 text-center w-24">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-center">
                         <label className="inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
@@ -382,8 +391,8 @@ export default function MedicalCertificatesPage() {
                         </label>
                       </td>
                       
-                      <td className="px-4 py-4 w-40">
-                        <span className={cert.treated ? 'text-green-700 font-medium' : 'text-gray-500'}>
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 hidden lg:table-cell">
+                        <span className={`text-sm ${cert.treated ? 'text-green-700 font-medium' : 'text-gray-500'}`}>
                           {formatDate(cert.treatment_date)}
                         </span>
                       </td>
@@ -395,6 +404,6 @@ export default function MedicalCertificatesPage() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   )
 }

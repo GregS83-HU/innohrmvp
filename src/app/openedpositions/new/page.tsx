@@ -125,14 +125,14 @@ export default function NewOpenedPositionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div style={{ maxWidth: '800px', margin: '0 auto', width: '100%' }}>
+    <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="space-y-6">
         
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <div className="text-center">
+          <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
             <Plus className="w-12 h-12 text-green-600 mx-auto mb-4" />
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-2">
               Create a New Position
             </h1>
             <p className="text-gray-600">Fill out the form below to create a new job position</p>
@@ -140,8 +140,8 @@ export default function NewOpenedPositionPage() {
         </div>
 
         {/* Main Form */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
-          <div className="p-6">
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="p-4 sm:p-6 lg:p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               
               {/* Position Name */}
@@ -235,8 +235,8 @@ export default function NewOpenedPositionPage() {
 
         {/* Analysis Section */}
         {positionId && (
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
-            <div className="p-6">
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="p-4 sm:p-6 lg:p-8">
               <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-4">
                 <Activity className="w-5 h-5" />
                 Candidate Analysis
@@ -275,7 +275,7 @@ export default function NewOpenedPositionPage() {
 
         {/* Messages */}
         {message && (
-          <div className={`rounded-xl p-4 mb-6 ${
+          <div className={`rounded-2xl p-4 sm:p-6 ${
             message.type === 'success' 
               ? 'bg-green-50 border border-green-200' 
               : 'bg-red-50 border border-red-200'
@@ -297,8 +297,8 @@ export default function NewOpenedPositionPage() {
 
         {/* Analysis Results & Action */}
         {analysisResult && (
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div className="p-6">
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="p-4 sm:p-6 lg:p-8">
               <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-4">
                 <BarChart3 className="w-5 h-5" />
                 Analysis Results
@@ -324,6 +324,6 @@ export default function NewOpenedPositionPage() {
           </div>
         )}
       </div>
-    </div>
+    </main>
   )
 }

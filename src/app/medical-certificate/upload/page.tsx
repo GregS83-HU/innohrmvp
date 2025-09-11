@@ -16,20 +16,20 @@ function UploadCertificatePageContent() {
 
   if (!companyId) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 p-4 flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Erreur</h1>
-          <p className="text-gray-700 mb-4">
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8 text-center">
+          <h1 className="text-2xl sm:text-3xl font-bold text-red-600 mb-4">Erreur</h1>
+          <p className="text-gray-700 mb-6">
             Aucun ID d&apos;entreprise fourni. Veuillez accéder à cette page via le lien approprié.
           </p>
           <button 
             onClick={() => window.history.back()}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all transform hover:scale-[1.02]"
           >
             Retour
           </button>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -39,12 +39,12 @@ function UploadCertificatePageContent() {
 export default function UploadCertificatePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex items-center justify-center">
-        <div className="text-center">
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8 text-center">
           <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
           <p className="text-gray-600">Chargement...</p>
         </div>
-      </div>
+      </main>
     }>
       <UploadCertificatePageContent />
     </Suspense>
