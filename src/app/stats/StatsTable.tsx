@@ -1,16 +1,31 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
-import * as Popover from '@radix-ui/react-popover'
-import { Edit, Save, X, Search, BarChart3, Users, CheckSquare, Square, ArrowUp, ArrowDown, ArrowUpDown, FileText, User, Calendar } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import { useSession } from '@supabase/auth-helpers-react'
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  useSensor,
+  useSensors,
+  PointerSensor,
+  DragOverEvent,
+  useDroppable,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { Users, FileText, BarChart3, X } from 'lucide-react'
 
 type Candidat = {
   candidat_firstname: string
   candidat_lastname: string
-  cv_text?: string
   cv_file?: string
-  created_at: string // Retiré le ? pour le rendre obligatoire
+  created_at: string
 }
 
 type Row = {
@@ -27,516 +42,458 @@ type RecruitmentStep = {
   step_name: string
 }
 
-type SortField = 'score' | 'date' | null
+function Card({ row, onClick }: { row: Row; onClick: (row: Row) => void }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: row.candidat_id.toString(),
+  })
 
-export default function StatsTable({ rows: initialRows }: { rows: Row[] }) {
-  const [rows, setRows] = useState<Row[]>(initialRows)
-  const [steps, setSteps] = useState<RecruitmentStep[]>([])
-  const [editingId, setEditingId] = useState<number | null>(null)
-  const [commentValue, setCommentValue] = useState('')
-  const [sortField, setSortField] = useState<SortField>(null)
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null)
-  const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set())
-
-  const session = useSession()
-  const supabase = useSupabaseClient()
-
-  useEffect(() => {
-    if (!session) return
-    const fetchSteps = async () => {
-      try {
-        const res = await fetch(`/api/recruitment-step?user_id=${session.user.id}`)
-        if (!res.ok) {
-          console.error('Erreur API', await res.text())
-          return
-        }
-        const data = await res.json()
-        setSteps(data)
-      } catch (error) {
-        console.error('Erreur chargement steps', error)
-      }
-    }
-    fetchSteps()
-  }, [session])
-
-  const handleSelectRow = (candidat_id: number, checked: boolean) => {
-    setSelectedRows(prev => {
-      const newSet = new Set(prev)
-      if (checked) {
-        newSet.add(candidat_id)
-      } else {
-        newSet.delete(candidat_id)
-      }
-      return newSet
-    })
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
   }
 
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedRows(new Set(rows.map(row => row.candidat_id)))
-    } else {
-      setSelectedRows(new Set())
-    }
+  // Get color based on score
+  const getScoreColor = (score: number | null) => {
+    if (!score) return { bg: 'bg-gray-100', text: 'text-gray-700', border: 'border-gray-200' }
+    if (score >= 8) return { bg: 'bg-green-50', text: 'text-green-800', border: 'border-green-200' }
+    if (score >= 6) return { bg: 'bg-orange-50', text: 'text-orange-800', border: 'border-orange-200' }
+    return { bg: 'bg-red-50', text: 'text-red-800', border: 'border-red-200' }
   }
 
-  const handleEditClick = (row: Row) => {
-    setEditingId(row.candidat_id)
-    setCommentValue(row.candidat_comment ?? '')
+  const getScoreBadgeColor = (score: number | null) => {
+    if (!score) return 'bg-gray-100 text-gray-700'
+    if (score >= 8) return 'bg-green-100 text-green-700'
+    if (score >= 6) return 'bg-orange-100 text-orange-700'
+    return 'bg-red-100 text-red-700'
   }
 
-  const handleSave = async () => {
-    if (editingId === null) return
-    try {
-      const res = await fetch('/api/update-comment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ candidat_id: editingId, comment: commentValue }),
-      })
-      const data = await res.json().catch(() => null)
-      if (res.ok) {
-        setRows((prev) =>
-          prev.map((row) =>
-            row.candidat_id === editingId ? { ...row, candidat_comment: commentValue } : row
-          )
-        )
-        setEditingId(null)
-      } else {
-        console.error('Update failed', data)
-        alert(data?.error || 'Erreur lors de la mise à jour')
-      }
-    } catch (err) {
-      console.error('Network error', err)
-      alert('Erreur réseau ou inattendue')
-    }
-  }
-
-  const handleStepChange = async (candidat_id: number, step_name: string) => {
-    const stepValueToSend = step_name === '' ? null : step_name
-    
-    const isRowSelected = selectedRows.has(candidat_id)
-    const candidatsToUpdate = isRowSelected && selectedRows.size > 1 
-      ? Array.from(selectedRows) 
-      : [candidat_id]
-
-    try {
-      const updatePromises = candidatsToUpdate.map(id => 
-        fetch('/api/update-next-step', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ candidat_id: id, step_name: stepValueToSend }),
-        })
-      )
-
-      const responses = await Promise.all(updatePromises)
-      const hasError = responses.some(res => !res.ok)
-
-      if (hasError) {
-        console.error('Erreur mise à jour étape')
-        alert("Erreur lors de la mise à jour de l'étape")
-        return
-      }
-
-      setRows((prev) =>
-        prev.map((row) =>
-          candidatsToUpdate.includes(row.candidat_id) 
-            ? { ...row, candidat_next_step: stepValueToSend } 
-            : row
-        )
-      )
-
-      if (candidatsToUpdate.length > 1) {
-        setSelectedRows(new Set())
-      }
-    } catch (err) {
-      console.error('Erreur réseau', err)
-      alert('Erreur réseau lors de la mise à jour')
-    }
-  }
-
-  const handleSort = (field: SortField) => {
-    let newOrder: 'asc' | 'desc' | null = null
-    
-    if (sortField !== field) {
-      // Nouveau champ de tri
-      setSortField(field)
-      newOrder = 'desc' // Commencer par desc pour les dates (plus récent d'abord)
-    } else {
-      // Même champ, changer l'ordre
-      if (sortOrder === null) newOrder = 'desc'
-      else if (sortOrder === 'desc') newOrder = 'asc'
-      else newOrder = null
-    }
-    
-    setSortOrder(newOrder)
-
-    if (newOrder === null) {
-      setSortField(null)
-      setRows(initialRows)
-    } else {
-      const sorted = [...rows].sort((a, b) => {
-        if (field === 'score') {
-          if (a.candidat_score === null) return 1
-          if (b.candidat_score === null) return -1
-          if (newOrder === 'asc') return a.candidat_score - b.candidat_score
-          return b.candidat_score - a.candidat_score
-        } else if (field === 'date') {
-          const dateA = a.candidats?.created_at ? new Date(a.candidats.created_at).getTime() : 0
-          const dateB = b.candidats?.created_at ? new Date(b.candidats.created_at).getTime() : 0
-          if (newOrder === 'asc') return dateA - dateB
-          return dateB - dateA
-        }
-        return 0
-      })
-      setRows(sorted)
-    }
-  }
-
-  const renderSortIcon = (field: SortField) => {
-    if (sortField !== field) {
-      return <ArrowUpDown className="w-4 h-4 text-gray-400 ml-1" />
-    }
-    if (sortOrder === 'asc') {
-      return <ArrowUp className="w-4 h-4 text-blue-500 ml-1" />
-    }
-    if (sortOrder === 'desc') {
-      return <ArrowDown className="w-4 h-4 text-blue-500 ml-1" />
-    }
-    return <ArrowUpDown className="w-4 h-4 text-gray-400 ml-1" />
-  }
-
-  // Fonction améliorée pour formater les dates
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '—'
-    try {
-      // Support pour différents formats de date de Supabase
-      const date = new Date(dateString)
-      
-      // Vérifier si la date est valide
-      if (isNaN(date.getTime())) {
-        console.warn('Date invalide:', dateString)
-        return '—'
-      }
-      
-      return date.toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      })
-    } catch (error) {
-      console.error('Erreur formatage date:', error, 'Date string:', dateString)
-      return '—'
-    }
-  }
-
-  const formatDateTime = (dateString?: string) => {
-    if (!dateString) return '—'
-    try {
-      const date = new Date(dateString)
-      
-      if (isNaN(date.getTime())) {
-        console.warn('DateTime invalide:', dateString)
-        return '—'
-      }
-      
-      return date.toLocaleString('en-GB', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      })
-    } catch (error) {
-      console.error('Erreur formatage datetime:', error, 'Date string:', dateString)
-      return '—'
-    }
-  }
-
-  const isAllSelected = rows.length > 0 && selectedRows.size === rows.length
-  const isIndeterminate = selectedRows.size > 0 && selectedRows.size < rows.length
-
-  const getScoreBadgeStyle = (score: number | null) => {
-    if (score === null) return "bg-gray-100 text-gray-600"
-    if (score <= 5) return "bg-red-100 text-red-700"
-    if (score <= 7) return "bg-yellow-100 text-yellow-700"
-    return "bg-green-100 text-green-700"
-  }
+  const scoreColors = getScoreColor(row.candidat_score)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div style={{ maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      onClick={(e) => {
+        e.stopPropagation()
+        if (!isDragging) onClick(row)
+      }}
+      className={`${scoreColors.bg} rounded-lg shadow-sm border ${scoreColors.border} p-3 cursor-pointer hover:shadow-md transition-all select-none mb-2 group`}
+    >
+      <div className="flex justify-between items-start mb-2">
+        <div>
+          <p className={`font-medium ${scoreColors.text} text-sm leading-tight`}>
+            {row.candidats?.candidat_firstname ?? '—'} {row.candidats?.candidat_lastname ?? ''}
+          </p>
+          <p className="text-xs text-gray-500">ID: {row.candidat_id}</p>
+        </div>
+        {row.candidat_score !== null && (
+          <span className={`${getScoreBadgeColor(row.candidat_score)} text-xs px-2 py-1 rounded-full font-medium`}>
+            {row.candidat_score}
+          </span>
+        )}
+      </div>
+      
+      {row.candidat_comment && (
+        <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+          {row.candidat_comment}
+        </p>
+      )}
+      
+      <div className="flex justify-between items-center">
+        <span className="text-xs text-gray-500">
+          {row.candidats?.created_at ? new Date(row.candidats.created_at).toLocaleDateString('en-GB') : '—'}
+        </span>
+        {row.candidats?.cv_file && (
+          <FileText className="w-3 h-3 text-blue-500" />
+        )}
+      </div>
+    </div>
+  )
+}
+
+// Droppable column with useDroppable hook
+function Column({ 
+  columnId, 
+  columnName, 
+  rows, 
+  onCardClick,
+}: { 
+  columnId: string
+  columnName: string
+  rows: Row[]
+  onCardClick: (row: Row) => void
+}) {
+  const { isOver, setNodeRef } = useDroppable({
+    id: columnId,
+  })
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`bg-gray-100 rounded-lg p-3 w-72 flex-shrink-0 min-h-[400px] flex flex-col transition-colors ${
+        isOver ? 'bg-blue-50 border-2 border-blue-300 border-dashed' : ''
+      }`}
+    >
+      <div className="flex justify-between items-center mb-3">
+        <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+          {columnName}
+        </h2>
+        <span className="bg-gray-200 text-gray-600 text-xs px-2 py-1 rounded-full font-medium">
+          {rows.length}
+        </span>
+      </div>
+      
+      <div className="flex-1 min-h-[300px]">
+        <SortableContext items={rows.map(r => r.candidat_id.toString())} strategy={verticalListSortingStrategy}>
+          {rows.map(row => (
+            <Card key={row.candidat_id} row={row} onClick={onCardClick} />
+          ))}
+        </SortableContext>
         
+        {rows.length === 0 && (
+          <div className="flex items-center justify-center h-32 border-2 border-dashed border-gray-300 rounded-lg">
+            <p className="text-gray-500 text-sm italic">Drop candidates here</p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
+  const session = useSession()
+  const [steps, setSteps] = useState<RecruitmentStep[]>([])
+  const [rows, setRows] = useState<Row[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedCandidate, setSelectedCandidate] = useState<Row | null>(null)
+  const [draggingRow, setDraggingRow] = useState<Row | null>(null)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  )
+
+  useEffect(() => {
+    if (!session?.user?.id) return
+    const fetchData = async () => {
+      setLoading(true)
+      try {
+        const resSteps = await fetch(`/api/recruitment-step?user_id=${session.user.id}`)
+        const stepsData = await resSteps.json()
+        console.log('Steps data:', stepsData)
+        setSteps(stepsData)
+
+        // Convert step numbers to strings for consistency
+        const normalizedRows = initialRows.map(r => ({
+          ...r,
+          candidat_next_step: r.candidat_next_step !== null && r.candidat_next_step !== undefined 
+            ? String(r.candidat_next_step) 
+            : null,
+        }))
+        
+        console.log('BEFORE normalization:', initialRows.map(r => ({ 
+          id: r.candidat_id, 
+          name: r.candidats?.candidat_firstname, 
+          step: r.candidat_next_step, 
+          stepType: typeof r.candidat_next_step 
+        })))
+        
+        console.log('AFTER normalization:', normalizedRows.map(r => ({ 
+          id: r.candidat_id, 
+          name: r.candidats?.candidat_firstname, 
+          step: r.candidat_next_step, 
+          stepType: typeof r.candidat_next_step 
+        })))
+        
+        setRows(normalizedRows)
+      } catch (err) {
+        console.error('Error fetching data:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [session, initialRows])
+
+  const handleStepChange = async (candidat_id: number, step_id: string | null) => {
+    try {
+      const response = await fetch('/api/update-next-step', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          candidat_id, 
+          step_id: step_id === 'unassigned' ? null : Number(step_id)
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update step')
+      }
+
+      // Update local state
+      setRows(prev =>
+        prev.map(r => (r.candidat_id === candidat_id ? { 
+          ...r, 
+          candidat_next_step: step_id === 'unassigned' ? null : step_id 
+        } : r))
+      )
+    } catch (err) {
+      console.error('Error updating step:', err)
+      alert("Erreur lors de la mise à jour de l'étape")
+    }
+  }
+
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event
+    const row = rows.find(r => r.candidat_id.toString() === active.id) || null
+    setDraggingRow(row)
+    console.log('Drag started for:', row?.candidats?.candidat_firstname, row?.candidat_id)
+  }
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    setDraggingRow(null)
+    const { active, over } = event
+
+    console.log('=== DRAG END ===')
+    console.log('Active:', active?.id)
+    console.log('Over:', over?.id)
+
+    if (!over || !active) {
+      console.log('❌ No valid drop target')
+      return
+    }
+
+    const activeId = Number(active.id)
+    const overId = over.id as string
+
+    // Find the current row
+    const currentRow = rows.find(r => r.candidat_id === activeId)
+    if (!currentRow) {
+      console.log('❌ Current row not found')
+      return
+    }
+
+    console.log('Current candidate:', currentRow.candidats?.candidat_firstname, 'ID:', currentRow.candidat_id)
+    console.log('Current step:', currentRow.candidat_next_step)
+    console.log('Target column:', overId)
+
+    // Determine new step
+    let newStepId: string | null = null
+    if (overId === 'unassigned') {
+      newStepId = null
+    } else {
+      newStepId = overId
+    }
+
+    console.log('New step ID:', newStepId)
+
+    // Only update if changed
+    if (currentRow.candidat_next_step !== newStepId) {
+      console.log('✅ Updating step')
+      handleStepChange(activeId, newStepId)
+    } else {
+      console.log('⚠️ No change needed')
+    }
+  }
+
+  const getRowsByStepId = (stepId: string | null) => {
+    console.log(`\n--- Filtering for step: "${stepId}" ---`)
+    const filtered = rows.filter(r => {
+      // Handle comparison more carefully - convert both to strings for comparison
+      const candidateStep = r.candidat_next_step
+      const targetStep = stepId
+      
+      // Both null/undefined
+      if ((candidateStep === null || candidateStep === undefined) && 
+          (targetStep === null || targetStep === undefined)) {
+        console.log(`${r.candidats?.candidat_firstname} (ID:${r.candidat_id}): both null/undefined ✅`)
+        return true
+      }
+      
+      // One is null/undefined, other isn't
+      if ((candidateStep === null || candidateStep === undefined) !== 
+          (targetStep === null || targetStep === undefined)) {
+        console.log(`${r.candidats?.candidat_firstname} (ID:${r.candidat_id}): null mismatch "${candidateStep}" vs "${targetStep}" ❌`)
+        return false
+      }
+      
+      // Both have values - convert to strings and compare
+      const candidateStepStr = String(candidateStep)
+      const targetStepStr = String(targetStep)
+      const matches = candidateStepStr === targetStepStr
+      
+      console.log(`${r.candidats?.candidat_firstname} (ID:${r.candidat_id}): "${candidateStepStr}" === "${targetStepStr}" ? ${matches}`)
+      return matches
+    })
+    console.log(`Result: ${filtered.length} candidates`)
+    console.log('---')
+    return filtered
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading board...</p>
+        </div>
+      </div>
+    )
+  }
+
+  const columns = [
+    { step_id: 'unassigned', step_name: 'Unassigned' },
+    ...steps
+  ]
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+      <div className="max-w-full">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-            <BarChart3 className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              Candidates Analysis
-            </h1>
-            <div className="flex items-center justify-center gap-6">
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full">
-                <Users className="w-4 h-4" />
-                <span className="font-semibold">{rows.length}</span>
-                <span>candidates</span>
-              </div>
-              {selectedRows.size > 0 && (
-                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-full">
-                  <CheckSquare className="w-4 h-4" />
-                  <span className="font-semibold">{selectedRows.size}</span>
-                  <span>selected</span>
-                </div>
-              )}
+          <div className="bg-white rounded-xl shadow-md p-6 max-w-md mx-auto">
+            <BarChart3 className="w-12 h-12 text-blue-600 mx-auto mb-3" />
+            <h1 className="text-3xl font-bold text-gray-800 mb-3">Recruitment Board</h1>
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full">
+              <Users className="w-5 h-5" />
+              <span className="font-semibold text-lg">{rows.length}</span>
+              <span>candidates</span>
             </div>
           </div>
         </div>
 
-        {/* Table Container */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div className="overflow-x-auto" style={{ paddingBottom: 'env(safe-area-inset-bottom, 24px)' }}>
-            <table className="w-full" style={{ minWidth: '1000px' }}>
-              <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
-                <tr>
-                  <th className="px-4 py-4 text-left">
-                    <div className="flex items-center">
-                      {isAllSelected ? (
-                        <CheckSquare 
-                          className="w-5 h-5 text-blue-600 cursor-pointer hover:text-blue-700" 
-                          onClick={() => handleSelectAll(false)}
-                        />
-                      ) : isIndeterminate ? (
-                        <div className="w-5 h-5 bg-blue-600 rounded border-2 border-blue-600 cursor-pointer hover:bg-blue-700 flex items-center justify-center"
-                             onClick={() => handleSelectAll(true)}>
-                          <div className="w-2 h-2 bg-white rounded-sm"></div>
-                        </div>
-                      ) : (
-                        <Square 
-                          className="w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600" 
-                          onClick={() => handleSelectAll(true)}
-                        />
-                      )}
-                    </div>
-                  </th>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700">
-                    <div className="flex items-center gap-2">
-                      <User className="w-4 h-4" />
-                      First Name
-                    </div>
-                  </th>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700">
-                    Last Name
-                  </th>
-                  <th 
-                    className="px-4 py-4 text-left font-semibold text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors"
-                    onClick={() => handleSort('score')}
-                  >
-                    <div className="flex items-center">
-                      Score
-                      {renderSortIcon('score')}
-                    </div>
-                  </th>
-                  <th 
-                    className="px-4 py-4 text-left font-semibold text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors"
-                    onClick={() => handleSort('date')}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      Application Date
-                      {renderSortIcon('date')}
-                    </div>
-                  </th>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700">
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4" />
-                      CV
-                    </div>
-                  </th>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700">
-                    Next Step
-                  </th>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700">
-                    Comment
-                  </th>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700">
-                    AI Analysis
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row, index) => {
-                  const candidat = row.candidats
-                  const isSelected = selectedRows.has(row.candidat_id)
-                  
-                  return (
-                    <tr 
-                      key={index} 
-                      className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
-                        isSelected ? 'bg-blue-50' : ''
-                      }`}
-                    >
-                      <td className="px-3 py-4 w-12">
-                        {isSelected ? (
-                          <CheckSquare 
-                            className="w-5 h-5 text-blue-600 cursor-pointer hover:text-blue-700" 
-                            onClick={() => handleSelectRow(row.candidat_id, false)}
-                          />
-                        ) : (
-                          <Square 
-                            className="w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600" 
-                            onClick={() => handleSelectRow(row.candidat_id, true)}
-                          />
-                        )}
-                      </td>
-                      
-                      <td className="px-3 py-4 font-medium text-gray-800 w-32 truncate">
-                        {candidat?.candidat_firstname ?? '—'}
-                      </td>
-                      
-                      <td className="px-3 py-4 font-medium text-gray-800 w-32 truncate">
-                        {candidat?.candidat_lastname ?? '—'}
-                      </td>
-                      
-                      <td className="px-3 py-4 w-24">
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getScoreBadgeStyle(row.candidat_score)}`}>
-                          {row.candidat_score ?? '—'}
-                        </span>
-                      </td>
-                      
-                      <td className="px-3 py-4 w-32">
-                        <div className="text-sm text-gray-600" title={formatDateTime(candidat?.created_at)}>
-                          {formatDate(candidat?.created_at)}
-                        </div>
-                      </td>
-                      
-                      <td className="px-3 py-4 w-24">
-                        {candidat?.cv_file ? (
-                          <a 
-                            href={candidat.cv_file} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium transition-colors text-sm"
-                          >
-                            <FileText className="w-3 h-3" />
-                          </a>
-                        ) : (
-                          <span className="text-gray-500">—</span>
-                        )}
-                      </td>
-                      
-                      <td className="px-3 py-4 w-40">
-                        <select
-                          value={row.candidat_next_step ?? ''}
-                          onChange={(e) => handleStepChange(row.candidat_id, e.target.value)}
-                          className="px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-xs w-full"
-                        >
-                          <option value="">Select step</option>
-                          {steps.map((step) => (
-                            <option key={step.step_id} value={step.step_name}>
-                              {step.step_name}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                      
-                      <td className="px-3 py-4 w-48">
-                        <div className="flex items-center gap-2">
-                          <span className="flex-1 text-gray-700 text-xs truncate" title={row.candidat_comment ?? ''}>
-                            {row.candidat_comment ?? '—'}
-                          </span>
-                          <Popover.Root
-                            open={editingId === row.candidat_id}
-                            onOpenChange={(open) => open ? handleEditClick(row) : setEditingId(null)}
-                          >
-                            <Popover.Trigger asChild>
-                              <button className="p-1 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors">
-                                <Edit className="w-3 h-3" />
-                              </button>
-                            </Popover.Trigger>
-                            <Popover.Portal>
-                              <Popover.Content 
-                                side="top" 
-                                align="end" 
-                                sideOffset={5} 
-                                collisionPadding={16} 
-                                avoidCollisions 
-                                sticky="always"
-                                className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 z-50"
-                                style={{ width: 'min(300px, 90vw)', maxHeight: '60vh', overflowY: 'auto' }}
-                              >
-                                <textarea 
-                                  value={commentValue} 
-                                  onChange={(e) => setCommentValue(e.target.value)} 
-                                  rows={3} 
-                                  className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
-                                  placeholder="Add your comment here..."
-                                />
-                                <div className="flex justify-end gap-2 mt-3">
-                                  <button 
-                                    onClick={handleSave} 
-                                    className="p-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
-                                  >
-                                    <Save className="w-4 h-4" />
-                                  </button>
-                                  <Popover.Close asChild>
-                                    <button className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg transition-colors">
-                                      <X className="w-4 h-4" />
-                                    </button>
-                                  </Popover.Close>
-                                </div>
-                                <Popover.Arrow className="fill-white stroke-gray-200" />
-                              </Popover.Content>
-                            </Popover.Portal>
-                          </Popover.Root>
-                        </div>
-                      </td>
-                      
-                      <td className="px-3 py-4 w-28 text-center">
-                        {row.candidat_ai_analyse ? (
-                          <Popover.Root>
-                            <Popover.Trigger asChild>
-                              <button className="p-1 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors">
-                                <Search className="w-3 h-3" />
-                              </button>
-                            </Popover.Trigger>
-                            <Popover.Portal>
-                              <Popover.Content 
-                                side="top" 
-                                align="center" 
-                                sideOffset={5} 
-                                collisionPadding={16} 
-                                avoidCollisions 
-                                sticky="always"
-                                className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 z-50"
-                                style={{ 
-                                  maxWidth: 'min(450px, 90vw)', 
-                                  maxHeight: '60vh', 
-                                  overflowY: 'auto',
-                                  paddingBottom: 'calc(env(safe-area-inset-bottom, 24px) + 24px)'
-                                }}
-                              >
-                                <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
-                                  {row.candidat_ai_analyse}
-                                </div>
-                                <Popover.Arrow className="fill-white stroke-gray-200" />
-                              </Popover.Content>
-                            </Popover.Portal>
-                          </Popover.Root>
-                        ) : (
-                          <span className="text-gray-500">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
 
-        {/* Empty State */}
-        {rows.length === 0 && (
-          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-            <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-600 mb-2">No candidates found</h2>
-            <p className="text-gray-500">There are no candidates to analyze for this position yet.</p>
+        <DndContext
+          sensors={sensors}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="flex gap-4 overflow-x-auto pb-4">
+            {columns.map(col => {
+              const columnRows = col.step_id === 'unassigned' 
+                ? getRowsByStepId(null) 
+                : getRowsByStepId(col.step_id)
+              
+              return (
+                <Column
+                  key={col.step_id}
+                  columnId={col.step_id}
+                  columnName={col.step_name}
+                  rows={columnRows}
+                  onCardClick={setSelectedCandidate}
+                />
+              )
+            })}
+          </div>
+
+          <DragOverlay>
+            {draggingRow && (
+              <div className="bg-white rounded-lg shadow-lg border-2 border-blue-300 p-3 cursor-grabbing w-72 transform rotate-3">
+                <p className="font-medium text-gray-800 text-sm">
+                  {draggingRow.candidats?.candidat_firstname} #{draggingRow.candidat_id}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Score: {draggingRow.candidat_score ?? '—'}
+                </p>
+              </div>
+            )}
+          </DragOverlay>
+        </DndContext>
+
+        {/* Modal */}
+        {selectedCandidate && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={() => setSelectedCandidate(null)}
+          >
+            <div 
+              className="bg-white rounded-xl shadow-2xl p-6 max-w-lg w-full relative max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+                onClick={() => setSelectedCandidate(null)}
+              >
+                <X className="w-6 h-6" />
+              </button>
+              
+              <div className="pr-8">
+                <h2 className="text-2xl font-bold text-gray-800 mb-6">Candidate Profile</h2>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+                      {selectedCandidate.candidats?.candidat_firstname?.charAt(0) ?? '?'}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-800">
+                        {selectedCandidate.candidats?.candidat_firstname ?? '—'} {selectedCandidate.candidats?.candidat_lastname ?? ''} (ID: {selectedCandidate.candidat_id})
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Applied: {selectedCandidate.candidats?.created_at ? new Date(selectedCandidate.candidats.created_at).toLocaleDateString('en-GB') : '—'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-3 bg-green-50 rounded-lg">
+                      <p className="text-sm font-medium text-green-800 mb-1">Score</p>
+                      <p className="text-xl font-bold text-green-600">
+                        {selectedCandidate.candidat_score ?? '—'}
+                      </p>
+                    </div>
+                    
+                    <div className="p-3 bg-blue-50 rounded-lg">
+                      <p className="text-sm font-medium text-blue-800 mb-1">Current Step</p>
+                      <p className="text-sm font-semibold text-blue-600">
+                        {selectedCandidate.candidat_next_step 
+                          ? steps.find(s => s.step_id === selectedCandidate.candidat_next_step)?.step_name ?? 'Unknown'
+                          : 'Unassigned'
+                        }
+                      </p>
+                    </div>
+                  </div>
+
+                  {selectedCandidate.candidat_comment && (
+                    <div className="p-4 bg-gray-50 rounded-lg">
+                      <p className="text-sm font-medium text-gray-800 mb-2">Comments</p>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        {selectedCandidate.candidat_comment}
+                      </p>
+                    </div>
+                  )}
+
+                  {selectedCandidate.candidat_ai_analyse && (
+                    <div className="p-4 bg-purple-50 rounded-lg">
+                      <p className="text-sm font-medium text-purple-800 mb-2">AI Analysis</p>
+                      <p className="text-sm text-purple-700 leading-relaxed">
+                        {selectedCandidate.candidat_ai_analyse}
+                      </p>
+                    </div>
+                  )}
+
+                  {selectedCandidate.candidats?.cv_file && (
+                    <div className="pt-4 border-t border-gray-200">
+                      <a 
+                        href={selectedCandidate.candidats.cv_file} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                      >
+                        <FileText className="w-4 h-4" />
+                        View CV
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

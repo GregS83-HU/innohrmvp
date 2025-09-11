@@ -68,7 +68,7 @@ export default function Header() {
 
   // Demo timer logic - check both current slug and localStorage
   useEffect(() => {
-    const DEMO_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+    const DEMO_DURATION = 15 * 60 * 1000; // 5 minutes in milliseconds
     const DEMO_START_KEY = 'demo_start_time';
     const DEMO_MODE_KEY = 'demo_mode_active';
 
@@ -311,10 +311,15 @@ export default function Header() {
 
             {/* NAVIGATION - au centre mais flexible */}
             <nav className="hidden lg:flex items-center gap-3 flex-1 justify-center mx-8">
-              {/* Available Positions (kept with linkToCompany) */}
-              <Link href={linkToCompany('/openedpositions')} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700`}>
-                <Briefcase className="w-4 h-4" /> Available Positions
-              </Link>
+              {/* Available Positions */}
+<Link
+  href={user ? '/openedpositions' : linkToCompany('/openedpositions')}
+  className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700`}
+>
+  <Briefcase className="w-4 h-4" />
+  {user ? 'Your Available Positions' : 'Available Positions'}
+</Link>
+
 
               {user && (
                 <Link href={linkToCompany('/openedpositions/new')} className={`${buttonBaseClasses} bg-green-50 hover:bg-green-100 text-green-700`}>
@@ -428,9 +433,16 @@ export default function Header() {
           <div className="lg:hidden bg-white border-t border-gray-200 shadow-lg">
             <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
               {/* Available Positions */}
-              <Link href={linkToCompany('/openedpositions')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full`}>
-                <Briefcase className="w-4 h-4" /> Available Positions
-              </Link>
+              {/* Available Positions (Mobile) */}
+<Link
+  href={user ? '/openedpositions' : linkToCompany('/openedpositions')}
+  onClick={() => setIsMobileMenuOpen(false)}
+  className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full`}
+>
+  <Briefcase className="w-4 h-4" />
+  {user ? 'Your Available Positions' : 'Available Positions'}
+</Link>
+
 
               {user && (
                 <Link href={linkToCompany('/openedpositions/new')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-green-50 hover:bg-green-100 text-green-700 w-full`}>

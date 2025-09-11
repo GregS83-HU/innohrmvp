@@ -8,7 +8,7 @@ const supabase = createClient(
 
 export async function POST(request: Request) {
   try {
-    const { candidat_id, step_name } = await request.json()
+    const { candidat_id, step_id } = await request.json()  // Changed from step_name to step_id
 
     if (!candidat_id) {
       return NextResponse.json({ error: 'candidat_id manquant' }, { status: 400 })
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
     const { error } = await supabase
       .from('position_to_candidat')
-      .update({ candidat_next_step: step_name === '' ? null : step_name })
+      .update({ candidat_next_step: step_id === null ? null : step_id })  // Use step_id instead
       .eq('candidat_id', candidat_id)
 
     if (error) {

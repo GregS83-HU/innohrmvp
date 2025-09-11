@@ -64,10 +64,7 @@ export default async function StatsPage({
   }
 
   return (
-    <main style={{ maxWidth: '900px', margin: 'auto', padding: '2rem' }}>
-      <h1 className="text-2xl font-bold text-center mb-6">
-        📊 Candidats Statistics
-      </h1>
+    <main style={{ maxWidth: '900px', margin: 'auto', padding: '0rem' }}>
       <StatsTable rows={data} />
     </main>
   )
