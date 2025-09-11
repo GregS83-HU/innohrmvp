@@ -10,7 +10,6 @@ import {
   useSensor,
   useSensors,
   PointerSensor,
-  DragOverEvent,
   useDroppable,
   closestCenter,
 } from '@dnd-kit/core'
@@ -307,7 +306,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     console.log('Target over:', overId)
 
     // Find the correct column to drop into
-    let targetColumnId = findColumnForElement(overId)
+    const targetColumnId = findColumnForElement(overId)
     
     console.log('Target column ID:', targetColumnId)
 
@@ -431,7 +430,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
             <br />
             {rows.map(r => (
               <div key={r.candidat_id} className="ml-2">
-                • {r.candidats?.candidat_firstname}#{r.candidat_id} → step: "{r.candidat_next_step}" (type: {typeof r.candidat_next_step})
+                • {r.candidats?.candidat_firstname}#{r.candidat_id} → step: &quot;{r.candidat_next_step}&quot; (type: {typeof r.candidat_next_step})
               </div>
             ))}
           </div>
@@ -444,7 +443,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
               const candidatesInColumn = getRowsByStepId(stepId).map(r => `${r.candidats?.candidat_firstname}#${r.candidat_id}`)
               return (
                 <div key={col.step_id} className="ml-2">
-                  • {col.step_name} (searching for: {stepId === null ? 'null' : `"${stepId}"`}): {count} candidates
+                  • {col.step_name} (searching for: {stepId === null ? 'null' : `&quot;${stepId}&quot;`}): {count} candidates
                   {candidatesInColumn.length > 0 && <span className="ml-2">→ {candidatesInColumn.join(', ')}</span>}
                 </div>
               )
