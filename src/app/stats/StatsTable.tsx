@@ -12,6 +12,7 @@ import {
   PointerSensor,
   DragOverEvent,
   useDroppable,
+  closestCenter,
 } from '@dnd-kit/core'
 import {
   SortableContext,
@@ -256,6 +257,28 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     console.log('Drag started for:', row?.candidats?.candidat_firstname, row?.candidat_id)
   }
 
+  const findColumnForElement = (elementId: string): string | null => {
+    const columns = [
+      { step_id: 'unassigned', step_name: 'Unassigned' },
+      ...steps
+    ]
+
+    // First check if it's directly a column
+    if (columns.some(col => col.step_id === elementId)) {
+      return elementId
+    }
+
+    // If it's a candidate card, find which column it belongs to
+    const candidateId = Number(elementId)
+    const candidate = rows.find(r => r.candidat_id === candidateId)
+    
+    if (candidate) {
+      return candidate.candidat_next_step || 'unassigned'
+    }
+
+    return null
+  }
+
   const handleDragEnd = (event: DragEndEvent) => {
     setDraggingRow(null)
     const { active, over } = event
@@ -281,14 +304,25 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
 
     console.log('Current candidate:', currentRow.candidats?.candidat_firstname, 'ID:', currentRow.candidat_id)
     console.log('Current step:', currentRow.candidat_next_step)
-    console.log('Target column:', overId)
+    console.log('Target over:', overId)
+
+    // Find the correct column to drop into
+    let targetColumnId = findColumnForElement(overId)
+    
+    console.log('Target column ID:', targetColumnId)
+
+    // If we couldn't find a column, don't proceed
+    if (targetColumnId === null) {
+      console.log('❌ Could not determine target column')
+      return
+    }
 
     // Determine new step
     let newStepId: string | null = null
-    if (overId === 'unassigned') {
+    if (targetColumnId === 'unassigned') {
       newStepId = null
     } else {
-      newStepId = overId
+      newStepId = targetColumnId
     }
 
     console.log('New step ID:', newStepId)
@@ -336,7 +370,21 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     return filtered
   }
 
-  if (loading) {
+  // Helper function to find step name - this is the fix for the modal
+  const getStepName = (stepId: string | null) => {
+    if (!stepId) return 'Unassigned'
+    
+    // Convert stepId to string and compare with converted step_id values
+    const stepIdStr = String(stepId)
+    const foundStep = steps.find(s => String(s.step_id) === stepIdStr)
+    
+    console.log('🔍 Modal Debug - Looking for step:', stepIdStr, 'Found:', foundStep?.step_name)
+    console.log('🔍 Available steps:', steps.map(s => ({ id: String(s.step_id), name: s.step_name })))
+    
+    return foundStep?.step_name ?? 'Unknown'
+  }
+
+  if (loading || steps.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="text-center">
@@ -368,26 +416,39 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
           </div>
         </div>
 
-        {/* Debug info */}
+        {/* Enhanced Debug info */}
         <div className="mb-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
           <p className="text-sm text-yellow-800 mb-2">
-            <strong>🐛 Debug Info:</strong> Total rows: {rows.length}, Steps: {steps.length}
+            <strong>🐛 Enhanced Debug Info:</strong> Total rows: {rows.length}, Steps: {steps.length}
           </p>
           
           <div className="text-xs text-yellow-700 mb-1">
-            <strong>Steps:</strong> {steps.map(s => `${s.step_name} (${s.step_id})`).join(', ')}
+            <strong>Steps:</strong> {steps.map(s => `${s.step_name} (ID: ${s.step_id}, type: ${typeof s.step_id})`).join(', ')}
+          </div>
+          
+          <div className="text-xs text-yellow-700 mb-2">
+            <strong>Candidates detailed:</strong>
+            <br />
+            {rows.map(r => (
+              <div key={r.candidat_id} className="ml-2">
+                • {r.candidats?.candidat_firstname}#{r.candidat_id} → step: "{r.candidat_next_step}" (type: {typeof r.candidat_next_step})
+              </div>
+            ))}
           </div>
           
           <div className="text-xs text-yellow-700 mb-1">
-            <strong>Candidates:</strong> {rows.map(r => `${r.candidats?.candidat_firstname}#${r.candidat_id}(step:"${r.candidat_next_step}")`).join(', ')}
-          </div>
-          
-          <div className="text-xs text-yellow-700 mb-1">
-            <strong>Column Counts:</strong>
+            <strong>Column Distribution:</strong>
             {columns.map(col => {
-              const count = getRowsByStepId(col.step_id === 'unassigned' ? null : col.step_id).length
-              return ` ${col.step_name}: ${count}`
-            }).join(' |')}
+              const stepId = col.step_id === 'unassigned' ? null : col.step_id
+              const count = getRowsByStepId(stepId).length
+              const candidatesInColumn = getRowsByStepId(stepId).map(r => `${r.candidats?.candidat_firstname}#${r.candidat_id}`)
+              return (
+                <div key={col.step_id} className="ml-2">
+                  • {col.step_name} (searching for: {stepId === null ? 'null' : `"${stepId}"`}): {count} candidates
+                  {candidatesInColumn.length > 0 && <span className="ml-2">→ {candidatesInColumn.join(', ')}</span>}
+                </div>
+              )
+            })}
           </div>
         </div>
 
@@ -395,8 +456,10 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
           sensors={sensors}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
+          collisionDetection={closestCenter}
         >
-          <div className="flex gap-4 overflow-x-auto pb-4" style={{ touchAction: 'pan-y' }}>
+          {/* Fixed mobile scrolling - removed touch-action style */}
+          <div className="flex gap-4 overflow-x-auto pb-4">
             {columns.map(col => {
               const columnRows = col.step_id === 'unassigned' 
                 ? getRowsByStepId(null) 
@@ -428,7 +491,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
           </DragOverlay>
         </DndContext>
 
-        {/* Modal */}
+        {/* Modal with fixed step display */}
         {selectedCandidate && (
           <div 
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
@@ -446,7 +509,9 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
               </button>
               
               <div className="pr-8">
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">Candidate Profile</h2>
+                <h2 className="text-2xl font-bold text-gray-800 mb-6">
+                  Candidate Details
+                </h2>
                 
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
@@ -474,10 +539,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                     <div className="p-3 bg-blue-50 rounded-lg">
                       <p className="text-sm font-medium text-blue-800 mb-1">Current Step</p>
                       <p className="text-sm font-semibold text-blue-600">
-                        {selectedCandidate.candidat_next_step 
-                          ? steps.find(s => s.step_id === selectedCandidate.candidat_next_step)?.step_name ?? 'Unknown'
-                          : 'Unassigned'
-                        }
+                        {getStepName(selectedCandidate.candidat_next_step)}
                       </p>
                     </div>
                   </div>
