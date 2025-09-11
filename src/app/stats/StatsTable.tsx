@@ -368,13 +368,35 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
           </div>
         </div>
 
+        {/* Debug info */}
+        <div className="mb-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+          <p className="text-sm text-yellow-800 mb-2">
+            <strong>🐛 Debug Info:</strong> Total rows: {rows.length}, Steps: {steps.length}
+          </p>
+          
+          <div className="text-xs text-yellow-700 mb-1">
+            <strong>Steps:</strong> {steps.map(s => `${s.step_name} (${s.step_id})`).join(', ')}
+          </div>
+          
+          <div className="text-xs text-yellow-700 mb-1">
+            <strong>Candidates:</strong> {rows.map(r => `${r.candidats?.candidat_firstname}#${r.candidat_id}(step:"${r.candidat_next_step}")`).join(', ')}
+          </div>
+          
+          <div className="text-xs text-yellow-700 mb-1">
+            <strong>Column Counts:</strong>
+            {columns.map(col => {
+              const count = getRowsByStepId(col.step_id === 'unassigned' ? null : col.step_id).length
+              return ` ${col.step_name}: ${count}`
+            }).join(' |')}
+          </div>
+        </div>
 
         <DndContext
           sensors={sensors}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          <div className="flex gap-4 overflow-x-auto pb-4">
+          <div className="flex gap-4 overflow-x-auto pb-4" style={{ touchAction: 'pan-y' }}>
             {columns.map(col => {
               const columnRows = col.step_id === 'unassigned' 
                 ? getRowsByStepId(null) 

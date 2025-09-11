@@ -479,6 +479,18 @@ export default function Header() {
                   >
                     <Stethoscope className="w-4 h-4" /> Certificates Download
                   </Link>
+
+                  {/* 👇 Add logout button here */}
+          <button
+            onClick={() => {
+              handleLogout();
+              setIsMobileMenuOpen(false);
+            }}
+            className={`${buttonBaseClasses} bg-white hover:bg-red-50 text-red-600 w-full`}
+          >
+            <LogOut className="w-4 h-4" /> Logout
+          </button>
+          
                 </>
               )}
 
