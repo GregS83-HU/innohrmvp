@@ -286,7 +286,7 @@ export default function Header() {
             <div className="max-w-8xl mx-auto flex items-center justify-center gap-3">
               <Clock className="w-4 h-4" />
               <span className="font-semibold text-sm">
-                Mode Démonstration - Temps restant: {formatTime(demoTimeLeft)}
+                Demonstration Mode  - Remaining time: {formatTime(demoTimeLeft)}
               </span>
               <div className="hidden sm:block text-xs opacity-90">
                 The application will close automatically at the end of the timer
