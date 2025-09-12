@@ -1,4 +1,3 @@
-'use client'
 
 // src/app/jobs/[slug]/page.tsx
 import PositionsList from "../../../openedpositions/PositionList";
