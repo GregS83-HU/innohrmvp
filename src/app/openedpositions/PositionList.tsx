@@ -88,6 +88,23 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
     setLoadingClose(null)
   }
 
+  // Function to generate the apply link based on context
+  const getApplyLink = (position: Position) => {
+    const queryParams = new URLSearchParams({
+      position: position.position_name,
+      description: position.position_description_detailed,
+      id: position.id.toString()
+    })
+
+    // If we have a company slug, use the slug-specific route
+    if (companySlug) {
+      return `/jobs/${companySlug}/cv-analyse?${queryParams.toString()}`
+    }
+    
+    // Otherwise, use the general route
+    return `/cv-analyse?${queryParams.toString()}`
+  }
+
   const filteredPositions = positions.filter(
     (p) =>
       (!companySlug || p.company?.slug === companySlug) &&
@@ -209,9 +226,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
                 <div className="flex gap-3">
                   {!isLoggedIn && (
                     <Link
-                      href={`/cv-analyse?position=${encodeURIComponent(position.position_name)}&description=${encodeURIComponent(
-                        position.position_description_detailed
-                      )}&id=${position.id}`}
+                      href={getApplyLink(position)}
                       className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105"
                     >
                       <FileText className="w-5 h-5" />

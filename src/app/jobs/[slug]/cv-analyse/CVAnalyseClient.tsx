@@ -19,6 +19,7 @@ export default function CVAnalyseClient({
 }) {
   const pathname = usePathname()
   const isDemo = pathname.includes('/demo/')
+  console.log("URL?",pathname)
   console.log("demo?", isDemo)
 
   const [file, setFile] = useState<File | null>(null)
