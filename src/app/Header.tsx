@@ -68,7 +68,7 @@ export default function Header() {
 
   // Demo timer logic - check both current slug and localStorage
   useEffect(() => {
-    const DEMO_DURATION = 15 * 60 * 1000; // 5 minutes in milliseconds
+    const DEMO_DURATION = 15 * 60 * 1000; // 15 minutes in milliseconds
     const DEMO_START_KEY = 'demo_start_time';
     const DEMO_MODE_KEY = 'demo_mode_active';
 
@@ -211,7 +211,7 @@ export default function Header() {
     setCompanyId(data?.id || null);
   };
 
-  // ⛔️ Unchanged: login logic
+  // ✅ IMPROVEMENT 2: Login redirects to home page while staying connected
   const handleLogin = async () => {
     setError('');
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -228,14 +228,20 @@ export default function Header() {
       // and separately ensure we have the user's company_id
       fetchUserCompanyId(data.user.id);
       setIsLoginOpen(false);
+      
+      // Redirect to home page after login
+      const homeUrl = companySlug ? `/jobs/${companySlug}` : '/';
+      router.push(homeUrl);
     }
   };
 
+  // ✅ IMPROVEMENT 1: Logout redirects to home page keeping the slug
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    // after logout, companyId will be set by slug fetch if on /jobs/[slug]
-    router.push(companySlug ? `/jobs/${companySlug}` : '/');
+    // Redirect to home page with slug context preserved
+    const homeUrl = companySlug ? `/jobs/${companySlug}` : '/';
+    router.push(homeUrl);
   };
 
   // ✅ CORRECTION : Fonction pour gérer les liens avec contexte slug
@@ -312,14 +318,13 @@ export default function Header() {
             {/* NAVIGATION - au centre mais flexible */}
             <nav className="hidden lg:flex items-center gap-3 flex-1 justify-center mx-8">
               {/* Available Positions */}
-<Link
-  href={user ? '/openedpositions' : linkToCompany('/openedpositions')}
-  className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700`}
->
-  <Briefcase className="w-4 h-4" />
-  {user ? 'Your Available Positions' : 'Available Positions'}
-</Link>
-
+              <Link
+                href={user ? '/openedpositions' : linkToCompany('/openedpositions')}
+                className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700`}
+              >
+                <Briefcase className="w-4 h-4" />
+                {user ? 'Your Available Positions' : 'Available Positions'}
+              </Link>
 
               {user && (
                 <Link href={linkToCompany('/openedpositions/new')} className={`${buttonBaseClasses} bg-green-50 hover:bg-green-100 text-green-700`}>
@@ -387,7 +392,14 @@ export default function Header() {
                 </div>
               )}
 
-              <div className="hidden lg:flex items-center">
+              <div className="hidden lg:flex items-center gap-4">
+                {/* ✅ IMPROVEMENT 3: Simple Demo text for login button */}
+                {companySlug === 'demo' && !user && (
+                  <div className="text-blue-700 font-semibold text-sm">
+                    → Login for employer view
+                  </div>
+                )}
+
                 {user ? (
                   <div className="relative" ref={userMenuRef}>
                     <button
@@ -432,17 +444,15 @@ export default function Header() {
         {isMobileMenuOpen && (
           <div className="lg:hidden bg-white border-t border-gray-200 shadow-lg">
             <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
-              {/* Available Positions */}
               {/* Available Positions (Mobile) */}
-<Link
-  href={user ? '/openedpositions' : linkToCompany('/openedpositions')}
-  onClick={() => setIsMobileMenuOpen(false)}
-  className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full`}
->
-  <Briefcase className="w-4 h-4" />
-  {user ? 'Your Available Positions' : 'Available Positions'}
-</Link>
-
+              <Link
+                href={user ? '/openedpositions' : linkToCompany('/openedpositions')}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full`}
+              >
+                <Briefcase className="w-4 h-4" />
+                {user ? 'Your Available Positions' : 'Available Positions'}
+              </Link>
 
               {user && (
                 <Link href={linkToCompany('/openedpositions/new')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-green-50 hover:bg-green-100 text-green-700 w-full`}>
@@ -480,17 +490,16 @@ export default function Header() {
                     <Stethoscope className="w-4 h-4" /> Certificates Download
                   </Link>
 
-                  {/* 👇 Add logout button here */}
-          <button
-            onClick={() => {
-              handleLogout();
-              setIsMobileMenuOpen(false);
-            }}
-            className={`${buttonBaseClasses} bg-white hover:bg-red-50 text-red-600 w-full`}
-          >
-            <LogOut className="w-4 h-4" /> Logout
-          </button>
-          
+                  {/* Logout button */}
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`${buttonBaseClasses} bg-white hover:bg-red-50 text-red-600 w-full`}
+                  >
+                    <LogOut className="w-4 h-4" /> Logout
+                  </button>
                 </>
               )}
 
@@ -501,10 +510,19 @@ export default function Header() {
                 </Link>
               )}
 
+              {/* Mobile Login Button with Simple Demo Hint */}
               {!user && (
-                <button onClick={() => { setIsLoginOpen(true); setIsMobileMenuOpen(false); }} className={`${buttonBaseClasses} bg-blue-600 hover:bg-blue-700 text-white w-full`}>
-                  <User className="w-4 h-4" /> Login
-                </button>
+                <div className="relative">
+                  {/* Simple demo hint for mobile */}
+                  {companySlug === 'demo' && (
+                    <div className="text-center mb-2 text-blue-700 font-semibold text-sm">
+                      → Login for employer view
+                    </div>
+                  )}
+                  <button onClick={() => { setIsLoginOpen(true); setIsMobileMenuOpen(false); }} className={`${buttonBaseClasses} bg-blue-600 hover:bg-blue-700 text-white w-full`}>
+                    <User className="w-4 h-4" /> Login
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -528,7 +546,8 @@ export default function Header() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
                 <input type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"/>
               </div>
-              {error && <div className="bg-red-50 border border-red-200 rounded-lg p-3"><p className="text-red-700 text-sm">{error}</p></div>}</div>
+              {error && <div className="bg-red-50 border border-red-200 rounded-lg p-3"><p className="text-red-700 text-sm">{error}</p></div>}
+            </div>
             <div className="p-6 border-t border-gray-200 flex gap-3">
               <button onClick={() => setIsLoginOpen(false)} className="flex-1 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors">Cancel</button>
               <button onClick={handleLogin} className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">Connect</button>

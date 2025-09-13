@@ -117,6 +117,16 @@ const HappinessCheckInner = () => {
     scrollToBottom();
   }, [messages]);
 
+  // Auto-focus input after bot response
+  useEffect(() => {
+    if (!isLoading && sessionStarted) {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, sessionStarted, messages]);
+
   const createSession = async () => {
     try {
       const requestBody: CreateSessionRequest = {};
@@ -278,6 +288,46 @@ const HappinessCheckInner = () => {
     setInputValue('');
     setPersonalizedAdvice([]);
   };
+
+  // Sticky header component for chat view
+  const StickyHeader = () => (
+    <div className="sticky top-0 z-10 bg-white border-b shadow-sm">
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-xl font-bold text-gray-800">
+            Happy Check 😊
+            {companyName && (
+              <span className="text-sm font-normal text-blue-600 block">
+                {companyName}
+              </span>
+            )}
+          </h1>
+          <div className="text-sm text-gray-500">
+            Step {currentStep}/12
+          </div>
+        </div>
+        
+        {/* Progress bar */}
+        <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
+          <div 
+            className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+            style={{ width: `${Math.min(currentStep / 12 * 100, 100)}%` }}
+          />
+        </div>
+
+        {/* Current PERMA scores */}
+        {Object.keys(permaScores).length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(permaScores).map(([key, score]) => (
+              <div key={key} className={`px-2 py-1 rounded text-xs ${getScoreColor(score)}`}>
+                {key.charAt(0).toUpperCase()}: {score}/10
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 
   if (isCompleted) {
     const avgScore = Object.keys(permaScores).length > 0 
@@ -442,7 +492,10 @@ const HappinessCheckInner = () => {
               <div className="flex flex-col items-center p-4 bg-purple-50 rounded-lg">
                 <CheckCircle className="w-8 h-8 text-purple-600 mb-2" />
                 <h3 className="font-semibold text-purple-800">Quick</h3>
-                <p className="text-sm text-purple-600 text-center">5-10 minutes maximum</p>
+                <p className="text-sm text-purple-600 text-center">
+                  5-10 minutes maximum
+                  <span className="block text-xs mt-1 opacity-80">in only 12 questions</span>
+                </p>
               </div>
             </div>
 
@@ -465,45 +518,12 @@ const HappinessCheckInner = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="max-w-4xl mx-auto p-4">
-        {/* Header with progress */}
-        <div className="bg-white rounded-t-xl p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-bold text-gray-800">
-              Happy Check 😊
-              {companyName && (
-                <span className="text-sm font-normal text-blue-600 block">
-                  {companyName}
-                </span>
-              )}
-            </h1>
-            <div className="text-sm text-gray-500">
-              Step {currentStep}/12
-            </div>
-          </div>
-          
-          {/* Progress bar */}
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
-              style={{ width: `${Math.min(currentStep / 12 * 100, 100)}%` }}
-            />
-          </div>
+      <div className="max-w-4xl mx-auto min-h-screen flex flex-col">
+        {/* Sticky Header with progress - always visible */}
+        <StickyHeader />
 
-          {/* Current PERMA scores */}
-          {Object.keys(permaScores).length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-2">
-              {Object.entries(permaScores).map(([key, score]) => (
-                <div key={key} className={`px-2 py-1 rounded text-xs ${getScoreColor(score)}`}>
-                  {key.charAt(0).toUpperCase()}: {score}/10
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Chat area */}
-        <div className="bg-white shadow-lg h-96 flex flex-col">
+        {/* Chat area - flex grow to fill remaining space */}
+        <div className="bg-white shadow-lg flex-1 flex flex-col">
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((message) => (
@@ -533,8 +553,8 @@ const HappinessCheckInner = () => {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Message input */}
-          <div className="p-4 border-t">
+          {/* Message input - fixed at bottom */}
+          <div className="p-4 border-t bg-white flex-shrink-0">
             <div className="flex space-x-2">
               <input
                 ref={inputRef}
@@ -557,7 +577,8 @@ const HappinessCheckInner = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-b-xl p-4 shadow-sm">
+        {/* Footer */}
+        <div className="bg-white p-3 shadow-sm flex-shrink-0">
           <p className="text-xs text-gray-500 text-center">
             💬 Confidential and anonymous conversation • Your data is not stored personally
             {companyName && ` • Aggregate insights help improve ${companyName}'s workplace wellness`}

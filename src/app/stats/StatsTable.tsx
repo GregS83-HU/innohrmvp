@@ -8,7 +8,9 @@ import {
   DragOverlay,
   DragStartEvent,
   useSensor,
-  useSensors,
+  useSensors, 
+  TouchSensor, 
+  MouseSensor,
   PointerSensor,
   useDroppable,
   closestCenter,
@@ -173,12 +175,20 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
   const [draggingRow, setDraggingRow] = useState<Row | null>(null)
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    })
-  )
+  useSensor(MouseSensor),
+  useSensor(TouchSensor, {
+    // Prevent scroll conflicts
+    activationConstraint: {
+      delay: 150, // wait 150ms before drag starts
+      tolerance: 5, // small finger move allowed before drag
+    },
+  }),
+  useSensor(PointerSensor, {
+    activationConstraint: {
+      distance: 8,
+    },
+  })
+)
 
   useEffect(() => {
     if (!session?.user?.id) return
