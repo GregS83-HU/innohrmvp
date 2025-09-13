@@ -371,7 +371,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     const targetColumnId = findColumnForElement(over.id as string)
     if (targetColumnId === null) return
 
-    let newStepId: string | null = targetColumnId === 'unassigned' ? null : targetColumnId
+    const newStepId: string | null = targetColumnId === 'unassigned' ? null : targetColumnId
     if (currentRow.candidat_next_step !== newStepId) {
       handleStepChange(activeId, newStepId)
     }
