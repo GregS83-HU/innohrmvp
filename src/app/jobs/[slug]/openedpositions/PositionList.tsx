@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useSession } from "@supabase/auth-helpers-react"
 import { useEffect, useState } from "react"
 import { Search, Briefcase, BarChart3, X, Building2, FileText } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 type Position = {
   id: number
@@ -23,6 +24,7 @@ type Props = {
 }
 
 export default function PositionsList({ initialPositions = [], companySlug }: Props) {
+  const router = useRouter()
   const session = useSession()
   const isLoggedIn = !!session?.user
   const userId = session?.user?.id
@@ -33,7 +35,15 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
   const [loadingClose, setLoadingClose] = useState<number | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
 
+  // Redirect to 404 if no slug
   useEffect(() => {
+    if (!companySlug) {
+      router.replace('/404')
+    }
+  }, [companySlug, router])
+
+  useEffect(() => {
+    if (!companySlug) return
     if (initialPositions.length > 0) return
     if (isLoggedIn && !userId) return
 
@@ -90,19 +100,19 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
 
   // Function to generate the apply link based on context
   const getApplyLink = (position: Position) => {
+    if (!companySlug) return null
     const queryParams = new URLSearchParams({
       position: position.position_name,
       description: position.position_description_detailed,
       id: position.id.toString()
     })
+    return `/jobs/${companySlug}/cv-analyse?${queryParams.toString()}`
+  }
 
-    // If we have a company slug, use the slug-specific route
-    if (companySlug) {
-      return `/jobs/${companySlug}/cv-analyse?${queryParams.toString()}`
-    }
-    
-    // Otherwise, use the general route
-    return `/cv-analyse?${queryParams.toString()}`
+  // Function to generate the stats link based on context
+  const getStatsLink = (position: Position) => {
+    if (!companySlug) return null
+    return `/jobs/${companySlug}/stats?positionId=${position.id}`
   }
 
   const filteredPositions = positions.filter(
@@ -111,6 +121,10 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
       (p.position_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
        p.position_description.toLowerCase().includes(searchTerm.toLowerCase()))
   )
+
+  if (!companySlug) {
+    return null // Already redirecting to 404
+  }
 
   if (loading) {
     return (
@@ -178,17 +192,12 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
           </div>
         )}
 
-        {/* Positions List - Explicit Single Column */}
+        {/* Positions List */}
         <div style={{ display: 'block', width: '100%' }}>
-          {filteredPositions.map((position, index) => (
+          {filteredPositions.map((position) => (
             <div
               key={position.id}
-              style={{ 
-                width: '100%', 
-                display: 'block', 
-                marginBottom: '24px',
-                clear: 'both'
-              }}
+              style={{ width: '100%', display: 'block', marginBottom: '24px', clear: 'both' }}
               className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
             >
               <div className="p-6" style={{ width: '100%' }}>
@@ -224,20 +233,20 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
 
                 {/* Actions */}
                 <div className="flex gap-3">
-                  {!isLoggedIn && (
+                  {!isLoggedIn && companySlug && (
                     <Link
-                      href={getApplyLink(position)}
+                      href={getApplyLink(position)!}
                       className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105"
                     >
                       <FileText className="w-5 h-5" />
                       Apply
                     </Link>
                   )}
-                  
-                  {isLoggedIn && (
+
+                  {isLoggedIn && companySlug && (
                     <>
                       <Link
-                        href={`/stats?positionId=${position.id}`}
+                        href={getStatsLink(position)!}
                         className="flex items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-600 transition-colors shadow-md hover:shadow-lg transform hover:scale-105"
                       >
                         <BarChart3 className="w-5 h-5" />

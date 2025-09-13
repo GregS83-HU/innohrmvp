@@ -94,10 +94,14 @@ Always provide concrete examples from the CV to justify the score.
 
 Keep tone professional, concise, and free from speculation.
 
+J'aimerais aussi que tu détectes l'adresse email et le numéro du téléphone du client
+
 Répond uniquement avec un JSON strictement valide, au format :
 {
   "score": number,
   "analysis": string
+  "candidat_email": string
+  "candidtat_phone: string
 }
 IMPORTANT : Ne réponds avec rien d'autre que ce JSON.
 
@@ -168,7 +172,7 @@ The response must be in perfect English.
     const hrMatch = hrRawResponse.match(/\{[\s\S]*\}/)
     if (!hrMatch) return NextResponse.json({ error: 'Réponse JSON IA invalide pour analyse RH' }, { status: 500 })
 
-    const { score, analysis } = JSON.parse(hrMatch[0])
+    const { score, analysis, candidat_email, candidat_phone } = JSON.parse(hrMatch[0])
 
     // Appel API pour le feedback candidat
     const candidateRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -196,7 +200,9 @@ The response must be in perfect English.
         candidat_firstname: firstname,
         candidat_lastname: lastname,
         cv_text: cvText,
-        cv_file: cvFileUrl
+        cv_file: cvFileUrl,
+        candidat_email: candidat_email,
+        candidat_phone: candidat_phone
       })
       .select()
       .single()

@@ -1,6 +1,6 @@
 'use client'
 
-import PositionsList from './PositionList'
+import PositionsList from '../jobs/[slug]/openedpositions/PositionList'
 import { Analytics } from "@vercel/analytics/next"
 
 export default function HomePage() {

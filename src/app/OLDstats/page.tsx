@@ -8,6 +8,8 @@ type Candidat = {
   cv_text: string
   cv_file: string
   created_at: string
+  candidat_email: string
+  candidat_phone: string
 }
 
 type PositionToCandidatRow = {

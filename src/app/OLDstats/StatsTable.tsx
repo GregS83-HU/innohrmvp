@@ -20,13 +20,15 @@ import {
   useSortable,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Users, FileText, BarChart3, X } from 'lucide-react'
+import { Users, FileText, BarChart3, X, Mail, Phone } from 'lucide-react'
 
 type Candidat = {
   candidat_firstname: string
   candidat_lastname: string
   cv_file?: string
   created_at: string
+  candidat_email: string
+  candidat_phone: string
 }
 
 type Row = {
@@ -97,7 +99,29 @@ function Card({ row, onClick }: { row: Row; onClick: (row: Row) => void }) {
           </span>
         )}
       </div>
-      
+
+      {/* Candidate email & phone */}
+      <div className="space-y-1 mb-2">
+        {row.candidats?.candidat_email && (
+          <a
+            href={`mailto:${row.candidats.candidat_email}`}
+            className="flex items-center gap-1 text-blue-600 hover:underline text-xs"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Mail className="w-3 h-3" /> {row.candidats.candidat_email}
+          </a>
+        )}
+        {row.candidats?.candidat_phone && (
+          <a
+            href={`tel:${row.candidats.candidat_phone}`}
+            className="flex items-center gap-1 text-green-600 hover:underline text-xs"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Phone className="w-3 h-3" /> {row.candidats.candidat_phone}
+          </a>
+        )}
+      </div>
+
       {row.candidat_comment && (
         <p className="text-xs text-gray-600 mb-2 line-clamp-2">
           {row.candidat_comment}
@@ -132,18 +156,23 @@ function Column({
     id: columnId,
   })
 
+  const isRejected = columnName.toLowerCase() === "rejected"
+  const baseBg = isRejected ? "bg-red-100" : "bg-gray-100"
+  const badgeBg = isRejected ? "bg-red-200 text-red-700" : "bg-gray-200 text-gray-600"
+  const titleColor = isRejected ? "text-red-700" : "text-gray-700"
+
   return (
     <div
       ref={setNodeRef}
-      className={`bg-gray-100 rounded-lg p-3 w-72 flex-shrink-0 min-h-[400px] flex flex-col transition-colors ${
+      className={`${baseBg} rounded-lg p-3 w-72 flex-shrink-0 min-h-[400px] flex flex-col transition-colors ${
         isOver ? 'bg-blue-50 border-2 border-blue-300 border-dashed' : ''
       }`}
     >
       <div className="flex justify-between items-center mb-3">
-        <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+        <h2 className={`text-sm font-semibold ${titleColor} uppercase tracking-wide`}>
           {columnName}
         </h2>
-        <span className="bg-gray-200 text-gray-600 text-xs px-2 py-1 rounded-full font-medium">
+        <span className={`${badgeBg} text-xs px-2 py-1 rounded-full font-medium`}>
           {rows.length}
         </span>
       </div>
@@ -182,20 +211,17 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     if (!scrollContainer || !isDragging) return
 
     const containerRect = scrollContainer.getBoundingClientRect()
-    const scrollThreshold = 100 // pixels from edge to start scrolling
-    const maxScrollSpeed = 8 // maximum pixels per frame
-    const minScrollSpeed = 1 // minimum pixels per frame
+    const scrollThreshold = 100
+    const maxScrollSpeed = 8
+    const minScrollSpeed = 1
     
     let scrollSpeed = 0
     
-    // Check if near left edge
     if (clientX - containerRect.left < scrollThreshold) {
       const distanceFromEdge = clientX - containerRect.left
       const speedMultiplier = Math.max(0, (scrollThreshold - distanceFromEdge) / scrollThreshold)
       scrollSpeed = -(minScrollSpeed + (maxScrollSpeed - minScrollSpeed) * speedMultiplier)
-    }
-    // Check if near right edge
-    else if (containerRect.right - clientX < scrollThreshold) {
+    } else if (containerRect.right - clientX < scrollThreshold) {
       const distanceFromEdge = containerRect.right - clientX
       const speedMultiplier = Math.max(0, (scrollThreshold - distanceFromEdge) / scrollThreshold)
       scrollSpeed = minScrollSpeed + (maxScrollSpeed - minScrollSpeed) * speedMultiplier
@@ -206,7 +232,6 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     }
   }
 
-  // Clean up auto-scroll interval
   const clearAutoScroll = () => {
     if (autoScrollInterval) {
       clearInterval(autoScrollInterval)
@@ -214,24 +239,11 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     }
   }
 
-  // Enhanced sensors for better mobile support
   const sensors = useSensors(
-    // Desktop pointer sensor
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-    // Mobile touch sensor with proper constraints
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 200,
-        tolerance: 8,
-      },
-    })
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } })
   )
 
-  // Handle mouse/touch move for auto-scroll
   useEffect(() => {
     if (!isDragging) return
 
@@ -245,22 +257,18 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
       setCurrentMousePosition({ x: clientX, y: 0 })
     }
 
-    const handleMouseMove = (e: MouseEvent) => handleMove(e)
-    const handleTouchMove = (e: TouchEvent) => handleMove(e)
+    document.addEventListener('mousemove', handleMove)
+    document.addEventListener('touchmove', handleMove)
 
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('touchmove', handleTouchMove)
-
-    // Set up continuous auto-scroll
     const interval = setInterval(() => {
       handleAutoScroll(currentMousePosition.x)
-    }, 16) // ~60fps
+    }, 16)
     
     setAutoScrollInterval(interval)
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('touchmove', handleTouchMove)
+      document.removeEventListener('mousemove', handleMove)
+      document.removeEventListener('touchmove', handleMove)
       clearInterval(interval)
     }
   }, [isDragging, scrollContainer, currentMousePosition.x])
@@ -272,30 +280,14 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
       try {
         const resSteps = await fetch(`/api/recruitment-step?user_id=${session.user.id}`)
         const stepsData = await resSteps.json()
-        console.log('Steps data:', stepsData)
         setSteps(stepsData)
 
-        // Convert step numbers to strings for consistency
         const normalizedRows = initialRows.map(r => ({
           ...r,
           candidat_next_step: r.candidat_next_step !== null && r.candidat_next_step !== undefined 
             ? String(r.candidat_next_step) 
             : null,
         }))
-        
-        console.log('BEFORE normalization:', initialRows.map(r => ({ 
-          id: r.candidat_id, 
-          name: r.candidats?.candidat_firstname, 
-          step: r.candidat_next_step, 
-          stepType: typeof r.candidat_next_step 
-        })))
-        
-        console.log('AFTER normalization:', normalizedRows.map(r => ({ 
-          id: r.candidat_id, 
-          name: r.candidats?.candidat_firstname, 
-          step: r.candidat_next_step, 
-          stepType: typeof r.candidat_next_step 
-        })))
         
         setRows(normalizedRows)
       } catch (err) {
@@ -308,10 +300,8 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
   }, [session, initialRows])
 
   const handleStepChange = async (candidat_id: number, step_id: string | null) => {
-    // Store the original state for potential rollback
     const originalRows = [...rows]
     
-    // Optimistic update - update UI immediately
     setRows(prev =>
       prev.map(r => (r.candidat_id === candidat_id ? { 
         ...r, 
@@ -329,18 +319,10 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
         }),
       })
 
-      if (!response.ok) {
-        throw new Error('Failed to update step')
-      }
-
-      // Success! The optimistic update was correct, no need to do anything
-      console.log('✅ Step updated successfully')
+      if (!response.ok) throw new Error('Failed to update step')
     } catch (err) {
       console.error('Error updating step:', err)
-      
-      // Rollback the optimistic update
       setRows(originalRows)
-      
       alert("Erreur lors de la mise à jour de l'étape")
     }
   }
@@ -350,9 +332,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     const row = rows.find(r => r.candidat_id.toString() === active.id) || null
     setDraggingRow(row)
     setIsDragging(true)
-    console.log('Drag started for:', row?.candidats?.candidat_firstname, row?.candidat_id)
     
-    // Find and disable scroll on the horizontal scroll container only
     const scrollElement = document.querySelector('#scroll-container') as HTMLElement
     if (scrollElement) {
       setScrollContainer(scrollElement)
@@ -362,25 +342,12 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
   }
 
   const findColumnForElement = (elementId: string): string | null => {
-    const columns = [
-      { step_id: 'unassigned', step_name: 'Unassigned' },
-      ...steps
-    ]
+    const columns = [{ step_id: 'unassigned', step_name: 'Unassigned' }, ...steps]
+    if (columns.some(col => col.step_id === elementId)) return elementId
 
-    // First check if it's directly a column
-    if (columns.some(col => col.step_id === elementId)) {
-      return elementId
-    }
-
-    // If it's a candidate card, find which column it belongs to
     const candidateId = Number(elementId)
     const candidate = rows.find(r => r.candidat_id === candidateId)
-    
-    if (candidate) {
-      return candidate.candidat_next_step || 'unassigned'
-    }
-
-    return null
+    return candidate ? candidate.candidat_next_step || 'unassigned' : null
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -388,7 +355,6 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     setIsDragging(false)
     clearAutoScroll()
     
-    // Restore scroll on the specific container
     if (scrollContainer) {
       scrollContainer.style.overflowX = 'auto'
       scrollContainer.style.touchAction = 'auto'
@@ -396,102 +362,32 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     }
     
     const { active, over } = event
-
-    console.log('=== DRAG END ===')
-    console.log('Active:', active?.id)
-    console.log('Over:', over?.id)
-
-    if (!over || !active) {
-      console.log('❌ No valid drop target')
-      return
-    }
+    if (!over || !active) return
 
     const activeId = Number(active.id)
-    const overId = over.id as string
-
-    // Find the current row
     const currentRow = rows.find(r => r.candidat_id === activeId)
-    if (!currentRow) {
-      console.log('❌ Current row not found')
-      return
-    }
+    if (!currentRow) return
 
-    console.log('Current candidate:', currentRow.candidats?.candidat_firstname, 'ID:', currentRow.candidat_id)
-    console.log('Current step:', currentRow.candidat_next_step)
-    console.log('Target over:', overId)
+    const targetColumnId = findColumnForElement(over.id as string)
+    if (targetColumnId === null) return
 
-    // Find the correct column to drop into
-    const targetColumnId = findColumnForElement(overId)
-    
-    console.log('Target column ID:', targetColumnId)
-
-    // If we couldn't find a column, don't proceed
-    if (targetColumnId === null) {
-      console.log('❌ Could not determine target column')
-      return
-    }
-
-    // Determine new step
-    let newStepId: string | null = null
-    if (targetColumnId === 'unassigned') {
-      newStepId = null
-    } else {
-      newStepId = targetColumnId
-    }
-
-    console.log('New step ID:', newStepId)
-
-    // Only update if changed
+    let newStepId: string | null = targetColumnId === 'unassigned' ? null : targetColumnId
     if (currentRow.candidat_next_step !== newStepId) {
-      console.log('✅ Updating step')
       handleStepChange(activeId, newStepId)
-    } else {
-      console.log('⚠️ No change needed')
     }
   }
 
   const getRowsByStepId = (stepId: string | null) => {
-    console.log(`\n--- Filtering for step: "${stepId}" ---`)
-    const filtered = rows.filter(r => {
-      // Handle comparison more carefully - convert both to strings for comparison
-      const candidateStep = r.candidat_next_step
-      const targetStep = stepId
-      
-      // Both null/undefined
-      if ((candidateStep === null || candidateStep === undefined) && 
-          (targetStep === null || targetStep === undefined)) {
-        console.log(`${r.candidats?.candidat_firstname} (ID:${r.candidat_id}): both null/undefined ✅`)
-        return true
-      }
-      
-      // One is null/undefined, other isn't
-      if ((candidateStep === null || candidateStep === undefined) !== 
-          (targetStep === null || targetStep === undefined)) {
-        console.log(`${r.candidats?.candidat_firstname} (ID:${r.candidat_id}): null mismatch "${candidateStep}" vs "${targetStep}" ❌`)
-        return false
-      }
-      
-      // Both have values - convert to strings and compare
-      const candidateStepStr = String(candidateStep)
-      const targetStepStr = String(targetStep)
-      const matches = candidateStepStr === targetStepStr
-      
-      console.log(`${r.candidats?.candidat_firstname} (ID:${r.candidat_id}): "${candidateStepStr}" === "${targetStepStr}" ? ${matches}`)
-      return matches
+    return rows.filter(r => {
+      if ((r.candidat_next_step ?? null) === (stepId ?? null)) return true
+      return String(r.candidat_next_step) === String(stepId)
     })
-    console.log(`Result: ${filtered.length} candidates`)
-    console.log('---')
-    return filtered
   }
 
-  // Helper function to find step name - this is the fix for the modal
   const getStepName = (stepId: string | null) => {
     if (!stepId) return 'Unassigned'
-    
-    // Convert stepId to string and compare with converted step_id values
     const stepIdStr = String(stepId)
     const foundStep = steps.find(s => String(s.step_id) === stepIdStr)
-    
     return foundStep?.step_name ?? 'Unknown'
   }
 
@@ -506,10 +402,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     )
   }
 
-  const columns = [
-    { step_id: 'unassigned', step_name: 'Unassigned' },
-    ...steps
-  ]
+  const columns = [{ step_id: 'unassigned', step_name: 'Unassigned' }, ...steps]
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
@@ -533,7 +426,6 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
           onDragEnd={handleDragEnd}
           collisionDetection={closestCenter}
         >
-          {/* Enhanced mobile-friendly scrolling container with auto-scroll */}
           <div 
             className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
             id="scroll-container"
@@ -568,104 +460,68 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
             )}
           </DragOverlay>
         </DndContext>
+      </div>
 
-        {/* Modal with fixed step display */}
-        {selectedCandidate && (
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-            onClick={() => setSelectedCandidate(null)}
-          >
-            <div 
-              className="bg-white rounded-xl shadow-2xl p-6 max-w-lg w-full relative max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
+      {selectedCandidate && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full relative max-h-[90vh] overflow-y-auto">
+            <button 
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
+              onClick={() => setSelectedCandidate(null)}
             >
-              <button
-                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
-                onClick={() => setSelectedCandidate(null)}
-              >
-                <X className="w-6 h-6" />
-              </button>
+              <X className="w-5 h-5" />
+            </button>
+            
+            <div className="p-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-1">
+                {selectedCandidate.candidats?.candidat_firstname ?? '—'}{' '}
+                {selectedCandidate.candidats?.candidat_lastname ?? ''}
+              </h2>
+              <p className="text-sm text-gray-500 mb-4">
+                ID: {selectedCandidate.candidat_id}
+              </p>
               
-              <div className="pr-8">
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">
-                  Candidate Details
-                </h2>
-                
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                    <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-                      {selectedCandidate.candidats?.candidat_firstname?.charAt(0) ?? '?'}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-semibold text-gray-800">
-                          {selectedCandidate.candidats?.candidat_firstname ?? '—'} {selectedCandidate.candidats?.candidat_lastname ?? ''} (ID: {selectedCandidate.candidat_id})
-                        </p>
-                        {selectedCandidate.source && (
-                          <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-medium">
-                            {selectedCandidate.source}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm text-gray-600">
-                        Applied: {selectedCandidate.candidats?.created_at ? new Date(selectedCandidate.candidats.created_at).toLocaleDateString('en-GB') : '—'}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-3 bg-green-50 rounded-lg">
-                      <p className="text-sm font-medium text-green-800 mb-1">Score</p>
-                      <p className="text-xl font-bold text-green-600">
-                        {selectedCandidate.candidat_score ?? '—'}
-                      </p>
-                    </div>
-                    
-                    <div className="p-3 bg-blue-50 rounded-lg">
-                      <p className="text-sm font-medium text-blue-800 mb-1">Current Step</p>
-                      <p className="text-sm font-semibold text-blue-600">
-                        {getStepName(selectedCandidate.candidat_next_step)}
-                      </p>
-                    </div>
-                  </div>
-
-                  {selectedCandidate.candidat_comment && (
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                      <p className="text-sm font-medium text-gray-800 mb-2">Comments</p>
-                      <p className="text-sm text-gray-700 leading-relaxed">
-                        {selectedCandidate.candidat_comment}
-                      </p>
-                    </div>
-                  )}
-
-                  {selectedCandidate.candidat_ai_analyse && (
-                    <div className="p-4 bg-purple-50 rounded-lg">
-                      <p className="text-sm font-medium text-purple-800 mb-2">AI Analysis</p>
-                      <p className="text-sm text-purple-700 leading-relaxed">
-                        {selectedCandidate.candidat_ai_analyse}
-                      </p>
-                    </div>
-                  )}
-
-                  {selectedCandidate.candidats?.cv_file && (
-                    <div className="pt-4 border-t border-gray-200">
-                      <a 
-                        href={selectedCandidate.candidats.cv_file} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                      >
-                        <FileText className="w-4 h-4" />
-                        View CV
-                      </a>
-                    </div>
-                  )}
+              <div className="space-y-3">
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <h3 className="text-sm font-semibold text-blue-800 mb-1">Score</h3>
+                  <p className="text-lg font-bold text-blue-900">{selectedCandidate.candidat_score ?? 'Not scored'}</p>
                 </div>
+                
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-1">Comment</h3>
+                  <p className="text-gray-800">{selectedCandidate.candidat_comment ?? 'No comments yet'}</p>
+                </div>
+                
+                <div className="bg-green-50 p-3 rounded-lg">
+                  <h3 className="text-sm font-semibold text-green-800 mb-1">AI Analysis</h3>
+                  <p className="text-gray-800">{selectedCandidate.candidat_ai_analyse ?? 'No AI analysis available'}</p>
+                </div>
+                
+                <div className="bg-purple-50 p-3 rounded-lg">
+                  <h3 className="text-sm font-semibold text-purple-800 mb-1">Source</h3>
+                  <p className="text-gray-800">{selectedCandidate.source ?? 'Not specified'}</p>
+                </div>
+                
+                <div className="bg-orange-50 p-3 rounded-lg">
+                  <h3 className="text-sm font-semibold text-orange-800 mb-1">Next Step</h3>
+                  <p className="text-gray-800">
+                    {getStepName(selectedCandidate.candidat_next_step)}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="mt-4 flex justify-end">
+                <button
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  onClick={() => setSelectedCandidate(null)}
+                >
+                  Close
+                </button>
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }

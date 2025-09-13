@@ -24,7 +24,6 @@ export default function Header() {
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
   const [companyId, setCompanyId] = useState<string | null>(null);
 
-  // Demo timer state
   const [demoTimeLeft, setDemoTimeLeft] = useState<number | null>(null);
   const [isDemoMode, setIsDemoMode] = useState(false);
   const demoTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -34,11 +33,9 @@ export default function Header() {
   const hrToolsMenuRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  // capture du slug même si on est sur /jobs/:slug/whatever
   const slugMatch = pathname.match(/^\/jobs\/([^/]+)/);
   const companySlug = slugMatch ? slugMatch[1] : null;
 
-  // ⚡ Pré-remplissage login/password si slug = "demo"
   useEffect(() => {
     if (companySlug === 'demo') {
       setLogin('demo@hrinno.hu');
@@ -46,13 +43,10 @@ export default function Header() {
     }
   }, [companySlug]);
 
-  // Function to handle demo expiration with logout
   const handleDemoExpiration = async () => {
-    // Clean up localStorage
     localStorage.removeItem('demo_start_time');
     localStorage.removeItem('demo_mode_active');
 
-    // If user is connected, log them out first
     if (user) {
       try {
         await supabase.auth.signOut();
@@ -62,17 +56,14 @@ export default function Header() {
       }
     }
 
-    // Redirect to Google
     window.location.href = 'https://www.linkedin.com/in/grégory-saussez';
   };
 
-  // Demo timer logic - check both current slug and localStorage
   useEffect(() => {
-    const DEMO_DURATION = 25 * 60 * 1000; // 15 minutes in milliseconds
+    const DEMO_DURATION = 25 * 60 * 1000;
     const DEMO_START_KEY = 'demo_start_time';
     const DEMO_MODE_KEY = 'demo_mode_active';
 
-    // If current page is demo slug, activate demo mode
     if (companySlug === 'demo') {
       localStorage.setItem(DEMO_MODE_KEY, 'true');
 
@@ -83,14 +74,11 @@ export default function Header() {
       }
     }
 
-    // Check if demo mode is active (either from current page or localStorage)
     const isDemoActive = companySlug === 'demo' || localStorage.getItem(DEMO_MODE_KEY) === 'true';
 
     if (isDemoActive) {
       const demoStartTime = localStorage.getItem(DEMO_START_KEY);
-
       if (!demoStartTime) {
-        // Demo mode is active but no start time, clean up
         localStorage.removeItem(DEMO_MODE_KEY);
         setIsDemoMode(false);
         setDemoTimeLeft(null);
@@ -102,15 +90,13 @@ export default function Header() {
       const remaining = DEMO_DURATION - elapsed;
 
       if (remaining <= 0) {
-        // Demo expired, handle logout and redirect
         handleDemoExpiration();
         return;
       }
 
       setIsDemoMode(true);
-      setDemoTimeLeft(Math.ceil(remaining / 1000)); // Convert to seconds
+      setDemoTimeLeft(Math.ceil(remaining / 1000));
 
-      // Start countdown timer
       demoTimerRef.current = setInterval(() => {
         const currentElapsed = Date.now() - startTime;
         const currentRemaining = DEMO_DURATION - currentElapsed;
@@ -124,26 +110,20 @@ export default function Header() {
       }, 1000);
 
       return () => {
-        if (demoTimerRef.current) {
-          clearInterval(demoTimerRef.current);
-        }
+        if (demoTimerRef.current) clearInterval(demoTimerRef.current);
       };
     } else {
       setIsDemoMode(false);
       setDemoTimeLeft(null);
-      if (demoTimerRef.current) {
-        clearInterval(demoTimerRef.current);
-      }
+      if (demoTimerRef.current) clearInterval(demoTimerRef.current);
     }
-  }, [companySlug, user]); // Added 'user' as dependency
+  }, [companySlug, user]);
 
   useEffect(() => {
-    // ✅ Do NOT change login or user fetching: keep fetchUserProfile as-is.
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
         const uid = data.session.user.id;
         fetchUserProfile(uid);
-        // fetch company_id separately without touching fetchUserProfile
         fetchUserCompanyId(uid);
       }
     });
@@ -152,11 +132,9 @@ export default function Header() {
       if (session?.user) {
         const uid = session.user.id;
         fetchUserProfile(uid);
-        // fetch company_id separately
         fetchUserCompanyId(uid);
       } else {
         setUser(null);
-        // when logged out, fall back to slug company
         if (companySlug) fetchCompanyLogoAndId(companySlug);
       }
     });
@@ -179,7 +157,6 @@ export default function Header() {
     };
   }, [companySlug]);
 
-  // ⛔️ Unchanged: only firstname/lastname (as in your original)
   const fetchUserProfile = async (userId: string) => {
     const { data } = await supabase
       .from('users')
@@ -189,16 +166,13 @@ export default function Header() {
     if (data) setUser({ firstname: data.user_firstname, lastname: data.user_lastname });
   };
 
-  // ✅ New: fetch company_id of the connected user (kept separate from fetchUserProfile)
   const fetchUserCompanyId = async (userId: string) => {
     const { data, error } = await supabase
       .from('users')
       .select('company_id')
       .eq('id', userId)
       .single();
-    if (!error && data?.company_id) {
-      setCompanyId(data.company_id);
-    }
+    if (!error && data?.company_id) setCompanyId(data.company_id);
   };
 
   const fetchCompanyLogoAndId = async (slug: string) => {
@@ -211,7 +185,6 @@ export default function Header() {
     setCompanyId(data?.id || null);
   };
 
-  // ✅ IMPROVEMENT 2: Login redirects to home page while staying connected
   const handleLogin = async () => {
     setError('');
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -223,60 +196,33 @@ export default function Header() {
       return;
     }
     if (data.user) {
-      // keep original behavior
       fetchUserProfile(data.user.id);
-      // and separately ensure we have the user's company_id
       fetchUserCompanyId(data.user.id);
       setIsLoginOpen(false);
-      
-      // Redirect to home page after login
       const homeUrl = companySlug ? `/jobs/${companySlug}` : '/';
       router.push(homeUrl);
     }
   };
 
-  // ✅ IMPROVEMENT 1: Logout redirects to home page keeping the slug
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    // Redirect to home page with slug context preserved
     const homeUrl = companySlug ? `/jobs/${companySlug}` : '/';
     router.push(homeUrl);
   };
 
-  // ✅ CORRECTION : Fonction pour gérer les liens avec contexte slug
-  const linkToCompany = (path: string) => {
-    if (companySlug) {
-      // Si on a un slug, on construit toujours le chemin complet
-      if (path === '/') {
-        return `/jobs/${companySlug}`; // Page d'accueil avec contexte slug
-      }
-      return `/jobs/${companySlug}${path}`;
-    }
-    return path; // Pas de slug, chemin normal
-  };
-
-  // ---------- NEW: buildLink to handle the three contexts ----------
-  // - If we're inside a slug *and* no user is connected => keep /jobs/[slug] prefix
-  // - If user is connected => use root path (no slug prefix)
-  // - Public (no slug, no user) => use root path
   const buildLink = (basePath: string) => {
     const query = companyId ? `?company_id=${companyId}` : '';
-    if (companySlug && !user) {
-      // slug context, use prefixed route
+    if (companySlug) {
+      if (basePath === '/') return `/jobs/${companySlug}${query}`;
       return `/jobs/${companySlug}${basePath}${query}`;
     }
-    // user connected or public context
     return `${basePath}${query}`;
   };
 
   const happyCheckLink = buildLink('/happiness-check');
   const uploadCertificateLink = buildLink('/medical-certificate/upload');
-  // ----------------------------------------------------------------
-
   const buttonBaseClasses = 'flex items-center gap-2 px-5 py-2 rounded-xl font-semibold transition-all shadow-sm hover:shadow-md';
-
-  // Format time for display
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -286,7 +232,6 @@ export default function Header() {
   return (
     <>
       <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
-        {/* Demo Timer Banner */}
         {isDemoMode && demoTimeLeft !== null && (
           <div className="bg-gradient-to-r from-orange-400 to-red-500 text-white px-4 py-2">
             <div className="max-w-8xl mx-auto flex items-center justify-center gap-3">
@@ -303,10 +248,8 @@ export default function Header() {
 
         <div className="w-full px-9 py-4">
           <div className="flex items-center justify-between w-full max-w-8xl mx-auto">
-            
-            {/* ✅ LOGO - correction du lien */}
             <div className="flex-shrink-0">
-              <Link href={linkToCompany('/')}>
+              <Link href={buildLink('/')}>
                 <img
                   src={companySlug && companyLogo ? companyLogo : '/HRInnoLogo.jpeg'}
                   alt="Logo"
@@ -315,58 +258,44 @@ export default function Header() {
               </Link>
             </div>
 
-            {/* NAVIGATION - au centre mais flexible */}
             <nav className="hidden lg:flex items-center gap-3 flex-1 justify-center mx-8">
-              {/* Available Positions */}
-              <Link
-                href={user ? '/openedpositions' : linkToCompany('/openedpositions')}
-                className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700`}
-              >
-                <Briefcase className="w-4 h-4" />
-                {user ? 'Your Available Positions' : 'Available Positions'}
+              <Link href={buildLink('/openedpositions')} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700`}>
+                <Briefcase className="w-4 h-4" /> {user ? 'Your Available Positions' : 'Available Positions'}
               </Link>
 
               {user && (
-                <Link href={linkToCompany('/openedpositions/new')} className={`${buttonBaseClasses} bg-green-50 hover:bg-green-100 text-green-700`}>
+                <Link href={buildLink('/openedpositions/new')} className={`${buttonBaseClasses} bg-green-50 hover:bg-green-100 text-green-700`}>
                   <Plus className="w-4 h-4" /> Create Position
                 </Link>
               )}
 
-              {/* Happy Check: show only when we have companyId (ensures company_id in URL) */}
               {companyId && (
-                <Link 
-                  href={happyCheckLink}
-                  className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700`}
-                >
+                <Link href={happyCheckLink} className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700`}>
                   <Smile className="w-4 h-4" /> Happy Check
                 </Link>
               )}
 
               {user && (
                 <div className="relative" ref={hrToolsMenuRef}>
-                  <button
-                    onClick={() => setIsHRToolsMenuOpen(!isHRToolsMenuOpen)}
-                    className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700`}
-                  >
+                  <button onClick={() => setIsHRToolsMenuOpen(!isHRToolsMenuOpen)} className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700`}>
                     <Heart className="w-4 h-4" /> HR Tools
                     <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isHRToolsMenuOpen ? 'rotate-180' : ''}`} />
                   </button>
-
                   {isHRToolsMenuOpen && (
                     <div className="absolute top-full mt-2 left-0 w-64 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
                       <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
                         <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Outils RH</p>
                       </div>
 
-                      <Link href="/happiness-dashboard" className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
+                      <Link href={buildLink('/happiness-dashboard')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
                         <BarChart3 className="w-4 h-4" /> Happiness Dashboard
                       </Link>
 
-                      <Link href="/medical-certificate/list" className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
+                      <Link href={buildLink('/medical-certificate/list')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
                         <Stethoscope className="w-4 h-4" /> List of Certificates
                       </Link>
 
-                      <Link href="/medical-certificate/download" className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3`}>
+                      <Link href={buildLink('/medical-certificate/download')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3`}>
                         <Stethoscope className="w-4 h-4" /> Certificates Download
                       </Link>
                     </div>
@@ -374,7 +303,6 @@ export default function Header() {
                 </div>
               )}
 
-              {/* Upload Certificate: only show when companyId available (guarantee company_id param) */}
               {!user && companyId && (
                 <Link href={uploadCertificateLink} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700`}>
                   <Stethoscope className="w-4 h-4" /> Upload Certificate
@@ -382,9 +310,7 @@ export default function Header() {
               )}
             </nav>
 
-            {/* LOGIN / USER BLOCK - aligné à droite */}
             <div className="flex-shrink-0 flex items-center gap-2 pr-4 sm:pr-6 lg:pr-8">
-              {/* Demo Timer Mobile */}
               {isDemoMode && demoTimeLeft !== null && (
                 <div className="lg:hidden flex items-center gap-2 px-3 py-1 bg-orange-100 text-orange-800 rounded-lg text-sm font-medium">
                   <Clock className="w-3 h-3" />
@@ -393,7 +319,6 @@ export default function Header() {
               )}
 
               <div className="hidden lg:flex items-center gap-4">
-                {/* ✅ IMPROVEMENT 3: Simple Demo text for login button */}
                 {companySlug === 'demo' && !user && (
                   <div className="text-blue-700 font-semibold text-sm">
                     → Login for employer view
@@ -402,10 +327,7 @@ export default function Header() {
 
                 {user ? (
                   <div className="relative" ref={userMenuRef}>
-                    <button
-                      onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                      className={`${buttonBaseClasses} bg-gray-50 hover:bg-gray-100 text-gray-700`}
-                    >
+                    <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} className={`${buttonBaseClasses} bg-gray-50 hover:bg-gray-100 text-gray-700`}>
                       <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                         <User className="w-4 h-4 text-blue-600" />
                       </div>
@@ -432,7 +354,6 @@ export default function Header() {
                 )}
               </div>
 
-              {/* MOBILE BUTTON */}
               <button className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors mr-4" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                 {isMobileMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
               </button>
@@ -440,33 +361,21 @@ export default function Header() {
           </div>
         </div>
 
-        {/* MOBILE MENU */}
         {isMobileMenuOpen && (
           <div className="lg:hidden bg-white border-t border-gray-200 shadow-lg">
             <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
-              {/* Available Positions (Mobile) */}
-              <Link
-                href={user ? '/openedpositions' : linkToCompany('/openedpositions')}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full`}
-              >
-                <Briefcase className="w-4 h-4" />
-                {user ? 'Your Available Positions' : 'Available Positions'}
+              <Link href={buildLink('/openedpositions')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full`}>
+                <Briefcase className="w-4 h-4" /> {user ? 'Your Available Positions' : 'Available Positions'}
               </Link>
 
               {user && (
-                <Link href={linkToCompany('/openedpositions/new')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-green-50 hover:bg-green-100 text-green-700 w-full`}>
+                <Link href={buildLink('/openedpositions/new')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-green-50 hover:bg-green-100 text-green-700 w-full`}>
                   <Plus className="w-4 h-4" /> Create Position
                 </Link>
               )}
 
-              {/* Happy Check (mobile) */}
               {companyId && (
-                <Link 
-                  href={happyCheckLink}
-                  onClick={() => setIsMobileMenuOpen(false)} 
-                  className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700 w-full`}
-                >
+                <Link href={happyCheckLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700 w-full`}>
                   <Smile className="w-4 h-4" /> Happy Check
                 </Link>
               )}
@@ -476,44 +385,29 @@ export default function Header() {
                   <div className="px-4 py-2 border-t border-gray-200">
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Outils RH</p>
                   </div>
-                  <Link href="/happiness-dashboard" onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full`}>
+                  <Link href={buildLink('/happiness-dashboard')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full`}>
                     <BarChart3 className="w-4 h-4" /> Happiness Dashboard
                   </Link>
-                  <Link href="/medical-certificate/list" onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full`}>
+                  <Link href={buildLink('/medical-certificate/list')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full`}>
                     <Stethoscope className="w-4 h-4" /> List of Certificates
                   </Link>
-                  <Link
-                    href="/medical-certificate/download"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full`}
-                  >
+                  <Link href={buildLink('/medical-certificate/download')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full`}>
                     <Stethoscope className="w-4 h-4" /> Certificates Download
                   </Link>
-
-                  {/* Logout button */}
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className={`${buttonBaseClasses} bg-white hover:bg-red-50 text-red-600 w-full`}
-                  >
+                  <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className={`${buttonBaseClasses} bg-white hover:bg-red-50 text-red-600 w-full`}>
                     <LogOut className="w-4 h-4" /> Logout
                   </button>
                 </>
               )}
 
-              {/* Upload Certificate (mobile) - only if companyId present */}
               {!user && companyId && (
                 <Link href={uploadCertificateLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full`}>
                   <Stethoscope className="w-4 h-4" /> Upload Certificate
                 </Link>
               )}
 
-              {/* Mobile Login Button with Simple Demo Hint */}
               {!user && (
                 <div className="relative">
-                  {/* Simple demo hint for mobile */}
                   {companySlug === 'demo' && (
                     <div className="text-center mb-2 text-blue-700 font-semibold text-sm">
                       → Login for employer view
@@ -529,7 +423,6 @@ export default function Header() {
         )}
       </header>
 
-      {/* LOGIN MODAL */}
       {isLoginOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">

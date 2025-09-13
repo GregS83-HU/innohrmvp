@@ -1,6 +1,6 @@
 
 // src/app/jobs/[slug]/page.tsx
-import PositionsList from "../../../OLDopenedpositions/PositionList";
+import PositionsList from "./PositionList";
 import { Analytics } from "@vercel/analytics/next"
 
 type Position = {
