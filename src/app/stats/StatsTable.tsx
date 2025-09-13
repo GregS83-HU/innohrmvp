@@ -172,6 +172,47 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
   const [loading, setLoading] = useState(true)
   const [selectedCandidate, setSelectedCandidate] = useState<Row | null>(null)
   const [draggingRow, setDraggingRow] = useState<Row | null>(null)
+  const [scrollContainer, setScrollContainer] = useState<HTMLElement | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const [autoScrollInterval, setAutoScrollInterval] = useState<NodeJS.Timeout | null>(null)
+  const [currentMousePosition, setCurrentMousePosition] = useState({ x: 0, y: 0 })
+
+  // Auto-scroll functionality for smooth column transitions
+  const handleAutoScroll = (clientX: number) => {
+    if (!scrollContainer || !isDragging) return
+
+    const containerRect = scrollContainer.getBoundingClientRect()
+    const scrollThreshold = 100 // pixels from edge to start scrolling
+    const maxScrollSpeed = 8 // maximum pixels per frame
+    const minScrollSpeed = 1 // minimum pixels per frame
+    
+    let scrollSpeed = 0
+    
+    // Check if near left edge
+    if (clientX - containerRect.left < scrollThreshold) {
+      const distanceFromEdge = clientX - containerRect.left
+      const speedMultiplier = Math.max(0, (scrollThreshold - distanceFromEdge) / scrollThreshold)
+      scrollSpeed = -(minScrollSpeed + (maxScrollSpeed - minScrollSpeed) * speedMultiplier)
+    }
+    // Check if near right edge
+    else if (containerRect.right - clientX < scrollThreshold) {
+      const distanceFromEdge = containerRect.right - clientX
+      const speedMultiplier = Math.max(0, (scrollThreshold - distanceFromEdge) / scrollThreshold)
+      scrollSpeed = minScrollSpeed + (maxScrollSpeed - minScrollSpeed) * speedMultiplier
+    }
+
+    if (scrollSpeed !== 0) {
+      scrollContainer.scrollLeft += scrollSpeed
+    }
+  }
+
+  // Clean up auto-scroll interval
+  const clearAutoScroll = () => {
+    if (autoScrollInterval) {
+      clearInterval(autoScrollInterval)
+      setAutoScrollInterval(null)
+    }
+  }
 
   // Enhanced sensors for better mobile support
   const sensors = useSensors(
@@ -189,6 +230,40 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
       },
     })
   )
+
+  // Handle mouse/touch move for auto-scroll
+  useEffect(() => {
+    if (!isDragging) return
+
+    const handleMove = (e: MouseEvent | TouchEvent) => {
+      let clientX: number
+      if (e instanceof MouseEvent) {
+        clientX = e.clientX
+      } else {
+        clientX = e.touches[0]?.clientX || 0
+      }
+      setCurrentMousePosition({ x: clientX, y: 0 })
+    }
+
+    const handleMouseMove = (e: MouseEvent) => handleMove(e)
+    const handleTouchMove = (e: TouchEvent) => handleMove(e)
+
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('touchmove', handleTouchMove)
+
+    // Set up continuous auto-scroll
+    const interval = setInterval(() => {
+      handleAutoScroll(currentMousePosition.x)
+    }, 16) // ~60fps
+    
+    setAutoScrollInterval(interval)
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('touchmove', handleTouchMove)
+      clearInterval(interval)
+    }
+  }, [isDragging, scrollContainer, currentMousePosition.x])
 
   useEffect(() => {
     if (!session?.user?.id) return
@@ -264,10 +339,16 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     const { active } = event
     const row = rows.find(r => r.candidat_id.toString() === active.id) || null
     setDraggingRow(row)
+    setIsDragging(true)
     console.log('Drag started for:', row?.candidats?.candidat_firstname, row?.candidat_id)
     
-    // Prevent horizontal scroll during drag on mobile
-    document.body.style.overflow = 'hidden'
+    // Find and disable scroll on the horizontal scroll container only
+    const scrollElement = document.querySelector('#scroll-container') as HTMLElement
+    if (scrollElement) {
+      setScrollContainer(scrollElement)
+      scrollElement.style.overflowX = 'hidden'
+      scrollElement.style.touchAction = 'none'
+    }
   }
 
   const findColumnForElement = (elementId: string): string | null => {
@@ -294,9 +375,15 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
 
   const handleDragEnd = (event: DragEndEvent) => {
     setDraggingRow(null)
+    setIsDragging(false)
+    clearAutoScroll()
     
-    // Restore scroll on mobile
-    document.body.style.overflow = ''
+    // Restore scroll on the specific container
+    if (scrollContainer) {
+      scrollContainer.style.overflowX = 'auto'
+      scrollContainer.style.touchAction = 'auto'
+      setScrollContainer(null)
+    }
     
     const { active, over } = event
 
@@ -436,7 +523,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
           onDragEnd={handleDragEnd}
           collisionDetection={closestCenter}
         >
-          {/* Enhanced mobile-friendly scrolling container */}
+          {/* Enhanced mobile-friendly scrolling container with auto-scroll */}
           <div 
             className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
             id="scroll-container"
