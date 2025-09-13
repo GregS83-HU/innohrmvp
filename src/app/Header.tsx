@@ -63,7 +63,7 @@ export default function Header() {
     }
 
     // Redirect to Google
-    window.location.href = 'linkedin.com/in/grégory-saussez';
+    window.location.href = 'https://www.linkedin.com/in/grégory-saussez';
   };
 
   // Demo timer logic - check both current slug and localStorage

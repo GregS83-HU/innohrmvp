@@ -1,49 +1,54 @@
 'use client';
 
 import { useState } from 'react';
-import { usePathname } from 'next/navigation';
-import {
-  Upload,
-  FileText,
-  User,
-  Calendar,
-  Stethoscope,
-  MessageCircle,
-  Check,
-  X,
-  AlertTriangle,
-  CheckCircle,
-} from 'lucide-react';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { Upload, FileText, User, Calendar, Stethoscope, MessageCircle, Check, X, AlertTriangle, CheckCircle } from 'lucide-react';
 
 type UploadCertificateClientProps = {
   companyId: string;
 };
 
 export default function UploadCertificateClient({ companyId }: UploadCertificateClientProps) {
+  
   const pathname = usePathname();
   const segments = pathname.split('/').filter(Boolean);
-
+  
+  // Check if 'demo' is anywhere in the path segments
   const isDemo = segments.includes('demo');
+  
+  // Alternative approach - check if the URL contains /jobs/demo/
+  const isDemoAlt = pathname.includes('/jobs/demo/');
+  
+  console.log("Pathname:", pathname);
+  console.log("Segments:", segments);
+  console.log("Is Demo (includes):", isDemo);
+  console.log("Is Demo (alt):", isDemoAlt);
 
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showManualForm, setShowManualForm] = useState(false);
   const [result, setResult] = useState<{
-    employee_name: string;
-    absenceDateStart: string;
-    absenceDateEnd: string;
-    doctor_name: string;
+    employee_name?: string;
+    absenceDateStart?: string;
+    absenceDateEnd?: string;
+    doctor_name?: string;
   } | null>(null);
   const [comment, setComment] = useState('');
   const [saving, setSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
+  // Form state for manual input when processing fails
+  const [manualData, setManualData] = useState({
+    employee_name: '',
+    absenceDateStart: '',
+    absenceDateEnd: '',
+    doctor_name: ''
+  });
+
   const MAX_SIZE = 1 * 1024 * 1024; // 1MB
 
   const handleFileChange = (file: File | null) => {
     setError('');
-    setShowManualForm(false);
     if (!file) return setFile(null);
     if (file.size > MAX_SIZE) {
       setError('File is too large. Maximum allowed size is 1MB.');
@@ -58,7 +63,6 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
     setLoading(true);
     setError('');
     setResult(null);
-    setShowManualForm(false);
 
     try {
       const formData = new FormData();
@@ -74,50 +78,49 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
 
       const data = await res.json();
       const extracted = data.extracted_data || {};
-      setResult({
-        employee_name: extracted.employee_name || '',
-        absenceDateStart: extracted.sickness_start_date || '',
-        absenceDateEnd: extracted.sickness_end_date || '',
-        doctor_name: extracted.doctor_name || '',
+      const resultData = {
+        employee_name: extracted.employee_name,
+        absenceDateStart: extracted.sickness_start_date,
+        absenceDateEnd: extracted.sickness_end_date,
+        doctor_name: extracted.doctor_name,
+      };
+      
+      setResult(resultData);
+      
+      // Initialize manual data with empty strings for non-recognised fields
+      setManualData({
+        employee_name: isFieldUnrecognised(resultData.employee_name) ? '' : resultData.employee_name || '',
+        absenceDateStart: isFieldUnrecognised(resultData.absenceDateStart) ? '' : resultData.absenceDateStart || '',
+        absenceDateEnd: isFieldUnrecognised(resultData.absenceDateEnd) ? '' : resultData.absenceDateEnd || '',
+        doctor_name: isFieldUnrecognised(resultData.doctor_name) ? '' : resultData.doctor_name || '',
       });
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
       else setError('Unknown error occurred');
-      // Show manual form with explicit message
-      setShowManualForm(true);
-      setResult({
-        employee_name: '',
-        absenceDateStart: '',
-        absenceDateEnd: '',
-        doctor_name: '',
-      });
     } finally {
       setLoading(false);
     }
   };
 
+  const isFieldUnrecognised = (value?: string) => {
+    return value && ['non recognised', 'not recognised'].includes(value.trim().toLowerCase());
+  };
+
   const handleConfirm = async () => {
-    if (!file) return setError('A certificate file is required to save.');
-    if (!result) return setError('Cannot save: missing certificate details.');
-    // Validate all fields are filled
-    if (
-      !result.employee_name.trim() ||
-      !result.absenceDateStart.trim() ||
-      !result.absenceDateEnd.trim() ||
-      !result.doctor_name.trim()
-    ) {
-      return setError('Please fill in all required fields to confirm.');
-    }
+    if (!result || !file) return setError('Cannot save: missing file or extracted data.');
 
     setSaving(true);
     setError('');
 
     try {
       const formData = new FormData();
-      formData.append('employee_name', result.employee_name);
-      formData.append('absenceDateStart', result.absenceDateStart);
-      formData.append('absenceDateEnd', result.absenceDateEnd);
-      formData.append('doctor_name', result.doctor_name);
+      
+      // Use manual data for unrecognised fields, otherwise use result data
+      formData.append('employee_name', isFieldUnrecognised(result.employee_name) ? manualData.employee_name : (result.employee_name || ''));
+      formData.append('absenceDateStart', isFieldUnrecognised(result.absenceDateStart) ? manualData.absenceDateStart : (result.absenceDateStart || ''));
+      formData.append('absenceDateEnd', isFieldUnrecognised(result.absenceDateEnd) ? manualData.absenceDateEnd : (result.absenceDateEnd || ''));
+      formData.append('doctor_name', isFieldUnrecognised(result.doctor_name) ? manualData.doctor_name : (result.doctor_name || ''));
+      
       formData.append('comment', comment || '');
       formData.append('file', file);
       formData.append('company_id', companyId);
@@ -134,7 +137,12 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
       setResult(null);
       setFile(null);
       setComment('');
-      setShowManualForm(false);
+      setManualData({
+        employee_name: '',
+        absenceDateStart: '',
+        absenceDateEnd: '',
+        doctor_name: ''
+      });
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
       else setError('Unknown error occurred while saving');
@@ -149,22 +157,24 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
     setComment('');
     setSuccessMessage('');
     setError('');
-    setShowManualForm(false);
+    setManualData({
+      employee_name: '',
+      absenceDateStart: '',
+      absenceDateEnd: '',
+      doctor_name: ''
+    });
   };
 
-  // Disable confirm if any field is empty
-  const isConfirmDisabled =
-    !file ||
-    !result ||
-    !result.employee_name.trim() ||
-    !result.absenceDateStart.trim() ||
-    !result.absenceDateEnd.trim() ||
-    !result.doctor_name.trim() ||
-    saving;
+  const hasUnrecognised =
+    result &&
+    [result.employee_name, result.absenceDateStart, result.absenceDateEnd, result.doctor_name].some(
+      (val) => val && ['non recognised', 'not recognised'].includes(val.trim().toLowerCase())
+    );
 
   return (
     <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="space-y-6">
+        
         {/* Header */}
         <div className="text-center">
           <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
@@ -172,9 +182,7 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-2">
               Upload Medical Certificate
             </h1>
-            <p className="text-gray-600">
-              Upload your medical certificate for automatic processing
-            </p>
+            <p className="text-gray-600">Upload your medical certificate for automatic processing</p>
           </div>
         </div>
 
@@ -201,11 +209,22 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
                 Download fake certificate
               </a>
               <p className="text-sm text-gray-700">
-                You can use our fake certificate for testing purpose. If you
-                want to use your own file, please note that all the data will be
-                deleted from our demo system each night at 1 am.
+                You can use our fake certificate for testing purpose. If you want to use your own file, please note that all the data will be deleted from our demo system each night at 1 am.
               </p>
             </div>
+          </div>
+        )}
+
+        {/* Processing Failed Warning - Now displayed before the form */}
+        {result && hasUnrecognised && (
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
+              <h3 className="font-semibold text-red-800">Processing Failed</h3>
+            </div>
+            <p className="text-red-700">
+              Some information could not be recognized automatically, please fulfill the form below with the missing information. Your document will be automatically sent to the HR department.
+            </p>
           </div>
         )}
 
@@ -225,32 +244,25 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
                     Select Certificate File
                   </label>
-                  <div
+                  <div 
                     className={`border-2 border-dashed rounded-xl p-6 sm:p-8 text-center transition-all ${
-                      file
-                        ? 'border-green-300 bg-green-50'
+                      file 
+                        ? 'border-green-300 bg-green-50' 
                         : 'border-gray-300 bg-gray-50 hover:border-blue-300 hover:bg-blue-50'
                     }`}
                   >
                     <input
                       type="file"
                       accept=".pdf,image/*"
-                      onChange={(e) =>
-                        handleFileChange(e.target.files?.[0] ?? null)
-                      }
+                      onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
                       className="hidden"
                       id="certificate-upload"
                     />
-                    <label
-                      htmlFor="certificate-upload"
-                      className="block cursor-pointer"
-                    >
+                    <label htmlFor="certificate-upload" className="block cursor-pointer">
                       {file ? (
                         <div className="flex items-center justify-center gap-3">
                           <CheckCircle className="w-6 h-6 text-green-600" />
-                          <span className="font-medium text-green-800 text-sm sm:text-base break-all">
-                            {file.name}
-                          </span>
+                          <span className="font-medium text-green-800 text-sm sm:text-base break-all">{file.name}</span>
                         </div>
                       ) : (
                         <div>
@@ -290,121 +302,177 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
           </div>
         )}
 
-        {/* Error Message with Manual Form */}
-        {error && showManualForm && (
-          <div className="space-y-4">
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-4 sm:p-6">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-red-600" />
-                <p className="font-medium text-red-800">
-                  Unfortunately, we were not able to read the uploaded document. Please complete the form below with the missing information.
-                </p>
-              </div>
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 sm:p-6">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
+              <p className="font-medium text-red-800">{error}</p>
             </div>
+          </div>
+        )}
 
-            {/* Manual Entry Form */}
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-              <div className="p-4 sm:p-6 lg:p-8 space-y-4">
+        {/* Results - Now includes manual form when processing fails */}
+        {result && (
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="p-4 sm:p-6 lg:p-8">
+              <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-800 mb-6">
+                <FileText className="w-6 h-6" />
+                {hasUnrecognised ? 'Certificate Details - Please Complete Missing Information' : 'Extracted Certificate Details'}
+              </h2>
+
+              <div className="grid gap-4 mb-6">
                 {/* Employee Name */}
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
                     <User className="w-4 h-4 text-blue-600" />
-                    Employee Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={result?.employee_name || ''}
-                    onChange={(e) =>
-                      setResult((prev) => ({ ...prev!, employee_name: e.target.value }))
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                  />
+                    <label className="font-medium text-gray-700">Employee Name</label>
+                  </div>
+                  {isFieldUnrecognised(result.employee_name) ? (
+                    <input
+                      type="text"
+                      value={manualData.employee_name}
+                      onChange={(e) => setManualData({...manualData, employee_name: e.target.value})}
+                      placeholder="Enter employee name"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  ) : (
+                    <p className="text-gray-800 font-medium">{result.employee_name || '—'}</p>
+                  )}
                 </div>
 
-                {/* Dates */}
+                {/* Start and End Dates */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
                       <Calendar className="w-4 h-4 text-blue-600" />
-                      Start Date *
-                    </label>
-                    <input
-                      type="date"
-                      value={result?.absenceDateStart || ''}
-                      onChange={(e) =>
-                        setResult((prev) => ({ ...prev!, absenceDateStart: e.target.value }))
-                      }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                    />
+                      <label className="font-medium text-gray-700">Start Date</label>
+                    </div>
+                    {isFieldUnrecognised(result.absenceDateStart) ? (
+                      <input
+                        type="date"
+                        value={manualData.absenceDateStart}
+                        onChange={(e) => setManualData({...manualData, absenceDateStart: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    ) : (
+                      <p className="text-gray-800 font-medium">{result.absenceDateStart || '—'}</p>
+                    )}
                   </div>
-                  <div>
-                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
                       <Calendar className="w-4 h-4 text-blue-600" />
-                      End Date *
-                    </label>
-                    <input
-                      type="date"
-                      value={result?.absenceDateEnd || ''}
-                      onChange={(e) =>
-                        setResult((prev) => ({ ...prev!, absenceDateEnd: e.target.value }))
-                      }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                    />
+                      <label className="font-medium text-gray-700">End Date</label>
+                    </div>
+                    {isFieldUnrecognised(result.absenceDateEnd) ? (
+                      <input
+                        type="date"
+                        value={manualData.absenceDateEnd}
+                        onChange={(e) => setManualData({...manualData, absenceDateEnd: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    ) : (
+                      <p className="text-gray-800 font-medium">{result.absenceDateEnd || '—'}</p>
+                    )}
                   </div>
                 </div>
 
                 {/* Doctor Name */}
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
                     <Stethoscope className="w-4 h-4 text-blue-600" />
-                    Doctor Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={result?.doctor_name || ''}
-                    onChange={(e) =>
-                      setResult((prev) => ({ ...prev!, doctor_name: e.target.value }))
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                  />
+                    <label className="font-medium text-gray-700">Doctor Name</label>
+                  </div>
+                  {isFieldUnrecognised(result.doctor_name) ? (
+                    <input
+                      type="text"
+                      value={manualData.doctor_name}
+                      onChange={(e) => setManualData({...manualData, doctor_name: e.target.value})}
+                      placeholder="Enter doctor name"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  ) : (
+                    <p className="text-gray-800 font-medium">{result.doctor_name || '—'}</p>
+                  )}
                 </div>
+              </div>
 
-                {/* Comment */}
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                    <MessageCircle className="w-4 h-4 text-blue-600" />
-                    Additional Comment (Optional)
-                  </label>
-                  <textarea
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    placeholder="Add any additional information or comments..."
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
-                    rows={4}
-                  />
-                </div>
+              {/* Comment field - always displayed */}
+              <div className="mb-6">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
+                  <MessageCircle className="w-4 h-4" />
+                  Additional Comment (Optional)
+                </label>
+                <textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Add any additional information or comments..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                  rows={4}
+                />
+              </div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 mt-4">
-                  <button
-                    onClick={handleConfirm}
-                    disabled={isConfirmDisabled}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] ${
-                      isConfirmDisabled
-                        ? 'bg-gray-300 text-gray-700 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700'
-                    }`}
-                  >
-                    {saving ? 'Saving...' : <><Check className="w-5 h-5" /> Confirm & Save</>}
-                  </button>
-                  <button
-                    onClick={handleCancel}
-                    className="flex-1 flex items-center justify-center gap-2 bg-gray-500 hover:bg-gray-600 text-white py-3 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
-                  >
-                    <X className="w-5 h-5" />
-                    Cancel
-                  </button>
-                </div>
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                {hasUnrecognised ? (
+                  <>
+                
+                    <button
+                      onClick={handleConfirm}
+                      disabled={saving}
+                      className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-6 rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    >
+                      {saving ? (
+                        <>
+                          <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-5 h-5" />
+                          Confirm & Save
+                        </>
+                      )}
+                    </button>
+                    {/* When processing failed - show Try Again, Confirm & Save buttons */}
+                    <button
+                      onClick={handleCancel}
+                      className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+                    >
+                      <Upload className="w-5 h-5" />
+                      Try Again
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {/* When processing succeeded - show original buttons */}
+                    <button
+                      onClick={handleConfirm}
+                      disabled={saving}
+                      className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-6 rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    >
+                      {saving ? (
+                        <>
+                          <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-5 h-5" />
+                          Confirm & Save
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={handleCancel}
+                      className="flex-1 flex items-center justify-center gap-2 bg-gray-500 hover:bg-gray-600 text-white py-3 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+                    >
+                      <X className="w-5 h-5" />
+                      Cancel
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>
