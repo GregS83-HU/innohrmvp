@@ -63,12 +63,12 @@ export default function Header() {
     }
 
     // Redirect to Google
-    window.location.href = 'https://google.com';
+    window.location.href = 'linkedin.com/in/grégory-saussez';
   };
 
   // Demo timer logic - check both current slug and localStorage
   useEffect(() => {
-    const DEMO_DURATION = 15 * 60 * 1000; // 15 minutes in milliseconds
+    const DEMO_DURATION = 25 * 60 * 1000; // 15 minutes in milliseconds
     const DEMO_START_KEY = 'demo_start_time';
     const DEMO_MODE_KEY = 'demo_mode_active';
 
