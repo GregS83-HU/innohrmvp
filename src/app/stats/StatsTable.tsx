@@ -308,6 +308,17 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
   }, [session, initialRows])
 
   const handleStepChange = async (candidat_id: number, step_id: string | null) => {
+    // Store the original state for potential rollback
+    const originalRows = [...rows]
+    
+    // Optimistic update - update UI immediately
+    setRows(prev =>
+      prev.map(r => (r.candidat_id === candidat_id ? { 
+        ...r, 
+        candidat_next_step: step_id === 'unassigned' ? null : step_id 
+      } : r))
+    )
+
     try {
       const response = await fetch('/api/update-next-step', {
         method: 'POST',
@@ -322,15 +333,14 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
         throw new Error('Failed to update step')
       }
 
-      // Update local state
-      setRows(prev =>
-        prev.map(r => (r.candidat_id === candidat_id ? { 
-          ...r, 
-          candidat_next_step: step_id === 'unassigned' ? null : step_id 
-        } : r))
-      )
+      // Success! The optimistic update was correct, no need to do anything
+      console.log('✅ Step updated successfully')
     } catch (err) {
       console.error('Error updating step:', err)
+      
+      // Rollback the optimistic update
+      setRows(originalRows)
+      
       alert("Erreur lors de la mise à jour de l'étape")
     }
   }
