@@ -144,7 +144,7 @@ const ContactForm: React.FC<ContactFormProps> = ({ isOpen, onClose, trigger = 'o
             <p className="text-gray-600 text-sm mt-1">
               {trigger === 'demo'
                 ? 'Interested in our workplace well-being solutions?'
-                : "We'd love to hear from you!"}
+                : "We&apos;d love to hear from you!"}
             </p>
           </div>
           <button
