@@ -20,7 +20,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Users, FileText, BarChart3, X, Mail, Phone } from 'lucide-react'
+import { Users, FileText, BarChart3, Mail, Phone, Edit3, Save, XCircle } from 'lucide-react'
 
 type Candidat = {
   candidat_firstname: string
@@ -205,6 +205,11 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
   const [isDragging, setIsDragging] = useState(false)
   const [autoScrollInterval, setAutoScrollInterval] = useState<NodeJS.Timeout | null>(null)
   const [currentMousePosition, setCurrentMousePosition] = useState({ x: 0, y: 0 })
+  
+  // New states for comment editing
+  const [isEditingComment, setIsEditingComment] = useState(false)
+  const [editedComment, setEditedComment] = useState('')
+  const [isSavingComment, setIsSavingComment] = useState(false)
 
   // Auto-scroll functionality for smooth column transitions
   const handleAutoScroll = (clientX: number) => {
@@ -327,6 +332,50 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     }
   }
 
+  // New function to handle comment updates
+  const handleCommentUpdate = async () => {
+    if (!selectedCandidate) return
+    
+    setIsSavingComment(true)
+    const originalRows = [...rows]
+    
+    // Optimistically update the UI
+    setRows(prev =>
+      prev.map(r => (r.candidat_id === selectedCandidate.candidat_id ? { 
+        ...r, 
+        candidat_comment: editedComment 
+      } : r))
+    )
+    
+    setSelectedCandidate(prev => prev ? {
+      ...prev,
+      candidat_comment: editedComment
+    } : null)
+
+    try {
+      const response = await fetch('/api/update-comment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          candidat_id: selectedCandidate.candidat_id, 
+          comment: editedComment 
+        }),
+      })
+
+      if (!response.ok) throw new Error('Failed to update comment')
+      
+      setIsEditingComment(false)
+    } catch (err) {
+      console.error('Error updating comment:', err)
+      // Revert changes on error
+      setRows(originalRows)
+      setSelectedCandidate(originalRows.find(r => r.candidat_id === selectedCandidate.candidat_id) || null)
+      alert("Erreur lors de la mise à jour du commentaire")
+    } finally {
+      setIsSavingComment(false)
+    }
+  }
+
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event
     const row = rows.find(r => r.candidat_id.toString() === active.id) || null
@@ -391,6 +440,28 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     return foundStep?.step_name ?? 'Unknown'
   }
 
+  const handleCandidateClick = (row: Row) => {
+    setSelectedCandidate(row)
+    setEditedComment(row.candidat_comment || '')
+    setIsEditingComment(false)
+  }
+
+  const handleCloseModal = () => {
+    setSelectedCandidate(null)
+    setIsEditingComment(false)
+    setEditedComment('')
+  }
+
+  const startEditingComment = () => {
+    setIsEditingComment(true)
+    setEditedComment(selectedCandidate?.candidat_comment || '')
+  }
+
+  const cancelEditingComment = () => {
+    setIsEditingComment(false)
+    setEditedComment(selectedCandidate?.candidat_comment || '')
+  }
+
   if (loading || steps.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -441,7 +512,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                   columnId={col.step_id}
                   columnName={col.step_name}
                   rows={columnRows}
-                  onCardClick={setSelectedCandidate}
+                  onCardClick={handleCandidateClick}
                 />
               )
             })}
@@ -463,57 +534,153 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
       </div>
 
       {selectedCandidate && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full relative max-h-[90vh] overflow-y-auto">
-            <button 
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
-              onClick={() => setSelectedCandidate(null)}
-            >
-              <X className="w-5 h-5" />
-            </button>
-            
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full relative max-h-[90vh] overflow-y-auto">
             <div className="p-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-1">
-                {selectedCandidate.candidats?.candidat_firstname ?? '—'}{' '}
-                {selectedCandidate.candidats?.candidat_lastname ?? ''}
-              </h2>
-              <p className="text-sm text-gray-500 mb-4">
-                ID: {selectedCandidate.candidat_id}
-              </p>
+              {/* Enhanced Candidate Information Section */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg mb-6 border border-blue-100">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                    <Users className="w-8 h-8 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-bold text-gray-800">
+                      {selectedCandidate.candidats?.candidat_firstname ?? '—'}{' '}
+                      {selectedCandidate.candidats?.candidat_lastname ?? ''}
+                    </h2>
+                    <p className="text-sm text-gray-500 font-medium">
+                      Candidate ID: {selectedCandidate.candidat_id}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  {/* Email */}
+                  <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-blue-200 hover:border-blue-300 transition-colors">
+                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <Mail className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Email</p>
+                      {selectedCandidate.candidats?.candidat_email ? (
+                        <a
+                          href={`mailto:${selectedCandidate.candidats.candidat_email}`}
+                          className="text-blue-600 hover:text-blue-800 hover:underline transition-colors font-medium"
+                        >
+                          {selectedCandidate.candidats.candidat_email}
+                        </a>
+                      ) : (
+                        <span className="text-gray-400 italic">Not provided</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Phone */}
+                  <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-green-200 hover:border-green-300 transition-colors">
+                    <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                      <Phone className="w-4 h-4 text-green-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Phone</p>
+                      {selectedCandidate.candidats?.candidat_phone ? (
+                        <a
+                          href={`tel:${selectedCandidate.candidats.candidat_phone}`}
+                          className="text-green-600 hover:text-green-800 hover:underline transition-colors font-medium"
+                        >
+                          {selectedCandidate.candidats.candidat_phone}
+                        </a>
+                      ) : (
+                        <span className="text-gray-400 italic">Not provided</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Source */}
+                  <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-purple-200 hover:border-purple-300 transition-colors">
+                    <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <FileText className="w-4 h-4 text-purple-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Source</p>
+                      <p className="text-gray-800 font-medium">{selectedCandidate.source ?? 'Not specified'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
               
-              <div className="space-y-3">
-                <div className="bg-blue-50 p-3 rounded-lg">
-                  <h3 className="text-sm font-semibold text-blue-800 mb-1">Score</h3>
-                  <p className="text-lg font-bold text-blue-900">{selectedCandidate.candidat_score ?? 'Not scored'}</p>
+              <div className="space-y-4">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h3 className="text-sm font-semibold text-blue-800 mb-2">Score</h3>
+                  <p className="text-2xl font-bold text-blue-900">{selectedCandidate.candidat_score ?? 'Not scored'}</p>
                 </div>
                 
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-1">Comment</h3>
-                  <p className="text-gray-800">{selectedCandidate.candidat_comment ?? 'No comments yet'}</p>
+                {/* Enhanced Comment Section with Edit Functionality */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-semibold text-gray-700">Comment</h3>
+                    {!isEditingComment && (
+                      <button
+                        onClick={startEditingComment}
+                        className="flex items-center gap-1 text-gray-600 hover:text-gray-800 transition-colors"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                        <span className="text-xs">Edit</span>
+                      </button>
+                    )}
+                  </div>
+                  
+                  {isEditingComment ? (
+                    <div className="space-y-3">
+                      <textarea
+                        value={editedComment}
+                        onChange={(e) => setEditedComment(e.target.value)}
+                        className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        rows={4}
+                        placeholder="Add your comment here..."
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleCommentUpdate}
+                          disabled={isSavingComment}
+                          className="flex items-center gap-1 bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+                        >
+                          <Save className="w-4 h-4" />
+                          {isSavingComment ? 'Saving...' : 'Save'}
+                        </button>
+                        <button
+                          onClick={cancelEditingComment}
+                          disabled={isSavingComment}
+                          className="flex items-center gap-1 bg-gray-500 text-white px-3 py-2 rounded-lg hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+                        >
+                          <XCircle className="w-4 h-4" />
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-gray-800 whitespace-pre-wrap">
+                      {selectedCandidate.candidat_comment || 'No comments yet'}
+                    </p>
+                  )}
                 </div>
                 
-                <div className="bg-green-50 p-3 rounded-lg">
-                  <h3 className="text-sm font-semibold text-green-800 mb-1">AI Analysis</h3>
-                  <p className="text-gray-800">{selectedCandidate.candidat_ai_analyse ?? 'No AI analysis available'}</p>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h3 className="text-sm font-semibold text-blue-800 mb-2">AI Analysis</h3>
+                  <p className="text-gray-800 whitespace-pre-wrap">{selectedCandidate.candidat_ai_analyse ?? 'No AI analysis available'}</p>
                 </div>
                 
-                <div className="bg-purple-50 p-3 rounded-lg">
-                  <h3 className="text-sm font-semibold text-purple-800 mb-1">Source</h3>
-                  <p className="text-gray-800">{selectedCandidate.source ?? 'Not specified'}</p>
-                </div>
-                
-                <div className="bg-orange-50 p-3 rounded-lg">
-                  <h3 className="text-sm font-semibold text-orange-800 mb-1">Next Step</h3>
+                <div className="bg-orange-50 p-4 rounded-lg">
+                  <h3 className="text-sm font-semibold text-orange-800 mb-2">Next Step</h3>
                   <p className="text-gray-800">
                     {getStepName(selectedCandidate.candidat_next_step)}
                   </p>
                 </div>
               </div>
               
-              <div className="mt-4 flex justify-end">
+              <div className="mt-6 flex justify-end">
                 <button
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                  onClick={() => setSelectedCandidate(null)}
+                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  onClick={handleCloseModal}
                 >
                   Close
                 </button>

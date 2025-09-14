@@ -50,7 +50,9 @@ export default async function StatsPage({
         candidat_lastname,
         cv_text,
         cv_file,
-        created_at
+        created_at,
+        candidat_email,
+        candidat_phone
       )
     `)
     .eq('position_id', Number(positionId)) as {
