@@ -162,7 +162,7 @@ const ContactForm: React.FC<ContactFormProps> = ({ isOpen, onClose, trigger = 'o
             <CheckCircle className="w-5 h-5 text-green-600" />
             <div>
               <h3 className="text-green-800 font-medium">Thank you!</h3>
-              <p className="text-green-700 text-sm">We'll get back to you within 24 hours.</p>
+              <p className="text-green-700 text-sm">We&apos;ll get back to you within 24 hours.</p>
             </div>
           </div>
         )}
