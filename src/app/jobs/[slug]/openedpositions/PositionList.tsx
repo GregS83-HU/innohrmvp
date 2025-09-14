@@ -250,7 +250,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
                         className="flex items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-600 transition-colors shadow-md hover:shadow-lg transform hover:scale-105"
                       >
                         <BarChart3 className="w-5 h-5" />
-                        Stats
+                        Board
                       </Link>
 
                       <button

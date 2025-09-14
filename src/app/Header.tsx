@@ -287,10 +287,14 @@ export default function Header() {
                         <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Outils RH</p>
                       </div>
 
+                      <Link href={buildLink('/openedpositions/analytics')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
+                        <BarChart3 className="w-4 h-4" /> Recruitment Dashboard
+                       </Link>
+
                       <Link href={buildLink('/happiness-dashboard')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
                         <BarChart3 className="w-4 h-4" /> Happiness Dashboard
                       </Link>
-
+                      
                       <Link href={buildLink('/medical-certificate/list')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
                         <Stethoscope className="w-4 h-4" /> List of Certificates
                       </Link>
@@ -385,9 +389,17 @@ export default function Header() {
                   <div className="px-4 py-2 border-t border-gray-200">
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Outils RH</p>
                   </div>
+
+                  <Link href={buildLink('/openedpositions/analytics')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full`}>
+                    <BarChart3 className="w-4 h-4" /> Recruitment Dashboard
+                  </Link>
+
                   <Link href={buildLink('/happiness-dashboard')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full`}>
                     <BarChart3 className="w-4 h-4" /> Happiness Dashboard
                   </Link>
+
+                  
+
                   <Link href={buildLink('/medical-certificate/list')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full`}>
                     <Stethoscope className="w-4 h-4" /> List of Certificates
                   </Link>

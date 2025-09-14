@@ -122,7 +122,7 @@ export async function GET(req: NextRequest) {
         // ✅ Appel RPC avec user_id passé dans l’URL
         const { data: candidats, error: candErr } = await supabase
           .rpc('get_company_candidates', { user_uuid: user_id })
-
+        
         if (candErr) {
           console.error('Erreur RPC get_company_candidates:', candErr)
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'error', error: 'Impossible de récupérer les candidats' })}\n\n`))
