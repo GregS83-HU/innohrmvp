@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { Heart, Users, TrendingUp, Sparkles, ArrowRight, CheckCircle } from 'lucide-react'
 
 export default function HomePage() {
@@ -13,11 +12,11 @@ export default function HomePage() {
         {/* Logo Card */}
         <div className="bg-white rounded-xl shadow-lg p-8 mb-8 transform hover:scale-105 transition-all duration-300">
           <div className="text-center">
-            <Image
+            <img
               src="/HRInnoLogo.jpeg"
               alt="InnoHR"
-              width={450}
-              height={450}
+              width="450"
+              height="450"
               className="rounded-full shadow-lg mx-auto mb-4"
             />
           </div>
@@ -124,6 +123,134 @@ export default function HomePage() {
               <button className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-50 transition-all shadow-md hover:shadow-lg transform hover:scale-105">
                 Learn More
               </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Pricing Section */}
+        <div className="mt-16 mb-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+              Choose Your <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Perfect Plan</span>
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Scale your HR operations with flexible pricing plans designed to grow with your business
+            </p>
+          </div>
+
+          <div className="bg-gradient-to-r from-indigo-50 via-blue-50 to-purple-50 rounded-2xl p-8 shadow-xl border border-blue-100">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b-2 border-blue-200">
+                    <th className="text-left py-6 px-4 font-semibold text-gray-700 text-lg">Features</th>
+                    <th className="text-center py-6 px-4">
+                      <div className="bg-gray-200 text-gray-800 rounded-lg p-4 shadow-md">
+                        <div className="bg-yellow-400 text-blue-900 text-xs font-bold px-2 py-1 rounded-full mb-2 inline-block opacity-0">POPULAR</div>
+                        <h3 className="font-bold text-xl mb-1">Free</h3>
+                        <p className="text-2xl font-bold">Free</p>
+                      </div>
+                    </th>
+                    <th className="text-center py-6 px-4">
+                      <div className="bg-blue-100 text-blue-800 rounded-lg p-4 shadow-md">
+                        <div className="bg-yellow-400 text-blue-900 text-xs font-bold px-2 py-1 rounded-full mb-2 inline-block">POPULAR</div>
+                        <h3 className="font-bold text-xl mb-1">Momentum</h3>
+                        <p className="text-2xl font-bold">20 000 HUF</p>
+                        <p className="text-blue-600 text-sm">/month</p>
+                      </div>
+                    </th>
+                    <th className="text-center py-6 px-4">
+                      <div className="bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-200 text-yellow-900 rounded-lg p-4 shadow-md">
+                        <div className="bg-yellow-400 text-blue-900 text-xs font-bold px-2 py-1 rounded-full mb-2 inline-block opacity-0">POPULAR</div>
+                        <h3 className="font-bold text-xl mb-1">Infinity</h3>
+                        <p className="text-2xl font-bold">45 000 HUF</p>
+                        <p className="text-yellow-800 text-sm">/month</p>
+                      </div>
+                    </th>
+                    <th className="text-center py-6 px-4">
+                      <div className="bg-gradient-to-b from-gray-700 to-gray-800 text-white rounded-lg p-4 shadow-md">
+                        <div className="bg-yellow-400 text-blue-900 text-xs font-bold px-2 py-1 rounded-full mb-2 inline-block opacity-0">POPULAR</div>
+                        <h3 className="font-bold text-xl mb-1">Custom</h3>
+                        <p className="text-lg font-semibold">Contact Us</p>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-blue-100">
+                  <tr className="hover:bg-white/50 transition-colors">
+                    <td className="py-4 px-4 font-medium text-gray-700">AI CV Analyser</td>
+                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                  </tr>
+                  <tr className="hover:bg-white/50 transition-colors">
+                    <td className="py-4 px-4 font-medium text-gray-700">Number of opened positions</td>
+                    <td className="py-4 px-4 text-center font-semibold text-gray-800">3</td>
+                    <td className="py-4 px-4 text-center font-semibold text-gray-800">5</td>
+                    <td className="py-4 px-4 text-center font-semibold text-gray-800">30</td>
+                    <td className="py-4 px-4 text-center font-semibold text-gray-800">∞</td>
+                  </tr>
+                  <tr className="hover:bg-white/50 transition-colors">
+                    <td className="py-4 px-4 font-medium text-gray-700">Database Analyser for new position</td>
+                    <td className="py-4 px-4 text-center">
+                      <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+                        <span className="text-red-500 font-bold text-sm">✕</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                  </tr>
+                  <tr className="hover:bg-white/50 transition-colors">
+                    <td className="py-4 px-4 font-medium text-gray-700">Happy Check</td>
+                    <td className="py-4 px-4 text-center">
+                      <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+                        <span className="text-red-500 font-bold text-sm">✕</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                  </tr>
+                  <tr className="hover:bg-white/50 transition-colors">
+                    <td className="py-4 px-4 font-medium text-gray-700">Medical Certificate uploads/month</td>
+                    <td className="py-4 px-4 text-center font-semibold text-gray-800">3</td>
+                    <td className="py-4 px-4 text-center font-semibold text-gray-800">5</td>
+                    <td className="py-4 px-4 text-center font-semibold text-gray-800">20</td>
+                    <td className="py-4 px-4 text-center font-semibold text-gray-800">∞</td>
+                  </tr>
+                  <tr className="hover:bg-white/50 transition-colors">
+                    <td className="py-4 px-4 font-medium text-gray-700">Recruitment Dashboard</td>
+                    <td className="py-4 px-4 text-center">
+                      <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+                        <span className="text-red-500 font-bold text-sm">✕</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                  </tr>
+                  <tr className="hover:bg-white/50 transition-colors">
+                    <td className="py-4 px-4 font-medium text-gray-700">Happy Check Dashboard</td>
+                    <td className="py-4 px-4 text-center">
+                      <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+                        <span className="text-red-500 font-bold text-sm">✕</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                  </tr>
+                  <tr className="hover:bg-white/50 transition-colors">
+                    <td className="py-4 px-4 font-medium text-gray-700">Certificate Management</td>
+                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
