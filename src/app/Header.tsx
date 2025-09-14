@@ -23,6 +23,8 @@ export default function Header() {
   const [error, setError] = useState('');
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
   const [companyId, setCompanyId] = useState<string | null>(null);
+  const [companyForfait, setCompanyForfait] = useState<string | null>(null);
+
 
   const [demoTimeLeft, setDemoTimeLeft] = useState<number | null>(null);
   const [isDemoMode, setIsDemoMode] = useState(false);
@@ -56,7 +58,11 @@ export default function Header() {
       }
     }
 
-    window.location.href = 'https://www.linkedin.com/in/grégory-saussez';
+    if (companySlug === 'demo') {
+  router.push(`/jobs/demo/contact`);
+} else {
+  window.location.href = 'https://www.linkedin.com/in/grégory-saussez';
+}
   };
 
   useEffect(() => {
@@ -178,11 +184,12 @@ export default function Header() {
   const fetchCompanyLogoAndId = async (slug: string) => {
     const { data } = await supabase
       .from('company')
-      .select('company_logo, id')
+      .select('company_logo, id, forfait')
       .eq('slug', slug)
       .single();
     setCompanyLogo(data?.company_logo || null);
     setCompanyId(data?.id || null);
+    setCompanyForfait(data?.forfait || null);
   };
 
   const handleLogin = async () => {
@@ -220,6 +227,32 @@ export default function Header() {
     return `${basePath}${query}`;
   };
 
+  const getForfaitBadge = (forfait: string | null) => {
+  switch (forfait) {
+    case 'Free':
+      return (
+        <span className="flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-gray-200 text-gray-800 shadow-sm">
+          <div className="w-2 h-2 rounded-full bg-gray-500"></div> Free
+        </span>
+      );
+    case 'Momentum':
+      return (
+        <span className="flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800 shadow-md">
+          <div className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></div> Momentum
+        </span>
+      );
+    case 'Infinity':
+      return (
+        <span className="flex items-center gap-1 px-3 py-1 text-sm font-bold rounded-full bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-200 text-yellow-900 shadow-lg ring-1 ring-yellow-400">
+          <div className="w-3 h-3 rounded-full bg-yellow-500 animate-pulse shadow-md"></div> Infinity
+        </span>
+      );
+    default:
+      return null;
+  }
+};
+
+
   const happyCheckLink = buildLink('/happiness-check');
   const uploadCertificateLink = buildLink('/medical-certificate/upload');
   const buttonBaseClasses = 'flex items-center gap-2 px-5 py-2 rounded-xl font-semibold transition-all shadow-sm hover:shadow-md';
@@ -249,13 +282,14 @@ export default function Header() {
         <div className="w-full px-9 py-4">
           <div className="flex items-center justify-between w-full max-w-8xl mx-auto">
             <div className="flex-shrink-0">
-              <Link href={buildLink('/')}>
-                <img
-                  src={companySlug && companyLogo ? companyLogo : '/HRInnoLogo.jpeg'}
-                  alt="Logo"
-                  className="h-10 sm:h-12 object-contain"
-                />
-              </Link>
+              <Link href={companySlug === 'demo' ? `/jobs/demo/contact` : buildLink('/')}>
+    <img
+      src={companySlug && companyLogo ? companyLogo : '/HRInnoLogo.jpeg'}
+      alt="Logo"
+      className="h-10 sm:h-12 object-contain"
+    />
+  </Link>
+               {getForfaitBadge(companyForfait)}
             </div>
 
             <nav className="hidden lg:flex items-center gap-3 flex-1 justify-center mx-8">
@@ -294,7 +328,7 @@ export default function Header() {
                       <Link href={buildLink('/happiness-dashboard')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
                         <BarChart3 className="w-4 h-4" /> Happiness Dashboard
                       </Link>
-                      
+
                       <Link href={buildLink('/medical-certificate/list')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
                         <Stethoscope className="w-4 h-4" /> List of Certificates
                       </Link>
@@ -312,6 +346,15 @@ export default function Header() {
                   <Stethoscope className="w-4 h-4" /> Upload Certificate
                 </Link>
               )}
+
+              {companySlug === 'demo' && (
+  <Link
+    href={`/jobs/demo/contact`}
+    className={`${buttonBaseClasses} bg-indigo-50 hover:bg-indigo-100 text-indigo-700`}
+  >
+    <User className="w-4 h-4" /> Contact Us
+  </Link>
+)}
             </nav>
 
             <div className="flex-shrink-0 flex items-center gap-2 pr-4 sm:pr-6 lg:pr-8">
@@ -417,6 +460,16 @@ export default function Header() {
                   <Stethoscope className="w-4 h-4" /> Upload Certificate
                 </Link>
               )}
+
+              {companySlug === 'demo' && (
+  <Link
+    href={`/jobs/demo/contact`}
+    onClick={() => setIsMobileMenuOpen(false)}
+    className={`${buttonBaseClasses} bg-indigo-50 hover:bg-indigo-100 text-indigo-700 w-full`}
+  >
+    <User className="w-4 h-4" /> Contact Us
+  </Link>
+)}
 
               {!user && (
                 <div className="relative">

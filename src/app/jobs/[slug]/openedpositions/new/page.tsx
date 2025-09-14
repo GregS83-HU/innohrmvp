@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from '@supabase/auth-helpers-react'
-import { useRouter } from 'next/navigation'
+import { useRouter,usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Plus, Calendar, FileText, Briefcase, BarChart3, CheckCircle, AlertCircle, Activity } from 'lucide-react'
 
@@ -19,6 +19,7 @@ export default function NewOpenedPositionPage() {
   const [analysisLoading, setAnalysisLoading] = useState(false)
   const [analysisResult, setAnalysisResult] = useState<{ matched: number; total: number } | null>(null)
   const [progress, setProgress] = useState<number>(0)
+  const pathname = usePathname()
 
   useEffect(() => {
     if (!session) {
@@ -314,12 +315,17 @@ export default function NewOpenedPositionPage() {
               </div>
 
               <button
-                onClick={() => router.push(`/stats?positionId=${positionId}`)}
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
-              >
-                <BarChart3 className="w-5 h-5" />
-                View Details
-              </button>
+  onClick={() => {
+    // Take the slug part from current pathname, e.g. /jobs/demo/openedpositions/new
+    const basePath = pathname.split('/openedpositions')[0] // /jobs/demo
+    router.push(`${basePath}/stats?positionId=${positionId}`)
+  }}
+  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+>
+  <BarChart3 className="w-5 h-5" />
+  View Details
+</button>
+
             </div>
           </div>
         )}

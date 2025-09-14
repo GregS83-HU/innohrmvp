@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef} from 'react'
 import { useSession } from '@supabase/auth-helpers-react'
 import {
   DndContext,
@@ -20,7 +20,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Users, FileText, BarChart3, Mail, Phone, Edit3, Save, XCircle } from 'lucide-react'
+import { Users, FileText, BarChart3, Mail, Phone, Edit3, Save, XCircle, Eye, EyeOff } from 'lucide-react'
 
 type Candidat = {
   candidat_firstname: string
@@ -146,11 +146,15 @@ function Column({
   columnName, 
   rows, 
   onCardClick,
+  isRejectedColumn = false,
+  showRejected = true
 }: { 
   columnId: string
   columnName: string
   rows: Row[]
   onCardClick: (row: Row) => void
+  isRejectedColumn?: boolean
+  showRejected?: boolean
 }) {
   const { isOver, setNodeRef } = useDroppable({
     id: columnId,
@@ -160,6 +164,11 @@ function Column({
   const baseBg = isRejected ? "bg-red-100" : "bg-gray-100"
   const badgeBg = isRejected ? "bg-red-200 text-red-700" : "bg-gray-200 text-gray-600"
   const titleColor = isRejected ? "text-red-700" : "text-gray-700"
+
+  // Filter out rejected candidates if showRejected is false
+  const displayRows = isRejectedColumn && !showRejected ? [] : rows
+  const actualCount = rows.length
+  const displayCount = displayRows.length
 
   return (
     <div
@@ -173,20 +182,24 @@ function Column({
           {columnName}
         </h2>
         <span className={`${badgeBg} text-xs px-2 py-1 rounded-full font-medium`}>
-          {rows.length}
+          {actualCount}
         </span>
       </div>
       
       <div className="flex-1 min-h-[300px]">
-        <SortableContext items={rows.map(r => r.candidat_id.toString())} strategy={verticalListSortingStrategy}>
-          {rows.map(row => (
+        <SortableContext items={displayRows.map(r => r.candidat_id.toString())} strategy={verticalListSortingStrategy}>
+          {displayRows.map(row => (
             <Card key={row.candidat_id} row={row} onClick={onCardClick} />
           ))}
         </SortableContext>
         
-        {rows.length === 0 && (
+        {displayRows.length === 0 && (
           <div className="flex items-center justify-center h-32 border-2 border-dashed border-gray-300 rounded-lg">
-            <p className="text-gray-500 text-sm italic">Drop candidates here</p>
+            {isRejectedColumn && !showRejected ? (
+              <p className="text-gray-500 text-sm italic">Rejected candidates hidden</p>
+            ) : (
+              <p className="text-gray-500 text-sm italic">Drop candidates here</p>
+            )}
           </div>
         )}
       </div>
@@ -205,6 +218,9 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
   const [isDragging, setIsDragging] = useState(false)
   const [autoScrollInterval, setAutoScrollInterval] = useState<NodeJS.Timeout | null>(null)
   const [currentMousePosition, setCurrentMousePosition] = useState({ x: 0, y: 0 })
+  
+  // New state for show/hide rejected candidates
+  const [showRejected, setShowRejected] = useState(false)
   
   // New states for comment editing
   const [isEditingComment, setIsEditingComment] = useState(false)
@@ -462,6 +478,15 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     setEditedComment(selectedCandidate?.candidat_comment || '')
   }
 
+  // Helper function to check if a candidate is rejected
+  const isRejectedCandidate = (row: Row) => {
+    return String(row.candidat_next_step) === '1'
+  }
+
+  // Get count of non-rejected candidates for display
+  const nonRejectedCandidatesCount = rows.filter(row => !isRejectedCandidate(row)).length
+  const rejectedCandidatesCount = rows.filter(row => isRejectedCandidate(row)).length
+
   if (loading || steps.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -480,13 +505,40 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
       <div className="max-w-full">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="bg-white rounded-xl shadow-md p-6 max-w-md mx-auto">
+          <div className="bg-white rounded-xl shadow-md p-6 max-w-2xl mx-auto">
             <BarChart3 className="w-12 h-12 text-blue-600 mx-auto mb-3" />
-            <h1 className="text-3xl font-bold text-gray-800 mb-3">Recruitment Board</h1>
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full">
-              <Users className="w-5 h-5" />
-              <span className="font-semibold text-lg">{rows.length}</span>
-              <span>candidates</span>
+            <h1 className="text-3xl font-bold text-gray-800 mb-4">Recruitment Board</h1>
+            
+            {/* Candidates count and rejected toggle */}
+            <div className="flex items-center justify-center gap-6 flex-wrap">
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full">
+                <Users className="w-5 h-5" />
+                <span className="font-semibold text-lg">{showRejected ? rows.length : nonRejectedCandidatesCount}</span>
+                <span>candidates</span>
+                {!showRejected && rejectedCandidatesCount > 0 && (
+                  <span className="text-blue-100 text-sm">({rejectedCandidatesCount} hidden)</span>
+                )}
+              </div>
+              
+              {/* Show/Hide Rejected Button */}
+              {rejectedCandidatesCount > 0 && (
+                <button
+                  onClick={() => setShowRejected(!showRejected)}
+                  className="inline-flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm font-medium"
+                >
+                  {showRejected ? (
+                    <>
+                      <EyeOff className="w-4 h-4" />
+                      <span>Hide Rejected</span>
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="w-4 h-4" />
+                      <span>Show Rejected</span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -506,6 +558,8 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                 ? getRowsByStepId(null) 
                 : getRowsByStepId(col.step_id)
               
+              const isRejectedColumn = col.step_name.toLowerCase() === 'rejected' 
+              
               return (
                 <Column
                   key={col.step_id}
@@ -513,6 +567,8 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                   columnName={col.step_name}
                   rows={columnRows}
                   onCardClick={handleCandidateClick}
+                  isRejectedColumn={isRejectedColumn}
+                  showRejected={showRejected}
                 />
               )
             })}
