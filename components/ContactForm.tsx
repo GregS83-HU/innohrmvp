@@ -225,7 +225,7 @@ const ContactForm: React.FC<ContactFormProps> = ({ isOpen, onClose, trigger = 'o
               value={formData.phone}
               onChange={(e) => handleInputChange('phone', e.target.value)}
               className={`${inputClasses} ${errors.phone ? 'border-red-300' : 'border-gray-300'}`}
-              placeholder="+33 1 23 45 67 89"
+              placeholder="+36 30 123 4567"
               disabled={isSubmitting}
             />
             {errors.phone && <p className="text-red-600 text-xs mt-1">{errors.phone}</p>}

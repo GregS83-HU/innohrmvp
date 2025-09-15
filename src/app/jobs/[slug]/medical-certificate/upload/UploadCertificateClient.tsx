@@ -209,7 +209,7 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
                 Download fake certificate
               </a>
               <p className="text-sm text-gray-700">
-                You can use our fake certificate for testing purpose. If you want to use your own file, please note that all the data will be deleted from our demo system each night at 1 am.
+                We strongly recommend to use our fake medical certificate during the demo. If you want to use your own file, please note that all the data will be deleted from our demo system each night at 1 am.
               </p>
             </div>
           </div>

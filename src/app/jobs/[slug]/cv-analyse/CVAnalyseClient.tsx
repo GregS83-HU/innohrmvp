@@ -157,7 +157,7 @@ export default function CVAnalyseClient({
             </div>
             
             <p className="text-sm text-gray-700 text-center">
-              If you want to analyze your own CV, please note that all the data will be deleted each night at 1 AM.
+              We strongly advice you to use our fake CV in the demo. If you would like to use a real one, please note that all the demo data including CVs are deleting each ntght at 2AM.
             </p>
           </div>
         )}
