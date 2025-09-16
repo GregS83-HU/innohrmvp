@@ -120,8 +120,11 @@ export default function HomePage() {
                 <ArrowRight className="w-5 h-5" />
               </button>
               
-              <button className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-50 transition-all shadow-md hover:shadow-lg transform hover:scale-105">
-                Learn More
+              <button 
+                onClick={() => window.location.href = 'http://localhost:3000/jobs/demo/contact'}
+                className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-50 transition-all shadow-md hover:shadow-lg transform hover:scale-105 cursor-pointer"
+              >
+                Contact Us
               </button>
             </div>
           </div>
@@ -269,7 +272,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl p-6 shadow-xl text-white">
+            <div className="bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl p-6 shadow-xl text-white cursor-pointer hover:from-gray-600 hover:to-gray-700 transition-all transform hover:scale-105" onClick={() => window.location.href = 'http://localhost:3000/jobs/demo/contact'}>
               <div className="text-center mb-6">
                 <h3 className="text-2xl font-bold mb-2">Custom</h3>
                 <p className="text-2xl font-semibold">Contact Us</p>
@@ -312,115 +315,115 @@ export default function HomePage() {
           </div>
 
           {/* Desktop Table Layout */}
-          <div className="hidden md:block bg-gradient-to-r from-indigo-50 via-blue-50 to-purple-50 rounded-2xl p-4 shadow-xl border border-blue-100">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-full">
+          <div className="hidden md:block bg-gradient-to-r from-indigo-50 via-blue-50 to-purple-50 rounded-2xl p-2 lg:p-4 shadow-xl border border-blue-100">
+            <div className="w-full">
+              <table className="w-full table-fixed">
                 <thead>
                   <tr className="border-b-2 border-blue-200">
-                    <th className="text-left py-6 px-3 font-semibold text-gray-700 text-lg w-1/5">Features</th>
-                    <th className="text-center py-6 px-3 w-1/5">
-                      <div className="bg-gray-200 text-gray-800 rounded-lg p-4 shadow-md h-32 flex flex-col justify-center">
-                        <h3 className="font-bold text-2xl mb-2">Free</h3>
-                        <p className="text-2xl font-bold">Free</p>
+                    <th className="text-left py-4 lg:py-6 px-1 lg:px-3 font-semibold text-gray-700 text-sm lg:text-lg w-1/5">Features</th>
+                    <th className="text-center py-4 lg:py-6 px-1 lg:px-3 w-1/5">
+                      <div className="bg-gray-200 text-gray-800 rounded-lg p-2 lg:p-4 shadow-md h-28 lg:h-32 flex flex-col justify-center mx-auto">
+                        <h3 className="font-bold text-lg lg:text-2xl mb-1 lg:mb-2">Free</h3>
+                        <p className="text-lg lg:text-2xl font-bold">Free</p>
                       </div>
                     </th>
-                    <th className="text-center py-6 px-3 w-1/5 relative">
-                      <div className="bg-blue-100 text-blue-800 rounded-lg p-4 shadow-md h-32 flex flex-col justify-center relative">
-                        <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                          <span className="bg-yellow-400 text-blue-900 text-xs font-bold px-2 py-1 rounded-full">POPULAR</span>
+                    <th className="text-center py-4 lg:py-6 px-1 lg:px-3 w-1/5 relative">
+                      <div className="bg-blue-100 text-blue-800 rounded-lg p-2 lg:p-4 shadow-md h-28 lg:h-32 flex flex-col justify-center relative mx-auto">
+                        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                          <span className="bg-yellow-400 text-blue-900 text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap">POPULAR</span>
                         </div>
-                        <h3 className="font-bold text-2xl mb-1">Momentum</h3>
-                        <p className="text-2xl font-bold">20 000 HUF</p>
-                        <p className="text-blue-600 text-sm">/month</p>
+                        <h3 className="font-bold text-lg lg:text-2xl mb-1 mt-2">Momentum</h3>
+                        <p className="text-sm lg:text-xl font-bold">20 000 HUF</p>
+                        <p className="text-blue-600 text-xs lg:text-sm">/month</p>
                       </div>
                     </th>
-                    <th className="text-center py-6 px-3 w-1/5">
-                      <div className="bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-200 text-yellow-900 rounded-lg p-4 shadow-md h-32 flex flex-col justify-center">
-                        <h3 className="font-bold text-2xl mb-1">Infinity</h3>
-                        <p className="text-2xl font-bold">45 000 HUF</p>
-                        <p className="text-yellow-800 text-sm">/month</p>
+                    <th className="text-center py-4 lg:py-6 px-1 lg:px-3 w-1/5">
+                      <div className="bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-200 text-yellow-900 rounded-lg p-2 lg:p-4 shadow-md h-28 lg:h-32 flex flex-col justify-center mx-auto">
+                        <h3 className="font-bold text-lg lg:text-2xl mb-1">Infinity</h3>
+                        <p className="text-sm lg:text-xl font-bold">45 000 HUF</p>
+                        <p className="text-yellow-800 text-xs lg:text-sm">/month</p>
                       </div>
                     </th>
-                    <th className="text-center py-6 px-3 w-1/5">
-                      <div className="bg-gradient-to-b from-gray-700 to-gray-800 text-white rounded-lg p-4 shadow-md h-32 flex flex-col justify-center">
-                        <h3 className="font-bold text-2xl mb-1">Custom</h3>
-                        <p className="text-lg font-semibold">Contact Us</p>
+                    <th className="text-center py-4 lg:py-6 px-1 lg:px-3 w-1/5">
+                      <div className="bg-gradient-to-b from-gray-700 to-gray-800 text-white rounded-lg p-2 lg:p-4 shadow-md h-28 lg:h-32 flex flex-col justify-center mx-auto cursor-pointer hover:from-gray-600 hover:to-gray-700 transition-all transform hover:scale-105" onClick={() => window.location.href = 'http://localhost:3000/jobs/demo/contact'}>
+                        <h3 className="font-bold text-lg lg:text-2xl mb-1">Custom</h3>
+                        <p className="text-sm lg:text-lg font-semibold">Contact Us</p>
                       </div>
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-blue-100">
                   <tr className="hover:bg-white/50 transition-colors">
-                    <td className="py-4 px-3 font-medium text-gray-700">AI CV Analyser</td>
-                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 font-medium text-gray-700 text-xs lg:text-base">AI CV Analyser</td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center"><CheckCircle className="w-4 h-4 lg:w-6 lg:h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center"><CheckCircle className="w-4 h-4 lg:w-6 lg:h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center"><CheckCircle className="w-4 h-4 lg:w-6 lg:h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center"><CheckCircle className="w-4 h-4 lg:w-6 lg:h-6 text-green-500 mx-auto" /></td>
                   </tr>
                   <tr className="hover:bg-white/50 transition-colors">
-                    <td className="py-4 px-3 font-medium text-gray-700">Number of opened positions</td>
-                    <td className="py-4 px-3 text-center font-semibold text-gray-800">3</td>
-                    <td className="py-4 px-3 text-center font-semibold text-gray-800">5</td>
-                    <td className="py-4 px-3 text-center font-semibold text-gray-800">30</td>
-                    <td className="py-4 px-3 text-center font-semibold text-gray-800">∞</td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 font-medium text-gray-700 text-xs lg:text-base">Number of opened positions</td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center font-semibold text-gray-800 text-sm lg:text-base">3</td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center font-semibold text-gray-800 text-sm lg:text-base">5</td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center font-semibold text-gray-800 text-sm lg:text-base">30</td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center font-semibold text-gray-800 text-sm lg:text-base">∞</td>
                   </tr>
                   <tr className="hover:bg-white/50 transition-colors">
-                    <td className="py-4 px-3 font-medium text-gray-700">Database Analyser for new position</td>
-                    <td className="py-4 px-3 text-center">
-                      <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-                        <span className="text-red-500 font-bold text-sm">✕</span>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 font-medium text-gray-700 text-xs lg:text-base">Database Analyser for new position</td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center">
+                      <div className="w-4 h-4 lg:w-6 lg:h-6 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+                        <span className="text-red-500 font-bold text-xs lg:text-sm">✕</span>
                       </div>
                     </td>
-                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center"><CheckCircle className="w-4 h-4 lg:w-6 lg:h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center"><CheckCircle className="w-4 h-4 lg:w-6 lg:h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center"><CheckCircle className="w-4 h-4 lg:w-6 lg:h-6 text-green-500 mx-auto" /></td>
                   </tr>
                   <tr className="hover:bg-white/50 transition-colors">
-                    <td className="py-4 px-3 font-medium text-gray-700">Happy Check</td>
-                    <td className="py-4 px-3 text-center">
-                      <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-                        <span className="text-red-500 font-bold text-sm">✕</span>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 font-medium text-gray-700 text-xs lg:text-base">Happy Check</td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center">
+                      <div className="w-4 h-4 lg:w-6 lg:h-6 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+                        <span className="text-red-500 font-bold text-xs lg:text-sm">✕</span>
                       </div>
                     </td>
-                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center"><CheckCircle className="w-4 h-4 lg:w-6 lg:h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center"><CheckCircle className="w-4 h-4 lg:w-6 lg:h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center"><CheckCircle className="w-4 h-4 lg:w-6 lg:h-6 text-green-500 mx-auto" /></td>
                   </tr>
                   <tr className="hover:bg-white/50 transition-colors">
-                    <td className="py-4 px-3 font-medium text-gray-700">Medical Certificate uploads/month</td>
-                    <td className="py-4 px-3 text-center font-semibold text-gray-800">3</td>
-                    <td className="py-4 px-3 text-center font-semibold text-gray-800">5</td>
-                    <td className="py-4 px-3 text-center font-semibold text-gray-800">20</td>
-                    <td className="py-4 px-3 text-center font-semibold text-gray-800">∞</td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 font-medium text-gray-700 text-xs lg:text-base">Medical Certificate uploads/month</td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center font-semibold text-gray-800 text-sm lg:text-base">3</td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center font-semibold text-gray-800 text-sm lg:text-base">5</td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center font-semibold text-gray-800 text-sm lg:text-base">20</td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center font-semibold text-gray-800 text-sm lg:text-base">∞</td>
                   </tr>
                   <tr className="hover:bg-white/50 transition-colors">
-                    <td className="py-4 px-3 font-medium text-gray-700">Recruitment Dashboard</td>
-                    <td className="py-4 px-3 text-center">
-                      <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-                        <span className="text-red-500 font-bold text-sm">✕</span>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 font-medium text-gray-700 text-xs lg:text-base">Recruitment Dashboard</td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center">
+                      <div className="w-4 h-4 lg:w-6 lg:h-6 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+                        <span className="text-red-500 font-bold text-xs lg:text-sm">✕</span>
                       </div>
                     </td>
-                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center"><CheckCircle className="w-4 h-4 lg:w-6 lg:h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center"><CheckCircle className="w-4 h-4 lg:w-6 lg:h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center"><CheckCircle className="w-4 h-4 lg:w-6 lg:h-6 text-green-500 mx-auto" /></td>
                   </tr>
                   <tr className="hover:bg-white/50 transition-colors">
-                    <td className="py-4 px-3 font-medium text-gray-700">Happy Check Dashboard</td>
-                    <td className="py-4 px-3 text-center">
-                      <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-                        <span className="text-red-500 font-bold text-sm">✕</span>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 font-medium text-gray-700 text-xs lg:text-base">Happy Check Dashboard</td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center">
+                      <div className="w-4 h-4 lg:w-6 lg:h-6 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+                        <span className="text-red-500 font-bold text-xs lg:text-sm">✕</span>
                       </div>
                     </td>
-                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center"><CheckCircle className="w-4 h-4 lg:w-6 lg:h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center"><CheckCircle className="w-4 h-4 lg:w-6 lg:h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center"><CheckCircle className="w-4 h-4 lg:w-6 lg:h-6 text-green-500 mx-auto" /></td>
                   </tr>
                   <tr className="hover:bg-white/50 transition-colors">
-                    <td className="py-4 px-3 font-medium text-gray-700">Certificate Management</td>
-                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 font-medium text-gray-700 text-xs lg:text-base">Certificate Management</td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center"><CheckCircle className="w-4 h-4 lg:w-6 lg:h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center"><CheckCircle className="w-4 h-4 lg:w-6 lg:h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center"><CheckCircle className="w-4 h-4 lg:w-6 lg:h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-3 lg:py-4 px-1 lg:px-3 text-center"><CheckCircle className="w-4 h-4 lg:w-6 lg:h-6 text-green-500 mx-auto" /></td>
                   </tr>
                 </tbody>
               </table>

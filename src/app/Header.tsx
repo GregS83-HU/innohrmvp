@@ -28,6 +28,7 @@ export default function Header() {
   const [demoTimeLeft, setDemoTimeLeft] = useState<number | null>(null);
   const [isDemoMode, setIsDemoMode] = useState(false);
   const demoTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const expirationHandledRef = useRef(false);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -46,7 +47,6 @@ export default function Header() {
 
   const handleDemoExpiration = async () => {
 
-    const expirationHandledRef = useRef(false);
 
     if (expirationHandledRef.current) return; // prevent multiple triggers
     expirationHandledRef.current = true;
