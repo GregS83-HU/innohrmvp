@@ -45,6 +45,12 @@ export default function Header() {
   }, [companySlug]);
 
   const handleDemoExpiration = async () => {
+
+    const expirationHandledRef = useRef(false);
+
+    if (expirationHandledRef.current) return; // prevent multiple triggers
+    expirationHandledRef.current = true;
+    
     localStorage.removeItem('demo_start_time');
     localStorage.removeItem('demo_mode_active');
 

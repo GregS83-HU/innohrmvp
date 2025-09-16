@@ -2,7 +2,7 @@ import Home from './../../jobs/[slug]/Home/page'
 
 export default function HomePage() {
   return (
-    <main style={{ maxWidth: '700px', margin: 'auto', padding: '2rem' }}>
+    <main style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
       <Home />
     </main>
   )
