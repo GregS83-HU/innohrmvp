@@ -7,7 +7,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       
       {/* Hero Section */}
-      <div className="flex flex-col items-center justify-center pt-16 pb-8 px-4">
+      <div className="flex flex-col items-center justify-center pt-16 pb-8 px-4 w-full">
         
         {/* Logo Card */}
         <div className="bg-white rounded-xl shadow-lg p-8 mb-8 transform hover:scale-105 transition-all duration-300">
@@ -23,14 +23,14 @@ export default function HomePage() {
         </div>
 
         {/* Main Title */}
-        <div className="text-center mb-12 max-w-4xl">
+        <div className="text-center mb-12 max-w-6xl w-full">
           <h1 className="text-4xl md:text-6xl font-bold text-gray-800 mb-6 leading-tight">
             HR was never as
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> easy </span>
             as now!
           </h1>
           
-          <p className="text-lg md:text-xl text-gray-600 leading-relaxed mb-8">
+          <p className="text-lg md:text-xl text-gray-600 leading-relaxed mb-8 max-w-4xl mx-auto">
             Revolutionize your human resources with AI-powered tools for recruitment, 
             employee wellness, and workplace happiness assessment.
           </p>
@@ -45,10 +45,10 @@ export default function HomePage() {
       </div>
 
       {/* Features Section */}
-      <div className="max-w-6xl mx-auto px-4 pb-16">
+      <div className="w-full px-4 pb-16">
         
         {/* Features Grid */}
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-6 mb-12">
           
           {/* Feature 1 - CV Analysis */}
           <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
@@ -103,8 +103,8 @@ export default function HomePage() {
         </div>
 
         {/* CTA Section */}
-        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-          <div className="max-w-2xl mx-auto">
+        <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-lg p-8 text-center">
+          <div className="max-w-3xl mx-auto">
             <Sparkles className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
             <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
               Ready to Transform Your HR?
@@ -128,7 +128,7 @@ export default function HomePage() {
         </div>
 
         {/* Pricing Section */}
-        <div className="mt-16 mb-16">
+        <div className="max-w-7xl mx-auto mt-16 mb-16">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
               Choose Your <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Perfect Plan</span>
@@ -138,39 +138,212 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="bg-gradient-to-r from-indigo-50 via-blue-50 to-purple-50 rounded-2xl p-8 shadow-xl border border-blue-100">
+          {/* Mobile-First Responsive Pricing Cards */}
+          <div className="block md:hidden space-y-6">
+            {/* Mobile Card Layout */}
+            <div className="bg-white rounded-2xl p-6 shadow-xl border border-gray-200">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">Free</h3>
+                <p className="text-3xl font-bold text-gray-900">Free</p>
+              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">AI CV Analyser</span>
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Opened positions</span>
+                  <span className="font-semibold">3</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Database Analyser</span>
+                  <span className="text-red-500 font-bold">✕</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Happy Check</span>
+                  <span className="text-red-500 font-bold">✕</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Medical uploads/month</span>
+                  <span className="font-semibold">3</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Recruitment Dashboard</span>
+                  <span className="text-red-500 font-bold">✕</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Happy Check Dashboard</span>
+                  <span className="text-red-500 font-bold">✕</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Certificate Management</span>
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 rounded-2xl p-6 shadow-xl border-2 border-blue-200 relative">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <span className="bg-yellow-400 text-blue-900 text-xs font-bold px-3 py-1 rounded-full">POPULAR</span>
+              </div>
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold text-blue-800 mb-2">Momentum</h3>
+                <p className="text-3xl font-bold text-blue-900">20 000 HUF</p>
+                <p className="text-blue-600">/month</p>
+              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">AI CV Analyser</span>
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Opened positions</span>
+                  <span className="font-semibold">5</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Database Analyser</span>
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Happy Check</span>
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Medical uploads/month</span>
+                  <span className="font-semibold">5</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Recruitment Dashboard</span>
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Happy Check Dashboard</span>
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Certificate Management</span>
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl p-6 shadow-xl border border-yellow-200">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold text-yellow-800 mb-2">Infinity</h3>
+                <p className="text-3xl font-bold text-yellow-900">45 000 HUF</p>
+                <p className="text-yellow-700">/month</p>
+              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">AI CV Analyser</span>
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Opened positions</span>
+                  <span className="font-semibold">30</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Database Analyser</span>
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Happy Check</span>
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Medical uploads/month</span>
+                  <span className="font-semibold">20</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Recruitment Dashboard</span>
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Happy Check Dashboard</span>
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">Certificate Management</span>
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl p-6 shadow-xl text-white">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold mb-2">Custom</h3>
+                <p className="text-2xl font-semibold">Contact Us</p>
+              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-300">AI CV Analyser</span>
+                  <CheckCircle className="w-5 h-5 text-green-400" />
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-300">Opened positions</span>
+                  <span className="font-semibold text-white">∞</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-300">Database Analyser</span>
+                  <CheckCircle className="w-5 h-5 text-green-400" />
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-300">Happy Check</span>
+                  <CheckCircle className="w-5 h-5 text-green-400" />
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-300">Medical uploads/month</span>
+                  <span className="font-semibold text-white">∞</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-300">Recruitment Dashboard</span>
+                  <CheckCircle className="w-5 h-5 text-green-400" />
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-300">Happy Check Dashboard</span>
+                  <CheckCircle className="w-5 h-5 text-green-400" />
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-300">Certificate Management</span>
+                  <CheckCircle className="w-5 h-5 text-green-400" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Table Layout */}
+          <div className="hidden md:block bg-gradient-to-r from-indigo-50 via-blue-50 to-purple-50 rounded-2xl p-4 shadow-xl border border-blue-100">
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-full">
                 <thead>
                   <tr className="border-b-2 border-blue-200">
-                    <th className="text-left py-6 px-4 font-semibold text-gray-700 text-lg">Features</th>
-                    <th className="text-center py-6 px-4">
-                      <div className="bg-gray-200 text-gray-800 rounded-lg p-4 shadow-md">
-                        <div className="bg-yellow-400 text-blue-900 text-xs font-bold px-2 py-1 rounded-full mb-2 inline-block opacity-0">POPULAR</div>
-                        <h3 className="font-bold text-xl mb-1">Free</h3>
-                        <p className="text-2xl font-bold"></p>
+                    <th className="text-left py-6 px-3 font-semibold text-gray-700 text-lg w-1/5">Features</th>
+                    <th className="text-center py-6 px-3 w-1/5">
+                      <div className="bg-gray-200 text-gray-800 rounded-lg p-4 shadow-md h-32 flex flex-col justify-center">
+                        <h3 className="font-bold text-2xl mb-2">Free</h3>
+                        <p className="text-2xl font-bold">Free</p>
                       </div>
                     </th>
-                    <th className="text-center py-6 px-4">
-                      <div className="bg-blue-100 text-blue-800 rounded-lg p-4 shadow-md">
-                        <div className="bg-yellow-400 text-blue-900 text-xs font-bold px-2 py-1 rounded-full mb-2 inline-block">POPULAR</div>
-                        <h3 className="font-bold text-xl mb-1">Momentum</h3>
+                    <th className="text-center py-6 px-3 w-1/5 relative">
+                      <div className="bg-blue-100 text-blue-800 rounded-lg p-4 shadow-md h-32 flex flex-col justify-center relative">
+                        <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                          <span className="bg-yellow-400 text-blue-900 text-xs font-bold px-2 py-1 rounded-full">POPULAR</span>
+                        </div>
+                        <h3 className="font-bold text-2xl mb-1">Momentum</h3>
                         <p className="text-2xl font-bold">20 000 HUF</p>
                         <p className="text-blue-600 text-sm">/month</p>
                       </div>
                     </th>
-                    <th className="text-center py-6 px-4">
-                      <div className="bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-200 text-yellow-900 rounded-lg p-4 shadow-md">
-                        <div className="bg-yellow-400 text-blue-900 text-xs font-bold px-2 py-1 rounded-full mb-2 inline-block opacity-0">POPULAR</div>
-                        <h3 className="font-bold text-xl mb-1">Infinity</h3>
+                    <th className="text-center py-6 px-3 w-1/5">
+                      <div className="bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-200 text-yellow-900 rounded-lg p-4 shadow-md h-32 flex flex-col justify-center">
+                        <h3 className="font-bold text-2xl mb-1">Infinity</h3>
                         <p className="text-2xl font-bold">45 000 HUF</p>
                         <p className="text-yellow-800 text-sm">/month</p>
                       </div>
                     </th>
-                    <th className="text-center py-6 px-4">
-                      <div className="bg-gradient-to-b from-gray-700 to-gray-800 text-white rounded-lg p-4 shadow-md">
-                        <div className="bg-yellow-400 text-blue-900 text-xs font-bold px-2 py-1 rounded-full mb-2 inline-block opacity-0">POPULAR</div>
-                        <h3 className="font-bold text-xl mb-1">Custom</h3>
+                    <th className="text-center py-6 px-3 w-1/5">
+                      <div className="bg-gradient-to-b from-gray-700 to-gray-800 text-white rounded-lg p-4 shadow-md h-32 flex flex-col justify-center">
+                        <h3 className="font-bold text-2xl mb-1">Custom</h3>
                         <p className="text-lg font-semibold">Contact Us</p>
                       </div>
                     </th>
@@ -178,76 +351,76 @@ export default function HomePage() {
                 </thead>
                 <tbody className="divide-y divide-blue-100">
                   <tr className="hover:bg-white/50 transition-colors">
-                    <td className="py-4 px-4 font-medium text-gray-700">AI CV Analyser</td>
-                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-3 font-medium text-gray-700">AI CV Analyser</td>
+                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
                   </tr>
                   <tr className="hover:bg-white/50 transition-colors">
-                    <td className="py-4 px-4 font-medium text-gray-700">Number of opened positions</td>
-                    <td className="py-4 px-4 text-center font-semibold text-gray-800">3</td>
-                    <td className="py-4 px-4 text-center font-semibold text-gray-800">5</td>
-                    <td className="py-4 px-4 text-center font-semibold text-gray-800">30</td>
-                    <td className="py-4 px-4 text-center font-semibold text-gray-800">∞</td>
+                    <td className="py-4 px-3 font-medium text-gray-700">Number of opened positions</td>
+                    <td className="py-4 px-3 text-center font-semibold text-gray-800">3</td>
+                    <td className="py-4 px-3 text-center font-semibold text-gray-800">5</td>
+                    <td className="py-4 px-3 text-center font-semibold text-gray-800">30</td>
+                    <td className="py-4 px-3 text-center font-semibold text-gray-800">∞</td>
                   </tr>
                   <tr className="hover:bg-white/50 transition-colors">
-                    <td className="py-4 px-4 font-medium text-gray-700">Database Analyser for new position</td>
-                    <td className="py-4 px-4 text-center">
+                    <td className="py-4 px-3 font-medium text-gray-700">Database Analyser for new position</td>
+                    <td className="py-4 px-3 text-center">
                       <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mx-auto">
                         <span className="text-red-500 font-bold text-sm">✕</span>
                       </div>
                     </td>
-                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
                   </tr>
                   <tr className="hover:bg-white/50 transition-colors">
-                    <td className="py-4 px-4 font-medium text-gray-700">Happy Check</td>
-                    <td className="py-4 px-4 text-center">
+                    <td className="py-4 px-3 font-medium text-gray-700">Happy Check</td>
+                    <td className="py-4 px-3 text-center">
                       <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mx-auto">
                         <span className="text-red-500 font-bold text-sm">✕</span>
                       </div>
                     </td>
-                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
                   </tr>
                   <tr className="hover:bg-white/50 transition-colors">
-                    <td className="py-4 px-4 font-medium text-gray-700">Medical Certificate uploads/month</td>
-                    <td className="py-4 px-4 text-center font-semibold text-gray-800">3</td>
-                    <td className="py-4 px-4 text-center font-semibold text-gray-800">5</td>
-                    <td className="py-4 px-4 text-center font-semibold text-gray-800">20</td>
-                    <td className="py-4 px-4 text-center font-semibold text-gray-800">∞</td>
+                    <td className="py-4 px-3 font-medium text-gray-700">Medical Certificate uploads/month</td>
+                    <td className="py-4 px-3 text-center font-semibold text-gray-800">3</td>
+                    <td className="py-4 px-3 text-center font-semibold text-gray-800">5</td>
+                    <td className="py-4 px-3 text-center font-semibold text-gray-800">20</td>
+                    <td className="py-4 px-3 text-center font-semibold text-gray-800">∞</td>
                   </tr>
                   <tr className="hover:bg-white/50 transition-colors">
-                    <td className="py-4 px-4 font-medium text-gray-700">Recruitment Dashboard</td>
-                    <td className="py-4 px-4 text-center">
+                    <td className="py-4 px-3 font-medium text-gray-700">Recruitment Dashboard</td>
+                    <td className="py-4 px-3 text-center">
                       <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mx-auto">
                         <span className="text-red-500 font-bold text-sm">✕</span>
                       </div>
                     </td>
-                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
                   </tr>
                   <tr className="hover:bg-white/50 transition-colors">
-                    <td className="py-4 px-4 font-medium text-gray-700">Happy Check Dashboard</td>
-                    <td className="py-4 px-4 text-center">
+                    <td className="py-4 px-3 font-medium text-gray-700">Happy Check Dashboard</td>
+                    <td className="py-4 px-3 text-center">
                       <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mx-auto">
                         <span className="text-red-500 font-bold text-sm">✕</span>
                       </div>
                     </td>
-                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
                   </tr>
                   <tr className="hover:bg-white/50 transition-colors">
-                    <td className="py-4 px-4 font-medium text-gray-700">Certificate Management</td>
-                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
-                    <td className="py-4 px-4 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-3 font-medium text-gray-700">Certificate Management</td>
+                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
+                    <td className="py-4 px-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto" /></td>
                   </tr>
                 </tbody>
               </table>
@@ -256,25 +429,25 @@ export default function HomePage() {
         </div>
 
         {/* Stats Section */}
-        <div className="mt-12 grid md:grid-cols-4 gap-6">
-          <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6 text-center">
-            <div className="text-3xl font-bold mb-2">500+</div>
-            <div className="text-blue-100">CVs Analyzed</div>
+        <div className="max-w-7xl mx-auto mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-4 md:p-6 text-center">
+            <div className="text-2xl md:text-3xl font-bold mb-2">500+</div>
+            <div className="text-blue-100 text-sm md:text-base">CVs Analyzed</div>
           </div>
           
-          <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6 text-center">
-            <div className="text-3xl font-bold mb-2">98%</div>
-            <div className="text-green-100">Satisfaction Rate</div>
+          <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-4 md:p-6 text-center">
+            <div className="text-2xl md:text-3xl font-bold mb-2">98%</div>
+            <div className="text-green-100 text-sm md:text-base">Satisfaction Rate</div>
           </div>
           
-          <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-6 text-center">
-            <div className="text-3xl font-bold mb-2">24/7</div>
-            <div className="text-purple-100">AI Support</div>
+          <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-4 md:p-6 text-center">
+            <div className="text-2xl md:text-3xl font-bold mb-2">24/7</div>
+            <div className="text-purple-100 text-sm md:text-base">AI Support</div>
           </div>
           
-          <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-xl p-6 text-center">
-            <div className="text-3xl font-bold mb-2">100%</div>
-            <div className="text-yellow-100">Secure & Private</div>
+          <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-xl p-4 md:p-6 text-center">
+            <div className="text-2xl md:text-3xl font-bold mb-2">100%</div>
+            <div className="text-yellow-100 text-sm md:text-base">Secure & Private</div>
           </div>
         </div>
       </div>
