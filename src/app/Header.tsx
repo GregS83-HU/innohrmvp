@@ -25,7 +25,6 @@ export default function Header() {
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [companyForfait, setCompanyForfait] = useState<string | null>(null);
 
-
   const [demoTimeLeft, setDemoTimeLeft] = useState<number | null>(null);
   const [isDemoMode, setIsDemoMode] = useState(false);
   const demoTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -59,10 +58,10 @@ export default function Header() {
     }
 
     if (companySlug === 'demo') {
-  router.push(`/jobs/demo/feedback`);
-} else {
-  window.location.href = 'https://www.linkedin.com/in/grégory-saussez';
-}
+      router.push(`/jobs/demo/feedback`);
+    } else {
+      window.location.href = 'https://www.linkedin.com/in/grégory-saussez';
+    }
   };
 
   useEffect(() => {
@@ -228,34 +227,33 @@ export default function Header() {
   };
 
   const getForfaitBadge = (forfait: string | null) => {
-  switch (forfait) {
-    case 'Free':
-      return (
-        <span className="flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-gray-200 text-gray-800 shadow-sm">
-          <div className="w-2 h-2 rounded-full bg-gray-500"></div> Free
-        </span>
-      );
-    case 'Momentum':
-      return (
-        <span className="flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800 shadow-md">
-          <div className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></div> Momentum
-        </span>
-      );
-    case 'Infinity':
-      return (
-        <span className="flex items-center gap-1 px-3 py-1 text-sm font-bold rounded-full bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-200 text-yellow-900 shadow-lg ring-1 ring-yellow-400">
-          <div className="w-3 h-3 rounded-full bg-yellow-500 animate-pulse shadow-md"></div> Infinity
-        </span>
-      );
-    default:
-      return null;
-  }
-};
-
+    switch (forfait) {
+      case 'Free':
+        return (
+          <span className="flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-gray-200 text-gray-800 shadow-sm">
+            <div className="w-2 h-2 rounded-full bg-gray-500"></div> Free
+          </span>
+        );
+      case 'Momentum':
+        return (
+          <span className="flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800 shadow-md">
+            <div className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></div> Momentum
+          </span>
+        );
+      case 'Infinity':
+        return (
+          <span className="flex items-center gap-1 px-3 py-1 text-sm font-bold rounded-full bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-200 text-yellow-900 shadow-lg ring-1 ring-yellow-400">
+            <div className="w-3 h-3 rounded-full bg-yellow-500 animate-pulse shadow-md"></div> Infinity
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
 
   const happyCheckLink = buildLink('/happiness-check');
   const uploadCertificateLink = buildLink('/medical-certificate/upload');
-  const buttonBaseClasses = 'flex items-center gap-2 px-5 py-2 rounded-xl font-semibold transition-all shadow-sm hover:shadow-md';
+  const buttonBaseClasses = 'flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all shadow-sm hover:shadow-md whitespace-nowrap';
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -279,20 +277,22 @@ export default function Header() {
           </div>
         )}
 
-        <div className="w-full px-9 py-4">
+        <div className="w-full px-4 sm:px-6 lg:px-9 py-4">
           <div className="flex items-center justify-between w-full max-w-8xl mx-auto">
-            <div className="flex-shrink-0">
+            {/* Logo section */}
+            <div className="flex-shrink-0 flex flex-col items-start gap-1 -ml-2">
               <Link href={companySlug === 'demo' ? `/jobs/demo/contact` : buildLink('/')}>
-    <img
-      src={companySlug && companyLogo ? companyLogo : '/HRInnoLogo.jpeg'}
-      alt="Logo"
-      className="h-10 sm:h-12 object-contain"
-    />
-  </Link>
-               {getForfaitBadge(companyForfait)}
+                <img
+                  src={companySlug && companyLogo ? companyLogo : '/HRInnoLogo.jpeg'}
+                  alt="Logo"
+                  className="h-10 sm:h-12 object-contain"
+                />
+              </Link>
+              {getForfaitBadge(companyForfait)}
             </div>
 
-            <nav className="hidden lg:flex items-center gap-3 flex-1 justify-center mx-8">
+            {/* Desktop Navigation - hidden on tablet and mobile */}
+            <nav className="hidden xl:flex items-center gap-2 flex-1 justify-center mx-8">
               <Link href={buildLink('/openedpositions')} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700`}>
                 <Briefcase className="w-4 h-4" /> {user ? 'Your Available Positions' : 'Available Positions'}
               </Link>
@@ -346,29 +346,33 @@ export default function Header() {
                   <Stethoscope className="w-4 h-4" /> Upload Certificate
                 </Link>
               )}
-
-              {companySlug === 'demo' && (
-  <Link
-    href={`/jobs/demo/contact`}
-    className={`${buttonBaseClasses} bg-indigo-50 hover:bg-indigo-100 text-indigo-700`}
-  >
-    <User className="w-4 h-4" /> Contact Us
-  </Link>
-)}
             </nav>
 
-            <div className="flex-shrink-0 flex items-center gap-2 pr-4 sm:pr-6 lg:pr-8">
+            {/* Right section - User area and mobile menu */}
+            <div className="flex items-center gap-3 -mr-2">
+              {/* Demo timer for tablet/mobile */}
               {isDemoMode && demoTimeLeft !== null && (
-                <div className="lg:hidden flex items-center gap-2 px-3 py-1 bg-orange-100 text-orange-800 rounded-lg text-sm font-medium">
+                <div className="xl:hidden flex items-center gap-2 px-3 py-1 bg-orange-100 text-orange-800 rounded-lg text-xs font-medium">
                   <Clock className="w-3 h-3" />
                   {formatTime(demoTimeLeft)}
                 </div>
               )}
 
-              <div className="hidden lg:flex items-center gap-4">
+              {/* Contact Us button for demo - positioned in right section */}
+              {companySlug === 'demo' && (
+                <Link
+                  href={`/jobs/demo/contact`}
+                  className={`${buttonBaseClasses} bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hidden sm:flex`}
+                >
+                  <User className="w-4 h-4" /> Contact Us
+                </Link>
+              )}
+
+              {/* Desktop user area */}
+              <div className="hidden xl:flex items-center gap-3">
                 {companySlug === 'demo' && !user && (
-                  <div className="text-blue-700 font-semibold text-sm">
-                    → Login for employer view
+                  <div className="text-blue-700 font-medium text-sm">
+                    Login for employer view →
                   </div>
                 )}
 
@@ -378,7 +382,7 @@ export default function Header() {
                       <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                         <User className="w-4 h-4 text-blue-600" />
                       </div>
-                      <span>{user.firstname} {user.lastname}</span>
+                      <span className="max-w-32 truncate">{user.firstname} {user.lastname}</span>
                       <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
                     </button>
 
@@ -401,28 +405,33 @@ export default function Header() {
                 )}
               </div>
 
-              <button className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors mr-4" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+              {/* Mobile/Tablet menu button */}
+              <button 
+                className="xl:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors" 
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
                 {isMobileMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
               </button>
             </div>
           </div>
         </div>
 
+        {/* Mobile/Tablet Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden bg-white border-t border-gray-200 shadow-lg">
+          <div className="xl:hidden bg-white border-t border-gray-200 shadow-lg">
             <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
-              <Link href={buildLink('/openedpositions')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full`}>
+              <Link href={buildLink('/openedpositions')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full justify-start`}>
                 <Briefcase className="w-4 h-4" /> {user ? 'Your Available Positions' : 'Available Positions'}
               </Link>
 
               {user && (
-                <Link href={buildLink('/openedpositions/new')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-green-50 hover:bg-green-100 text-green-700 w-full`}>
+                <Link href={buildLink('/openedpositions/new')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-green-50 hover:bg-green-100 text-green-700 w-full justify-start`}>
                   <Plus className="w-4 h-4" /> Create Position
                 </Link>
               )}
 
               {companyId && (
-                <Link href={happyCheckLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700 w-full`}>
+                <Link href={happyCheckLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700 w-full justify-start`}>
                   <Smile className="w-4 h-4" /> Happy Check
                 </Link>
               )}
@@ -433,52 +442,52 @@ export default function Header() {
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Outils RH</p>
                   </div>
 
-                  <Link href={buildLink('/openedpositions/analytics')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full`}>
+                  <Link href={buildLink('/openedpositions/analytics')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full justify-start`}>
                     <BarChart3 className="w-4 h-4" /> Recruitment Dashboard
                   </Link>
 
-                  <Link href={buildLink('/happiness-dashboard')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full`}>
+                  <Link href={buildLink('/happiness-dashboard')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full justify-start`}>
                     <BarChart3 className="w-4 h-4" /> Happiness Dashboard
                   </Link>
 
-                  
-
-                  <Link href={buildLink('/medical-certificate/list')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full`}>
+                  <Link href={buildLink('/medical-certificate/list')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full justify-start`}>
                     <Stethoscope className="w-4 h-4" /> List of Certificates
                   </Link>
-                  <Link href={buildLink('/medical-certificate/download')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full`}>
+                  
+                  <Link href={buildLink('/medical-certificate/download')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full justify-start`}>
                     <Stethoscope className="w-4 h-4" /> Certificates Download
                   </Link>
-                  <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className={`${buttonBaseClasses} bg-white hover:bg-red-50 text-red-600 w-full`}>
+                  
+                  <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className={`${buttonBaseClasses} bg-white hover:bg-red-50 text-red-600 w-full justify-start`}>
                     <LogOut className="w-4 h-4" /> Logout
                   </button>
                 </>
               )}
 
               {!user && companyId && (
-                <Link href={uploadCertificateLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full`}>
+                <Link href={uploadCertificateLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full justify-start`}>
                   <Stethoscope className="w-4 h-4" /> Upload Certificate
                 </Link>
               )}
 
               {companySlug === 'demo' && (
-  <Link
-    href={`/jobs/demo/contact`}
-    onClick={() => setIsMobileMenuOpen(false)}
-    className={`${buttonBaseClasses} bg-indigo-50 hover:bg-indigo-100 text-indigo-700 w-full`}
-  >
-    <User className="w-4 h-4" /> Contact Us
-  </Link>
-)}
+                <Link
+                  href={`/jobs/demo/contact`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`${buttonBaseClasses} bg-indigo-50 hover:bg-indigo-100 text-indigo-700 w-full justify-start`}
+                >
+                  <User className="w-4 h-4" /> Contact Us
+                </Link>
+              )}
 
               {!user && (
-                <div className="relative">
+                <div className="relative border-t border-gray-200 pt-2">
                   {companySlug === 'demo' && (
-                    <div className="text-center mb-2 text-blue-700 font-semibold text-sm">
+                    <div className="text-center mb-2 text-blue-700 font-medium text-sm">
                       → Login for employer view
                     </div>
                   )}
-                  <button onClick={() => { setIsLoginOpen(true); setIsMobileMenuOpen(false); }} className={`${buttonBaseClasses} bg-blue-600 hover:bg-blue-700 text-white w-full`}>
+                  <button onClick={() => { setIsLoginOpen(true); setIsMobileMenuOpen(false); }} className={`${buttonBaseClasses} bg-blue-600 hover:bg-blue-700 text-white w-full justify-center`}>
                     <User className="w-4 h-4" /> Login
                   </button>
                 </div>
