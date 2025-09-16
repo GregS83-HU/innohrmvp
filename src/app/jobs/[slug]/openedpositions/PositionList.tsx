@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useSession } from "@supabase/auth-helpers-react"
 import { useEffect, useState } from "react"
-import { Search, Briefcase, BarChart3, X, Building2, FileText } from 'lucide-react'
+import { Search, Briefcase, BarChart3, X, Building2, FileText, Copy } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 type Position = {
@@ -23,6 +23,15 @@ type Props = {
   companySlug?: string
 }
 
+// Simple Snackbar component
+function Snackbar({ message }: { message: string }) {
+  return (
+    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-4 py-2 rounded-lg shadow-lg animate-fade-in-up">
+      {message}
+    </div>
+  )
+}
+
 export default function PositionsList({ initialPositions = [], companySlug }: Props) {
   const router = useRouter()
   const session = useSession()
@@ -34,6 +43,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
   const [error, setError] = useState<string | null>(null)
   const [loadingClose, setLoadingClose] = useState<number | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
+  const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null)
 
   // Redirect to 404 if no slug
   useEffect(() => {
@@ -86,14 +96,14 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
       })
       const data = await res.json()
       if (!res.ok) {
-        alert("Error closing position: " + (data.error || "Erreur inconnue"))
+        setSnackbarMessage("Error closing position: " + (data.error || "Erreur inconnue"))
         setLoadingClose(null)
         return
       }
-      alert("Position closed successfully")
+      setSnackbarMessage("Position closed successfully")
       setPositions((prev) => prev.filter((p) => p.id !== positionId))
     } catch (e) {
-      alert("Error closing position: " + (e as Error).message)
+      setSnackbarMessage("Error closing position: " + (e as Error).message)
     }
     setLoadingClose(null)
   }
@@ -114,6 +124,40 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
     if (!companySlug) return null
     return `/jobs/${companySlug}/stats?positionId=${position.id}`
   }
+
+  // Function to generate the public link for sharing
+  const getPublicLink = (position: Position) => {
+    if (!companySlug) return null
+    const url = new URL(
+      `/jobs/${companySlug}/cv-analyse?` +
+        new URLSearchParams({
+          position: position.position_name,
+          description: position.position_description_detailed,
+          id: position.id.toString(),
+        }),
+      window.location.origin
+    )
+    return url.toString()
+  }
+
+  async function handleCopyLink(position: Position) {
+    const link = getPublicLink(position)
+    if (!link) return
+    try {
+      await navigator.clipboard.writeText(link)
+      setSnackbarMessage("Link copied to clipboard!")
+    } catch (err) {
+      setSnackbarMessage("Failed to copy link: " + (err as Error).message)
+    }
+  }
+
+  // Hide snackbar after 3 seconds
+  useEffect(() => {
+    if (snackbarMessage) {
+      const timer = setTimeout(() => setSnackbarMessage(null), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [snackbarMessage])
 
   const filteredPositions = positions.filter(
     (p) =>
@@ -245,6 +289,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
 
                   {isLoggedIn && companySlug && (
                     <>
+                      {/* Board */}
                       <Link
                         href={getStatsLink(position)!}
                         className="flex items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-600 transition-colors shadow-md hover:shadow-lg transform hover:scale-105"
@@ -253,6 +298,16 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
                         Board
                       </Link>
 
+                      {/* Copy Link */}
+                      <button
+                        onClick={() => handleCopyLink(position)}
+                        className="flex items-center gap-2 bg-blue-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors shadow-md hover:shadow-lg transform hover:scale-105"
+                      >
+                        <Copy className="w-5 h-5" />
+                        Copy Link
+                      </button>
+
+                      {/* Close */}
                       <button
                         onClick={() => handleClose(position.id)}
                         disabled={loadingClose === position.id}
@@ -278,6 +333,19 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
           ))}
         </div>
       </div>
+
+      {/* Snackbar */}
+      {snackbarMessage && <Snackbar message={snackbarMessage} />}
     </div>
   )
 }
+
+/* Extra Tailwind animations (optional, add in globals.css if not present)
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.3s ease-out;
+}
+*/
