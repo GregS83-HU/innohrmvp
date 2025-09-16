@@ -234,6 +234,28 @@ export default function NewOpenedPositionPage() {
           </div>
         </div>
 
+        {/* Messages - Now positioned right after the form */}
+        {message && (
+          <div className={`rounded-2xl p-4 sm:p-6 ${
+            message.type === 'success' 
+              ? 'bg-green-50 border border-green-200' 
+              : 'bg-red-50 border border-red-200'
+          }`}>
+            <div className="flex items-center gap-2">
+              {message.type === 'success' ? (
+                <CheckCircle className="w-5 h-5 text-green-600" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-red-600" />
+              )}
+              <p className={`font-medium ${
+                message.type === 'success' ? 'text-green-800' : 'text-red-800'
+              }`}>
+                {message.text}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Analysis Section */}
         {positionId && (
           <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
@@ -270,28 +292,6 @@ export default function NewOpenedPositionPage() {
                   ></div>
                 </div>
               )}
-            </div>
-          </div>
-        )}
-
-        {/* Messages */}
-        {message && (
-          <div className={`rounded-2xl p-4 sm:p-6 ${
-            message.type === 'success' 
-              ? 'bg-green-50 border border-green-200' 
-              : 'bg-red-50 border border-red-200'
-          }`}>
-            <div className="flex items-center gap-2">
-              {message.type === 'success' ? (
-                <CheckCircle className="w-5 h-5 text-green-600" />
-              ) : (
-                <AlertCircle className="w-5 h-5 text-red-600" />
-              )}
-              <p className={`font-medium ${
-                message.type === 'success' ? 'text-green-800' : 'text-red-800'
-              }`}>
-                {message.text}
-              </p>
             </div>
           </div>
         )}
