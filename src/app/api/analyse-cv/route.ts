@@ -14,8 +14,8 @@ export async function POST(req: NextRequest) {
     const file = formData.get('file') as File
     const jobDescription = formData.get('jobDescription') as string
     const jobDescriptionDetailed = formData.get('jobDescriptionDetailed') as string
-    const firstname = formData.get('firstName') as string
-    const lastname = formData.get('lastName') as string
+    //const firstname = formData.get('firstName') as string
+    //const lastname = formData.get('lastName') as string
     const positionId = formData.get('positionId') as string
     const source = formData.get('source') as string || 'Candidate Upload'
 
@@ -48,12 +48,11 @@ export async function POST(req: NextRequest) {
 
     // Prompt AI pour l'analyse RH (interne)
     const hrPrompt = `
-Tu es un expert RH. Voici un CV :
+You are a strict HR expert. You will have a job description and the CV of the candidate applying to the position
 
 ${cvText}
 
-Voici la description détaillée du poste ciblé:
-
+This is the detailed description of the job description. 
 ${jobDescription}
 
 Analyze the CV only against the provided job description with extreme rigor.
@@ -94,12 +93,14 @@ Always provide concrete examples from the CV to justify the score.
 
 Keep tone professional, concise, and free from speculation.
 
-J'aimerais aussi que tu détectes l'adresse email et le numéro du téléphone du client
+J'aimerais aussi que tu détectes le nom, le prénom, l'adresse email et le numéro du téléphone du client
 
 Répond uniquement avec un JSON strictement valide, au format :
 {
   "score": number,
   "analysis": string
+  "candidat_firstname": string
+  "candidat_lastname": string
   "candidat_email": string
   "candidtat_phone: string
 }
@@ -151,7 +152,7 @@ Respond only with a valid JSON in this format:
 }
 IMPORTANT: Respond with nothing other than this JSON.
 
-The response must be in perfect English.
+The response must be in perfect English et start with "Dear ..." where ... are the first name and last name of the candidate from the CV and also not finish by any "Best regards" or any name, just the feedback itself.
 `
 
     // Appel API pour l'analyse RH
@@ -172,7 +173,7 @@ The response must be in perfect English.
     const hrMatch = hrRawResponse.match(/\{[\s\S]*\}/)
     if (!hrMatch) return NextResponse.json({ error: 'Réponse JSON IA invalide pour analyse RH' }, { status: 500 })
 
-    const { score, analysis, candidat_email, candidat_phone } = JSON.parse(hrMatch[0])
+    const { score, analysis,candidat_firstname, candidat_lastname, candidat_email, candidat_phone } = JSON.parse(hrMatch[0])
 
     // Appel API pour le feedback candidat
     const candidateRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -197,8 +198,8 @@ The response must be in perfect English.
     const { data: candidate, error: insertError } = await supabase
       .from('candidats')
       .insert({
-        candidat_firstname: firstname,
-        candidat_lastname: lastname,
+        candidat_firstname: candidat_firstname,
+        candidat_lastname: candidat_lastname,
         cv_text: cvText,
         cv_file: cvFileUrl,
         candidat_email: candidat_email,

@@ -23,8 +23,8 @@ export default function CVAnalyseClient({
   console.log("demo?", isDemo)
 
   const [file, setFile] = useState<File | null>(null)
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
+// const [firstName, setFirstName] = useState('')
+//  const [lastName, setLastName] = useState('')
   const [analysis, setAnalysis] = useState('')
   const [candidateFeedback, setCandidateFeedback] = useState('')
   const [score, setScore] = useState<number | null>(null)
@@ -41,8 +41,8 @@ export default function CVAnalyseClient({
     formData.append('file', file)
     formData.append('jobDescription', jobDescription)
     formData.append('jobDescriptionDetailed', jobDescriptionDetailed)
-    formData.append('firstName', firstName)
-    formData.append('lastName', lastName)
+   // formData.append('firstName', firstName)
+   // formData.append('lastName', lastName)
     formData.append('positionId', positionId)
 
     setLoading(true)
@@ -166,39 +166,6 @@ export default function CVAnalyseClient({
         <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
           <form onSubmit={handleUpload} className="space-y-6">
             
-            {/* Personal Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="flex items-center gap-2 text-gray-700 font-medium mb-2">
-                  <User className="w-4 h-4" />
-                  First Name
-                </label>
-                <input
-                  type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                  disabled={analysisCompleted}
-                />
-              </div>
-              
-              <div>
-                <label className="flex items-center gap-2 text-gray-700 font-medium mb-2">
-                  <User className="w-4 h-4" />
-                  Last Name
-                </label>
-                <input
-                  type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                  disabled={analysisCompleted}
-                />
-              </div>
-            </div>
-
             {/* Important Notice */}
             {!analysisCompleted && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -225,7 +192,6 @@ export default function CVAnalyseClient({
 
             {/* File Upload */}
             <div>
-              <label className="block text-gray-700 font-medium mb-3">CV Upload</label>
               <div className={`border-2 border-dashed rounded-lg p-6 sm:p-8 text-center transition-colors ${
                 analysisCompleted 
                   ? 'border-gray-200 bg-gray-50' 
