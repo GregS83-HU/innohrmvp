@@ -119,9 +119,11 @@ Voici la description du poste pour lequel il/elle a postulé:
 
 ${jobDescription}
 
+
+
 Provide constructive and encouraging feedback directly to the candidate. Your goal is to help them understand how their profile matches the position and give actionable advice for improvement.
 
-Structure your response as follows:
+Structure your response as follows and make it easy to read:
 
 **Your Strengths**
 - Highlight the positive aspects of their CV that align with the position
@@ -152,8 +154,7 @@ Respond only with a valid JSON in this format:
 }
 IMPORTANT: Respond with nothing other than this JSON.
 
-The response must be in perfect English et start with "Dear ..." where ... are the first name and last name of the candidate from the CV and also not finish by any "Best regards" or any name, just the feedback itself.
-`
+The response must be in perfect English.`
 
     // Appel API pour l'analyse RH
     const hrRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -190,6 +191,7 @@ The response must be in perfect English et start with "Dear ..." where ... are t
 
     const candidateCompletion = await candidateRes.json()
     const candidateRawResponse = candidateCompletion.choices?.[0]?.message?.content ?? ''
+    console.log("feedback raw",candidateRawResponse)
     const candidateMatch = candidateRawResponse.match(/\{[\s\S]*\}/)
     if (!candidateMatch) return NextResponse.json({ error: 'Réponse JSON IA invalide pour feedback candidat' }, { status: 500 })
 
