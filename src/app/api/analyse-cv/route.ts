@@ -1,53 +1,173 @@
 // src/app/api/analyse-cv/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import { parsePdfBuffer } from '../../../../lib/parsePdfSafe'
-import { createClient } from '@supabase/supabase-js'
+import { NextRequest, NextResponse } from 'next/server';
+import { parsePdfBuffer } from '../../../../lib/parsePdfSafe';
+import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+);
+
+// Fallback API call with different model
+async function callOpenRouterAPIWithModel(prompt: string, context = '', model = 'openai/gpt-3.5-turbo') {
+  try {
+    console.log(`Making fallback API call for ${context} with model ${model}...`);
+
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'https://localhost:3000',
+        'X-Title': 'CV Analysis App',
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.1,
+        max_tokens: 2000,
+      }),
+    });
+
+    const responseText = await response.text();
+    console.log(`Fallback API response for ${context} (status: ${response.status}):`, responseText.substring(0, 500) + '...');
+
+    if (!response.ok) {
+      throw new Error(`Fallback API call failed for ${context}: ${response.status} ${response.statusText}`);
+    }
+
+    let completion;
+    try {
+      completion = JSON.parse(responseText);
+    } catch {
+      throw new Error(`Fallback API returned invalid JSON for ${context}`);
+    }
+
+    if (!completion.choices || !completion.choices[0] || !completion.choices[0].message) {
+      throw new Error(`Invalid fallback API response structure for ${context}`);
+    }
+
+    return completion.choices[0].message.content;
+  } catch (error) {
+    console.error(`Error in fallback API call for ${context}:`, error);
+    throw error;
+  }
+}
+
+// Robust JSON extraction
+function extractAndParseJSON(rawResponse: string, context = '') {
+  const trimmed = rawResponse.trim();
+
+  try {
+    return JSON.parse(trimmed);
+  } catch {}
+
+  // Regex pour extraire le premier objet JSON complet
+  const match = trimmed.match(/\{(?:[^{}]|(?:\{[^{}]*\}))*\}/);
+  if (!match) {
+    console.error(`No JSON found in ${context} response:`, rawResponse);
+    throw new Error(`No valid JSON found in ${context} response`);
+  }
+
+  try {
+    return JSON.parse(match[0]);
+  } catch (parseError) {
+    console.error(`Invalid JSON in ${context} response:`, match[0]);
+    throw new Error(`Invalid JSON structure in ${context} response`);
+  }
+}
+
+// Main API call function
+async function callOpenRouterAPI(prompt: string, context = '', model = 'mistralai/mistral-7b-instruct') {
+  try {
+    console.log(`Making API call for ${context} with model ${model}...`);
+
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'https://localhost:3000',
+        'X-Title': 'CV Analysis App',
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.1,
+        max_tokens: 2000,
+      }),
+    });
+
+    const responseText = await response.text();
+    console.log(`Raw API response for ${context} (status: ${response.status}):`, responseText.substring(0, 500) + '...');
+
+    if (!response.ok) {
+      if (responseText.includes('<!DOCTYPE') || responseText.includes('<html>')) {
+        throw new Error(`API returned HTML error page for ${context}. Check API key and endpoint status.`);
+      }
+      throw new Error(`API call failed for ${context}: ${response.status} ${response.statusText}`);
+    }
+
+    let completion;
+    try {
+      completion = JSON.parse(responseText);
+    } catch {
+      throw new Error(`API returned invalid JSON for ${context}`);
+    }
+
+    if (!completion.choices || !completion.choices[0] || !completion.choices[0].message) {
+      throw new Error(`Invalid API response structure for ${context}`);
+    }
+
+    return completion.choices[0].message.content;
+  } catch (error) {
+    console.error(`Error in callOpenRouterAPI for ${context}:`, error);
+    throw error;
+  }
+}
+
+// Sanitize filenames
+function sanitizeFileName(filename: string) {
+  return filename
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '_')
+    .replace(/[^a-zA-Z0-9._-]/g, '');
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const formData = await req.formData()
-    const file = formData.get('file') as File
-    const jobDescription = formData.get('jobDescription') as string
-    const jobDescriptionDetailed = formData.get('jobDescriptionDetailed') as string
-    //const firstname = formData.get('firstName') as string
-    //const lastname = formData.get('lastName') as string
-    const positionId = formData.get('positionId') as string
-    const source = formData.get('source') as string || 'Candidate Upload'
+    const formData = await req.formData();
+    const file = formData.get('file') as File;
+    const jobDescription = formData.get('jobDescription') as string;
+    const positionId = formData.get('positionId') as string;
+    const source = formData.get('source') as string || 'Candidate Upload';
 
     if (!file || file.type !== 'application/pdf') {
-      return NextResponse.json({ error: 'Fichier PDF requis.' }, { status: 400 })
+      return NextResponse.json({ error: 'Fichier PDF requis.' }, { status: 400 });
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer())
-    const cvText = await parsePdfBuffer(buffer)
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const cvText = await parsePdfBuffer(buffer);
 
-    function sanitizeFileName(filename: string) {
-      return filename
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/\s+/g, '_')
-        .replace(/[^a-zA-Z0-9._-]/g, '')
-    }
-
-    const safeFileName = sanitizeFileName(file.name)
-    const filePath = `cvs/${Date.now()}_${safeFileName}`
+    const safeFileName = sanitizeFileName(file.name);
+    const filePath = `cvs/${Date.now()}_${safeFileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from('cvs')
-      .upload(filePath, buffer, { contentType: 'application/pdf' })
+      .upload(filePath, buffer, { contentType: 'application/pdf' });
 
-    if (uploadError) return NextResponse.json({ error: 'Échec upload CV' }, { status: 500 })
+    if (uploadError) {
+      console.error('Supabase upload error:', uploadError);
+      return NextResponse.json({ error: 'Échec upload CV' }, { status: 500 });
+    }
 
-    const { data: publicUrlData } = supabase.storage.from('cvs').getPublicUrl(filePath)
-    const cvFileUrl = publicUrlData.publicUrl
+    const { data: publicUrlData } = supabase.storage.from('cvs').getPublicUrl(filePath);
+    const cvFileUrl = publicUrlData.publicUrl;
 
-    // Prompt AI pour l'analyse RH (interne)
+    // Prompt HR analysis (strict JSON)
     const hrPrompt = `
+Strictly respond with JSON only, nothing else.
 You are a strict HR expert. You will have a job description and the CV of the candidate applying to the position
 
 ${cvText}
@@ -98,19 +218,22 @@ J'aimerais aussi que tu détectes le nom, le prénom, l'adresse email et le num�
 Répond uniquement avec un JSON strictement valide, au format :
 {
   "score": number,
-  "analysis": string
-  "candidat_firstname": string
-  "candidat_lastname": string
-  "candidat_email": string
-  "candidtat_phone: string
+  "analysis": "string",
+  "candidat_firstname": "string",
+  "candidat_lastname": "string",
+  "candidat_email": "string",
+  "candidat_phone": "string"
 }
 IMPORTANT : Ne réponds avec rien d'autre que ce JSON.
 
 La réponse doit etre en anglais parfait
-`
 
-    // Prompt AI pour le feedback candidat (externe)
+End of JSON.
+`;
+
+    // Prompt Candidate Feedback (strict JSON)
     const candidateFeedbackPrompt = `
+Strictly respond with JSON only, nothing else.
 Tu es un consultant en carrière bienveillant. Voici un CV d'un candidat :
 
 ${cvText}
@@ -118,8 +241,6 @@ ${cvText}
 Voici la description du poste pour lequel il/elle a postulé:
 
 ${jobDescription}
-
-
 
 Provide constructive and encouraging feedback directly to the candidate. Your goal is to help them understand how their profile matches the position and give actionable advice for improvement.
 
@@ -154,63 +275,53 @@ Respond only with a valid JSON in this format:
 }
 IMPORTANT: Respond with nothing other than this JSON.
 
-The response must be in perfect English.`
+The response must be in perfect English.
 
-    // Appel API pour l'analyse RH
-    const hrRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'mistralai/mistral-7b-instruct',
-        messages: [{ role: 'user', content: hrPrompt }],
-      }),
-    })
+End of JSON.
+`;
 
-    const hrCompletion = await hrRes.json()
-    const hrRawResponse = hrCompletion.choices?.[0]?.message?.content ?? ''
-    const hrMatch = hrRawResponse.match(/\{[\s\S]*\}/)
-    if (!hrMatch) return NextResponse.json({ error: 'Réponse JSON IA invalide pour analyse RH' }, { status: 500 })
+    // === HR Analysis ===
+    let hrRawResponse;
+    try {
+      hrRawResponse = await callOpenRouterAPI(hrPrompt, 'HR analysis');
+    } catch {
+      hrRawResponse = await callOpenRouterAPIWithModel(hrPrompt, 'HR analysis', 'openai/gpt-3.5-turbo');
+    }
 
-    const { score, analysis,candidat_firstname, candidat_lastname, candidat_email, candidat_phone } = JSON.parse(hrMatch[0])
+    console.log('HR raw response:', hrRawResponse);
+    const hrData = extractAndParseJSON(hrRawResponse, 'HR analysis');
+    const { score, analysis, candidat_firstname, candidat_lastname, candidat_email, candidat_phone } = hrData;
 
-    // Appel API pour le feedback candidat
-    const candidateRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'mistralai/mistral-7b-instruct',
-        messages: [{ role: 'user', content: candidateFeedbackPrompt }],
-      }),
-    })
+    // === Candidate Feedback ===
+    let candidateRawResponse;
+    try {
+      candidateRawResponse = await callOpenRouterAPI(candidateFeedbackPrompt, 'candidate feedback');
+    } catch {
+      candidateRawResponse = await callOpenRouterAPIWithModel(candidateFeedbackPrompt, 'candidate feedback', 'openai/gpt-3.5-turbo');
+    }
 
-    const candidateCompletion = await candidateRes.json()
-    const candidateRawResponse = candidateCompletion.choices?.[0]?.message?.content ?? ''
-    console.log("feedback raw",candidateRawResponse)
-    const candidateMatch = candidateRawResponse.match(/\{[\s\S]*\}/)
-    if (!candidateMatch) return NextResponse.json({ error: 'Réponse JSON IA invalide pour feedback candidat' }, { status: 500 })
+    console.log('Candidate feedback raw response:', candidateRawResponse);
+    const candidateData = extractAndParseJSON(candidateRawResponse, 'candidate feedback');
+    const { feedback } = candidateData;
 
-    const { feedback } = JSON.parse(candidateMatch[0])
-
+    // === Insert into Database ===
     const { data: candidate, error: insertError } = await supabase
       .from('candidats')
       .insert({
-        candidat_firstname: candidat_firstname,
-        candidat_lastname: candidat_lastname,
+        candidat_firstname,
+        candidat_lastname,
         cv_text: cvText,
         cv_file: cvFileUrl,
-        candidat_email: candidat_email,
-        candidat_phone: candidat_phone
+        candidat_email,
+        candidat_phone
       })
       .select()
-      .single()
+      .single();
 
-    if (insertError || !candidate) return NextResponse.json({ error: 'Échec enregistrement candidat' }, { status: 500 })
+    if (insertError || !candidate) {
+      console.error('Database insert error:', insertError);
+      return NextResponse.json({ error: 'Échec enregistrement candidat' }, { status: 500 });
+    }
 
     const { error: relationError } = await supabase
       .from('position_to_candidat')
@@ -220,17 +331,21 @@ The response must be in perfect English.`
         candidat_score: score,
         candidat_ai_analyse: analysis,
         source
-      })
+      });
 
-    if (relationError) return NextResponse.json({ error: 'Échec liaison position/candidat' }, { status: 500 })
+    if (relationError) {
+      console.error('Relation insert error:', relationError);
+      return NextResponse.json({ error: 'Échec liaison position/candidat' }, { status: 500 });
+    }
 
-    return NextResponse.json({ 
-      score, 
-      analysis, 
-      candidateFeedback: feedback 
-    })
-  } catch (err) {
-    console.error(err)
-    return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 })
+    return NextResponse.json({
+      score,
+      analysis,
+      candidateFeedback: feedback
+    });
+  } catch (aiError: unknown) {
+    console.error('AI processing error:', aiError);
+    const errorMessage = aiError instanceof Error ? aiError.message : 'Unknown AI processing error';
+    return NextResponse.json({ error: `AI processing failed: ${errorMessage}` }, { status: 500 });
   }
 }

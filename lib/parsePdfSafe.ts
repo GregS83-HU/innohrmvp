@@ -1,30 +1,21 @@
-// src/lib/parsePdfSafe.ts
+// src/lib/pdfParseSafe.ts
+// ⛔️ Attention : pas d'import depuis 'pdf-parse' (le root), sinon mode debug déclenché
 
-// Tell TypeScript to ignore missing types
-// @ts-ignore
-const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js')
-
-/**
- * Extracts all text from a PDF buffer.
- * @param buffer PDF file as a Buffer
- * @returns extracted text as a string
- */
+//const pdfParse = require('pdf-parse/lib/pdf-parse')
+/*import pdfParse from 'pdf-parse'
 export async function parsePdfBuffer(buffer: Buffer): Promise<string> {
-  // Load the PDF
-  const loadingTask = pdfjsLib.getDocument({ data: buffer })
-  const pdf = await loadingTask.promise
+  const data = await pdfParse(buffer)
+  return data.text
+}*/
 
-  let text = ''
 
-  // Loop through each page
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i)
-    const content = await page.getTextContent()
+// ⚠️ Ne pas utiliser l'import global, cela déclenche le mode debug
+// ⛔️ import pdfParse from 'pdf-parse'
+// ✅ Utiliser une importation dynamique uniquement à l'exécution
 
-    // Combine text items from the page
-    const pageText = content.items.map((item: any) => item.str).join(' ')
-    text += pageText + '\n'
-  }
-
-  return text
+export async function parsePdfBuffer(buffer: Buffer): Promise<string> {
+  // L'import dynamique empêche le déclenchement de code en dehors de l'appel
+  const pdfParse = (await import('pdf-parse')).default;
+  const data = await pdfParse(buffer);
+  return data.text;
 }

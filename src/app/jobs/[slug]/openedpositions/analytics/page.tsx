@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieLabelRenderProps
 } from 'recharts';
 import { Users, TrendingUp, Award, Clock } from 'lucide-react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
@@ -452,17 +452,20 @@ const PositionAnalytics: React.FC = () => {
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
-                      data={analytics.sourceDistribution}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }: { name: string; percent?: number }) =>
-                        `${name}: ${percent ? (percent * 100).toFixed(0) : 0}%`
-                      }
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
+  data={analytics.sourceDistribution}
+  cx="50%"
+  cy="50%"
+  labelLine={false}
+  label={(props: PieLabelRenderProps) => {
+    const name = props.name ?? 'Unknown';
+    // Coerce percent to number and fallback to 0
+    const percent = typeof props.percent === 'number' ? props.percent : 0;
+    return `${name}: ${(percent * 100).toFixed(0)}%`;
+  }}
+  outerRadius={80}
+  fill="#8884d8"
+  dataKey="value"
+>
                       {analytics.sourceDistribution.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
