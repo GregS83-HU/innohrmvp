@@ -48,7 +48,6 @@
     "eslint": "^9",
     "eslint-config-next": "15.4.5",
     "patch-package": "^8.0.0",
-    "postinstall-postinstall": "^2.1.0",
     "snyk": "^1.1299.0",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.7",
