@@ -215,7 +215,7 @@ export default async function CVAnalysePage({
           </div>
           <h1 className="text-xl font-bold text-gray-800 mb-2">Position Not Found</h1>
           <p className="text-gray-600 mb-4">
-            The position you're trying to apply for doesn't exist or is no longer available.
+            The position you&apos;re trying to apply for doesn&apos;t exist or is no longer available.
           </p>
           <a
             href={`/jobs/${slug}`}
