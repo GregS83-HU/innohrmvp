@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useSession } from "@supabase/auth-helpers-react"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback, useMemo } from "react"
 import { Search, Briefcase, BarChart3, X, Building2, FileText, Copy } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
@@ -26,7 +26,7 @@ type Props = {
 // Simple Snackbar component
 function Snackbar({ message }: { message: string }) {
   return (
-    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-4 py-2 rounded-lg shadow-lg animate-fade-in-up">
+    <div className="fixed bottom-4 left-4 right-4 sm:left-1/2 sm:right-auto sm:transform sm:-translate-x-1/2 sm:w-auto bg-gray-900 text-white px-4 py-2 rounded-lg shadow-lg animate-fade-in-up z-50">
       {message}
     </div>
   )
@@ -51,6 +51,16 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
       router.replace('/404')
     }
   }, [companySlug, router])
+
+  // Memoized filtered positions for better performance
+  const filteredPositions = useMemo(() => {
+    return positions.filter(
+      (p) =>
+        (!companySlug || p.company?.slug === companySlug) &&
+        (p.position_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+         p.position_description.toLowerCase().includes(searchTerm.toLowerCase()))
+    )
+  }, [positions, companySlug, searchTerm])
 
   useEffect(() => {
     if (!companySlug) return
@@ -85,7 +95,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
     fetchPositions()
   }, [companySlug, isLoggedIn, userId, initialPositions.length])
 
-  async function handleClose(positionId: number) {
+  const handleClose = useCallback(async (positionId: number) => {
     if (!confirm("Do you really want to close this position?")) return
     setLoadingClose(positionId)
     try {
@@ -106,41 +116,30 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
       setSnackbarMessage("Error closing position: " + (e as Error).message)
     }
     setLoadingClose(null)
-  }
+  }, [])
 
-  // Function to generate the apply link based on context
-  const getApplyLink = (position: Position) => {
-    if (!companySlug) return null
-    const queryParams = new URLSearchParams({
-      position: position.position_name,
-      description: position.position_description_detailed,
-      id: position.id.toString()
-    })
-    return `/jobs/${companySlug}/cv-analyse?${queryParams.toString()}`
-  }
+  // Memoized link generators for better performance
+  const getApplyLink = useCallback((position: Position) => {
+  if (!companySlug) return null
+  // Only pass the position ID - much cleaner URL!
+  return `/jobs/${companySlug}/cv-analyse?id=${position.id}`
+}, [companySlug])
 
-  // Function to generate the stats link based on context
-  const getStatsLink = (position: Position) => {
+  const getStatsLink = useCallback((position: Position) => {
     if (!companySlug) return null
     return `/jobs/${companySlug}/stats?positionId=${position.id}`
-  }
+  }, [companySlug])
 
-  // Function to generate the public link for sharing
-  const getPublicLink = (position: Position) => {
-    if (!companySlug) return null
-    const url = new URL(
-      `/jobs/${companySlug}/cv-analyse?` +
-        new URLSearchParams({
-          position: position.position_name,
-          description: position.position_description_detailed,
-          id: position.id.toString(),
-        }),
-      window.location.origin
-    )
-    return url.toString()
-  }
+  const getPublicLink = useCallback((position: Position) => {
+  if (!companySlug) return null
+  const url = new URL(
+    `/jobs/${companySlug}/cv-analyse?id=${position.id}`,
+    window.location.origin
+  )
+  return url.toString()
+}, [companySlug])
 
-  async function handleCopyLink(position: Position) {
+  const handleCopyLink = useCallback(async (position: Position) => {
     const link = getPublicLink(position)
     if (!link) return
     try {
@@ -149,7 +148,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
     } catch (err) {
       setSnackbarMessage("Failed to copy link: " + (err as Error).message)
     }
-  }
+  }, [getPublicLink])
 
   // Hide snackbar after 3 seconds
   useEffect(() => {
@@ -159,13 +158,6 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
     }
   }, [snackbarMessage])
 
-  const filteredPositions = positions.filter(
-    (p) =>
-      (!companySlug || p.company?.slug === companySlug) &&
-      (p.position_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       p.position_description.toLowerCase().includes(searchTerm.toLowerCase()))
-  )
-
   if (!companySlug) {
     return null // Already redirecting to 404
   }
@@ -173,7 +165,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+        <div className="bg-white rounded-xl shadow-lg p-8 text-center max-w-sm w-full">
           <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
           <p className="text-gray-600">Loading positions...</p>
         </div>
@@ -184,7 +176,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+        <div className="bg-white rounded-xl shadow-lg p-8 text-center max-w-sm w-full">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <X className="w-8 h-8 text-red-500" />
           </div>
@@ -195,31 +187,31 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div style={{ maxWidth: '800px', margin: '0 auto', width: '100%' }}>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-4 sm:p-6">
+      <div className="max-w-4xl mx-auto w-full">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-            <Briefcase className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
+            <Briefcase className="w-10 h-10 sm:w-12 sm:h-12 text-blue-600 mx-auto mb-3 sm:mb-4" />
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
               Available Positions
             </h1>
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-sm sm:text-base">
               <span className="font-semibold">{filteredPositions.length}</span>
               <span>positions available</span>
             </div>
           </div>
 
           {/* Search Bar */}
-          <div className="bg-white rounded-xl shadow-lg p-4 mb-6">
+          <div className="bg-white rounded-xl shadow-lg p-3 sm:p-4 mb-4 sm:mb-6">
             <div className="relative max-w-md mx-auto">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
               <input
                 type="text"
                 placeholder="Search positions..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
               />
             </div>
           </div>
@@ -228,42 +220,43 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
         {/* No Results */}
         {filteredPositions.length === 0 && (
           <div className="text-center">
-            <div className="bg-white rounded-xl shadow-lg p-8">
-              <Briefcase className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold text-gray-600 mb-2">No positions available</h2>
-              <p className="text-gray-500">Check back later for new opportunities!</p>
+            <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
+              <Briefcase className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-4" />
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-600 mb-2">No positions available</h2>
+              <p className="text-gray-500 text-sm sm:text-base">Check back later for new opportunities!</p>
             </div>
           </div>
         )}
 
         {/* Positions List */}
-        <div style={{ display: 'block', width: '100%' }}>
+        <div className="space-y-4 sm:space-y-6">
           {filteredPositions.map((position) => (
             <div
               key={position.id}
-              style={{ width: '100%', display: 'block', marginBottom: '24px', clear: 'both' }}
-              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
+              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:scale-[1.01] sm:hover:scale-[1.02]"
             >
-              <div className="p-6" style={{ width: '100%' }}>
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              <div className="p-4 sm:p-6">
+                {/* Header with responsive layout */}
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-4">
+                  <div className="flex-1 min-w-0"> {/* min-w-0 allows text truncation */}
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 break-words">
                       {position.position_name}
                     </h2>
                     {position.company?.company_name && (
                       <div className="flex items-center gap-2 text-gray-600 mb-3">
-                        <Building2 className="w-5 h-5" />
-                        <span className="text-base">{position.company.company_name}</span>
+                        <Building2 className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                        <span className="text-sm sm:text-base truncate">{position.company.company_name}</span>
                       </div>
                     )}
                   </div>
                   {position.company?.company_logo && (
-                    <div className="flex-shrink-0 ml-6">
-                      <div className="w-20 h-20 bg-gray-50 rounded-lg p-3 border">
+                    <div className="flex-shrink-0 self-start sm:ml-6">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-50 rounded-lg p-2 sm:p-3 border">
                         <img
                           src={position.company.company_logo}
                           alt="Company logo"
                           className="w-full h-full object-contain"
+                          loading="lazy"
                         />
                       </div>
                     </div>
@@ -271,18 +264,18 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
                 </div>
 
                 {/* Description */}
-                <p className="text-gray-600 text-base mb-6">
+                <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 leading-relaxed">
                   {position.position_description}
                 </p>
 
-                {/* Actions */}
-                <div className="flex gap-3">
+                {/* Actions - Responsive button layout */}
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                   {!isLoggedIn && companySlug && (
                     <Link
                       href={getApplyLink(position)!}
-                      className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105"
+                      className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base"
                     >
-                      <FileText className="w-5 h-5" />
+                      <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
                       Apply
                     </Link>
                   )}
@@ -292,18 +285,18 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
                       {/* Board */}
                       <Link
                         href={getStatsLink(position)!}
-                        className="flex items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-600 transition-colors shadow-md hover:shadow-lg transform hover:scale-105"
+                        className="flex items-center justify-center gap-2 bg-green-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-green-600 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base"
                       >
-                        <BarChart3 className="w-5 h-5" />
+                        <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5" />
                         Board
                       </Link>
 
                       {/* Copy Link */}
                       <button
                         onClick={() => handleCopyLink(position)}
-                        className="flex items-center gap-2 bg-blue-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors shadow-md hover:shadow-lg transform hover:scale-105"
+                        className="flex items-center justify-center gap-2 bg-blue-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base"
                       >
-                        <Copy className="w-5 h-5" />
+                        <Copy className="w-4 h-4 sm:w-5 sm:h-5" />
                         Copy Link
                       </button>
 
@@ -311,16 +304,17 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
                       <button
                         onClick={() => handleClose(position.id)}
                         disabled={loadingClose === position.id}
-                        className="flex items-center gap-2 bg-red-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-600 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                        className="flex items-center justify-center gap-2 bg-red-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-red-600 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm sm:text-base"
                       >
                         {loadingClose === position.id ? (
                           <>
-                            <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                            Closing...
+                            <div className="animate-spin w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                            <span className="hidden sm:inline">Closing...</span>
+                            <span className="sm:hidden">...</span>
                           </>
                         ) : (
                           <>
-                            <X className="w-5 h-5" />
+                            <X className="w-4 h-4 sm:w-5 sm:h-5" />
                             Close
                           </>
                         )}
@@ -339,13 +333,3 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
     </div>
   )
 }
-
-/* Extra Tailwind animations (optional, add in globals.css if not present)
-@keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-fade-in-up {
-  animation: fade-in-up 0.3s ease-out;
-}
-*/

@@ -1,7 +1,7 @@
-
 // src/app/jobs/[slug]/page.tsx
 import PositionsList from "./PositionList";
 import { Analytics } from "@vercel/analytics/next"
+import { Metadata } from 'next'
 
 type Position = {
   id: number;
@@ -17,12 +17,29 @@ type Position = {
 
 type ApiResponse = { positions?: Position[] };
 
+// Generate dynamic metadata for better SEO
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  
+  return {
+    title: `Jobs at ${slug} | Job Board`,
+    description: `Browse available positions at ${slug}. Find your next career opportunity.`,
+    openGraph: {
+      title: `Jobs at ${slug}`,
+      description: `Browse available positions at ${slug}`,
+    },
+  }
+}
+
 export default async function JobPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  // Votre environnement (Vercel) impose params en Promise -> on l'attend.
   const { slug } = await params;
 
   const baseUrl =
@@ -33,19 +50,27 @@ export default async function JobPage({
 
   try {
     const res = await fetch(`${baseUrl}/api/positions-public?slug=${slug}`, {
-      cache: "no-store",
+      // Use revalidation instead of no-store for better performance
+      next: { revalidate: 300 }, // Revalidate every 5 minutes
     });
-    if (!res.ok) throw new Error("Impossible de charger les positions");
-
-    const data: ApiResponse = await res.json();
-    positions = data.positions ?? [];
+    
+    if (!res.ok) {
+      console.error('Failed to fetch positions:', res.status, res.statusText);
+      // Don't throw here, just use empty array
+    } else {
+      const data: ApiResponse = await res.json();
+      positions = data.positions ?? [];
+    }
   } catch (err) {
-    console.error(err);
+    console.error('Error fetching positions:', err);
+    // Continue with empty array
   }
 
   return (
-    <main style={{ maxWidth: "900px", margin: "auto", padding: "2rem" }}>
+    <>
+      {/* Remove the main wrapper with fixed max-width and padding */}
       <PositionsList initialPositions={positions} companySlug={slug} />
-    </main>
+      <Analytics />
+    </>
   );
 }
