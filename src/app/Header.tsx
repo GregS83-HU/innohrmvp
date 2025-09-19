@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
 import { useRouter, usePathname } from 'next/navigation';
@@ -11,6 +11,52 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
+
+// Move HappyCheckMenuItem outside to prevent re-creation
+const HappyCheckMenuItem = ({ 
+  href, 
+  children, 
+  className,
+  onClick,
+  canAccessHappyCheck 
+}: { 
+  href: string; 
+  children: React.ReactNode; 
+  className: string;
+  onClick?: () => void;
+  canAccessHappyCheck: boolean | null;
+}) => {
+  const isDisabled = canAccessHappyCheck === false;
+  const isLoading = canAccessHappyCheck === null;
+  
+  if (isLoading) {
+    return (
+      <div className={`${className.replace(/bg-\w+-\d+/, 'bg-gray-100').replace(/text-\w+-\d+/, 'text-gray-400')} cursor-wait relative`}>
+        {children}
+        <div className="absolute inset-0 bg-gray-200 opacity-20 rounded-xl"></div>
+      </div>
+    );
+  }
+  
+  if (isDisabled) {
+    return (
+      <div className={`${className.replace(/bg-\w+-\d+/, 'bg-gray-100').replace(/text-\w+-\d+/, 'text-gray-400')} cursor-not-allowed relative group`}>
+        {children}
+        {/* Tooltip */}
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+          Not available in your forfait
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Link href={href} onClick={onClick} className={className}>
+      {children}
+    </Link>
+  );
+};
 
 export default function Header() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -24,20 +70,152 @@ export default function Header() {
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [companyForfait, setCompanyForfait] = useState<string | null>(null);
+  const [canAccessHappyCheck, setCanAccessHappyCheck] = useState<boolean | null>(null);
 
   const [demoTimeLeft, setDemoTimeLeft] = useState<number | null>(null);
   const [isDemoMode, setIsDemoMode] = useState(false);
   const demoTimerRef = useRef<NodeJS.Timeout | null>(null);
   const expirationHandledRef = useRef(false);
+  const happyCheckAccessChecked = useRef(false);
 
   const router = useRouter();
   const pathname = usePathname();
   const hrToolsMenuRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  const slugMatch = pathname.match(/^\/jobs\/([^/]+)/);
-  const companySlug = slugMatch ? slugMatch[1] : null;
+  // Memoized values
+  const slugMatch = useMemo(() => pathname.match(/^\/jobs\/([^/]+)/), [pathname]);
+  const companySlug = useMemo(() => slugMatch ? slugMatch[1] : null, [slugMatch]);
 
+  const buttonBaseClasses = useMemo(() => 
+    'flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all shadow-sm hover:shadow-md whitespace-nowrap',
+    []
+  );
+
+  // Memoized link builder
+  const buildLink = useCallback((basePath: string) => {
+    const query = companyId ? `?company_id=${companyId}` : '';
+    if (companySlug) {
+      if (basePath === '/') return `/jobs/${companySlug}${query}`;
+      return `/jobs/${companySlug}${basePath}${query}`;
+    }
+    return `${basePath}${query}`;
+  }, [companyId, companySlug]);
+
+  // Memoized forfait badge
+  const forfaitBadge = useMemo(() => {
+    switch (companyForfait) {
+      case 'Free':
+        return (
+          <span className="flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-gray-200 text-gray-800 shadow-sm">
+            <div className="w-2 h-2 rounded-full bg-gray-500"></div> Free
+          </span>
+        );
+      case 'Momentum':
+        return (
+          <span className="flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800 shadow-md">
+            <div className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></div> Momentum
+          </span>
+        );
+      case 'Infinity':
+        return (
+          <span className="flex items-center gap-1 px-3 py-1 text-sm font-bold rounded-full bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-200 text-yellow-900 shadow-lg ring-1 ring-yellow-400">
+            <div className="w-3 h-3 rounded-full bg-yellow-500 animate-pulse shadow-md"></div> Infinity
+          </span>
+        );
+      default:
+        return null;
+    }
+  }, [companyForfait]);
+
+  // Memoized format time function
+  const formatTime = useCallback((seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }, []);
+
+  // Memoized links
+  const happyCheckLink = useMemo(() => buildLink('/happiness-check'), [buildLink]);
+  const uploadCertificateLink = useMemo(() => buildLink('/medical-certificate/upload'), [buildLink]);
+
+  // Check happy check access
+  const checkHappyCheckAccess = useCallback(async () => {
+    if (!companyId || happyCheckAccessChecked.current) return;
+    
+    console.log('🔍 Checking happy check access for company_id:', companyId);
+    happyCheckAccessChecked.current = true;
+    
+    try {
+      const { data, error } = await supabase.rpc('can_access_happy_check', { p_company_id: companyId });
+      
+      // Detailed logging
+      console.log('📡 Full response:', { data, error });
+      console.log('📡 Data details:', {
+        data: data,
+        dataType: typeof data,
+        isNull: data === null,
+        isUndefined: data === undefined,
+        dataStringified: JSON.stringify(data),
+        dataKeys: data && typeof data === 'object' ? Object.keys(data) : 'not an object'
+      });
+      console.log('📡 Error details:', {
+        error: error,
+        hasError: !!error,
+        errorMessage: error?.message,
+        errorCode: error?.code
+      });
+      
+      if (error) {
+        console.log('❌ There is an error, setting access to false');
+        setCanAccessHappyCheck(false);
+        return;
+      }
+      
+      if (data === null || data === undefined) {
+        console.log('❌ Data is null/undefined, setting access to false');
+        setCanAccessHappyCheck(false);
+        return;
+      }
+      
+      // Handle different possible return formats
+      let hasAccess = false;
+      
+      if (typeof data === 'boolean') {
+        console.log('📊 Data is boolean:', data);
+        hasAccess = data;
+      } else if (typeof data === 'string') {
+        console.log('📊 Data is string:', data);
+        hasAccess = data === 'true' || data === 'True' || data === 'TRUE';
+      } else if (typeof data === 'number') {
+        console.log('📊 Data is number:', data);
+        hasAccess = data === 1;
+      } else if (typeof data === 'object' && data !== null) {
+        console.log('📊 Data is object, checking properties...');
+        // Sometimes Supabase functions return objects, check if there's a result property
+        hasAccess = data.result === true || data.result === 'true' || 
+                   data.can_access === true || data.can_access === 'true' ||
+                   data[0] === true || data[0] === 'true' || // Sometimes it's an array
+                   data === true; // Sometimes the object itself is the boolean
+        
+        console.log('📊 Object access check:', {
+          'data.result': data.result,
+          'data.can_access': data.can_access,
+          'data[0]': data[0],
+          'final hasAccess': hasAccess
+        });
+      }
+      
+      console.log('✅ Final decision - Setting canAccessHappyCheck to:', hasAccess);
+      setCanAccessHappyCheck(hasAccess);
+      
+    } catch (error) {
+      console.error('💥 Catch block error:', error);
+      setCanAccessHappyCheck(false);
+    }
+  }, [companyId]);
+
+  // Demo slug effect
   useEffect(() => {
     if (companySlug === 'demo') {
       setLogin('demo@hrinno.hu');
@@ -45,10 +223,9 @@ export default function Header() {
     }
   }, [companySlug]);
 
-  const handleDemoExpiration = async () => {
-
-
-    if (expirationHandledRef.current) return; // prevent multiple triggers
+  // Demo expiration handler
+  const handleDemoExpiration = useCallback(async () => {
+    if (expirationHandledRef.current) return;
     expirationHandledRef.current = true;
     
     localStorage.removeItem('demo_start_time');
@@ -68,8 +245,9 @@ export default function Header() {
     } else {
       window.location.href = 'https://www.linkedin.com/in/grégory-saussez';
     }
-  };
+  }, [user, companySlug, router]);
 
+  // Demo timer effect
   useEffect(() => {
     const DEMO_DURATION = 25 * 60 * 1000;
     const DEMO_START_KEY = 'demo_start_time';
@@ -128,8 +306,39 @@ export default function Header() {
       setDemoTimeLeft(null);
       if (demoTimerRef.current) clearInterval(demoTimerRef.current);
     }
-  }, [companySlug, user]);
+  }, [companySlug, user, handleDemoExpiration]);
 
+  // Fetch functions
+  const fetchUserProfile = useCallback(async (userId: string) => {
+    const { data } = await supabase
+      .from('users')
+      .select('user_firstname, user_lastname')
+      .eq('id', userId)
+      .single();
+    if (data) setUser({ firstname: data.user_firstname, lastname: data.user_lastname });
+  }, []);
+
+  const fetchUserCompanyId = useCallback(async (userId: string) => {
+    const { data, error } = await supabase
+      .from('users')
+      .select('company_id')
+      .eq('id', userId)
+      .single();
+    if (!error && data?.company_id) setCompanyId(data.company_id);
+  }, []);
+
+  const fetchCompanyLogoAndId = useCallback(async (slug: string) => {
+    const { data } = await supabase
+      .from('company')
+      .select('company_logo, id, forfait')
+      .eq('slug', slug)
+      .single();
+    setCompanyLogo(data?.company_logo || null);
+    setCompanyId(data?.id || null);
+    setCompanyForfait(data?.forfait || null);
+  }, []);
+
+  // Auth and company data effect
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
@@ -152,6 +361,23 @@ export default function Header() {
 
     if (companySlug) fetchCompanyLogoAndId(companySlug);
 
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, [companySlug, fetchUserProfile, fetchUserCompanyId, fetchCompanyLogoAndId]);
+
+  // Happy check access effect
+  useEffect(() => {
+    if (companyId) {
+      // Reset cache when companyId changes
+      happyCheckAccessChecked.current = false;
+      setCanAccessHappyCheck(null); // Set to loading state
+      checkHappyCheckAccess();
+    }
+  }, [companyId, checkHappyCheckAccess]);
+
+  // Click outside effect
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (hrToolsMenuRef.current && !hrToolsMenuRef.current.contains(event.target as Node)) {
         setIsHRToolsMenuOpen(false);
@@ -160,44 +386,13 @@ export default function Header() {
         setIsUserMenuOpen(false);
       }
     };
+    
     document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-    return () => {
-      authListener.subscription.unsubscribe();
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [companySlug]);
-
-  const fetchUserProfile = async (userId: string) => {
-    const { data } = await supabase
-      .from('users')
-      .select('user_firstname, user_lastname')
-      .eq('id', userId)
-      .single();
-    if (data) setUser({ firstname: data.user_firstname, lastname: data.user_lastname });
-  };
-
-  const fetchUserCompanyId = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('users')
-      .select('company_id')
-      .eq('id', userId)
-      .single();
-    if (!error && data?.company_id) setCompanyId(data.company_id);
-  };
-
-  const fetchCompanyLogoAndId = async (slug: string) => {
-    const { data } = await supabase
-      .from('company')
-      .select('company_logo, id, forfait')
-      .eq('slug', slug)
-      .single();
-    setCompanyLogo(data?.company_logo || null);
-    setCompanyId(data?.id || null);
-    setCompanyForfait(data?.forfait || null);
-  };
-
-  const handleLogin = async () => {
+  // Event handlers
+  const handleLogin = useCallback(async () => {
     setError('');
     const { data, error } = await supabase.auth.signInWithPassword({
       email: login,
@@ -214,57 +409,16 @@ export default function Header() {
       const homeUrl = companySlug ? `/jobs/${companySlug}` : '/';
       router.push(homeUrl);
     }
-  };
+  }, [login, password, companySlug, router, fetchUserProfile, fetchUserCompanyId]);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     await supabase.auth.signOut();
     setUser(null);
     const homeUrl = companySlug ? `/jobs/${companySlug}` : '/';
     router.push(homeUrl);
-  };
+  }, [companySlug, router]);
 
-  const buildLink = (basePath: string) => {
-    const query = companyId ? `?company_id=${companyId}` : '';
-    if (companySlug) {
-      if (basePath === '/') return `/jobs/${companySlug}${query}`;
-      return `/jobs/${companySlug}${basePath}${query}`;
-    }
-    return `${basePath}${query}`;
-  };
 
-  const getForfaitBadge = (forfait: string | null) => {
-    switch (forfait) {
-      case 'Free':
-        return (
-          <span className="flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-gray-200 text-gray-800 shadow-sm">
-            <div className="w-2 h-2 rounded-full bg-gray-500"></div> Free
-          </span>
-        );
-      case 'Momentum':
-        return (
-          <span className="flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800 shadow-md">
-            <div className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></div> Momentum
-          </span>
-        );
-      case 'Infinity':
-        return (
-          <span className="flex items-center gap-1 px-3 py-1 text-sm font-bold rounded-full bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-200 text-yellow-900 shadow-lg ring-1 ring-yellow-400">
-            <div className="w-3 h-3 rounded-full bg-yellow-500 animate-pulse shadow-md"></div> Infinity
-          </span>
-        );
-      default:
-        return null;
-    }
-  };
-
-  const happyCheckLink = buildLink('/happiness-check');
-  const uploadCertificateLink = buildLink('/medical-certificate/upload');
-  const buttonBaseClasses = 'flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all shadow-sm hover:shadow-md whitespace-nowrap';
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
 
   return (
     <>
@@ -294,7 +448,7 @@ export default function Header() {
                   className="h-10 sm:h-12 object-contain"
                 />
               </Link>
-              {getForfaitBadge(companyForfait)}
+              {forfaitBadge}
             </div>
 
             {/* Desktop Navigation - hidden on tablet and mobile */}
@@ -310,9 +464,13 @@ export default function Header() {
               )}
 
               {companyId && (
-                <Link href={happyCheckLink} className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700`}>
+                <HappyCheckMenuItem 
+                  href={happyCheckLink}
+                  className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700`}
+                  canAccessHappyCheck={canAccessHappyCheck}
+                >
                   <Smile className="w-4 h-4" /> Happy Check
-                </Link>
+                </HappyCheckMenuItem>
               )}
 
               {user && (
@@ -331,9 +489,14 @@ export default function Header() {
                         <BarChart3 className="w-4 h-4" /> Recruitment Dashboard
                        </Link>
 
-                      <Link href={buildLink('/happiness-dashboard')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
+                      <HappyCheckMenuItem
+                        href={buildLink('/happiness-dashboard')}
+                        className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}
+                        onClick={() => setIsHRToolsMenuOpen(false)}
+                        canAccessHappyCheck={canAccessHappyCheck}
+                      >
                         <BarChart3 className="w-4 h-4" /> Happiness Dashboard
-                      </Link>
+                      </HappyCheckMenuItem>
 
                       <Link href={buildLink('/medical-certificate/list')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
                         <Stethoscope className="w-4 h-4" /> List of Certificates
@@ -437,9 +600,14 @@ export default function Header() {
               )}
 
               {companyId && (
-                <Link href={happyCheckLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700 w-full justify-start`}>
+                <HappyCheckMenuItem 
+                  href={happyCheckLink}
+                  className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700 w-full justify-start`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  canAccessHappyCheck={canAccessHappyCheck}
+                >
                   <Smile className="w-4 h-4" /> Happy Check
-                </Link>
+                </HappyCheckMenuItem>
               )}
 
               {user && (
@@ -452,9 +620,14 @@ export default function Header() {
                     <BarChart3 className="w-4 h-4" /> Recruitment Dashboard
                   </Link>
 
-                  <Link href={buildLink('/happiness-dashboard')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full justify-start`}>
+                  <HappyCheckMenuItem
+                    href={buildLink('/happiness-dashboard')}
+                    className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full justify-start`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    canAccessHappyCheck={canAccessHappyCheck}
+                  >
                     <BarChart3 className="w-4 h-4" /> Happiness Dashboard
-                  </Link>
+                  </HappyCheckMenuItem>
 
                   <Link href={buildLink('/medical-certificate/list')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full justify-start`}>
                     <Stethoscope className="w-4 h-4" /> List of Certificates
