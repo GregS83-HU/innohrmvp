@@ -203,17 +203,6 @@ export default function FeedbackPage() {
             )}
           </button>
         </div>
-
-        {/* Contact Us Button */}
-        <div className="mt-6 pt-6 border-t border-gray-200">
-          <button
-            onClick={handleContactUs}
-            className="w-full border-2 border-gray-300 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-50 transition-all transform hover:scale-105 flex items-center justify-center gap-2"
-          >
-            <Phone className="w-4 h-4" />
-            Contact Us
-          </button>
-        </div>
       </div>
     </div>
   )

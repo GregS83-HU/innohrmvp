@@ -133,7 +133,16 @@ function Card({ row, onClick }: { row: Row; onClick: (row: Row) => void }) {
           {row.candidats?.created_at ? new Date(row.candidats.created_at).toLocaleDateString('en-GB') : '—'}
         </span>
         {row.candidats?.cv_file && (
-          <FileText className="w-3 h-3 text-blue-500" />
+          <a
+            href={row.candidats.cv_file}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-purple-600 hover:text-purple-800 hover:underline text-xs transition-colors"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <FileText className="w-3 h-3" />
+            <span>CV</span>
+          </a>
         )}
       </div>
     </div>
@@ -670,10 +679,30 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                     </div>
                   </div>
 
+                  {/* CV File */}
+                  {selectedCandidate.candidats?.cv_file && (
+                    <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-purple-200 hover:border-purple-300 transition-colors">
+                      <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <FileText className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">CV File</p>
+                        <a
+                          href={selectedCandidate.candidats.cv_file}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-purple-600 hover:text-purple-800 hover:underline transition-colors font-medium"
+                        >
+                          View CV
+                        </a>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Source */}
-                  <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-purple-200 hover:border-purple-300 transition-colors">
-                    <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <FileText className="w-4 h-4 text-purple-600" />
+                  <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <FileText className="w-4 h-4 text-gray-600" />
                     </div>
                     <div className="flex-1">
                       <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Source</p>

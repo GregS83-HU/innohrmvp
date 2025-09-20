@@ -73,7 +73,7 @@ La réponse doit etre en anglais parfait
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'mistralai/mistral-7b-instruct',
+      model: 'openai/gpt-3.5-turbo',
       messages: [{ role: 'user', content: prompt }],
     }),
   })
@@ -146,7 +146,7 @@ export async function GET(req: NextRequest) {
               position.position_description_detailed
             )
 
-            if (score > 0.5) matched++
+            if (score >= 7) matched++
 
             await supabase.from('position_to_candidat').upsert({
               position_id: positionId,

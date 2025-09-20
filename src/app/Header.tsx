@@ -220,7 +220,7 @@ export default function Header() {
 
   // Demo timer effect
   useEffect(() => {
-    const DEMO_DURATION = 1 * 60 * 1000;
+    const DEMO_DURATION = 20 * 60 * 1000;
     const DEMO_START_KEY = 'demo_start_time';
     const DEMO_MODE_KEY = 'demo_mode_active';
 

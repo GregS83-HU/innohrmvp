@@ -128,25 +128,6 @@ async function fetchPositionData(positionId: string, companySlug: string): Promi
       }
     }
 
-    console.log('Extracted company data:', company);
-    console.log('Comparing slugs:', { 
-      companySlug: companySlug, 
-      databaseSlug: company?.slug,
-      areEqual: company?.slug === companySlug,
-      companySlugTrimmed: companySlug.trim().toLowerCase(),
-      databaseSlugTrimmed: company?.slug?.trim().toLowerCase()
-    });
-
-    // Verify that the position belongs to the correct company
-    // Use case-insensitive comparison and trim whitespace
-    if (!company || company.slug?.trim().toLowerCase() !== companySlug.trim().toLowerCase()) {
-      console.error('Position does not belong to the specified company', {
-        expectedSlug: companySlug,
-        actualSlug: company?.slug,
-        company: company
-      });
-      return null;
-    }
 
     // Return the properly typed data
     const transformedPosition: PositionData = {

@@ -31,7 +31,6 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
     employee_name?: string;
     absenceDateStart?: string;
     absenceDateEnd?: string;
-    doctor_name?: string;
   } | null>(null);
   const [comment, setComment] = useState('');
   const [saving, setSaving] = useState(false);
@@ -119,7 +118,7 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
       formData.append('employee_name', isFieldUnrecognised(result.employee_name) ? manualData.employee_name : (result.employee_name || ''));
       formData.append('absenceDateStart', isFieldUnrecognised(result.absenceDateStart) ? manualData.absenceDateStart : (result.absenceDateStart || ''));
       formData.append('absenceDateEnd', isFieldUnrecognised(result.absenceDateEnd) ? manualData.absenceDateEnd : (result.absenceDateEnd || ''));
-      formData.append('doctor_name', isFieldUnrecognised(result.doctor_name) ? manualData.doctor_name : (result.doctor_name || ''));
+     // formData.append('doctor_name', isFieldUnrecognised(result.doctor_name) ? manualData.doctor_name : (result.doctor_name || ''));
       
       formData.append('comment', comment || '');
       formData.append('file', file);
@@ -167,7 +166,7 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
 
   const hasUnrecognised =
     result &&
-    [result.employee_name, result.absenceDateStart, result.absenceDateEnd, result.doctor_name].some(
+    [result.employee_name, result.absenceDateStart, result.absenceDateEnd].some(
       (val) => val && ['non recognised', 'not recognised'].includes(val.trim().toLowerCase())
     );
 
@@ -378,24 +377,7 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
                   </div>
                 </div>
 
-                {/* Doctor Name */}
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Stethoscope className="w-4 h-4 text-blue-600" />
-                    <label className="font-medium text-gray-700">Doctor Name</label>
-                  </div>
-                  {isFieldUnrecognised(result.doctor_name) ? (
-                    <input
-                      type="text"
-                      value={manualData.doctor_name}
-                      onChange={(e) => setManualData({...manualData, doctor_name: e.target.value})}
-                      placeholder="Enter doctor name"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  ) : (
-                    <p className="text-gray-800 font-medium">{result.doctor_name || '—'}</p>
-                  )}
-                </div>
+               
               </div>
 
               {/* Comment field - always displayed */}

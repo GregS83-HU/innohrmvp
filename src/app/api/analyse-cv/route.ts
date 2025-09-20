@@ -82,7 +82,7 @@ async function callFallbackAPI(prompt: string, context = '') {
 // Robust JSON extraction
 function extractAndParseJSON(rawResponse: string, context = '') {
   const trimmed = rawResponse.trim();
-
+   console.log("Raw AI answer", rawResponse)
   try {
     return JSON.parse(trimmed);
   } catch {}

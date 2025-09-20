@@ -26,7 +26,6 @@ type CertificateData = {
   employee_name: string;
   sickness_start_date: string;
   sickness_end_date: string;
-  doctor_name: string;
   raw?: string;
 };
 
@@ -48,7 +47,6 @@ function safeExtractJson(text: string): CertificateData | null {
       employee_name: parsed.employee_name ?? "not recognised",
       sickness_start_date: parsed.sickness_start_date ?? "not recognised",
       sickness_end_date: parsed.sickness_end_date ?? "not recognised",
-      doctor_name: parsed.doctor_name ?? "not recognised",
       raw: text,
     };
   } catch {
@@ -151,17 +149,18 @@ export async function POST(req: NextRequest) {
         .join("\n")
         .trim() || "";
 
+//console.log("Raw PDF:", rawText)
+
     // 3) Extraction JSON via OpenRouter
     const extractPrompt = `
-You will receive raw OCR text from a Hungarian medical certificate. Be careful, the language is Hungarian. 
+You will receive raw OCR text from a Hungarian medical certificate. Be Careful, the language of the certificate may vary.
 I would like to return from this raw text: 
 The name (in the file it will first name and last name together), the starting date of sickness, the end date of sickness
 Extract the following fields and return STRICT JSON, nothing else:
 {
   "employee_name": string | null,
   "sickness_start_date": "YYYY-MM-DD" | null,
-  "sickness_end_date": "YYYY-MM-DD" | null,
-  "doctor_name": string | null
+  "sickness_end_date": "YYYY-MM-DD" | null
 }
 Rules:
 - If a field is missing, set it to "not recognised".
@@ -180,7 +179,7 @@ ${rawText}
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "mistralai/mistral-7b-instruct",
+        model: "openai/gpt-3.5-turbo",
         messages: [{ role: "user", content: extractPrompt }],
         temperature: 0.1,
       }),
@@ -189,13 +188,13 @@ ${rawText}
     const aiJson = await aiRes.json();
     const candidateText = aiJson?.choices?.[0]?.message?.content ?? "";
     let structured: CertificateData | null = safeExtractJson(candidateText);
+    console.log("JSON from AI:", candidateText)
 
     if (!structured) {
       structured = {
         employee_name: "not recognised",
         sickness_start_date: "not recognised",
         sickness_end_date: "not recognised",
-        doctor_name: "not recognised",
         raw: candidateText || null,
       };
     }
