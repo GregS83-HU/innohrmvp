@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useRef} from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useSession } from '@supabase/auth-helpers-react'
 import {
   DndContext,
@@ -20,7 +20,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Users, FileText, BarChart3, Mail, Phone, Edit3, Save, XCircle, Eye, EyeOff } from 'lucide-react'
+import { Users, FileText, Mail, Phone, Edit3, Save, XCircle, Eye, EyeOff, Workflow } from 'lucide-react'
 
 type Candidat = {
   candidat_firstname: string
@@ -59,14 +59,14 @@ function Card({ row, onClick }: { row: Row; onClick: (row: Row) => void }) {
 
   // Get color based on score
   const getScoreColor = (score: number | null) => {
-    if (!score) return { bg: 'bg-gray-100', text: 'text-gray-700', border: 'border-gray-200' }
+    if (score === null || score === undefined) return { bg: 'bg-gray-100', text: 'text-gray-700', border: 'border-gray-200' }
     if (score >= 8) return { bg: 'bg-green-50', text: 'text-green-800', border: 'border-green-200' }
     if (score >= 6) return { bg: 'bg-orange-50', text: 'text-orange-800', border: 'border-orange-200' }
     return { bg: 'bg-red-50', text: 'text-red-800', border: 'border-red-200' }
   }
 
   const getScoreBadgeColor = (score: number | null) => {
-    if (!score) return 'bg-gray-100 text-gray-700'
+    if (score === null || score === undefined) return 'bg-gray-100 text-gray-700'
     if (score >= 8) return 'bg-green-100 text-green-700'
     if (score >= 6) return 'bg-orange-100 text-orange-700'
     return 'bg-red-100 text-red-700'
@@ -168,7 +168,6 @@ function Column({
   // Filter out rejected candidates if showRejected is false
   const displayRows = isRejectedColumn && !showRejected ? [] : rows
   const actualCount = rows.length
-  const displayCount = displayRows.length
 
   return (
     <div
@@ -227,6 +226,11 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
   const [editedComment, setEditedComment] = useState('')
   const [isSavingComment, setIsSavingComment] = useState(false)
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } })
+  )
+
   // Auto-scroll functionality for smooth column transitions
   const handleAutoScroll = (clientX: number) => {
     if (!scrollContainer || !isDragging) return
@@ -259,11 +263,6 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
       setAutoScrollInterval(null)
     }
   }
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } })
-  )
 
   useEffect(() => {
     if (!isDragging) return
@@ -303,12 +302,16 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
         const stepsData = await resSteps.json()
         setSteps(stepsData)
 
-        const normalizedRows = initialRows.map(r => ({
-          ...r,
-          candidat_next_step: r.candidat_next_step !== null && r.candidat_next_step !== undefined 
-            ? String(r.candidat_next_step) 
-            : null,
-        }))
+        // Normalize next_step values so that 0, '0', 'NULL', null, undefined all become null
+        const normalizedRows = initialRows.map(r => {
+          const raw = r.candidat_next_step
+          const rawStr = raw === null || raw === undefined ? '' : String(raw).trim().toLowerCase()
+          const isNullish = raw === null || raw === undefined || rawStr === '' || rawStr === '0' || rawStr === 'null'
+          return {
+            ...r,
+            candidat_next_step: isNullish ? null : String(r.candidat_next_step),
+          }
+        })
         
         setRows(normalizedRows)
       } catch (err) {
@@ -326,7 +329,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     setRows(prev =>
       prev.map(r => (r.candidat_id === candidat_id ? { 
         ...r, 
-        candidat_next_step: step_id === 'unassigned' ? null : step_id 
+        candidat_next_step: step_id === 'unassigned' || step_id === null ? null : step_id 
       } : r))
     )
 
@@ -336,7 +339,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           candidat_id, 
-          step_id: step_id === 'unassigned' ? null : Number(step_id)
+          step_id: step_id === 'unassigned' || step_id === null ? null : Number(step_id)
         }),
       })
 
@@ -401,6 +404,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     const scrollElement = document.querySelector('#scroll-container') as HTMLElement
     if (scrollElement) {
       setScrollContainer(scrollElement)
+      // hide native scrolling while dragging to prevent jitter; restore on drag end
       scrollElement.style.overflowX = 'hidden'
       scrollElement.style.touchAction = 'none'
     }
@@ -412,7 +416,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
 
     const candidateId = Number(elementId)
     const candidate = rows.find(r => r.candidat_id === candidateId)
-    return candidate ? candidate.candidat_next_step || 'unassigned' : null
+    return candidate ? (candidate.candidat_next_step ?? 'unassigned') : null
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -443,14 +447,19 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
   }
 
   const getRowsByStepId = (stepId: string | null) => {
-    return rows.filter(r => {
-      if ((r.candidat_next_step ?? null) === (stepId ?? null)) return true
-      return String(r.candidat_next_step) === String(stepId)
-    })
+    // treat 'unassigned' and null as the same bucket
+    if (stepId === 'unassigned' || stepId === null) {
+      return rows.filter(r => {
+        const s = r.candidat_next_step
+        return s === null || s === undefined || String(s).toLowerCase() === 'null' || String(s) === '0'
+      })
+    }
+
+    return rows.filter(r => String(r.candidat_next_step) === String(stepId))
   }
 
   const getStepName = (stepId: string | null) => {
-    if (!stepId) return 'Unassigned'
+    if (!stepId || stepId === '0') return 'Unassigned'
     const stepIdStr = String(stepId)
     const foundStep = steps.find(s => String(s.step_id) === stepIdStr)
     return foundStep?.step_name ?? 'Unknown'
@@ -501,44 +510,51 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
   const columns = [{ step_id: 'unassigned', step_name: 'Unassigned' }, ...steps]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-      <div className="max-w-full">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="w-full">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="bg-white rounded-xl shadow-md p-6 max-w-2xl mx-auto">
-            <BarChart3 className="w-12 h-12 text-blue-600 mx-auto mb-3" />
-            <h1 className="text-3xl font-bold text-gray-800 mb-4">Recruitment Board</h1>
-            
-            {/* Candidates count and rejected toggle */}
-            <div className="flex items-center justify-center gap-6 flex-wrap">
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full">
-                <Users className="w-5 h-5" />
-                <span className="font-semibold text-lg">{showRejected ? rows.length : nonRejectedCandidatesCount}</span>
-                <span>candidates</span>
-                {!showRejected && rejectedCandidatesCount > 0 && (
-                  <span className="text-blue-100 text-sm">({rejectedCandidatesCount} hidden)</span>
+        <div className="p-4 sm:p-6">
+          <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 w-full">
+            <div className="flex flex-col items-center gap-6">
+              <div className="flex items-center gap-4">
+                <Workflow className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600 flex-shrink-0" />
+                <div className="text-center">
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">Recruitment Treatment</h1>
+                  <p className="text-xs sm:text-sm text-gray-600 mt-1">Manage your candidates by dragging cards between steps.</p>
+                </div>
+              </div>
+
+              {/* Candidates count and rejected toggle */}
+              <div className="flex items-center justify-center gap-6 flex-wrap">
+                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full">
+                  <Users className="w-5 h-5" />
+                  <span className="font-semibold text-lg">{showRejected ? rows.length : nonRejectedCandidatesCount}</span>
+                  <span>candidates</span>
+                  {!showRejected && rejectedCandidatesCount > 0 && (
+                    <span className="text-blue-100 text-sm">({rejectedCandidatesCount} hidden)</span>
+                  )}
+                </div>
+                
+                {/* Show/Hide Rejected Button */}
+                {rejectedCandidatesCount > 0 && (
+                  <button
+                    onClick={() => setShowRejected(!showRejected)}
+                    className="inline-flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm font-medium"
+                  >
+                    {showRejected ? (
+                      <>
+                        <EyeOff className="w-4 h-4" />
+                        <span>Hide Rejected</span>
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="w-4 h-4" />
+                        <span>Show Rejected</span>
+                      </>
+                    )}
+                  </button>
                 )}
               </div>
-              
-              {/* Show/Hide Rejected Button */}
-              {rejectedCandidatesCount > 0 && (
-                <button
-                  onClick={() => setShowRejected(!showRejected)}
-                  className="inline-flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm font-medium"
-                >
-                  {showRejected ? (
-                    <>
-                      <EyeOff className="w-4 h-4" />
-                      <span>Hide Rejected</span>
-                    </>
-                  ) : (
-                    <>
-                      <Eye className="w-4 h-4" />
-                      <span>Show Rejected</span>
-                    </>
-                  )}
-                </button>
-              )}
             </div>
           </div>
         </div>
@@ -549,17 +565,24 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
           onDragEnd={handleDragEnd}
           collisionDetection={closestCenter}
         >
-          <div 
-            className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+          {/* Full-width horizontal scroll container */}
+          <div
             id="scroll-container"
+            style={{ 
+              overflowX: 'auto', 
+              overflowY: 'hidden', 
+              WebkitOverflowScrolling: 'touch', 
+              scrollbarGutter: 'stable'
+            }}
+            className="flex gap-4 pb-4 px-4 sm:px-6 w-full items-start"
           >
             {columns.map(col => {
-              const columnRows = col.step_id === 'unassigned' 
-                ? getRowsByStepId(null) 
+              const columnRows = col.step_id === 'unassigned'
+                ? getRowsByStepId('unassigned')
                 : getRowsByStepId(col.step_id)
-              
-              const isRejectedColumn = col.step_name.toLowerCase() === 'rejected' 
-              
+
+              const isRejectedColumn = col.step_name.toLowerCase() === 'rejected'
+
               return (
                 <Column
                   key={col.step_id}
@@ -580,9 +603,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                 <p className="font-medium text-gray-800 text-sm">
                   {draggingRow.candidats?.candidat_firstname} #{draggingRow.candidat_id}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Score: {draggingRow.candidat_score ?? '—'}
-                </p>
+                <p className="text-xs text-gray-500 mt-1">Score: {draggingRow.candidat_score ?? '—'}</p>
               </div>
             )}
           </DragOverlay>
@@ -604,9 +625,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                       {selectedCandidate.candidats?.candidat_firstname ?? '—'}{' '}
                       {selectedCandidate.candidats?.candidat_lastname ?? ''}
                     </h2>
-                    <p className="text-sm text-gray-500 font-medium">
-                      Candidate ID: {selectedCandidate.candidat_id}
-                    </p>
+                    <p className="text-sm text-gray-500 font-medium">Candidate ID: {selectedCandidate.candidat_id}</p>
                   </div>
                 </div>
                 
@@ -714,9 +733,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                       </div>
                     </div>
                   ) : (
-                    <p className="text-gray-800 whitespace-pre-wrap">
-                      {selectedCandidate.candidat_comment || 'No comments yet'}
-                    </p>
+                    <p className="text-gray-800 whitespace-pre-wrap">{selectedCandidate.candidat_comment || 'No comments yet'}</p>
                   )}
                 </div>
                 
@@ -727,9 +744,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                 
                 <div className="bg-orange-50 p-4 rounded-lg">
                   <h3 className="text-sm font-semibold text-orange-800 mb-2">Next Step</h3>
-                  <p className="text-gray-800">
-                    {getStepName(selectedCandidate.candidat_next_step)}
-                  </p>
+                  <p className="text-gray-800">{getStepName(selectedCandidate.candidat_next_step)}</p>
                 </div>
               </div>
               
@@ -745,6 +760,15 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
           </div>
         </div>
       )}
+
+      {/* Small stylesheet to improve scrollbar appearance in browsers that support it. Note: OS settings can still hide scrollbars (macOS overlay scrollbars). */}
+      <style>{`
+        #scroll-container::-webkit-scrollbar { height: 10px; }
+        #scroll-container::-webkit-scrollbar-thumb { background: rgba(156,163,175,0.6); border-radius: 6px; }
+        #scroll-container::-webkit-scrollbar-track { background: rgba(229,231,235,0.4); }
+        /* Reserve the scrollbar gutter so the layout doesn't jump when it appears */
+        #scroll-container { scrollbar-gutter: stable; }
+      `}</style>
     </div>
   )
 }

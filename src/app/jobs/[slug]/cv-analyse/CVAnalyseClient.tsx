@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { usePathname } from 'next/navigation'
+import { useState, useCallback } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import { Upload, FileText, CheckCircle, AlertCircle, User, Brain, BarChart3, Shield, MessageSquare, Download, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
@@ -21,6 +21,7 @@ export default function CVAnalyseClient({
   companyName: string
 }) {
   const pathname = usePathname()
+  const router = useRouter()
   const isDemo = pathname.includes('/demo/')
   
   // Extract company slug from pathname for back navigation
@@ -35,6 +36,11 @@ export default function CVAnalyseClient({
   const [gdprAccepted, setGdprAccepted] = useState(false)
   const [analysisCompleted, setAnalysisCompleted] = useState(false)
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
+
+  // Handle back navigation - simulate browser back button
+  const handleBackToPositions = useCallback(() => {
+    router.back()
+  }, [router])
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -120,13 +126,13 @@ export default function CVAnalyseClient({
         
         {/* Back Navigation */}
         <div className="flex items-center gap-3">
-          <Link
-            href={`/jobs/${companySlug}`}
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors"
+          <button
+            onClick={handleBackToPositions}
+            className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm sm:text-base">Back to positions</span>
-          </Link>
+          </button>
         </div>
         
         {/* Header */}
@@ -151,7 +157,7 @@ export default function CVAnalyseClient({
             <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
             <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Position Description</h2>
           </div>
-          <p className="text-gray-600 leading-relaxed text-sm sm:text-base">{jobDescription}</p>
+          <p className="text-gray-600 leading-relaxed text-sm sm:text-base">{jobDescriptionDetailed}</p>
         </div>
 
         {/* Demo CVs Download Block */}

@@ -70,7 +70,7 @@ export default async function StatsPage({
   }
 
   return (
-    <main style={{ maxWidth: '900px', margin: 'auto', padding: '0rem' }}>
+    <main className="w-full max-w-7xl mx-auto px-0 sm:px-4 lg:px-6">
       <StatsTable rows={data} />
     </main>
   )

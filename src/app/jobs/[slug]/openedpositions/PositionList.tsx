@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useSession } from "@supabase/auth-helpers-react"
 import { useEffect, useState, useCallback, useMemo } from "react"
-import { Search, Briefcase, BarChart3, X, Building2, FileText, Copy } from 'lucide-react'
+import { Search, Briefcase, BarChart3, X, Building2, FileText, Copy, Workflow } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 type Position = {
@@ -150,6 +150,8 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
     }
   }, [getPublicLink])
 
+
+
   // Hide snackbar after 3 seconds
   useEffect(() => {
     if (snackbarMessage) {
@@ -196,7 +198,8 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
               Available Positions
             </h1>
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-sm sm:text-base">
+            {/* Updated position counter - now looks like an info badge, not a button */}
+            <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-blue-700 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base">
               <span className="font-semibold">{filteredPositions.length}</span>
               <span>positions available</span>
             </div>
@@ -215,6 +218,8 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
               />
             </div>
           </div>
+
+
         </div>
 
         {/* No Results */}
@@ -287,8 +292,8 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
                         href={getStatsLink(position)!}
                         className="flex items-center justify-center gap-2 bg-green-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-green-600 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base"
                       >
-                        <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5" />
-                        Board
+                        <Workflow className="w-4 h-4 sm:w-5 sm:h-5" />
+                        Treatment
                       </Link>
 
                       {/* Copy Link */}
