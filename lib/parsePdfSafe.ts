@@ -19,17 +19,3 @@ export async function parsePdfBuffer(buffer: Buffer): Promise<string> {
   const data = await pdfParse(buffer);
   return data.text;
 }
-
-export async function parsePdfBufferSafe(buffer: Buffer) : Promise<string>{
-  try {
-    const pdfParse = (await import('pdf-parse')).default;
-    const data = await pdfParse(buffer);
-    return data.text || '';
-  } catch (err: any) {
-    console.warn('PDF parsing failed:', err.message);
-
-    // Basic fallback: extract raw text from buffer
-    const rawText = buffer.toString('utf-8').replace(/\0/g, ''); 
-    return rawText.length > 0 ? rawText : '';
-  }
-}
