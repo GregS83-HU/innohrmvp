@@ -18,16 +18,18 @@ const HappyCheckMenuItem = ({
   children, 
   className,
   onClick,
-  canAccessHappyCheck 
+  canAccessHappyCheck,
+  isDemoExpired = false
 }: { 
   href: string; 
   children: React.ReactNode; 
   className: string;
   onClick?: () => void;
   canAccessHappyCheck: boolean | null;
+  isDemoExpired?: boolean;
 }) => {
-  const isDisabled = canAccessHappyCheck === false;
-  const isLoading = canAccessHappyCheck === null;
+  const isDisabled = canAccessHappyCheck === false || isDemoExpired;
+  const isLoading = canAccessHappyCheck === null && !isDemoExpired;
   
   if (isLoading) {
     return (
@@ -39,12 +41,55 @@ const HappyCheckMenuItem = ({
   }
   
   if (isDisabled) {
+    const tooltipMessage = isDemoExpired 
+      ? "Demo expired - Contact us to continue" 
+      : "Not available in your forfait";
+      
     return (
       <div className={`${className.replace(/bg-\w+-\d+/, 'bg-gray-100').replace(/text-\w+-\d+/, 'text-gray-400')} cursor-not-allowed relative group`}>
         {children}
         {/* Tooltip */}
         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
-          Not available in your forfait
+          {tooltipMessage}
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Link href={href} onClick={onClick} className={className}>
+      {children}
+    </Link>
+  );
+};
+
+// New component for regular menu items that can be disabled during demo expiration
+const DemoAwareMenuItem = ({ 
+  href, 
+  children, 
+  className,
+  onClick,
+  isDemoExpired = false,
+  isContactUs = false
+}: { 
+  href: string; 
+  children: React.ReactNode; 
+  className: string;
+  onClick?: () => void;
+  isDemoExpired?: boolean;
+  isContactUs?: boolean;
+}) => {
+  // Contact Us is never disabled
+  const isDisabled = isDemoExpired && !isContactUs;
+  
+  if (isDisabled) {
+    return (
+      <div className={`${className.replace(/bg-\w+-\d+/, 'bg-gray-100').replace(/text-\w+-\d+/, 'text-gray-400')} cursor-not-allowed relative group`}>
+        {children}
+        {/* Tooltip */}
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+          Demo expired - Contact us to continue
           <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
         </div>
       </div>
@@ -74,6 +119,7 @@ export default function Header() {
 
   const [demoTimeLeft, setDemoTimeLeft] = useState<number | null>(null);
   const [isDemoMode, setIsDemoMode] = useState(false);
+  const [isDemoExpired, setIsDemoExpired] = useState(false);
   const demoTimerRef = useRef<NodeJS.Timeout | null>(null);
   const expirationHandledRef = useRef(false);
   const happyCheckAccessChecked = useRef(false);
@@ -199,6 +245,10 @@ export default function Header() {
     if (expirationHandledRef.current) return;
     expirationHandledRef.current = true;
     
+    // Set demo as expired and show the expired state briefly
+    setIsDemoExpired(true);
+    setDemoTimeLeft(0);
+    
     localStorage.removeItem('demo_start_time');
     localStorage.removeItem('demo_mode_active');
 
@@ -211,14 +261,17 @@ export default function Header() {
       }
     }
 
-    if (companySlug === 'demo') {
-      router.push(`/jobs/demo/feedback`);
-    } else {
-      window.location.href = 'https://www.linkedin.com/in/grégory-saussez';
-    }
+    // Give user 3 seconds to see the expired state, then redirect to feedback
+    setTimeout(() => {
+      if (companySlug === 'demo') {
+        router.push(`/jobs/demo/feedback`);
+      } else {
+        window.location.href = 'https://www.linkedin.com/in/grégory-saussez';
+      }
+    }, 2000); // Reduced to 3 seconds for better UX
   }, [user, companySlug, router]);
 
-  // Demo timer effect
+  // Demo timer effect - Demo duration
   useEffect(() => {
     const DEMO_DURATION = 20 * 60 * 1000;
     const DEMO_START_KEY = 'demo_start_time';
@@ -242,6 +295,7 @@ export default function Header() {
         localStorage.removeItem(DEMO_MODE_KEY);
         setIsDemoMode(false);
         setDemoTimeLeft(null);
+        setIsDemoExpired(false);
         return;
       }
 
@@ -255,6 +309,7 @@ export default function Header() {
       }
 
       setIsDemoMode(true);
+      setIsDemoExpired(false);
       setDemoTimeLeft(Math.ceil(remaining / 1000));
 
       demoTimerRef.current = setInterval(() => {
@@ -274,6 +329,7 @@ export default function Header() {
       };
     } else {
       setIsDemoMode(false);
+      setIsDemoExpired(false);
       setDemoTimeLeft(null);
       if (demoTimerRef.current) clearInterval(demoTimerRef.current);
     }
@@ -364,6 +420,9 @@ export default function Header() {
 
   // Event handlers
   const handleLogin = useCallback(async () => {
+    // Disable login if demo is expired
+    if (isDemoExpired) return;
+    
     setError('');
     const { data, error } = await supabase.auth.signInWithPassword({
       email: login,
@@ -380,7 +439,7 @@ export default function Header() {
       const homeUrl = companySlug ? `/jobs/${companySlug}` : '/';
       router.push(homeUrl);
     }
-  }, [login, password, companySlug, router, fetchUserProfile, fetchUserCompanyId]);
+  }, [login, password, companySlug, router, fetchUserProfile, fetchUserCompanyId, isDemoExpired]);
 
   const handleLogout = useCallback(async () => {
     await supabase.auth.signOut();
@@ -389,21 +448,37 @@ export default function Header() {
     router.push(homeUrl);
   }, [companySlug, router]);
 
+  // Modified timer display color based on expiration
+  const timerBarColor = isDemoExpired 
+    ? 'bg-gradient-to-r from-red-600 to-red-700' 
+    : demoTimeLeft && demoTimeLeft < 300 // Less than 5 minutes
+    ? 'bg-gradient-to-r from-red-400 to-orange-500'
+    : 'bg-gradient-to-r from-orange-400 to-red-500';
 
+  const timerMessage = isDemoExpired 
+    ? 'Demo Expired - Contact us to continue'
+    : `Demonstration Mode - Remaining time: ${demoTimeLeft ? formatTime(demoTimeLeft) : '00:00'}`;
 
   return (
     <>
       <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
-        {isDemoMode && demoTimeLeft !== null && (
-          <div className="bg-gradient-to-r from-orange-400 to-red-500 text-white px-4 py-2">
+        {(isDemoMode || isDemoExpired) && (
+          <div className={`${timerBarColor} text-white px-4 py-2`}>
             <div className="max-w-8xl mx-auto flex items-center justify-center gap-3">
               <Clock className="w-4 h-4" />
               <span className="font-semibold text-sm">
-                Demonstration Mode  - Remaining time: {formatTime(demoTimeLeft)}
+                {timerMessage}
               </span>
-              <div className="hidden sm:block text-xs opacity-90">
-                The application will close automatically at the end of the timer
-              </div>
+              {!isDemoExpired && (
+                <div className="hidden sm:block text-xs opacity-90">
+                  The application will close automatically at the end of the timer
+                </div>
+              )}
+              {isDemoExpired && (
+                <div className="hidden sm:block text-xs opacity-90">
+                  Only "Contact Us" remains available
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -424,14 +499,22 @@ export default function Header() {
 
             {/* Desktop Navigation - hidden on tablet and mobile */}
             <nav className="hidden xl:flex items-center gap-2 flex-1 justify-center mx-8">
-              <Link href={buildLink('/openedpositions')} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700`}>
+              <DemoAwareMenuItem 
+                href={buildLink('/openedpositions')}
+                className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700`}
+                isDemoExpired={isDemoExpired}
+              >
                 <Briefcase className="w-4 h-4" /> {user ? 'Your Available Positions' : 'Available Positions'}
-              </Link>
+              </DemoAwareMenuItem>
 
               {user && (
-                <Link href={buildLink('/openedpositions/new')} className={`${buttonBaseClasses} bg-green-50 hover:bg-green-100 text-green-700`}>
+                <DemoAwareMenuItem 
+                  href={buildLink('/openedpositions/new')}
+                  className={`${buttonBaseClasses} bg-green-50 hover:bg-green-100 text-green-700`}
+                  isDemoExpired={isDemoExpired}
+                >
                   <Plus className="w-4 h-4" /> Create Position
-                </Link>
+                </DemoAwareMenuItem>
               )}
 
               {companyId && (
@@ -439,6 +522,7 @@ export default function Header() {
                   href={happyCheckLink}
                   className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700`}
                   canAccessHappyCheck={canAccessHappyCheck}
+                  isDemoExpired={isDemoExpired}
                 >
                   <Smile className="w-4 h-4" /> Happy Check
                 </HappyCheckMenuItem>
@@ -446,71 +530,97 @@ export default function Header() {
 
               {user && (
                 <div className="relative" ref={hrToolsMenuRef}>
-                  <button onClick={() => setIsHRToolsMenuOpen(!isHRToolsMenuOpen)} className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700`}>
-                    <Heart className="w-4 h-4" /> HR Tools
-                    <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isHRToolsMenuOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                  {isHRToolsMenuOpen && (
-                    <div className="absolute top-full mt-2 left-0 w-64 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
-                      <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
-                        <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Outils RH</p>
+                  {isDemoExpired ? (
+                    <div className={`${buttonBaseClasses} bg-gray-100 text-gray-400 cursor-not-allowed relative group`}>
+                      <Heart className="w-4 h-4" /> HR Tools
+                      <ChevronDown className="w-3 h-3" />
+                      {/* Tooltip */}
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                        Demo expired - Contact us to continue
+                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                       </div>
-
-                      <Link href={buildLink('/openedpositions/analytics')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
-                        <BarChart3 className="w-4 h-4" /> Recruitment Dashboard
-                       </Link>
-
-                      <HappyCheckMenuItem
-                        href={buildLink('/happiness-dashboard')}
-                        className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}
-                        onClick={() => setIsHRToolsMenuOpen(false)}
-                        canAccessHappyCheck={canAccessHappyCheck}
-                      >
-                        <BarChart3 className="w-4 h-4" /> Happiness Dashboard
-                      </HappyCheckMenuItem>
-
-                      <Link href={buildLink('/medical-certificate/list')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
-                        <Stethoscope className="w-4 h-4" /> List of Certificates
-                      </Link>
-
-                      <Link href={buildLink('/medical-certificate/download')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3`}>
-                        <Stethoscope className="w-4 h-4" /> Certificates Download
-                      </Link>
                     </div>
+                  ) : (
+                    <>
+                      <button onClick={() => setIsHRToolsMenuOpen(!isHRToolsMenuOpen)} className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700`}>
+                        <Heart className="w-4 h-4" /> HR Tools
+                        <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isHRToolsMenuOpen ? 'rotate-180' : ''}`} />
+                      </button>
+                      {isHRToolsMenuOpen && (
+                        <div className="absolute top-full mt-2 left-0 w-64 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
+                          <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
+                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Outils RH</p>
+                          </div>
+
+                          <Link href={buildLink('/openedpositions/analytics')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
+                            <BarChart3 className="w-4 h-4" /> Recruitment Dashboard
+                           </Link>
+
+                          <HappyCheckMenuItem
+                            href={buildLink('/happiness-dashboard')}
+                            className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}
+                            onClick={() => setIsHRToolsMenuOpen(false)}
+                            canAccessHappyCheck={canAccessHappyCheck}
+                          >
+                            <BarChart3 className="w-4 h-4" /> Happiness Dashboard
+                          </HappyCheckMenuItem>
+
+                          <Link href={buildLink('/medical-certificate/list')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
+                            <Stethoscope className="w-4 h-4" /> List of Certificates
+                          </Link>
+
+                          <Link href={buildLink('/medical-certificate/download')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3`}>
+                            <Stethoscope className="w-4 h-4" /> Certificates Download
+                          </Link>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               )}
 
               {!user && companyId && (
-                <Link href={uploadCertificateLink} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700`}>
+                <DemoAwareMenuItem 
+                  href={uploadCertificateLink}
+                  className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700`}
+                  isDemoExpired={isDemoExpired}
+                >
                   <Stethoscope className="w-4 h-4" /> Upload Certificate
-                </Link>
+                </DemoAwareMenuItem>
               )}
             </nav>
 
             {/* Right section - User area and mobile menu */}
             <div className="flex items-center gap-3 -mr-2">
               {/* Demo timer for tablet/mobile */}
-              {isDemoMode && demoTimeLeft !== null && (
-                <div className="xl:hidden flex items-center gap-2 px-3 py-1 bg-orange-100 text-orange-800 rounded-lg text-xs font-medium">
+              {(isDemoMode || isDemoExpired) && (
+                <div className={`xl:hidden flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-medium ${
+                  isDemoExpired 
+                    ? 'bg-red-100 text-red-800' 
+                    : demoTimeLeft && demoTimeLeft < 300 
+                    ? 'bg-red-100 text-red-800'
+                    : 'bg-orange-100 text-orange-800'
+                }`}>
                   <Clock className="w-3 h-3" />
-                  {formatTime(demoTimeLeft)}
+                  {isDemoExpired ? 'EXPIRED' : (demoTimeLeft ? formatTime(demoTimeLeft) : '00:00')}
                 </div>
               )}
 
               {/* Contact Us button for demo - positioned in right section */}
               {companySlug === 'demo' && (
-                <Link
+                <DemoAwareMenuItem
                   href={`/jobs/demo/contact`}
                   className={`${buttonBaseClasses} bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hidden sm:flex`}
+                  isDemoExpired={isDemoExpired}
+                  isContactUs={true}
                 >
                   <User className="w-4 h-4" /> Contact Us
-                </Link>
+                </DemoAwareMenuItem>
               )}
 
               {/* Desktop user area */}
               <div className="hidden xl:flex items-center gap-3">
-                {companySlug === 'demo' && !user && (
+                {companySlug === 'demo' && !user && !isDemoExpired && (
                   <div className="text-blue-700 font-medium text-sm">
                     Login for employer view →
                   </div>
@@ -518,28 +628,53 @@ export default function Header() {
 
                 {user ? (
                   <div className="relative" ref={userMenuRef}>
-                    <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} className={`${buttonBaseClasses} bg-gray-50 hover:bg-gray-100 text-gray-700`}>
-                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                        <User className="w-4 h-4 text-blue-600" />
-                      </div>
-                      <span className="max-w-32 truncate">{user.firstname} {user.lastname}</span>
-                      <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
-                    </button>
-
-                    {isUserMenuOpen && (
-                      <div className="absolute top-full mt-2 right-0 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
-                        <div className="px-4 py-3 border-b border-gray-100">
-                          <p className="text-sm text-gray-600">Connected as</p>
-                          <p className="font-semibold text-gray-900">{user.firstname} {user.lastname}</p>
+                    {isDemoExpired ? (
+                      <div className={`${buttonBaseClasses} bg-gray-100 text-gray-400 cursor-not-allowed relative group`}>
+                        <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                          <User className="w-4 h-4 text-gray-500" />
                         </div>
-                        <button onClick={() => { handleLogout(); setIsUserMenuOpen(false); }} className={`${buttonBaseClasses} bg-white hover:bg-red-50 text-red-600 w-full px-4 py-3 text-left`}>
-                          <LogOut className="w-4 h-4" /> Logout
-                        </button>
+                        <span className="max-w-32 truncate">{user.firstname} {user.lastname}</span>
+                        <ChevronDown className="w-3 h-3" />
+                        {/* Tooltip */}
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                          Demo expired - Contact us to continue
+                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                        </div>
                       </div>
+                    ) : (
+                      <>
+                        <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} className={`${buttonBaseClasses} bg-gray-50 hover:bg-gray-100 text-gray-700`}>
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <User className="w-4 h-4 text-blue-600" />
+                          </div>
+                          <span className="max-w-32 truncate">{user.firstname} {user.lastname}</span>
+                          <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        {isUserMenuOpen && (
+                          <div className="absolute top-full mt-2 right-0 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
+                            <div className="px-4 py-3 border-b border-gray-100">
+                              <p className="text-sm text-gray-600">Connected as</p>
+                              <p className="font-semibold text-gray-900">{user.firstname} {user.lastname}</p>
+                            </div>
+                            <button onClick={() => { handleLogout(); setIsUserMenuOpen(false); }} className={`${buttonBaseClasses} bg-white hover:bg-red-50 text-red-600 w-full px-4 py-3 text-left`}>
+                              <LogOut className="w-4 h-4" /> Logout
+                            </button>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 ) : (
-                  <button onClick={() => setIsLoginOpen(true)} className={`${buttonBaseClasses} bg-blue-600 hover:bg-blue-700 text-white`}>
+                  <button 
+                    onClick={() => setIsLoginOpen(true)} 
+                    className={`${buttonBaseClasses} ${
+                      isDemoExpired 
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    }`}
+                    disabled={isDemoExpired}
+                  >
                     <User className="w-4 h-4" /> Login
                   </button>
                 )}
@@ -560,14 +695,24 @@ export default function Header() {
         {isMobileMenuOpen && (
           <div className="xl:hidden bg-white border-t border-gray-200 shadow-lg">
             <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
-              <Link href={buildLink('/openedpositions')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full justify-start`}>
+              <DemoAwareMenuItem 
+                href={buildLink('/openedpositions')} 
+                onClick={() => setIsMobileMenuOpen(false)} 
+                className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full justify-start`}
+                isDemoExpired={isDemoExpired}
+              >
                 <Briefcase className="w-4 h-4" /> {user ? 'Your Available Positions' : 'Available Positions'}
-              </Link>
+              </DemoAwareMenuItem>
 
               {user && (
-                <Link href={buildLink('/openedpositions/new')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-green-50 hover:bg-green-100 text-green-700 w-full justify-start`}>
+                <DemoAwareMenuItem 
+                  href={buildLink('/openedpositions/new')} 
+                  onClick={() => setIsMobileMenuOpen(false)} 
+                  className={`${buttonBaseClasses} bg-green-50 hover:bg-green-100 text-green-700 w-full justify-start`}
+                  isDemoExpired={isDemoExpired}
+                >
                   <Plus className="w-4 h-4" /> Create Position
-                </Link>
+                </DemoAwareMenuItem>
               )}
 
               {companyId && (
@@ -576,6 +721,7 @@ export default function Header() {
                   className={`${buttonBaseClasses} bg-yellow-50 hover:bg-yellow-100 text-yellow-700 w-full justify-start`}
                   onClick={() => setIsMobileMenuOpen(false)}
                   canAccessHappyCheck={canAccessHappyCheck}
+                  isDemoExpired={isDemoExpired}
                 >
                   <Smile className="w-4 h-4" /> Happy Check
                 </HappyCheckMenuItem>
@@ -587,50 +733,75 @@ export default function Header() {
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Outils RH</p>
                   </div>
 
-                  <Link href={buildLink('/openedpositions/analytics')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full justify-start`}>
+                  <DemoAwareMenuItem 
+                    href={buildLink('/openedpositions/analytics')} 
+                    onClick={() => setIsMobileMenuOpen(false)} 
+                    className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full justify-start`}
+                    isDemoExpired={isDemoExpired}
+                  >
                     <BarChart3 className="w-4 h-4" /> Recruitment Dashboard
-                  </Link>
+                  </DemoAwareMenuItem>
 
                   <HappyCheckMenuItem
                     href={buildLink('/happiness-dashboard')}
                     className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full justify-start`}
                     onClick={() => setIsMobileMenuOpen(false)}
                     canAccessHappyCheck={canAccessHappyCheck}
+                    isDemoExpired={isDemoExpired}
                   >
                     <BarChart3 className="w-4 h-4" /> Happiness Dashboard
                   </HappyCheckMenuItem>
 
-                  <Link href={buildLink('/medical-certificate/list')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full justify-start`}>
+                  <DemoAwareMenuItem 
+                    href={buildLink('/medical-certificate/list')} 
+                    onClick={() => setIsMobileMenuOpen(false)} 
+                    className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full justify-start`}
+                    isDemoExpired={isDemoExpired}
+                  >
                     <Stethoscope className="w-4 h-4" /> List of Certificates
-                  </Link>
+                  </DemoAwareMenuItem>
                   
-                  <Link href={buildLink('/medical-certificate/download')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full justify-start`}>
+                  <DemoAwareMenuItem 
+                    href={buildLink('/medical-certificate/download')} 
+                    onClick={() => setIsMobileMenuOpen(false)} 
+                    className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full justify-start`}
+                    isDemoExpired={isDemoExpired}
+                  >
                     <Stethoscope className="w-4 h-4" /> Certificates Download
-                  </Link>
+                  </DemoAwareMenuItem>
                   
-                  <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className={`${buttonBaseClasses} bg-white hover:bg-red-50 text-red-600 w-full justify-start`}>
-                    <LogOut className="w-4 h-4" /> Logout
-                  </button>
+                  {!isDemoExpired && (
+                    <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className={`${buttonBaseClasses} bg-white hover:bg-red-50 text-red-600 w-full justify-start`}>
+                      <LogOut className="w-4 h-4" /> Logout
+                    </button>
+                  )}
                 </>
               )}
 
               {!user && companyId && (
-                <Link href={uploadCertificateLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full justify-start`}>
+                <DemoAwareMenuItem 
+                  href={uploadCertificateLink} 
+                  onClick={() => setIsMobileMenuOpen(false)} 
+                  className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full justify-start`}
+                  isDemoExpired={isDemoExpired}
+                >
                   <Stethoscope className="w-4 h-4" /> Upload Certificate
-                </Link>
+                </DemoAwareMenuItem>
               )}
 
               {companySlug === 'demo' && (
-                <Link
+                <DemoAwareMenuItem
                   href={`/jobs/demo/contact`}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`${buttonBaseClasses} bg-indigo-50 hover:bg-indigo-100 text-indigo-700 w-full justify-start`}
+                  isDemoExpired={isDemoExpired}
+                  isContactUs={true}
                 >
                   <User className="w-4 h-4" /> Contact Us
-                </Link>
+                </DemoAwareMenuItem>
               )}
 
-              {!user && (
+              {!user && !isDemoExpired && (
                 <div className="relative border-t border-gray-200 pt-2">
                   {companySlug === 'demo' && (
                     <div className="text-center mb-2 text-blue-700 font-medium text-sm">
@@ -647,7 +818,7 @@ export default function Header() {
         )}
       </header>
 
-      {isLoginOpen && (
+      {isLoginOpen && !isDemoExpired && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
             <div className="p-6 border-b border-gray-200">
