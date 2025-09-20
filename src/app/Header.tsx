@@ -474,11 +474,6 @@ export default function Header() {
                   The application will close automatically at the end of the timer
                 </div>
               )}
-              {isDemoExpired && (
-                <div className="hidden sm:block text-xs opacity-90">
-                  Only "Contact Us" remains available
-                </div>
-              )}
             </div>
           </div>
         )}
