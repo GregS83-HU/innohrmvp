@@ -141,7 +141,7 @@ function UploadCertificatePageContent() {
           </div>
           <h1 className="text-2xl font-bold text-gray-800 mb-4">Limite du plan atteinte</h1>
           <p className="text-gray-700 mb-6">
-            Your company's plan limit has been reached. To continue, please reach out to your company administrator.
+            Your company&apos;s plan limit has been reached. To continue, please reach out to your company administrator.
           </p>
           <button 
             onClick={() => window.history.back()}
