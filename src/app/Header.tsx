@@ -147,24 +147,7 @@ export default function Header() {
     happyCheckAccessChecked.current = true;
     
     try {
-      const { data, error } = await supabase.rpc('can_access_happy_check', { p_company_id: companyId });
-      
-      // Detailed logging
-      console.log('📡 Full response:', { data, error });
-      console.log('📡 Data details:', {
-        data: data,
-        dataType: typeof data,
-        isNull: data === null,
-        isUndefined: data === undefined,
-        dataStringified: JSON.stringify(data),
-        dataKeys: data && typeof data === 'object' ? Object.keys(data) : 'not an object'
-      });
-      console.log('📡 Error details:', {
-        error: error,
-        hasError: !!error,
-        errorMessage: error?.message,
-        errorCode: error?.code
-      });
+      const { data, error } = await supabase.rpc('can_access_happy_check', { p_company_id: companyId })
       
       if (error) {
         console.log('❌ There is an error, setting access to false');
@@ -182,32 +165,20 @@ export default function Header() {
       let hasAccess = false;
       
       if (typeof data === 'boolean') {
-        console.log('📊 Data is boolean:', data);
         hasAccess = data;
       } else if (typeof data === 'string') {
-        console.log('📊 Data is string:', data);
         hasAccess = data === 'true' || data === 'True' || data === 'TRUE';
       } else if (typeof data === 'number') {
-        console.log('📊 Data is number:', data);
         hasAccess = data === 1;
       } else if (typeof data === 'object' && data !== null) {
-        console.log('📊 Data is object, checking properties...');
         // Sometimes Supabase functions return objects, check if there's a result property
         hasAccess = data.result === true || data.result === 'true' || 
                    data.can_access === true || data.can_access === 'true' ||
                    data[0] === true || data[0] === 'true' || // Sometimes it's an array
                    data === true; // Sometimes the object itself is the boolean
         
-        console.log('📊 Object access check:', {
-          'data.result': data.result,
-          'data.can_access': data.can_access,
-          'data[0]': data[0],
-          'final hasAccess': hasAccess
-        });
       }
-      
-      console.log('✅ Final decision - Setting canAccessHappyCheck to:', hasAccess);
-      setCanAccessHappyCheck(hasAccess);
+            setCanAccessHappyCheck(hasAccess);
       
     } catch (error) {
       console.error('💥 Catch block error:', error);
