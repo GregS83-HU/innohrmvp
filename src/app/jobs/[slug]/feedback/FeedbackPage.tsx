@@ -79,12 +79,6 @@ export default function FeedbackPage() {
           </p>
           
           <div className="space-y-3">
-            <button
-              onClick={() => router.push('/')}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105"
-            >
-              Back to Home
-            </button>
             
             <button
               onClick={handleContactUs}

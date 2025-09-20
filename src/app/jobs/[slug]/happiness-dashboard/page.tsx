@@ -39,18 +39,7 @@ interface DashboardData {
     area: string;
     score: number;
   }>;
-  dailyMetrics: Array<{
-    metric_date: string;
-    total_sessions_completed: number;
-    avg_overall_happiness: number;
-    completion_rate: number;
-    avg_positive_emotions: number;
-    avg_engagement: number;
-    avg_relationships: number;
-    avg_meaning: number;
-    avg_accomplishment: number;
-    avg_work_life_balance: number;
-  }>;
+  
   period: string;
   companyId?: number;
   companyName?: string;
@@ -196,12 +185,6 @@ const HRDashboard = () => {
   const happinessLevel = getHappinessLevel(data.summary.avgHappiness);
   const HappinessIcon = happinessLevel.icon;
 
-  const trendData = data.dailyMetrics.map(item => ({
-    date: new Date(item.metric_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    happiness: item.avg_overall_happiness,
-    participation: item.total_sessions_completed,
-    completion: item.completion_rate
-  }));
 
   const permaData = Object.entries(data.permaAverages).map(([key, value]) => ({
     dimension: permaLabels[key as keyof typeof permaLabels],
@@ -361,24 +344,7 @@ const HRDashboard = () => {
 
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Temporal Trend */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Wellbeing Trend</h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={trendData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="date" stroke="#6b7280" fontSize={12} />
-                  <YAxis domain={[0,10]} stroke="#6b7280" fontSize={12} />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor:'#fff', border:'1px solid #e5e7eb', borderRadius:'8px', boxShadow:'0 4px 6px -1px rgba(0,0,0,0.1)'}}
-                    formatter={(value:number)=>[value?.toFixed(1),'Average Score']}
-                  />
-                  <Line type="monotone" dataKey="happiness" stroke="#3B82F6" strokeWidth={3} dot={{ fill:'#3B82F6', strokeWidth:2, r:4 }} activeDot={{ r:6, fill:'#1D4ED8' }}/>
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+         
 
           {/* PERMA Radar */}
           <div className="bg-white rounded-xl shadow-sm p-6">
@@ -395,27 +361,39 @@ const HRDashboard = () => {
               </ResponsiveContainer>
             </div>
           </div>
+          {/* PERMA Distribution */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Domain Distribution</h3>
+            <div className="h-50">
+              <ResponsiveContainer width="100%" height="100%">
+               <PieChart>
+                <Pie 
+                  data={pieData} 
+                  cx="50%" 
+                  cy="50%" 
+                  innerRadius={40} 
+                  outerRadius={80} 
+                  paddingAngle={2} 
+                  dataKey="value" 
+                  label={({ name, value }) => `${name}\n${value?.toFixed(1)}`}
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value: number) => [value?.toFixed(1), 'Score']} />
+              </PieChart>
+              </ResponsiveContainer>  
+            </div>
+          </div>
         </div>
 
         {/* Additional Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          {/* PERMA Distribution */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Domain Distribution</h3>
-            <div className="h-48">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={pieData} cx="50%" cy="50%" innerRadius={40} outerRadius={80} paddingAngle={2} dataKey="value">
-                    {pieData.map((entry, index)=><Cell key={`cell-${index}`} fill={entry.color}/>)}
-                  </Pie>
-                  <Tooltip formatter={(value:number)=>[value?.toFixed(1),'Score']}/>
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+          
 
           {/* Domain Comparison */}
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
+          <div className="lg:col-span-3 bg-white rounded-xl shadow-sm p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Detailed Comparison</h3>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
