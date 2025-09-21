@@ -146,7 +146,9 @@ export async function GET(req: NextRequest) {
               position.position_description_detailed
             )
 
-            if (score >= 7) matched++
+            if (score >= 7) {
+              
+            matched++ 
 
             await supabase.from('position_to_candidat').upsert({
               position_id: positionId,
@@ -154,7 +156,7 @@ export async function GET(req: NextRequest) {
               candidat_score: score,
               candidat_ai_analyse: analysis,
               source: 'Analyse from Database',
-            })
+            })}
           } catch (err) {
             console.error(`Erreur analyse CV ${candidat.id}:`, err)
           }
