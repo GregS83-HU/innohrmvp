@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
 import { useRouter, usePathname } from 'next/navigation';
 import { FiMenu, FiX } from 'react-icons/fi';
-import { Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown, User, LogOut, Clock } from 'lucide-react';
+import { Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown, User, LogOut, Clock, CreditCard } from 'lucide-react';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -107,6 +107,7 @@ export default function Header() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isHRToolsMenuOpen, setIsHRToolsMenuOpen] = useState(false);
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
@@ -127,6 +128,7 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const hrToolsMenuRef = useRef<HTMLDivElement>(null);
+  const accountMenuRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   // Memoized values
@@ -141,10 +143,10 @@ export default function Header() {
   // Memoized link builder
   const buildLink = useCallback((basePath: string) => {
     const query = companyId ? `?company_id=${companyId}` : '';
-    if (companySlug) {
+    if (!companySlug) return '/404'; // Not possible to not have slug
       if (basePath === '/') return `/jobs/${companySlug}${query}`;
       return `/jobs/${companySlug}${basePath}${query}`;
-    }
+    
     return `${basePath}${query}`;
   }, [companyId, companySlug]);
 
@@ -184,6 +186,7 @@ export default function Header() {
   // Memoized links
   const happyCheckLink = useMemo(() => buildLink('/happiness-check'), [buildLink]);
   const uploadCertificateLink = useMemo(() => buildLink('/medical-certificate/upload'), [buildLink]);
+  const manageSubscriptionLink = useMemo(() => buildLink('/subscription'), [buildLink]);
 
   // Check happy check access
   const checkHappyCheckAccess = useCallback(async () => {
@@ -265,75 +268,69 @@ export default function Header() {
     setTimeout(() => {
       if (companySlug === 'demo') {
         router.push(`/jobs/demo/feedback`);
-      } else {
-        window.location.href = 'https://www.linkedin.com/in/grégory-saussez';
-      }
+      } 
     }, 2000); // Reduced to 3 seconds for better UX
   }, [user, companySlug, router]);
 
   // Demo timer effect - Demo duration
   useEffect(() => {
-    const DEMO_DURATION = 20 * 60 * 1000;
-    const DEMO_START_KEY = 'demo_start_time';
-    const DEMO_MODE_KEY = 'demo_mode_active';
+  const DEMO_DURATION = 20 * 60 * 1000; // 20 minutes
+  const DEMO_START_KEY = 'demo_start_time';
+  const DEMO_MODE_KEY = 'demo_mode_active';
 
-    if (companySlug === 'demo') {
+  // Mode demo uniquement si le slug est "demo"
+  const isDemoActive = companySlug === 'demo';
+
+  if (isDemoActive) {
+    // Activer la demo et initialiser le timer si pas déjà fait
+    let demoStartTime = localStorage.getItem(DEMO_START_KEY);
+    if (!demoStartTime) {
+      demoStartTime = Date.now().toString();
+      localStorage.setItem(DEMO_START_KEY, demoStartTime);
       localStorage.setItem(DEMO_MODE_KEY, 'true');
-
-      let demoStartTime = localStorage.getItem(DEMO_START_KEY);
-      if (!demoStartTime) {
-        demoStartTime = Date.now().toString();
-        localStorage.setItem(DEMO_START_KEY, demoStartTime);
-      }
     }
 
-    const isDemoActive = companySlug === 'demo' || localStorage.getItem(DEMO_MODE_KEY) === 'true';
+    const startTime = parseInt(demoStartTime, 10);
+    const elapsed = Date.now() - startTime;
+    const remaining = DEMO_DURATION - elapsed;
 
-    if (isDemoActive) {
-      const demoStartTime = localStorage.getItem(DEMO_START_KEY);
-      if (!demoStartTime) {
-        localStorage.removeItem(DEMO_MODE_KEY);
-        setIsDemoMode(false);
-        setDemoTimeLeft(null);
-        setIsDemoExpired(false);
-        return;
-      }
+    if (remaining <= 0) {
+      handleDemoExpiration();
+      return;
+    }
 
-      const startTime = parseInt(demoStartTime);
-      const elapsed = Date.now() - startTime;
-      const remaining = DEMO_DURATION - elapsed;
+    setIsDemoMode(true);
+    setIsDemoExpired(false);
+    setDemoTimeLeft(Math.ceil(remaining / 1000));
 
-      if (remaining <= 0) {
+    demoTimerRef.current = setInterval(() => {
+      const currentElapsed = Date.now() - startTime;
+      const currentRemaining = DEMO_DURATION - currentElapsed;
+
+      if (currentRemaining <= 0) {
         handleDemoExpiration();
         return;
       }
 
-      setIsDemoMode(true);
-      setIsDemoExpired(false);
-      setDemoTimeLeft(Math.ceil(remaining / 1000));
+      setDemoTimeLeft(Math.ceil(currentRemaining / 1000));
+    }, 1000);
 
-      demoTimerRef.current = setInterval(() => {
-        const currentElapsed = Date.now() - startTime;
-        const currentRemaining = DEMO_DURATION - currentElapsed;
+  } else {
+    // Mode normal : on désactive tout
+    localStorage.removeItem(DEMO_START_KEY);
+    localStorage.removeItem(DEMO_MODE_KEY);
+    setIsDemoMode(false);
+    setIsDemoExpired(false);
+    setDemoTimeLeft(null);
+    if (demoTimerRef.current) clearInterval(demoTimerRef.current);
+  }
 
-        if (currentRemaining <= 0) {
-          handleDemoExpiration();
-          return;
-        }
+  // Nettoyage de l'interval
+  return () => {
+    if (demoTimerRef.current) clearInterval(demoTimerRef.current);
+  };
+}, [companySlug, handleDemoExpiration]);
 
-        setDemoTimeLeft(Math.ceil(currentRemaining / 1000));
-      }, 1000);
-
-      return () => {
-        if (demoTimerRef.current) clearInterval(demoTimerRef.current);
-      };
-    } else {
-      setIsDemoMode(false);
-      setIsDemoExpired(false);
-      setDemoTimeLeft(null);
-      if (demoTimerRef.current) clearInterval(demoTimerRef.current);
-    }
-  }, [companySlug, user, handleDemoExpiration]);
 
   // Fetch functions
   const fetchUserProfile = useCallback(async (userId: string) => {
@@ -408,6 +405,9 @@ export default function Header() {
     const handleClickOutside = (event: MouseEvent) => {
       if (hrToolsMenuRef.current && !hrToolsMenuRef.current.contains(event.target as Node)) {
         setIsHRToolsMenuOpen(false);
+      }
+      if (accountMenuRef.current && !accountMenuRef.current.contains(event.target as Node)) {
+        setIsAccountMenuOpen(false);
       }
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false);
@@ -566,6 +566,45 @@ export default function Header() {
 
                           <Link href={buildLink('/medical-certificate/download')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3`}>
                             <Stethoscope className="w-4 h-4" /> Certificates Download
+                          </Link>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* New Manage Account Menu */}
+              {user && companySlug !== 'demo' && (
+                <div className="relative" ref={accountMenuRef}>
+                  {isDemoExpired ? (
+                    <div className={`${buttonBaseClasses} bg-gray-100 text-gray-400 cursor-not-allowed relative group`}>
+                      <User className="w-4 h-4" /> Manage Account
+                      <ChevronDown className="w-3 h-3" />
+                      {/* Tooltip */}
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                        Demo expired - Contact us to continue
+                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700`}>
+                        <User className="w-4 h-4" /> Manage Account
+                        <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isAccountMenuOpen ? 'rotate-180' : ''}`} />
+                      </button>
+                      {isAccountMenuOpen && (
+                        <div className="absolute top-full mt-2 left-0 w-56 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
+                          <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
+                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Account Management</p>
+                          </div>
+
+                          <Link 
+                            href={manageSubscriptionLink} 
+                            onClick={() => setIsAccountMenuOpen(false)}
+                            className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3`}
+                          >
+                            <CreditCard className="w-4 h-4" /> Manage Subscription
                           </Link>
                         </div>
                       )}
@@ -764,6 +803,24 @@ export default function Header() {
                   >
                     <Stethoscope className="w-4 h-4" /> Certificates Download
                   </DemoAwareMenuItem>
+                  
+                  {/* Account Management Section for Mobile */}
+                  {companySlug !== 'demo' && (
+                    <>
+                      <div className="px-4 py-2 border-t border-gray-200">
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Account Management</p>
+                      </div>
+
+                      <DemoAwareMenuItem 
+                        href={manageSubscriptionLink} 
+                        onClick={() => setIsMobileMenuOpen(false)} 
+                        className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full justify-start`}
+                        isDemoExpired={isDemoExpired}
+                      >
+                        <CreditCard className="w-4 h-4" /> Manage Subscription
+                      </DemoAwareMenuItem>
+                    </>
+                  )}
                   
                   {!isDemoExpired && (
                     <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className={`${buttonBaseClasses} bg-white hover:bg-red-50 text-red-600 w-full justify-start`}>
