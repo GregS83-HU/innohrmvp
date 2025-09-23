@@ -41,6 +41,7 @@ interface ForfaitData {
   max_opened_position?: number
   max_medical_certificates?: number
   access_happy_check?: boolean
+  stripe_price_id?: string | null
 }
 
 interface StripePriceData {
@@ -152,21 +153,63 @@ export default function ManageSubscription() {
   }
 
   const fetchStripePrices = useCallback(async (plansToUpdate: Plan[]) => {
+    const paidPlans = plansToUpdate.filter(plan => plan.priceId !== null)
+    
+    if (paidPlans.length === 0) {
+      // All plans are free, no need to call Stripe
+      return
+    }
+
     try {
       const res = await fetch('/api/stripe/prices')
-      if (!res.ok) return
+      if (!res.ok) {
+        addToast("Failed to load pricing from Stripe. Paid plans are temporarily unavailable.", "error")
+        // Only show free plans when Stripe fails
+        const freePlansOnly = plansToUpdate.filter(plan => plan.priceId === null)
+        setPlans(freePlansOnly)
+        return
+      }
+      
       const data = await res.json()
-      if (!data.prices || !Array.isArray(data.prices)) return
+      if (!data.prices || !Array.isArray(data.prices)) {
+        addToast("Invalid pricing data from Stripe. Paid plans are temporarily unavailable.", "error")
+        // Only show free plans when Stripe data is invalid
+        const freePlansOnly = plansToUpdate.filter(plan => plan.priceId === null)
+        setPlans(freePlansOnly)
+        return
+      }
 
-      const updatedPlans = plansToUpdate.map(plan => {
-        const stripePrice = data.prices.find((p: StripePriceData) => p.name.toLowerCase() === plan.name.toLowerCase())
-        if (stripePrice) return { ...plan, price: stripePrice.price || 0, priceId: stripePrice.id }
-        return plan
-      })
+      let hasStripePricingIssues = false
+      const updatedPlans = plansToUpdate
+        .map(plan => {
+          // If it's a free plan (no stripe_price_id), keep it as is
+          if (plan.priceId === null) {
+            return plan
+          }
+          
+          // For paid plans, find the price in Stripe data
+          const stripePrice = data.prices.find((p: StripePriceData) => p.id === plan.priceId)
+          if (stripePrice && typeof stripePrice.price === 'number') {
+            return { ...plan, price: stripePrice.price }
+          } else {
+            // Stripe price not found or invalid for this paid plan
+            hasStripePricingIssues = true
+            return null
+          }
+        })
+        .filter(plan => plan !== null) as Plan[]
+
+      if (hasStripePricingIssues) {
+        addToast("Some paid plans are temporarily unavailable due to pricing issues.", "error")
+      }
+      
       setPlans(updatedPlans)
     } catch (err) {
       console.error("Error fetching Stripe prices:", err)
-      addToast("Could not fetch current pricing from Stripe", "error")
+      addToast("Could not connect to Stripe. Paid plans are temporarily unavailable.", "error")
+      // Only show free plans when Stripe connection fails
+      const freePlansOnly = plansToUpdate.filter(plan => plan.priceId === null)
+      setPlans(freePlansOnly)
     }
   }, [])
 
@@ -187,11 +230,11 @@ export default function ManageSubscription() {
         const formattedPlans: Plan[] = forfaits.map((forfait: ForfaitData, index: number) => ({
           id: forfait.id?.toString() || `forfait_${forfait.id}`,
           name: forfait.forfait_name || `Plan ${forfait.id}`,
-          price: 0,
+          price: 0, // Will be updated from Stripe for paid plans
           description: forfait.description || generateDescription(forfait),
           features: generateFeatures(forfait),
           popular: index === 1,
-          priceId: null
+          priceId: forfait.stripe_price_id || null // Use stripe_price_id from database
         }))
         setPlans(formattedPlans)
         await fetchStripePrices(formattedPlans)
@@ -206,7 +249,18 @@ export default function ManageSubscription() {
 
   const handleSubscribe = async (plan: Plan) => {
     if (!companyId) return addToast("Company information not available.", "error")
-    if (!plan.priceId) return addToast("This plan is not available for purchase.", "error")
+    
+    // Check if it's a free plan
+    if (plan.priceId === null) {
+      addToast("This is a free plan. No subscription needed.", "success")
+      return
+    }
+    
+    // Check if it's a paid plan without proper pricing (technical issue)
+    if (plan.price === 0 && plan.priceId !== null) {
+      addToast("This plan is temporarily unavailable due to pricing issues.", "error")
+      return
+    }
 
     try {
       const returnUrl = window.location.href
@@ -288,6 +342,14 @@ export default function ManageSubscription() {
           <div className="grid md:grid-cols-3 gap-8">
             {[...Array(3)].map((_, i) => <div key={i} className="bg-white rounded-xl shadow-sm p-6 animate-pulse h-64" />)}
           </div>
+        ) : plans.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="bg-white rounded-xl shadow-sm p-8">
+              <Shield className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Plans Available</h3>
+              <p className="text-gray-600">Unable to load pricing information. Please try again later.</p>
+            </div>
+          </div>
         ) : (
           <div className="grid md:grid-cols-3 gap-8">
             {plans.map(plan => (
@@ -307,10 +369,28 @@ export default function ManageSubscription() {
                   </ul>
                   <button
                     onClick={() => handleSubscribe(plan)}
-                    className={`w-full py-3 px-4 rounded-lg font-semibold transition-all ${!plan.priceId ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : plan.name.toLowerCase() === currentPlan?.toLowerCase() ? 'bg-green-100 text-green-800' : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl'}`}
-                    disabled={!plan.priceId}
+                    className={`w-full py-3 px-4 rounded-lg font-semibold transition-all ${
+                      // Free plan button
+                      plan.priceId === null 
+                        ? 'bg-green-100 text-green-800 cursor-default' 
+                        // Paid plan with pricing issues
+                        : (plan.price === 0 && plan.priceId !== null)
+                        ? 'bg-red-100 text-red-800 cursor-not-allowed'
+                        // Current plan
+                        : plan.name.toLowerCase() === currentPlan?.toLowerCase() 
+                        ? 'bg-blue-100 text-blue-800' 
+                        // Available paid plan
+                        : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl'
+                    }`}
+                    disabled={plan.price === 0 && plan.priceId !== null}
                   >
-                    {plan.price === 0 && !plan.priceId ? 'Free Plan' : `Subscribe to ${plan.name}`}
+                    {plan.priceId === null 
+                      ? 'Free Plan' 
+                      : (plan.price === 0 && plan.priceId !== null)
+                      ? 'Temporarily Unavailable'
+                      : plan.name.toLowerCase() === currentPlan?.toLowerCase()
+                      ? 'Current Plan'
+                      : `Subscribe to ${plan.name}`}
                   </button>
                 </div>
               </div>
