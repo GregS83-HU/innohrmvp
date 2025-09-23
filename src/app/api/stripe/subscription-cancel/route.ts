@@ -40,7 +40,11 @@ export async function POST(req: Request) {
       canceled: true,
       canceled_at: canceledSubscription.canceled_at,
     })
-  } catch (err: any) {
+  } catch (err: unknown) {
+  if (err instanceof Error) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
+
+  return NextResponse.json({ error: "Failed to cancel subscription" }, { status: 500 })
+}
 }

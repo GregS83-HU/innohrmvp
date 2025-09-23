@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js'
 import { useSession } from '@supabase/auth-helpers-react'
 import { useSearchParams } from 'next/navigation'
 import { v4 as uuidv4 } from 'uuid'
-import { Check, X, Star, Zap, Shield, Crown } from 'lucide-react'
+import { Check, Shield, Star, Zap, Crown } from 'lucide-react'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -133,8 +133,8 @@ export default function ManageSubscription() {
 
       if (forfaits) {
         const formattedPlans: Plan[] = forfaits.map((forfait: any, index: number) => ({
-          id: forfait.id || `forfait_${forfait.id}`,
-          name: forfait.forfait_name || `Plan ${forfait.id}`,
+          id: forfait.id ? forfait.id.toString() : `forfait_${index}`,
+          name: forfait.forfait_name || `Plan ${index + 1}`,
           price: 0,
           description: forfait.description || generateDescription(forfait),
           features: generateFeatures(forfait),

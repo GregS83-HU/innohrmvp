@@ -18,10 +18,15 @@ export async function POST(req: Request) {
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
     )
-  } catch (err: any) {
+  } catch (err: unknown) {
+  if (err instanceof Error) {
     console.error("❌ Webhook signature verification failed:", err.message)
     return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 })
   }
+
+  console.error("❌ Webhook signature verification failed with unknown error:", err)
+  return NextResponse.json({ error: "Webhook Error: Unknown error" }, { status: 400 })
+}
 
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

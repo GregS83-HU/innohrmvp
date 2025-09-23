@@ -43,8 +43,13 @@ export async function POST(request: Request) {
 
     console.log("Stripe portal session created:", session.id)
     return NextResponse.json({ url: session.url })
-  } catch (err: any) {
-    console.error("Stripe portal error:", err)
-    return NextResponse.json({ error: err.message || "Unknown error" }, { status: 400 })
+  } catch (err: unknown) {
+  console.error("Stripe portal error:", err)
+
+  if (err instanceof Error) {
+    return NextResponse.json({ error: err.message }, { status: 400 })
   }
+
+  return NextResponse.json({ error: "Unknown error" }, { status: 400 })
+}
 }
