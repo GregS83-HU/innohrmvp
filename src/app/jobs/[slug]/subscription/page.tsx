@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js'
 import { useSession } from '@supabase/auth-helpers-react'
 import { useSearchParams } from 'next/navigation'
 import { v4 as uuidv4 } from 'uuid'
-import { Check, Shield, Star, Zap, Crown } from 'lucide-react'
+import { Check, X, Star, Zap, Shield, Crown } from 'lucide-react'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,6 +31,22 @@ type Toast = {
   id: string
   message: string
   type: 'success' | 'error' 
+}
+
+// Define proper types for database objects
+interface ForfaitData {
+  id: number
+  forfait_name?: string
+  description?: string
+  max_opened_position?: number
+  max_medical_certificates?: number
+  access_happy_check?: boolean
+}
+
+interface StripePriceData {
+  id: string
+  name: string
+  price?: number
 }
 
 export default function ManageSubscription() {
@@ -118,6 +134,42 @@ export default function ManageSubscription() {
     }
   }, [])
 
+  const generateDescription = (forfait: ForfaitData) => {
+    const features: string[] = []
+    if (forfait.max_opened_position) features.push(`${forfait.max_opened_position} positions`)
+    if (forfait.max_medical_certificates) features.push(`${forfait.max_medical_certificates} certificates`)
+    if (forfait.access_happy_check) features.push('Happy Check access')
+    return features.length > 0 ? `Perfect for businesses needing ${features.join(', ')}` : 'A great plan for your business needs'
+  }
+
+  const generateFeatures = (forfait: ForfaitData) => {
+    const features: string[] = []
+    if (forfait.max_opened_position) features.push(forfait.max_opened_position === 999999 ? 'Unlimited open positions' : `Up to ${forfait.max_opened_position} open positions`)
+    if (forfait.max_medical_certificates) features.push(forfait.max_medical_certificates === 999999 ? 'Unlimited medical certificates' : `Up to ${forfait.max_medical_certificates} medical certificates`)
+    if (forfait.access_happy_check) features.push('Happy Check feature included')
+    features.push('Email support', 'Basic analytics', 'Secure data storage')
+    return features
+  }
+
+  const fetchStripePrices = useCallback(async (plansToUpdate: Plan[]) => {
+    try {
+      const res = await fetch('/api/stripe/prices')
+      if (!res.ok) return
+      const data = await res.json()
+      if (!data.prices || !Array.isArray(data.prices)) return
+
+      const updatedPlans = plansToUpdate.map(plan => {
+        const stripePrice = data.prices.find((p: StripePriceData) => p.name.toLowerCase() === plan.name.toLowerCase())
+        if (stripePrice) return { ...plan, price: stripePrice.price || 0, priceId: stripePrice.id }
+        return plan
+      })
+      setPlans(updatedPlans)
+    } catch (err) {
+      console.error("Error fetching Stripe prices:", err)
+      addToast("Could not fetch current pricing from Stripe", "error")
+    }
+  }, [])
+
   const fetchPlans = useCallback(async () => {
     setLoadingPlans(true)
     try {
@@ -132,9 +184,9 @@ export default function ManageSubscription() {
       }
 
       if (forfaits) {
-        const formattedPlans: Plan[] = forfaits.map((forfait: any, index: number) => ({
-          id: forfait.id ? forfait.id.toString() : `forfait_${index}`,
-          name: forfait.forfait_name || `Plan ${index + 1}`,
+        const formattedPlans: Plan[] = forfaits.map((forfait: ForfaitData, index: number) => ({
+          id: forfait.id?.toString() || `forfait_${forfait.id}`,
+          name: forfait.forfait_name || `Plan ${forfait.id}`,
           price: 0,
           description: forfait.description || generateDescription(forfait),
           features: generateFeatures(forfait),
@@ -150,43 +202,7 @@ export default function ManageSubscription() {
     } finally {
       setLoadingPlans(false)
     }
-  }, [])
-
-  const generateDescription = (forfait: any) => {
-    const features: string[] = []
-    if (forfait.max_opened_position) features.push(`${forfait.max_opened_position} positions`)
-    if (forfait.max_medical_certificates) features.push(`${forfait.max_medical_certificates} certificates`)
-    if (forfait.access_happy_check) features.push('Happy Check access')
-    return features.length > 0 ? `Perfect for businesses needing ${features.join(', ')}` : 'A great plan for your business needs'
-  }
-
-  const generateFeatures = (forfait: any) => {
-    const features: string[] = []
-    if (forfait.max_opened_position) features.push(forfait.max_opened_position === 999999 ? 'Unlimited open positions' : `Up to ${forfait.max_opened_position} open positions`)
-    if (forfait.max_medical_certificates) features.push(forfait.max_medical_certificates === 999999 ? 'Unlimited medical certificates' : `Up to ${forfait.max_medical_certificates} medical certificates`)
-    if (forfait.access_happy_check) features.push('Happy Check feature included')
-    features.push('Email support', 'Basic analytics', 'Secure data storage')
-    return features
-  }
-
-  const fetchStripePrices = async (plansToUpdate: Plan[]) => {
-    try {
-      const res = await fetch('/api/stripe/prices')
-      if (!res.ok) return
-      const data = await res.json()
-      if (!data.prices || !Array.isArray(data.prices)) return
-
-      const updatedPlans = plansToUpdate.map(plan => {
-        const stripePrice = data.prices.find((p: any) => p.name.toLowerCase() === plan.name.toLowerCase())
-        if (stripePrice) return { ...plan, price: stripePrice.price || 0, priceId: stripePrice.id }
-        return plan
-      })
-      setPlans(updatedPlans)
-    } catch (err) {
-      console.error("Error fetching Stripe prices:", err)
-      addToast("Could not fetch current pricing from Stripe", "error")
-    }
-  }
+  }, [fetchStripePrices])
 
   const handleSubscribe = async (plan: Plan) => {
     if (!companyId) return addToast("Company information not available.", "error")
