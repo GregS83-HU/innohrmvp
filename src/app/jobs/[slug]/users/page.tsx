@@ -3,8 +3,27 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
-import { Users, Plus, Loader2, AlertCircle, Mail, User, Shield, ShieldCheck, Search, Filter } from 'lucide-react';
+import {
+  Users,
+  Plus,
+  Loader2,
+  AlertCircle,
+  Mail,
+  Shield,
+  ShieldCheck,
+  Search,
+  Filter,
+} from 'lucide-react';
 import { AddUserModal } from '../../../../../components/AddUserModal'; // adjust path if needed
+
+// ✅ Define a strong type for company users
+interface CompanyUser {
+  user_id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  is_admin: boolean;
+}
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,10 +31,10 @@ const supabase = createClient(
 );
 
 export default function CompanyUsersPage() {
-  const params = useParams();
+  const params = useParams<{ slug: string }>();
   const companySlug = params.slug;
 
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<CompanyUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [companyId, setCompanyId] = useState<string | null>(null);
@@ -23,31 +42,42 @@ export default function CompanyUsersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'user'>('all');
 
+  // ✅ Fetch company ID by slug
   const fetchCompanyId = useCallback(async () => {
     try {
-      const { data, error } = await supabase.from('company').select('id').eq('slug', companySlug).single();
+      const { data, error } = await supabase
+        .from('company')
+        .select('id')
+        .eq('slug', companySlug)
+        .single();
+
       if (error || !data?.id) {
         setError('Company not found');
         setLoading(false);
         return;
       }
-      setCompanyId(data.id);
+      setCompanyId(data.id.toString());
     } catch {
       setError('Error fetching company ID');
       setLoading(false);
     }
   }, [companySlug]);
 
+  // ✅ Fetch company users via RPC
   const fetchCompanyUsers = useCallback(async () => {
     if (!companyId) return;
     try {
       setLoading(true);
-      const { data, error } = await supabase.rpc('get_company_users', { company_id_input: companyId });
+      const { data, error } = await supabase.rpc('get_company_users', {
+        company_id_input: companyId,
+      });
+
       if (error) {
         setError(error.message);
         return;
       }
-      setUsers(Array.isArray(data) ? data : []);
+
+      setUsers(Array.isArray(data) ? (data as CompanyUser[]) : []);
     } catch {
       setError('Unexpected error fetching users');
     } finally {
@@ -55,48 +85,66 @@ export default function CompanyUsersPage() {
     }
   }, [companyId]);
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = !searchTerm || 
-      `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  // ✅ Filtering logic
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+      !searchTerm ||
+      `${user.first_name} ${user.last_name}`
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesRole = roleFilter === 'all' || 
+
+    const matchesRole =
+      roleFilter === 'all' ||
       (roleFilter === 'admin' && user.is_admin) ||
       (roleFilter === 'user' && !user.is_admin);
 
     return matchesSearch && matchesRole;
   });
 
-  useEffect(() => { fetchCompanyId(); }, [fetchCompanyId]);
-  useEffect(() => { if (companyId) fetchCompanyUsers(); }, [companyId, fetchCompanyUsers]);
+  // ✅ Effects
+  useEffect(() => {
+    fetchCompanyId();
+  }, [fetchCompanyId]);
 
-  if (loading) return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-2xl shadow-lg">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
-        <p className="text-gray-600 text-center">Loading users...</p>
-      </div>
-    </div>
-  );
+  useEffect(() => {
+    if (companyId) fetchCompanyUsers();
+  }, [companyId, fetchCompanyUsers]);
 
-  if (error) return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col items-center justify-center p-4">
-      <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-md w-full">
-        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <AlertCircle className="w-8 h-8 text-red-600" />
+  // ✅ Loading state
+  if (loading)
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-2xl shadow-lg">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600 text-center">Loading users...</p>
         </div>
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Oops! Something went wrong</h2>
-        <p className="text-gray-600 mb-6">{error}</p>
-        <button 
-          onClick={() => window.location.reload()} 
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors shadow-lg hover:shadow-xl"
-        >
-          Try Again
-        </button>
       </div>
-    </div>
-  );
+    );
 
+  // ✅ Error state
+  if (error)
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col items-center justify-center p-4">
+        <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-md w-full">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="w-8 h-8 text-red-600" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">
+            Oops! Something went wrong
+          </h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors shadow-lg hover:shadow-xl"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+
+  // ✅ Main content
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
@@ -108,16 +156,18 @@ export default function CompanyUsersPage() {
                 <Users className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Company Users</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                  Company Users
+                </h1>
                 <p className="text-gray-600">{users.length} team members</p>
               </div>
             </div>
-            
-            <button 
-              onClick={() => setIsAddUserModalOpen(true)} 
+
+            <button
+              onClick={() => setIsAddUserModalOpen(true)}
               className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
-              <Plus className="w-4 h-4" /> 
+              <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Add User</span>
               <span className="sm:hidden">Add</span>
             </button>
@@ -137,13 +187,15 @@ export default function CompanyUsersPage() {
                   className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 />
               </div>
-              
+
               {/* Role Filter */}
               <div className="flex items-center gap-2 min-w-fit">
                 <Filter className="w-4 h-4 text-gray-500" />
                 <select
                   value={roleFilter}
-                  onChange={(e) => setRoleFilter(e.target.value as any)}
+                  onChange={(e) =>
+                    setRoleFilter(e.target.value as 'all' | 'admin' | 'user')
+                  }
                   className="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
                 >
                   <option value="all">All Roles</option>
@@ -162,16 +214,18 @@ export default function CompanyUsersPage() {
               <Users className="w-10 h-10 text-gray-400" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              {searchTerm || roleFilter !== 'all' ? 'No users found' : 'No users yet'}
+              {searchTerm || roleFilter !== 'all'
+                ? 'No users found'
+                : 'No users yet'}
             </h3>
             <p className="text-gray-600 mb-6">
-              {searchTerm || roleFilter !== 'all' 
-                ? 'Try adjusting your search or filter criteria.' 
+              {searchTerm || roleFilter !== 'all'
+                ? 'Try adjusting your search or filter criteria.'
                 : 'Get started by adding your first team member.'}
             </p>
-            {(!searchTerm && roleFilter === 'all') && (
-              <button 
-                onClick={() => setIsAddUserModalOpen(true)} 
+            {!searchTerm && roleFilter === 'all' && (
+              <button
+                onClick={() => setIsAddUserModalOpen(true)}
                 className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors"
               >
                 Add First User
@@ -186,23 +240,35 @@ export default function CompanyUsersPage() {
                 <table className="min-w-full">
                   <thead>
                     <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Role</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Name
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Email
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Role
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {filteredUsers.map((user, index) => (
-                      <tr key={user.user_id} className="hover:bg-gray-50 transition-colors group">
+                    {filteredUsers.map((user) => (
+                      <tr
+                        key={user.user_id}
+                        className="hover:bg-gray-50 transition-colors group"
+                      >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
                               <span className="text-white font-semibold text-sm">
-                                {user.first_name?.[0]}{user.last_name?.[0]}
+                                {user.first_name?.[0]}
+                                {user.last_name?.[0]}
                               </span>
                             </div>
                             <div>
-                              <p className="font-semibold text-gray-900">{user.first_name} {user.last_name}</p>
+                              <p className="font-semibold text-gray-900">
+                                {user.first_name} {user.last_name}
+                              </p>
                             </div>
                           </div>
                         </td>
@@ -232,18 +298,24 @@ export default function CompanyUsersPage() {
 
             {/* Mobile Card View */}
             <div className="md:hidden space-y-4">
-              {filteredUsers.map((user, index) => (
-                <div key={user.user_id} className="bg-white rounded-2xl p-4 shadow-lg border border-gray-100">
+              {filteredUsers.map((user) => (
+                <div
+                  key={user.user_id}
+                  className="bg-white rounded-2xl p-4 shadow-lg border border-gray-100"
+                >
                   <div className="flex items-start gap-3">
                     <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
                       <span className="text-white font-semibold">
-                        {user.first_name?.[0]}{user.last_name?.[0]}
+                        {user.first_name?.[0]}
+                        {user.last_name?.[0]}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <h3 className="font-semibold text-gray-900 truncate">{user.first_name} {user.last_name}</h3>
+                          <h3 className="font-semibold text-gray-900 truncate">
+                            {user.first_name} {user.last_name}
+                          </h3>
                           <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
                             <Mail className="w-3 h-3" />
                             <span className="truncate">{user.email}</span>
@@ -268,6 +340,7 @@ export default function CompanyUsersPage() {
         )}
       </div>
 
+      {/* Add User Modal */}
       <AddUserModal
         isOpen={isAddUserModalOpen}
         onClose={() => setIsAddUserModalOpen(false)}

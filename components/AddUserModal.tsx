@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, X, Eye, EyeOff, Copy, CheckCircle, Loader2 } from 'lucide-react';
+import { Plus, X, CheckCircle, Loader2 } from 'lucide-react';
 
 interface AddUserModalProps {
   isOpen: boolean;
@@ -65,9 +65,12 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
         onClose();
         onSuccess();
       }, 3000);
-
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
     } finally {
       setLoading(false);
     }

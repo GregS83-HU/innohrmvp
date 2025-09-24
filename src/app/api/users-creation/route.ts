@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY! // server-side only
+  process.env.SUPABASE_URL!,              // ⚡ use server-only env var
+  process.env.SUPABASE_SERVICE_ROLE_KEY!  // service_role must never be exposed
 );
 
 export async function POST(req: NextRequest) {
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     // 3️⃣ Link user to company
     const { error: linkError } = await supabaseAdmin.from('company_to_users').insert({
       user_id: userId,
-      company_id: parseInt(companyId),
+      company_id: parseInt(companyId, 10),
     });
 
     if (linkError) {
@@ -51,8 +51,12 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ success: true, userId });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error creating user:', err);
-    return NextResponse.json({ error: err.message }, { status: 400 });
+
+    if (err instanceof Error) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
+    }
+    return NextResponse.json({ error: 'Unknown error occurred' }, { status: 400 });
   }
 }
