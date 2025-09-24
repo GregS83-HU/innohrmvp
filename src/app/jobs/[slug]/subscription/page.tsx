@@ -270,7 +270,7 @@ export default function ManageSubscription() {
         body: JSON.stringify({ company_id: companyId, price_id: plan.priceId, return_url: returnUrl })
       })
       const data = await res.json()
-      if (data.url) window.open(data.url)
+      if (data.url) window.location.replace(data.url)
       else addToast(data.error || "Unable to start checkout", "error")
     } catch (err) {
       console.error(err)
