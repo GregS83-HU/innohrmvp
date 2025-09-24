@@ -6,6 +6,8 @@ import { useSession } from '@supabase/auth-helpers-react'
 import { useSearchParams } from 'next/navigation'
 import { v4 as uuidv4 } from 'uuid'
 import { Check, X, Star, Zap, Shield, Crown } from 'lucide-react'
+import { loadStripe } from "@stripe/stripe-js"
+
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -60,6 +62,7 @@ export default function ManageSubscription() {
   const [companyId, setCompanyId] = useState<string | null>(null)
   const [currentPlan, setCurrentPlan] = useState<string | null>(null)
   const [toasts, setToasts] = useState<Toast[]>([])
+  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
   const addToast = (message: string, type: 'success' | 'error' = 'error') => {
     const id = uuidv4()
@@ -248,35 +251,42 @@ export default function ManageSubscription() {
   }, [fetchStripePrices])
 
   const handleSubscribe = async (plan: Plan) => {
-    if (!companyId) return addToast("Company information not available.", "error")
-    
-    // Check if it's a free plan
-    if (plan.priceId === null) {
-      addToast("This is a free plan. No subscription needed.", "success")
-      return
-    }
-    
-    // Check if it's a paid plan without proper pricing (technical issue)
-    if (plan.price === 0 && plan.priceId !== null) {
-      addToast("This plan is temporarily unavailable due to pricing issues.", "error")
-      return
-    }
+  if (!companyId) return addToast("Company information not available.", "error")
 
-    try {
-      const returnUrl = window.location.href
-      const res = await fetch('/api/stripe/create-subscription', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ company_id: companyId, price_id: plan.priceId, return_url: returnUrl })
-      })
-      const data = await res.json()
-      if (data.url) window.location.replace(data.url)
-      else addToast(data.error || "Unable to start checkout", "error")
-    } catch (err) {
-      console.error(err)
-      addToast("Unexpected error starting checkout", "error")
-    }
+  if (plan.priceId === null) {
+    addToast("This is a free plan. No subscription needed.", "success")
+    return
   }
+
+  if (plan.price === 0 && plan.priceId !== null) {
+    addToast("This plan is temporarily unavailable due to pricing issues.", "error")
+    return
+  }
+
+  try {
+    const res = await fetch('/api/stripe/create-subscription', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        company_id: companyId,
+        price_id: plan.priceId,
+        return_url: window.location.origin // better than href
+      }),
+    })
+
+    const data = await res.json()
+    if (data.sessionId) {
+      const stripe = await stripePromise
+      if (!stripe) throw new Error("Stripe failed to load")
+      await stripe.redirectToCheckout({ sessionId: data.sessionId })
+    } else {
+      addToast(data.error || "Unable to start checkout", "error")
+    }
+  } catch (err) {
+    console.error(err)
+    addToast("Unexpected error starting checkout", "error")
+  }
+}
 
   const getPlanIcon = (planName: string) => {
     switch (planName.toLowerCase()) {

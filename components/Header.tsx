@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { FiMenu, FiX } from 'react-icons/fi';
-import { Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown, User, LogOut, Clock, CreditCard } from 'lucide-react';
+import { Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown, User, LogOut, Clock, CreditCard,UserCog } from 'lucide-react';
 import { useHeaderLogic } from '../hooks/useHeaderLogic';
 import { LoginModal, HappyCheckMenuItem, DemoAwareMenuItem, DemoTimer, ForfaitBadge } from './header/';
 
@@ -51,6 +51,7 @@ export default function Header() {
   const happyCheckLink = useMemo(() => buildLink('/happiness-check'), [buildLink]);
   const uploadCertificateLink = useMemo(() => buildLink('/medical-certificate/upload'), [buildLink]);
   const manageSubscriptionLink = useMemo(() => buildLink('/subscription'), [buildLink]);
+  const manageUsersLink = useMemo(() => buildLink('/users'), [buildLink]);
 
   return (
     <>
@@ -187,6 +188,14 @@ export default function Header() {
                             className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3`}
                           >
                             <CreditCard className="w-4 h-4" /> Manage Subscription
+                          </Link>
+
+                          <Link 
+                            href={manageUsersLink} 
+                            onClick={() => setIsAccountMenuOpen(false)}
+                            className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3`}
+                          >
+                            <UserCog className="w-4 h-4" /> Manage your users
                           </Link>
                         </div>
                       )}
@@ -399,6 +408,15 @@ export default function Header() {
                         isDemoExpired={isDemoExpired}
                       >
                         <CreditCard className="w-4 h-4" /> Manage Subscription
+                      </DemoAwareMenuItem>
+
+                      <DemoAwareMenuItem 
+                        href={manageUsersLink} 
+                        onClick={() => setIsMobileMenuOpen(false)} 
+                        className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full justify-start`}
+                        isDemoExpired={isDemoExpired}
+                      >
+                        <CreditCard className="w-4 h-4" /> Manage your Users
                       </DemoAwareMenuItem>
                     </>
                   )}
