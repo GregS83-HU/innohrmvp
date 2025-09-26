@@ -3,9 +3,15 @@
 import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { FiMenu, FiX } from 'react-icons/fi';
-import { Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown, User, LogOut, Clock, CreditCard,UserCog } from 'lucide-react';
+import { 
+  Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown, 
+  User, LogOut, Clock, CreditCard, UserCog 
+} from 'lucide-react';
 import { useHeaderLogic } from '../hooks/useHeaderLogic';
-import { LoginModal, HappyCheckMenuItem, DemoAwareMenuItem, DemoTimer, ForfaitBadge } from './header/';
+import { 
+  LoginModal, HappyCheckMenuItem, DemoAwareMenuItem, DemoTimer, ForfaitBadge 
+} from './header/';
+import NotificationComponent from './NotificationComponent';
 
 export default function Header() {
   const {
@@ -77,7 +83,7 @@ export default function Header() {
               <ForfaitBadge companyForfait={companyForfait} />
             </div>
 
-            {/* Desktop Navigation - hidden on tablet and mobile */}
+            {/* Desktop Navigation */}
             <nav className="hidden xl:flex items-center gap-2 flex-1 justify-center mx-8">
               <DemoAwareMenuItem 
                 href={buildLink('/openedpositions')}
@@ -108,6 +114,7 @@ export default function Header() {
                 </HappyCheckMenuItem>
               )}
 
+              {/* HR Tools Dropdown */}
               {user && (
                 <div className="relative" ref={hrToolsMenuRef}>
                   {isDemoExpired ? (
@@ -158,7 +165,7 @@ export default function Header() {
                 </div>
               )}
 
-              {/* New Manage Account Menu */}
+              {/* Manage Account */}
               {user && companySlug !== 'demo' && (
                 <div className="relative" ref={accountMenuRef}>
                   {isDemoExpired ? (
@@ -215,8 +222,17 @@ export default function Header() {
               )}
             </nav>
 
-            {/* Right section - User area and mobile menu */}
+            {/* Right section - Notifications + User Area + Mobile Menu */}
             <div className="flex items-center gap-3 -mr-2">
+              {/* Notifications (only for logged in users) */}
+              {user && (
+                <NotificationComponent
+                  currentUser={user}
+                  isHrinnoAdmin={user?.is_admin === true}
+                  companySlug={companySlug}
+                />
+              )}
+
               {/* Demo timer for tablet/mobile */}
               {(isDemoMode || isDemoExpired) && (
                 <div className={`xl:hidden flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-medium ${
@@ -231,7 +247,7 @@ export default function Header() {
                 </div>
               )}
 
-              {/* Contact Us button for demo - positioned in right section */}
+              {/* Contact Us (demo only) */}
               {companySlug === 'demo' && (
                 <DemoAwareMenuItem
                   href={`/jobs/demo/contact`}
@@ -360,7 +376,7 @@ export default function Header() {
                   <DemoAwareMenuItem 
                     href={buildLink('/openedpositions/analytics')} 
                     onClick={() => setIsMobileMenuOpen(false)} 
-                    className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full justify-start`}
+                    className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700 w-full justify-start`}
                     isDemoExpired={isDemoExpired}
                   >
                     <BarChart3 className="w-4 h-4" /> Recruitment Dashboard
@@ -368,10 +384,9 @@ export default function Header() {
 
                   <HappyCheckMenuItem
                     href={buildLink('/happiness-dashboard')}
-                    className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full justify-start`}
+                    className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700 w-full justify-start`}
                     onClick={() => setIsMobileMenuOpen(false)}
                     canAccessHappyCheck={canAccessHappyCheck}
-                    isDemoExpired={isDemoExpired}
                   >
                     <BarChart3 className="w-4 h-4" /> Happiness Dashboard
                   </HappyCheckMenuItem>
@@ -379,60 +394,53 @@ export default function Header() {
                   <DemoAwareMenuItem 
                     href={buildLink('/medical-certificate/list')} 
                     onClick={() => setIsMobileMenuOpen(false)} 
-                    className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full justify-start`}
+                    className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700 w-full justify-start`}
                     isDemoExpired={isDemoExpired}
                   >
                     <Stethoscope className="w-4 h-4" /> List of Certificates
                   </DemoAwareMenuItem>
-                  
+
                   <DemoAwareMenuItem 
                     href={buildLink('/medical-certificate/download')} 
                     onClick={() => setIsMobileMenuOpen(false)} 
-                    className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full justify-start`}
+                    className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700 w-full justify-start`}
                     isDemoExpired={isDemoExpired}
                   >
                     <Stethoscope className="w-4 h-4" /> Certificates Download
                   </DemoAwareMenuItem>
-                  
-                  {/* Account Management Section for Mobile */}
-                  {companySlug !== 'demo' && (
-                    <>
-                      <div className="px-4 py-2 border-t border-gray-200">
-                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Account Management</p>
-                      </div>
+                </>
+              )}
 
-                      <DemoAwareMenuItem 
-                        href={manageSubscriptionLink} 
-                        onClick={() => setIsMobileMenuOpen(false)} 
-                        className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full justify-start`}
-                        isDemoExpired={isDemoExpired}
-                      >
-                        <CreditCard className="w-4 h-4" /> Manage Subscription
-                      </DemoAwareMenuItem>
+              {user && companySlug !== 'demo' && (
+                <>
+                  <div className="px-4 py-2 border-t border-gray-200">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Account Management</p>
+                  </div>
 
-                      <DemoAwareMenuItem 
-                        href={manageUsersLink} 
-                        onClick={() => setIsMobileMenuOpen(false)} 
-                        className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full justify-start`}
-                        isDemoExpired={isDemoExpired}
-                      >
-                        <CreditCard className="w-4 h-4" /> Manage your Users
-                      </DemoAwareMenuItem>
-                    </>
-                  )}
-                  
-                  {!isDemoExpired && (
-                    <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className={`${buttonBaseClasses} bg-white hover:bg-red-50 text-red-600 w-full justify-start`}>
-                      <LogOut className="w-4 h-4" /> Logout
-                    </button>
-                  )}
+                  <DemoAwareMenuItem 
+                    href={manageSubscriptionLink}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start`}
+                    isDemoExpired={isDemoExpired}
+                  >
+                    <CreditCard className="w-4 h-4" /> Manage Subscription
+                  </DemoAwareMenuItem>
+
+                  <DemoAwareMenuItem 
+                    href={manageUsersLink}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start`}
+                    isDemoExpired={isDemoExpired}
+                  >
+                    <UserCog className="w-4 h-4" /> Manage your users
+                  </DemoAwareMenuItem>
                 </>
               )}
 
               {!user && companyId && (
                 <DemoAwareMenuItem 
-                  href={uploadCertificateLink} 
-                  onClick={() => setIsMobileMenuOpen(false)} 
+                  href={uploadCertificateLink}
+                  onClick={() => setIsMobileMenuOpen(false)}
                   className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full justify-start`}
                   isDemoExpired={isDemoExpired}
                 >
@@ -440,44 +448,40 @@ export default function Header() {
                 </DemoAwareMenuItem>
               )}
 
-              {companySlug === 'demo' && (
-                <DemoAwareMenuItem
-                  href={`/jobs/demo/contact`}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`${buttonBaseClasses} bg-indigo-50 hover:bg-indigo-100 text-indigo-700 w-full justify-start`}
-                  isDemoExpired={isDemoExpired}
-                  isContactUs={true}
-                >
-                  <User className="w-4 h-4" /> Contact Us
-                </DemoAwareMenuItem>
-              )}
-
-              {!user && !isDemoExpired && (
-                <div className="relative border-t border-gray-200 pt-2">
-                  {companySlug === 'demo' && (
-                    <div className="text-center mb-2 text-blue-700 font-medium text-sm">
-                      → Login for employer view
-                    </div>
-                  )}
-                  <button onClick={() => { setIsLoginOpen(true); setIsMobileMenuOpen(false); }} className={`${buttonBaseClasses} bg-blue-600 hover:bg-blue-700 text-white w-full justify-center`}>
+              <div className="pt-4 border-t border-gray-200">
+                {user ? (
+                  <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className={`${buttonBaseClasses} bg-white hover:bg-red-50 text-red-600 w-full justify-start`}>
+                    <LogOut className="w-4 h-4" /> Logout
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => { setIsLoginOpen(true); setIsMobileMenuOpen(false); }} 
+                    className={`${buttonBaseClasses} ${
+                      isDemoExpired 
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    } w-full justify-start`}
+                    disabled={isDemoExpired}
+                  >
                     <User className="w-4 h-4" /> Login
                   </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         )}
       </header>
 
-      <LoginModal
+      {/* Login Modal */}
+      <LoginModal 
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
         login={login}
         setLogin={setLogin}
         password={password}
         setPassword={setPassword}
-        error={error}
         onLogin={handleLogin}
+        error={error}
         isDemoExpired={isDemoExpired}
       />
     </>

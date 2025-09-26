@@ -20,7 +20,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Users, FileText, Mail, Phone, Edit3, Save, XCircle, Eye, EyeOff, Workflow } from 'lucide-react'
+import { Users, FileText, Mail, Phone, Edit3, Save, XCircle, Eye, EyeOff, Workflow, Check } from 'lucide-react'
 
 type Candidat = {
   candidat_firstname: string
@@ -46,7 +46,17 @@ type RecruitmentStep = {
   step_name: string
 }
 
-function Card({ row, onClick }: { row: Row; onClick: (row: Row) => void }) {
+function Card({ 
+  row, 
+  onClick, 
+  isSelected, 
+  onToggleSelection 
+}: { 
+  row: Row
+  onClick: (row: Row) => void
+  isSelected: boolean
+  onToggleSelection: (candidateId: number, event: React.MouseEvent) => void
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: row.candidat_id.toString(),
   })
@@ -74,6 +84,16 @@ function Card({ row, onClick }: { row: Row; onClick: (row: Row) => void }) {
 
   const scoreColors = getScoreColor(row.candidat_score)
 
+  // Modify styling for selected cards
+  const cardClasses = `
+    ${scoreColors.bg} rounded-lg shadow-sm border 
+    ${isSelected 
+      ? 'border-blue-500 ring-2 ring-blue-200 bg-blue-50' 
+      : scoreColors.border
+    } 
+    p-3 cursor-pointer hover:shadow-md transition-all select-none mb-2 group touch-manipulation relative
+  `
+
   return (
     <div
       ref={setNodeRef}
@@ -82,19 +102,33 @@ function Card({ row, onClick }: { row: Row; onClick: (row: Row) => void }) {
       {...listeners}
       onClick={(e) => {
         e.stopPropagation()
-        if (!isDragging) onClick(row)
+        if (!isDragging) {
+          // Check if Ctrl (Windows) or Cmd (Mac) is pressed
+          if (e.ctrlKey || e.metaKey) {
+            onToggleSelection(row.candidat_id, e)
+          } else {
+            onClick(row)
+          }
+        }
       }}
-      className={`${scoreColors.bg} rounded-lg shadow-sm border ${scoreColors.border} p-3 cursor-pointer hover:shadow-md transition-all select-none mb-2 group touch-manipulation`}
+      className={cardClasses}
     >
+      {/* Selection indicator */}
+      {isSelected && (
+        <div className="absolute top-2 right-2 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+          <Check className="w-3 h-3 text-white" />
+        </div>
+      )}
+
       <div className="flex justify-between items-start mb-2">
         <div>
-          <p className={`font-medium ${scoreColors.text} text-sm leading-tight`}>
+          <p className={`font-medium ${isSelected ? 'text-blue-800' : scoreColors.text} text-sm leading-tight`}>
             {row.candidats?.candidat_firstname ?? '—'} {row.candidats?.candidat_lastname ?? ''}
           </p>
           <p className="text-xs text-gray-500">ID: {row.candidat_id}</p>
         </div>
         {row.candidat_score !== null && (
-          <span className={`${getScoreBadgeColor(row.candidat_score)} text-xs px-2 py-1 rounded-full font-medium`}>
+          <span className={`${getScoreBadgeColor(row.candidat_score)} text-xs px-2 py-1 rounded-full font-medium ${isSelected ? 'ml-6' : ''}`}>
             {row.candidat_score}
           </span>
         )}
@@ -156,7 +190,11 @@ function Column({
   rows, 
   onCardClick,
   isRejectedColumn = false,
-  showRejected = true
+  showRejected = true,
+  selectedCandidates,
+  onToggleSelection,
+  onSelectAll,
+  onDeselectAll
 }: { 
   columnId: string
   columnName: string
@@ -164,6 +202,10 @@ function Column({
   onCardClick: (row: Row) => void
   isRejectedColumn?: boolean
   showRejected?: boolean
+  selectedCandidates: Set<number>
+  onToggleSelection: (candidateId: number, event: React.MouseEvent) => void
+  onSelectAll: (columnId: string) => void
+  onDeselectAll: (columnId: string) => void
 }) {
   const { isOver, setNodeRef } = useDroppable({
     id: columnId,
@@ -178,6 +220,11 @@ function Column({
   const displayRows = isRejectedColumn && !showRejected ? [] : rows
   const actualCount = rows.length
 
+  // Count selected candidates in this column
+  const selectedInColumn = displayRows.filter(row => selectedCandidates.has(row.candidat_id)).length
+  const allSelected = displayRows.length > 0 && selectedInColumn === displayRows.length
+  const someSelected = selectedInColumn > 0 && selectedInColumn < displayRows.length
+
   return (
     <div
       ref={setNodeRef}
@@ -189,15 +236,48 @@ function Column({
         <h2 className={`text-sm font-semibold ${titleColor} uppercase tracking-wide`}>
           {columnName}
         </h2>
-        <span className={`${badgeBg} text-xs px-2 py-1 rounded-full font-medium`}>
-          {actualCount}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className={`${badgeBg} text-xs px-2 py-1 rounded-full font-medium`}>
+            {actualCount}
+          </span>
+          {selectedInColumn > 0 && (
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+              {selectedInColumn} selected
+            </span>
+          )}
+        </div>
       </div>
+
+      {/* Column selection controls */}
+      {displayRows.length > 0 && (
+        <div className="flex gap-1 mb-2">
+          <button
+            onClick={() => onSelectAll(columnId)}
+            className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
+            disabled={allSelected}
+          >
+            All
+          </button>
+          <button
+            onClick={() => onDeselectAll(columnId)}
+            className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200 transition-colors"
+            disabled={selectedInColumn === 0}
+          >
+            None
+          </button>
+        </div>
+      )}
       
       <div className="flex-1 min-h-[300px]">
         <SortableContext items={displayRows.map(r => r.candidat_id.toString())} strategy={verticalListSortingStrategy}>
           {displayRows.map(row => (
-            <Card key={row.candidat_id} row={row} onClick={onCardClick} />
+            <Card 
+              key={row.candidat_id} 
+              row={row} 
+              onClick={onCardClick}
+              isSelected={selectedCandidates.has(row.candidat_id)}
+              onToggleSelection={onToggleSelection}
+            />
           ))}
         </SortableContext>
         
@@ -234,6 +314,10 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
   const [isEditingComment, setIsEditingComment] = useState(false)
   const [editedComment, setEditedComment] = useState('')
   const [isSavingComment, setIsSavingComment] = useState(false)
+
+  // NEW: Multi-selection state
+  const [selectedCandidates, setSelectedCandidates] = useState<Set<number>>(new Set())
+  const [draggingMultiple, setDraggingMultiple] = useState<Row[]>([])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -332,6 +416,82 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     fetchData()
   }, [session, initialRows])
 
+  // NEW: Multi-selection handlers
+  const handleToggleSelection = (candidateId: number, event: React.MouseEvent) => {
+    event.stopPropagation()
+    setSelectedCandidates(prev => {
+      const newSelection = new Set(prev)
+      if (newSelection.has(candidateId)) {
+        newSelection.delete(candidateId)
+      } else {
+        newSelection.add(candidateId)
+      }
+      return newSelection
+    })
+  }
+
+  const handleSelectAllInColumn = (columnId: string) => {
+    const columnRows = columnId === 'unassigned' 
+      ? getRowsByStepId('unassigned')
+      : getRowsByStepId(columnId)
+    
+    setSelectedCandidates(prev => {
+      const newSelection = new Set(prev)
+      columnRows.forEach(row => newSelection.add(row.candidat_id))
+      return newSelection
+    })
+  }
+
+  const handleDeselectAllInColumn = (columnId: string) => {
+    const columnRows = columnId === 'unassigned' 
+      ? getRowsByStepId('unassigned')
+      : getRowsByStepId(columnId)
+    
+    setSelectedCandidates(prev => {
+      const newSelection = new Set(prev)
+      columnRows.forEach(row => newSelection.delete(row.candidat_id))
+      return newSelection
+    })
+  }
+
+  const clearAllSelections = () => {
+    setSelectedCandidates(new Set())
+  }
+
+  // NEW: Handle batch step changes for multiple candidates
+  const handleBatchStepChange = async (candidateIds: number[], step_id: string | null) => {
+    const originalRows = [...rows]
+    
+    // Optimistically update UI for all selected candidates
+    setRows(prev =>
+      prev.map(r => candidateIds.includes(r.candidat_id) ? { 
+        ...r, 
+        candidat_next_step: step_id === 'unassigned' || step_id === null ? null : step_id 
+      } : r)
+    )
+
+    try {
+      // Make API calls for each candidate (you might want to create a batch API endpoint)
+      await Promise.all(candidateIds.map(candidateId => 
+        fetch('/api/update-next-step', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            candidat_id: candidateId, 
+            step_id: step_id === 'unassigned' || step_id === null ? null : Number(step_id)
+          }),
+        })
+      ))
+
+      // Clear selections after successful batch update
+      setSelectedCandidates(new Set())
+    } catch (err) {
+      console.error('Error updating steps:', err)
+      setRows(originalRows)
+      alert("Erreur lors de la mise à jour des étapes")
+    }
+  }
+
   const handleStepChange = async (candidat_id: number, step_id: string | null) => {
     const originalRows = [...rows]
     
@@ -360,14 +520,13 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     }
   }
 
-  // New function to handle comment updates
+  // Comment update handler (unchanged)
   const handleCommentUpdate = async () => {
     if (!selectedCandidate) return
     
     setIsSavingComment(true)
     const originalRows = [...rows]
     
-    // Optimistically update the UI
     setRows(prev =>
       prev.map(r => (r.candidat_id === selectedCandidate.candidat_id ? { 
         ...r, 
@@ -395,7 +554,6 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
       setIsEditingComment(false)
     } catch (err) {
       console.error('Error updating comment:', err)
-      // Revert changes on error
       setRows(originalRows)
       setSelectedCandidate(originalRows.find(r => r.candidat_id === selectedCandidate.candidat_id) || null)
       alert("Erreur lors de la mise à jour du commentaire")
@@ -406,14 +564,27 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event
-    const row = rows.find(r => r.candidat_id.toString() === active.id) || null
-    setDraggingRow(row)
+    const draggedCandidateId = Number(active.id)
+    const row = rows.find(r => r.candidat_id === draggedCandidateId) || null
+    
+    // NEW: Check if dragging a selected candidate or multiple candidates
+    if (selectedCandidates.has(draggedCandidateId) && selectedCandidates.size > 1) {
+      // Multi-drag: get all selected rows
+      const selectedRows = rows.filter(r => selectedCandidates.has(r.candidat_id))
+      setDraggingMultiple(selectedRows)
+      setDraggingRow(row) // Keep the main dragged row for overlay
+    } else {
+      // Single drag: clear selections and drag only this card
+      setSelectedCandidates(new Set())
+      setDraggingMultiple([])
+      setDraggingRow(row)
+    }
+    
     setIsDragging(true)
     
     const scrollElement = document.querySelector('#scroll-container') as HTMLElement
     if (scrollElement) {
       setScrollContainer(scrollElement)
-      // hide native scrolling while dragging to prevent jitter; restore on drag end
       scrollElement.style.overflowX = 'hidden'
       scrollElement.style.touchAction = 'none'
     }
@@ -429,7 +600,10 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
+    const multiDragActive = draggingMultiple.length > 0
+    
     setDraggingRow(null)
+    setDraggingMultiple([])
     setIsDragging(false)
     clearAutoScroll()
     
@@ -442,21 +616,34 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     const { active, over } = event
     if (!over || !active) return
 
-    const activeId = Number(active.id)
-    const currentRow = rows.find(r => r.candidat_id === activeId)
-    if (!currentRow) return
-
     const targetColumnId = findColumnForElement(over.id as string)
     if (targetColumnId === null) return
 
     const newStepId: string | null = targetColumnId === 'unassigned' ? null : targetColumnId
-    if (currentRow.candidat_next_step !== newStepId) {
-      handleStepChange(activeId, newStepId)
+    
+    if (multiDragActive) {
+      // NEW: Handle multiple candidates drag
+      const candidateIds = draggingMultiple.map(r => r.candidat_id)
+      
+      // Check if any candidate needs to be moved
+      const needsUpdate = draggingMultiple.some(row => row.candidat_next_step !== newStepId)
+      
+      if (needsUpdate) {
+        handleBatchStepChange(candidateIds, newStepId)
+      }
+    } else {
+      // Handle single candidate drag
+      const activeId = Number(active.id)
+      const currentRow = rows.find(r => r.candidat_id === activeId)
+      if (!currentRow) return
+
+      if (currentRow.candidat_next_step !== newStepId) {
+        handleStepChange(activeId, newStepId)
+      }
     }
   }
 
   const getRowsByStepId = (stepId: string | null) => {
-    // treat 'unassigned' and null as the same bucket
     if (stepId === 'unassigned' || stepId === null) {
       return rows.filter(r => {
         const s = r.candidat_next_step
@@ -475,6 +662,8 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
   }
 
   const handleCandidateClick = (row: Row) => {
+    // Clear selections when opening modal to avoid confusion
+    setSelectedCandidates(new Set())
     setSelectedCandidate(row)
     setEditedComment(row.candidat_comment || '')
     setIsEditingComment(false)
@@ -496,12 +685,10 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     setEditedComment(selectedCandidate?.candidat_comment || '')
   }
 
-  // Helper function to check if a candidate is rejected
   const isRejectedCandidate = (row: Row) => {
     return String(row.candidat_next_step) === '1'
   }
 
-  // Get count of non-rejected candidates for display
   const nonRejectedCandidatesCount = rows.filter(row => !isRejectedCandidate(row)).length
   const rejectedCandidatesCount = rows.filter(row => isRejectedCandidate(row)).length
 
@@ -529,11 +716,11 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                 <Workflow className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600 flex-shrink-0" />
                 <div className="text-center">
                   <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">Recruitment Treatment</h1>
-                  <p className="text-xs sm:text-sm text-gray-600 mt-1">Manage your candidates by dragging cards between steps.</p>
+                  <p className="text-xs sm:text-sm text-gray-600 mt-1">Manage your candidates by dragging cards between steps. Hold Ctrl/Cmd + click to select multiple.</p>
                 </div>
               </div>
 
-              {/* Candidates count and rejected toggle */}
+              {/* Candidates count and controls */}
               <div className="flex items-center justify-center gap-6 flex-wrap">
                 <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full">
                   <Users className="w-5 h-5" />
@@ -543,6 +730,21 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                     <span className="text-blue-100 text-sm">({rejectedCandidatesCount} hidden)</span>
                   )}
                 </div>
+
+                {/* NEW: Selection info and clear button */}
+                {selectedCandidates.size > 0 && (
+                  <div className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-full">
+                    <Check className="w-4 h-4" />
+                    <span className="font-medium">{selectedCandidates.size} selected</span>
+                    <button
+                      onClick={clearAllSelections}
+                      className="ml-2 text-blue-200 hover:text-white transition-colors"
+                      title="Clear selection"
+                    >
+                      <XCircle className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
                 
                 {/* Show/Hide Rejected Button */}
                 {rejectedCandidatesCount > 0 && (
@@ -601,6 +803,10 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                   onCardClick={handleCandidateClick}
                   isRejectedColumn={isRejectedColumn}
                   showRejected={showRejected}
+                  selectedCandidates={selectedCandidates}
+                  onToggleSelection={handleToggleSelection}
+                  onSelectAll={handleSelectAllInColumn}
+                  onDeselectAll={handleDeselectAllInColumn}
                 />
               )
             })}
@@ -608,11 +814,34 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
 
           <DragOverlay>
             {draggingRow && (
-              <div className="bg-white rounded-lg shadow-lg border-2 border-blue-300 p-3 cursor-grabbing w-72 transform rotate-3 z-50">
-                <p className="font-medium text-gray-800 text-sm">
-                  {draggingRow.candidats?.candidat_firstname} #{draggingRow.candidat_id}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">Score: {draggingRow.candidat_score ?? '—'}</p>
+              <div className="relative">
+                {/* Main dragging card */}
+                <div className="bg-white rounded-lg shadow-lg border-2 border-blue-300 p-3 cursor-grabbing w-72 transform rotate-3 z-50">
+                  <p className="font-medium text-gray-800 text-sm">
+                    {draggingRow.candidats?.candidat_firstname} #{draggingRow.candidat_id}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">Score: {draggingRow.candidat_score ?? '—'}</p>
+                </div>
+                
+                {/* NEW: Multi-drag indicator */}
+                {draggingMultiple.length > 1 && (
+                  <>
+                    {/* Shadow cards to show multiple items being dragged */}
+                    <div className="absolute top-1 left-1 bg-blue-100 rounded-lg shadow-md border border-blue-200 p-3 w-72 transform rotate-2 -z-10">
+                      <div className="h-4 bg-blue-200 rounded mb-2"></div>
+                      <div className="h-3 bg-blue-150 rounded"></div>
+                    </div>
+                    <div className="absolute top-2 left-2 bg-blue-50 rounded-lg shadow-sm border border-blue-100 p-3 w-72 transform rotate-1 -z-20">
+                      <div className="h-4 bg-blue-100 rounded mb-2"></div>
+                      <div className="h-3 bg-blue-75 rounded"></div>
+                    </div>
+                    
+                    {/* Counter badge */}
+                    <div className="absolute -top-2 -right-2 bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold z-60">
+                      {draggingMultiple.length}
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </DragOverlay>
@@ -790,13 +1019,26 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
         </div>
       )}
 
-      {/* Small stylesheet to improve scrollbar appearance in browsers that support it. Note: OS settings can still hide scrollbars (macOS overlay scrollbars). */}
+      {/* Small stylesheet to improve scrollbar appearance */}
       <style>{`
         #scroll-container::-webkit-scrollbar { height: 10px; }
         #scroll-container::-webkit-scrollbar-thumb { background: rgba(156,163,175,0.6); border-radius: 6px; }
         #scroll-container::-webkit-scrollbar-track { background: rgba(229,231,235,0.4); }
-        /* Reserve the scrollbar gutter so the layout doesn't jump when it appears */
         #scroll-container { scrollbar-gutter: stable; }
+        
+        /* Animation for selected cards */
+        .animate-pulse-blue {
+          animation: pulse-blue 2s infinite;
+        }
+        
+        @keyframes pulse-blue {
+          0%, 100% {
+            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+          }
+          50% {
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0);
+          }
+        }
       `}</style>
     </div>
   )

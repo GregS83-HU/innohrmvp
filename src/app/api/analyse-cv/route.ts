@@ -153,7 +153,7 @@
   Required JSON format:
   {
     "score": number,
-    "analysis": "brief analysis focusing on key strengths, gaps, and fit assessment",
+    "analysis": "brief analysis focusing on key strengths, gaps, and fit assessment and finish by 3 key questions that the recruiter should ask during the first interview to confirm the match between the candidate and the position",
     "candidat_firstname": "string",
     "candidat_lastname": "string",
     "candidat_email": "string", 
@@ -161,7 +161,7 @@
   }
 
   Be critical in scoring. Missing core requirements should significantly lower the score.
-  Analysis should be in perfect English.
+  Analysis should be in perfect English
   `;
 
       const candidateFeedbackPrompt = `

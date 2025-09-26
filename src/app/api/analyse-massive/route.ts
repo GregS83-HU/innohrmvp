@@ -63,7 +63,8 @@ Répond uniquement avec un JSON strictement valide, au format :
 }
 IMPORTANT : Ne réponds avec rien d'autre que ce JSON.
 
-La réponse doit etre en anglais parfait
+Analysis should be in perfect English and finish by 3 key questions that the recruiter should ask during the first interview to confirm the match between the candidate and the position
+
 `
 
   const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {

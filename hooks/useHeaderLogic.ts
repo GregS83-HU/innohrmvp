@@ -17,7 +17,7 @@ export const useHeaderLogic = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
-  const [user, setUser] = useState<{ firstname: string; lastname: string } | null>(null);
+  const [user, setUser] = useState<{ firstname: string; lastname: string; is_admin:boolean} | null>(null);
   const [error, setError] = useState('');
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
   const [companyId, setCompanyId] = useState<string | null>(null);
@@ -53,10 +53,10 @@ export const useHeaderLogic = () => {
   const fetchUserProfile = useCallback(async (userId: string) => {
     const { data } = await supabase
       .from('users')
-      .select('user_firstname, user_lastname')
+      .select('user_firstname, user_lastname, is_admin')
       .eq('id', userId)
       .single();
-    if (data) setUser({ firstname: data.user_firstname, lastname: data.user_lastname });
+    if (data) setUser({ firstname: data.user_firstname, lastname: data.user_lastname, is_admin: data.is_admin });
   }, []);
 
   const fetchUserCompanyId = useCallback(async (userId: string) => {
@@ -121,31 +121,88 @@ export const useHeaderLogic = () => {
   }, [companyId]);
 
   // Demo expiration handler
-  const handleDemoExpiration = useCallback(async () => {
-    if (expirationHandledRef.current) return;
-    expirationHandledRef.current = true;
-    
-    setIsDemoExpired(true);
-    setDemoTimeLeft(0);
-    
-    localStorage.removeItem('demo_start_time');
-    localStorage.removeItem('demo_mode_active');
+  // Demo expiration handler
+const handleDemoExpiration = useCallback(async () => {
+  if (expirationHandledRef.current) return;
+  expirationHandledRef.current = true;
 
-    if (user) {
-      try {
-        await supabase.auth.signOut();
-        setUser(null);
-      } catch (error) {
-        console.error('Error logging out:', error);
-      }
+  setIsDemoExpired(true);
+  setIsDemoMode(false);
+  setDemoTimeLeft(0);
+
+  // Clear any saved demo info
+  localStorage.removeItem('demo_start_time');
+  localStorage.removeItem('demo_mode_active');
+
+  // Log out the user if logged in
+  if (user) {
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  }
+
+  // Optional: redirect after demo expired
+  if (companySlug === 'demo') {
+    setTimeout(() => router.push(`/jobs/demo/feedback`), 2000);
+  }
+}, [user, companySlug, router]);
+
+// Demo timer effect
+useEffect(() => {
+  if (companySlug !== 'demo') {
+    // Not demo: clean up
+    if (demoTimerRef.current) clearInterval(demoTimerRef.current);
+    setIsDemoMode(false);
+    setIsDemoExpired(false);
+    setDemoTimeLeft(null);
+    return;
+  }
+
+  const DEMO_DURATION = 20 * 60 * 1000; // 20 minutes
+  const DEMO_START_KEY = 'demo_start_time';
+
+  // Initialize demo start time
+  let demoStartTime = localStorage.getItem(DEMO_START_KEY);
+  if (!demoStartTime) {
+    demoStartTime = Date.now().toString();
+    localStorage.setItem(DEMO_START_KEY, demoStartTime);
+    localStorage.setItem('demo_mode_active', 'true');
+  }
+
+  const startTime = parseInt(demoStartTime, 10);
+  const elapsed = Date.now() - startTime;
+  const remaining = DEMO_DURATION - elapsed;
+
+  if (remaining <= 0) {
+    handleDemoExpiration();
+    return;
+  }
+
+  setIsDemoMode(true);
+  setIsDemoExpired(false);
+  setDemoTimeLeft(Math.ceil(remaining / 1000));
+
+  demoTimerRef.current = setInterval(() => {
+    const currentElapsed = Date.now() - startTime;
+    const currentRemaining = DEMO_DURATION - currentElapsed;
+
+    if (currentRemaining <= 0) {
+      clearInterval(demoTimerRef.current!);
+      handleDemoExpiration();
+      return;
     }
 
-    setTimeout(() => {
-      if (companySlug === 'demo') {
-        router.push(`/jobs/demo/feedback`);
-      } 
-    }, 2000);
-  }, [user, companySlug, router]);
+    setDemoTimeLeft(Math.ceil(currentRemaining / 1000));
+  }, 1000);
+
+  return () => {
+    if (demoTimerRef.current) clearInterval(demoTimerRef.current);
+  };
+}, [companySlug, handleDemoExpiration]);
+
 
   // Auth handlers
   const handleLogin = useCallback(async () => {
@@ -192,7 +249,7 @@ export const useHeaderLogic = () => {
   }, [companySlug]);
 
   useEffect(() => {
-    const DEMO_DURATION = 20 * 60 * 1000; // 20 minutes
+    const DEMO_DURATION = 1 * 60 * 1000; // 20 minutes
     const DEMO_START_KEY = 'demo_start_time';
     const DEMO_MODE_KEY = 'demo_mode_active';
 
