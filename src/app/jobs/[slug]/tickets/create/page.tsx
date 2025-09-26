@@ -46,7 +46,7 @@ export default function CreateTicketPage() {
   email: string;
   user_firstname: string;
   user_lastname: string;
-  [key: string]: any; // optional for extra fields
+  //[key: string]: unknown; // optional for extra fields
 }
 
 const [currentUser, setCurrentUser] = useState<User | null>(null);

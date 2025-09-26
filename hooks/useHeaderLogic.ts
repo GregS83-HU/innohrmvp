@@ -2,13 +2,58 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { useRouter, usePathname } from 'next/navigation';
+import { RefObject } from 'react';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-export const useHeaderLogic = () => {
+interface User {
+  id: string;
+  firstname: string;
+  lastname: string;
+  is_admin: boolean;
+}
+
+interface UseHeaderLogicReturn {
+  isLoginOpen: boolean;
+  setIsLoginOpen: (val: boolean) => void;
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (val: boolean) => void;
+  isHRToolsMenuOpen: boolean;
+  setIsHRToolsMenuOpen: (val: boolean) => void;
+  isAccountMenuOpen: boolean;
+  setIsAccountMenuOpen: (val: boolean) => void;
+  isUserMenuOpen: boolean;
+  setIsUserMenuOpen: (val: boolean) => void;
+  login: string;
+  setLogin: (val: string) => void;
+  password: string;
+  setPassword: (val: string) => void;
+  user: User | null;
+  error: string;
+  companyLogo: string | null;
+  companyId: string | null;
+  companyForfait: string | null;
+  canAccessHappyCheck: boolean | null;
+  demoTimeLeft: number | null;
+  isDemoMode: boolean;
+  isDemoExpired: boolean;
+
+  hrToolsMenuRef: RefObject<HTMLDivElement | null>;
+  accountMenuRef: RefObject<HTMLDivElement | null>;
+  userMenuRef: RefObject<HTMLDivElement | null>;
+
+  companySlug: string | null;
+  buildLink: (basePath: string) => string;
+
+  handleLogin: () => Promise<void>;
+  handleLogout: () => Promise<void>;
+  formatTime: (seconds: number) => string;
+}
+
+export const useHeaderLogic = () : UseHeaderLogicReturn => {
   // All state management
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -249,7 +294,7 @@ useEffect(() => {
   }, [companySlug]);
 
   useEffect(() => {
-    const DEMO_DURATION = 1 * 60 * 1000; // 20 minutes
+    const DEMO_DURATION = 20 * 60 * 1000; // 20 minutes
     const DEMO_START_KEY = 'demo_start_time';
     const DEMO_MODE_KEY = 'demo_mode_active';
 

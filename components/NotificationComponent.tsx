@@ -22,9 +22,30 @@ interface NotificationData {
 }
 
 interface NotificationComponentProps {
-  currentUser: { id: string; [key: string]: any } | null; // at minimum has an id
+  currentUser: { id: string } | null; // Simple type that just requires id
   isHrinnoAdmin: boolean;
   companySlug: string | null;
+}
+
+interface SupabaseSubscription {
+  unsubscribe: () => void;
+}
+
+interface TicketRecord {
+  id: string;
+  title: string;
+  user_name: string;
+  user_id: string;
+  status: string;
+  [key: string]: unknown;
+}
+
+interface MessageRecord {
+  id: string;
+  ticket_id: string;
+  sender_type: 'user' | 'admin';
+  sender_name: string;
+  [key: string]: unknown;
 }
 
 export default function NotificationComponent({ 
@@ -135,7 +156,7 @@ export default function NotificationComponent({
   useEffect(() => {
     if (!currentUser) return;
 
-    const subscriptions: any[] = [];
+    const subscriptions: SupabaseSubscription[] = []; // Fixed: replaced any[] with proper type
 
     if (isHrinnoAdmin) {
       // Admin gets notifications for all new tickets and messages
@@ -148,7 +169,7 @@ export default function NotificationComponent({
             table: 'tickets'
           }, 
           (payload) => {
-            const ticket = payload.new;
+            const ticket = payload.new as TicketRecord;
             createNotification(
               'new_ticket',
               'New Support Ticket',
@@ -168,7 +189,7 @@ export default function NotificationComponent({
             table: 'ticket_messages'
           },
           async (payload) => {
-            const message = payload.new;
+            const message = payload.new as MessageRecord;
             
             // Only notify admin if message is from user
             if (message.sender_type === 'user') {
@@ -204,7 +225,7 @@ export default function NotificationComponent({
             table: 'ticket_messages'
           },
           async (payload) => {
-            const message = payload.new;
+            const message = payload.new as MessageRecord;
             
             // Only notify user if message is from admin and it's their ticket
             if (message.sender_type === 'admin') {
@@ -237,8 +258,8 @@ export default function NotificationComponent({
             table: 'tickets'
           },
           (payload) => {
-            const oldTicket = payload.old as any;
-            const newTicket = payload.new as any;
+            const oldTicket = payload.old as TicketRecord; // Fixed: replaced any with TicketRecord
+            const newTicket = payload.new as TicketRecord; // Fixed: replaced any with TicketRecord
             
             // Only notify if status changed and it's user's ticket
             if (oldTicket.status !== newTicket.status && newTicket.user_id === currentUser.id) {

@@ -194,13 +194,18 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true });
 
-  } catch (error: any) {
-    console.error('Email notification error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to send email notification' },
-      { status: 500 }
-    );
-  }
+  } catch (error: unknown) {
+  console.error('Email notification error:', error);
+
+  // Narrow type to Error
+  const message = error instanceof Error ? error.message : 'Failed to send email notification';
+
+  return NextResponse.json(
+    { error: message },
+    { status: 500 }
+  );
+}
+
 }
 
 // Helper function to send email notifications (to be called from other parts of your app)

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { FiMenu, FiX } from 'react-icons/fi';
 import { 
   Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown, 
-  User, LogOut, Clock, CreditCard, UserCog 
+  User, LogOut, Clock, CreditCard, UserCog, TicketPlus
 } from 'lucide-react';
 import { useHeaderLogic } from '../hooks/useHeaderLogic';
 import { 
@@ -57,7 +57,8 @@ export default function Header() {
   const happyCheckLink = useMemo(() => buildLink('/happiness-check'), [buildLink]);
   const uploadCertificateLink = useMemo(() => buildLink('/medical-certificate/upload'), [buildLink]);
   const manageSubscriptionLink = useMemo(() => buildLink('/subscription'), [buildLink]);
-  const manageUsersLink = useMemo(() => buildLink('/users'), [buildLink]);
+  const manageUsersLink = useMemo(() => buildLink('/users-creation'), [buildLink]);
+  const manageticketsLink = useMemo(() => buildLink('/tickets'), [buildLink]);
 
   return (
     <>
@@ -203,6 +204,14 @@ export default function Header() {
                             className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3`}
                           >
                             <UserCog className="w-4 h-4" /> Manage your users
+                          </Link>
+
+                          <Link 
+                            href={manageticketsLink} 
+                            onClick={() => setIsAccountMenuOpen(false)}
+                            className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3`}
+                          >
+                            <TicketPlus className="w-4 h-4" /> Support Tickets
                           </Link>
                         </div>
                       )}
@@ -433,6 +442,15 @@ export default function Header() {
                     isDemoExpired={isDemoExpired}
                   >
                     <UserCog className="w-4 h-4" /> Manage your users
+                  </DemoAwareMenuItem>
+
+                  <DemoAwareMenuItem 
+                    href={manageticketsLink}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start`}
+                    isDemoExpired={isDemoExpired}
+                  >
+                    <TicketPlus className="w-4 h-4" /> Support Tickets
                   </DemoAwareMenuItem>
                 </>
               )}
