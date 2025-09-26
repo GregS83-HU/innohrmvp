@@ -1,21 +1,9 @@
-// src/lib/pdfParseSafe.ts
-// ⛔️ Attention : pas d'import depuis 'pdf-parse' (le root), sinon mode debug déclenché
+import pdfParse from 'pdf-parse';
 
-//const pdfParse = require('pdf-parse/lib/pdf-parse')
-/*import pdfParse from 'pdf-parse'
-export async function parsePdfBuffer(buffer: Buffer): Promise<string> {
-  const data = await pdfParse(buffer)
-  return data.text
-}*/
-
-
-// ⚠️ Ne pas utiliser l'import global, cela déclenche le mode debug
-// ⛔️ import pdfParse from 'pdf-parse'
-// ✅ Utiliser une importation dynamique uniquement à l'exécution
+process.env.DEBUG= undefined;
 
 export async function parsePdfBuffer(buffer: Buffer): Promise<string> {
-  // L'import dynamique empêche le déclenchement de code en dehors de l'appel
-  const pdfParse = (await import('pdf-parse')).default;
+  // Just parse the buffer without accessing filesystem
   const data = await pdfParse(buffer);
   return data.text;
 }
