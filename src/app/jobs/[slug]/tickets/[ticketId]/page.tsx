@@ -13,7 +13,6 @@ import {
   Paperclip,
   Download,
   Settings,
-  Check,
   Building,
   MessageSquare,
   Shield
@@ -66,6 +65,20 @@ interface AttachmentData {
   uploaded_by: string;
 }
 
+interface UserData {
+  auth_id: string;
+  auth_email: string;
+  user_firstname: string | null;
+  user_lastname: string | null;
+  is_admin: boolean;
+  company: {
+    id: string;
+    slug: string;
+    company_name: string;
+  } | null;
+  company_id: string;
+}
+
 const statusColors = {
   open: 'bg-blue-100 text-blue-800 border-blue-200',
   in_progress: 'bg-yellow-100 text-yellow-800 border-yellow-200',
@@ -79,7 +92,6 @@ const statusButtonColors = {
   resolved: 'bg-green-600 hover:bg-green-700 text-white',
   closed: 'bg-gray-600 hover:bg-gray-700 text-white'
 };
-
 
 const priorityColors = {
   low: 'bg-gray-100 text-gray-700',
@@ -100,7 +112,7 @@ export default function TicketDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const [sendingMessage, setSendingMessage] = useState(false);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<UserData | null>(null);
   const [isHrinnoAdmin, setIsHrinnoAdmin] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
@@ -109,127 +121,126 @@ export default function TicketDetailPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Replace your fetchCurrentUser function with this corrected version:
-
-// Replace your fetchCurrentUser function with this corrected version:
-const fetchCurrentUser = useCallback(async () => {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      router.push(`/${params.slug}/login`);
-      return null;
-    }
-    
-    console.log("Auth User:", user.id, user.email);
-    
-    // Debug: First check if the user exists in company_to_users table
-    const { data: debugCompanyUser, error: debugError } = await supabase
-      .from('company_to_users')
-      .select('*')
-      .eq('user_id', user.id);
-    
-    console.log('Debug - Raw company_to_users data:', debugCompanyUser);
-    console.log('Debug - company_to_users error:', debugError);
-    
-    // Alternative approach: Get company_to_users data first, then get company data separately
-    const { data: companyUserData, error: companyUserError } = await supabase
-      .from('company_to_users')
-      .select('*')
-      .eq('user_id', user.id)
-      .maybeSingle();
-     
-    if (companyUserError) {
-      console.error('Company user error:', companyUserError);
-      setError('User company association not found');
-      return null;
-    }
-
-    if (!companyUserData) {
-      console.error('No company association found for user:', user.id);
-      setError('User is not associated with any company');
-      return null;
-    }
-
-    console.log('Company user data:', companyUserData);
-
-    // Get company data separately
-    let companyData = null;
-    if (companyUserData.company_id) {
-      const { data: company, error: companyError } = await supabase
-        .from('company')
-        .select('id, slug, company_name')
-        .eq('id', companyUserData.company_id)
-        .single();
-      
-      if (companyError) {
-        console.error('Company fetch error:', companyError);
-        // Continue without company data - it's not critical for sending messages
-      } else {
-        companyData = company;
+  const fetchCurrentUser = useCallback(async (): Promise<UserData | null> => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push(`/${params.slug}/login`);
+        return null;
       }
-    }
+      
+      console.log("Auth User:", user.id, user.email);
+      
+      // Debug: First check if the user exists in company_to_users table
+      const { data: debugCompanyUser, error: debugError } = await supabase
+        .from('company_to_users')
+        .select('*')
+        .eq('user_id', user.id);
+      
+      console.log('Debug - Raw company_to_users data:', debugCompanyUser);
+      console.log('Debug - company_to_users error:', debugError);
+      
+      // Alternative approach: Get company_to_users data first, then get company data separately
+      const { data: companyUserData, error: companyUserError } = await supabase
+        .from('company_to_users')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+       
+      if (companyUserError) {
+        console.error('Company user error:', companyUserError);
+        setError('User company association not found');
+        return null;
+      }
 
-    // Then get the user profile data
-    const { data: userProfileData, error: userProfileError } = await supabase
-      .from('users')
-      .select('id, user_firstname, user_lastname, is_admin')
-      .eq('id', user.id)
-      .single();
+      if (!companyUserData) {
+        console.error('No company association found for user:', user.id);
+        setError('User is not associated with any company');
+        return null;
+      }
 
-    if (userProfileError) {
-      console.error('User profile error:', userProfileError);
-      setError('User profile not found');
+      console.log('Company user data:', companyUserData);
+
+      // Get company data separately
+      let companyData = null;
+      if (companyUserData.company_id) {
+        const { data: company, error: companyError } = await supabase
+          .from('company')
+          .select('id, slug, company_name')
+          .eq('id', companyUserData.company_id)
+          .single();
+        
+        if (companyError) {
+          console.error('Company fetch error:', companyError);
+          // Continue without company data - it's not critical for sending messages
+        } else {
+          companyData = company;
+        }
+      }
+
+      // Then get the user profile data
+      const { data: userProfileData, error: userProfileError } = await supabase
+        .from('users')
+        .select('id, user_firstname, user_lastname, is_admin')
+        .eq('id', user.id)
+        .single();
+
+      if (userProfileError) {
+        console.error('User profile error:', userProfileError);
+        setError('User profile not found');
+        return null;
+      }
+
+      // Combine all user data
+      const mergedUser: UserData = {
+        auth_id: user.id,
+        auth_email: user.email || '',
+        user_firstname: userProfileData.user_firstname,
+        user_lastname: userProfileData.user_lastname,
+        is_admin: userProfileData.is_admin,
+        company: companyData,
+        company_id: companyUserData.company_id
+      };
+
+      console.log("Merged User Data:", mergedUser);
+      
+      setCurrentUser(mergedUser);
+      
+      // Fix the admin check - you mentioned 'innohr' not 'hrinno'
+      setIsHrinnoAdmin(companyData?.slug === 'innohr');
+
+      return mergedUser;
+    } catch (err) {
+      console.error('Failed to load user data:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load user data';
+      setError(errorMessage);
       return null;
     }
+  }, [params.slug, router]);
 
-    // Combine all user data
-    const mergedUser = {
-      auth_id: user.id,
-      auth_email: user.email,
-      user_firstname: userProfileData.user_firstname,
-      user_lastname: userProfileData.user_lastname,
-      is_admin: userProfileData.is_admin,
-      company: companyData,
-      company_id: companyUserData.company_id
-    };
-
-    console.log("Merged User Data:", mergedUser);
-    
-    setCurrentUser(mergedUser);
-    
-    // Fix the admin check - you mentioned 'innohr' not 'hrinno'
-    setIsHrinnoAdmin(companyData?.slug === 'innohr');
-
-    return mergedUser;
-  } catch (err) {
-    console.error('Failed to load user data:', err);
-    setError('Failed to load user data');
-    return null;
-  }
-}, [params.slug, router]);
-
-  const fetchTicket = useCallback(async () => {
+  const fetchTicket = useCallback(async (): Promise<TicketData | null> => {
     try {
       const { data, error: ticketError } = await supabase
         .from('tickets')
-  .select('*') // fetch all columns
-  .eq('id', params.ticketId)
-  .maybeSingle();
+        .select('*')
+        .eq('id', params.ticketId)
+        .maybeSingle();
 
       if (ticketError || !data) {
         setError('Ticket not found');
         return null;
       }
 
-      setTicket(data);
-      return data;
-    } catch {
-      setError('Failed to load ticket');
+      setTicket(data as TicketData);
+      return data as TicketData;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load ticket';
+      setError(errorMessage);
       return null;
     }
   }, [params.ticketId]);
 
-  const fetchMessages = useCallback(async () => {
+  const fetchMessages = useCallback(async (): Promise<MessageData[] | null> => {
     try {
       const { data, error: messagesError } = await supabase
         .from('ticket_messages')
@@ -246,7 +257,7 @@ const fetchCurrentUser = useCallback(async () => {
     }
   }, [params.ticketId]);
 
-  const fetchAttachments = useCallback(async () => {
+  const fetchAttachments = useCallback(async (): Promise<AttachmentData[] | null> => {
     try {
       const { data, error: attachmentsError } = await supabase
         .from('ticket_attachments')
@@ -263,63 +274,63 @@ const fetchCurrentUser = useCallback(async () => {
     }
   }, [params.ticketId]);
 
- const sendMessage = async () => {
-  if (!newMessage.trim() || !currentUser) {
-    console.log("Cannot send message:", { 
-      hasMessage: !!newMessage.trim(), 
-      hasCurrentUser: !!currentUser 
-    });
-    return;
-  }
-
-  setSendingMessage(true);
-
-  try {
-    const senderName = `${currentUser.user_firstname || ''} ${currentUser.user_lastname || ''}`.trim();
-
-    const messageData = {
-      ticket_id: params.ticketId,
-      sender_type: isHrinnoAdmin ? 'admin' : 'user',
-      sender_id: currentUser.auth_id,
-      sender_email: currentUser.auth_email,
-      sender_name: senderName || 'Unknown User',
-      message: newMessage.trim(),
-      created_at: new Date().toISOString() // optional: ensures a temporary timestamp
-    };
-
-    // Insert into Supabase and return the inserted row
-    const { data, error } = await supabase
-      .from('ticket_messages')
-      .insert(messageData)
-      .select()
-      .single(); // fetch the inserted row immediately
-
-    if (error) {
-      console.error("Insert error:", error);
-      throw error;
+  const sendMessage = async (): Promise<void> => {
+    if (!newMessage.trim() || !currentUser) {
+      console.log("Cannot send message:", { 
+        hasMessage: !!newMessage.trim(), 
+        hasCurrentUser: !!currentUser 
+      });
+      return;
     }
 
-    // Optimistically add the message to the UI
-    setMessages(prev => [...prev, data]);
-    setNewMessage('');
-    scrollToBottom(); // scroll immediately after sending
+    setSendingMessage(true);
 
-  } catch (err: any) {
-    console.error("Send message error:", err);
-    setError(err.message || 'Failed to send message');
-  } finally {
-    setSendingMessage(false);
-  }
-};
+    try {
+      const senderName = `${currentUser.user_firstname || ''} ${currentUser.user_lastname || ''}`.trim();
 
+      const messageData = {
+        ticket_id: params.ticketId,
+        sender_type: isHrinnoAdmin ? 'admin' as const : 'user' as const,
+        sender_id: currentUser.auth_id,
+        sender_email: currentUser.auth_email,
+        sender_name: senderName || 'Unknown User',
+        message: newMessage.trim(),
+        created_at: new Date().toISOString()
+      };
 
+      const { data, error } = await supabase
+        .from('ticket_messages')
+        .insert(messageData)
+        .select()
+        .single();
 
+      if (error) {
+        console.error("Insert error:", error);
+        throw error;
+      }
 
-  const updateTicketStatus = async (newStatus: string) => {
+      setMessages(prev => [...prev, data as MessageData]);
+      setNewMessage('');
+      scrollToBottom();
+
+    } catch (err) {
+      console.error("Send message error:", err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to send message';
+      setError(errorMessage);
+    } finally {
+      setSendingMessage(false);
+    }
+  };
+
+  const updateTicketStatus = async (newStatus: string): Promise<void> => {
     if (!isHrinnoAdmin || !ticket) return;
     setUpdatingStatus(true);
+    
     try {
-      const updateData: any = { status: newStatus };
+      const updateData: Partial<TicketData> = { 
+        status: newStatus as TicketData['status']
+      };
+      
       if (newStatus === 'resolved') {
         updateData.resolved_at = new Date().toISOString();
       }
@@ -331,16 +342,21 @@ const fetchCurrentUser = useCallback(async () => {
 
       if (error) throw error;
 
-      setTicket(prev => prev ? { ...prev, status: newStatus as any, resolved_at: updateData.resolved_at || prev.resolved_at } : null);
+      setTicket(prev => prev ? { 
+        ...prev, 
+        status: newStatus as TicketData['status'], 
+        resolved_at: updateData.resolved_at || prev.resolved_at 
+      } : null);
       setShowStatusModal(false);
-    } catch (err: any) {
-      setError(err.message || 'Failed to update ticket status');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update ticket status';
+      setError(errorMessage);
     } finally {
       setUpdatingStatus(false);
     }
   };
 
-  const downloadAttachment = async (attachment: AttachmentData) => {
+  const downloadAttachment = async (attachment: AttachmentData): Promise<void> => {
     try {
       const { data, error } = await supabase.storage
         .from('ticket-attachments')
@@ -356,12 +372,13 @@ const fetchCurrentUser = useCallback(async () => {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-    } catch (err: any) {
-      setError(err.message || 'Failed to download file');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to download file';
+      setError(errorMessage);
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInMinutes = (now.getTime() - date.getTime()) / (1000 * 60);
@@ -371,7 +388,7 @@ const fetchCurrentUser = useCallback(async () => {
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  const formatFileSize = (bytes: number) => {
+  const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB'];
@@ -380,7 +397,7 @@ const fetchCurrentUser = useCallback(async () => {
   };
 
   useEffect(() => {
-    const initializeData = async () => {
+    const initializeData = async (): Promise<void> => {
       setLoading(true);
       setError(null);
 
@@ -423,7 +440,7 @@ const fetchCurrentUser = useCallback(async () => {
 
   useEffect(() => { scrollToBottom(); }, [messages]);
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent): void => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
@@ -630,40 +647,40 @@ const fetchCurrentUser = useCallback(async () => {
         </div>
       </div>
 
-     {/* Status Modal */}
-{showStatusModal && (
-  <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-    <div className="bg-white rounded-2xl p-6 w-80">
-      <h3 className="font-semibold text-gray-900 mb-4">Update Ticket Status</h3>
-      <div className="flex flex-col gap-2">
-        {['open', 'in_progress', 'resolved', 'closed'].map((status) => (
-          <button
-            key={status}
-            onClick={() => updateTicketStatus(status)}
-            disabled={updatingStatus}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${statusButtonColors[status as keyof typeof statusButtonColors]}`}
-          >
-            {updatingStatus ? (
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                Updating...
-              </div>
-            ) : (
-              status.replace('_', ' ').toUpperCase()
-            )}
-          </button>
-        ))}
-      </div>
-      <button
-        onClick={() => setShowStatusModal(false)}
-        disabled={updatingStatus}
-        className="mt-4 w-full px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Cancel
-      </button>
-    </div>
-  </div>
-)}
+      {/* Status Modal */}
+      {showStatusModal && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 w-80">
+            <h3 className="font-semibold text-gray-900 mb-4">Update Ticket Status</h3>
+            <div className="flex flex-col gap-2">
+              {(['open', 'in_progress', 'resolved', 'closed'] as const).map((status) => (
+                <button
+                  key={status}
+                  onClick={() => updateTicketStatus(status)}
+                  disabled={updatingStatus}
+                  className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${statusButtonColors[status]}`}
+                >
+                  {updatingStatus ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Updating...
+                    </div>
+                  ) : (
+                    status.replace('_', ' ').toUpperCase()
+                  )}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setShowStatusModal(false)}
+              disabled={updatingStatus}
+              className="mt-4 w-full px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

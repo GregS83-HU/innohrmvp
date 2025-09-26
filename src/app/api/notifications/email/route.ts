@@ -73,6 +73,24 @@ const emailTemplates = {
   }
 };
 
+interface TicketData {
+  id: string;
+  title: string;
+  user_email: string;
+  user_name: string;
+  priority: string;
+  category?: string;
+  description: string;
+  status?: string;
+}
+
+interface MessageData {
+  sender_name: string;
+  sender_type: 'user' | 'admin';
+  message: string;
+}
+
+
 // Mock email service - replace with your actual email service
 async function sendEmail(to: string, subject: string, html: string) {
   // This would integrate with your email service (SendGrid, Mailgun, etc.)
@@ -188,10 +206,10 @@ export async function POST(req: NextRequest) {
 // Helper function to send email notifications (to be called from other parts of your app)
 export async function sendTicketNotification(
   type: 'new_ticket' | 'new_message' | 'status_update',
-  ticketData: any,
+  ticketData: TicketData,
   recipientEmail: string,
   companySlug: string,
-  messageData?: any
+  messageData?: MessageData
 ) {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/notifications/email`, {
@@ -213,8 +231,9 @@ export async function sendTicketNotification(
     }
 
     return await response.json();
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Email notification failed:', error);
-    throw error;
+    if (error instanceof Error) throw error;
+    throw new Error('Unknown error sending email notification');
   }
 }

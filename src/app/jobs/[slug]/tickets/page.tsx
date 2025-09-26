@@ -74,7 +74,23 @@ export default function TicketsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  
+  
+  interface UserData {
+  id: string;
+  email: string;
+  user_firstname: string;
+  user_lastname: string;
+  company_to_users?: {
+    company_id: string;
+    company?: {
+      name: string;
+      slug: string;
+    };
+  }[];
+}
+const [currentUser, setCurrentUser] = useState<UserData | null>(null);
+  
   const [isHrinnoAdmin, setIsHrinnoAdmin] = useState(false);
 
   // Fetch current user and determine access level
@@ -108,7 +124,7 @@ export default function TicketsPage() {
       const userCompany = userData.company_to_users?.[0]?.company;
       setIsHrinnoAdmin(userCompany?.slug === 'hrinno');
       
-    } catch (err) {
+    } catch (_err) {
       setError('Failed to load user data');
     }
   }, [companySlug, router]);
@@ -179,9 +195,13 @@ export default function TicketsPage() {
       }));
 
       setTickets(processedTickets);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch tickets');
-    } finally {
+    } catch (err: unknown) {
+  if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError('Failed to fetch tickets');
+  }
+} finally {
       setLoading(false);
     }
   }, [currentUser, isHrinnoAdmin]);

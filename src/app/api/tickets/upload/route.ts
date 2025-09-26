@@ -7,6 +7,18 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+interface CompanyUser {
+  user_id: string;
+}
+
+interface Ticket {
+  id: string;
+  user_id: string;
+  company: {
+    company_to_users: CompanyUser[];
+  };
+}
+
 export async function POST(req: NextRequest) {
   try {
     // Get the current user
@@ -54,7 +66,8 @@ export async function POST(req: NextRequest) {
 
     // Check if user has access to this ticket
     const hasAccess = ticket.user_id === user.id || 
-      ticket.company.company_to_users.some((cu: any) => cu.user_id === user.id);
+    ticket.company.company_to_users.some((cu: CompanyUser) => cu.user_id === user.id);
+
 
     if (!hasAccess) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
@@ -99,11 +112,11 @@ export async function POST(req: NextRequest) {
       attachment: attachmentData 
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('File upload error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to upload file' },
-      { status: 500 }
+       { error: error instanceof Error ? error.message : 'Failed to upload file' },
+       { status: 500 }
     );
   }
 }

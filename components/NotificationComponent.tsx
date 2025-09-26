@@ -22,7 +22,7 @@ interface NotificationData {
 }
 
 interface NotificationComponentProps {
-  currentUser: any;
+  currentUser: { id: string; [key: string]: any } | null; // at minimum has an id
   isHrinnoAdmin: boolean;
   companySlug: string | null;
 }
@@ -135,7 +135,7 @@ export default function NotificationComponent({
   useEffect(() => {
     if (!currentUser) return;
 
-    let subscriptions: any[] = [];
+    const subscriptions: any[] = [];
 
     if (isHrinnoAdmin) {
       // Admin gets notifications for all new tickets and messages
@@ -148,7 +148,7 @@ export default function NotificationComponent({
             table: 'tickets'
           }, 
           (payload) => {
-            const ticket = payload.new as any;
+            const ticket = payload.new;
             createNotification(
               'new_ticket',
               'New Support Ticket',
@@ -168,7 +168,7 @@ export default function NotificationComponent({
             table: 'ticket_messages'
           },
           async (payload) => {
-            const message = payload.new as any;
+            const message = payload.new;
             
             // Only notify admin if message is from user
             if (message.sender_type === 'user') {
@@ -204,7 +204,7 @@ export default function NotificationComponent({
             table: 'ticket_messages'
           },
           async (payload) => {
-            const message = payload.new as any;
+            const message = payload.new;
             
             // Only notify user if message is from admin and it's their ticket
             if (message.sender_type === 'admin') {

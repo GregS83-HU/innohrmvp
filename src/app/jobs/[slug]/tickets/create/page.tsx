@@ -39,7 +39,17 @@ export default function CreateTicketPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [companyId, setCompanyId] = useState<string | null>(null);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+ 
+  
+  interface User {
+  id: string;
+  email: string;
+  user_firstname: string;
+  user_lastname: string;
+  [key: string]: any; // optional for extra fields
+}
+
+const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   // Categories for the dropdown
   const categories = [
@@ -90,7 +100,7 @@ export default function CreateTicketPage() {
         }
 
         setCompanyId(companyData.id.toString());
-      } catch (err) {
+      } catch (_err) {
         setError('Failed to load initial data');
       }
     };
@@ -128,6 +138,10 @@ export default function CreateTicketPage() {
   // Upload files to Supabase Storage
   const uploadFiles = async (ticketId: string) => {
     const uploadPromises = attachments.map(async (file) => {
+            if (!currentUser) {
+        setError('User not loaded');
+        return;
+      }
       const fileName = `${currentUser.id}/${ticketId}/${Date.now()}-${file.name}`;
       
       const { data, error } = await supabase.storage
@@ -193,8 +207,12 @@ export default function CreateTicketPage() {
         router.push(`/jobs/${companySlug}/tickets`);
       }, 2000);
 
-    } catch (err: any) {
-      setError(err.message || 'Failed to create ticket');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError('Failed to create ticket');
+  }
     } finally {
       setLoading(false);
     }
@@ -249,7 +267,7 @@ export default function CreateTicketPage() {
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                 Create Support Ticket
               </h1>
-              <p className="text-gray-600">Describe your issue and we'll help you resolve it</p>
+              <p className="text-gray-600">Describe your issue and we&apos;ll help you resolve it</p>
             </div>
           </div>
         </div>
