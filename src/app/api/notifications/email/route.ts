@@ -73,68 +73,22 @@ const emailTemplates = {
   }
 };
 
-interface TicketData {
-  id: string;
-  title: string;
-  user_email: string;
-  user_name: string;
-  priority: string;
-  category?: string;
-  description: string;
-  status?: string;
-}
-
-interface MessageData {
-  sender_name: string;
-  sender_type: 'user' | 'admin';
-  message: string;
-}
-
-
-// Mock email service - replace with your actual email service
+// Mock email service
 async function sendEmail(to: string, subject: string, html: string) {
-  // This would integrate with your email service (SendGrid, Mailgun, etc.)
   console.log('Sending email:', { to, subject, html });
-  
-  // For now, just log the email content
-  // In production, replace this with actual email sending logic:
-  /*
-  const response = await fetch('https://api.sendgrid.v3/mail/send', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${process.env.SENDGRID_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      personalizations: [{ to: [{ email: to }] }],
-      from: { email: 'support@yourcompany.com' },
-      subject,
-      content: [{ type: 'text/html', value: html }]
-    })
-  });
-  
-  return response.json();
-  */
-  
-  return { success: true }; // Mock response
+  return { success: true };
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const { 
-      type, 
-      recipientEmail, 
-      ticketData, 
-      messageData, 
-      companySlug 
-    } = await req.json();
+    const { type, recipientEmail, ticketData, messageData, companySlug } = await req.json();
 
     if (!type || !recipientEmail || !ticketData) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     const ticketUrl = `${process.env.NEXT_PUBLIC_APP_URL}/${companySlug}/tickets/${ticketData.id}`;
-    
+
     let template;
     let replacements: Record<string, string> = {};
 
@@ -182,63 +136,17 @@ export async function POST(req: NextRequest) {
     // Replace template variables
     let subject = template.subject;
     let html = template.html;
-
     Object.entries(replacements).forEach(([key, value]) => {
       const regex = new RegExp(`{{${key}}}`, 'g');
       subject = subject.replace(regex, value);
       html = html.replace(regex, value);
     });
 
-    // Send email
     await sendEmail(recipientEmail, subject, html);
 
     return NextResponse.json({ success: true });
-
   } catch (error: unknown) {
-  console.error('Email notification error:', error);
-
-  // Narrow type to Error
-  const message = error instanceof Error ? error.message : 'Failed to send email notification';
-
-  return NextResponse.json(
-    { error: message },
-    { status: 500 }
-  );
-}
-
-}
-
-// Helper function to send email notifications (to be called from other parts of your app)
-export async function sendTicketNotification(
-  type: 'new_ticket' | 'new_message' | 'status_update',
-  ticketData: TicketData,
-  recipientEmail: string,
-  companySlug: string,
-  messageData?: MessageData
-) {
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/notifications/email`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        type,
-        recipientEmail,
-        ticketData,
-        messageData,
-        companySlug
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to send email notification');
-    }
-
-    return await response.json();
-  } catch (error: unknown) {
-    console.error('Email notification failed:', error);
-    if (error instanceof Error) throw error;
-    throw new Error('Unknown error sending email notification');
+    const message = error instanceof Error ? error.message : 'Failed to send email notification';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
