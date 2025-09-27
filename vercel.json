@@ -1,0 +1,14 @@
+{
+  "functions": {
+    "app/api/analyse-cv/route.ts": {
+      "maxDuration": 60,
+      "memory": 1024
+    }
+  },
+  "build": {
+    "env": {
+      "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "true",
+      "NEXT_TELEMETRY_DISABLED": "1"
+    }
+  }
+}
