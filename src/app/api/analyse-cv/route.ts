@@ -1,7 +1,9 @@
   // src/app/api/analyse-cv/route.ts
+  export const runtime = "nodejs";
   import { NextRequest, NextResponse } from 'next/server';
-  import { parsePdfBuffer } from '../../../../lib/parsePdfSafe';
+  import parsePdfBuffer from '../../../../lib/parsePdfSafe';
   import { createClient } from '@supabase/supabase-js';
+  
 
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -14,7 +16,7 @@
     const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s timeout
 
     try {
-      console.log(`Making API call for ${context} with model ${model}...`);
+      //console.log(`Making API call for ${context} with model ${model}...`);
 
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
@@ -36,7 +38,7 @@
       clearTimeout(timeoutId);
 
       const responseText = await response.text();
-      console.log(`API response for ${context} (status: ${response.status}):`, responseText.substring(0, 500) + '...');
+     // console.log(`API response for ${context} (status: ${response.status}):`, responseText.substring(0, 500) + '...');
 
       if (!response.ok) {
         if (responseText.includes('<!DOCTYPE') || responseText.includes('<html>')) {
@@ -67,12 +69,12 @@
   // Fallback API call with different model
   async function callFallbackAPI(prompt: string, context = '') {
     try {
-      console.log(`Making fallback API call for ${context} with Claude Haiku...`);
+     // console.log(`Making fallback API call for ${context} with Claude Haiku...`);
       
       // Try Claude Haiku first (fast and reliable)
       return await callOpenRouterAPI(prompt, context, 'anthropic/claude-3-haiku');
     } catch {
-      console.log(`Claude Haiku failed, trying Mistral Small for ${context}...`);
+     // console.log(`Claude Haiku failed, trying Mistral Small for ${context}...`);
       
       // Then try Mistral Small (faster than 7b-instruct)
       return await callOpenRouterAPI(prompt, context, 'mistralai/mistral-small');
@@ -82,7 +84,7 @@
   // Robust JSON extraction
   function extractAndParseJSON(rawResponse: string, context = '') {
     const trimmed = rawResponse.trim();
-    console.log("Raw AI answer", rawResponse)
+    //console.log("Raw AI answer", rawResponse)
     try {
       return JSON.parse(trimmed);
     } catch {}
@@ -112,33 +114,39 @@
   }
 
   export async function POST(req: NextRequest) {
-    try {
-      const formData = await req.formData();
-      const file = formData.get('file') as File;
-      const jobDescription = formData.get('jobDescription') as string;
-      const positionId = formData.get('positionId') as string;
-      const source = formData.get('source') as string || 'Candidate Upload';
+   try {
+    const formData = await req.formData();
+    const file = formData.get('file') as File;
+    const jobDescription = formData.get('jobDescription') as string;
+    const positionId = formData.get('positionId') as string;
+    const source = formData.get('source') as string || 'Candidate Upload';
 
-      if (!file || file.type !== 'application/pdf') {
-        return NextResponse.json({ error: 'Fichier PDF requis.' }, { status: 400 });
-      }
+    if (!file || file.type !== 'application/pdf') {
+      return NextResponse.json({ error: 'Fichier PDF requis.' }, { status: 400 });
+    }
 
-      const buffer = Buffer.from(await file.arrayBuffer());
-      
-      // Optimize PDF parsing with length limit
-      const MAX_CV_LENGTH = 8000; // Limit CV text for faster processing
-      const fullCvText = await parsePdfBuffer(buffer);
-      const cvText = fullCvText.length > MAX_CV_LENGTH 
-        ? fullCvText.substring(0, MAX_CV_LENGTH) + '...[truncated]'
-        : fullCvText;
+    // Convert File to Buffer (parsePdfBuffer expects Buffer, not Uint8Array)
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    
+    // Parse PDF - use the correct function name and parameter type
+    const fullCvText = await parsePdfBuffer(buffer);
+    console.log("Parsed CV length:", fullCvText.length);
+    
+    // Optimize PDF text length for faster processing
+    const MAX_CV_LENGTH = 8000;
+    const cvText = fullCvText.length > MAX_CV_LENGTH 
+      ? fullCvText.substring(0, MAX_CV_LENGTH) + '...[truncated]'
+      : fullCvText;
 
-      // Start file upload in parallel
-      const safeFileName = sanitizeFileName(file.name);
-      const filePath = `cvs/${Date.now()}_${safeFileName}`;
-      
-      const uploadPromise = supabase.storage
-        .from('cvs')
-        .upload(filePath, buffer, { contentType: 'application/pdf' });
+    // Start file upload in parallel
+    const safeFileName = sanitizeFileName(file.name);
+    const filePath = `cvs/${Date.now()}_${safeFileName}`;
+    
+    // Upload the buffer, not uint8Array
+    const uploadPromise = supabase.storage
+      .from('cvs')
+      .upload(filePath, buffer, { contentType: 'application/pdf' });
 
       // Optimized prompts for faster processing
       const hrPrompt = `
@@ -192,7 +200,7 @@
   `;
 
       // === PARALLEL AI PROCESSING ===
-      console.log('Starting parallel AI analysis...');
+      //console.log('Starting parallel AI analysis...');
       
       const aiPromises = [
         // HR Analysis with fallback
@@ -207,7 +215,7 @@
       // Wait for both AI calls to complete
       const [hrRawResponse, candidateRawResponse] = await Promise.all(aiPromises);
 
-      console.log('Both AI analyses completed');
+      //console.log('Both AI analyses completed');
 
       // Parse responses
       const hrData = extractAndParseJSON(hrRawResponse, 'HR analysis');

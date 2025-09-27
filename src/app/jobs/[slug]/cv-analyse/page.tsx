@@ -85,7 +85,7 @@ export async function generateMetadata({
 // Cached data fetching function
 async function fetchPositionData(positionId: string, companySlug: string): Promise<PositionData | null> {
   try {
-    console.log('Fetching position data for:', { positionId, companySlug });
+    //console.log('Fetching position data for:', { positionId, companySlug });
 
     // Single query with join to get all needed data
     const { data: position, error } = await supabase
@@ -110,7 +110,7 @@ async function fetchPositionData(positionId: string, companySlug: string): Promi
       return null;
     }
 
-    console.log('Raw position data:', position);
+    //console.log('Raw position data:', position);
 
     // Cast to our raw response type to handle TypeScript properly
     const rawPosition = position as RawSupabaseResponse;
