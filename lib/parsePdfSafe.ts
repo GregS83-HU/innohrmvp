@@ -21,7 +21,9 @@ export async function parsePdfBuffer(buffer: Buffer): Promise<string> {
     const pdfData = await Promise.race([parsePromise, timeoutPromise]);
     clearTimeout(timeoutId!);
     
-    const extractedText = (pdfData as any).text?.trim() || '';
+    // Type the pdf-parse result properly
+    const pdfResult = pdfData as { text: string; numpages: number };
+    const extractedText = pdfResult.text?.trim() || '';
     
     if (extractedText.length > 0) {
       const limitedText = extractedText.length > 10000 
