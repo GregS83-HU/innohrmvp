@@ -56,6 +56,8 @@ Always provide concrete examples from the CV to justify the score.
 
 Keep tone professional, concise, and free from speculation.
 
+Please finish your analisis with 3 key questions that the recruiter should ask during the first interview to confirm the match between the candidate and the position
+
 Répond uniquement avec un JSON strictement valide, au format :
 {
   "score": number,
@@ -63,7 +65,7 @@ Répond uniquement avec un JSON strictement valide, au format :
 }
 IMPORTANT : Ne réponds avec rien d'autre que ce JSON.
 
-Analysis should be in perfect English and finish by 3 key questions that the recruiter should ask during the first interview to confirm the match between the candidate and the position
+Analysis should be in perfect English.
 
 `
 
