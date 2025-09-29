@@ -1,58 +1,68 @@
-// app/api/users-creation/route.ts
+// app/api/users/update-manager/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+);
 
-export async function POST(req: NextRequest) {
+export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, password, firstName, lastName, companyId } = body;
+    const { userId, managerId } = body;
 
-    // 1️⃣ Create user in Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-    });
-
-    if (authError || !authData.user) {
-      throw new Error(authError?.message || 'Failed to create user account');
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'User ID is required' },
+        { status: 400 }
+      );
     }
 
-    const userId = authData.user.id;
-
-    // 2️⃣ Insert into users table
-    const { error: userError } = await supabase.from('users').insert({
-      id: userId,
-      user_firstname: firstName,
-      user_lastname: lastName,
-      is_admin: false,
-    });
-
-    if (userError) {
-      await supabase.auth.admin.deleteUser(userId);
-      throw new Error(userError.message || 'Failed to create user profile');
+    if (!managerId) {
+      return NextResponse.json(
+        { error: 'Manager ID is required' },
+        { status: 400 }
+      );
     }
 
-    // 3️⃣ Link user to company
-    const { error: linkError } = await supabase.from('company_to_users').insert({
-      user_id: userId,
-      company_id: parseInt(companyId, 10),
-    });
+    // Check if user_profiles record exists
+    const { data: existingProfile } = await supabase
+      .from('user_profiles')
+      .select('id')
+      .eq('user_id', userId)
+      .single();
 
-    if (linkError) {
-      await supabase.auth.admin.deleteUser(userId);
-      await supabase.from('users').delete().eq('id', userId);
-      throw new Error(linkError.message || 'Failed to link user to company');
+    if (existingProfile) {
+      // Update existing profile
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({ 
+          manager_id: managerId,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', userId);
+
+      if (error) {
+        throw new Error(error.message || 'Failed to update manager');
+      }
+    } else {
+      // Create new profile if it doesn't exist
+      const { error } = await supabase
+        .from('user_profiles')
+        .insert({
+          user_id: userId,
+          manager_id: managerId,
+        });
+
+      if (error) {
+        throw new Error(error.message || 'Failed to create user profile');
+      }
     }
 
-    return NextResponse.json({ success: true, userId });
+    return NextResponse.json({ success: true });
   } catch (err: unknown) {
-    console.error('Error creating user:', err);
+    console.error('Error updating manager:', err);
 
     if (err instanceof Error) {
       return NextResponse.json({ error: err.message }, { status: 400 });

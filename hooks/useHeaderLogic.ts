@@ -106,9 +106,9 @@ export const useHeaderLogic = () : UseHeaderLogicReturn => {
 
   const fetchUserCompanyId = useCallback(async (userId: string) => {
     const { data, error } = await supabase
-      .from('users')
+      .from('company_to_users')
       .select('company_id')
-      .eq('id', userId)
+      .eq('user_id', userId)
       .single();
     if (!error && data?.company_id) setCompanyId(data.company_id);
   }, []);

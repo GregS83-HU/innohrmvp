@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, X, CheckCircle, Loader2 } from 'lucide-react';
+import { Plus, X, CheckCircle, Loader2, Search, Calendar, UserCircle } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
 
 interface AddUserModalProps {
   isOpen: boolean;
@@ -10,18 +11,38 @@ interface AddUserModalProps {
   companyId: string;
 }
 
+interface CompanyUser {
+  user_id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
 export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserModalProps) => {
   const [formData, setFormData] = useState({
     email: '',
     firstName: '',
     lastName: '',
     password: '',
+    managerId: '',
+    employmentStartDate: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [copied, setCopied] = useState(false);
+  
+  // Manager dropdown states
+  const [managers, setManagers] = useState<CompanyUser[]>([]);
+  const [loadingManagers, setLoadingManagers] = useState(false);
+  const [managerSearch, setManagerSearch] = useState('');
+  const [showManagerDropdown, setShowManagerDropdown] = useState(false);
 
   // Generate random password
   const generatePassword = () => {
@@ -33,12 +54,57 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
     return password;
   };
 
+  // Fetch managers when modal opens
   useEffect(() => {
-    if (isOpen && !formData.password) {
-      const newPassword = generatePassword();
-      setFormData(prev => ({ ...prev, password: newPassword }));
+    if (isOpen) {
+      if (!formData.password) {
+        const newPassword = generatePassword();
+        setFormData(prev => ({ ...prev, password: newPassword }));
+      }
+      fetchManagers();
     }
-  }, [isOpen, formData.password]);
+  }, [isOpen]);
+
+  const fetchManagers = async () => {
+    if (!companyId) return;
+    
+    setLoadingManagers(true);
+    try {
+      const { data, error } = await supabase.rpc('get_company_users', {
+        company_id_input: companyId,
+      });
+
+      if (error) {
+        console.error('Error fetching managers:', error);
+        setError('Failed to load managers');
+        return;
+      }
+
+      setManagers(Array.isArray(data) ? (data as CompanyUser[]) : []);
+      
+      // Check if there are no managers available
+      if (!data || data.length === 0) {
+        setError('No existing users found. Please ensure there is at least one user in the company before adding new users.');
+      }
+    } catch (err) {
+      console.error('Error fetching managers:', err);
+      setError('Failed to load managers');
+    } finally {
+      setLoadingManagers(false);
+    }
+  };
+
+  // Filter managers based on search
+  const filteredManagers = managers.filter(manager =>
+    `${manager.first_name} ${manager.last_name}`.toLowerCase().includes(managerSearch.toLowerCase()) ||
+    manager.email.toLowerCase().includes(managerSearch.toLowerCase())
+  );
+
+  // Get selected manager name
+  const getSelectedManagerName = () => {
+    const manager = managers.find(m => m.user_id === formData.managerId);
+    return manager ? `${manager.first_name} ${manager.last_name}` : '';
+  };
 
   // Submit user creation via API route
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,11 +112,28 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
     setLoading(true);
     setError(null);
 
+    // Validate manager selection
+    if (!formData.managerId) {
+      setError('Please select a manager');
+      setLoading(false);
+      return;
+    }
+
+    // Validate employment start date
+    if (!formData.employmentStartDate) {
+      setError('Please select an employment start date');
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch('/api/users-creation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, companyId }),
+        body: JSON.stringify({ 
+          ...formData, 
+          companyId,
+        }),
       });
 
       const data = await res.json();
@@ -60,8 +143,16 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
       setSuccess(`User created successfully! Temporary password: ${formData.password}`);
 
       setTimeout(() => {
-        setFormData({ email: '', firstName: '', lastName: '', password: '' });
+        setFormData({ 
+          email: '', 
+          firstName: '', 
+          lastName: '', 
+          password: '',
+          managerId: '',
+          employmentStartDate: '',
+        });
         setSuccess(null);
+        setError(null);
         onClose();
         onSuccess();
       }, 3000);
@@ -100,7 +191,7 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
         <div className="p-6 border-b border-gray-200 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-900">Add New User</h2>
           <button onClick={onClose} disabled={loading}>
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="w-5 h-5 text-gray-500 hover:text-gray-700" />
           </button>
         </div>
 
@@ -108,74 +199,204 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
           <div className="p-6 text-center">
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
             <p className="text-gray-900 font-semibold mb-2">{success}</p>
-            <div className="bg-white rounded border p-3 mb-4">
-              <p><strong>Email:</strong> {formData.email}</p>
-              <p><strong>Password:</strong> {formData.password}</p>
-              <button onClick={copyPassword} className="mt-2 text-blue-600 text-xs">
-                {copied ? 'Copied!' : 'Copy credentials'}
+            <div className="bg-gray-50 rounded-lg border border-gray-200 p-3 mb-4">
+              <p className="text-sm"><strong>Email:</strong> {formData.email}</p>
+              <p className="text-sm"><strong>Password:</strong> {formData.password}</p>
+              <button 
+                onClick={copyPassword} 
+                className="mt-2 text-blue-600 text-xs hover:text-blue-700 font-medium"
+              >
+                {copied ? '✓ Copied!' : 'Copy credentials'}
               </button>
             </div>
             <p className="text-xs text-gray-500">This window will close automatically</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
-            <input
-              type="email"
-              required
-              placeholder="Email"
-              value={formData.email}
-              onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
-              className="w-full px-4 py-3 border rounded-lg"
-              disabled={loading}
-            />
-            <div className="grid grid-cols-2 gap-4">
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
               <input
-                type="text"
+                type="email"
                 required
-                placeholder="First Name"
-                value={formData.firstName}
-                onChange={e => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
-                className="w-full px-4 py-3 border rounded-lg"
-                disabled={loading}
-              />
-              <input
-                type="text"
-                required
-                placeholder="Last Name"
-                value={formData.lastName}
-                onChange={e => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
-                className="w-full px-4 py-3 border rounded-lg"
+                placeholder="user@example.com"
+                value={formData.email}
+                onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 disabled={loading}
               />
             </div>
+
+            {/* First and Last Name */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="John"
+                  value={formData.firstName}
+                  onChange={e => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  disabled={loading}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Doe"
+                  value={formData.lastName}
+                  onChange={e => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
+            {/* Manager Selection */}
+            <div className="relative">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Manager *</label>
+              <button
+                type="button"
+                onClick={() => setShowManagerDropdown(!showManagerDropdown)}
+                disabled={loading || loadingManagers || managers.length === 0}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-left bg-white hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex items-center justify-between disabled:bg-gray-100 disabled:cursor-not-allowed"
+              >
+                <span className="flex items-center gap-2">
+                  <UserCircle className="w-4 h-4 text-gray-400" />
+                  <span className={formData.managerId ? 'text-gray-900' : 'text-gray-400'}>
+                    {loadingManagers ? 'Loading...' : (formData.managerId ? getSelectedManagerName() : 'Select a manager')}
+                  </span>
+                </span>
+                <span className="text-gray-400">▼</span>
+              </button>
+
+              {/* Manager Dropdown */}
+              {showManagerDropdown && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-hidden">
+                  {/* Search Bar */}
+                  <div className="p-2 border-b border-gray-200">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="text"
+                        placeholder="Search managers..."
+                        value={managerSearch}
+                        onChange={e => setManagerSearch(e.target.value)}
+                        className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        onClick={e => e.stopPropagation()}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Manager List */}
+                  <div className="overflow-y-auto max-h-48">
+                    {filteredManagers.length > 0 ? (
+                      filteredManagers.map(manager => (
+                        <button
+                          key={manager.user_id}
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, managerId: manager.user_id }));
+                            setShowManagerDropdown(false);
+                            setManagerSearch('');
+                          }}
+                          className={`w-full px-4 py-3 text-left hover:bg-blue-50 flex items-center gap-3 ${
+                            formData.managerId === manager.user_id ? 'bg-blue-50' : ''
+                          }`}
+                        >
+                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span className="text-white font-semibold text-xs">
+                              {manager.first_name[0]}{manager.last_name[0]}
+                            </span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-gray-900 truncate">
+                              {manager.first_name} {manager.last_name}
+                            </p>
+                            <p className="text-xs text-gray-500 truncate">{manager.email}</p>
+                          </div>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-4 py-3 text-center text-gray-500 text-sm">
+                        No managers found
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Employment Start Date */}
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Employment Start Date *</label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                <input
+                  type="date"
+                  required
+                  value={formData.employmentStartDate}
+                  onChange={e => setFormData(prev => ({ ...prev, employmentStartDate: e.target.value }))}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Temporary Password *</label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
                 value={formData.password}
                 onChange={e => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                className="w-full px-4 py-3 border rounded-lg"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 disabled={loading}
               />
               <div className="flex justify-between mt-2">
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-xs">
+                <button 
+                  type="button" 
+                  onClick={() => setShowPassword(!showPassword)} 
+                  className="text-xs text-gray-600 hover:text-gray-800"
+                >
                   {showPassword ? 'Hide' : 'Show'}
                 </button>
-                <button type="button" onClick={regeneratePassword} className="text-xs text-blue-600">
+                <button 
+                  type="button" 
+                  onClick={regeneratePassword} 
+                  className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+                >
                   Regenerate Password
                 </button>
               </div>
             </div>
 
-            {error && <p className="text-red-600 text-sm">{error}</p>}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-red-600 text-sm">{error}</p>
+              </div>
+            )}
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg flex justify-center items-center gap-2"
+              disabled={loading || loadingManagers || managers.length === 0}
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 rounded-lg flex justify-center items-center gap-2 font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? <Loader2 className="animate-spin w-4 h-4" /> : <Plus className="w-4 h-4" />}
-              {loading ? 'Creating...' : 'Create User'}
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin w-4 h-4" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4" />
+                  Create User
+                </>
+              )}
             </button>
           </form>
         )}

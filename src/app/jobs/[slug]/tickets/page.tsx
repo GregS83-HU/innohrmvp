@@ -18,6 +18,7 @@ import {
   MessageSquare,
   Paperclip
 } from 'lucide-react';
+import { useDynamicRouteParams } from 'next/dist/server/app-render/dynamic-rendering';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -84,6 +85,7 @@ export default function TicketsPage() {
   company_to_users?: {
     company_id: string;
     company?: {
+      id: string;
       name: string;
       slug: string;
     };
@@ -95,6 +97,9 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
 
   // Fetch current user and determine access level
   const fetchCurrentUser = useCallback(async () => {
+
+    // 🚩 reset before anything else
+      setIsHrinnoAdmin(false);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -107,7 +112,7 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
         .select(`
           *,
           company_to_users!inner(
-            company!inner(*)
+            company!inner(id, slug, company_name)
           )
         `)
         .eq('id', user.id)
@@ -117,12 +122,15 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
         setError('User not found');
         return;
       }
-
+      console.log('userData', JSON.stringify(userData, null, 2));
       setCurrentUser(userData);
-      
-      // Check if user is hrinno admin
+
       const userCompany = userData.company_to_users?.[0]?.company;
-      setIsHrinnoAdmin(userCompany?.slug === 'hrinno');
+      setIsHrinnoAdmin(
+      ['hrinno', 'innohr'].includes(userCompany?.slug ?? '')
+     
+      
+);
       
     } catch (_err) {
       setError('Failed to load user data');
@@ -141,13 +149,16 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
         .from('tickets')
         .select(`
           *,
-          company:company_id(company_name, slug)
+          company:company_id(id,slug,name:company_name)
         `)
         .order('created_at', { ascending: false });
-
+      console.log("Admin?:",isHrinnoAdmin)
+      
+      
       // If not hrinno admin, filter by company
       if (!isHrinnoAdmin) {
-        const userCompanyId = currentUser.company_to_users?.[0]?.company_id;
+        const userCompanyId = currentUser.company_to_users?.[0]?.company?.id;
+        console.log("Company_id:",userCompanyId)
         if (userCompanyId) {
           ticketsQuery = ticketsQuery.eq('company_id', userCompanyId);
         }

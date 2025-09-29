@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { FiMenu, FiX } from 'react-icons/fi';
 import { 
   Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown, 
-  User, LogOut, Clock, CreditCard, UserCog, TicketPlus
+  User, LogOut, Clock, CreditCard, UserCog, TicketPlus,CalendarClock
 } from 'lucide-react';
 import { useHeaderLogic } from '../hooks/useHeaderLogic';
 import { 
@@ -59,6 +59,7 @@ export default function Header() {
   const manageSubscriptionLink = useMemo(() => buildLink('/subscription'), [buildLink]);
   const manageUsersLink = useMemo(() => buildLink('/users-creation'), [buildLink]);
   const manageticketsLink = useMemo(() => buildLink('/tickets'), [buildLink]);
+  const manageabsencesLink = useMemo(() => buildLink('/absences'), [buildLink]);
 
   return (
     <>
@@ -213,6 +214,14 @@ export default function Header() {
                           >
                             <TicketPlus className="w-4 h-4" /> Support Tickets
                           </Link>
+
+                           <Link 
+                            href={manageabsencesLink} 
+                            onClick={() => setIsAccountMenuOpen(false)}
+                            className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3`}
+                          >
+                            <CalendarClock className="w-4 h-4" /> Absences
+                          </Link>
                         </div>
                       )}
                     </>
@@ -237,7 +246,7 @@ export default function Header() {
               {user && (
                 <NotificationComponent
                   currentUser={user}
-                  isHrinnoAdmin={user?.is_admin === true}
+                 // isHrinnoAdmin={user?.is_admin === true}
                   companySlug={companySlug}
                 />
               )}
@@ -451,6 +460,15 @@ export default function Header() {
                     isDemoExpired={isDemoExpired}
                   >
                     <TicketPlus className="w-4 h-4" /> Support Tickets
+                  </DemoAwareMenuItem>
+
+                  <DemoAwareMenuItem 
+                    href={manageabsencesLink}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start`}
+                    isDemoExpired={isDemoExpired}
+                  >
+                    <CalendarClock className="w-4 h-4" /> Absences
                   </DemoAwareMenuItem>
                 </>
               )}

@@ -193,6 +193,15 @@ const [currentUser, setCurrentUser] = useState<User | null>(null);
         .select()
         .single();
 
+        await supabase.from('notifications').insert({
+        type: 'ticket_created',
+        title: 'New Ticket',
+        message: `${currentUser.user_firstname || 'User'} created a ticket: "${ticketData.title}"`,
+        ticket_id: ticketData.id,
+        sender_id: currentUser.id
+      });
+
+
       if (ticketError) throw ticketError;
 
       // Upload attachments if any
