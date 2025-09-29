@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { User, createClient } from '@supabase/supabase-js';
 import {
   Calendar,
   Plus,
@@ -11,7 +11,7 @@ import {
   CheckCircle,
   XCircle,
   CalendarDays,
-  User,
+  User as UserIcon,
   RefreshCw,
   Users,
   Bell,
@@ -82,7 +82,7 @@ const AbsenceManagement: React.FC = () => {
   const [recentRequests, setRecentRequests] = useState<LeaveRequest[]>([]);
   const [pendingApprovals, setPendingApprovals] = useState<PendingApproval[]>([]);
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isManager, setIsManager] = useState(false);
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'approvals'>('overview');
@@ -243,7 +243,7 @@ const AbsenceManagement: React.FC = () => {
         .from('leave_requests')
         .update({
           status,
-          reviewed_by: currentUser.id,
+          reviewed_by: currentUser?.id,
           reviewed_at: new Date().toISOString(),
           review_notes: notes
         })
@@ -388,7 +388,7 @@ const AbsenceManagement: React.FC = () => {
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
-                  <User className="w-4 h-4 inline mr-2" />
+                  <UserIcon className="w-4 h-4 inline mr-2" />
                   My Leave
                 </button>
                 <button
