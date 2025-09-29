@@ -33,9 +33,9 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
   const [showNotifications, setShowNotifications] = useState(false);
   const [isHrinnoAdmin, setIsHrinnoAdmin] = useState(false);
   const [adminStatusChecked, setAdminStatusChecked] = useState(false);
-  const subscriptionsRef = useRef<any[]>([]);
+  //const subscriptionsRef = useRef<any[]>([]);
+  const subscriptionsRef = useRef<ReturnType<(typeof supabase)['channel']>[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
   const unreadCount = notifications.filter(n => !n.read).length;
   
   useEffect(() => {

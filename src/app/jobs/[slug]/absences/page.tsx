@@ -12,7 +12,6 @@ import {
   XCircle,
   CalendarDays,
   User,
-  Filter,
   RefreshCw,
   Users,
   Bell,
@@ -150,11 +149,13 @@ const AbsenceManagement: React.FC = () => {
       const overview = typeof data === 'string' ? JSON.parse(data) : data;
       setBalances(overview.balances || []);
       setRecentRequests(overview.recent_requests || []);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+    } catch (err: unknown) {
+  if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError('An unexpected error occurred');
+  }
+}
   }, [currentUser]);
 
   // Fetch pending approvals for managers
@@ -192,8 +193,8 @@ const AbsenceManagement: React.FC = () => {
         .single();
 
       // Calculate working days
-      const startDate = new Date(requestForm.start_date);
-      const endDate = new Date(requestForm.end_date);
+      //const startDate = new Date(requestForm.start_date);
+      //const endDate = new Date(requestForm.end_date);
       
       const { data: workingDays } = await supabase
         .rpc('calculate_working_days', {
@@ -226,11 +227,13 @@ const AbsenceManagement: React.FC = () => {
 
       // Refresh data
       await fetchLeaveOverview();
-    } catch (err: any) {
-      alert('Error submitting request: ' + err.message);
-    } finally {
-      setSubmitLoading(false);
-    }
+    } catch (err: unknown) {
+  if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError('An unexpected error occurred');
+  }
+}
   };
 
   // Approve/reject leave request
@@ -250,9 +253,13 @@ const AbsenceManagement: React.FC = () => {
 
       // Refresh data
       await fetchPendingApprovals();
-    } catch (err: any) {
-      alert('Error updating request: ' + err.message);
-    }
+    } catch (err: unknown) {
+  if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError('An unexpected error occurred');
+  }
+}
   };
 
   // Status badge component
