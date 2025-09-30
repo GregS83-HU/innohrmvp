@@ -71,7 +71,7 @@ export const DateMismatchAlert: React.FC<DateMismatchAlertProps> = ({
         <div className="text-sm">
           <p className="font-medium text-yellow-800 mb-1">Date Alignment Issue</p>
           <p className="text-yellow-700">
-            Certificate dates ({certificateStart} to {certificateEnd}) don't match leave request dates ({leaveStart} to {leaveEnd}).
+            Certificate dates ({certificateStart} to {certificateEnd}) don&apos;t match leave request dates ({leaveStart} to {leaveEnd}).
           </p>
         </div>
       </div>

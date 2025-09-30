@@ -27,6 +27,33 @@ import RecentRequests from '../../../../../components/absence/RecentRequests';
 import PendingApprovals from '../../../../../components/absence/PendingApprovals';
 import RequestLeaveModal from '../../../../../components/absence/RequestLeaveModal';
 
+// Type for certificate data (matching what CertificateUploadModal returns)
+interface CertificateData {
+  employee_name: string;
+  sickness_start_date: string;
+  sickness_end_date: string;
+  comment?: string;
+  certificate_file: string;
+  medical_certificate_id: number;
+}
+
+// Type for company data from database
+interface CompanyToUser {
+  company_id: string;
+}
+
+// Type for insert data
+interface LeaveRequestInsertData {
+  user_id: string;
+  leave_type_id: string;
+  start_date: string;
+  end_date: string;
+  total_days: number;
+  reason: string;
+  manager_id?: string;
+  medical_certificate_id?: number;
+}
+
 const AbsenceManagement: React.FC = () => {
   // State
   const [loading, setLoading] = useState(true);
@@ -44,7 +71,7 @@ const AbsenceManagement: React.FC = () => {
   // Certificate upload states
   const [showCertificateModal, setShowCertificateModal] = useState(false);
   const [selectedLeaveRequestId, setSelectedLeaveRequestId] = useState<string | null>(null);
-  const [certificateData, setCertificateData] = useState<any>(null);
+  const [certificateData, setCertificateData] = useState<CertificateData | null>(null);
   const [uploadMode, setUploadMode] = useState<'new' | 'existing'>('new');
 
   // Request form state
@@ -72,9 +99,8 @@ const AbsenceManagement: React.FC = () => {
         .single();
 
       if (companyData) {
-        // if single returned row, companyData.company_id
-        const id = (companyData as any).company_id || (companyData?.company_id ?? null);
-        if (id) setCompanyId(id);
+        const typedCompanyData = companyData as CompanyToUser;
+        setCompanyId(typedCompanyData.company_id);
       }
 
       // Check if user is a manager (has direct reports)
@@ -161,7 +187,7 @@ const AbsenceManagement: React.FC = () => {
 );
 
   // Handle certificate upload success
-  const handleCertificateSuccess = async (data: any) => {
+  const handleCertificateSuccess = async (data: CertificateData) => {
     setCertificateData(data);
 
     if (uploadMode === 'existing' && selectedLeaveRequestId) {
@@ -169,7 +195,7 @@ const AbsenceManagement: React.FC = () => {
       try {
         const { error } = await supabase
           .from('leave_requests')
-          .update({ medical_certificate_id: data.id })
+          .update({ medical_certificate_id: data.medical_certificate_id })
           .eq('id', selectedLeaveRequestId);
 
         if (error) throw error;
@@ -233,19 +259,19 @@ const AbsenceManagement: React.FC = () => {
           end_date: requestForm.end_date
         });
 
-      const insertData: any = {
+      const insertData: LeaveRequestInsertData = {
         user_id: currentUser.id,
         leave_type_id: requestForm.leave_type_id,
         start_date: requestForm.start_date,
         end_date: requestForm.end_date,
-        total_days: workingDays,
+        total_days: workingDays as number,
         reason: requestForm.reason,
         manager_id: userData?.manager_id
       };
 
       // If we have certificate data from upload, link it
-      if (certificateData?.id) {
-        insertData.medical_certificate_id = certificateData.id;
+      if (certificateData?.medical_certificate_id) {
+        insertData.medical_certificate_id = certificateData.medical_certificate_id;
       }
 
       const { error } = await supabase
@@ -479,7 +505,7 @@ const AbsenceManagement: React.FC = () => {
           companyId={companyId}
           existingLeaveRequestId={selectedLeaveRequestId || undefined}
           prefilledData={{
-            employee_name: `${(currentUser as any)?.user_metadata?.first_name || ''} ${(currentUser as any)?.user_metadata?.last_name || ''}`.trim() || (currentUser as any)?.email || ''
+            employee_name: `${currentUser?.user_metadata?.first_name || ''} ${currentUser?.user_metadata?.last_name || ''}`.trim() || currentUser?.email || ''
           }}
         />
       )}

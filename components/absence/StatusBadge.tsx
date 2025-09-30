@@ -10,7 +10,7 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
     cancelled: 'bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-200'
   };
 
-  const icons: Record<string, any> = {
+  const icons: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
     pending: Clock,
     approved: CheckCircle,
     rejected: XCircle,
@@ -20,7 +20,11 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
   const Icon = icons[status as keyof typeof icons] || Clock;
 
   return (
-    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${styles[status as keyof typeof styles]}`}>
+    <span
+      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${
+        styles[status as keyof typeof styles]
+      }`}
+    >
       <Icon className="w-3 h-3 mr-1" />
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>

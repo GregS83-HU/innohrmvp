@@ -23,6 +23,14 @@ interface CertificateData {
   medical_certificate_id: number;
 }
 
+interface ExtractedData {
+  employee_name?: string;
+  sickness_start_date?: string;
+  sickness_end_date?: string;
+  storage_path?: string;
+  public_url?: string;
+}
+
 const CertificateUploadModal: React.FC<CertificateUploadModalProps> = ({
   isOpen,
   onClose,
@@ -34,7 +42,7 @@ const CertificateUploadModal: React.FC<CertificateUploadModalProps> = ({
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [extractedData, setExtractedData] = useState<any>(null);
+  const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
   const [comment, setComment] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -111,53 +119,78 @@ const CertificateUploadModal: React.FC<CertificateUploadModalProps> = ({
   };
 
   const handleConfirm = async () => {
-    if (!extractedData || !file) return setError('Cannot save: missing file or extracted data.');
+  if (!extractedData || !file) return setError('Cannot save: missing file or extracted data.');
 
-    setSaving(true);
-    setError('');
+  setSaving(true);
+  setError('');
 
-    try {
-      const formData = new FormData();
-      
-      // Use manual data for unrecognised fields
-      formData.append('employee_name', isFieldUnrecognised(extractedData.employee_name) ? manualData.employee_name : extractedData.employee_name);
-      formData.append('absenceDateStart', isFieldUnrecognised(extractedData.sickness_start_date) ? manualData.sickness_start_date : extractedData.sickness_start_date);
-      formData.append('absenceDateEnd', isFieldUnrecognised(extractedData.sickness_end_date) ? manualData.sickness_end_date : extractedData.sickness_end_date);
-      formData.append('comment', comment || '');
-      formData.append('file', file);
-      formData.append('company_id', companyId);
-      
-      if (existingLeaveRequestId) {
-        formData.append('leave_request_id', existingLeaveRequestId);
-      }
+  try {
+    const formData = new FormData();
 
-      const res = await fetch('/api/medical-certificates/confirm', {
-        method: 'POST',
-        body: formData,
-      });
+    // Use manual data for unrecognised fields, otherwise fallback to extracted values
+    formData.append(
+      'employee_name',
+      isFieldUnrecognised(extractedData.employee_name)
+        ? manualData.employee_name
+        : extractedData.employee_name ?? ''
+    );
 
-      if (!res.ok) throw new Error(await res.text());
+    formData.append(
+      'absenceDateStart',
+      isFieldUnrecognised(extractedData.sickness_start_date)
+        ? manualData.sickness_start_date
+        : extractedData.sickness_start_date ?? ''
+    );
 
-      const data = await res.json();
-      
-      // Return certificate data to parent
-      onSuccess({
-        employee_name: isFieldUnrecognised(extractedData.employee_name) ? manualData.employee_name : extractedData.employee_name,
-        sickness_start_date: isFieldUnrecognised(extractedData.sickness_start_date) ? manualData.sickness_start_date : extractedData.sickness_start_date,
-        sickness_end_date: isFieldUnrecognised(extractedData.sickness_end_date) ? manualData.sickness_end_date : extractedData.sickness_end_date,
-        comment: comment,
-        certificate_file: extractedData.public_url,
-        medical_certificate_id: data.insertedData?.[0]?.id
-      });
-      
-      handleClose();
-    } catch (err: unknown) {
-      if (err instanceof Error) setError(err.message);
-      else setError('Unknown error occurred while saving');
-    } finally {
-      setSaving(false);
+    formData.append(
+      'absenceDateEnd',
+      isFieldUnrecognised(extractedData.sickness_end_date)
+        ? manualData.sickness_end_date
+        : extractedData.sickness_end_date ?? ''
+    );
+
+    formData.append('comment', comment || '');
+    formData.append('file', file);
+    formData.append('company_id', companyId);
+
+    if (existingLeaveRequestId) {
+      formData.append('leave_request_id', existingLeaveRequestId);
     }
-  };
+
+    const res = await fetch('/api/medical-certificates/confirm', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!res.ok) throw new Error(await res.text());
+
+    const data = await res.json();
+
+    // Return certificate data to parent
+    onSuccess({
+      employee_name: isFieldUnrecognised(extractedData.employee_name)
+        ? manualData.employee_name
+        : extractedData.employee_name ?? '',
+      sickness_start_date: isFieldUnrecognised(extractedData.sickness_start_date)
+        ? manualData.sickness_start_date
+        : extractedData.sickness_start_date ?? '',
+      sickness_end_date: isFieldUnrecognised(extractedData.sickness_end_date)
+        ? manualData.sickness_end_date
+        : extractedData.sickness_end_date ?? '',
+      comment: comment,
+      certificate_file: extractedData.public_url ?? '',
+      medical_certificate_id: data.insertedData?.[0]?.id ?? 0,
+    });
+
+    handleClose();
+  } catch (err: unknown) {
+    if (err instanceof Error) setError(err.message);
+    else setError('Unknown error occurred while saving');
+  } finally {
+    setSaving(false);
+  }
+};
+
 
   const handleClose = () => {
     setFile(null);
