@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { Bell, X, MessageSquare, Ticket, Check } from 'lucide-react';
+import { Bell, X, MessageSquare, Ticket, Check, Calendar, CheckCircle, XCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const supabase = createClient(
@@ -12,13 +12,15 @@ const supabase = createClient(
 
 interface NotificationData {
   id: string;
-  type: 'ticket_created' | 'ticket_status_changed' | 'ticket_message';
+  type: 'ticket_created' | 'ticket_status_changed' | 'ticket_message' | 'leave_request_created' | 'leave_request_approved' | 'leave_request_rejected';
   title: string;
   message: string;
   ticket_id?: string;
+  leave_request_id?: string;
   created_at: string;
   read: boolean;
   sender_id?: string | null;
+  recipient_id?: string | null;
 }
 
 interface NotificationComponentProps {
@@ -36,7 +38,8 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
   const subscriptionsRef = useRef<ReturnType<(typeof supabase)['channel']>[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const unreadCount = notifications.filter(n => !n.read).length;
-  
+
+  // --- Check admin status ---
   useEffect(() => {
     const checkAdminStatus = async () => {
       if (!currentUser) {
@@ -68,67 +71,76 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
         console.error('Error checking admin status:', err);
         setIsHrinnoAdmin(companySlug === 'hrinno' || companySlug === 'innohr');
       }
-      
+
       setAdminStatusChecked(true);
     };
 
     checkAdminStatus();
   }, [currentUser, companySlug]);
 
+  // --- Helpers ---
   const addNotification = (notification: NotificationData) => {
     setNotifications(prev => [notification, ...prev]);
     setToasts(prev => {
       const newToasts = [notification, ...prev];
-      setTimeout(() => setToasts(current => current.filter(t => t.id !== notification.id)), 3000);
+      setTimeout(() => setToasts(current => current.filter(t => t.id !== notification.id)), 5000);
       return newToasts;
     });
   };
 
   const markAsRead = async (id: string) => {
-    // Update local state immediately for better UX
+    // optimistic local update
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-    
-    // Persist to database
+
     try {
       const { error } = await supabase
         .from('notifications')
         .update({ read: true })
         .eq('id', id);
-      
+
       if (error) {
         console.error('Error marking notification as read:', error);
-        // Optionally revert the local state if the update fails
+        // revert optimistic update
         setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: false } : n));
       }
     } catch (err) {
       console.error('Failed to mark notification as read:', err);
-      // Optionally revert the local state if the update fails
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: false } : n));
     }
   };
 
   const markAllAsRead = async () => {
     const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
-    
+
     if (unreadIds.length === 0) return;
-    
-    // Update local state immediately for better UX
+
+    // keep a snapshot to revert in case of failure
+    const snapshot = notifications;
+
+    // optimistic update
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    
-    // Persist to database
+
     try {
       const { error } = await supabase
         .from('notifications')
         .update({ read: true })
         .in('id', unreadIds);
-      
+
       if (error) {
         console.error('Error marking all notifications as read:', error);
-        // Optionally show an error toast to the user
+        // revert to snapshot
+        setNotifications(snapshot);
+        // try to re-fetch latest state as a fallback
+        try {
+          const { data } = await supabase.from('notifications').select('*').order('created_at', { ascending: false });
+          if (data) setNotifications(data as NotificationData[]);
+        } catch (e) {
+          console.error('Failed to re-fetch notifications after failing to mark all read:', e);
+        }
       }
     } catch (err) {
       console.error('Failed to mark all notifications as read:', err);
-      // Optionally show an error toast to the user
+      setNotifications(snapshot);
     }
   };
 
@@ -137,7 +149,13 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
 
   const handleNotificationClick = (notification: NotificationData) => {
     markAsRead(notification.id);
-    if (notification.ticket_id) router.push(`/jobs/${companySlug}/tickets/${notification.ticket_id}`);
+
+    if (notification.ticket_id) {
+      router.push(`/jobs/${companySlug}/tickets/${notification.ticket_id}`);
+    } else if (notification.leave_request_id) {
+      router.push(`/jobs/${companySlug}/absences`);
+    }
+
     setShowNotifications(false);
   };
 
@@ -146,13 +164,16 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
       case 'ticket_created': return <Ticket className="w-5 h-5 text-blue-600" />;
       case 'ticket_message': return <MessageSquare className="w-5 h-5 text-green-600" />;
       case 'ticket_status_changed': return <Check className="w-5 h-5 text-orange-600" />;
+      case 'leave_request_created': return <Calendar className="w-5 h-5 text-purple-600" />;
+      case 'leave_request_approved': return <CheckCircle className="w-5 h-5 text-green-600" />;
+      case 'leave_request_rejected': return <XCircle className="w-5 h-5 text-red-600" />;
       default: return <Bell className="w-5 h-5 text-gray-600" />;
     }
   };
 
-  // Load old notifications
+  // --- Load old notifications ---
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser || !adminStatusChecked) return;
 
     const fetchOldNotifications = async () => {
       try {
@@ -161,34 +182,27 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
           .select('*')
           .order('created_at', { ascending: false });
 
-        console.log("current user_id:", currentUser.id);
-        console.log("isHrinnoAdmin:", isHrinnoAdmin);
-
-         if (isHrinnoAdmin) {
-          query = query.neq('sender_id', currentUser.id);
+        if (isHrinnoAdmin) {
+          // Admins: see ticket notifications (not sent by them) + leave requests where they are recipient
+          query = query.or(`and(ticket_id.not.is.null,sender_id.neq.${currentUser.id}),and(leave_request_id.not.is.null,recipient_id.eq.${currentUser.id})`);
         } else {
-          const { data: userTickets, error: ticketsError } = await supabase
+          // Regular user: notifications addressed to them
+          query = query.eq('recipient_id', currentUser.id);
+
+          // Also include ticket-related notifications for their tickets
+          const { data: userTickets } = await supabase
             .from('tickets')
             .select('id')
             .eq('user_id', currentUser.id);
 
-          if (ticketsError) {
-            console.error('Error fetching user tickets:', ticketsError);
-            setNotifications([]);
-            return;
-          }
-
           const ticketIds = (userTickets || []).map(t => t.id);
-          if (ticketIds.length === 0) {
-            setNotifications([]);
-            return;
+
+          if (ticketIds.length > 0) {
+            query = query.or(`recipient_id.eq.${currentUser.id},ticket_id.in.(${ticketIds.join(',')})`);
           }
-          
-          query = query.in('ticket_id', ticketIds);
         }
 
         const { data, error } = await query;
-        console.log("old notifications:", data);
         if (error) throw error;
         setNotifications(data || []);
       } catch (err) {
@@ -196,27 +210,21 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
       }
     };
 
-    if (currentUser && adminStatusChecked) {
-      fetchOldNotifications();
-    }
+    fetchOldNotifications();
   }, [currentUser, isHrinnoAdmin, adminStatusChecked]);
 
-  // Real-time subscriptions
+  // --- Real-time subscriptions ---
   useEffect(() => {
     if (!currentUser || !adminStatusChecked) return;
 
     subscriptionsRef.current.forEach(sub => sub.unsubscribe());
     subscriptionsRef.current = [];
 
-    console.log('Setting up admin real-time subscriptions...');
     const channel = supabase.channel(`notifications_${currentUser.id}_${Date.now()}`);
 
     if (isHrinnoAdmin) {
-      console.log('Setting up ADMIN subscriptions');
-      
       channel
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'tickets' }, payload => {
-          console.log('🎫 Admin received tickets INSERT event:', payload);
           const p = payload.new;
           const notification: NotificationData = {
             id: p.id,
@@ -228,15 +236,10 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
             read: false,
             sender_id: p.user_id || null
           };
-          
-          console.log('Ticket notification created:', notification);
-          if (notification.sender_id !== currentUser.id) {
-            console.log('Adding ticket notification to admin dropdown');
-            addNotification(notification);
-          }
+
+          if (notification.sender_id !== currentUser.id) addNotification(notification);
         })
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ticket_messages' }, payload => {
-          console.log('💬 Admin received ticket_messages INSERT event:', payload);
           const p = payload.new;
           const notification: NotificationData = {
             id: p.id,
@@ -248,23 +251,10 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
             read: false,
             sender_id: p.sender_id || null
           };
-          
-          console.log('Message notification created:', notification);
-          console.log('Current admin ID:', currentUser.id);
-          console.log('Message sender ID:', notification.sender_id);
-          
-          if (notification.sender_id !== currentUser.id) {
-            console.log('✅ Adding message notification to admin dropdown');
-            addNotification(notification);
-          } else {
-            console.log('❌ Skipping - message sent by current admin');
-          }
+
+          if (notification.sender_id !== currentUser.id) addNotification(notification);
         })
-        .subscribe((status) => {
-          console.log('🔔 Admin subscription status:', status);
-        });
-      
-      console.log('Admin subscriptions configured and subscribed');
+        .subscribe();
     } else {
       channel
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ticket_messages' }, payload => {
@@ -300,6 +290,20 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
         .subscribe();
     }
 
+    channel
+      .on('postgres_changes', { 
+        event: 'INSERT', 
+        schema: 'public', 
+        table: 'notifications',
+        filter: `recipient_id=eq.${currentUser.id}`
+      }, payload => {
+        const notification = payload.new as NotificationData;
+        if (notification.leave_request_id && notification.sender_id !== currentUser.id) {
+          addNotification(notification);
+        }
+      })
+      .subscribe();
+
     subscriptionsRef.current.push(channel);
 
     return () => {
@@ -308,7 +312,7 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
     };
   }, [currentUser?.id, isHrinnoAdmin, adminStatusChecked]);
 
-  // Close dropdown on outside click
+  // --- Close dropdown on outside click ---
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -334,12 +338,12 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
         <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-gray-200 z-50 max-h-96 overflow-hidden">
           <div className="p-4 border-b border-gray-100 flex items-center justify-between">
             <h3 className="font-semibold text-gray-900">Notifications</h3>
-            {unreadCount > 0 && (
-              <button onClick={markAllAsRead}
-                      className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                Mark all read
-              </button>
-            )}
+            {/* Always render the button but disable when there are no unread notifications */}
+            <button onClick={e => { e.stopPropagation(); markAllAsRead(); }}
+                    disabled={unreadCount === 0}
+                    className={`text-sm font-medium ${unreadCount === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-blue-600 hover:text-blue-700'}`}>
+              Mark all read
+            </button>
           </div>
           <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
@@ -356,7 +360,7 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
                       <div className="flex-1 min-w-0">
                         <p className={`text-sm font-medium ${!n.read ? 'text-gray-900' : 'text-gray-700'}`}>{n.title}</p>
                         <p className={`text-sm mt-1 ${!n.read ? 'text-gray-600' : 'text-gray-500'}`}>{n.message}</p>
-                        {n.ticket_id && <p className="text-xs text-blue-500 mt-1">View ticket</p>}
+                        {(n.ticket_id || n.leave_request_id) && <p className="text-xs text-blue-500 mt-1">View details</p>}
                         <p className="text-xs text-gray-400 mt-2">{new Date(n.created_at).toLocaleString()}</p>
                       </div>
                       <button onClick={e => { e.stopPropagation(); removeNotification(n.id); }} className="p-1 text-gray-400 hover:text-gray-600 transition-colors ml-2">

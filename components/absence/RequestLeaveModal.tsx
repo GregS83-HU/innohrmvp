@@ -2,6 +2,13 @@
 import React from 'react';
 import { XCircle, Loader2 } from 'lucide-react';
 import { LeaveType } from '../../types/absence';
+import { createLeaveRequestNotification, getUserManager, getUserName } from '../../utils/absenceNotifications';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 type RequestForm = {
   leave_type_id: string;
@@ -18,6 +25,7 @@ type Props = {
   leaveTypes: LeaveType[];
   onSubmit: (e: React.FormEvent) => Promise<void> | void;
   loading: boolean;
+  currentUserId: string;
 };
 
 const RequestLeaveModal: React.FC<Props> = ({
@@ -27,11 +35,76 @@ const RequestLeaveModal: React.FC<Props> = ({
   setRequestForm,
   leaveTypes,
   onSubmit,
-  loading
+  loading,
+  currentUserId
 }) => {
   if (!isOpen) return null;
 
   const today = new Date().toISOString().split('T')[0];
+
+  const handleSubmitWithNotification = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Call the original onSubmit handler first
+    await onSubmit(e);
+    
+    // After successful submission, create notification
+    try {
+      // Get the manager ID
+      const { managerId } = await getUserManager(currentUserId);
+      
+      if (!managerId) {
+        console.warn('No manager found for user, skipping notification');
+        return;
+      }
+
+      // Get user name
+      const { name: userName } = await getUserName(currentUserId);
+
+      // Get leave type name
+      const selectedLeaveType = leaveTypes.find(lt => lt.id === requestForm.leave_type_id);
+      const leaveTypeName = selectedLeaveType?.name_hu || selectedLeaveType?.name || 'Leave';
+
+      // Calculate total days
+      const startDate = new Date(requestForm.start_date);
+      const endDate = new Date(requestForm.end_date);
+      const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+      // Get the newly created leave request ID
+      // We need to query for it since we don't have it from onSubmit
+      const { data: leaveRequest } = await supabase
+        .from('leave_requests')
+        .select('id')
+        .eq('user_id', currentUserId)
+        .eq('start_date', requestForm.start_date)
+        .eq('end_date', requestForm.end_date)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (!leaveRequest) {
+        console.error('Could not find created leave request');
+        return;
+      }
+
+      // Create the notification
+      await createLeaveRequestNotification({
+        leaveRequestId: leaveRequest.id,
+        userId: currentUserId,
+        userName,
+        managerId,
+        leaveTypeName,
+        startDate: requestForm.start_date,
+        endDate: requestForm.end_date,
+        totalDays
+      });
+
+      console.log('✅ Leave request notification sent to manager');
+    } catch (error) {
+      console.error('Error sending leave request notification:', error);
+      // Don't throw - notification failure shouldn't block the request
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -46,7 +119,7 @@ const RequestLeaveModal: React.FC<Props> = ({
           </button>
         </div>
 
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form onSubmit={handleSubmitWithNotification} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Leave Type

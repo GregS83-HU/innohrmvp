@@ -382,7 +382,9 @@ const AbsenceManagement: React.FC = () => {
       </div>
     );
   }
-
+  if (!currentUser) {
+  return null;
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
@@ -478,6 +480,7 @@ const AbsenceManagement: React.FC = () => {
             onRefresh={fetchPendingApprovals}
             onReview={handleRequestReview}
             formatDate={formatDate}
+            currentUserId={currentUser.id} 
           />
         )}
       </div>
@@ -491,6 +494,7 @@ const AbsenceManagement: React.FC = () => {
         leaveTypes={leaveTypes}
         onSubmit={submitLeaveRequest}
         loading={submitLoading}
+        currentUserId={currentUser.id} 
       />
 
       {/* Certificate Upload Modal */}

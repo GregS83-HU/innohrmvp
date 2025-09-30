@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 import {
@@ -38,6 +39,164 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+/* --------------------
+ ManagerDropdownPortal
+ - Renders the manager list into document.body
+ - Positions next to the anchor element (anchorRef)
+ - Handles outside clicks, Escape, reposition on scroll/resize
+---------------------*/
+function ManagerDropdownPortal({
+  open,
+  anchorRef,
+  managers,
+  managerSearch,
+  setManagerSearch,
+  onSelect,
+  updatingManager,
+  selectedManagerId,
+  onClose,
+}: {
+  open: boolean;
+  anchorRef: React.MutableRefObject<HTMLElement | null>;
+  managers: CompanyUser[];
+  managerSearch: string;
+  setManagerSearch: (v: string) => void;
+  onSelect: (managerId: string) => void;
+  updatingManager: boolean;
+  selectedManagerId?: string | null;
+  onClose: () => void;
+}) {
+  const portalRef = useRef<HTMLDivElement | null>(null);
+  const [style, setStyle] = useState({ top: 0, left: 0, width: 320 });
+
+  useEffect(() => {
+    if (!open) return;
+
+    const updatePos = () => {
+      const a = anchorRef.current;
+      if (!a) return;
+      const rect = a.getBoundingClientRect();
+
+      // position the portal under the anchor, align left if possible
+      const desiredWidth = 320;
+      let left = rect.left + window.scrollX;
+      const viewportRight = window.scrollX + window.innerWidth;
+      if (left + desiredWidth > viewportRight - 8) {
+        left = Math.max(8 + window.scrollX, viewportRight - desiredWidth - 8);
+      }
+      const top = rect.bottom + window.scrollY + 6;
+      const width = Math.min(desiredWidth, window.innerWidth - 16);
+
+      setStyle({ top, left, width });
+    };
+
+    updatePos();
+    window.addEventListener('resize', updatePos);
+    // listen to scroll on capture so we catch ancestor scrolling
+    window.addEventListener('scroll', updatePos, true);
+    return () => {
+      window.removeEventListener('resize', updatePos);
+      window.removeEventListener('scroll', updatePos, true);
+    };
+  }, [open, anchorRef]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handleOutside = (e: MouseEvent | TouchEvent) => {
+      const node = portalRef.current;
+      const anchor = anchorRef.current;
+      const target = e.target as Node | null;
+      if (!node) return;
+      if (node.contains(target)) return;
+      if (anchor && anchor.contains(target)) return;
+      onClose();
+    };
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+
+    document.addEventListener('mousedown', handleOutside);
+    document.addEventListener('touchstart', handleOutside);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleOutside);
+      document.removeEventListener('touchstart', handleOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [open, anchorRef, onClose]);
+
+  if (!open) return null;
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div
+      ref={portalRef}
+      style={{ position: 'absolute', top: style.top, left: style.left, width: style.width, zIndex: 9999 }}
+      className="bg-white border border-gray-300 rounded-lg shadow-xl overflow-hidden"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div className="p-2 border-b border-gray-200">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search managers..."
+            value={managerSearch}
+            onChange={(e) => setManagerSearch(e.target.value)}
+            className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            autoFocus
+          />
+        </div>
+      </div>
+
+      <div className="max-h-64 overflow-y-auto">
+        {updatingManager ? (
+          <div className="px-4 py-8 text-center">
+            <Loader2 className="w-6 h-6 animate-spin text-blue-600 mx-auto mb-2" />
+            <p className="text-sm text-gray-500">Updating...</p>
+          </div>
+        ) : managers.length > 0 ? (
+          managers.map((manager) => (
+            <button
+              key={manager.user_id}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect(manager.user_id);
+              }}
+              className={`w-full px-4 py-3 text-left hover:bg-blue-50 flex items-center gap-3 transition-colors ${
+                selectedManagerId === manager.user_id ? 'bg-blue-50' : ''
+              }`}
+            >
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-white font-semibold text-xs">
+                  {manager.first_name?.[0] ?? '?'}
+                  {manager.last_name?.[0] ?? '?'}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-gray-900 truncate">
+                  {manager.first_name} {manager.last_name}
+                </p>
+                <p className="text-xs text-gray-500 truncate">{manager.email}</p>
+              </div>
+              {selectedManagerId === manager.user_id && <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />}
+            </button>
+          ))
+        ) : (
+          <div className="px-4 py-3 text-center text-gray-500 text-sm">No managers found</div>
+        )}
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+/* --------------------
+ Main component
+---------------------*/
 export default function CompanyUsersPage() {
   const params = useParams<{ slug: string }>();
   const companySlug = params.slug;
@@ -55,27 +214,24 @@ export default function CompanyUsersPage() {
   const [managerSearch, setManagerSearch] = useState('');
   const [updatingManager, setUpdatingManager] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState<string | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  // anchorRef points to the button that opened the dropdown
+  const anchorRef = useRef<HTMLElement | null>(null);
 
   // ✅ Format date helper
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
     });
   };
 
   // ✅ Fetch company ID by slug
   const fetchCompanyId = useCallback(async () => {
     try {
-      const { data, error } = await supabase
-        .from('company')
-        .select('id')
-        .eq('slug', companySlug)
-        .single();
+      const { data, error } = await supabase.from('company').select('id').eq('slug', companySlug).single();
 
       if (error || !data?.id) {
         setError('Company not found');
@@ -143,34 +299,21 @@ export default function CompanyUsersPage() {
 
   // ✅ Filter managers based on search (exclude the user being edited)
   const getFilteredManagers = (excludeUserId: string) => {
-    return users.filter(user => 
-      user.user_id !== excludeUserId &&
-      (`${user.first_name} ${user.last_name}`.toLowerCase().includes(managerSearch.toLowerCase()) ||
-      user.email.toLowerCase().includes(managerSearch.toLowerCase()))
+    return users.filter(
+      (user) =>
+        user.user_id !== excludeUserId &&
+        (`${user.first_name} ${user.last_name}`.toLowerCase().includes(managerSearch.toLowerCase()) ||
+          user.email.toLowerCase().includes(managerSearch.toLowerCase()))
     );
   };
 
-  // ✅ Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setEditingUserId(null);
-        setManagerSearch('');
-      }
-    };
-
-    if (editingUserId) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [editingUserId]);
-
-  // ✅ Close dropdown on Escape key
+  // ✅ Close dropdown on Escape (keeps original behavior)
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setEditingUserId(null);
         setManagerSearch('');
+        anchorRef.current = null;
       }
     };
 
@@ -184,9 +327,7 @@ export default function CompanyUsersPage() {
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       !searchTerm ||
-      `${user.first_name} ${user.last_name}`
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
+      `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesRole =
@@ -225,9 +366,7 @@ export default function CompanyUsersPage() {
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="w-8 h-8 text-red-600" />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
-            Oops! Something went wrong
-          </h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Oops! Something went wrong</h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
@@ -239,7 +378,10 @@ export default function CompanyUsersPage() {
       </div>
     );
 
-  // ✅ Main content
+  // find the user object currently being edited
+  const editingUser = editingUserId ? users.find((u) => u.user_id === editingUserId) ?? null : null;
+  const managersForEditingUser = editingUserId ? getFilteredManagers(editingUserId) : [];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
@@ -251,9 +393,7 @@ export default function CompanyUsersPage() {
                 <Users className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                  Company Users
-                </h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Company Users</h1>
                 <p className="text-gray-600">{users.length} team members</p>
               </div>
             </div>
@@ -288,9 +428,7 @@ export default function CompanyUsersPage() {
                 <Filter className="w-4 h-4 text-gray-500" />
                 <select
                   value={roleFilter}
-                  onChange={(e) =>
-                    setRoleFilter(e.target.value as 'all' | 'admin' | 'user')
-                  }
+                  onChange={(e) => setRoleFilter(e.target.value as 'all' | 'admin' | 'user')}
                   className="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
                 >
                   <option value="all">All Roles</option>
@@ -309,20 +447,13 @@ export default function CompanyUsersPage() {
               <Users className="w-10 h-10 text-gray-400" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              {searchTerm || roleFilter !== 'all'
-                ? 'No users found'
-                : 'No users yet'}
+              {searchTerm || roleFilter !== 'all' ? 'No users found' : 'No users yet'}
             </h3>
             <p className="text-gray-600 mb-6">
-              {searchTerm || roleFilter !== 'all'
-                ? 'Try adjusting your search or filter criteria.'
-                : 'Get started by adding your first team member.'}
+              {searchTerm || roleFilter !== 'all' ? 'Try adjusting your search or filter criteria.' : 'Get started by adding your first team member.'}
             </p>
             {!searchTerm && roleFilter === 'all' && (
-              <button
-                onClick={() => setIsAddUserModalOpen(true)}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors"
-              >
+              <button onClick={() => setIsAddUserModalOpen(true)} className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors">
                 Add First User
               </button>
             )}
@@ -335,29 +466,16 @@ export default function CompanyUsersPage() {
                 <table className="min-w-full">
                   <thead>
                     <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Name
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Email
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Manager
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Start Date
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Role
-                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Manager</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Start Date</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Role</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {filteredUsers.map((user) => (
-                      <tr
-                        key={user.user_id}
-                        className="hover:bg-gray-50 transition-colors group"
-                      >
+                      <tr key={user.user_id} className="hover:bg-gray-50 transition-colors group">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
@@ -367,23 +485,24 @@ export default function CompanyUsersPage() {
                               </span>
                             </div>
                             <div>
-                              <p className="font-semibold text-gray-900">
-                                {user.first_name} {user.last_name}
-                              </p>
+                              <p className="font-semibold text-gray-900">{user.first_name} {user.last_name}</p>
                             </div>
                           </div>
                         </td>
+
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-2 text-gray-600">
                             <Mail className="w-4 h-4" />
                             <span>{user.email}</span>
                           </div>
                         </td>
+
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="relative" ref={editingUserId === user.user_id ? dropdownRef : null}>
+                          <div className="relative">
                             {user.manager_first_name && user.manager_last_name ? (
                               <button
-                                onClick={() => {
+                                onClick={(e) => {
+                                  anchorRef.current = e.currentTarget as HTMLElement;
                                   setEditingUserId(user.user_id);
                                   setManagerSearch('');
                                 }}
@@ -391,9 +510,7 @@ export default function CompanyUsersPage() {
                                 className="flex items-center gap-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded-lg transition-colors group/manager"
                               >
                                 <UserCircle className="w-4 h-4 text-gray-400 group-hover/manager:text-blue-500" />
-                                <span>
-                                  {user.manager_first_name} {user.manager_last_name}
-                                </span>
+                                <span>{user.manager_first_name} {user.manager_last_name}</span>
                                 {updateSuccess === user.user_id ? (
                                   <Check className="w-3 h-3 text-green-500" />
                                 ) : (
@@ -402,7 +519,8 @@ export default function CompanyUsersPage() {
                               </button>
                             ) : (
                               <button
-                                onClick={() => {
+                                onClick={(e) => {
+                                  anchorRef.current = e.currentTarget as HTMLElement;
                                   setEditingUserId(user.user_id);
                                   setManagerSearch('');
                                 }}
@@ -412,77 +530,16 @@ export default function CompanyUsersPage() {
                                 + Add manager
                               </button>
                             )}
-
-                            {/* Manager Dropdown */}
-                            {editingUserId === user.user_id && (
-                              <div className="absolute z-10 left-0 mt-1 w-72 bg-white border border-gray-300 rounded-lg shadow-xl">
-                                {/* Search Bar */}
-                                <div className="p-2 border-b border-gray-200">
-                                  <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                    <input
-                                      type="text"
-                                      placeholder="Search managers..."
-                                      value={managerSearch}
-                                      onChange={(e) => setManagerSearch(e.target.value)}
-                                      className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                      autoFocus
-                                    />
-                                  </div>
-                                </div>
-
-                                {/* Manager List */}
-                                <div className="overflow-y-auto max-h-64">
-                                  {updatingManager ? (
-                                    <div className="px-4 py-8 text-center">
-                                      <Loader2 className="w-6 h-6 animate-spin text-blue-600 mx-auto mb-2" />
-                                      <p className="text-sm text-gray-500">Updating...</p>
-                                    </div>
-                                  ) : (
-                                    <>
-                                      {getFilteredManagers(user.user_id).length > 0 ? (
-                                        getFilteredManagers(user.user_id).map((manager) => (
-                                          <button
-                                            key={manager.user_id}
-                                            onClick={() => updateManager(user.user_id, manager.user_id)}
-                                            className={`w-full px-4 py-3 text-left hover:bg-blue-50 flex items-center gap-3 transition-colors ${
-                                              user.manager_id === manager.user_id ? 'bg-blue-50' : ''
-                                            }`}
-                                          >
-                                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                              <span className="text-white font-semibold text-xs">
-                                                {manager.first_name[0]}{manager.last_name[0]}
-                                              </span>
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                              <p className="font-medium text-gray-900 truncate">
-                                                {manager.first_name} {manager.last_name}
-                                              </p>
-                                              <p className="text-xs text-gray-500 truncate">{manager.email}</p>
-                                            </div>
-                                            {user.manager_id === manager.user_id && (
-                                              <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                                            )}
-                                          </button>
-                                        ))
-                                      ) : (
-                                        <div className="px-4 py-3 text-center text-gray-500 text-sm">
-                                          No managers found
-                                        </div>
-                                      )}
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-                            )}
                           </div>
                         </td>
+
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-2 text-gray-700">
                             <Calendar className="w-4 h-4 text-gray-400" />
                             <span>{formatDate(user.employment_start_date)}</span>
                           </div>
                         </td>
+
                         <td className="px-6 py-4 whitespace-nowrap">
                           {user.is_admin ? (
                             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200">
@@ -504,10 +561,7 @@ export default function CompanyUsersPage() {
             {/* Mobile/Tablet Card View */}
             <div className="lg:hidden space-y-4">
               {filteredUsers.map((user) => (
-                <div
-                  key={user.user_id}
-                  className="bg-white rounded-2xl p-4 shadow-lg border border-gray-100"
-                >
+                <div key={user.user_id} className="bg-white rounded-2xl p-4 shadow-lg border border-gray-100">
                   <div className="flex items-start gap-3 mb-3">
                     <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
                       <span className="text-white font-semibold">
@@ -518,9 +572,7 @@ export default function CompanyUsersPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <h3 className="font-semibold text-gray-900 truncate">
-                            {user.first_name} {user.last_name}
-                          </h3>
+                          <h3 className="font-semibold text-gray-900 truncate">{user.first_name} {user.last_name}</h3>
                           <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
                             <Mail className="w-3 h-3" />
                             <span className="truncate">{user.email}</span>
@@ -538,7 +590,7 @@ export default function CompanyUsersPage() {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Additional Info */}
                   <div className="space-y-2 pt-3 border-t border-gray-100">
                     <div className="flex items-center justify-between">
@@ -546,10 +598,11 @@ export default function CompanyUsersPage() {
                         <UserCircle className="w-4 h-4" />
                         <span>Manager:</span>
                       </div>
-                      <div className="relative" ref={editingUserId === user.user_id ? dropdownRef : null}>
+                      <div className="relative">
                         {user.manager_first_name && user.manager_last_name ? (
                           <button
-                            onClick={() => {
+                            onClick={(e) => {
+                              anchorRef.current = e.currentTarget as HTMLElement;
                               setEditingUserId(user.user_id);
                               setManagerSearch('');
                             }}
@@ -557,15 +610,12 @@ export default function CompanyUsersPage() {
                             className="text-sm font-medium text-gray-900 hover:text-blue-600 flex items-center gap-1"
                           >
                             {user.manager_first_name} {user.manager_last_name}
-                            {updateSuccess === user.user_id ? (
-                              <Check className="w-3 h-3 text-green-500" />
-                            ) : (
-                              <Edit3 className="w-3 h-3" />
-                            )}
+                            {updateSuccess === user.user_id ? <Check className="w-3 h-3 text-green-500" /> : <Edit3 className="w-3 h-3" />}
                           </button>
                         ) : (
                           <button
-                            onClick={() => {
+                            onClick={(e) => {
+                              anchorRef.current = e.currentTarget as HTMLElement;
                               setEditingUserId(user.user_id);
                               setManagerSearch('');
                             }}
@@ -575,69 +625,9 @@ export default function CompanyUsersPage() {
                             + Add manager
                           </button>
                         )}
-
-                        {/* Manager Dropdown for Mobile */}
-                        {editingUserId === user.user_id && (
-                          <div className="absolute z-10 right-0 mt-1 w-72 bg-white border border-gray-300 rounded-lg shadow-xl">
-                            <div className="p-2 border-b border-gray-200">
-                              <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                <input
-                                  type="text"
-                                  placeholder="Search managers..."
-                                  value={managerSearch}
-                                  onChange={(e) => setManagerSearch(e.target.value)}
-                                  className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                  autoFocus
-                                />
-                              </div>
-                            </div>
-
-                            <div className="overflow-y-auto max-h-64">
-                              {updatingManager ? (
-                                <div className="px-4 py-8 text-center">
-                                  <Loader2 className="w-6 h-6 animate-spin text-blue-600 mx-auto mb-2" />
-                                  <p className="text-sm text-gray-500">Updating...</p>
-                                </div>
-                              ) : (
-                                <>
-                                  {getFilteredManagers(user.user_id).length > 0 ? (
-                                    getFilteredManagers(user.user_id).map((manager) => (
-                                      <button
-                                        key={manager.user_id}
-                                        onClick={() => updateManager(user.user_id, manager.user_id)}
-                                        className={`w-full px-4 py-3 text-left hover:bg-blue-50 flex items-center gap-3 transition-colors ${
-                                          user.manager_id === manager.user_id ? 'bg-blue-50' : ''
-                                        }`}
-                                      >
-                                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                          <span className="text-white font-semibold text-xs">
-                                            {manager.first_name[0]}{manager.last_name[0]}
-                                          </span>
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                          <p className="font-medium text-gray-900 truncate">
-                                            {manager.first_name} {manager.last_name}
-                                          </p>
-                                          <p className="text-xs text-gray-500 truncate">{manager.email}</p>
-                                        </div>
-                                        {user.manager_id === manager.user_id && (
-                                          <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                                        )}
-                                      </button>
-                                    ))
-                                  ) : (
-                                    <div className="px-4 py-3 text-center text-gray-500 text-sm">
-                                      No managers found
-                                    </div>
-                                  )}
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        )}
                       </div>
                     </div>
+
                     <div className="flex items-center gap-2 text-sm text-gray-700">
                       <Calendar className="w-4 h-4 text-gray-400" />
                       <span className="text-gray-500">Start Date:</span>
@@ -651,13 +641,28 @@ export default function CompanyUsersPage() {
         )}
       </div>
 
-      {/* Add User Modal */}
-      <AddUserModal
-        isOpen={isAddUserModalOpen}
-        onClose={() => setIsAddUserModalOpen(false)}
-        onSuccess={fetchCompanyUsers}
-        companyId={companyId || ''}
+      {/* Manager dropdown portal (single shared portal) */}
+      <ManagerDropdownPortal
+        open={!!editingUserId}
+        anchorRef={anchorRef}
+        managers={managersForEditingUser}
+        managerSearch={managerSearch}
+        setManagerSearch={setManagerSearch}
+        onSelect={(managerId) => {
+          if (!editingUserId) return;
+          updateManager(editingUserId, managerId);
+        }}
+        updatingManager={updatingManager}
+        selectedManagerId={editingUser?.manager_id ?? null}
+        onClose={() => {
+          setEditingUserId(null);
+          setManagerSearch('');
+          anchorRef.current = null;
+        }}
       />
+
+      {/* Add User Modal */}
+      <AddUserModal isOpen={isAddUserModalOpen} onClose={() => setIsAddUserModalOpen(false)} onSuccess={fetchCompanyUsers} companyId={companyId || ''} />
     </div>
   );
 }

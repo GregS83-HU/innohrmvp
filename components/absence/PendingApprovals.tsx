@@ -3,20 +3,65 @@ import React from 'react';
 import { Bell, RefreshCw, CheckCircle } from 'lucide-react';
 import { PendingApproval } from '../../types/absence';
 import { formatDate as defaultFormatDate } from '../../utils/formatDate';
+import { createLeaveReviewNotification, getUserName } from '../../utils/absenceNotifications';
 
 type Props = {
   approvals: PendingApproval[];
   onRefresh: () => void;
   onReview: (requestId: string, status: 'approved' | 'rejected', notes?: string) => Promise<void> | void;
   formatDate?: (d: string) => string;
+  currentUserId: string;
 };
 
 const PendingApprovals: React.FC<Props> = ({
   approvals,
   onRefresh,
   onReview,
-  formatDate = defaultFormatDate
+  formatDate = defaultFormatDate,
+  currentUserId
 }) => {
+  
+  const handleReviewWithNotification = async (
+    approval: PendingApproval,
+    status: 'approved' | 'rejected',
+    notes?: string
+  ) => {
+    try {
+      // First, perform the actual review action
+      await onReview(approval.id, status, notes);
+      
+      // Then send the notification to the employee
+      const { name: managerName } = await getUserName(currentUserId);
+      
+      await createLeaveReviewNotification({
+        leaveRequestId: approval.id,
+        userId: approval.id, //|| approval.employee_id, // Using either field that contains the user ID
+        managerId: currentUserId,
+        managerName,
+        leaveTypeName: approval.leave_type_name_hu || approval.leave_type_name,
+        status,
+        reviewNotes: notes
+      });
+      
+      console.log(`✅ ${status} notification sent to employee`);
+    } catch (error) {
+      console.error('Error in review with notification:', error);
+      // The review itself might have succeeded, so we don't re-throw
+    }
+  };
+
+  const handleApprove = (approval: PendingApproval) => {
+    const notes = prompt('Optional notes for approval:');
+    handleReviewWithNotification(approval, 'approved', notes || undefined);
+  };
+
+  const handleReject = (approval: PendingApproval) => {
+    const notes = prompt('Reason for rejection (required):');
+    if (notes?.trim()) {
+      handleReviewWithNotification(approval, 'rejected', notes);
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
       <div className="flex items-center justify-between mb-6">
@@ -80,21 +125,13 @@ const PendingApprovals: React.FC<Props> = ({
 
                 <div className="flex gap-2">
                   <button
-                    onClick={() => {
-                      const notes = prompt('Optional notes for approval:');
-                      onReview(approval.id, 'approved', notes || undefined);
-                    }}
+                    onClick={() => handleApprove(approval)}
                     className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
                   >
                     Approve
                   </button>
                   <button
-                    onClick={() => {
-                      const notes = prompt('Reason for rejection (required):');
-                      if (notes?.trim()) {
-                        onReview(approval.id, 'rejected', notes);
-                      }
-                    }}
+                    onClick={() => handleReject(approval)}
                     className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
                   >
                     Reject
