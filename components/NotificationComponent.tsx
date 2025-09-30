@@ -33,7 +33,6 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
   const [showNotifications, setShowNotifications] = useState(false);
   const [isHrinnoAdmin, setIsHrinnoAdmin] = useState(false);
   const [adminStatusChecked, setAdminStatusChecked] = useState(false);
-  //const subscriptionsRef = useRef<any[]>([]);
   const subscriptionsRef = useRef<ReturnType<(typeof supabase)['channel']>[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -46,14 +45,12 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
         return;
       }
 
-      // First check if is_super_admin is already in currentUser object
       if (currentUser.is_super_admin !== undefined) {
         setIsHrinnoAdmin(currentUser.is_super_admin);
         setAdminStatusChecked(true);
         return;
       }
 
-      // If not, fetch it from database
       try {
         const { data: userData, error } = await supabase
           .from('users')
@@ -63,14 +60,12 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
 
         if (error) {
           console.error('Error fetching user admin status:', error);
-          // Fallback to slug-based check
           setIsHrinnoAdmin(companySlug === 'hrinno' || companySlug === 'innohr');
         } else {
           setIsHrinnoAdmin(userData?.is_super_admin || false);
         }
       } catch (err) {
         console.error('Error checking admin status:', err);
-        // Fallback to slug-based check
         setIsHrinnoAdmin(companySlug === 'hrinno' || companySlug === 'innohr');
       }
       
@@ -89,14 +84,61 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
     });
   };
 
-  const markAsRead = (id: string) =>
+  const markAsRead = async (id: string) => {
+    // Update local state immediately for better UX
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    
+    // Persist to database
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('id', id);
+      
+      if (error) {
+        console.error('Error marking notification as read:', error);
+        // Optionally revert the local state if the update fails
+        setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: false } : n));
+      }
+    } catch (err) {
+      console.error('Failed to mark notification as read:', err);
+      // Optionally revert the local state if the update fails
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: false } : n));
+    }
+  };
+
+  const markAllAsRead = async () => {
+    const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
+    
+    if (unreadIds.length === 0) return;
+    
+    // Update local state immediately for better UX
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    
+    // Persist to database
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .in('id', unreadIds);
+      
+      if (error) {
+        console.error('Error marking all notifications as read:', error);
+        // Optionally show an error toast to the user
+      }
+    } catch (err) {
+      console.error('Failed to mark all notifications as read:', err);
+      // Optionally show an error toast to the user
+    }
+  };
+
   const removeNotification = (id: string) =>
     setNotifications(prev => prev.filter(n => n.id !== id));
 
   const handleNotificationClick = (notification: NotificationData) => {
     markAsRead(notification.id);
-if (notification.ticket_id) router.push(`/jobs/${companySlug}/tickets/${notification.ticket_id}`);    setShowNotifications(false);
+    if (notification.ticket_id) router.push(`/jobs/${companySlug}/tickets/${notification.ticket_id}`);
+    setShowNotifications(false);
   };
 
   const getNotificationIcon = (type: NotificationData['type']) => {
@@ -108,9 +150,7 @@ if (notification.ticket_id) router.push(`/jobs/${companySlug}/tickets/${notifica
     }
   };
 
-  // --------------------------
   // Load old notifications
-  // --------------------------
   useEffect(() => {
     if (!currentUser) return;
 
@@ -125,10 +165,8 @@ if (notification.ticket_id) router.push(`/jobs/${companySlug}/tickets/${notifica
         console.log("isHrinnoAdmin:", isHrinnoAdmin);
 
          if (isHrinnoAdmin) {
-          // Admin: show all notifications except their own
           query = query.neq('sender_id', currentUser.id);
         } else {
-          // User: only notifications for their own tickets
           const { data: userTickets, error: ticketsError } = await supabase
             .from('tickets')
             .select('id')
@@ -142,7 +180,6 @@ if (notification.ticket_id) router.push(`/jobs/${companySlug}/tickets/${notifica
 
           const ticketIds = (userTickets || []).map(t => t.id);
           if (ticketIds.length === 0) {
-            // No tickets = no notifications, don't run query
             setNotifications([]);
             return;
           }
@@ -159,28 +196,24 @@ if (notification.ticket_id) router.push(`/jobs/${companySlug}/tickets/${notifica
       }
     };
 
-    // Only fetch when admin status is determined
     if (currentUser && adminStatusChecked) {
       fetchOldNotifications();
     }
   }, [currentUser, isHrinnoAdmin, adminStatusChecked]);
 
-  // --------------------------
   // Real-time subscriptions
-  // --------------------------
   useEffect(() => {
     if (!currentUser || !adminStatusChecked) return;
 
     subscriptionsRef.current.forEach(sub => sub.unsubscribe());
     subscriptionsRef.current = [];
 
-    console.log('Setting up admin real-time subscriptions...'); // Debug log
+    console.log('Setting up admin real-time subscriptions...');
     const channel = supabase.channel(`notifications_${currentUser.id}_${Date.now()}`);
 
     if (isHrinnoAdmin) {
-      console.log('Setting up ADMIN subscriptions'); // Debug log
+      console.log('Setting up ADMIN subscriptions');
       
-      // Listen to tickets separately
       channel
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'tickets' }, payload => {
           console.log('🎫 Admin received tickets INSERT event:', payload);
@@ -202,7 +235,6 @@ if (notification.ticket_id) router.push(`/jobs/${companySlug}/tickets/${notifica
             addNotification(notification);
           }
         })
-        // Listen to ticket_messages separately  
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ticket_messages' }, payload => {
           console.log('💬 Admin received ticket_messages INSERT event:', payload);
           const p = payload.new;
@@ -232,9 +264,8 @@ if (notification.ticket_id) router.push(`/jobs/${companySlug}/tickets/${notifica
           console.log('🔔 Admin subscription status:', status);
         });
       
-      console.log('Admin subscriptions configured and subscribed'); // Debug log
+      console.log('Admin subscriptions configured and subscribed');
     } else {
-      // User: listen for INSERT on ticket_messages and UPDATE on tickets
       channel
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ticket_messages' }, payload => {
           const p = payload.new;
@@ -275,11 +306,9 @@ if (notification.ticket_id) router.push(`/jobs/${companySlug}/tickets/${notifica
       subscriptionsRef.current.forEach(sub => sub.unsubscribe());
       subscriptionsRef.current = [];
     };
-  }, [currentUser?.id, isHrinnoAdmin, adminStatusChecked]); // Use currentUser.id instead of currentUser object
+  }, [currentUser?.id, isHrinnoAdmin, adminStatusChecked]);
 
-  // --------------------------
   // Close dropdown on outside click
-  // --------------------------
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -290,9 +319,6 @@ if (notification.ticket_id) router.push(`/jobs/${companySlug}/tickets/${notifica
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // --------------------------
-  // Render
-  // --------------------------
   return (
     <div className="relative" ref={dropdownRef}>
       <button onClick={() => setShowNotifications(!showNotifications)} className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
@@ -309,7 +335,7 @@ if (notification.ticket_id) router.push(`/jobs/${companySlug}/tickets/${notifica
           <div className="p-4 border-b border-gray-100 flex items-center justify-between">
             <h3 className="font-semibold text-gray-900">Notifications</h3>
             {unreadCount > 0 && (
-              <button onClick={() => setNotifications(prev => prev.map(n => ({ ...n, read: true })))}
+              <button onClick={markAllAsRead}
                       className="text-sm text-blue-600 hover:text-blue-700 font-medium">
                 Mark all read
               </button>
