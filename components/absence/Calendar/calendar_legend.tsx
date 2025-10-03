@@ -1,8 +1,14 @@
 import React from 'react';
 
+interface LeaveType {
+  leave_type_id: string;
+  leave_type_color: string;
+  leave_type_name_hu: string;
+}
+
 interface CalendarLegendProps {
   viewMode: 'my' | 'manager';
-  leaveTypes: any[];
+  leaveTypes: LeaveType[];
 }
 
 const CalendarLegend: React.FC<CalendarLegendProps> = ({ viewMode, leaveTypes }) => {

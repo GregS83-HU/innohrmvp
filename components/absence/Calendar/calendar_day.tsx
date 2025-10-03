@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 interface CalendarDayProps {
   date: Date;
-  leaves: any[];
+  leaves: Leave[];
   isWeekend: boolean;
   isHoliday: boolean;
   isInDragRange: boolean;
@@ -10,6 +10,23 @@ interface CalendarDayProps {
   isToday: boolean;
   onMouseDown: (date: Date) => void;
   onMouseEnter: (date: Date) => void;
+}
+
+interface Leave {
+  leave_type_color: string;
+  status: 'pending' | 'approved'; // expand if you have more statuses
+  leave_type_name_hu: string;
+  reason?: string;
+}
+
+export interface CalendarLeave {
+  id: string;
+  start_date: string; // YYYY-MM-DD
+  end_date: string;   // YYYY-MM-DD
+  leave_type_color: string;
+  leave_type_name_hu: string;
+  status: 'pending' | 'approved';
+  reason?: string;
 }
 
 const CalendarDay: React.FC<CalendarDayProps> = ({
