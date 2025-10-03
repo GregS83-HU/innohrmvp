@@ -28,10 +28,48 @@ interface LeaveReviewNotificationData {
 }
 
 /**
+ * Verify that a user exists in the users table
+ */
+async function verifyUserExists(userId: string): Promise<boolean> {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('id')
+      .eq('id', userId)
+      .single();
+
+    if (error || !data) {
+      console.error(`User ${userId} not found in users table:`, error);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error(`Error verifying user ${userId}:`, err);
+    return false;
+  }
+}
+
+/**
  * Create notification when a user submits a leave request
  */
 export async function createLeaveRequestNotification(data: LeaveRequestNotificationData) {
   try {
+    // Verify both sender and recipient exist
+    const [senderExists, recipientExists] = await Promise.all([
+      verifyUserExists(data.userId),
+      verifyUserExists(data.managerId)
+    ]);
+
+    if (!senderExists) {
+      console.error(`Cannot create notification: sender ${data.userId} does not exist`);
+      return { success: false, error: 'Sender user not found' };
+    }
+
+    if (!recipientExists) {
+      console.error(`Cannot create notification: recipient ${data.managerId} does not exist`);
+      return { success: false, error: 'Recipient user not found' };
+    }
+
     const { error } = await supabase
       .from('notifications')
       .insert({
@@ -62,6 +100,22 @@ export async function createLeaveRequestNotification(data: LeaveRequestNotificat
  */
 export async function createLeaveReviewNotification(data: LeaveReviewNotificationData) {
   try {
+    // Verify both sender and recipient exist
+    const [senderExists, recipientExists] = await Promise.all([
+      verifyUserExists(data.managerId),
+      verifyUserExists(data.userId)
+    ]);
+
+    if (!senderExists) {
+      console.error(`Cannot create notification: sender (manager) ${data.managerId} does not exist`);
+      return { success: false, error: 'Sender (manager) user not found' };
+    }
+
+    if (!recipientExists) {
+      console.error(`Cannot create notification: recipient (employee) ${data.userId} does not exist`);
+      return { success: false, error: 'Recipient (employee) user not found' };
+    }
+
     const isApproved = data.status === 'approved';
     const title = isApproved ? 'Leave Request Approved' : 'Leave Request Rejected';
     const emoji = isApproved ? '✅' : '❌';
@@ -122,12 +176,18 @@ export async function getUserName(userId: string) {
   try {
     const { data, error } = await supabase
       .from('users')
-      .select('full_name')
+      .select('user_firstname, user_lastname')
       .eq('id', userId)
       .single();
 
     if (error) throw error;
-    return { name: data?.full_name || 'User', error: null };
+    
+    // Construct full name from firstname and lastname
+    const fullName = data?.user_firstname && data?.user_lastname
+      ? `${data.user_firstname} ${data.user_lastname}`.trim()
+      : data?.user_firstname || data?.user_lastname || 'User';
+    
+    return { name: fullName, error: null };
   } catch (err) {
     console.error('Error fetching user name:', err);
     return { name: 'User', error: err };

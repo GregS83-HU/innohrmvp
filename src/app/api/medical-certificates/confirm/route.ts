@@ -49,12 +49,15 @@ export async function POST(request: Request) {
       )
     }
 
-    // Get public URL
-    const { data: publicUrlData } = supabase.storage
+    const { data: signedUrlData, error: signedUrlError } = await supabase.storage
       .from('medical-certificates')
-      .getPublicUrl(filePath)
+      .createSignedUrl(filePath, 60 * 60); // 1 hour expiry
 
-    const publicUrl = publicUrlData.publicUrl
+    if (signedUrlError || !signedUrlData) {
+      throw new Error("Could not generate signed URL for medical certificate");
+      }
+
+const secureUrl = signedUrlData.signedUrl;
 
     // Insert into database
     const insertData = {
@@ -62,7 +65,7 @@ export async function POST(request: Request) {
       absence_start_date: absenceDateStart,
       absence_end_date: absenceDateEnd,
       employee_comment,
-      certificate_file: publicUrl,
+      certificate_file: signedUrlData,
       company_id: companyIdNumber,
       leave_request_id: leave_request_id || null,
       treated: false

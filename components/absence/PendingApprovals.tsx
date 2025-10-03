@@ -21,29 +21,62 @@ const PendingApprovals: React.FC<Props> = ({
   currentUserId
 }) => {
   
+// 👇 AJOUTE ÇA ICI
+  React.useEffect(() => {
+    if (approvals.length > 0) {
+      console.log('🔍 First approval raw data:', approvals[0]);
+      console.log('🔍 start_date value:', approvals[0].start_date);
+      console.log('🔍 start_date type:', typeof approvals[0].start_date);
+      console.log('🔍 Formatted result:', formatDate(approvals[0].start_date));
+      
+      // Test direct
+      const testDate = new Date(approvals[0].start_date);
+      console.log('🔍 Date object:', testDate);
+      console.log('🔍 toISOString:', testDate.toISOString());
+      console.log('🔍 getUTCFullYear:', testDate.getUTCFullYear());
+      console.log('🔍 getUTCMonth:', testDate.getUTCMonth());
+      console.log('🔍 getUTCDate:', testDate.getUTCDate());
+    }
+  }, [approvals, formatDate]);
+
   const handleReviewWithNotification = async (
     approval: PendingApproval,
     status: 'approved' | 'rejected',
     notes?: string
   ) => {
     try {
+      console.log('🔍 Full approval object:', approval);
+      console.log('🔍 approval.user_id:', approval.user_id);
+      console.log('🔍 approval.id:', approval.id);
+      console.log('🔍 currentUserId (manager):', currentUserId);
+
       // First, perform the actual review action
       await onReview(approval.id, status, notes);
+      console.log('✅ Review action completed');
       
       // Then send the notification to the employee
-      const { name: managerName } = await getUserName(currentUserId);
+      const { name: managerName, error: nameError } = await getUserName(currentUserId);
+      console.log('👤 Manager name retrieved:', managerName, 'Error:', nameError);
       
-      await createLeaveReviewNotification({
+      const notificationData = {
         leaveRequestId: approval.id,
-        userId: approval.id, //|| approval.employee_id, // Using either field that contains the user ID
+        userId: approval.user_id,
         managerId: currentUserId,
         managerName,
         leaveTypeName: approval.leave_type_name_hu || approval.leave_type_name,
         status,
         reviewNotes: notes
-      });
+      };
+      console.log('📧 Sending notification with data:', notificationData);
       
-      console.log(`✅ ${status} notification sent to employee`);
+      const result = await createLeaveReviewNotification(notificationData);
+      console.log('📬 Notification result:', result);
+      
+      if (result.success) {
+        console.log(`✅ ${status} notification sent to employee (userId: ${approval.user_id})`);
+      } else {
+        console.error('❌ Notification failed:', result.error);
+      }
     } catch (error) {
       console.error('Error in review with notification:', error);
       // The review itself might have succeeded, so we don't re-throw

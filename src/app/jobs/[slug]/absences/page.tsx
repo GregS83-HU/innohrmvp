@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+
 import { User } from '@supabase/supabase-js';
 import {
   Calendar,
@@ -17,6 +18,8 @@ import {
 import { supabase } from '../../../../../lib/supabaseClient';
 import { LeaveBalance, LeaveRequest, LeaveType, PendingApproval } from '../../../../../types/absence';
 import { formatDate as utilFormatDate } from '../../../../../utils/formatDate';
+import { useRouter,useParams } from 'next/navigation';
+
 
 import CertificateUploadModal from '../../../../../components/CertificateUploadModal';
 import {CertificateStatusBadge} from '../../../../../components/CertificateStatusBadge';
@@ -67,12 +70,17 @@ const AbsenceManagement: React.FC = () => {
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'approvals'>('overview');
   const [companyId, setCompanyId] = useState<string | null>(null);
+  const router = useRouter();
 
   // Certificate upload states
   const [showCertificateModal, setShowCertificateModal] = useState(false);
   const [selectedLeaveRequestId, setSelectedLeaveRequestId] = useState<string | null>(null);
   const [certificateData, setCertificateData] = useState<CertificateData | null>(null);
   const [uploadMode, setUploadMode] = useState<'new' | 'existing'>('new');
+
+ //Extract CompanySlug:
+   const params = useParams<{ slug: string }>();
+   const companySlug = params.slug;
 
   // Request form state
   const [requestForm, setRequestForm] = useState({
@@ -90,6 +98,7 @@ const AbsenceManagement: React.FC = () => {
       if (!user) return;
 
       setCurrentUser(user);
+      
 
       // Fetch company_id from company_to_users
       const { data: companyData } = await supabase
@@ -105,10 +114,12 @@ const AbsenceManagement: React.FC = () => {
 
       // Check if user is a manager (has direct reports)
       const { data: directReports } = await supabase
-        .from('users')
+        .from('user_profiles')
         .select('id')
         .eq('manager_id', user.id)
         .limit(1);
+      
+      console.log("DirectReport from DB:",directReports?.length)
 
       setIsManager((directReports?.length || 0) > 0);
     } catch (err) {
@@ -421,6 +432,14 @@ const AbsenceManagement: React.FC = () => {
                 <span className="hidden sm:inline">With Certificate</span>
                 <span className="sm:hidden">+ Cert</span>
               </button>
+              {/* Calendar View Button - Hidden on Mobile */}
+  <button
+    onClick={() => router.push(`/jobs/${companySlug}/absences/calendar`)}
+    className="hidden lg:flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+  >
+    <Calendar className="w-4 h-4" />
+    Calendar View
+  </button>
             </div>
           </div>
 
@@ -458,6 +477,9 @@ const AbsenceManagement: React.FC = () => {
               </div>
             </div>
           )}
+  
+  
+
         </div>
 
         {/* Main Content */}

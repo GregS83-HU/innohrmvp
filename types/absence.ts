@@ -41,6 +41,7 @@ export interface LeaveType {
 
 export interface PendingApproval {
   id: string;
+  user_id: string;  // ADDED
   employee_name: string;
   employee_email: string;
   leave_type_name: string;

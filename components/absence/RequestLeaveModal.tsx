@@ -40,7 +40,13 @@ const RequestLeaveModal: React.FC<Props> = ({
 }) => {
   if (!isOpen) return null;
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = (() => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+    })();
 
   const handleSubmitWithNotification = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,6 +91,16 @@ const RequestLeaveModal: React.FC<Props> = ({
       if (!leaveRequest) {
         console.error('Could not find created leave request');
         return;
+      }
+
+      //Update the manager id
+      if (managerId) {
+        await supabase
+          .from('leave_requests')
+          .update({ manager_id: managerId })
+          .eq('id', leaveRequest.id);
+        
+        console.log('✅ Manager ID added to leave request');
       }
 
       // Create the notification
@@ -149,7 +165,6 @@ const RequestLeaveModal: React.FC<Props> = ({
                 value={requestForm.start_date}
                 onChange={(e) => setRequestForm(prev => ({ ...prev, start_date: e.target.value }))}
                 required
-                min={today}
                 className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
@@ -162,7 +177,6 @@ const RequestLeaveModal: React.FC<Props> = ({
                 value={requestForm.end_date}
                 onChange={(e) => setRequestForm(prev => ({ ...prev, end_date: e.target.value }))}
                 required
-                min={requestForm.start_date || today}
                 className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
