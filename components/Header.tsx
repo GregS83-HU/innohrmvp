@@ -65,8 +65,8 @@ export default function Header() {
   const manageUsersLink = useMemo(() => buildLink('/users-creation'), [buildLink]);
   const manageticketsLink = useMemo(() => buildLink('/tickets'), [buildLink]);
   const manageabsencesLink = useMemo(() => buildLink('/absences'), [buildLink]);
- // const timeclockadmin = useMemo(() => buildLink('/time-clock/admin'), [buildLink]);
- // const timeclockmanager = useMemo(() => buildLink('/time-clock/manager'), [buildLink]);
+ ///const timeclockadmin = useMemo(() => buildLink('/time-clock/admin'), [buildLink]);
+  const timeclockmanager = useMemo(() => buildLink('/time-clock/manager'), [buildLink]);
  // const timeclockshift = useMemo(() => buildLink('/time-clock/shifts'), [buildLink]);
   const myperformance = useMemo(() => buildLink('/performance'), [buildLink]);
   const teamperformance = useMemo(() => buildLink('/performance/team'), [buildLink]);
@@ -187,6 +187,14 @@ export default function Header() {
                             className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3`}
                           >
                             <Users className="w-4 h-4" /> Team Performance
+                          </Link>
+
+                          <Link 
+                            href={timeclockmanager} 
+                            onClick={() => setIsAccountMenuOpen(false)}
+                            className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3`}
+                          >
+                            <CalendarClock className="w-4 h-4" /> TimeClock Check
                           </Link>
 
                         </div>
@@ -488,6 +496,15 @@ export default function Header() {
                     isDemoExpired={isDemoExpired}
                   >
                     <Users className="w-4 h-4" /> Team Performance
+                  </DemoAwareMenuItem>
+
+                  <DemoAwareMenuItem 
+                    href={timeclockmanager}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start`}
+                    isDemoExpired={isDemoExpired}
+                  >
+                    <CalendarClock className="w-4 h-4" /> TimeClock Check
                   </DemoAwareMenuItem>
 
                 </>

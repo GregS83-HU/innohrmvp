@@ -52,7 +52,10 @@ interface ActionResponse {
   error?: string;
 }
 
-export default function TimeClock({ userId, userName }: TimeClockProps) {
+// --------------------
+// Client Component
+// --------------------
+export function TimeClock({ userId, userName }: TimeClockProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [clockedIn, setClockedIn] = useState(false);
   const [clockInTime, setClockInTime] = useState<Date | null>(null);
@@ -421,4 +424,18 @@ export default function TimeClock({ userId, userName }: TimeClockProps) {
       </div>
     </div>
   );
+}
+
+// --------------------
+// Page Component for App Router
+// --------------------
+interface PageProps {
+  params: { slug: string };
+}
+
+export default function TimeClockPage({ params }: PageProps) {
+  const userId = params.slug; // you can adjust this if you fetch user differently
+  const userName = 'John Doe'; // fetch or pass actual name if needed
+
+  return <TimeClock userId={userId} userName={userName} />;
 }
