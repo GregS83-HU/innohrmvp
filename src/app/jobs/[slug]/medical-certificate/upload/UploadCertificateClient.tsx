@@ -200,7 +200,8 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
           <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 sm:p-6">
             <div className="flex flex-col gap-3">
               <a
-                href="/fake_medical_certificate.pdf"
+              
+                href="https://drive.google.com/uc?export=download&id=1ASXxoxYw4hq28BSTNm54fKKZEv4NOjcG"
                 download
                 className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
               >

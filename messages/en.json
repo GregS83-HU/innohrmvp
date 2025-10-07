@@ -1,0 +1,32 @@
+
+{
+  "navigation": {
+    "availablePositions": "Available Positions",
+    "createPosition": "Create Position",
+    "happyCheck": "Happy Check",
+    "hrTools": "HR Tools"
+  },
+  "positions": {
+    "title": "Available Positions",
+    "create": "Create a New Position",
+    "apply": "Apply",
+    "noPositions": "No positions available"
+  },
+  "recruitment": {
+    "aiAnalysis": "AI CV Analysis",
+    "score": "Score",
+    "treatment": "Treatment"
+  },
+  "happiness": {
+    "dashboard": "HR Wellbeing Dashboard",
+    "permaModel": "PERMA-W Analysis"
+  },
+  "medical": {
+    "uploadCertificate": "Upload Medical Certificate",
+    "listCertificates": "List of Certificates"
+  },
+  "tickets": {
+    "supportTickets": "Support Tickets",
+    "createTicket": "Create Support Ticket"
+  }
+}

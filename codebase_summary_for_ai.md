@@ -1,3 +1,13 @@
+# Codebase Résumée - innohrmvp
+**Généré le:** Sat Oct  4 19:26:42 CEST 2025
+**Objectif:** Documentation technique automatisée via IA (version condensée)
+
+---
+
+
+## `package.json`
+
+```json
 {
   "name": "innohrmvp",
   "version": "0.1.0",
@@ -19,7 +29,6 @@
     "@stripe/stripe-js": "^7.9.0",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/auth-helpers-react": "^0.5.0",
-    "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.53.0",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
@@ -31,7 +40,6 @@
     "jszip": "^3.10.1",
     "lucide-react": "^0.539.0",
     "next": "^15.5.2",
-    "next-intl": "^4.3.9",
     "openai": "^5.11.0",
     "patch-package": "^8.0.0",
     "pdf-parse": "^1.1.1",
@@ -66,3 +74,59 @@
     "typescript": "^5"
   }
 }
+```
+
+---
+
+
+## `tsconfig.json`
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "baseUrl": "src",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "lib/parsePdfSimple.cjs"],
+  "exclude": ["node_modules"]
+}
+```
+
+---
+
+
+---
+
+# Statistiques
+- **Nombre de fichiers inclus:** 2
+- **Taille du fichier:** 4.0K
+- **Date d'extraction:** Sat Oct  4 19:26:42 CEST 2025
+
+# Note
+Cette version est *condensée* et inclut uniquement :
+- Les fichiers de configuration clés
+- Les points d'entrée (pages, app, main)
+- Les routes API de haut niveau
+- Les composants principaux (10 premiers)
+- Les services/libs/utilitaires
+

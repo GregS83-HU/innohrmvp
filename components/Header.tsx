@@ -5,13 +5,15 @@ import Link from 'next/link';
 import { FiMenu, FiX } from 'react-icons/fi';
 import { 
   Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown, 
-  User, LogOut, Clock, CreditCard, UserCog, TicketPlus,CalendarClock
+  User, LogOut, Clock, CreditCard, UserCog, TicketPlus,CalendarClock,  Target, Users 
 } from 'lucide-react';
 import { useHeaderLogic } from '../hooks/useHeaderLogic';
 import { 
   LoginModal, HappyCheckMenuItem, DemoAwareMenuItem, DemoTimer, ForfaitBadge 
 } from './header/';
 import NotificationComponent from './NotificationComponent';
+import TimeClockModal from '../components/timeclock/TimeClockModal';
+
 
 export default function Header() {
   const {
@@ -48,6 +50,9 @@ export default function Header() {
     formatTime,
   } = useHeaderLogic();
 
+ const [isTimeClockOpen, setIsTimeClockOpen] = React.useState(false);
+
+
   // Memoized values
   const buttonBaseClasses = useMemo(() => 
     'flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all shadow-sm hover:shadow-md whitespace-nowrap',
@@ -60,6 +65,13 @@ export default function Header() {
   const manageUsersLink = useMemo(() => buildLink('/users-creation'), [buildLink]);
   const manageticketsLink = useMemo(() => buildLink('/tickets'), [buildLink]);
   const manageabsencesLink = useMemo(() => buildLink('/absences'), [buildLink]);
+ // const timeclockadmin = useMemo(() => buildLink('/time-clock/admin'), [buildLink]);
+ // const timeclockmanager = useMemo(() => buildLink('/time-clock/manager'), [buildLink]);
+ // const timeclockshift = useMemo(() => buildLink('/time-clock/shifts'), [buildLink]);
+  const myperformance = useMemo(() => buildLink('/performance'), [buildLink]);
+  const teamperformance = useMemo(() => buildLink('/performance/team'), [buildLink]);
+
+
 
   return (
     <>
@@ -160,6 +172,23 @@ export default function Header() {
                           <Link href={buildLink('/medical-certificate/download')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3`}>
                             <Stethoscope className="w-4 h-4" /> Certificates Download
                           </Link>
+
+                          <Link 
+                            href={myperformance} 
+                            onClick={() => setIsAccountMenuOpen(false)}
+                            className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3`}
+                          >
+                            <Target className="w-4 h-4" /> My Performance
+                          </Link>
+
+                          <Link 
+                            href={teamperformance} 
+                            onClick={() => setIsAccountMenuOpen(false)}
+                            className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3`}
+                          >
+                            <Users className="w-4 h-4" /> Team Performance
+                          </Link>
+
                         </div>
                       )}
                     </>
@@ -222,6 +251,9 @@ export default function Header() {
                           >
                             <CalendarClock className="w-4 h-4" /> Absences
                           </Link>
+
+                          
+
                         </div>
                       )}
                     </>
@@ -250,6 +282,18 @@ export default function Header() {
                   companySlug={companySlug}
                 />
               )}
+
+              {/* Time Clock icon (only for logged users) */}
+                {user && (
+                  <button
+                    onClick={() => setIsTimeClockOpen(true)}
+                    className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                    title="Open Time Clock"
+                  >
+                    <Clock className="w-5 h-5 text-gray-600" />
+                  </button>
+                )}
+
 
               {/* Demo timer for tablet/mobile */}
               {(isDemoMode || isDemoExpired) && (
@@ -426,6 +470,26 @@ export default function Header() {
                   >
                     <Stethoscope className="w-4 h-4" /> Certificates Download
                   </DemoAwareMenuItem>
+
+
+                  <DemoAwareMenuItem 
+                    href={myperformance}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start`}
+                    isDemoExpired={isDemoExpired}
+                  >
+                    <Target className="w-4 h-4" /> My Performance
+                  </DemoAwareMenuItem>
+
+                  <DemoAwareMenuItem 
+                    href={teamperformance}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start`}
+                    isDemoExpired={isDemoExpired}
+                  >
+                    <Users className="w-4 h-4" /> Team Performance
+                  </DemoAwareMenuItem>
+
                 </>
               )}
 
@@ -470,6 +534,8 @@ export default function Header() {
                   >
                     <CalendarClock className="w-4 h-4" /> Absences
                   </DemoAwareMenuItem>
+                  
+
                 </>
               )}
 
@@ -520,6 +586,15 @@ export default function Header() {
         error={error}
         isDemoExpired={isDemoExpired}
       />
+
+      {user && (
+  <TimeClockModal 
+    isOpen={isTimeClockOpen} 
+    onClose={() => setIsTimeClockOpen(false)} 
+    userId={user.id}
+    userName={`${user.firstname} ${user.lastname}`}
+  />
+)}
     </>
   );
 }

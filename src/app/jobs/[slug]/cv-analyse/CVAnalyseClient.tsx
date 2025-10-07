@@ -169,7 +169,7 @@ export default function CVAnalyseClient({
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <a
-                href="/fake_cv_software_engineer.pdf"
+                href="https://drive.google.com/uc?export=download&id=1-pMKT5dp-8PjJI2RbaVbUNuxt_rxXLFG"
                 download
                 className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
               >
@@ -178,7 +178,7 @@ export default function CVAnalyseClient({
               </a>
               
               <a
-                href="/fake_cv_marketing_expert.pdf"
+                href="https://drive.google.com/uc?export=download&id=15kzhUQFvizgx1Zhx9MG-CJAhTvHc3gJS"
                 download
                 className="flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-4 rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
               >

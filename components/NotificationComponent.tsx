@@ -1,8 +1,9 @@
+// components/NotificationComponent.tsx
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { Bell, X, MessageSquare, Ticket, Check, Calendar, CheckCircle, XCircle } from 'lucide-react';
+import { Bell, X, MessageSquare, Ticket, Check, Calendar, CheckCircle, XCircle, Target, AlertTriangle, TrendingUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const supabase = createClient(
@@ -12,11 +13,13 @@ const supabase = createClient(
 
 interface NotificationData {
   id: string;
-  type: 'ticket_created' | 'ticket_status_changed' | 'ticket_message' | 'leave_request_created' | 'leave_request_approved' | 'leave_request_rejected';
+  type: 'ticket_created' | 'ticket_status_changed' | 'ticket_message' | 'leave_request_created' | 'leave_request_approved' | 'leave_request_rejected' | 'goal_created' | 'goal_approved' | 'goal_red_flag' | 'pulse_reminder' | 'one_on_one_scheduled';
   title: string;
   message: string;
   ticket_id?: string;
   leave_request_id?: string;
+  goal_id?: string;
+  one_on_one_id?: string;
   created_at: string;
   read: boolean;
   sender_id?: string | null;
@@ -89,7 +92,6 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
   };
 
   const markAsRead = async (id: string) => {
-    // optimistic local update
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
 
     try {
@@ -100,7 +102,6 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
 
       if (error) {
         console.error('Error marking notification as read:', error);
-        // revert optimistic update
         setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: false } : n));
       }
     } catch (err) {
@@ -114,10 +115,7 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
 
     if (unreadIds.length === 0) return;
 
-    // keep a snapshot to revert in case of failure
     const snapshot = notifications;
-
-    // optimistic update
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
 
     try {
@@ -128,9 +126,7 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
 
       if (error) {
         console.error('Error marking all notifications as read:', error);
-        // revert to snapshot
         setNotifications(snapshot);
-        // try to re-fetch latest state as a fallback
         try {
           const { data } = await supabase.from('notifications').select('*').order('created_at', { ascending: false });
           if (data) setNotifications(data as NotificationData[]);
@@ -154,6 +150,10 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
       router.push(`/jobs/${companySlug}/tickets/${notification.ticket_id}`);
     } else if (notification.leave_request_id) {
       router.push(`/jobs/${companySlug}/absences`);
+    } else if (notification.goal_id) {
+      router.push(`/jobs/${companySlug}/performance/goals/${notification.goal_id}`);
+    } else if (notification.type === 'pulse_reminder') {
+      router.push(`/jobs/${companySlug}/performance/pulse`);
     }
 
     setShowNotifications(false);
@@ -167,6 +167,11 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
       case 'leave_request_created': return <Calendar className="w-5 h-5 text-purple-600" />;
       case 'leave_request_approved': return <CheckCircle className="w-5 h-5 text-green-600" />;
       case 'leave_request_rejected': return <XCircle className="w-5 h-5 text-red-600" />;
+      case 'goal_created': return <Target className="w-5 h-5 text-blue-600" />;
+      case 'goal_approved': return <CheckCircle className="w-5 h-5 text-green-600" />;
+      case 'goal_red_flag': return <AlertTriangle className="w-5 h-5 text-red-600" />;
+      case 'pulse_reminder': return <Calendar className="w-5 h-5 text-yellow-600" />;
+      case 'one_on_one_scheduled': return <TrendingUp className="w-5 h-5 text-purple-600" />;
       default: return <Bell className="w-5 h-5 text-gray-600" />;
     }
   };
@@ -183,13 +188,10 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
           .order('created_at', { ascending: false });
 
         if (isHrinnoAdmin) {
-          // Admins: see ticket notifications (not sent by them) + leave requests where they are recipient
-          query = query.or(`and(ticket_id.not.is.null,sender_id.neq.${currentUser.id}),and(leave_request_id.not.is.null,recipient_id.eq.${currentUser.id})`);
+          query = query.or(`and(ticket_id.not.is.null,sender_id.neq.${currentUser.id}),and(leave_request_id.not.is.null,recipient_id.eq.${currentUser.id}),recipient_id.eq.${currentUser.id}`);
         } else {
-          // Regular user: notifications addressed to them
           query = query.eq('recipient_id', currentUser.id);
 
-          // Also include ticket-related notifications for their tickets
           const { data: userTickets } = await supabase
             .from('tickets')
             .select('id')
@@ -290,6 +292,7 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
         .subscribe();
     }
 
+    // Performance notifications for all users
     channel
       .on('postgres_changes', { 
         event: 'INSERT', 
@@ -298,7 +301,7 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
         filter: `recipient_id=eq.${currentUser.id}`
       }, payload => {
         const notification = payload.new as NotificationData;
-        if (notification.leave_request_id && notification.sender_id !== currentUser.id) {
+        if (notification.sender_id !== currentUser.id) {
           addNotification(notification);
         }
       })
@@ -338,7 +341,6 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
         <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-gray-200 z-50 max-h-96 overflow-hidden">
           <div className="p-4 border-b border-gray-100 flex items-center justify-between">
             <h3 className="font-semibold text-gray-900">Notifications</h3>
-            {/* Always render the button but disable when there are no unread notifications */}
             <button onClick={e => { e.stopPropagation(); markAllAsRead(); }}
                     disabled={unreadCount === 0}
                     className={`text-sm font-medium ${unreadCount === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-blue-600 hover:text-blue-700'}`}>
@@ -360,7 +362,7 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
                       <div className="flex-1 min-w-0">
                         <p className={`text-sm font-medium ${!n.read ? 'text-gray-900' : 'text-gray-700'}`}>{n.title}</p>
                         <p className={`text-sm mt-1 ${!n.read ? 'text-gray-600' : 'text-gray-500'}`}>{n.message}</p>
-                        {(n.ticket_id || n.leave_request_id) && <p className="text-xs text-blue-500 mt-1">View details</p>}
+                        {(n.ticket_id || n.leave_request_id || n.goal_id) && <p className="text-xs text-blue-500 mt-1">View details</p>}
                         <p className="text-xs text-gray-400 mt-2">{new Date(n.created_at).toLocaleString()}</p>
                       </div>
                       <button onClick={e => { e.stopPropagation(); removeNotification(n.id); }} className="p-1 text-gray-400 hover:text-gray-600 transition-colors ml-2">
