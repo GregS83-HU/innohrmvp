@@ -212,7 +212,7 @@ export default function ManagerTimeClockDashboard({ managerId, managerName }: Ma
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              Today's Status
+              Today&apos;s Status
             </button>
             <button
               onClick={() => setActiveTab('pending')}
@@ -311,7 +311,7 @@ export default function ManagerTimeClockDashboard({ managerId, managerName }: Ma
                   <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                   <p className="text-gray-500 text-lg">No team members found</p>
                   <p className="text-gray-400 text-sm mt-2">
-                    Employees will appear here once they're assigned to you as manager
+                    Employees will appear here once they&apos;re assigned to you as manager
                   </p>
                 </div>
               ) : (
