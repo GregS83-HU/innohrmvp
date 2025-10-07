@@ -1,424 +1,451 @@
+// app/jobs/[slug]/performance/team/page.tsx
 'use client'
 
-import { useState, useEffect } from 'react';
-import { Clock, Check, Calendar, TrendingUp, AlertCircle, LogIn, LogOut, Loader2 } from 'lucide-react';
+import { useSession } from '@supabase/auth-helpers-react'
+import { useRouter, useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { Users, AlertTriangle, Target, TrendingUp, Plus } from 'lucide-react'
+import { createClient } from '@supabase/supabase-js'
 
-// Props interface
-interface TimeClockProps {
-  userId: string;
-  userName: string;
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+interface Goal {
+  id: string
+  employee_id: string
+  goal_title: string
+  goal_description: string
+  success_criteria: string
+  quarter: string
+  year: number
+  status: string
+  created_by: string
+  latest_status: 'green' | 'yellow' | 'red' | null
+  latest_comment: string | null
+  latest_blockers: string | null
+  last_update_week: string | null
+  last_update_date: string | null
+  employee_name: string
+  manager_name: string
+  created_at: string
 }
 
-interface TimeEntry {
-  id: number;
-  clock_in: string;
-  clock_out: string | null;
-  total_hours: number | null;
-  is_late: boolean;
-  is_early_leave: boolean;
-  is_overtime: boolean;
-  status: string;
+interface EmployeeStats {
+  employee_id: string
+  employee_name: string
+  total_goals: number
+  active_goals: number
+  red_flags: number
+  yellow_flags: number
+  green_flags: number
+  needs_pulse: number
+  pending_approval: number
 }
 
-interface WeeklySummary {
-  totalHours: number;
-  regularHours: number;
-  overtimeHours: number;
-  onTimeDays: number;
-  lateDays: number;
-  totalDays: number;
-}
+export default function ManagerDashboard() {
+  const router = useRouter()
+  const session = useSession()
+  const params = useParams()
+  const companySlug = params.slug as string
 
-interface ClockStatusResponse {
-  success: boolean;
-  clockedIn: boolean;
-  todayEntry: TimeEntry | null;
-  shift?: { start_time: string; end_time: string };
-}
+  const [goals, setGoals] = useState<Goal[]>([])
+  const [employeeStats, setEmployeeStats] = useState<EmployeeStats[]>([])
+  const [loading, setLoading] = useState(true)
+  const [weekStart, setWeekStart] = useState('')
+  const [selectedView, setSelectedView] = useState<'overview' | 'red-flags' | 'pending'>('overview')
+  const [expandedEmployee, setExpandedEmployee] = useState<string | null>(null)
+  //const [expandedEmployee, setExpandedEmployee] = useState<string | null>(null)
 
-interface HistoryResponse {
-  success: boolean;
-  entries: TimeEntry[];
-}
-
-interface SummaryResponse {
-  success: boolean;
-  summary: WeeklySummary;
-}
-
-interface ActionResponse {
-  success: boolean;
-  entry: TimeEntry;
-  error?: string;
-}
-
-export default function TimeClock({ userId, userName }: TimeClockProps) {
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [clockedIn, setClockedIn] = useState(false);
-  const [clockInTime, setClockInTime] = useState<Date | null>(null);
-  const [todayEntry, setTodayEntry] = useState<TimeEntry | null>(null);
-  const [activeTab, setActiveTab] = useState<'clock' | 'history'>('clock');
-  const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(false);
-  const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
-  const [weeklySummary, setWeeklySummary] = useState<WeeklySummary | null>(null);
-  const [shift, setShift] = useState({ start_time: '09:00:00', end_time: '17:00:00' });
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
-  // Update clock every second
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
+    if (!session) {
+      router.push('/')
+      return
+    }
 
-  // Fetch initial status
-  useEffect(() => {
-    fetchClockStatus();
-    fetchWeeklySummary();
-  }, [userId]);
+    fetchTeamGoals()
+    fetchWeekStart()
+  }, [session, router])
 
-  // Fetch history when tab changes
-  useEffect(() => {
-    if (activeTab === 'history') fetchHistory();
-  }, [activeTab]);
-
-  const fetchClockStatus = async () => {
+  const fetchWeekStart = async () => {
     try {
-      setLoading(true);
-      const response = await fetch(`/api/timeclock?userId=${userId}&action=status`);
-      const data: ClockStatusResponse = await response.json();
+      const { data: week } = await supabase.rpc('get_week_start')
+      setWeekStart(week as string || '')
+    } catch (error) {
+      console.error('Error fetching week:', error)
+    }
+  }
 
-      if (data.success) {
-        setClockedIn(data.clockedIn);
-        setTodayEntry(data.todayEntry);
-        if (data.shift) setShift(data.shift);
-        if (data.todayEntry?.clock_in) setClockInTime(new Date(data.todayEntry.clock_in));
+  const fetchTeamGoals = async () => {
+    setLoading(true)
+    try {
+      if (!session?.user?.id) {
+        console.error('No session found')
+        setLoading(false)
+        return
       }
-    } catch (err) {
-      console.error(err);
-      showError('Failed to load clock status');
-    } finally {
-      setLoading(false);
+      
+      const res = await fetch(`/api/performance/goals?view=manager&user_id=${session.user.id}`)
+      const data = await res.json()
+      if (res.ok) {
+        const teamGoals = data.goals || []
+        console.log('Team goals fetched:', teamGoals.length)
+        setGoals(teamGoals)
+        calculateEmployeeStats(teamGoals)
+      } else {
+        console.error('Error fetching team goals:', data.error)
+      }
+    } catch (error) {
+      console.error('Error fetching team goals:', error)
     }
-  };
+    setLoading(false)
+  }
 
-  const fetchHistory = async () => {
+  const calculateEmployeeStats = (teamGoals: Goal[]) => {
+    const statsMap = new Map<string, EmployeeStats>()
+
+    teamGoals.forEach(goal => {
+      if (!statsMap.has(goal.employee_id)) {
+        statsMap.set(goal.employee_id, {
+          employee_id: goal.employee_id,
+          employee_name: goal.employee_name,
+          total_goals: 0,
+          active_goals: 0,
+          red_flags: 0,
+          yellow_flags: 0,
+          green_flags: 0,
+          needs_pulse: 0,
+          pending_approval: 0
+        })
+      }
+
+      const stats = statsMap.get(goal.employee_id)!
+      stats.total_goals++
+
+      if (goal.status === 'active') {
+        stats.active_goals++
+        
+        if (goal.latest_status === 'red') stats.red_flags++
+        else if (goal.latest_status === 'yellow') stats.yellow_flags++
+        else if (goal.latest_status === 'green') stats.green_flags++
+
+        if (!goal.last_update_week || goal.last_update_week !== weekStart) {
+          stats.needs_pulse++
+        }
+      }
+
+      if (goal.status === 'draft') {
+        stats.pending_approval++
+      }
+    })
+
+    setEmployeeStats(Array.from(statsMap.values()))
+  }
+
+  const handleApproveGoal = async (goalId: string) => {
     try {
-      const response = await fetch(`/api/timeclock?userId=${userId}&action=history`);
-      const data: HistoryResponse = await response.json();
-
-      if (data.success) setTimeEntries(data.entries);
-    } catch (err) {
-      console.error(err);
-      showError('Failed to load history');
-    }
-  };
-
-  const fetchWeeklySummary = async () => {
-    try {
-      const response = await fetch(`/api/timeclock?userId=${userId}&action=summary`);
-      const data: SummaryResponse = await response.json();
-
-      if (data.success) setWeeklySummary(data.summary);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleClockIn = async () => {
-    try {
-      setActionLoading(true);
-      setError(null);
-
-      const response = await fetch('/api/timeclock', {
-        method: 'POST',
+      const res = await fetch('/api/performance/goals/update', {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, action: 'clock_in' })
-      });
+        body: JSON.stringify({
+          goal_id: goalId,
+          status: 'active'
+        })
+      })
 
-      const data: ActionResponse = await response.json();
-
-      if (!response.ok) throw new Error(data.error || 'Failed to clock in');
-
-      if (data.success) {
-        setClockedIn(true);
-        setClockInTime(new Date(data.entry.clock_in));
-        setTodayEntry(data.entry);
-        showSuccess('Clocked in successfully! ✓');
-        fetchWeeklySummary();
+      if (res.ok) {
+        fetchTeamGoals()
       }
-    } catch (err: unknown) {
-      showError((err as Error).message || 'Failed to clock in');
-    } finally {
-      setActionLoading(false);
+    } catch (error) {
+      console.error('Error approving goal:', error)
     }
-  };
+  }
 
-  const handleClockOut = async () => {
-    try {
-      setActionLoading(true);
-      setError(null);
-
-      const response = await fetch('/api/timeclock', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, action: 'clock_out' })
-      });
-
-      const data: ActionResponse = await response.json();
-
-      if (!response.ok) throw new Error(data.error || 'Failed to clock out');
-
-      if (data.success) {
-        setClockedIn(false);
-        setClockInTime(null);
-        setTodayEntry(data.entry);
-        showSuccess('Clocked out successfully! ✓');
-        fetchWeeklySummary();
-      }
-    } catch (err: unknown) {
-      showError((err as Error).message || 'Failed to clock out');
-    } finally {
-      setActionLoading(false);
+  const getStatusColor = (status: string | null) => {
+    switch (status) {
+      case 'green': return 'bg-green-100 text-green-800 border-green-200'
+      case 'yellow': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+      case 'red': return 'bg-red-100 text-red-800 border-red-200'
+      default: return 'bg-gray-100 text-gray-800 border-gray-200'
     }
-  };
+  }
 
-  const showError = (message: string) => {
-    setError(message);
-    setTimeout(() => setError(null), 5000);
-  };
+  const getStatusIcon = (status: string | null) => {
+    switch (status) {
+      case 'green': return '🟢'
+      case 'yellow': return '🟡'
+      case 'red': return '🔴'
+      default: return '⚪'
+    }
+  }
 
-  const showSuccess = (message: string) => {
-    setSuccessMessage(message);
-    setTimeout(() => setSuccessMessage(null), 3000);
-  };
+  const redFlagGoals = goals.filter(g => g.status === 'active' && g.latest_status === 'red')
+  const pendingGoals = goals.filter(g => g.status === 'draft')
+  const totalRedFlags = redFlagGoals.length
+  const totalPending = pendingGoals.length
 
-  const formatTime = (date: Date) =>
-    date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-
-  const formatDate = (date: Date) =>
-    date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
-  const formatDateShort = (dateString: string) =>
-    new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-
-  const formatTimeShort = (dateString: string) =>
-    new Date(dateString).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-
-  const calculateWorkedHours = () => {
-    if (!clockInTime) return '0:00';
-    const diff = currentTime.getTime() - clockInTime.getTime();
-    const hours = Math.floor(diff / 3600000);
-    const minutes = Math.floor((diff % 3600000) / 60000);
-    return `${hours}:${minutes.toString().padStart(2, '0')}`;
-  };
-
-  const getStatusColor = (entry: TimeEntry) => {
-    if (entry.is_late) return 'text-orange-600 bg-orange-50';
-    if (entry.is_overtime) return 'text-purple-600 bg-purple-50';
-    return 'text-green-600 bg-green-50';
-  };
-
-  const getStatusText = (entry: TimeEntry) => {
-    if (entry.is_late) return 'Late';
-    if (entry.is_overtime) return 'Overtime';
-    return 'On Time';
-  };
-
-  const getStatusIcon = (entry: TimeEntry) => {
-    if (entry.is_late) return <AlertCircle className="w-3 h-3" />;
-    if (entry.is_overtime) return <TrendingUp className="w-3 h-3" />;
-    return <Check className="w-3 h-3" />;
-  };
-
-  if (loading) {
+  if (!session || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading team dashboard...</p>
+        </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b sticky top-0 z-10">
-        <div className="max-w-2xl mx-auto px-4 py-4">
+    <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="space-y-6">
+        
+        {/* Header */}
+        <div className="bg-white rounded-2xl shadow-sm p-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                <Clock className="w-5 h-5 text-white" />
+            <div className="flex items-center gap-4">
+              <div className="bg-purple-100 rounded-lg p-3">
+                <Users className="w-8 h-8 text-purple-600" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-gray-900">Time Clock</h1>
-                <p className="text-xs text-gray-600">{userName}</p>
+                <h1 className="text-3xl font-bold text-gray-800">Team Performance</h1>
+                <p className="text-gray-600">Monitor your team&apos;s goals and progress</p>
               </div>
             </div>
-          </div>
-
-          {/* Tab Navigation */}
-          <div className="flex gap-2 mt-4">
             <button
-              onClick={() => setActiveTab('clock')}
-              className={`flex-1 py-2 px-4 rounded-lg font-medium text-sm transition-all ${
-                activeTab === 'clock' ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
+              onClick={() => router.push(`/jobs/${companySlug}/performance`)}
+              className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
             >
-              Clock In/Out
-            </button>
-            <button
-              onClick={() => setActiveTab('history')}
-              className={`flex-1 py-2 px-4 rounded-lg font-medium text-sm transition-all ${
-                activeTab === 'history' ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              History
+              My Goals
             </button>
           </div>
         </div>
-      </div>
 
-      {/* Error/Success Messages */}
-      {error && (
-        <div className="max-w-2xl mx-auto px-4 mt-4">
-          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center gap-2">
-            <AlertCircle className="w-5 h-5" />
-            {error}
-          </div>
+        {/* View Selector */}
+        <div className="flex gap-2 bg-white rounded-xl shadow-sm p-2">
+          <button
+            onClick={() => setSelectedView('overview')}
+            className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
+              selectedView === 'overview'
+                ? 'bg-blue-500 text-white shadow-md'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => setSelectedView('red-flags')}
+            className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
+              selectedView === 'red-flags'
+                ? 'bg-red-500 text-white shadow-md'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            Red Flags ({totalRedFlags})
+          </button>
+          <button
+            onClick={() => setSelectedView('pending')}
+            className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
+              selectedView === 'pending'
+                ? 'bg-purple-500 text-white shadow-md'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            Pending Approval ({totalPending})
+          </button>
         </div>
-      )}
 
-      {successMessage && (
-        <div className="max-w-2xl mx-auto px-4 mt-4">
-          <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center gap-2">
-            <Check className="w-5 h-5" />
-            {successMessage}
-          </div>
-        </div>
-      )}
-
-      <div className="max-w-2xl mx-auto px-4 py-6">
-        {activeTab === 'clock' ? (
-          <>
-            {/* Current Time Display */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-6">
-              <div className="text-center">
-                <p className="text-sm text-gray-600 mb-2">{formatDate(currentTime)}</p>
-                <div className="text-5xl font-bold text-gray-900 mb-4 font-mono">{formatTime(currentTime)}</div>
-                <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-                  <Calendar className="w-4 h-4" />
-                  <span>Shift: {shift.start_time.slice(0, 5)} - {shift.end_time.slice(0, 5)}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Clock In/Out Action */}
-            {!clockedIn ? (
-              <button
-                onClick={handleClockIn}
-                disabled={actionLoading}
-                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-6 rounded-2xl font-bold text-xl shadow-xl hover:shadow-2xl transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <div className="flex items-center justify-center gap-3">
-                  {actionLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <LogIn className="w-6 h-6" />}
-                  {actionLoading ? 'Clocking In...' : 'Clock In'}
-                </div>
-              </button>
-            ) : (
-              <div className="space-y-4">
-                <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                      <span className="text-green-800 font-semibold">Active Session</span>
-                    </div>
-                    <span className="text-green-600 text-sm">
-                      Clocked in at {clockInTime ? formatTime(clockInTime) : ''}
-                    </span>
-                  </div>
-                  <div className="bg-white rounded-xl p-4 border border-green-200">
-                    <div className="text-center">
-                      <p className="text-sm text-gray-600 mb-1">Time Worked</p>
-                      <div className="text-3xl font-bold text-gray-900 font-mono">{calculateWorkedHours()}</div>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleClockOut}
-                  disabled={actionLoading}
-                  className="w-full bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white py-6 rounded-2xl font-bold text-xl shadow-xl hover:shadow-2xl transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <div className="flex items-center justify-center gap-3">
-                    {actionLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <LogOut className="w-6 h-6" />}
-                    {actionLoading ? 'Clocking Out...' : 'Clock Out'}
-                  </div>
-                </button>
-              </div>
-            )}
-
-            {/* Weekly Summary */}
-            {weeklySummary && (
-              <div className="mt-6 bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <TrendingUp className="w-5 h-5 text-blue-600" />
-                  <h3 className="font-semibold text-gray-900">This Week</h3>
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-gray-900">{weeklySummary.totalHours.toFixed(1)}</p>
-                    <p className="text-xs text-gray-600">Hours</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-green-600">{weeklySummary.onTimeDays}</p>
-                    <p className="text-xs text-gray-600">On Time</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-orange-600">{weeklySummary.overtimeHours.toFixed(1)}</p>
-                    <p className="text-xs text-gray-600">Overtime</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-900">Recent Entries</h3>
-            </div>
-
-            {timeEntries.length === 0 ? (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
-                <Clock className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No time entries yet</p>
-                <p className="text-sm text-gray-400 mt-1">Clock in to start tracking your hours</p>
+        {/* Overview View */}
+        {selectedView === 'overview' && (
+          <div className="space-y-6">
+            {employeeStats.length === 0 ? (
+              <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
+                <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-700 mb-2">No Team Members Yet</h3>
+                <p className="text-gray-500">Your team members&apos; goals will appear here</p>
               </div>
             ) : (
-              timeEntries.map((entry) => (
-                <div
-                  key={entry.id}
-                  className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-gray-900">{formatDateShort(entry.clock_in)}</span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(entry)}`}>
-                      <span className="flex items-center gap-1">{getStatusIcon(entry)}{getStatusText(entry)}</span>
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm text-gray-600">
-                    <div className="flex items-center gap-4">
-                      <span>In: {formatTimeShort(entry.clock_in)}</span>
-                      <span>Out: {entry.clock_out ? formatTimeShort(entry.clock_out) : '—'}</span>
+              employeeStats.map(employee => (
+                <div key={employee.employee_id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-800">{employee.employee_name}</h3>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {employee.active_goals} active goal{employee.active_goals !== 1 ? 's' : ''}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        {employee.red_flags > 0 && (
+                          <div className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+                            🔴 {employee.red_flags}
+                          </div>
+                        )}
+                        {employee.yellow_flags > 0 && (
+                          <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+                            🟡 {employee.yellow_flags}
+                          </div>
+                        )}
+                        {employee.green_flags > 0 && (
+                          <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+                            🟢 {employee.green_flags}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    {entry.total_hours && <span className="font-semibold text-gray-900">{entry.total_hours.toFixed(2)}h</span>}
+                  </div>
+                  
+                  <div className="p-6">
+                    <div className="grid grid-cols-3 gap-4 mb-4">
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-gray-800">{employee.active_goals}</p>
+                        <p className="text-xs text-gray-600">Active</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-yellow-600">{employee.needs_pulse}</p>
+                        <p className="text-xs text-gray-600">Needs Pulse</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-purple-600">{employee.pending_approval}</p>
+                        <p className="text-xs text-gray-600">Pending</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          // Filter to show only this employee's goals
+                          const employeeGoals = goals.filter(g => g.employee_id === employee.employee_id)
+                          if (employeeGoals.length > 0) {
+                            // Navigate to first goal detail
+                            router.push(`/jobs/${companySlug}/performance/goals/${employeeGoals[0].id}`)
+                          }
+                        }}
+                        className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-600 transition-colors text-sm"
+                      >
+                        View Goals
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))
             )}
           </div>
         )}
+
+        {/* Red Flags View */}
+        {selectedView === 'red-flags' && (
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-gray-100">
+              <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+                Goals Needing Attention
+              </h2>
+            </div>
+            
+            {redFlagGoals.length === 0 ? (
+              <div className="p-12 text-center">
+                <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-700 mb-2">No Red Flags</h3>
+                <p className="text-gray-500">All team goals are on track!</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-100">
+                {redFlagGoals.map(goal => (
+                  <div 
+                    key={goal.id} 
+                    className="p-6 hover:bg-gray-50 transition-colors cursor-pointer"
+                    onClick={() => router.push(`/jobs/${companySlug}/performance/goals/${goal.id}`)}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="text-3xl flex-shrink-0">🔴</div>
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <h3 className="font-semibold text-gray-800">{goal.goal_title}</h3>
+                            <p className="text-sm text-gray-600">{goal.employee_name}</p>
+                          </div>
+                        </div>
+                        
+                        {goal.latest_blockers && (
+                          <div className="bg-red-50 border border-red-200 rounded-lg p-3 mt-3">
+                            <p className="text-sm font-medium text-red-800 mb-1">Blockers:</p>
+                            <p className="text-sm text-gray-700">{goal.latest_blockers}</p>
+                          </div>
+                        )}
+                        
+                        {goal.latest_comment && (
+                          <div className="bg-gray-50 rounded-lg p-3 mt-2">
+                            <p className="text-sm text-gray-700">{goal.latest_comment}</p>
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
+                          <span>Updated: {new Date(goal.last_update_date!).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Pending Approval View */}
+        {selectedView === 'pending' && (
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-gray-100">
+              <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-purple-600" />
+                Goals Awaiting Your Approval
+              </h2>
+            </div>
+            
+            {pendingGoals.length === 0 ? (
+              <div className="p-12 text-center">
+                <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-700 mb-2">No Pending Goals</h3>
+                <p className="text-gray-500">All goals have been reviewed</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-100">
+                {pendingGoals.map(goal => (
+                  <div key={goal.id} className="p-6 hover:bg-gray-50 transition-colors">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-800 mb-2">{goal.goal_title}</h3>
+                        <p className="text-sm text-gray-600 mb-2">{goal.employee_name}</p>
+                        <p className="text-sm text-gray-700 mb-3">{goal.goal_description}</p>
+                        {goal.success_criteria && (
+                          <div className="bg-blue-50 rounded-lg p-3 mb-3">
+                            <p className="text-xs font-medium text-blue-800 mb-1">Success Criteria:</p>
+                            <p className="text-sm text-gray-700">{goal.success_criteria}</p>
+                          </div>
+                        )}
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleApproveGoal(goal.id)}
+                            className="bg-green-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-600 transition-all text-sm"
+                          >
+                            Approve Goal
+                          </button>
+                          <button
+                            onClick={() => router.push(`/jobs/${companySlug}/performance/goals/${goal.id}`)}
+                            className="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-300 transition-all text-sm"
+                          >
+                            View Details
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
-    </div>
-  );
+    </main>
+  )
 }
