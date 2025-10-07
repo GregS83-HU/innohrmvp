@@ -112,9 +112,14 @@ export default function ManagerTimeClockDashboard({ managerId, managerName }: Ma
 
       showSuccess(`Entry ${status}!`);
       fetchPendingEntries();
-    } catch (err: any) {
-      showError(err.message);
-    } finally {
+    } catch (err: unknown) {
+  if (err instanceof Error) {
+    showError(err.message);
+  } else {
+    showError('An unexpected error occurred');
+  }
+}
+    finally {
       setActionLoading(null);
     }
   };
