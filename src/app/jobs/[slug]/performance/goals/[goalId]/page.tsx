@@ -184,7 +184,7 @@ export default function GoalDetailPage() {
         <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Goal Not Found</h2>
-          <p className="text-gray-600 mb-6">This goal doesn't exist or you don't have access to it.</p>
+          <p className="text-gray-600 mb-6">This goal doesn&apos;t exist or you don&apos;t have access to it.</p>
           <button
             onClick={() => router.push(`/jobs/${companySlug}/performance`)}
             className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all"

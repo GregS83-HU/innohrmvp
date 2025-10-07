@@ -1,15 +1,41 @@
 // /app/api/timeclock/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+// -------------------
+// Types
+// -------------------
+interface WorkShift {
+  start_time: string;
+  end_time: string;
+  shift_name?: string;
+}
+
+interface TimeEntry {
+  id: string;
+  user_id: string;
+  company_id?: string;
+  clock_in: string;
+  clock_out?: string | null;
+  expected_clock_in?: string;
+  expected_clock_out?: string;
+  total_hours?: number;
+  regular_hours?: number;
+  overtime_hours?: number;
+  is_late?: boolean;
+  status?: string;
+}
+
+// -------------------
+// Supabase Client
+// -------------------
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 // Default shift if none assigned
-const DEFAULT_SHIFT = {
+const DEFAULT_SHIFT: WorkShift = {
   start_time: '09:00:00',
   end_time: '17:00:00'
 };
@@ -18,21 +44,27 @@ const DEFAULT_SHIFT = {
 // Helper Functions
 // -------------------
 
-async function getUserCompany(userId: string) {
+// Type guard
+function isObject(v: unknown): v is Record<string, unknown> {
+  return v !== null && typeof v === 'object';
+}
+
+async function getUserCompany(userId: string): Promise<string> {
   const { data, error } = await supabase
     .from('company_to_users')
     .select('company_id')
     .eq('user_id', userId)
     .single();
 
-  if (error) throw new Error('User company not found');
+  if (error || !data?.company_id) throw new Error('User company not found');
   return data.company_id;
 }
 
-async function getUserActiveShift(userId: string) {
+// Safely handle relation returning array or object
+async function getUserActiveShift(userId: string): Promise<WorkShift> {
   const today = new Date().toISOString().split('T')[0];
-  
-  const { data } = await supabase
+
+  const { data, error } = await supabase
     .from('user_shifts')
     .select(`
       shift_id,
@@ -45,16 +77,48 @@ async function getUserActiveShift(userId: string) {
     .eq('user_id', userId)
     .lte('effective_from', today)
     .or(`effective_until.is.null,effective_until.gte.${today}`)
-    .single();
+    .maybeSingle();
 
-  if (data?.work_shifts) {
-    return data.work_shifts;
+  if (error) {
+    console.error('Error fetching user shift:', error);
+    return DEFAULT_SHIFT;
   }
-  
+
+  if (!data || !('work_shifts' in data)) {
+    return DEFAULT_SHIFT;
+  }
+
+  const rawWorkShifts = (data as Record<string, unknown>).work_shifts;
+
+  // Case 1: Array
+  if (Array.isArray(rawWorkShifts) && rawWorkShifts.length > 0 && isObject(rawWorkShifts[0])) {
+    const raw = rawWorkShifts[0];
+    const start_time =
+      typeof raw.start_time === 'string' ? raw.start_time : DEFAULT_SHIFT.start_time;
+    const end_time =
+      typeof raw.end_time === 'string' ? raw.end_time : DEFAULT_SHIFT.end_time;
+    const shift_name =
+      typeof raw.shift_name === 'string' ? raw.shift_name : undefined;
+    return { start_time, end_time, shift_name };
+  }
+
+  // Case 2: Single object
+  if (isObject(rawWorkShifts)) {
+    const raw = rawWorkShifts;
+    const start_time =
+      typeof raw.start_time === 'string' ? raw.start_time : DEFAULT_SHIFT.start_time;
+    const end_time =
+      typeof raw.end_time === 'string' ? raw.end_time : DEFAULT_SHIFT.end_time;
+    const shift_name =
+      typeof raw.shift_name === 'string' ? raw.shift_name : undefined;
+    return { start_time, end_time, shift_name };
+  }
+
+  // Fallback
   return DEFAULT_SHIFT;
 }
 
-async function getTodayTimeEntry(userId: string) {
+async function getTodayTimeEntry(userId: string): Promise<TimeEntry | null> {
   const today = new Date();
   const startOfDay = new Date(today.setHours(0, 0, 0, 0)).toISOString();
   const endOfDay = new Date(today.setHours(23, 59, 59, 999)).toISOString();
@@ -69,16 +133,16 @@ async function getTodayTimeEntry(userId: string) {
     .limit(1)
     .maybeSingle();
 
-  return data;
+  return data as TimeEntry | null;
 }
 
-function calculateExpectedTimes(shift: any) {
+function calculateExpectedTimes(shift: WorkShift) {
   const now = new Date();
   const today = now.toISOString().split('T')[0];
-  
+
   const expectedClockIn = new Date(`${today}T${shift.start_time}`);
   const expectedClockOut = new Date(`${today}T${shift.end_time}`);
-  
+
   return {
     expected_clock_in: expectedClockIn.toISOString(),
     expected_clock_out: expectedClockOut.toISOString()
@@ -86,33 +150,31 @@ function calculateExpectedTimes(shift: any) {
 }
 
 // -------------------
-// GET - Fetch today's status and history
+// GET - Fetch today's status, history, or summary
 // -------------------
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
-    const action = searchParams.get('action'); // 'status' or 'history'
+    const action = searchParams.get('action'); // 'status' | 'history' | 'summary'
 
     if (!userId) {
       return NextResponse.json({ error: 'User ID required' }, { status: 400 });
     }
 
     if (action === 'status') {
-      // Get today's clock status
       const todayEntry = await getTodayTimeEntry(userId);
       const shift = await getUserActiveShift(userId);
 
       return NextResponse.json({
         success: true,
-        clockedIn: todayEntry && !todayEntry.clock_out,
+        clockedIn: !!(todayEntry && !todayEntry.clock_out),
         todayEntry,
         shift
       });
     }
 
     if (action === 'history') {
-      // Get last 30 days of entries
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -128,12 +190,11 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        entries: data
+        entries: data as TimeEntry[]
       });
     }
 
     if (action === 'summary') {
-      // Get current week summary
       const now = new Date();
       const startOfWeek = new Date(now);
       startOfWeek.setDate(now.getDate() - now.getDay());
@@ -175,12 +236,12 @@ export async function GET(request: NextRequest) {
 }
 
 // -------------------
-// POST - Clock In/Out
+// POST - Clock In / Clock Out
 // -------------------
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { userId, action } = body; // action: 'clock_in' or 'clock_out'
+    const { userId, action } = body as { userId?: string; action?: 'clock_in' | 'clock_out' };
 
     if (!userId || !action) {
       return NextResponse.json(
@@ -189,17 +250,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user's company
     const companyId = await getUserCompany(userId);
-
-    // Check today's entry
     const todayEntry = await getTodayTimeEntry(userId);
 
-    // -------------------
-    // CLOCK IN
-    // -------------------
     if (action === 'clock_in') {
-      // Prevent double clock-in
       if (todayEntry && !todayEntry.clock_out) {
         return NextResponse.json(
           { error: 'You are already clocked in today' },
@@ -207,11 +261,9 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Get user's shift
       const shift = await getUserActiveShift(userId);
       const expectedTimes = calculateExpectedTimes(shift);
 
-      // Create new time entry
       const { data, error } = await supabase
         .from('time_entries')
         .insert({
@@ -230,15 +282,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: 'Clocked in successfully',
-        entry: data
+        entry: data as TimeEntry
       });
     }
 
-    // -------------------
-    // CLOCK OUT
-    // -------------------
     if (action === 'clock_out') {
-      // Must be clocked in first
       if (!todayEntry || todayEntry.clock_out) {
         return NextResponse.json(
           { error: 'You must clock in first' },
@@ -246,7 +294,6 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Update with clock out time
       const { data, error } = await supabase
         .from('time_entries')
         .update({
@@ -261,7 +308,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: 'Clocked out successfully',
-        entry: data
+        entry: data as TimeEntry
       });
     }
 

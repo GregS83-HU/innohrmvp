@@ -1,4 +1,3 @@
-// app/jobs/[slug]/performance/pulse/page.tsx
 'use client'
 
 import { useSession } from '@supabase/auth-helpers-react'
@@ -16,6 +15,11 @@ interface Goal {
   id: string
   goal_title: string
   last_update_week: string | null
+  status: 'active' | 'inactive'
+}
+
+interface ApiGoalsResponse {
+  goals: Goal[]
 }
 
 interface PulseData {
@@ -40,34 +44,31 @@ export default function WeeklyPulsePage() {
   const [message, setMessage] = useState<{ text: string; type: 'error' | 'success' } | null>(null)
 
   useEffect(() => {
-  if (!session) {
-    router.push('/')
-    return
-  }
+    if (!session) {
+      router.push('/')
+      return
+    }
 
-  fetchGoalsNeedingPulse(session.user.id)
-}, [session, router])
+    fetchGoalsNeedingPulse(session.user.id)
+  }, [session, router])
 
   const fetchGoalsNeedingPulse = async (userId: string) => {
     setLoading(true)
     try {
       const { data: week } = await supabase.rpc('get_week_start')
-      setWeekStart(week as string || '')
+      setWeekStart((week as string) || '')
 
       const res = await fetch(`/api/performance/goals?view=employee&user_id=${userId}`)
-      const data = await res.json()
+      const data: ApiGoalsResponse = await res.json()
       
       if (res.ok) {
-        const activeGoals = (data.goals || []).filter((g: any) => g.status === 'active')
-        const needsPulse = activeGoals.filter((g: any) => 
-          !g.last_update_week || g.last_update_week !== week
-        )
+        const activeGoals = data.goals.filter(g => g.status === 'active')
+        const needsPulse = activeGoals.filter(g => !g.last_update_week || g.last_update_week !== (week as string))
         
         setGoals(needsPulse)
         
-        // Initialize pulse data
         const initialData: PulseData = {}
-        needsPulse.forEach((goal: Goal) => {
+        needsPulse.forEach(goal => {
           initialData[goal.id] = {
             status: 'green',
             progress_comment: '',
@@ -98,38 +99,37 @@ export default function WeeklyPulsePage() {
     setMessage(null)
 
     try {
-  if (!session?.user?.id) {
-    setMessage({ text: 'No session found', type: 'error' })
-    return
-  }
+      if (!session?.user?.id) {
+        setMessage({ text: 'No session found', type: 'error' })
+        return
+      }
 
-  // Submit all pulses
-  const promises = goals.map(goal =>
-    fetch('/api/performance/pulse/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        goal_id: goal.id,
-        employee_id: session.user.id, // Added this
-        ...pulseData[goal.id]
-      })
-    })
-  )
-  
-  const results = await Promise.all(promises)
-  const allSuccessful = results.every(r => r.ok)
-  
-  if (allSuccessful) {
-    setMessage({ text: 'Weekly pulse submitted successfully!', type: 'success' })
-    setTimeout(() => {
-      router.push(`/jobs/${companySlug}/performance`)
-    }, 1500)
-  } else {
-    setMessage({ text: 'Some updates failed. Please try again.', type: 'error' })
-  }
-} catch (error) {
-  setMessage({ text: `Error: ${(error as Error).message}`, type: 'error' })
-}
+      const promises = goals.map(goal =>
+        fetch('/api/performance/pulse/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            goal_id: goal.id,
+            employee_id: session.user.id,
+            ...pulseData[goal.id]
+          })
+        })
+      )
+      
+      const results = await Promise.all(promises)
+      const allSuccessful = results.every(r => r.ok)
+      
+      if (allSuccessful) {
+        setMessage({ text: 'Weekly pulse submitted successfully!', type: 'success' })
+        setTimeout(() => {
+          router.push(`/jobs/${companySlug}/performance`)
+        }, 1500)
+      } else {
+        setMessage({ text: 'Some updates failed. Please try again.', type: 'error' })
+      }
+    } catch (error) {
+      setMessage({ text: `Error: ${(error as Error).message}`, type: 'error' })
+    }
 
     setSubmitting(false)
   }
@@ -176,7 +176,7 @@ export default function WeeklyPulsePage() {
         <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-800 mb-2">All Caught Up!</h2>
-          <p className="text-gray-600 mb-6">You've already submitted your weekly pulse for all goals.</p>
+          <p className="text-gray-600 mb-6">You&apos;ve already submitted your weekly pulse for all goals.</p>
           <button
             onClick={() => router.push(`/jobs/${companySlug}/performance`)}
             className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all"
@@ -303,14 +303,14 @@ export default function WeeklyPulsePage() {
                 {pulseData[goal.id]?.status === 'red' && (
                   <div>
                     <label className="block text-sm font-semibold text-red-700 mb-2">
-                      What's blocking you? *
+                      What&apos;s blocking you? *
                     </label>
                     <textarea
                       value={pulseData[goal.id]?.blockers || ''}
                       onChange={(e) => updatePulse(goal.id, 'blockers', e.target.value)}
                       className="w-full px-4 py-3 border border-red-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none bg-red-50"
                       rows={2}
-                      placeholder="Describe what's blocking your progress so your manager can help"
+                      placeholder="Describe what&apos;s blocking your progress so your manager can help"
                       required
                     />
                   </div>

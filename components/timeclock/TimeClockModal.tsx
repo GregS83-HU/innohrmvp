@@ -1,7 +1,46 @@
-//TimeClockModal.tsx
+// TimeClockModal.tsx
+import { useState, useEffect, useCallback } from 'react';
+import {
+  Clock,
+  X,
+  LogIn,
+  LogOut,
+  Loader2,
+  TrendingUp,
+  Check,
+  AlertCircle
+} from 'lucide-react';
 
-import { useState, useEffect } from 'react';
-import { Clock, X, LogIn, LogOut, Loader2, TrendingUp, Check, AlertCircle } from 'lucide-react';
+interface WeeklySummary {
+  totalHours: number;
+  onTimeDays: number;
+  overtimeHours: number;
+}
+
+interface TimeEntry {
+  clock_in?: string;
+  clock_out?: string;
+}
+
+interface ClockStatusResponse {
+  success: boolean;
+  clockedIn: boolean;
+  todayEntry?: TimeEntry;
+}
+
+interface WeeklySummaryResponse {
+  success: boolean;
+  summary: WeeklySummary;
+}
+
+interface ClockInOutResponse {
+  success: boolean;
+  error?: string;
+  entry: {
+    clock_in?: string;
+    clock_out?: string;
+  };
+}
 
 interface TimeClockModalProps {
   isOpen: boolean;
@@ -12,20 +51,20 @@ interface TimeClockModalProps {
   onOpenManagerDashboard?: () => void;
 }
 
-export default function TimeClockModal({ 
-  isOpen, 
-  onClose, 
-  userId, 
+export default function TimeClockModal({
+  isOpen,
+  onClose,
+  userId,
   userName,
   userRole,
-  onOpenManagerDashboard 
+  onOpenManagerDashboard
 }: TimeClockModalProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [clockedIn, setClockedIn] = useState(false);
   const [clockInTime, setClockInTime] = useState<Date | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [weeklySummary, setWeeklySummary] = useState<any>(null);
+  const [weeklySummary, setWeeklySummary] = useState<WeeklySummary | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -37,19 +76,12 @@ export default function TimeClockModal({
     }
   }, [isOpen]);
 
-  // Fetch status when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      fetchClockStatus();
-      fetchWeeklySummary();
-    }
-  }, [isOpen, userId]);
-
-  const fetchClockStatus = async () => {
+  // Fetch clock status
+  const fetchClockStatus = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/timeclock?userId=${userId}&action=status`);
-      const data = await response.json();
+      const data: ClockStatusResponse = await response.json();
 
       if (data.success) {
         setClockedIn(data.clockedIn);
@@ -62,19 +94,29 @@ export default function TimeClockModal({
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
 
-  const fetchWeeklySummary = async () => {
+  // Fetch weekly summary
+  const fetchWeeklySummary = useCallback(async () => {
     try {
       const response = await fetch(`/api/timeclock?userId=${userId}&action=summary`);
-      const data = await response.json();
+      const data: WeeklySummaryResponse = await response.json();
+
       if (data.success) {
         setWeeklySummary(data.summary);
       }
     } catch (err) {
       console.error('Failed to fetch summary:', err);
     }
-  };
+  }, [userId]);
+
+  // Fetch when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      fetchClockStatus();
+      fetchWeeklySummary();
+    }
+  }, [isOpen, userId, fetchClockStatus, fetchWeeklySummary]);
 
   const handleClockIn = async () => {
     try {
@@ -87,19 +129,26 @@ export default function TimeClockModal({
         body: JSON.stringify({ userId, action: 'clock_in' })
       });
 
-      const data = await response.json();
+      const data: ClockInOutResponse = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || !data.success) {
         throw new Error(data.error || 'Failed to clock in');
       }
 
       setClockedIn(true);
-      setClockInTime(new Date(data.entry.clock_in));
+      if (data.entry.clock_in) {
+        setClockInTime(new Date(data.entry.clock_in));
+      }
+
       setSuccess('Clocked in successfully!');
       setTimeout(() => setSuccess(null), 3000);
       fetchWeeklySummary();
-    } catch (err: any) {
-      setError(err.message || 'Failed to clock in');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to clock in');
+      }
       setTimeout(() => setError(null), 5000);
     } finally {
       setActionLoading(false);
@@ -117,9 +166,9 @@ export default function TimeClockModal({
         body: JSON.stringify({ userId, action: 'clock_out' })
       });
 
-      const data = await response.json();
+      const data: ClockInOutResponse = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || !data.success) {
         throw new Error(data.error || 'Failed to clock out');
       }
 
@@ -128,8 +177,12 @@ export default function TimeClockModal({
       setSuccess('Clocked out successfully!');
       setTimeout(() => setSuccess(null), 3000);
       fetchWeeklySummary();
-    } catch (err: any) {
-      setError(err.message || 'Failed to clock out');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to clock out');
+      }
       setTimeout(() => setError(null), 5000);
     } finally {
       setActionLoading(false);
@@ -137,11 +190,11 @@ export default function TimeClockModal({
   };
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
-      hour12: false 
+      hour12: false
     });
   };
 
@@ -206,7 +259,7 @@ export default function TimeClockModal({
                   {formatTime(currentTime)}
                 </div>
                 <p className="text-sm text-gray-600">
-                  {currentTime.toLocaleDateString('en-US', { 
+                  {currentTime.toLocaleDateString('en-US', {
                     weekday: 'long',
                     month: 'long',
                     day: 'numeric'
@@ -237,13 +290,15 @@ export default function TimeClockModal({
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span className="text-green-800 font-semibold text-sm">Active Session</span>
+                        <span className="text-green-800 font-semibold text-sm">
+                          Active Session
+                        </span>
                       </div>
                       <span className="text-green-600 text-xs">
                         Since {clockInTime ? formatTime(clockInTime) : ''}
                       </span>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-3 border border-green-200">
                       <p className="text-xs text-gray-600 mb-1">Time Worked</p>
                       <div className="text-2xl font-bold text-gray-900 font-mono">
@@ -275,7 +330,9 @@ export default function TimeClockModal({
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                   <div className="flex items-center gap-2 mb-3">
                     <TrendingUp className="w-4 h-4 text-blue-600" />
-                    <h3 className="font-semibold text-gray-900 text-sm">This Week</h3>
+                    <h3 className="font-semibold text-gray-900 text-sm">
+                      This Week
+                    </h3>
                   </div>
                   <div className="grid grid-cols-3 gap-3">
                     <div className="text-center">
