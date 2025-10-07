@@ -1,12 +1,22 @@
-'use client'
+'use client';
 
 import { useState, useEffect } from 'react';
-import { Clock, Check, Calendar, TrendingUp, AlertCircle, LogIn, LogOut, Loader2 } from 'lucide-react';
+import {
+  Clock,
+  Check,
+  Calendar,
+  TrendingUp,
+  AlertCircle,
+  LogIn,
+  LogOut,
+  Loader2,
+} from 'lucide-react';
 
-// Props interface
-interface TimeClockProps {
-  userId: string;
-  userName: string;
+// --------------------
+// Types
+// --------------------
+interface PageProps {
+  params: { slug: string };
 }
 
 interface TimeEntry {
@@ -53,9 +63,9 @@ interface ActionResponse {
 }
 
 // --------------------
-// Client Component
+// TimeClock Component (not exported)
 // --------------------
-export function TimeClock({ userId, userName }: TimeClockProps) {
+function TimeClock({ userId, userName }: { userId: string; userName: string }) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [clockedIn, setClockedIn] = useState(false);
   const [clockInTime, setClockInTime] = useState<Date | null>(null);
@@ -75,13 +85,13 @@ export function TimeClock({ userId, userName }: TimeClockProps) {
     return () => clearInterval(timer);
   }, []);
 
-  // Fetch initial status
+  // Fetch initial data
   useEffect(() => {
     fetchClockStatus();
     fetchWeeklySummary();
   }, [userId]);
 
-  // Fetch history when tab changes
+  // Fetch history on tab change
   useEffect(() => {
     if (activeTab === 'history') fetchHistory();
   }, [activeTab]);
@@ -89,17 +99,15 @@ export function TimeClock({ userId, userName }: TimeClockProps) {
   const fetchClockStatus = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/timeclock?userId=${userId}&action=status`);
-      const data: ClockStatusResponse = await response.json();
-
+      const res = await fetch(`/api/timeclock?userId=${userId}&action=status`);
+      const data: ClockStatusResponse = await res.json();
       if (data.success) {
         setClockedIn(data.clockedIn);
         setTodayEntry(data.todayEntry);
         if (data.shift) setShift(data.shift);
         if (data.todayEntry?.clock_in) setClockInTime(new Date(data.todayEntry.clock_in));
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
       showError('Failed to load clock status');
     } finally {
       setLoading(false);
@@ -108,21 +116,18 @@ export function TimeClock({ userId, userName }: TimeClockProps) {
 
   const fetchHistory = async () => {
     try {
-      const response = await fetch(`/api/timeclock?userId=${userId}&action=history`);
-      const data: HistoryResponse = await response.json();
-
+      const res = await fetch(`/api/timeclock?userId=${userId}&action=history`);
+      const data: HistoryResponse = await res.json();
       if (data.success) setTimeEntries(data.entries);
-    } catch (err) {
-      console.error(err);
+    } catch {
       showError('Failed to load history');
     }
   };
 
   const fetchWeeklySummary = async () => {
     try {
-      const response = await fetch(`/api/timeclock?userId=${userId}&action=summary`);
-      const data: SummaryResponse = await response.json();
-
+      const res = await fetch(`/api/timeclock?userId=${userId}&action=summary`);
+      const data: SummaryResponse = await res.json();
       if (data.success) setWeeklySummary(data.summary);
     } catch (err) {
       console.error(err);
@@ -132,18 +137,13 @@ export function TimeClock({ userId, userName }: TimeClockProps) {
   const handleClockIn = async () => {
     try {
       setActionLoading(true);
-      setError(null);
-
-      const response = await fetch('/api/timeclock', {
+      const res = await fetch('/api/timeclock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, action: 'clock_in' })
+        body: JSON.stringify({ userId, action: 'clock_in' }),
       });
-
-      const data: ActionResponse = await response.json();
-
-      if (!response.ok) throw new Error(data.error || 'Failed to clock in');
-
+      const data: ActionResponse = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to clock in');
       if (data.success) {
         setClockedIn(true);
         setClockInTime(new Date(data.entry.clock_in));
@@ -151,8 +151,8 @@ export function TimeClock({ userId, userName }: TimeClockProps) {
         showSuccess('Clocked in successfully! ✓');
         fetchWeeklySummary();
       }
-    } catch (err: unknown) {
-      showError((err as Error).message || 'Failed to clock in');
+    } catch (err: any) {
+      showError(err.message || 'Failed to clock in');
     } finally {
       setActionLoading(false);
     }
@@ -161,18 +161,13 @@ export function TimeClock({ userId, userName }: TimeClockProps) {
   const handleClockOut = async () => {
     try {
       setActionLoading(true);
-      setError(null);
-
-      const response = await fetch('/api/timeclock', {
+      const res = await fetch('/api/timeclock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, action: 'clock_out' })
+        body: JSON.stringify({ userId, action: 'clock_out' }),
       });
-
-      const data: ActionResponse = await response.json();
-
-      if (!response.ok) throw new Error(data.error || 'Failed to clock out');
-
+      const data: ActionResponse = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to clock out');
       if (data.success) {
         setClockedIn(false);
         setClockInTime(null);
@@ -180,65 +175,55 @@ export function TimeClock({ userId, userName }: TimeClockProps) {
         showSuccess('Clocked out successfully! ✓');
         fetchWeeklySummary();
       }
-    } catch (err: unknown) {
-      showError((err as Error).message || 'Failed to clock out');
+    } catch (err: any) {
+      showError(err.message || 'Failed to clock out');
     } finally {
       setActionLoading(false);
     }
   };
 
-  const showError = (message: string) => {
-    setError(message);
+  const showError = (msg: string) => {
+    setError(msg);
     setTimeout(() => setError(null), 5000);
   };
 
-  const showSuccess = (message: string) => {
-    setSuccessMessage(message);
+  const showSuccess = (msg: string) => {
+    setSuccessMessage(msg);
     setTimeout(() => setSuccessMessage(null), 3000);
   };
 
-  const formatTime = (date: Date) =>
-    date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-
-  const formatDate = (date: Date) =>
-    date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
-  const formatDateShort = (dateString: string) =>
-    new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-
-  const formatTimeShort = (dateString: string) =>
-    new Date(dateString).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  const formatTime = (d: Date) =>
+    d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  const formatDate = (d: Date) =>
+    d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const formatDateShort = (s: string) =>
+    new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const formatTimeShort = (s: string) =>
+    new Date(s).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
 
   const calculateWorkedHours = () => {
     if (!clockInTime) return '0:00';
     const diff = currentTime.getTime() - clockInTime.getTime();
-    const hours = Math.floor(diff / 3600000);
-    const minutes = Math.floor((diff % 3600000) / 60000);
-    return `${hours}:${minutes.toString().padStart(2, '0')}`;
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    return `${h}:${m.toString().padStart(2, '0')}`;
   };
 
-  const getStatusColor = (entry: TimeEntry) => {
-    if (entry.is_late) return 'text-orange-600 bg-orange-50';
-    if (entry.is_overtime) return 'text-purple-600 bg-purple-50';
+  const getStatusColor = (e: TimeEntry) => {
+    if (e.is_late) return 'text-orange-600 bg-orange-50';
+    if (e.is_overtime) return 'text-purple-600 bg-purple-50';
     return 'text-green-600 bg-green-50';
   };
 
-  const getStatusText = (entry: TimeEntry) => {
-    if (entry.is_late) return 'Late';
-    if (entry.is_overtime) return 'Overtime';
-    return 'On Time';
-  };
+  const getStatusText = (e: TimeEntry) => (e.is_late ? 'Late' : e.is_overtime ? 'Overtime' : 'On Time');
 
-  const getStatusIcon = (entry: TimeEntry) => {
-    if (entry.is_late) return <AlertCircle className="w-3 h-3" />;
-    if (entry.is_overtime) return <TrendingUp className="w-3 h-3" />;
-    return <Check className="w-3 h-3" />;
-  };
+  const getStatusIcon = (e: TimeEntry) =>
+    e.is_late ? <AlertCircle className="w-3 h-3" /> : e.is_overtime ? <TrendingUp className="w-3 h-3" /> : <Check className="w-3 h-3" />;
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
       </div>
     );
   }
@@ -246,34 +231,36 @@ export function TimeClock({ userId, userName }: TimeClockProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b sticky top-0 z-10">
+      <div className="bg-white border-b shadow-sm sticky top-0 z-10">
         <div className="max-w-2xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                <Clock className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-lg font-bold text-gray-900">Time Clock</h1>
-                <p className="text-xs text-gray-600">{userName}</p>
-              </div>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+              <Clock className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-gray-900">Time Clock</h1>
+              <p className="text-xs text-gray-600">{userName}</p>
             </div>
           </div>
 
-          {/* Tab Navigation */}
+          {/* Tabs */}
           <div className="flex gap-2 mt-4">
             <button
               onClick={() => setActiveTab('clock')}
-              className={`flex-1 py-2 px-4 rounded-lg font-medium text-sm transition-all ${
-                activeTab === 'clock' ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              className={`flex-1 py-2 px-4 rounded-lg font-medium text-sm ${
+                activeTab === 'clock'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
               Clock In/Out
             </button>
             <button
               onClick={() => setActiveTab('history')}
-              className={`flex-1 py-2 px-4 rounded-lg font-medium text-sm transition-all ${
-                activeTab === 'history' ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              className={`flex-1 py-2 px-4 rounded-lg font-medium text-sm ${
+                activeTab === 'history'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
               History
@@ -282,7 +269,7 @@ export function TimeClock({ userId, userName }: TimeClockProps) {
         </div>
       </div>
 
-      {/* Error/Success Messages */}
+      {/* Alerts */}
       {error && (
         <div className="max-w-2xl mx-auto px-4 mt-4">
           <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center gap-2">
@@ -301,27 +288,30 @@ export function TimeClock({ userId, userName }: TimeClockProps) {
         </div>
       )}
 
+      {/* Content */}
       <div className="max-w-2xl mx-auto px-4 py-6">
         {activeTab === 'clock' ? (
           <>
-            {/* Current Time Display */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-6">
-              <div className="text-center">
-                <p className="text-sm text-gray-600 mb-2">{formatDate(currentTime)}</p>
-                <div className="text-5xl font-bold text-gray-900 mb-4 font-mono">{formatTime(currentTime)}</div>
-                <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-                  <Calendar className="w-4 h-4" />
-                  <span>Shift: {shift.start_time.slice(0, 5)} - {shift.end_time.slice(0, 5)}</span>
-                </div>
+            {/* Time Display */}
+            <div className="bg-white rounded-2xl shadow-lg border p-6 mb-6 text-center">
+              <p className="text-sm text-gray-600 mb-2">{formatDate(currentTime)}</p>
+              <div className="text-5xl font-bold text-gray-900 font-mono mb-4">
+                {formatTime(currentTime)}
+              </div>
+              <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                <Calendar className="w-4 h-4" />
+                <span>
+                  Shift: {shift.start_time.slice(0, 5)} - {shift.end_time.slice(0, 5)}
+                </span>
               </div>
             </div>
 
-            {/* Clock In/Out Action */}
+            {/* Clock In/Out Buttons */}
             {!clockedIn ? (
               <button
                 onClick={handleClockIn}
                 disabled={actionLoading}
-                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-6 rounded-2xl font-bold text-xl shadow-xl hover:shadow-2xl transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-6 rounded-2xl font-bold text-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
               >
                 <div className="flex items-center justify-center gap-3">
                   {actionLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <LogIn className="w-6 h-6" />}
@@ -340,10 +330,10 @@ export function TimeClock({ userId, userName }: TimeClockProps) {
                       Clocked in at {clockInTime ? formatTime(clockInTime) : ''}
                     </span>
                   </div>
-                  <div className="bg-white rounded-xl p-4 border border-green-200">
-                    <div className="text-center">
-                      <p className="text-sm text-gray-600 mb-1">Time Worked</p>
-                      <div className="text-3xl font-bold text-gray-900 font-mono">{calculateWorkedHours()}</div>
+                  <div className="bg-white rounded-xl p-4 border border-green-200 text-center">
+                    <p className="text-sm text-gray-600 mb-1">Time Worked</p>
+                    <div className="text-3xl font-bold text-gray-900 font-mono">
+                      {calculateWorkedHours()}
                     </div>
                   </div>
                 </div>
@@ -351,7 +341,7 @@ export function TimeClock({ userId, userName }: TimeClockProps) {
                 <button
                   onClick={handleClockOut}
                   disabled={actionLoading}
-                  className="w-full bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white py-6 rounded-2xl font-bold text-xl shadow-xl hover:shadow-2xl transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-gradient-to-r from-red-500 to-rose-600 text-white py-6 rounded-2xl font-bold text-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
                 >
                   <div className="flex items-center justify-center gap-3">
                     {actionLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <LogOut className="w-6 h-6" />}
@@ -363,22 +353,28 @@ export function TimeClock({ userId, userName }: TimeClockProps) {
 
             {/* Weekly Summary */}
             {weeklySummary && (
-              <div className="mt-6 bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+              <div className="mt-6 bg-white rounded-2xl shadow-lg border p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <TrendingUp className="w-5 h-5 text-blue-600" />
                   <h3 className="font-semibold text-gray-900">This Week</h3>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-gray-900">{weeklySummary.totalHours.toFixed(1)}</p>
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {weeklySummary.totalHours.toFixed(1)}
+                    </p>
                     <p className="text-xs text-gray-600">Hours</p>
                   </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-green-600">{weeklySummary.onTimeDays}</p>
+                  <div>
+                    <p className="text-2xl font-bold text-green-600">
+                      {weeklySummary.onTimeDays}
+                    </p>
                     <p className="text-xs text-gray-600">On Time</p>
                   </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-orange-600">{weeklySummary.overtimeHours.toFixed(1)}</p>
+                  <div>
+                    <p className="text-2xl font-bold text-orange-600">
+                      {weeklySummary.overtimeHours.toFixed(1)}
+                    </p>
                     <p className="text-xs text-gray-600">Overtime</p>
                   </div>
                 </div>
@@ -387,26 +383,32 @@ export function TimeClock({ userId, userName }: TimeClockProps) {
           </>
         ) : (
           <div className="space-y-3">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-900">Recent Entries</h3>
-            </div>
-
+            <h3 className="font-semibold text-gray-900 mb-4">Recent Entries</h3>
             {timeEntries.length === 0 ? (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
+              <div className="bg-white rounded-xl border p-8 text-center shadow-sm">
                 <Clock className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                 <p className="text-gray-500">No time entries yet</p>
-                <p className="text-sm text-gray-400 mt-1">Clock in to start tracking your hours</p>
+                <p className="text-sm text-gray-400 mt-1">
+                  Clock in to start tracking your hours
+                </p>
               </div>
             ) : (
               timeEntries.map((entry) => (
                 <div
                   key={entry.id}
-                  className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow"
+                  className="bg-white rounded-xl border p-4 shadow-sm hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-gray-900">{formatDateShort(entry.clock_in)}</span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(entry)}`}>
-                      <span className="flex items-center gap-1">{getStatusIcon(entry)}{getStatusText(entry)}</span>
+                    <span className="font-medium text-gray-900">
+                      {formatDateShort(entry.clock_in)}
+                    </span>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(entry)}`}
+                    >
+                      <span className="flex items-center gap-1">
+                        {getStatusIcon(entry)}
+                        {getStatusText(entry)}
+                      </span>
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm text-gray-600">
@@ -414,7 +416,11 @@ export function TimeClock({ userId, userName }: TimeClockProps) {
                       <span>In: {formatTimeShort(entry.clock_in)}</span>
                       <span>Out: {entry.clock_out ? formatTimeShort(entry.clock_out) : '—'}</span>
                     </div>
-                    {entry.total_hours && <span className="font-semibold text-gray-900">{entry.total_hours.toFixed(2)}h</span>}
+                    {entry.total_hours && (
+                      <span className="font-semibold text-gray-900">
+                        {entry.total_hours.toFixed(2)}h
+                      </span>
+                    )}
                   </div>
                 </div>
               ))
@@ -424,18 +430,4 @@ export function TimeClock({ userId, userName }: TimeClockProps) {
       </div>
     </div>
   );
-}
-
-// --------------------
-// Page Component for App Router
-// --------------------
-interface PageProps {
-  params: { slug: string };
-}
-
-export default function TimeClockPage({ params }: PageProps) {
-  const userId = params.slug; // you can adjust this if you fetch user differently
-  const userName = 'John Doe'; // fetch or pass actual name if needed
-
-  return <TimeClock userId={userId} userName={userName} />;
 }
