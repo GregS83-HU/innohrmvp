@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@supabase/supabase-js';
 import {
   Clock,
   Check,
@@ -62,8 +64,20 @@ interface ActionResponse {
   error?: string;
 }
 
+interface UserData {
+  id: string;
+  full_name?: string;
+  email?: string;
+}
+
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
 // --------------------
-// TimeClock Component (not exported)
+// TimeClock Component
 // --------------------
 function TimeClock({ userId, userName }: { userId: string; userName: string }) {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -79,19 +93,16 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Update clock every second
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // Fetch initial data
   useEffect(() => {
     fetchClockStatus();
     fetchWeeklySummary();
   }, [userId]);
 
-  // Fetch history on tab change
   useEffect(() => {
     if (activeTab === 'history') fetchHistory();
   }, [activeTab]);
@@ -151,7 +162,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
         showSuccess('Clocked in successfully! ✓');
         fetchWeeklySummary();
       }
-   } catch (err) {
+    } catch (err) {
       showError(err instanceof Error ? err.message : 'Failed to clock in');
     } finally {
       setActionLoading(false);
@@ -175,8 +186,8 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
         showSuccess('Clocked out successfully! ✓');
         fetchWeeklySummary();
       }
-   } catch (err) {
-      showError(err instanceof Error ? err.message : 'Failed to clock in');
+    } catch (err) {
+      showError(err instanceof Error ? err.message : 'Failed to clock out');
     } finally {
       setActionLoading(false);
     }
@@ -230,7 +241,6 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20">
-      {/* Header */}
       <div className="bg-white border-b shadow-sm sticky top-0 z-10">
         <div className="max-w-2xl mx-auto px-4 py-4">
           <div className="flex items-center gap-3">
@@ -243,7 +253,6 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
             </div>
           </div>
 
-          {/* Tabs */}
           <div className="flex gap-2 mt-4">
             <button
               onClick={() => setActiveTab('clock')}
@@ -269,7 +278,6 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
         </div>
       </div>
 
-      {/* Alerts */}
       {error && (
         <div className="max-w-2xl mx-auto px-4 mt-4">
           <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center gap-2">
@@ -288,11 +296,9 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
         </div>
       )}
 
-      {/* Content */}
       <div className="max-w-2xl mx-auto px-4 py-6">
         {activeTab === 'clock' ? (
           <>
-            {/* Time Display */}
             <div className="bg-white rounded-2xl shadow-lg border p-6 mb-6 text-center">
               <p className="text-sm text-gray-600 mb-2">{formatDate(currentTime)}</p>
               <div className="text-5xl font-bold text-gray-900 font-mono mb-4">
@@ -306,7 +312,6 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
               </div>
             </div>
 
-            {/* Clock In/Out Buttons */}
             {!clockedIn ? (
               <button
                 onClick={handleClockIn}
@@ -351,7 +356,6 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
               </div>
             )}
 
-            {/* Weekly Summary */}
             {weeklySummary && (
               <div className="mt-6 bg-white rounded-2xl shadow-lg border p-6">
                 <div className="flex items-center gap-2 mb-4">
@@ -429,5 +433,74 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
         )}
       </div>
     </div>
+  );
+}
+
+// --------------------
+// Page Component (Default Export)
+// --------------------
+export default function TimeClockPage({ params }: PageProps) {
+  const router = useRouter();
+  const [currentUser, setCurrentUser] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          router.push(`/jobs/${params.slug}/login`);
+          return;
+        }
+
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (userError || !userData) {
+          setError('User not found');
+          return;
+        }
+
+        setCurrentUser(userData);
+      } catch (err) {
+        setError('Failed to load user');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUser();
+  }, [params.slug, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error || !currentUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="bg-white rounded-2xl shadow-lg border p-8 max-w-md">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-gray-900 text-center mb-2">Error</h2>
+          <p className="text-gray-600 text-center">{error || 'Unable to load user information'}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <TimeClock 
+      userId={currentUser.id} 
+      userName={currentUser.full_name || currentUser.email || 'User'} 
+    />
   );
 }
