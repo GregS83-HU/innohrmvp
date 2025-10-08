@@ -18,7 +18,7 @@ import {
 // Types
 // --------------------
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 interface TimeEntry {
@@ -444,13 +444,18 @@ export default function TimeClockPage({ params }: PageProps) {
   const [currentUser, setCurrentUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [slug, setSlug] = useState<string>('');
 
   useEffect(() => {
     const loadUser = async () => {
       try {
+        // Await params
+        const resolvedParams = await params;
+        setSlug(resolvedParams.slug);
+
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
-          router.push(`/jobs/${params.slug}/login`);
+          router.push(`/jobs/${resolvedParams.slug}/login`);
           return;
         }
 
@@ -475,7 +480,7 @@ export default function TimeClockPage({ params }: PageProps) {
     };
 
     loadUser();
-  }, [params.slug, router]);
+  }, [params, router]);
 
   if (loading) {
     return (
