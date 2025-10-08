@@ -24,6 +24,7 @@ export default function Page() {
   }
 
   const managerId = session.user.id;
+  console.log("manager_id:", managerId)
   const managerName = session.user.user_metadata?.full_name || 'Manager';
 
   return <ManagerTimeClockDashboard managerId={managerId} managerName={managerName} />;

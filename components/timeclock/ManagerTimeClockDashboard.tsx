@@ -10,6 +10,7 @@ import {
   TrendingUp,
   Calendar,
   Loader2,
+  RefreshCw,
 } from 'lucide-react';
 
 interface ManagerTimeClockDashboardProps {
@@ -55,6 +56,7 @@ export default function ManagerTimeClockDashboard({
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [pendingEntries, setPendingEntries] = useState<PendingEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'today' | 'pending'>('today');
   const [error, setError] = useState<string | null>(null);
@@ -106,6 +108,22 @@ export default function ManagerTimeClockDashboard({
     } catch (err) {
       console.error('Failed to fetch pending entries:', err);
       showError('Failed to load pending entries');
+    }
+  };
+
+  const handleRefresh = async () => {
+    try {
+      setRefreshing(true);
+      await fetchTeamData();
+      if (activeTab === 'pending') {
+        await fetchPendingEntries();
+      }
+      showSuccess('Data refreshed successfully');
+    } catch (err) {
+      console.error('Failed to refresh:', err);
+      showError('Failed to refresh data');
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -220,14 +238,25 @@ export default function ManagerTimeClockDashboard({
               </div>
             </div>
 
-            {pendingEntries.length > 0 && (
-              <div className="flex items-center gap-2 px-3 py-2 bg-orange-50 border border-orange-200 rounded-lg">
-                <AlertCircle className="w-4 h-4 text-orange-600" />
-                <span className="text-sm font-medium text-orange-700">
-                  {pendingEntries.length} pending approval{pendingEntries.length > 1 ? 's' : ''}
-                </span>
-              </div>
-            )}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleRefresh}
+                disabled={refreshing}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Refresh data"
+              >
+                <RefreshCw className={`w-5 h-5 text-gray-600 ${refreshing ? 'animate-spin' : ''}`} />
+              </button>
+
+              {pendingEntries.length > 0 && (
+                <div className="flex items-center gap-2 px-3 py-2 bg-orange-50 border border-orange-200 rounded-lg">
+                  <AlertCircle className="w-4 h-4 text-orange-600" />
+                  <span className="text-sm font-medium text-orange-700">
+                    {pendingEntries.length} pending approval{pendingEntries.length > 1 ? 's' : ''}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Tab Navigation */}
@@ -504,4 +533,3 @@ export default function ManagerTimeClockDashboard({
     </div>
   );
 }
-
