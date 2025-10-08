@@ -151,8 +151,8 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
         showSuccess('Clocked in successfully! ✓');
         fetchWeeklySummary();
       }
-    } catch (err: any) {
-      showError(err.message || 'Failed to clock in');
+   } catch (err) {
+      showError(err instanceof Error ? err.message : 'Failed to clock in');
     } finally {
       setActionLoading(false);
     }
@@ -175,8 +175,8 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
         showSuccess('Clocked out successfully! ✓');
         fetchWeeklySummary();
       }
-    } catch (err: any) {
-      showError(err.message || 'Failed to clock out');
+   } catch (err) {
+      showError(err instanceof Error ? err.message : 'Failed to clock in');
     } finally {
       setActionLoading(false);
     }
