@@ -250,73 +250,73 @@ const AbsenceManagement: React.FC = () => {
 
   // Submit leave request
   const submitLeaveRequest = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!currentUser) return;
+  e.preventDefault();
+  if (!currentUser) return;
 
-    try {
-      setSubmitLoading(true);
+  try {
+    setSubmitLoading(true);
 
-      // Get user's manager
-      const { data: userData } = await supabase
-        .from('users')
-        .select('manager_id')
-        .eq('id', currentUser.id)
-        .single();
+    // Get user's manager
+    const { data: userData } = await supabase
+      .from('users')
+      .select('manager_id')
+      .eq('id', currentUser.id)
+      .single();
 
-      // Calculate working days
-      const { data: workingDays } = await supabase
-        .rpc('calculate_working_days', {
-          start_date: requestForm.start_date,
-          end_date: requestForm.end_date
-        });
-
-      const insertData: LeaveRequestInsertData = {
-        user_id: currentUser.id,
-        leave_type_id: requestForm.leave_type_id,
+    // Calculate working days
+    const { data: workingDays } = await supabase
+      .rpc('calculate_working_days', {
         start_date: requestForm.start_date,
-        end_date: requestForm.end_date,
-        total_days: workingDays as number,
-        reason: requestForm.reason,
-        manager_id: userData?.manager_id
-      };
-
-      // If we have certificate data from upload, link it
-      if (certificateData?.medical_certificate_id) {
-        insertData.medical_certificate_id = certificateData.medical_certificate_id;
-      }
-
-      const { error } = await supabase
-        .from('leave_requests')
-        .insert(insertData);
-
-      if (error) throw error;
-
-      // Reset form and close modal
-      setRequestForm({
-        leave_type_id: '',
-        start_date: '',
-        end_date: '',
-        reason: ''
+        end_date: requestForm.end_date
       });
-      setCertificateData(null);
-      setShowRequestModal(false);
 
-      // Refresh data
-      await fetchLeaveOverview();
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An unexpected error occurred');
-      }
-    } finally {
-      setSubmitLoading(false);
+    const insertData: LeaveRequestInsertData = {
+      user_id: currentUser.id,
+      leave_type_id: requestForm.leave_type_id,
+      start_date: requestForm.start_date,
+      end_date: requestForm.end_date,
+      total_days: workingDays as number,
+      reason: requestForm.reason,
+      manager_id: userData?.manager_id
+      // Certificate ID will be added in the modal's handleSubmitWithNotification
+    };
+
+    const { error } = await supabase
+      .from('leave_requests')
+      .insert(insertData);
+
+    if (error) throw error;
+
+    // Reset form and close modal
+    setRequestForm({
+      leave_type_id: '',
+      start_date: '',
+      end_date: '',
+      reason: ''
+    });
+    setShowRequestModal(false);
+
+    // Refresh data
+    await fetchLeaveOverview();
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      setError(err.message);
+    } else {
+      setError('An unexpected error occurred');
     }
-  };
+  } finally {
+    setSubmitLoading(false);
+  }
+};
 
   // Approve/reject leave request
   const handleRequestReview = async (requestId: string, status: 'approved' | 'rejected', notes?: string) => {
     try {
+      console.log("user_id before update", currentUser?.id)
+      console.log("status before update", status)
+      console.log("notes before update", notes)
+      console.log("requestI before update", requestId)
+
       const { error } = await supabase
         .from('leave_requests')
         .update({
@@ -517,6 +517,8 @@ const AbsenceManagement: React.FC = () => {
         onSubmit={submitLeaveRequest}
         loading={submitLoading}
         currentUserId={currentUser.id} 
+        companyId={companyId || ''} // Add this
+        currentUserName={`${currentUser?.user_metadata?.first_name || ''} ${currentUser?.user_metadata?.last_name || ''}`.trim() || currentUser?.email || ''}
       />
 
       {/* Certificate Upload Modal */}
