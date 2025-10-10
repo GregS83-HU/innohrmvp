@@ -1,6 +1,11 @@
 'use client'
 
 import React, { useEffect, useState, useRef } from 'react'
+import { useSearchParams,useRouter } from 'next/navigation'
+import InterviewList from '../../../../../components/InterviewList' 
+
+
+
 import { useSession } from '@supabase/auth-helpers-react'
 import {
   DndContext,
@@ -50,7 +55,7 @@ function Card({
   row, 
   onClick, 
   isSelected, 
-  onToggleSelection 
+  onToggleSelection,
 }: { 
   row: Row
   onClick: (row: Row) => void
@@ -179,6 +184,7 @@ function Card({
           </a>
         )}
       </div>
+
     </div>
   )
 }
@@ -194,7 +200,7 @@ function Column({
   selectedCandidates,
   onToggleSelection,
   onSelectAll,
-  onDeselectAll
+  onDeselectAll,
 }: { 
   columnId: string
   columnName: string
@@ -224,6 +230,7 @@ function Column({
   const selectedInColumn = displayRows.filter(row => selectedCandidates.has(row.candidat_id)).length
   const allSelected = displayRows.length > 0 && selectedInColumn === displayRows.length
   const someSelected = selectedInColumn > 0 && selectedInColumn < displayRows.length
+
 
   return (
     <div
@@ -318,6 +325,28 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
   // NEW: Multi-selection state
   const [selectedCandidates, setSelectedCandidates] = useState<Set<number>>(new Set())
   const [draggingMultiple, setDraggingMultiple] = useState<Row[]>([])
+
+  //Get the position ID from the URL
+ 
+
+const searchParams = useSearchParams()
+const router = useRouter()
+const [positionId, setPositionId] = useState<number | null>(null)
+
+useEffect(() => {
+  const id = Number(searchParams.get('positionId'))
+  if (!isNaN(id)) {
+    setPositionId(id)
+  } else {
+    setPositionId(null)
+  }
+}, [searchParams]) // <-- makes it reactive
+
+// optional but can help if your routing is slow to reflect params
+useEffect(() => {
+  router.refresh()
+}, [searchParams])
+
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -429,6 +458,8 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
       return newSelection
     })
   }
+
+  
 
   const handleSelectAllInColumn = (columnId: string) => {
     const columnRows = columnId === 'unassigned' 
@@ -675,6 +706,8 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     setEditedComment('')
   }
 
+
+
   const startEditingComment = () => {
     setIsEditingComment(true)
     setEditedComment(selectedCandidate?.candidat_comment || '')
@@ -704,6 +737,8 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
   }
 
   const columns = [{ step_id: 'unassigned', step_name: 'Unassigned' }, ...steps]
+
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -1005,6 +1040,15 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                   <p className="text-gray-800">{getStepName(selectedCandidate.candidat_next_step)}</p>
                 </div>
               </div>
+
+              {/* INTERVIEW MANAGEMENT */}
+              <div className="bg-green-50 p-4 rounded-lg mt-4">
+                <h3 className="text-sm font-semibold text-green-800 mb-3">Interviews</h3>
+
+                {/* List scheduled interviews */}
+                <InterviewList candidatId={selectedCandidate.candidat_id} positionId={positionId} />
+              </div>
+
               
               <div className="mt-6 flex justify-end">
                 <button

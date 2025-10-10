@@ -243,7 +243,7 @@ export default function NewOpenedPositionPage() {
 
     try {
       // On utilise EventSource pour suivre la progression (Server-Sent Events)
-      const es = new EventSource(`/api/analyse-massive?position_id=${positionId}&user_id=${userId}`)
+    const es = new EventSource(`/api/analyse-massive?position_id=${positionId}&user_id=${userId}&company_id=${companyId}`)
 
       es.onmessage = (event) => {
         const data = JSON.parse(event.data)

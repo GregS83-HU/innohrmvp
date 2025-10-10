@@ -1,9 +1,3 @@
-# Codebase - innohrmvp
-**Généré le:** Sat Oct  4 19:29:14 CEST 2025
-**Objectif:** Documentation & analyse technique via IA
-
----
-
 
 ## `package.json`
 
@@ -29,6 +23,7 @@
     "@stripe/stripe-js": "^7.9.0",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/auth-helpers-react": "^0.5.0",
+    "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.53.0",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
@@ -40,6 +35,7 @@
     "jszip": "^3.10.1",
     "lucide-react": "^0.539.0",
     "next": "^15.5.2",
+    "next-intl": "^4.3.9",
     "openai": "^5.11.0",
     "patch-package": "^8.0.0",
     "pdf-parse": "^1.1.1",
@@ -3344,6 +3340,502 @@ export interface MessageData {
 ---
 
 
+## `src/app/api/performance/goals/create/route.ts`
+
+```ts
+// app/api/performance/pulse/submit/route.ts
+import { NextResponse } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json()
+    const { goal_id, status, progress_comment, blockers, employee_id } = body
+    
+    if (!goal_id || !status) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+    
+    if (!employee_id) {
+      return NextResponse.json({ error: 'Employee ID is required' }, { status: 400 })
+    }
+    
+    if (!['green', 'yellow', 'red'].includes(status)) {
+      return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
+    }
+    
+    const cookieStore = await cookies()
+    
+    // Use service role to bypass RLS for server-side operations
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              )
+            } catch {
+              // Ignore if called from Server Component
+            }
+          },
+        },
+      }
+    )
+    
+    // Get week start date
+    const { data: weekStart, error: weekError } = await supabase.rpc('get_week_start')
+    
+    if (weekError) {
+      console.error('Week start error:', weekError)
+      return NextResponse.json({ error: 'Failed to get week start' }, { status: 500 })
+    }
+    
+    // Check if user already submitted pulse for this goal this week
+    const { data: existing, error: existingError } = await supabase
+      .from('goal_updates')
+      .select('id')
+      .eq('goal_id', goal_id)
+      .eq('employee_id', employee_id)
+      .eq('week_start_date', weekStart as string)
+      .single()
+    
+    if (existing && !existingError) {
+      // Update existing pulse
+      const { data: updatedData, error: updateError } = await supabase
+        .from('goal_updates')
+        .update({
+          status,
+          progress_comment: progress_comment || null,
+          blockers: blockers || null
+        })
+        .eq('id', existing.id)
+        .select()
+      
+      if (updateError) {
+        console.error('Update error:', updateError)
+        return NextResponse.json({ error: updateError.message }, { status: 500 })
+      }
+      
+      return NextResponse.json({
+        message: 'Pulse updated successfully',
+        update: updatedData[0]
+      })
+    }
+    
+    // Insert new pulse
+    const { data: insertedData, error: insertError } = await supabase
+      .from('goal_updates')
+      .insert([
+        {
+          goal_id,
+          employee_id: employee_id,
+          status,
+          progress_comment: progress_comment || null,
+          blockers: blockers || null,
+          week_start_date: weekStart as string
+        }
+      ])
+      .select()
+    
+    if (insertError) {
+      console.error('Insert error:', insertError)
+      return NextResponse.json({ error: insertError.message }, { status: 500 })
+    }
+    
+    if (!insertedData || insertedData.length === 0) {
+      return NextResponse.json({ error: 'Failed to submit pulse' }, { status: 500 })
+    }
+    
+    return NextResponse.json({
+      message: 'Pulse submitted successfully',
+      update: insertedData[0]
+    })
+  } catch (error) {
+    console.error('Pulse submission error:', error)
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 })
+  }
+}
+```
+
+---
+
+
+## `src/app/api/performance/goals/route.ts`
+
+```ts
+// app/api/performance/goals/route.ts
+import { NextResponse } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const view = searchParams.get('view') // 'employee' or 'manager'
+    const employee_id = searchParams.get('employee_id') // for manager viewing specific employee
+    const user_id = searchParams.get('user_id') // current user's ID
+    
+    if (!user_id) {
+      return NextResponse.json({ error: 'user_id is required' }, { status: 400 })
+    }
+    
+    const cookieStore = await cookies()
+    
+    // Use service role to bypass RLS for server-side operations
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              )
+            } catch {
+              // Ignore if called from Server Component
+            }
+          },
+        },
+      }
+    )
+    
+    if (view === 'manager') {
+      console.log('=== Manager View Debug ===')
+      console.log('Manager user_id:', user_id)
+      
+      // Get manager's team members directly from user_profiles (same as timeclock route)
+      const { data: teamMembers, error: teamError } = await supabase
+        .from('user_profiles')
+        .select('user_id')
+        .eq('manager_id', user_id)
+      
+      if (teamError) {
+        console.error('Team fetch error:', teamError)
+        return NextResponse.json({ error: 'Failed to fetch team' }, { status: 500 })
+      }
+      
+      console.log('Team members found:', teamMembers?.length)
+      
+      if (!teamMembers || teamMembers.length === 0) {
+        return NextResponse.json({ goals: [] })
+      }
+      
+      const employeeIds = teamMembers.map(m => m.user_id)
+      console.log('Employee IDs:', employeeIds)
+      
+      // If specific employee requested, filter to just that employee
+      const targetIds = employee_id ? [employee_id] : employeeIds
+      
+      // Get goals using the view for better performance
+      const { data: goals, error: goalsError } = await supabase
+        .from('v_goals_with_status')
+        .select('*')
+        .in('employee_id', targetIds)
+        .order('created_at', { ascending: false })
+      
+      if (goalsError) {
+        console.error('Goals fetch error:', goalsError)
+        return NextResponse.json({ error: goalsError.message }, { status: 500 })
+      }
+      
+      console.log('Goals found:', goals?.length)
+      
+      return NextResponse.json({ goals: goals || [] })
+    } else {
+      // Get employee's own goals
+      const { data: goals, error: goalsError } = await supabase
+        .from('v_goals_with_status')
+        .select('*')
+        .eq('employee_id', user_id)
+        .order('created_at', { ascending: false })
+      
+      if (goalsError) {
+        console.error('Goals fetch error:', goalsError)
+        return NextResponse.json({ error: goalsError.message }, { status: 500 })
+      }
+      
+      return NextResponse.json({ goals: goals || [] })
+    }
+  } catch (error) {
+    console.error('Get goals error:', error)
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 })
+  }
+}
+```
+
+---
+
+
+## `src/app/api/performance/goals/update/route.ts`
+
+```ts
+// app/api/performance/goals/update/route.ts
+import { NextResponse } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+
+interface GoalUpdatePayload {
+  updated_at: string;
+  status?: string;
+  goal_title?: string;
+  goal_description?: string;
+  success_criteria?: string;
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json();
+    const { goal_id, status, goal_title, goal_description, success_criteria, user_id } = body;
+
+    if (!goal_id) {
+      return NextResponse.json({ error: 'Goal ID required' }, { status: 400 });
+    }
+
+    if (!user_id) {
+      return NextResponse.json({ error: 'User ID required' }, { status: 400 });
+    }
+
+    const cookieStore = await cookies();
+
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              );
+            } catch {
+              // Ignore if called from Server Component
+            }
+          },
+        },
+      }
+    );
+
+    // Build update object with explicit type
+    const updates: GoalUpdatePayload = { updated_at: new Date().toISOString() };
+    if (status) updates.status = status;
+    if (goal_title) updates.goal_title = goal_title;
+    if (goal_description) updates.goal_description = goal_description;
+    if (success_criteria) updates.success_criteria = success_criteria;
+
+    // Update goal (service role bypasses RLS, but we verify ownership)
+    const { data: updatedData, error: updateError } = await supabase
+      .from('performance_goals')
+      .update(updates)
+      .eq('id', goal_id)
+      .or(`employee_id.eq.${user_id},manager_id.eq.${user_id}`) // Ensure user owns or manages this goal
+      .select();
+
+    if (updateError) {
+      return NextResponse.json({ error: updateError.message }, { status: 500 });
+    }
+
+    if (!updatedData || updatedData.length === 0) {
+      return NextResponse.json({ error: 'Goal not found or unauthorized' }, { status: 404 });
+    }
+
+    return NextResponse.json({
+      message: 'Goal updated successfully',
+      goal: updatedData[0],
+    });
+  } catch (error) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const goal_id = searchParams.get('goal_id');
+    const user_id = searchParams.get('user_id');
+
+    if (!goal_id) {
+      return NextResponse.json({ error: 'Goal ID required' }, { status: 400 });
+    }
+
+    if (!user_id) {
+      return NextResponse.json({ error: 'User ID required' }, { status: 400 });
+    }
+
+    const cookieStore = await cookies();
+
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              );
+            } catch {
+              // Ignore if called from Server Component
+            }
+          },
+        },
+      }
+    );
+
+    // Delete goal (verify ownership first)
+    const { error: deleteError } = await supabase
+      .from('performance_goals')
+      .delete()
+      .eq('id', goal_id)
+      .eq('employee_id', user_id); // Only employee can delete their own draft goals
+
+    if (deleteError) {
+      return NextResponse.json({ error: deleteError.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ message: 'Goal deleted successfully' });
+  } catch (error) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
+  }
+}
+```
+
+---
+
+
+## `src/app/api/performance/pulse/submit/route.ts`
+
+```ts
+import { NextResponse } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json()
+    const { goal_id, status, progress_comment, blockers, employee_id } = body
+    console.log('Pulse submit body:', body)
+
+    // --- Input validation ---
+    if (!goal_id || !status) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+    if (!employee_id) {
+      return NextResponse.json({ error: 'Employee ID is required' }, { status: 400 })
+    }
+    if (!['green', 'yellow', 'red'].includes(status)) {
+      return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
+    }
+
+    // --- Supabase server client with cookies ---
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        cookies: {
+          getAll: () => cookieStore.getAll(),
+          setAll: (cookiesToSet) => {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              )
+            } catch {}
+          },
+        },
+      }
+    )
+
+    // --- Get current week start ---
+    const { data: weekStart, error: weekError } = await supabase.rpc('get_week_start')
+    if (weekError) {
+      console.error('Week start error:', weekError)
+      return NextResponse.json({ error: 'Failed to get week start' }, { status: 500 })
+    }
+    console.log('Week start:', weekStart)
+
+    // --- Check if a pulse already exists this week ---
+    const { data: existing } = await supabase
+      .from('goal_updates')
+      .select('id')
+      .eq('goal_id', goal_id)
+      .eq('employee_id', employee_id)
+      .eq('week_start_date', weekStart as string)
+      .maybeSingle()
+
+    if (existing) {
+      // --- Update existing pulse ---
+      const { data: updatedData, error: updateError } = await supabase
+        .from('goal_updates')
+        .update({
+          status,
+          progress_comment: progress_comment || null,
+          blockers: blockers || null,
+        })
+        .eq('id', existing.id)
+        .select('id, goal_id, employee_id, status, progress_comment, blockers, week_start_date')
+
+      if (updateError) {
+        console.error('Update error:', updateError)
+        throw new Error(updateError.message)
+      }
+
+      return NextResponse.json({
+        message: 'Pulse updated successfully',
+        update: updatedData?.[0],
+      })
+    }
+
+    // --- Insert new pulse ---
+    const { data: insertedData, error: insertError } = await supabase
+      .from('goal_updates')
+      .insert([
+        {
+          goal_id,
+          employee_id,
+          status,
+          progress_comment: progress_comment || null,
+          blockers: blockers || null,
+          week_start_date: weekStart as string,
+        },
+      ])
+      .select('id, goal_id, employee_id, status, progress_comment, blockers, week_start_date')
+
+    if (insertError) {
+      console.error('Insert error:', insertError)
+      throw new Error(insertError.message)
+    }
+
+    return NextResponse.json({
+      message: 'Pulse submitted successfully',
+      update: insertedData?.[0],
+    })
+  } catch (error) {
+    console.error('Pulse submission error:', error)
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 })
+  }
+}
+```
+
+---
+
+
 ## `src/app/api/positions-private/route.ts`
 
 ```ts
@@ -4340,6 +4832,610 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
        { error: error instanceof Error ? error.message : 'Failed to upload file' },
        { status: 500 }
+    );
+  }
+}
+```
+
+---
+
+
+## `src/app/api/timeclock/manager/route.ts`
+
+```ts
+// /app/api/timeclock/manager/route.ts
+
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+
+const supabase: SupabaseClient = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+// -------------------
+// TypeScript types
+// -------------------
+interface TeamMember {
+  user_id: string;
+  first_name: string;
+  last_name: string;
+  manager_id: string;
+  todayStatus?: 'clocked_in' | 'clocked_out' | 'not_started';
+  todayEntry?: {
+    id: number;
+    clock_in: string;
+    clock_out: string | null;
+    total_hours: number | null;
+    is_late: boolean;
+  } | null;
+  weeklyHours?: number;
+}
+
+interface PendingEntry {
+  id: number;
+  user_id: string;
+  clock_in: string;
+  clock_out: string;
+  total_hours: number;
+  is_late: boolean;
+  is_overtime: boolean;
+  employee_notes: string | null;
+  user_profiles: {
+    first_name: string;
+    last_name: string;
+  };
+}
+
+// -------------------
+// Helper: get team members via Supabase function
+// -------------------
+async function getTeamMembers(managerId: string): Promise<TeamMember[]> {
+  const { data, error } = await supabase
+    .rpc('get_team_members_by_manager', { manager_uuid: managerId });
+
+  if (error) {
+    console.error('Error fetching team members:', error);
+    return [];
+  }
+
+  // Ensure data is an array
+  if (!data) return [];
+  return Array.isArray(data) ? data : [];
+}
+
+// -------------------
+// GET Handler
+// -------------------
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const managerId = searchParams.get('managerId');
+    const action = searchParams.get('action');
+
+    if (!managerId) return NextResponse.json({ error: 'Manager ID required' }, { status: 400 });
+
+    // -------------------
+    // Team Today
+    // -------------------
+    if (action === 'team-today') {
+      const teamMembers = await getTeamMembers(managerId);
+
+      if (teamMembers.length === 0) {
+        return NextResponse.json({ success: true, teamMembers: [] });
+      }
+
+      const today = new Date();
+      const startOfDay = new Date(today);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(today);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      const userIds = teamMembers.map((m) => m.user_id);
+
+      const { data: todayEntries } = await supabase
+        .from('time_entries')
+        .select('*')
+        .in('user_id', userIds)
+        .gte('clock_in', startOfDay.toISOString())
+        .lte('clock_in', endOfDay.toISOString());
+
+      const startOfWeek = new Date();
+      startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+      startOfWeek.setHours(0, 0, 0, 0);
+
+      const { data: weeklyEntries } = await supabase
+        .from('time_entries')
+        .select('user_id, total_hours')
+        .in('user_id', userIds)
+        .gte('clock_in', startOfWeek.toISOString())
+        .not('clock_out', 'is', null);
+
+      const teamData: TeamMember[] = teamMembers.map((m: TeamMember) => {
+        const todayEntry = todayEntries?.find((e) => e.user_id === m.user_id) ?? null;
+        const weeklyHours =
+          weeklyEntries
+            ?.filter((e) => e.user_id === m.user_id)
+            .reduce((sum, e) => sum + (Number(e.total_hours) || 0), 0) ?? 0;
+
+        const todayStatus: 'clocked_in' | 'clocked_out' | 'not_started' = todayEntry
+          ? todayEntry.clock_out
+            ? 'clocked_out'
+            : 'clocked_in'
+          : 'not_started';
+
+        return {
+          ...m,
+          todayEntry,
+          weeklyHours,
+          todayStatus,
+        };
+      });
+
+      return NextResponse.json({ success: true, teamMembers: teamData });
+    }
+
+    // -------------------
+    // Pending Approvals
+    // -------------------
+    if (action === 'pending-approvals') {
+      const teamMembers = await getTeamMembers(managerId);
+      if (teamMembers.length === 0) return NextResponse.json({ success: true, entries: [] });
+
+      const userIds = teamMembers.map((m) => m.user_id);
+
+      const { data, error } = await supabase
+        .from('time_entries')
+        .select('*, users!inner(user_firstname, user_lastname)')
+        .in('user_id', userIds)
+        .eq('status', 'pending')
+        .not('clock_out', 'is', null)
+        .order('clock_in', { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+
+      const entries: PendingEntry[] = data.map((e) => ({
+        ...e,
+        user_profiles: {
+          first_name: e.users.user_firstname,
+          last_name: e.users.user_lastname,
+        },
+      }));
+
+      return NextResponse.json({ success: true, entries });
+    }
+
+    // -------------------
+    // Team Summary
+    // -------------------
+    if (action === 'team-summary') {
+      const teamMembers = await getTeamMembers(managerId);
+      if (teamMembers.length === 0) {
+        return NextResponse.json({
+          success: true,
+          summary: { totalEmployees: 0, totalHours: 0, avgHoursPerEmployee: 0, lateCount: 0, overtimeCount: 0 },
+        });
+      }
+
+      const userIds = teamMembers.map((m) => m.user_id);
+      const startOfWeek = new Date();
+      startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+      startOfWeek.setHours(0, 0, 0, 0);
+
+      const { data: weeklyData } = await supabase
+        .from('time_entries')
+        .select('total_hours, is_late, is_overtime')
+        .in('user_id', userIds)
+        .gte('clock_in', startOfWeek.toISOString())
+        .not('clock_out', 'is', null);
+
+      const summary = {
+        totalEmployees: teamMembers.length,
+        totalHours: weeklyData?.reduce((sum, e) => sum + (Number(e.total_hours) || 0), 0) ?? 0,
+        avgHoursPerEmployee: 0,
+        lateCount: weeklyData?.filter((e) => e.is_late).length ?? 0,
+        overtimeCount: weeklyData?.filter((e) => e.is_overtime).length ?? 0,
+      };
+      summary.avgHoursPerEmployee = summary.totalHours / (teamMembers.length || 1);
+
+      return NextResponse.json({ success: true, summary });
+    }
+
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+  } catch (error) {
+    console.error('GET /api/timeclock/manager error:', error);
+    return NextResponse.json({ error: 'Failed to fetch manager data' }, { status: 500 });
+  }
+}
+
+// -------------------
+// POST Handler
+// -------------------
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { managerId, action, entryId, status, managerNotes } = body as {
+      managerId: string;
+      action: string;
+      entryId: number;
+      status: 'approved' | 'rejected';
+      managerNotes?: string;
+    };
+
+    if (!managerId) return NextResponse.json({ error: 'Manager ID required' }, { status: 400 });
+
+    if (action === 'approve-entry') {
+      if (!entryId || !status) return NextResponse.json({ error: 'Entry ID and status required' }, { status: 400 });
+
+      const { data: entry } = await supabase
+        .from('time_entries')
+        .select('user_id')
+        .eq('id', entryId)
+        .single();
+
+      if (!entry) return NextResponse.json({ error: 'Entry not found' }, { status: 404 });
+
+      const teamMembers = await getTeamMembers(managerId);
+      if (!teamMembers.some((m) => m.user_id === entry.user_id)) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+      }
+
+      const { data, error } = await supabase
+        .from('time_entries')
+        .update({
+          status,
+          manager_notes: managerNotes || null,
+          approved_by: managerId,
+          approved_at: new Date().toISOString(),
+        })
+        .eq('id', entryId)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return NextResponse.json({ success: true, message: `Time entry ${status}`, entry: data });
+    }
+
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+  } catch (error) {
+    console.error('POST /api/timeclock/manager error:', error);
+    return NextResponse.json({ error: 'Failed to process manager action' }, { status: 500 });
+  }
+}
+```
+
+---
+
+
+## `src/app/api/timeclock/route.ts`
+
+```ts
+// /app/api/timeclock/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+// -------------------
+// Types
+// -------------------
+interface WorkShift {
+  start_time: string;
+  end_time: string;
+  shift_name?: string;
+}
+
+interface TimeEntry {
+  id: string;
+  user_id: string;
+  company_id?: string;
+  clock_in: string;
+  clock_out?: string | null;
+  expected_clock_in?: string;
+  expected_clock_out?: string;
+  total_hours?: number;
+  regular_hours?: number;
+  overtime_hours?: number;
+  is_late?: boolean;
+  status?: string;
+}
+
+// -------------------
+// Supabase Client
+// -------------------
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+// Default shift if none assigned
+const DEFAULT_SHIFT: WorkShift = {
+  start_time: '09:00:00',
+  end_time: '17:00:00'
+};
+
+// -------------------
+// Helper Functions
+// -------------------
+
+// Type guard
+function isObject(v: unknown): v is Record<string, unknown> {
+  return v !== null && typeof v === 'object';
+}
+
+async function getUserCompany(userId: string): Promise<string> {
+  const { data, error } = await supabase
+    .from('company_to_users')
+    .select('company_id')
+    .eq('user_id', userId)
+    .single();
+
+  if (error || !data?.company_id) throw new Error('User company not found');
+  return data.company_id;
+}
+
+// Safely handle relation returning array or object
+async function getUserActiveShift(userId: string): Promise<WorkShift> {
+  const today = new Date().toISOString().split('T')[0];
+
+  const { data, error } = await supabase
+    .from('user_shifts')
+    .select(`
+      shift_id,
+      work_shifts (
+        start_time,
+        end_time,
+        shift_name
+      )
+    `)
+    .eq('user_id', userId)
+    .lte('effective_from', today)
+    .or(`effective_until.is.null,effective_until.gte.${today}`)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error fetching user shift:', error);
+    return DEFAULT_SHIFT;
+  }
+
+  if (!data || !('work_shifts' in data)) {
+    return DEFAULT_SHIFT;
+  }
+
+  const rawWorkShifts = (data as Record<string, unknown>).work_shifts;
+
+  // Case 1: Array
+  if (Array.isArray(rawWorkShifts) && rawWorkShifts.length > 0 && isObject(rawWorkShifts[0])) {
+    const raw = rawWorkShifts[0];
+    const start_time =
+      typeof raw.start_time === 'string' ? raw.start_time : DEFAULT_SHIFT.start_time;
+    const end_time =
+      typeof raw.end_time === 'string' ? raw.end_time : DEFAULT_SHIFT.end_time;
+    const shift_name =
+      typeof raw.shift_name === 'string' ? raw.shift_name : undefined;
+    return { start_time, end_time, shift_name };
+  }
+
+  // Case 2: Single object
+  if (isObject(rawWorkShifts)) {
+    const raw = rawWorkShifts;
+    const start_time =
+      typeof raw.start_time === 'string' ? raw.start_time : DEFAULT_SHIFT.start_time;
+    const end_time =
+      typeof raw.end_time === 'string' ? raw.end_time : DEFAULT_SHIFT.end_time;
+    const shift_name =
+      typeof raw.shift_name === 'string' ? raw.shift_name : undefined;
+    return { start_time, end_time, shift_name };
+  }
+
+  // Fallback
+  return DEFAULT_SHIFT;
+}
+
+async function getTodayTimeEntry(userId: string): Promise<TimeEntry | null> {
+  const today = new Date();
+  const startOfDay = new Date(today.setHours(0, 0, 0, 0)).toISOString();
+  const endOfDay = new Date(today.setHours(23, 59, 59, 999)).toISOString();
+
+  const { data } = await supabase
+    .from('time_entries')
+    .select('*')
+    .eq('user_id', userId)
+    .gte('clock_in', startOfDay)
+    .lte('clock_in', endOfDay)
+    .order('clock_in', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return data as TimeEntry | null;
+}
+
+function calculateExpectedTimes(shift: WorkShift) {
+  const now = new Date();
+  const today = now.toISOString().split('T')[0];
+
+  const expectedClockIn = new Date(`${today}T${shift.start_time}`);
+  const expectedClockOut = new Date(`${today}T${shift.end_time}`);
+
+  return {
+    expected_clock_in: expectedClockIn.toISOString(),
+    expected_clock_out: expectedClockOut.toISOString()
+  };
+}
+
+// -------------------
+// GET - Fetch today's status, history, or summary
+// -------------------
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+    const action = searchParams.get('action'); // 'status' | 'history' | 'summary'
+
+    if (!userId) {
+      return NextResponse.json({ error: 'User ID required' }, { status: 400 });
+    }
+
+    if (action === 'status') {
+      const todayEntry = await getTodayTimeEntry(userId);
+      const shift = await getUserActiveShift(userId);
+
+      return NextResponse.json({
+        success: true,
+        clockedIn: !!(todayEntry && !todayEntry.clock_out),
+        todayEntry,
+        shift
+      });
+    }
+
+    if (action === 'history') {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      const { data, error } = await supabase
+        .from('time_entries')
+        .select('*')
+        .eq('user_id', userId)
+        .gte('clock_in', thirtyDaysAgo.toISOString())
+        .order('clock_in', { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+
+      return NextResponse.json({
+        success: true,
+        entries: data as TimeEntry[]
+      });
+    }
+
+    if (action === 'summary') {
+      const now = new Date();
+      const startOfWeek = new Date(now);
+      startOfWeek.setDate(now.getDate() - now.getDay());
+      startOfWeek.setHours(0, 0, 0, 0);
+
+      const { data, error } = await supabase
+        .from('time_entries')
+        .select('total_hours, regular_hours, overtime_hours, is_late')
+        .eq('user_id', userId)
+        .gte('clock_in', startOfWeek.toISOString())
+        .not('clock_out', 'is', null);
+
+      if (error) throw error;
+
+      const summary = {
+        totalHours: data.reduce((sum, entry) => sum + (Number(entry.total_hours) || 0), 0),
+        regularHours: data.reduce((sum, entry) => sum + (Number(entry.regular_hours) || 0), 0),
+        overtimeHours: data.reduce((sum, entry) => sum + (Number(entry.overtime_hours) || 0), 0),
+        onTimeDays: data.filter(entry => !entry.is_late).length,
+        lateDays: data.filter(entry => entry.is_late).length,
+        totalDays: data.length
+      };
+
+      return NextResponse.json({
+        success: true,
+        summary
+      });
+    }
+
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+
+  } catch (error) {
+    console.error('GET /api/timeclock error:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch time clock data' },
+      { status: 500 }
+    );
+  }
+}
+
+// -------------------
+// POST - Clock In / Clock Out
+// -------------------
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { userId, action } = body as { userId?: string; action?: 'clock_in' | 'clock_out' };
+
+    if (!userId || !action) {
+      return NextResponse.json(
+        { error: 'userId and action are required' },
+        { status: 400 }
+      );
+    }
+
+    const companyId = await getUserCompany(userId);
+    const todayEntry = await getTodayTimeEntry(userId);
+
+    if (action === 'clock_in') {
+      if (todayEntry && !todayEntry.clock_out) {
+        return NextResponse.json(
+          { error: 'You are already clocked in today' },
+          { status: 400 }
+        );
+      }
+
+      const shift = await getUserActiveShift(userId);
+      const expectedTimes = calculateExpectedTimes(shift);
+
+      const { data, error } = await supabase
+        .from('time_entries')
+        .insert({
+          user_id: userId,
+          company_id: companyId,
+          clock_in: new Date().toISOString(),
+          expected_clock_in: expectedTimes.expected_clock_in,
+          expected_clock_out: expectedTimes.expected_clock_out,
+          status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return NextResponse.json({
+        success: true,
+        message: 'Clocked in successfully',
+        entry: data as TimeEntry
+      });
+    }
+
+    if (action === 'clock_out') {
+      if (!todayEntry || todayEntry.clock_out) {
+        return NextResponse.json(
+          { error: 'You must clock in first' },
+          { status: 400 }
+        );
+      }
+
+      const { data, error } = await supabase
+        .from('time_entries')
+        .update({
+          clock_out: new Date().toISOString()
+        })
+        .eq('id', todayEntry.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return NextResponse.json({
+        success: true,
+        message: 'Clocked out successfully',
+        entry: data as TimeEntry
+      });
+    }
+
+    return NextResponse.json(
+      { error: 'Invalid action' },
+      { status: 400 }
+    );
+
+  } catch (error) {
+    console.error('POST /api/timeclock error:', error);
+    return NextResponse.json(
+      { error: 'Failed to process time clock action' },
+      { status: 500 }
     );
   }
 }
@@ -5660,73 +6756,73 @@ const AbsenceManagement: React.FC = () => {
 
   // Submit leave request
   const submitLeaveRequest = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!currentUser) return;
+  e.preventDefault();
+  if (!currentUser) return;
 
-    try {
-      setSubmitLoading(true);
+  try {
+    setSubmitLoading(true);
 
-      // Get user's manager
-      const { data: userData } = await supabase
-        .from('users')
-        .select('manager_id')
-        .eq('id', currentUser.id)
-        .single();
+    // Get user's manager
+    const { data: userData } = await supabase
+      .from('users')
+      .select('manager_id')
+      .eq('id', currentUser.id)
+      .single();
 
-      // Calculate working days
-      const { data: workingDays } = await supabase
-        .rpc('calculate_working_days', {
-          start_date: requestForm.start_date,
-          end_date: requestForm.end_date
-        });
-
-      const insertData: LeaveRequestInsertData = {
-        user_id: currentUser.id,
-        leave_type_id: requestForm.leave_type_id,
+    // Calculate working days
+    const { data: workingDays } = await supabase
+      .rpc('calculate_working_days', {
         start_date: requestForm.start_date,
-        end_date: requestForm.end_date,
-        total_days: workingDays as number,
-        reason: requestForm.reason,
-        manager_id: userData?.manager_id
-      };
-
-      // If we have certificate data from upload, link it
-      if (certificateData?.medical_certificate_id) {
-        insertData.medical_certificate_id = certificateData.medical_certificate_id;
-      }
-
-      const { error } = await supabase
-        .from('leave_requests')
-        .insert(insertData);
-
-      if (error) throw error;
-
-      // Reset form and close modal
-      setRequestForm({
-        leave_type_id: '',
-        start_date: '',
-        end_date: '',
-        reason: ''
+        end_date: requestForm.end_date
       });
-      setCertificateData(null);
-      setShowRequestModal(false);
 
-      // Refresh data
-      await fetchLeaveOverview();
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An unexpected error occurred');
-      }
-    } finally {
-      setSubmitLoading(false);
+    const insertData: LeaveRequestInsertData = {
+      user_id: currentUser.id,
+      leave_type_id: requestForm.leave_type_id,
+      start_date: requestForm.start_date,
+      end_date: requestForm.end_date,
+      total_days: workingDays as number,
+      reason: requestForm.reason,
+      manager_id: userData?.manager_id
+      // Certificate ID will be added in the modal's handleSubmitWithNotification
+    };
+
+    const { error } = await supabase
+      .from('leave_requests')
+      .insert(insertData);
+
+    if (error) throw error;
+
+    // Reset form and close modal
+    setRequestForm({
+      leave_type_id: '',
+      start_date: '',
+      end_date: '',
+      reason: ''
+    });
+    setShowRequestModal(false);
+
+    // Refresh data
+    await fetchLeaveOverview();
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      setError(err.message);
+    } else {
+      setError('An unexpected error occurred');
     }
-  };
+  } finally {
+    setSubmitLoading(false);
+  }
+};
 
   // Approve/reject leave request
   const handleRequestReview = async (requestId: string, status: 'approved' | 'rejected', notes?: string) => {
     try {
+      console.log("user_id before update", currentUser?.id)
+      console.log("status before update", status)
+      console.log("notes before update", notes)
+      console.log("requestI before update", requestId)
+
       const { error } = await supabase
         .from('leave_requests')
         .update({
@@ -5927,6 +7023,8 @@ const AbsenceManagement: React.FC = () => {
         onSubmit={submitLeaveRequest}
         loading={submitLoading}
         currentUserId={currentUser.id} 
+        companyId={companyId || ''} // Add this
+        currentUserName={`${currentUser?.user_metadata?.first_name || ''} ${currentUser?.user_metadata?.last_name || ''}`.trim() || currentUser?.email || ''}
       />
 
       {/* Certificate Upload Modal */}
@@ -6157,7 +7255,7 @@ export default function CVAnalyseClient({
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <a
-                href="/fake_cv_software_engineer.pdf"
+                href="https://drive.google.com/uc?export=download&id=1-pMKT5dp-8PjJI2RbaVbUNuxt_rxXLFG"
                 download
                 className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
               >
@@ -6166,7 +7264,7 @@ export default function CVAnalyseClient({
               </a>
               
               <a
-                href="/fake_cv_marketing_expert.pdf"
+                href="https://drive.google.com/uc?export=download&id=15kzhUQFvizgx1Zhx9MG-CJAhTvHc3gJS"
                 download
                 className="flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-4 rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
               >
@@ -8331,7 +9429,8 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
           <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 sm:p-6">
             <div className="flex flex-col gap-3">
               <a
-                href="/fake_medical_certificate.pdf"
+              
+                href="https://drive.google.com/uc?export=download&id=1ASXxoxYw4hq28BSTNm54fKKZEv4NOjcG"
                 download
                 className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
               >
@@ -10302,6 +11401,1790 @@ export default function HomePage() {
   return (
     <main style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
       <Home />
+    </main>
+  )
+}
+```
+
+---
+
+
+## `src/app/jobs/[slug]/performance/goals/[goalId]/page.tsx`
+
+```tsx
+// app/jobs/[slug]/performance/goals/[goalId]/page.tsx
+'use client'
+
+import { useSession } from '@supabase/auth-helpers-react'
+import { useRouter, useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { ArrowLeft, Target, Calendar, TrendingUp, CheckCircle, AlertCircle, Trash2 } from 'lucide-react'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+interface Goal {
+  id: string
+  employee_id: string
+  manager_id: string
+  goal_title: string
+  goal_description: string
+  success_criteria: string
+  quarter: string
+  year: number
+  status: string
+  created_by: string
+  employee_name: string
+  manager_name: string
+  created_at: string
+}
+
+interface Update {
+  id: string
+  status: 'green' | 'yellow' | 'red'
+  progress_comment: string | null
+  blockers: string | null
+  week_start_date: string
+  created_at: string
+}
+
+export default function GoalDetailPage() {
+  const router = useRouter()
+  const session = useSession()
+  const params = useParams()
+  const companySlug = params.slug as string
+  const goalId = params.goalId as string
+
+  const [goal, setGoal] = useState<Goal | null>(null)
+  const [updates, setUpdates] = useState<Update[]>([])
+  const [loading, setLoading] = useState(true)
+  const [isManager, setIsManager] = useState(false)
+  const [message, setMessage] = useState<{ text: string; type: 'error' | 'success' } | null>(null)
+
+  useEffect(() => {
+    if (!session) {
+      router.push('/')
+      return
+    }
+
+    fetchGoalDetails()
+  }, [session, router, goalId])
+
+  const fetchGoalDetails = async () => {
+    setLoading(true)
+    try {
+      // Fetch goal
+      const { data: goalData, error: goalError } = await supabase
+        .from('v_goals_with_status')
+        .select('*')
+        .eq('id', goalId)
+        .single()
+
+      if (goalError || !goalData) {
+        console.error('Error fetching goal:', goalError)
+        setLoading(false)
+        return
+      }
+
+      setGoal(goalData)
+      setIsManager(session?.user.id === goalData.manager_id)
+
+      // Fetch all updates for this goal
+      const { data: updatesData, error: updatesError } = await supabase
+        .from('goal_updates')
+        .select('*')
+        .eq('goal_id', goalId)
+        .order('created_at', { ascending: false })
+
+      if (!updatesError && updatesData) {
+        setUpdates(updatesData)
+      }
+    } catch (error) {
+      console.error('Error fetching goal details:', error)
+    }
+    setLoading(false)
+  }
+
+  const handleApprove = async () => {
+    if (!session?.user?.id) {
+      setMessage({ text: 'No session found', type: 'error' })
+      return
+    }
+
+    try {
+      const res = await fetch('/api/performance/goals/update', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          goal_id: goalId,
+          status: 'active',
+          user_id: session.user.id // Added this
+        })
+      })
+
+      if (res.ok) {
+        setMessage({ text: 'Goal approved successfully!', type: 'success' })
+        fetchGoalDetails()
+      } else {
+        const data = await res.json()
+        setMessage({ text: data.error || 'Failed to approve goal', type: 'error' })
+      }
+    } catch (error) {
+      setMessage({ text: `Error: ${(error as Error).message}`, type: 'error' })
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this goal? This action cannot be undone.')) {
+      return
+    }
+
+    if (!session?.user?.id) {
+      setMessage({ text: 'No session found', type: 'error' })
+      return
+    }
+
+    try {
+      const res = await fetch(`/api/performance/goals/update?goal_id=${goalId}&user_id=${session.user.id}`, {
+        method: 'DELETE'
+      })
+
+      if (res.ok) {
+        router.push(`/jobs/${companySlug}/performance`)
+      } else {
+        const data = await res.json()
+        setMessage({ text: data.error || 'Failed to delete goal', type: 'error' })
+      }
+    } catch (error) {
+      setMessage({ text: `Error: ${(error as Error).message}`, type: 'error' })
+    }
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'green': return 'bg-green-100 text-green-800 border-green-200'
+      case 'yellow': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+      case 'red': return 'bg-red-100 text-red-800 border-red-200'
+      default: return 'bg-gray-100 text-gray-800 border-gray-200'
+    }
+  }
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'green': return '🟢'
+      case 'yellow': return '🟡'
+      case 'red': return '🔴'
+      default: return '⚪'
+    }
+  }
+
+  if (!session || loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading goal details...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!goal) {
+    return (
+      <main className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Goal Not Found</h2>
+          <p className="text-gray-600 mb-6">This goal doesn&apos;t exist or you don&apos;t have access to it.</p>
+          <button
+            onClick={() => router.push(`/jobs/${companySlug}/performance`)}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all"
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </main>
+    )
+  }
+
+  return (
+    <main className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="space-y-6">
+        
+        {/* Header */}
+        <div className="bg-white rounded-2xl shadow-sm p-6">
+          <button
+            onClick={() => router.push(isManager ? `/jobs/${companySlug}/performance/team` : `/jobs/${companySlug}/performance`)}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to {isManager ? 'Team' : 'My'} Dashboard
+          </button>
+          
+          <div className="flex items-start justify-between">
+            <div className="flex items-start gap-4 flex-1">
+              <div className="bg-blue-100 rounded-lg p-3">
+                <Target className="w-8 h-8 text-blue-600" />
+              </div>
+              <div className="flex-1">
+                <h1 className="text-3xl font-bold text-gray-800 mb-2">{goal.goal_title}</h1>
+                <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+                  <span>Employee: {goal.employee_name}</span>
+                  <span>•</span>
+                  <span>Manager: {goal.manager_name}</span>
+                  <span>•</span>
+                  <span>{goal.quarter}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              {goal.status === 'draft' && (
+                <span className="px-3 py-1 bg-purple-100 text-purple-800 text-sm font-medium rounded-full">
+                  Pending Approval
+                </span>
+              )}
+              {goal.status === 'active' && (
+                <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
+                  Active
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {message && (
+          <div className={`rounded-xl p-4 ${
+            message.type === 'success' 
+              ? 'bg-green-50 border border-green-200' 
+              : 'bg-red-50 border border-red-200'
+          }`}>
+            <div className="flex items-center gap-2">
+              {message.type === 'success' ? (
+                <CheckCircle className="w-5 h-5 text-green-600" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-red-600" />
+              )}
+              <p className={`font-medium ${
+                message.type === 'success' ? 'text-green-800' : 'text-red-800'
+              }`}>
+                {message.text}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Approval Section for Managers */}
+        {isManager && goal.status === 'draft' && (
+          <div className="bg-purple-50 border border-purple-200 rounded-2xl p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Manager Approval Required</h3>
+            <p className="text-gray-700 mb-4">{goal.employee_name} is waiting for your approval on this goal.</p>
+            <button
+              onClick={handleApprove}
+              className="bg-green-500 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-600 transition-all shadow-md hover:shadow-lg"
+            >
+              Approve Goal
+            </button>
+          </div>
+        )}
+
+        {/* Goal Details */}
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="p-6 space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-gray-700 mb-2">Description</h3>
+              <p className="text-gray-800">{goal.goal_description || 'No description provided'}</p>
+            </div>
+
+            {goal.success_criteria && (
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">Success Criteria</h3>
+                <p className="text-gray-800">{goal.success_criteria}</p>
+              </div>
+            )}
+
+            <div className="pt-4 border-t border-gray-100">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-600">
+                  Created {goal.created_by === 'employee' ? 'by employee' : 'by manager'} on {new Date(goal.created_at).toLocaleDateString()}
+                </div>
+                {(session?.user.id === goal.employee_id || session?.user.id === goal.manager_id) && (
+                  <button
+                    onClick={handleDelete}
+                    className="flex items-center gap-2 text-red-600 hover:text-red-700 text-sm font-medium transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete Goal
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Progress Timeline */}
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-gray-100">
+            <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+              <TrendingUp className="w-5 h-5" />
+              Progress Timeline ({updates.length} updates)
+            </h2>
+          </div>
+          
+          {updates.length === 0 ? (
+            <div className="p-12 text-center">
+              <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-700 mb-2">No Updates Yet</h3>
+              <p className="text-gray-500">Weekly pulse updates will appear here</p>
+            </div>
+          ) : (
+            <div className="p-6">
+              <div className="space-y-4">
+                {updates.map((update, index) => (
+                  <div key={update.id} className="relative">
+                    {/* Timeline line */}
+                    {index !== updates.length - 1 && (
+                      <div className="absolute left-6 top-14 bottom-0 w-0.5 bg-gray-200"></div>
+                    )}
+                    
+                    <div className="flex gap-4">
+                      {/* Status Icon */}
+                      <div className="flex-shrink-0">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-sm border-2 ${
+                          update.status === 'green' ? 'bg-green-50 border-green-200' :
+                          update.status === 'yellow' ? 'bg-yellow-50 border-yellow-200' :
+                          'bg-red-50 border-red-200'
+                        }`}>
+                          {getStatusIcon(update.status)}
+                        </div>
+                      </div>
+
+                      {/* Update Content */}
+                      <div className="flex-1 pb-8">
+                        <div className="bg-gray-50 rounded-lg p-4">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <p className="font-medium text-gray-800">
+                                Week of {new Date(update.week_start_date).toLocaleDateString()}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {new Date(update.created_at).toLocaleDateString()} at {new Date(update.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </p>
+                            </div>
+                            <span className={`px-3 py-1 text-xs font-medium rounded-full border ${getStatusColor(update.status)}`}>
+                              {update.status.toUpperCase()}
+                            </span>
+                          </div>
+
+                          {update.progress_comment && (
+                            <div className="mt-3">
+                              <p className="text-sm font-medium text-gray-700 mb-1">Progress Update:</p>
+                              <p className="text-sm text-gray-600">{update.progress_comment}</p>
+                            </div>
+                          )}
+
+                          {update.blockers && (
+                            <div className="mt-3 bg-red-50 border border-red-200 rounded-lg p-3">
+                              <p className="text-sm font-medium text-red-800 mb-1">Blockers:</p>
+                              <p className="text-sm text-gray-700">{update.blockers}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Quick Actions */}
+        {goal.status === 'active' && session?.user.id === goal.employee_id && (
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-2xl p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Quick Actions</h3>
+            <p className="text-gray-600 mb-4">Keep your goal up to date with weekly pulse checks</p>
+            <button
+              onClick={() => router.push(`/jobs/${companySlug}/performance/pulse`)}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
+            >
+              <Calendar className="w-5 h-5 inline-block mr-2" />
+              Submit Weekly Pulse
+            </button>
+          </div>
+        )}
+      </div>
+    </main>
+  )
+}
+```
+
+---
+
+
+## `src/app/jobs/[slug]/performance/goals/new/page.tsx`
+
+```tsx
+// app/jobs/[slug]/performance/goals/new/page.tsx
+'use client'
+
+import { useSession } from '@supabase/auth-helpers-react'
+import { useRouter, useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { Target, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react'
+
+export default function NewGoalPage() {
+  const router = useRouter()
+  const session = useSession()
+  const params = useParams()
+  const companySlug = params.slug as string
+
+  const [goalTitle, setGoalTitle] = useState('')
+  const [goalDescription, setGoalDescription] = useState('')
+  const [successCriteria, setSuccessCriteria] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState<{ text: string; type: 'error' | 'success' } | null>(null)
+
+  useEffect(() => {
+    if (!session) {
+      router.push('/')
+    }
+  }, [session, router])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setMessage(null)
+    setLoading(true)
+
+    try {
+      const res = await fetch('/api/performance/goals/create', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    employee_id: session?.user.id,
+    goal_title: goalTitle,
+    goal_description: goalDescription,
+    success_criteria: successCriteria,
+    created_by: 'employee'
+  })
+})
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setMessage({ text: data.error || 'Error creating goal', type: 'error' })
+      } else {
+        setMessage({ text: 'Goal created and sent for manager approval!', type: 'success' })
+        setTimeout(() => {
+          router.push(`/jobs/${companySlug}/performance`)
+        }, 1500)
+      }
+    } catch (error) {
+      setMessage({ text: `Error: ${(error as Error).message}`, type: 'error' })
+    }
+
+    setLoading(false)
+  }
+
+  if (!session) {
+    return null
+  }
+
+  return (
+    <main className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="space-y-6">
+        
+        {/* Header */}
+        <div className="bg-white rounded-2xl shadow-sm p-6">
+          <button
+            onClick={() => router.push(`/jobs/${companySlug}/performance`)}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Dashboard
+          </button>
+          <div className="flex items-center gap-4">
+            <div className="bg-green-100 rounded-lg p-3">
+              <Target className="w-8 h-8 text-green-600" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">Create New Goal</h1>
+              <p className="text-gray-600">Define a goal for this quarter</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Info Box */}
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <div className="flex gap-3">
+            <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-gray-700">
+              <p className="font-medium mb-1">Tips for effective goals:</p>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Be specific and measurable</li>
+                <li>Define clear success criteria</li>
+                <li>Your manager will review and approve the goal</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {message && (
+          <div className={`rounded-xl p-4 ${
+            message.type === 'success' 
+              ? 'bg-green-50 border border-green-200' 
+              : 'bg-red-50 border border-red-200'
+          }`}>
+            <div className="flex items-center gap-2">
+              {message.type === 'success' ? (
+                <CheckCircle className="w-5 h-5 text-green-600" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-red-600" />
+              )}
+              <p className={`font-medium ${
+                message.type === 'success' ? 'text-green-800' : 'text-red-800'
+              }`}>
+                {message.text}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Form */}
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="p-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              
+              {/* Goal Title */}
+              <div>
+                <label htmlFor="goalTitle" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Goal Title *
+                </label>
+                <input
+                  id="goalTitle"
+                  type="text"
+                  value={goalTitle}
+                  onChange={(e) => setGoalTitle(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder="e.g., Improve customer satisfaction score by 15%"
+                />
+              </div>
+
+              {/* Goal Description */}
+              <div>
+                <label htmlFor="goalDescription" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Goal Description
+                </label>
+                <textarea
+                  id="goalDescription"
+                  value={goalDescription}
+                  onChange={(e) => setGoalDescription(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                  rows={4}
+                  placeholder="Describe what you want to achieve and why it matters..."
+                />
+              </div>
+
+              {/* Success Criteria */}
+              <div>
+                <label htmlFor="successCriteria" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Success Criteria
+                </label>
+                <textarea
+                  id="successCriteria"
+                  value={successCriteria}
+                  onChange={(e) => setSuccessCriteria(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                  rows={3}
+                  placeholder="How will you know you've achieved this goal? Be specific..."
+                />
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-6 rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                    Creating Goal...
+                  </>
+                ) : (
+                  <>
+                    <Target className="w-5 h-5" />
+                    Create Goal
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+  )
+}
+```
+
+---
+
+
+## `src/app/jobs/[slug]/performance/page.tsx`
+
+```tsx
+// app/jobs/[slug]/performance/page.tsx
+'use client'
+
+import { useSession } from '@supabase/auth-helpers-react'
+import { useRouter, useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { Plus, Target, TrendingUp, Calendar, AlertCircle, CheckCircle } from 'lucide-react'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+interface Goal {
+  id: string
+  goal_title: string
+  goal_description: string
+  success_criteria: string
+  quarter: string
+  year: number
+  status: string
+  created_by: string
+  latest_status: 'green' | 'yellow' | 'red' | null
+  latest_comment: string | null
+  latest_blockers: string | null
+  last_update_week: string | null
+  last_update_date: string | null
+  employee_name: string
+  manager_name: string
+  created_at: string
+}
+
+export default function PerformanceDashboard() {
+  const router = useRouter()
+  const session = useSession()
+  const params = useParams()
+  const companySlug = params.slug as string
+
+  const [goals, setGoals] = useState<Goal[]>([])
+  const [loading, setLoading] = useState(true)
+  const [currentQuarter, setCurrentQuarter] = useState('')
+  const [weekStart, setWeekStart] = useState('')
+
+  useEffect(() => {
+    if (!session) {
+      router.push('/')
+      return
+    }
+
+    fetchGoals()
+    fetchQuarterAndWeek()
+  }, [session, router])
+
+  const fetchQuarterAndWeek = async () => {
+    try {
+      const { data: quarter } = await supabase.rpc('get_current_quarter')
+      const { data: week } = await supabase.rpc('get_week_start')
+      
+      setCurrentQuarter(quarter as string || '')
+      setWeekStart(week as string || '')
+    } catch (error) {
+      console.error('Error fetching quarter/week:', error)
+    }
+  }
+
+  const fetchGoals = async () => {
+  setLoading(true)
+  try {
+    if (!session?.user?.id) {
+      console.error('No session found')
+      setLoading(false)
+      return
+    }
+    
+    const res = await fetch(`/api/performance/goals?view=employee&user_id=${session.user.id}`)
+    const data = await res.json()
+    if (res.ok) {
+      setGoals(data.goals || [])
+    } else {
+      console.error('Error fetching goals:', data.error)
+    }
+  } catch (error) {
+    console.error('Error fetching goals:', error)
+  }
+  setLoading(false)
+}
+
+  const activeGoals = goals.filter(g => g.status === 'active')
+  const draftGoals = goals.filter(g => g.status === 'draft')
+  const needsPulseGoals = activeGoals.filter(g => !g.last_update_week || g.last_update_week !== weekStart)
+  const redFlagGoals = activeGoals.filter(g => g.latest_status === 'red')
+
+  const getStatusColor = (status: string | null) => {
+    switch (status) {
+      case 'green': return 'bg-green-100 text-green-800 border-green-200'
+      case 'yellow': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+      case 'red': return 'bg-red-100 text-red-800 border-red-200'
+      default: return 'bg-gray-100 text-gray-800 border-gray-200'
+    }
+  }
+
+  const getStatusIcon = (status: string | null) => {
+    switch (status) {
+      case 'green': return '🟢'
+      case 'yellow': return '🟡'
+      case 'red': return '🔴'
+      default: return '⚪'
+    }
+  }
+
+  if (!session || loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your performance dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="space-y-6">
+        
+        {/* Header */}
+        <div className="bg-white rounded-2xl shadow-sm p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">My Performance</h1>
+              <p className="text-gray-600">{currentQuarter} - Track your goals and progress</p>
+            </div>
+            <button
+              onClick={() => router.push(`/jobs/${companySlug}/performance/goals/new`)}
+              className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105"
+            >
+              <Plus className="w-5 h-5" />
+              New Goal
+            </button>
+          </div>
+        </div>
+
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-100 rounded-lg p-3">
+                <Target className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-800">{activeGoals.length}</p>
+                <p className="text-sm text-gray-600">Active Goals</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center gap-3">
+              <div className="bg-yellow-100 rounded-lg p-3">
+                <Calendar className="w-6 h-6 text-yellow-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-800">{needsPulseGoals.length}</p>
+                <p className="text-sm text-gray-600">Needs Pulse</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center gap-3">
+              <div className="bg-red-100 rounded-lg p-3">
+                <AlertCircle className="w-6 h-6 text-red-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-800">{redFlagGoals.length}</p>
+                <p className="text-sm text-gray-600">Red Flags</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center gap-3">
+              <div className="bg-purple-100 rounded-lg p-3">
+                <TrendingUp className="w-6 h-6 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-800">{draftGoals.length}</p>
+                <p className="text-sm text-gray-600">Pending Approval</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Weekly Pulse Reminder */}
+        {needsPulseGoals.length > 0 && (
+          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-2xl p-6">
+            <div className="flex items-start gap-4">
+              <Calendar className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-1" />
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  Weekly Pulse Check Needed
+                </h3>
+                <p className="text-gray-700 mb-4">
+                  You have {needsPulseGoals.length} goal{needsPulseGoals.length !== 1 ? 's' : ''} that need a weekly update. It only takes 2 minutes!
+                </p>
+                <button
+                  onClick={() => router.push(`/jobs/${companySlug}/performance/pulse`)}
+                  className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-2 px-6 rounded-lg font-medium hover:from-yellow-600 hover:to-orange-600 transition-all shadow-md hover:shadow-lg"
+                >
+                  Submit Weekly Pulse
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Pending Approval Goals */}
+        {draftGoals.length > 0 && (
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-gray-100">
+              <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                Pending Manager Approval
+              </h2>
+            </div>
+            <div className="divide-y divide-gray-100">
+              {draftGoals.map(goal => (
+                <div key={goal.id} className="p-6 hover:bg-gray-50 transition-colors">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-800 mb-2">{goal.goal_title}</h3>
+                      <p className="text-sm text-gray-600 mb-2">{goal.goal_description}</p>
+                      <div className="flex items-center gap-4 text-xs text-gray-500">
+                        <span>Manager: {goal.manager_name}</span>
+                        <span>•</span>
+                        <span>Created: {new Date(goal.created_at).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                    <span className="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
+                      Pending
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Active Goals */}
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-gray-100">
+            <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+              <Target className="w-5 h-5" />
+              Active Goals ({activeGoals.length})
+            </h2>
+          </div>
+          
+          {activeGoals.length === 0 ? (
+            <div className="p-12 text-center">
+              <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-700 mb-2">No active goals yet</h3>
+              <p className="text-gray-500 mb-6">Start by creating your first goal for this quarter</p>
+              <button
+                onClick={() => router.push(`/jobs/${companySlug}/performance/goals/new`)}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all"
+              >
+                Create First Goal
+              </button>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {activeGoals.map(goal => (
+                <div 
+                  key={goal.id} 
+                  className="p-6 hover:bg-gray-50 transition-colors cursor-pointer"
+                  onClick={() => router.push(`/jobs/${companySlug}/performance/goals/${goal.id}`)}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="text-3xl flex-shrink-0">
+                      {getStatusIcon(goal.latest_status)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="font-semibold text-gray-800">{goal.goal_title}</h3>
+                        {goal.latest_status && (
+                          <span className={`px-3 py-1 text-xs font-medium rounded-full border ${getStatusColor(goal.latest_status)}`}>
+                            {goal.latest_status.toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 mb-3">{goal.goal_description}</p>
+                      
+                      {goal.latest_comment && (
+                        <div className="bg-blue-50 rounded-lg p-3 mb-3">
+                          <p className="text-sm text-gray-700">{goal.latest_comment}</p>
+                        </div>
+                      )}
+                      
+                      {goal.latest_blockers && (
+                        <div className="bg-red-50 rounded-lg p-3 mb-3">
+                          <p className="text-sm font-medium text-red-800 mb-1">Blockers:</p>
+                          <p className="text-sm text-gray-700">{goal.latest_blockers}</p>
+                        </div>
+                      )}
+                      
+                      <div className="flex items-center gap-4 text-xs text-gray-500">
+                        <span>Manager: {goal.manager_name}</span>
+                        <span>•</span>
+                        <span>
+                          {goal.last_update_date 
+                            ? `Updated: ${new Date(goal.last_update_date).toLocaleDateString()}`
+                            : 'No updates yet'}
+                        </span>
+                        {!goal.last_update_week || goal.last_update_week !== weekStart ? (
+                          <>
+                            <span>•</span>
+                            <span className="text-yellow-600 font-medium">Needs pulse this week</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>•</span>
+                            <span className="text-green-600 font-medium flex items-center gap-1">
+                              <CheckCircle className="w-3 h-3" />
+                              Pulse submitted
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </main>
+  )
+}
+```
+
+---
+
+
+## `src/app/jobs/[slug]/performance/pulse/page.tsx`
+
+```tsx
+'use client'
+
+import { useSession } from '@supabase/auth-helpers-react'
+import { useRouter, useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { Calendar, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+interface Goal {
+  id: string
+  goal_title: string
+  last_update_week: string | null
+  status: 'active' | 'inactive'
+}
+
+interface ApiGoalsResponse {
+  goals: Goal[]
+}
+
+interface PulseData {
+  [goalId: string]: {
+    status: 'green' | 'yellow' | 'red'
+    progress_comment: string
+    blockers: string
+  }
+}
+
+export default function WeeklyPulsePage() {
+  const router = useRouter()
+  const session = useSession()
+  const params = useParams()
+  const companySlug = params.slug as string
+
+  const [goals, setGoals] = useState<Goal[]>([])
+  const [pulseData, setPulseData] = useState<PulseData>({})
+  const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
+  const [weekStart, setWeekStart] = useState('')
+  const [message, setMessage] = useState<{ text: string; type: 'error' | 'success' } | null>(null)
+
+  useEffect(() => {
+    if (!session) {
+      router.push('/')
+      return
+    }
+
+    fetchGoalsNeedingPulse(session.user.id)
+  }, [session, router])
+
+  const fetchGoalsNeedingPulse = async (userId: string) => {
+    setLoading(true)
+    try {
+      const { data: week } = await supabase.rpc('get_week_start')
+      setWeekStart((week as string) || '')
+
+      const res = await fetch(`/api/performance/goals?view=employee&user_id=${userId}`)
+      const data: ApiGoalsResponse = await res.json()
+      
+      if (res.ok) {
+        const activeGoals = data.goals.filter(g => g.status === 'active')
+        const needsPulse = activeGoals.filter(g => !g.last_update_week || g.last_update_week !== (week as string))
+        
+        setGoals(needsPulse)
+        
+        const initialData: PulseData = {}
+        needsPulse.forEach(goal => {
+          initialData[goal.id] = {
+            status: 'green',
+            progress_comment: '',
+            blockers: ''
+          }
+        })
+        setPulseData(initialData)
+      }
+    } catch (error) {
+      console.error('Error fetching goals:', error)
+    }
+    setLoading(false)
+  }
+
+  const updatePulse = (goalId: string, field: keyof PulseData[string], value: string) => {
+    setPulseData(prev => ({
+      ...prev,
+      [goalId]: {
+        ...prev[goalId],
+        [field]: value
+      }
+    }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSubmitting(true)
+    setMessage(null)
+
+    try {
+      if (!session?.user?.id) {
+        setMessage({ text: 'No session found', type: 'error' })
+        return
+      }
+
+      const promises = goals.map(goal =>
+        fetch('/api/performance/pulse/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            goal_id: goal.id,
+            employee_id: session.user.id,
+            ...pulseData[goal.id]
+          })
+        })
+      )
+      
+      const results = await Promise.all(promises)
+      const allSuccessful = results.every(r => r.ok)
+      
+      if (allSuccessful) {
+        setMessage({ text: 'Weekly pulse submitted successfully!', type: 'success' })
+        setTimeout(() => {
+          router.push(`/jobs/${companySlug}/performance`)
+        }, 1500)
+      } else {
+        setMessage({ text: 'Some updates failed. Please try again.', type: 'error' })
+      }
+    } catch (error) {
+      setMessage({ text: `Error: ${(error as Error).message}`, type: 'error' })
+    }
+
+    setSubmitting(false)
+  }
+
+  const getStatusButtonClass = (goalId: string, status: 'green' | 'yellow' | 'red') => {
+    const isSelected = pulseData[goalId]?.status === status
+    const baseClass = 'flex-1 py-3 px-4 rounded-lg font-medium transition-all text-center'
+    
+    if (isSelected) {
+      switch (status) {
+        case 'green':
+          return `${baseClass} bg-green-500 text-white shadow-md`
+        case 'yellow':
+          return `${baseClass} bg-yellow-500 text-white shadow-md`
+        case 'red':
+          return `${baseClass} bg-red-500 text-white shadow-md`
+      }
+    }
+    
+    switch (status) {
+      case 'green':
+        return `${baseClass} bg-green-50 text-green-700 hover:bg-green-100 border border-green-200`
+      case 'yellow':
+        return `${baseClass} bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border border-yellow-200`
+      case 'red':
+        return `${baseClass} bg-red-50 text-red-700 hover:bg-red-100 border border-red-200`
+    }
+  }
+
+  if (!session || loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading pulse check...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (goals.length === 0) {
+    return (
+      <main className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
+          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">All Caught Up!</h2>
+          <p className="text-gray-600 mb-6">You&apos;ve already submitted your weekly pulse for all goals.</p>
+          <button
+            onClick={() => router.push(`/jobs/${companySlug}/performance`)}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all"
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </main>
+    )
+  }
+
+  return (
+    <main className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="space-y-6">
+        
+        {/* Header */}
+        <div className="bg-white rounded-2xl shadow-sm p-6">
+          <button
+            onClick={() => router.push(`/jobs/${companySlug}/performance`)}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Dashboard
+          </button>
+          <div className="flex items-center gap-4">
+            <div className="bg-blue-100 rounded-lg p-3">
+              <Calendar className="w-8 h-8 text-blue-600" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">Weekly Pulse Check</h1>
+              <p className="text-gray-600">Week starting: {new Date(weekStart).toLocaleDateString()}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Info Box */}
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <div className="flex gap-3">
+            <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-gray-700">
+              <p className="font-medium mb-1">Quick 2-minute check-in on your goals</p>
+              <p>🟢 Green = On track | 🟡 Yellow = Some issues | 🔴 Red = Blocked/Need help</p>
+            </div>
+          </div>
+        </div>
+
+        {message && (
+          <div className={`rounded-xl p-4 ${
+            message.type === 'success' 
+              ? 'bg-green-50 border border-green-200' 
+              : 'bg-red-50 border border-red-200'
+          }`}>
+            <div className="flex items-center gap-2">
+              {message.type === 'success' ? (
+                <CheckCircle className="w-5 h-5 text-green-600" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-red-600" />
+              )}
+              <p className={`font-medium ${
+                message.type === 'success' ? 'text-green-800' : 'text-red-800'
+              }`}>
+                {message.text}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Pulse Form */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {goals.map((goal, index) => (
+            <div key={goal.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b border-gray-100">
+                <h3 className="font-semibold text-gray-800 text-lg">
+                  Goal {index + 1}: {goal.goal_title}
+                </h3>
+              </div>
+              
+              <div className="p-6 space-y-4">
+                {/* Status Selection */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    How is this goal progressing?
+                  </label>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => updatePulse(goal.id, 'status', 'green')}
+                      className={getStatusButtonClass(goal.id, 'green')}
+                    >
+                      🟢 On Track
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updatePulse(goal.id, 'status', 'yellow')}
+                      className={getStatusButtonClass(goal.id, 'yellow')}
+                    >
+                      🟡 Some Issues
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updatePulse(goal.id, 'status', 'red')}
+                      className={getStatusButtonClass(goal.id, 'red')}
+                    >
+                      🔴 Blocked
+                    </button>
+                  </div>
+                </div>
+
+                {/* Progress Comment */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Progress Update (optional)
+                  </label>
+                  <textarea
+                    value={pulseData[goal.id]?.progress_comment || ''}
+                    onChange={(e) => updatePulse(goal.id, 'progress_comment', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    rows={3}
+                    placeholder="What did you accomplish this week?"
+                  />
+                </div>
+
+                {/* Blockers */}
+                {pulseData[goal.id]?.status === 'red' && (
+                  <div>
+                    <label className="block text-sm font-semibold text-red-700 mb-2">
+                      What&apos;s blocking you? *
+                    </label>
+                    <textarea
+                      value={pulseData[goal.id]?.blockers || ''}
+                      onChange={(e) => updatePulse(goal.id, 'blockers', e.target.value)}
+                      className="w-full px-4 py-3 border border-red-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none bg-red-50"
+                      rows={2}
+                      placeholder="Describe what&apos;s blocking your progress so your manager can help"
+                      required
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            {submitting ? (
+              <>
+                <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                Submitting...
+              </>
+            ) : (
+              <>
+                <CheckCircle className="w-5 h-5" />
+                Submit Weekly Pulse
+              </>
+            )}
+          </button>
+        </form>
+      </div>
+    </main>
+  )
+}
+```
+
+---
+
+
+## `src/app/jobs/[slug]/performance/team/page.tsx`
+
+```tsx
+// app/jobs/[slug]/performance/team/page.tsx
+'use client'
+
+import { useSession } from '@supabase/auth-helpers-react'
+import { useRouter, useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { Users, AlertTriangle, Target, TrendingUp, Plus } from 'lucide-react'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+interface Goal {
+  id: string
+  employee_id: string
+  goal_title: string
+  goal_description: string
+  success_criteria: string
+  quarter: string
+  year: number
+  status: string
+  created_by: string
+  latest_status: 'green' | 'yellow' | 'red' | null
+  latest_comment: string | null
+  latest_blockers: string | null
+  last_update_week: string | null
+  last_update_date: string | null
+  employee_name: string
+  manager_name: string
+  created_at: string
+}
+
+interface EmployeeStats {
+  employee_id: string
+  employee_name: string
+  total_goals: number
+  active_goals: number
+  red_flags: number
+  yellow_flags: number
+  green_flags: number
+  needs_pulse: number
+  pending_approval: number
+}
+
+export default function ManagerDashboard() {
+  const router = useRouter()
+  const session = useSession()
+  const params = useParams()
+  const companySlug = params.slug as string
+
+  const [goals, setGoals] = useState<Goal[]>([])
+  const [employeeStats, setEmployeeStats] = useState<EmployeeStats[]>([])
+  const [loading, setLoading] = useState(true)
+  const [weekStart, setWeekStart] = useState('')
+  const [selectedView, setSelectedView] = useState<'overview' | 'red-flags' | 'pending'>('overview')
+  const [expandedEmployee, setExpandedEmployee] = useState<string | null>(null)
+  //const [expandedEmployee, setExpandedEmployee] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!session) {
+      router.push('/')
+      return
+    }
+
+    fetchTeamGoals()
+    fetchWeekStart()
+  }, [session, router])
+
+  const fetchWeekStart = async () => {
+    try {
+      const { data: week } = await supabase.rpc('get_week_start')
+      setWeekStart(week as string || '')
+    } catch (error) {
+      console.error('Error fetching week:', error)
+    }
+  }
+
+  const fetchTeamGoals = async () => {
+    setLoading(true)
+    try {
+      if (!session?.user?.id) {
+        console.error('No session found')
+        setLoading(false)
+        return
+      }
+      
+      const res = await fetch(`/api/performance/goals?view=manager&user_id=${session.user.id}`)
+      const data = await res.json()
+      if (res.ok) {
+        const teamGoals = data.goals || []
+        console.log('Team goals fetched:', teamGoals.length)
+        setGoals(teamGoals)
+        calculateEmployeeStats(teamGoals)
+      } else {
+        console.error('Error fetching team goals:', data.error)
+      }
+    } catch (error) {
+      console.error('Error fetching team goals:', error)
+    }
+    setLoading(false)
+  }
+
+  const calculateEmployeeStats = (teamGoals: Goal[]) => {
+    const statsMap = new Map<string, EmployeeStats>()
+
+    teamGoals.forEach(goal => {
+      if (!statsMap.has(goal.employee_id)) {
+        statsMap.set(goal.employee_id, {
+          employee_id: goal.employee_id,
+          employee_name: goal.employee_name,
+          total_goals: 0,
+          active_goals: 0,
+          red_flags: 0,
+          yellow_flags: 0,
+          green_flags: 0,
+          needs_pulse: 0,
+          pending_approval: 0
+        })
+      }
+
+      const stats = statsMap.get(goal.employee_id)!
+      stats.total_goals++
+
+      if (goal.status === 'active') {
+        stats.active_goals++
+        
+        if (goal.latest_status === 'red') stats.red_flags++
+        else if (goal.latest_status === 'yellow') stats.yellow_flags++
+        else if (goal.latest_status === 'green') stats.green_flags++
+
+        if (!goal.last_update_week || goal.last_update_week !== weekStart) {
+          stats.needs_pulse++
+        }
+      }
+
+      if (goal.status === 'draft') {
+        stats.pending_approval++
+      }
+    })
+
+    setEmployeeStats(Array.from(statsMap.values()))
+  }
+
+  const handleApproveGoal = async (goalId: string) => {
+    try {
+      const res = await fetch('/api/performance/goals/update', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          goal_id: goalId,
+          status: 'active'
+        })
+      })
+
+      if (res.ok) {
+        fetchTeamGoals()
+      }
+    } catch (error) {
+      console.error('Error approving goal:', error)
+    }
+  }
+
+  const getStatusColor = (status: string | null) => {
+    switch (status) {
+      case 'green': return 'bg-green-100 text-green-800 border-green-200'
+      case 'yellow': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+      case 'red': return 'bg-red-100 text-red-800 border-red-200'
+      default: return 'bg-gray-100 text-gray-800 border-gray-200'
+    }
+  }
+
+  const getStatusIcon = (status: string | null) => {
+    switch (status) {
+      case 'green': return '🟢'
+      case 'yellow': return '🟡'
+      case 'red': return '🔴'
+      default: return '⚪'
+    }
+  }
+
+  const redFlagGoals = goals.filter(g => g.status === 'active' && g.latest_status === 'red')
+  const pendingGoals = goals.filter(g => g.status === 'draft')
+  const totalRedFlags = redFlagGoals.length
+  const totalPending = pendingGoals.length
+
+  if (!session || loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading team dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="space-y-6">
+        
+        {/* Header */}
+        <div className="bg-white rounded-2xl shadow-sm p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="bg-purple-100 rounded-lg p-3">
+                <Users className="w-8 h-8 text-purple-600" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-800">Team Performance</h1>
+                <p className="text-gray-600">Monitor your team&apos;s goals and progress</p>
+              </div>
+            </div>
+            <button
+              onClick={() => router.push(`/jobs/${companySlug}/performance`)}
+              className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+            >
+              My Goals
+            </button>
+          </div>
+        </div>
+
+        {/* View Selector */}
+        <div className="flex gap-2 bg-white rounded-xl shadow-sm p-2">
+          <button
+            onClick={() => setSelectedView('overview')}
+            className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
+              selectedView === 'overview'
+                ? 'bg-blue-500 text-white shadow-md'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => setSelectedView('red-flags')}
+            className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
+              selectedView === 'red-flags'
+                ? 'bg-red-500 text-white shadow-md'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            Red Flags ({totalRedFlags})
+          </button>
+          <button
+            onClick={() => setSelectedView('pending')}
+            className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
+              selectedView === 'pending'
+                ? 'bg-purple-500 text-white shadow-md'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            Pending Approval ({totalPending})
+          </button>
+        </div>
+
+        {/* Overview View */}
+        {selectedView === 'overview' && (
+          <div className="space-y-6">
+            {employeeStats.length === 0 ? (
+              <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
+                <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-700 mb-2">No Team Members Yet</h3>
+                <p className="text-gray-500">Your team members&apos; goals will appear here</p>
+              </div>
+            ) : (
+              employeeStats.map(employee => (
+                <div key={employee.employee_id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-800">{employee.employee_name}</h3>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {employee.active_goals} active goal{employee.active_goals !== 1 ? 's' : ''}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        {employee.red_flags > 0 && (
+                          <div className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+                            🔴 {employee.red_flags}
+                          </div>
+                        )}
+                        {employee.yellow_flags > 0 && (
+                          <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+                            🟡 {employee.yellow_flags}
+                          </div>
+                        )}
+                        {employee.green_flags > 0 && (
+                          <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+                            🟢 {employee.green_flags}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-6">
+                    <div className="grid grid-cols-3 gap-4 mb-4">
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-gray-800">{employee.active_goals}</p>
+                        <p className="text-xs text-gray-600">Active</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-yellow-600">{employee.needs_pulse}</p>
+                        <p className="text-xs text-gray-600">Needs Pulse</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-purple-600">{employee.pending_approval}</p>
+                        <p className="text-xs text-gray-600">Pending</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          // Filter to show only this employee's goals
+                          const employeeGoals = goals.filter(g => g.employee_id === employee.employee_id)
+                          if (employeeGoals.length > 0) {
+                            // Navigate to first goal detail
+                            router.push(`/jobs/${companySlug}/performance/goals/${employeeGoals[0].id}`)
+                          }
+                        }}
+                        className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-600 transition-colors text-sm"
+                      >
+                        View Goals
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* Red Flags View */}
+        {selectedView === 'red-flags' && (
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-gray-100">
+              <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+                Goals Needing Attention
+              </h2>
+            </div>
+            
+            {redFlagGoals.length === 0 ? (
+              <div className="p-12 text-center">
+                <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-700 mb-2">No Red Flags</h3>
+                <p className="text-gray-500">All team goals are on track!</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-100">
+                {redFlagGoals.map(goal => (
+                  <div 
+                    key={goal.id} 
+                    className="p-6 hover:bg-gray-50 transition-colors cursor-pointer"
+                    onClick={() => router.push(`/jobs/${companySlug}/performance/goals/${goal.id}`)}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="text-3xl flex-shrink-0">🔴</div>
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <h3 className="font-semibold text-gray-800">{goal.goal_title}</h3>
+                            <p className="text-sm text-gray-600">{goal.employee_name}</p>
+                          </div>
+                        </div>
+                        
+                        {goal.latest_blockers && (
+                          <div className="bg-red-50 border border-red-200 rounded-lg p-3 mt-3">
+                            <p className="text-sm font-medium text-red-800 mb-1">Blockers:</p>
+                            <p className="text-sm text-gray-700">{goal.latest_blockers}</p>
+                          </div>
+                        )}
+                        
+                        {goal.latest_comment && (
+                          <div className="bg-gray-50 rounded-lg p-3 mt-2">
+                            <p className="text-sm text-gray-700">{goal.latest_comment}</p>
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
+                          <span>Updated: {new Date(goal.last_update_date!).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Pending Approval View */}
+        {selectedView === 'pending' && (
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-gray-100">
+              <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-purple-600" />
+                Goals Awaiting Your Approval
+              </h2>
+            </div>
+            
+            {pendingGoals.length === 0 ? (
+              <div className="p-12 text-center">
+                <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-700 mb-2">No Pending Goals</h3>
+                <p className="text-gray-500">All goals have been reviewed</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-100">
+                {pendingGoals.map(goal => (
+                  <div key={goal.id} className="p-6 hover:bg-gray-50 transition-colors">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-800 mb-2">{goal.goal_title}</h3>
+                        <p className="text-sm text-gray-600 mb-2">{goal.employee_name}</p>
+                        <p className="text-sm text-gray-700 mb-3">{goal.goal_description}</p>
+                        {goal.success_criteria && (
+                          <div className="bg-blue-50 rounded-lg p-3 mb-3">
+                            <p className="text-xs font-medium text-blue-800 mb-1">Success Criteria:</p>
+                            <p className="text-sm text-gray-700">{goal.success_criteria}</p>
+                          </div>
+                        )}
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleApproveGoal(goal.id)}
+                            className="bg-green-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-600 transition-all text-sm"
+                          >
+                            Approve Goal
+                          </button>
+                          <button
+                            onClick={() => router.push(`/jobs/${companySlug}/performance/goals/${goal.id}`)}
+                            className="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-300 transition-all text-sm"
+                          >
+                            View Details
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </main>
   )
 }
@@ -13644,6 +16527,564 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
 ---
 
 
+## `src/app/jobs/[slug]/time-clock/manager/page.tsx`
+
+```tsx
+'use client';
+
+import ManagerTimeClockDashboard from '../../../../../../components/timeclock/ManagerTimeClockDashboard';
+import { useSession } from '@supabase/auth-helpers-react';
+
+export default function Page() {
+  const session = useSession(); // just the session object
+
+  if (session === undefined) {
+    // session is still loading
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Please log in to view this page.</p>
+      </div>
+    );
+  }
+
+  const managerId = session.user.id;
+  console.log("manager_id:", managerId)
+  const managerName = session.user.user_metadata?.full_name || 'Manager';
+
+  return <ManagerTimeClockDashboard managerId={managerId} managerName={managerName} />;
+}
+```
+
+---
+
+
+## `src/app/jobs/[slug]/time-clock/page.tsx`
+
+```tsx
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@supabase/supabase-js';
+import {
+  Clock,
+  Check,
+  Calendar,
+  TrendingUp,
+  AlertCircle,
+  LogIn,
+  LogOut,
+  Loader2,
+} from 'lucide-react';
+
+// --------------------
+// Types
+// --------------------
+interface PageProps {
+  params: Promise<{ slug: string }>;
+}
+
+interface TimeEntry {
+  id: number;
+  clock_in: string;
+  clock_out: string | null;
+  total_hours: number | null;
+  is_late: boolean;
+  is_early_leave: boolean;
+  is_overtime: boolean;
+  status: string;
+}
+
+interface WeeklySummary {
+  totalHours: number;
+  regularHours: number;
+  overtimeHours: number;
+  onTimeDays: number;
+  lateDays: number;
+  totalDays: number;
+}
+
+interface ClockStatusResponse {
+  success: boolean;
+  clockedIn: boolean;
+  todayEntry: TimeEntry | null;
+  shift?: { start_time: string; end_time: string };
+}
+
+interface HistoryResponse {
+  success: boolean;
+  entries: TimeEntry[];
+}
+
+interface SummaryResponse {
+  success: boolean;
+  summary: WeeklySummary;
+}
+
+interface ActionResponse {
+  success: boolean;
+  entry: TimeEntry;
+  error?: string;
+}
+
+interface UserData {
+  id: string;
+  full_name?: string;
+  email?: string;
+}
+
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+// --------------------
+// TimeClock Component
+// --------------------
+function TimeClock({ userId, userName }: { userId: string; userName: string }) {
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [clockedIn, setClockedIn] = useState(false);
+  const [clockInTime, setClockInTime] = useState<Date | null>(null);
+  const [todayEntry, setTodayEntry] = useState<TimeEntry | null>(null);
+  const [activeTab, setActiveTab] = useState<'clock' | 'history'>('clock');
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
+  const [weeklySummary, setWeeklySummary] = useState<WeeklySummary | null>(null);
+  const [shift, setShift] = useState({ start_time: '09:00:00', end_time: '17:00:00' });
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    fetchClockStatus();
+    fetchWeeklySummary();
+  }, [userId]);
+
+  useEffect(() => {
+    if (activeTab === 'history') fetchHistory();
+  }, [activeTab]);
+
+  const fetchClockStatus = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/timeclock?userId=${userId}&action=status`);
+      const data: ClockStatusResponse = await res.json();
+      if (data.success) {
+        setClockedIn(data.clockedIn);
+        setTodayEntry(data.todayEntry);
+        if (data.shift) setShift(data.shift);
+        if (data.todayEntry?.clock_in) setClockInTime(new Date(data.todayEntry.clock_in));
+      }
+    } catch {
+      showError('Failed to load clock status');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchHistory = async () => {
+    try {
+      const res = await fetch(`/api/timeclock?userId=${userId}&action=history`);
+      const data: HistoryResponse = await res.json();
+      if (data.success) setTimeEntries(data.entries);
+    } catch {
+      showError('Failed to load history');
+    }
+  };
+
+  const fetchWeeklySummary = async () => {
+    try {
+      const res = await fetch(`/api/timeclock?userId=${userId}&action=summary`);
+      const data: SummaryResponse = await res.json();
+      if (data.success) setWeeklySummary(data.summary);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleClockIn = async () => {
+    try {
+      setActionLoading(true);
+      const res = await fetch('/api/timeclock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, action: 'clock_in' }),
+      });
+      const data: ActionResponse = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to clock in');
+      if (data.success) {
+        setClockedIn(true);
+        setClockInTime(new Date(data.entry.clock_in));
+        setTodayEntry(data.entry);
+        showSuccess('Clocked in successfully! ✓');
+        fetchWeeklySummary();
+      }
+    } catch (err) {
+      showError(err instanceof Error ? err.message : 'Failed to clock in');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleClockOut = async () => {
+    try {
+      setActionLoading(true);
+      const res = await fetch('/api/timeclock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, action: 'clock_out' }),
+      });
+      const data: ActionResponse = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to clock out');
+      if (data.success) {
+        setClockedIn(false);
+        setClockInTime(null);
+        setTodayEntry(data.entry);
+        showSuccess('Clocked out successfully! ✓');
+        fetchWeeklySummary();
+      }
+    } catch (err) {
+      showError(err instanceof Error ? err.message : 'Failed to clock out');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const showError = (msg: string) => {
+    setError(msg);
+    setTimeout(() => setError(null), 5000);
+  };
+
+  const showSuccess = (msg: string) => {
+    setSuccessMessage(msg);
+    setTimeout(() => setSuccessMessage(null), 3000);
+  };
+
+  const formatTime = (d: Date) =>
+    d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  const formatDate = (d: Date) =>
+    d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const formatDateShort = (s: string) =>
+    new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const formatTimeShort = (s: string) =>
+    new Date(s).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+  const calculateWorkedHours = () => {
+    if (!clockInTime) return '0:00';
+    const diff = currentTime.getTime() - clockInTime.getTime();
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    return `${h}:${m.toString().padStart(2, '0')}`;
+  };
+
+  const getStatusColor = (e: TimeEntry) => {
+    if (e.is_late) return 'text-orange-600 bg-orange-50';
+    if (e.is_overtime) return 'text-purple-600 bg-purple-50';
+    return 'text-green-600 bg-green-50';
+  };
+
+  const getStatusText = (e: TimeEntry) => (e.is_late ? 'Late' : e.is_overtime ? 'Overtime' : 'On Time');
+
+  const getStatusIcon = (e: TimeEntry) =>
+    e.is_late ? <AlertCircle className="w-3 h-3" /> : e.is_overtime ? <TrendingUp className="w-3 h-3" /> : <Check className="w-3 h-3" />;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20">
+      <div className="bg-white border-b shadow-sm sticky top-0 z-10">
+        <div className="max-w-2xl mx-auto px-4 py-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+              <Clock className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-gray-900">Time Clock</h1>
+              <p className="text-xs text-gray-600">{userName}</p>
+            </div>
+          </div>
+
+          <div className="flex gap-2 mt-4">
+            <button
+              onClick={() => setActiveTab('clock')}
+              className={`flex-1 py-2 px-4 rounded-lg font-medium text-sm ${
+                activeTab === 'clock'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              Clock In/Out
+            </button>
+            <button
+              onClick={() => setActiveTab('history')}
+              className={`flex-1 py-2 px-4 rounded-lg font-medium text-sm ${
+                activeTab === 'history'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              History
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {error && (
+        <div className="max-w-2xl mx-auto px-4 mt-4">
+          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center gap-2">
+            <AlertCircle className="w-5 h-5" />
+            {error}
+          </div>
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="max-w-2xl mx-auto px-4 mt-4">
+          <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center gap-2">
+            <Check className="w-5 h-5" />
+            {successMessage}
+          </div>
+        </div>
+      )}
+
+      <div className="max-w-2xl mx-auto px-4 py-6">
+        {activeTab === 'clock' ? (
+          <>
+            <div className="bg-white rounded-2xl shadow-lg border p-6 mb-6 text-center">
+              <p className="text-sm text-gray-600 mb-2">{formatDate(currentTime)}</p>
+              <div className="text-5xl font-bold text-gray-900 font-mono mb-4">
+                {formatTime(currentTime)}
+              </div>
+              <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                <Calendar className="w-4 h-4" />
+                <span>
+                  Shift: {shift.start_time.slice(0, 5)} - {shift.end_time.slice(0, 5)}
+                </span>
+              </div>
+            </div>
+
+            {!clockedIn ? (
+              <button
+                onClick={handleClockIn}
+                disabled={actionLoading}
+                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-6 rounded-2xl font-bold text-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+              >
+                <div className="flex items-center justify-center gap-3">
+                  {actionLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <LogIn className="w-6 h-6" />}
+                  {actionLoading ? 'Clocking In...' : 'Clock In'}
+                </div>
+              </button>
+            ) : (
+              <div className="space-y-4">
+                <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                      <span className="text-green-800 font-semibold">Active Session</span>
+                    </div>
+                    <span className="text-green-600 text-sm">
+                      Clocked in at {clockInTime ? formatTime(clockInTime) : ''}
+                    </span>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 border border-green-200 text-center">
+                    <p className="text-sm text-gray-600 mb-1">Time Worked</p>
+                    <div className="text-3xl font-bold text-gray-900 font-mono">
+                      {calculateWorkedHours()}
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleClockOut}
+                  disabled={actionLoading}
+                  className="w-full bg-gradient-to-r from-red-500 to-rose-600 text-white py-6 rounded-2xl font-bold text-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+                >
+                  <div className="flex items-center justify-center gap-3">
+                    {actionLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <LogOut className="w-6 h-6" />}
+                    {actionLoading ? 'Clocking Out...' : 'Clock Out'}
+                  </div>
+                </button>
+              </div>
+            )}
+
+            {weeklySummary && (
+              <div className="mt-6 bg-white rounded-2xl shadow-lg border p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <TrendingUp className="w-5 h-5 text-blue-600" />
+                  <h3 className="font-semibold text-gray-900">This Week</h3>
+                </div>
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {weeklySummary.totalHours.toFixed(1)}
+                    </p>
+                    <p className="text-xs text-gray-600">Hours</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-green-600">
+                      {weeklySummary.onTimeDays}
+                    </p>
+                    <p className="text-xs text-gray-600">On Time</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-orange-600">
+                      {weeklySummary.overtimeHours.toFixed(1)}
+                    </p>
+                    <p className="text-xs text-gray-600">Overtime</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="space-y-3">
+            <h3 className="font-semibold text-gray-900 mb-4">Recent Entries</h3>
+            {timeEntries.length === 0 ? (
+              <div className="bg-white rounded-xl border p-8 text-center shadow-sm">
+                <Clock className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-500">No time entries yet</p>
+                <p className="text-sm text-gray-400 mt-1">
+                  Clock in to start tracking your hours
+                </p>
+              </div>
+            ) : (
+              timeEntries.map((entry) => (
+                <div
+                  key={entry.id}
+                  className="bg-white rounded-xl border p-4 shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-medium text-gray-900">
+                      {formatDateShort(entry.clock_in)}
+                    </span>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(entry)}`}
+                    >
+                      <span className="flex items-center gap-1">
+                        {getStatusIcon(entry)}
+                        {getStatusText(entry)}
+                      </span>
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm text-gray-600">
+                    <div className="flex items-center gap-4">
+                      <span>In: {formatTimeShort(entry.clock_in)}</span>
+                      <span>Out: {entry.clock_out ? formatTimeShort(entry.clock_out) : '—'}</span>
+                    </div>
+                    {entry.total_hours && (
+                      <span className="font-semibold text-gray-900">
+                        {entry.total_hours.toFixed(2)}h
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// --------------------
+// Page Component (Default Export)
+// --------------------
+export default function TimeClockPage({ params }: PageProps) {
+  const router = useRouter();
+  const [currentUser, setCurrentUser] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [slug, setSlug] = useState<string>('');
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        // Await params
+        const resolvedParams = await params;
+        setSlug(resolvedParams.slug);
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          router.push(`/jobs/${resolvedParams.slug}/login`);
+          return;
+        }
+
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (userError || !userData) {
+          setError('User not found');
+          return;
+        }
+
+        setCurrentUser(userData);
+      } catch (err) {
+        setError('Failed to load user');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUser();
+  }, [params, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error || !currentUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="bg-white rounded-2xl shadow-lg border p-8 max-w-md">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-gray-900 text-center mb-2">Error</h2>
+          <p className="text-gray-600 text-center">{error || 'Unable to load user information'}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <TimeClock 
+      userId={currentUser.id} 
+      userName={currentUser.full_name || currentUser.email || 'User'} 
+    />
+  );
+}
+```
+
+---
+
+
 ## `src/app/jobs/[slug]/users-creation/page.tsx`
 
 ```tsx
@@ -14337,7 +17778,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr">
+    <html lang="en" suppressHydrationWarning>
       <body>
         <ClientProvider>
           <Header />
@@ -14742,29 +18183,3 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 ```
-
----
-
-
----
-
-# Statistiques
-- **Nombre de fichiers inclus:** 68
-- **Taille du fichier:** 536K
-- **Date d'extraction:** Sat Oct  4 19:29:15 CEST 2025
-
-# Notes
-Cette extraction inclut :
-- Les fichiers de configuration clés
-- Les pages et points d'entrée (, )
-- Les composants ()
-- Les services / libs (, , )
-- Les routes API (, )
-- Les fichiers SQL (base de données)
-
-Exclus :
-- node_modules, .next, dist, build
-- tests, mocks, fichiers , 
-- définitions de types 
-- gros fichiers générés
-

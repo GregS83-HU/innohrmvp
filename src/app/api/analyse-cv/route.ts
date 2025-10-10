@@ -3,6 +3,7 @@ export const runtime = "nodejs";
 import { NextRequest, NextResponse } from 'next/server';
 import parsePdfBuffer from '../../../../lib/parsePdfSafe';
 import { createClient } from '@supabase/supabase-js';
+import { consumeCredit } from '../../../../lib/credit';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -194,6 +195,20 @@ If any field is not found, use empty string "".
 
 Remember: Write EVERYTHING in the same language as the CV!
 `;
+   
+
+    // === CHECK AI CREDITS BEFORE ANALYSIS ===
+    const companyId = formData.get('company_id')?.toString();
+
+    if (!companyId) {
+      return NextResponse.json({ error: 'Missing company ID (needed to check AI credits).' }, { status: 400 });
+    }
+
+    const ok = await consumeCredit(companyId);
+    if (!ok) {
+      return NextResponse.json({ error: 'You have no remaining AI credits this month.' }, { status: 402 });
+    }
+
 
     // === SINGLE AI CALL ===
     console.log('Starting combined AI analysis...');
