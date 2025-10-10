@@ -454,7 +454,7 @@ function InterviewAssistantModal({
         {!interviewQuestions && step === 'questions' && (
           <div className="space-y-4">
             <p className="text-gray-600">
-              Generate smart, role-specific interview questions based on the candidate's CV and the job description.
+              Generate smart, role-specific interview questions based on the candidate&apos;s CV and the job description.
             </p>
             <button
               onClick={handleGenerateQuestions}
