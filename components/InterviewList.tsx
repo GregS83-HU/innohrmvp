@@ -1,45 +1,71 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useSession } from '@supabase/auth-helpers-react'
 import { Calendar, MapPin, PlusCircle, Trash, Eye, MessageSquare } from 'lucide-react'
 
-export default function InterviewList({
-  candidatId,
-  positionId,
-}: {
+/** Types **/
+type InterviewStatus = 'done' | 'pending' | 'cancelled' | 'scheduled'
+
+export interface InterviewSummary {
+  summary: string
+  strengths?: string[]
+  weaknesses?: string[]
+  cultural_fit: string
+  recommendation: string
+  score: number
+}
+
+export interface Interview {
+  id: number
+  candidat_id: number
+  position_id: number | null
+  recruiter_id: string
+  interview_datetime: string
+  location?: string
+  status: InterviewStatus
+  notes?: string
+  summary?: InterviewSummary
+}
+
+interface InterviewListProps {
   candidatId: number
   positionId: number | null
-}) {
+}
+
+/** Main Component **/
+export default function InterviewList({ candidatId, positionId }: InterviewListProps) {
   const session = useSession()
-  const [interviews, setInterviews] = useState<any[]>([])
+  const [interviews, setInterviews] = useState<Interview[]>([])
   const [loading, setLoading] = useState(false)
   const [newDate, setNewDate] = useState('')
   const [newTime, setNewTime] = useState('')
   const [location, setLocation] = useState('')
   const [showAssistantModal, setShowAssistantModal] = useState(false)
   const [showSummaryModal, setShowSummaryModal] = useState(false)
-  const [selectedInterview, setSelectedInterview] = useState<any>(null)
+  const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null)
 
-  const loadInterviews = async () => {
+  const loadInterviews = useCallback(async () => {
     setLoading(true)
-    const res = await fetch(`/api/interviews?candidat_id=${candidatId}`)
-    const data = await res.json()
-
-    // Sort interviews chronologically
-    data.sort(
-      (a: any, b: any) =>
-        new Date(a.interview_datetime).getTime() -
-        new Date(b.interview_datetime).getTime()
-    )
-
-    setInterviews(data)
-    setLoading(false)
-  }
+    try {
+      const res = await fetch(`/api/interviews?candidat_id=${candidatId}`)
+      const data: Interview[] = await res.json()
+      data.sort(
+        (a, b) =>
+          new Date(a.interview_datetime).getTime() -
+          new Date(b.interview_datetime).getTime()
+      )
+      setInterviews(data)
+    } catch (err) {
+      console.error('Failed to load interviews', err)
+    } finally {
+      setLoading(false)
+    }
+  }, [candidatId])
 
   useEffect(() => {
     loadInterviews()
-  }, [candidatId])
+  }, [loadInterviews])
 
   const createInterview = async () => {
     if (!session?.user?.id) {
@@ -58,34 +84,42 @@ export default function InterviewList({
       location,
     }
 
-    const res = await fetch('/api/interviews', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    })
-
-    const result = await res.json()
-    if (res.ok) {
+    try {
+      const res = await fetch('/api/interviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      const result = await res.json()
+      if (!res.ok) {
+        console.error('❌ Interview creation error:', result)
+        alert(result.error || 'Failed to create interview')
+        return
+      }
       await loadInterviews()
       setNewDate('')
       setNewTime('')
       setLocation('')
-    } else {
-      console.error('❌ Interview creation error:', result)
-      alert(result.error || 'Failed to create interview')
+    } catch (err) {
+      console.error('Failed to create interview', err)
+      alert('Failed to create interview')
     }
   }
 
   const deleteInterview = async (id: number) => {
-    await fetch(`/api/interviews`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, status: 'cancelled' }),
-    })
-    loadInterviews()
+    try {
+      await fetch('/api/interviews', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: 'cancelled' }),
+      })
+      loadInterviews()
+    } catch (err) {
+      console.error('Failed to cancel interview', err)
+    }
   }
 
-  const handleInterviewAction = (interview: any) => {
+  const handleInterviewAction = (interview: Interview) => {
     setSelectedInterview(interview)
     if (interview.status === 'done') {
       setShowSummaryModal(true)
@@ -98,11 +132,10 @@ export default function InterviewList({
     setShowAssistantModal(false)
     setShowSummaryModal(false)
     setSelectedInterview(null)
-    loadInterviews() // Reload to get updated data
+    loadInterviews()
   }
 
-  // Helper function for status-based styling
-  const getStatusStyles = (status: string) => {
+  const getStatusStyles = (status: InterviewStatus) => {
     switch (status) {
       case 'done':
         return 'bg-gray-100 border-gray-300'
@@ -149,7 +182,7 @@ export default function InterviewList({
               </div>
             )}
           </div>
-          
+
           <div className="flex items-center gap-2">
             {intv.status === 'done' && (
               <button
@@ -169,15 +202,15 @@ export default function InterviewList({
                 <MessageSquare className="w-5 h-5" />
               </button>
             )}
-             {intv.status !== 'done' && (  // ✅ Only show trash if not done
-    <button
-      onClick={() => deleteInterview(intv.id)}
-      className="text-red-600 hover:text-red-800 p-1"
-      title="Cancel Interview"
-    >
-      <Trash className="w-4 h-4" />
-    </button>
-  )}
+            {intv.status !== 'done' && (
+              <button
+                onClick={() => deleteInterview(intv.id)}
+                className="text-red-600 hover:text-red-800 p-1"
+                title="Cancel Interview"
+              >
+                <Trash className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
       ))}
@@ -234,85 +267,75 @@ export default function InterviewList({
   )
 }
 
-// Summary Display Modal
-function InterviewSummaryModal({ interview, onClose }: { interview: any; onClose: () => void }) {
-  const summary = interview.summary
+/** Summary Modal **/
+interface InterviewSummaryModalProps {
+  interview: Interview
+  onClose: () => void
+}
 
-  if (!summary) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Interview Summary</h2>
-          <p className="text-gray-600">No summary available for this interview.</p>
-          <div className="flex justify-end mt-6">
-            <button
-              onClick={onClose}
-              className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-all"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
+function InterviewSummaryModal({ interview, onClose }: InterviewSummaryModalProps) {
+  const summary = interview.summary
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Interview Summary</h2>
-        
-        <div className="space-y-4 text-gray-800">
-          <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-            <Calendar className="w-4 h-4" />
-            {new Date(interview.interview_datetime).toLocaleString()}
-          </div>
 
-          <div className="bg-indigo-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-indigo-900 mb-2">Summary</h3>
-            <p className="text-sm">{summary.summary}</p>
-          </div>
-
-          <div className="bg-green-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-green-900 mb-2">Strengths</h3>
-            <ul className="list-disc pl-5 text-sm space-y-1">
-              {summary.strengths?.map((strength: string, i: number) => (
-                <li key={i}>{strength}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="bg-orange-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-orange-900 mb-2">Weaknesses</h3>
-            <ul className="list-disc pl-5 text-sm space-y-1">
-              {summary.weaknesses?.map((weakness: string, i: number) => (
-                <li key={i}>{weakness}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-blue-900 mb-2">Cultural Fit</h3>
-            <p className="text-sm">{summary.cultural_fit}</p>
-          </div>
-
-          <div className="bg-purple-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-purple-900 mb-2">Recommendation</h3>
-            <p className="text-sm">{summary.recommendation}</p>
-          </div>
-
-          <div className="bg-yellow-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-yellow-900 mb-2">Score</h3>
-            <p className="text-2xl font-bold">{summary.score}/10</p>
-          </div>
-
-          {interview.notes && (
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-semibold text-gray-900 mb-2">Interview Notes</h3>
-              <p className="text-sm whitespace-pre-wrap">{interview.notes}</p>
+        {!summary ? (
+          <p className="text-gray-600">No summary available for this interview.</p>
+        ) : (
+          <div className="space-y-4 text-gray-800">
+            <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
+              <Calendar className="w-4 h-4" />
+              {new Date(interview.interview_datetime).toLocaleString()}
             </div>
-          )}
-        </div>
+
+            <div className="bg-indigo-50 p-4 rounded-lg">
+              <h3 className="font-semibold text-indigo-900 mb-2">Summary</h3>
+              <p className="text-sm">{summary.summary}</p>
+            </div>
+
+            <div className="bg-green-50 p-4 rounded-lg">
+              <h3 className="font-semibold text-green-900 mb-2">Strengths</h3>
+              <ul className="list-disc pl-5 text-sm space-y-1">
+                {summary.strengths?.map((s, i) => (
+                  <li key={i}>{s}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="bg-orange-50 p-4 rounded-lg">
+              <h3 className="font-semibold text-orange-900 mb-2">Weaknesses</h3>
+              <ul className="list-disc pl-5 text-sm space-y-1">
+                {summary.weaknesses?.map((w, i) => (
+                  <li key={i}>{w}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h3 className="font-semibold text-blue-900 mb-2">Cultural Fit</h3>
+              <p className="text-sm">{summary.cultural_fit}</p>
+            </div>
+
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <h3 className="font-semibold text-purple-900 mb-2">Recommendation</h3>
+              <p className="text-sm">{summary.recommendation}</p>
+            </div>
+
+            <div className="bg-yellow-50 p-4 rounded-lg">
+              <h3 className="font-semibold text-yellow-900 mb-2">Score</h3>
+              <p className="text-2xl font-bold">{summary.score}/10</p>
+            </div>
+
+            {interview.notes && (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-gray-900 mb-2">Interview Notes</h3>
+                <p className="text-sm whitespace-pre-wrap">{interview.notes}</p>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="flex justify-end mt-6">
           <button
@@ -327,25 +350,41 @@ function InterviewSummaryModal({ interview, onClose }: { interview: any; onClose
   )
 }
 
-// Interview Assistant Modal (updated version)
-function InterviewAssistantModal({
-  candidatId,
-  positionId,
-  interviewId,
-  onClose
-}: {
+/** Interview Assistant Modal **/
+interface InterviewAssistantModalProps {
   candidatId: number
   positionId: number | null
   interviewId: number
   onClose: () => void
-}) {
-  const [interviewQuestions, setInterviewQuestions] = useState<any[] | null>(null)
+}
+
+interface AIQuestion {
+  category: string
+  text: string
+}
+
+interface AISummary {
+  summary: string
+  strengths?: string[]
+  weaknesses?: string[]
+  cultural_fit: string
+  recommendation: string
+  score: number
+}
+
+function InterviewAssistantModal({
+  candidatId,
+  positionId,
+  interviewId,
+  onClose,
+}: InterviewAssistantModalProps) {
+  const [interviewQuestions, setInterviewQuestions] = useState<AIQuestion[] | null>(null)
   const [interviewNotes, setInterviewNotes] = useState('')
-  const [interviewSummary, setInterviewSummary] = useState<any | null>(null)
+  const [interviewSummary, setInterviewSummary] = useState<AISummary | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [step, setStep] = useState<'questions' | 'summary'>('questions')
 
-  async function handleGenerateQuestions() {
+  const handleGenerateQuestions = async () => {
     setIsLoading(true)
     setStep('questions')
     try {
@@ -368,7 +407,7 @@ function InterviewAssistantModal({
     }
   }
 
-  async function handleGenerateSummary() {
+  const handleGenerateSummary = async () => {
     setIsLoading(true)
     setStep('summary')
     try {
@@ -383,7 +422,7 @@ function InterviewAssistantModal({
           notes: interviewNotes,
         }),
       })
-      const data = await res.json()
+      const data: AISummary = await res.json()
       setInterviewSummary(data)
     } catch (err) {
       console.error('Failed to generate summary', err)
@@ -392,17 +431,13 @@ function InterviewAssistantModal({
     }
   }
 
-  async function handleClose() {
-    // Update interview status to "done" only if summary was generated
+  const handleClose = async () => {
     if (interviewSummary) {
       try {
         await fetch('/api/interviews', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            id: interviewId, 
-            status: 'done'
-          }),
+          body: JSON.stringify({ id: interviewId, status: 'done' }),
         })
       } catch (err) {
         console.error('Failed to update interview status', err)
@@ -416,7 +451,6 @@ function InterviewAssistantModal({
       <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full relative p-6 max-h-[90vh] overflow-y-auto">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">AI Interview Assistant</h2>
 
-        {/* Step 1: Questions */}
         {!interviewQuestions && step === 'questions' && (
           <div className="space-y-4">
             <p className="text-gray-600">
@@ -432,12 +466,11 @@ function InterviewAssistantModal({
           </div>
         )}
 
-        {/* Show questions */}
         {interviewQuestions && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-indigo-800">Suggested Questions</h3>
             <ul className="list-disc pl-6 text-gray-700 space-y-1">
-              {interviewQuestions.map((q: any, i: number) => (
+              {interviewQuestions.map((q, i) => (
                 <li key={i}>
                   <span className="font-semibold capitalize">{q.category}:</span> {q.text}
                 </li>
@@ -462,7 +495,6 @@ function InterviewAssistantModal({
           </div>
         )}
 
-        {/* Show summary */}
         {interviewSummary && (
           <div className="mt-6 space-y-3">
             <h3 className="text-lg font-semibold text-green-800">Interview Summary</h3>

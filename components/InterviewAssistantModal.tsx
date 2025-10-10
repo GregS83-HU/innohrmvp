@@ -2,6 +2,20 @@
 
 import { useState } from 'react'
 
+type InterviewQuestion = {
+  category: string
+  text: string
+}
+
+type InterviewSummary = {
+  summary: string
+  strengths?: string[]
+  weaknesses?: string[]
+  cultural_fit: string
+  recommendation: string
+  score: number
+}
+
 export default function InterviewAssistantModal({
   candidatId,
   positionId,
@@ -11,9 +25,9 @@ export default function InterviewAssistantModal({
   positionId: number | null
   onClose: () => void
 }) {
-  const [interviewQuestions, setInterviewQuestions] = useState<any[] | null>(null)
+  const [interviewQuestions, setInterviewQuestions] = useState<InterviewQuestion[] | null>(null)
   const [interviewNotes, setInterviewNotes] = useState('')
-  const [interviewSummary, setInterviewSummary] = useState<any | null>(null)
+  const [interviewSummary, setInterviewSummary] = useState<InterviewSummary | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [step, setStep] = useState<'questions' | 'summary'>('questions')
 
@@ -30,7 +44,7 @@ export default function InterviewAssistantModal({
           position_id: positionId,
         }),
       })
-      const data = await res.json()
+      const data: { questions: InterviewQuestion[] } = await res.json()
       setInterviewQuestions(data.questions)
     } catch (err) {
       console.error('Failed to generate questions', err)
@@ -51,10 +65,10 @@ export default function InterviewAssistantModal({
           candidat_id: candidatId,
           position_id: positionId,
           notes: interviewNotes,
-          status: 'Done'
+          status: 'Done',
         }),
       })
-      const data = await res.json()
+      const data: InterviewSummary = await res.json()
       setInterviewSummary(data)
     } catch (err) {
       console.error('Failed to generate summary', err)
@@ -89,7 +103,7 @@ export default function InterviewAssistantModal({
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-indigo-800">Suggested Questions</h3>
             <ul className="list-disc pl-6 text-gray-700 space-y-1">
-              {interviewQuestions.map((q: any, i: number) => (
+              {interviewQuestions.map((q: InterviewQuestion, i: number) => (
                 <li key={i}>
                   <span className="font-semibold capitalize">{q.category}:</span> {q.text}
                 </li>
@@ -102,7 +116,7 @@ export default function InterviewAssistantModal({
               placeholder="Write your interview notes here..."
               className="w-full border rounded-lg p-3 text-sm mt-4 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               rows={4}
-            ></textarea>
+            />
 
             <button
               onClick={handleGenerateSummary}

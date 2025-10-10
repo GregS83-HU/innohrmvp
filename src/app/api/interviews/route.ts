@@ -42,24 +42,39 @@ export async function POST(req: Request) {
     console.log('[Planning API] Inserted interview:', data)
     return NextResponse.json(data)
 
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[Planning API] Exception:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    
+    if (err instanceof Error) {
+      return NextResponse.json({ error: err.message }, { status: 500 })
+    } else {
+      return NextResponse.json({ error: 'Unknown error' }, { status: 500 })
+    }
   }
 }
 
-
 export async function PATCH(req: Request) {
-  const body = await req.json()
-  const { id, status, notes, ai_summary } = body
+  try {
+    const body = await req.json()
+    const { id, status, notes, ai_summary } = body
 
-  const { data, error } = await supabase
-    .from('interviews')
-    .update({ status, notes, ai_summary })
-    .eq('id', id)
-    .select()
-    .single()
+    const { data, error } = await supabase
+      .from('interviews')
+      .update({ status, notes, ai_summary })
+      .eq('id', id)
+      .select()
+      .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 })
-  return NextResponse.json(data)
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+    return NextResponse.json(data)
+
+  } catch (err: unknown) {
+    console.error('[Planning API] PATCH Exception:', err)
+    
+    if (err instanceof Error) {
+      return NextResponse.json({ error: err.message }, { status: 500 })
+    } else {
+      return NextResponse.json({ error: 'Unknown error' }, { status: 500 })
+    }
+  }
 }
