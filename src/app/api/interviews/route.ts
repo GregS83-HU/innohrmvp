@@ -145,10 +145,14 @@ export async function POST(req: Request) {
 
     return NextResponse.json(interview)
 
-  } catch (err: any) {
-    console.error('[Interviews API] Exception:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
-  }
+  } catch (err: unknown) {
+  console.error('[Interviews API] Exception:', err)
+
+  // Narrow unknown to Error safely
+  const message = err instanceof Error ? err.message : 'Unknown error'
+
+  return NextResponse.json({ error: message }, { status: 500 })
+}
 }
 
 export async function PATCH(req: Request) {

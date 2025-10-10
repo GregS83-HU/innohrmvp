@@ -1,8 +1,35 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useSession } from '@supabase/auth-helpers-react'
 import { Calendar, MapPin, PlusCircle, Trash, Eye, MessageSquare } from 'lucide-react'
+
+// Define types
+interface InterviewSummary {
+  summary: string
+  strengths: string[]
+  weaknesses: string[]
+  cultural_fit: string
+  recommendation: string
+  score: number
+}
+
+interface Interview {
+  id: number
+  candidat_id: number
+  position_id: number | null
+  recruiter_id: string
+  interview_datetime: string
+  location?: string
+  status: 'pending' | 'done' | 'cancelled'
+  notes?: string
+  summary?: InterviewSummary
+}
+
+interface Question {
+  category: string
+  text: string
+}
 
 export default function InterviewList({
   candidatId,
@@ -12,7 +39,7 @@ export default function InterviewList({
   positionId: number | null
 }) {
   const session = useSession()
-  const [interviews, setInterviews] = useState<any[]>([])
+  const [interviews, setInterviews] = useState<Interview[]>([])
   const [loading, setLoading] = useState(false)
   const [newDate, setNewDate] = useState('')
   const [newTime, setNewTime] = useState('')
@@ -20,27 +47,27 @@ export default function InterviewList({
   const [showAssistantModal, setShowAssistantModal] = useState(false)
   const [showSummaryModal, setShowSummaryModal] = useState(false)
   const [showCancelModal, setShowCancelModal] = useState(false)
-  const [selectedInterview, setSelectedInterview] = useState<any>(null)
+  const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null)
 
-  const loadInterviews = async () => {
+  const loadInterviews = useCallback(async () => {
     setLoading(true)
     const res = await fetch(`/api/interviews?candidat_id=${candidatId}`)
     const data = await res.json()
 
     // Sort interviews chronologically
     data.sort(
-      (a: any, b: any) =>
+      (a: Interview, b: Interview) =>
         new Date(a.interview_datetime).getTime() -
         new Date(b.interview_datetime).getTime()
     )
 
     setInterviews(data)
     setLoading(false)
-  }
+  }, [candidatId])
 
   useEffect(() => {
     loadInterviews()
-  }, [candidatId])
+  }, [loadInterviews])
 
   const createInterview = async () => {
     if (!session?.user?.id) {
@@ -88,12 +115,12 @@ export default function InterviewList({
     loadInterviews()
   }
 
-  const handleCancelClick = (interview: any) => {
+  const handleCancelClick = (interview: Interview) => {
     setSelectedInterview(interview)
     setShowCancelModal(true)
   }
 
-  const handleInterviewAction = (interview: any) => {
+  const handleInterviewAction = (interview: Interview) => {
     setSelectedInterview(interview)
     if (interview.status === 'done') {
       setShowSummaryModal(true)
@@ -178,14 +205,14 @@ export default function InterviewList({
               </button>
             )}
             {intv.status !== 'cancelled' && (
-  <button
-    onClick={() => handleCancelClick(intv)}
-    className="text-red-600 hover:text-red-800 p-1"
-    title="Cancel Interview"
-  >
-    <Trash className="w-4 h-4" />
-  </button>
-)}
+              <button
+                onClick={() => handleCancelClick(intv)}
+                className="text-red-600 hover:text-red-800 p-1"
+                title="Cancel Interview"
+              >
+                <Trash className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
       ))}
@@ -259,7 +286,7 @@ function CancelInterviewModal({
   onConfirm, 
   onCancel 
 }: { 
-  interview: any
+  interview: Interview
   onConfirm: () => void
   onCancel: () => void
 }) {
@@ -308,7 +335,13 @@ function CancelInterviewModal({
 }
 
 // Summary Display Modal
-function InterviewSummaryModal({ interview, onClose }: { interview: any; onClose: () => void }) {
+function InterviewSummaryModal({ 
+  interview, 
+  onClose 
+}: { 
+  interview: Interview
+  onClose: () => void 
+}) {
   const summary = interview.summary
 
   if (!summary) {
@@ -412,9 +445,9 @@ function InterviewAssistantModal({
   interviewId: number
   onClose: () => void
 }) {
-  const [interviewQuestions, setInterviewQuestions] = useState<any[] | null>(null)
+  const [interviewQuestions, setInterviewQuestions] = useState<Question[] | null>(null)
   const [interviewNotes, setInterviewNotes] = useState('')
-  const [interviewSummary, setInterviewSummary] = useState<any | null>(null)
+  const [interviewSummary, setInterviewSummary] = useState<InterviewSummary | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [step, setStep] = useState<'questions' | 'summary'>('questions')
 
@@ -493,7 +526,7 @@ function InterviewAssistantModal({
         {!interviewQuestions && step === 'questions' && (
           <div className="space-y-4">
             <p className="text-gray-600">
-              Generate smart, role-specific interview questions based on the candidate's CV and the job description.
+              Generate smart, role-specific interview questions based on the candidate&apos;s CV and the job description.
             </p>
             <button
               onClick={handleGenerateQuestions}
@@ -510,7 +543,7 @@ function InterviewAssistantModal({
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-indigo-800">Suggested Questions</h3>
             <ul className="list-disc pl-6 text-gray-700 space-y-1">
-              {interviewQuestions.map((q: any, i: number) => (
+              {interviewQuestions.map((q: Question, i: number) => (
                 <li key={i}>
                   <span className="font-semibold capitalize">{q.category}:</span> {q.text}
                 </li>
