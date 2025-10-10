@@ -1,5 +1,4 @@
 // app/api/stripe/webhook/route.ts
-
 import Stripe from "stripe"
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
@@ -19,154 +18,180 @@ export async function POST(req: Request) {
       process.env.STRIPE_WEBHOOK_SECRET!
     )
   } catch (err: unknown) {
-  if (err instanceof Error) {
-    console.error("❌ Webhook signature verification failed:", err.message)
-    return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 })
+    const msg = err instanceof Error ? err.message : "Webhook signature unknown error"
+    console.error("❌ Webhook signature verification failed:", msg)
+    return NextResponse.json({ error: `Webhook Error: ${msg}` }, { status: 400 })
   }
-
-  console.error("❌ Webhook signature verification failed with unknown error:", err)
-  return NextResponse.json({ error: "Webhook Error: Unknown error" }, { status: 400 })
-}
 
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  // ✅ Handle checkout completed
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session
-    const subscriptionId = session.subscription as string
-    const customerId = session.customer as string
-    const companyId = session.metadata?.company_id
+  // 🔒 Idempotency guard
+  const { data: existing, error: existingError } = await supabase
+    .from("stripe_events")
+    .select("id")
+    .eq("id", event.id)
+    .maybeSingle()
 
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId)
-    const priceId = subscription.items.data[0].price.id
-
-    const { data: forfait } = await supabase
-      .from("forfait")
-      .select("id, forfait_name")
-      .eq("stripe_price_id", priceId)
-      .single()
-
-    if (companyId && forfait) {
-      await supabase
-        .from("company")
-        .update({
-          forfait: forfait.forfait_name,
-          stripe_subscription_id: subscriptionId,
-          stripe_customer_id: customerId,
-        })
-        .eq("id", companyId)
-
-      console.log(`✅ Company ${companyId} subscribed to ${forfait.forfait_name}`)
-    }
+  if (existing) {
+    console.log("ℹ️ Stripe event already processed:", event.id)
+    return NextResponse.json({ received: true })
   }
 
-  // ✅ Handle successful payments
-  if (event.type === "invoice.payment_succeeded") {
-    const invoice = event.data.object as Stripe.Invoice & {
-      subscription?: string | Stripe.Subscription | null
-    }
+  await supabase.from("stripe_events").insert({ id: event.id, type: event.type }).select()
 
-    if (!invoice.subscription) {
-      console.log("ℹ️ Invoice without subscription, skipping")
-      return NextResponse.json({ received: true })
-    }
+  try {
+    // ----------------------------
+    // Checkout Session Completed
+    // ----------------------------
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object as Stripe.Checkout.Session
 
-    const subscriptionId =
-      typeof invoice.subscription === "string"
-        ? invoice.subscription
-        : invoice.subscription.id
+      if (!session.subscription) {
+        console.log("ℹ️ No subscription in session, skipping update")
+        return NextResponse.json({ received: true })
+      }
 
-    const customerId =
-      typeof invoice.customer === "string"
-        ? invoice.customer
-        : invoice.customer?.id
+      const subscriptionId = session.subscription as string
+      const customerId = session.customer as string
+      const companyId = session.metadata?.company_id
 
-    if (!customerId) {
-      console.log("ℹ️ No customer found for invoice")
-      return NextResponse.json({ received: true })
-    }
+      if (!companyId) {
+        console.log("ℹ️ No company_id in session metadata, skipping update")
+        return NextResponse.json({ received: true })
+      }
 
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId)
-    const priceId = subscription.items.data[0].price.id
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId)
+      const priceId = subscription.items.data[0]?.price.id
 
-    // Find company via Stripe customer metadata or DB
-    let companyId: string | null = null
-    const customer = await stripe.customers.retrieve(customerId)
-
-    if (!customer.deleted) {
-      companyId = customer.metadata?.company_id || null
-    }
-
-    if (!companyId) {
-      const { data: company } = await supabase
-        .from("company")
-        .select("id")
-        .eq("stripe_customer_id", customerId)
+      const { data: forfait, error: forfaitError } = await supabase
+        .from("forfait")
+        .select("id, forfait_name")
+        .eq("stripe_price_id", priceId)
         .single()
 
-      if (company) companyId = company.id.toString()
+      if (forfaitError || !forfait) {
+        console.log("ℹ️ No matching forfait found for priceId", priceId)
+      } else {
+        await supabase
+          .from("company")
+          .update({
+            forfait: forfait.forfait_name,
+            stripe_subscription_id: subscriptionId,
+            stripe_customer_id: customerId,
+            grace_until: null,
+          })
+          .eq("id", companyId)
+
+        console.log(`✅ Company ${companyId} subscribed to ${forfait.forfait_name}`)
+      }
     }
 
-    // Find plan by Stripe price_id
-    const { data: forfait } = await supabase
-      .from("forfait")
-      .select("forfait_name")
-      .eq("stripe_price_id", priceId)
-      .single()
+    // ----------------------------
+    // Invoice Payment Succeeded
+    // ----------------------------
+    if (event.type === "invoice.payment_succeeded") {
+      const invoice = event.data.object as Stripe.Invoice & {
+        subscription?: string | Stripe.Subscription | null
+      }
 
-    if (companyId && forfait) {
-      await supabase
-        .from("company")
-        .update({
-          forfait: forfait.forfait_name,
-          stripe_subscription_id: subscriptionId,
-          stripe_customer_id: customerId,
-        })
-        .eq("id", companyId)
+      if (!invoice.subscription) {
+        console.log("ℹ️ Invoice without subscription, skipping")
+        return NextResponse.json({ received: true })
+      }
 
-      console.log(`✅ Updated company ${companyId} to plan: ${forfait.forfait_name}`)
-    }
-  }
+      const subscriptionId =
+        typeof invoice.subscription === "string"
+          ? invoice.subscription
+          : invoice.subscription.id
 
-  // ✅ Handle failed payments → reset to Free
-  if (event.type === "invoice.payment_failed") {
-    const invoice = event.data.object as Stripe.Invoice
+      const customerId =
+        typeof invoice.customer === "string"
+          ? invoice.customer
+          : invoice.customer?.id
 
-    const customerId =
-      typeof invoice.customer === "string"
-        ? invoice.customer
-        : invoice.customer?.id
+      if (!customerId) {
+        console.log("ℹ️ No customer found for invoice, skipping")
+        return NextResponse.json({ received: true })
+      }
 
-    if (!customerId) return NextResponse.json({ received: true })
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId)
+      const priceId = subscription.items.data[0]?.price.id
 
-    const customer = await stripe.customers.retrieve(customerId)
+      // Find company via Stripe customer metadata or DB
+      let companyId: string | null = null
+      const customer = await stripe.customers.retrieve(customerId)
+      if (!customer.deleted) companyId = customer.metadata?.company_id || null
 
-    let companyId: string | null = null
-    if (!customer.deleted) {
-      companyId = customer.metadata?.company_id || null
-    }
+      if (!companyId) {
+        const { data: company, error: companyError } = await supabase
+          .from("company")
+          .select("id")
+          .eq("stripe_customer_id", customerId)
+          .single()
 
-    if (!companyId) {
-      const { data: company } = await supabase
-        .from("company")
-        .select("id")
-        .eq("stripe_customer_id", customerId)
+        if (!companyError && company) companyId = company.id.toString()
+      }
+
+      const { data: forfait, error: forfaitError } = await supabase
+        .from("forfait")
+        .select("forfait_name")
+        .eq("stripe_price_id", priceId)
         .single()
 
-      if (company) companyId = company.id.toString()
+      if (companyId && forfait) {
+        await supabase
+          .from("company")
+          .update({
+            forfait: forfait.forfait_name,
+            stripe_subscription_id: subscriptionId,
+            stripe_customer_id: customerId,
+            grace_until: null,
+          })
+          .eq("id", companyId)
+
+        console.log(`✅ Updated company ${companyId} to plan: ${forfait.forfait_name}`)
+      }
     }
 
-    if (companyId) {
-      await supabase
-        .from("company")
-        .update({ forfait: "Free" })
-        .eq("id", companyId)
+    // ----------------------------
+    // Invoice Payment Failed
+    // ----------------------------
+    if (event.type === "invoice.payment_failed") {
+      const invoice = event.data.object as Stripe.Invoice
+      const customerId =
+        typeof invoice.customer === "string"
+          ? invoice.customer
+          : invoice.customer?.id
 
-      console.log(`⚠️ Reset company ${companyId} to Free due to payment failure`)
+      if (!customerId) return NextResponse.json({ received: true })
+
+      const customer = await stripe.customers.retrieve(customerId)
+      let companyId: string | null = null
+      if (!customer.deleted) companyId = customer.metadata?.company_id || null
+
+      if (!companyId) {
+        const { data: company, error: companyError } = await supabase
+          .from("company")
+          .select("id")
+          .eq("stripe_customer_id", customerId)
+          .single()
+
+        if (!companyError && company) companyId = company.id.toString()
+      }
+
+      if (companyId) {
+        const graceUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+        await supabase.from("company").update({ grace_until: graceUntil }).eq("id", companyId)
+
+        console.log(`⚠️ Payment failed → company ${companyId} has grace until ${graceUntil}`)
+      }
     }
+  } catch (err: unknown) {
+    console.error("❌ Webhook handling error:", err)
+    return NextResponse.json({ error: "Internal webhook error" }, { status: 500 })
   }
 
   return NextResponse.json({ received: true })
