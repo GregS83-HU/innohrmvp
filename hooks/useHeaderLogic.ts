@@ -14,6 +14,7 @@ interface User {
   firstname: string;
   lastname: string;
   is_admin: boolean;
+  is_super_admin: boolean;
 }
 
 interface UseHeaderLogicReturn {
@@ -62,7 +63,7 @@ export const useHeaderLogic = () : UseHeaderLogicReturn => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
-  const [user, setUser] = useState<{ id: string; firstname: string; lastname: string; is_admin:boolean} | null>(null);
+  const [user, setUser] = useState<{ id: string; firstname: string; lastname: string; is_admin:boolean ; is_super_admin:boolean} | null>(null);
   const [error, setError] = useState('');
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
   const [companyId, setCompanyId] = useState<string | null>(null);
@@ -98,10 +99,10 @@ export const useHeaderLogic = () : UseHeaderLogicReturn => {
   const fetchUserProfile = useCallback(async (userId: string) => {
     const { data } = await supabase
       .from('users')
-      .select('id, user_firstname, user_lastname, is_admin')
+      .select('id, user_firstname, user_lastname, is_admin, is_super_admin')
       .eq('id', userId)
       .single();
-    if (data) setUser({ id: data.id, firstname: data.user_firstname, lastname: data.user_lastname, is_admin: data.is_admin });
+    if (data) setUser({ id: data.id, firstname: data.user_firstname, lastname: data.user_lastname, is_admin: data.is_admin, is_super_admin: data.is_super_admin });
   }, []);
 
   const fetchUserCompanyId = useCallback(async (userId: string) => {

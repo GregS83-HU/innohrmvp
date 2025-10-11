@@ -28,6 +28,7 @@ interface CompanyUser {
   last_name: string;
   email: string;
   is_admin: boolean;
+  is_super_admin: boolean;
   manager_id: string | null;
   manager_first_name: string | null;
   manager_last_name: string | null;

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { FiMenu, FiX } from 'react-icons/fi';
 import { 
   Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown, 
-  User, LogOut, Clock, CreditCard, UserCog, TicketPlus,CalendarClock,  Target, Users 
+  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users 
 } from 'lucide-react';
 import { useHeaderLogic } from '../hooks/useHeaderLogic';
 import { 
@@ -50,8 +50,25 @@ export default function Header() {
     formatTime,
   } = useHeaderLogic();
 
- const [isTimeClockOpen, setIsTimeClockOpen] = React.useState(false);
+  const [isTimeClockOpen, setIsTimeClockOpen] = React.useState(false);
+  const [isMobileHRToolsOpen, setIsMobileHRToolsOpen] = React.useState(false);
+  const [isMobileAccountOpen, setIsMobileAccountOpen] = React.useState(false);
 
+  // Helper functions to determine user roles
+  const isRegularUser = useMemo(() => 
+    user && !user.is_admin && !user.is_super_admin, 
+    [user]
+  );
+  
+  const isAdmin = useMemo(() => 
+    user && user.is_admin && !user.is_super_admin, 
+    [user]
+  );
+  
+  const isSuperAdmin = useMemo(() => 
+    user && user.is_super_admin, 
+    [user]
+  );
 
   // Memoized values
   const buttonBaseClasses = useMemo(() => 
@@ -65,13 +82,9 @@ export default function Header() {
   const manageUsersLink = useMemo(() => buildLink('/users-creation'), [buildLink]);
   const manageticketsLink = useMemo(() => buildLink('/tickets'), [buildLink]);
   const manageabsencesLink = useMemo(() => buildLink('/absences'), [buildLink]);
- ///const timeclockadmin = useMemo(() => buildLink('/time-clock/admin'), [buildLink]);
   const timeclockmanager = useMemo(() => buildLink('/time-clock/manager'), [buildLink]);
- // const timeclockshift = useMemo(() => buildLink('/time-clock/shifts'), [buildLink]);
   const myperformance = useMemo(() => buildLink('/performance'), [buildLink]);
   const teamperformance = useMemo(() => buildLink('/performance/team'), [buildLink]);
-
-
 
   return (
     <>
@@ -99,6 +112,7 @@ export default function Header() {
 
             {/* Desktop Navigation */}
             <nav className="hidden xl:flex items-center gap-2 flex-1 justify-center mx-8">
+              {/* Available Positions - visible for all */}
               <DemoAwareMenuItem 
                 href={buildLink('/openedpositions')}
                 className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700`}
@@ -107,7 +121,8 @@ export default function Header() {
                 <Briefcase className="w-4 h-4" /> {user ? 'Your Available Positions' : 'Available Positions'}
               </DemoAwareMenuItem>
 
-              {user && (
+              {/* Create Position - only for super_admin */}
+              {isSuperAdmin && (
                 <DemoAwareMenuItem 
                   href={buildLink('/openedpositions/new')}
                   className={`${buttonBaseClasses} bg-green-50 hover:bg-green-100 text-green-700`}
@@ -117,6 +132,7 @@ export default function Header() {
                 </DemoAwareMenuItem>
               )}
 
+              {/* Happy Check - visible for all when companyId exists */}
               {companyId && (
                 <HappyCheckMenuItem 
                   href={happyCheckLink}
@@ -128,7 +144,7 @@ export default function Header() {
                 </HappyCheckMenuItem>
               )}
 
-              {/* HR Tools Dropdown */}
+              {/* HR Tools Dropdown - only for logged users */}
               {user && (
                 <div className="relative" ref={hrToolsMenuRef}>
                   {isDemoExpired ? (
@@ -149,54 +165,102 @@ export default function Header() {
                       {isHRToolsMenuOpen && (
                         <div className="absolute top-full mt-2 left-0 w-64 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
                           <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
-                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Outils RH</p>
+                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">HR Tools</p>
                           </div>
 
-                          <Link href={buildLink('/openedpositions/analytics')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
-                            <BarChart3 className="w-4 h-4" /> Recruitment Dashboard
-                           </Link>
-
-                          <HappyCheckMenuItem
-                            href={buildLink('/happiness-dashboard')}
-                            className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}
+                          {/* Upload Certificate - all logged users */}
+                          <Link 
+                            href={uploadCertificateLink} 
                             onClick={() => setIsHRToolsMenuOpen(false)}
-                            canAccessHappyCheck={canAccessHappyCheck}
+                            className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}
                           >
-                            <BarChart3 className="w-4 h-4" /> Happiness Dashboard
-                          </HappyCheckMenuItem>
-
-                          <Link href={buildLink('/medical-certificate/list')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
-                            <Stethoscope className="w-4 h-4" /> List of Certificates
+                            <Stethoscope className="w-4 h-4" /> Upload Certificate
                           </Link>
 
-                          <Link href={buildLink('/medical-certificate/download')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3`}>
-                            <Stethoscope className="w-4 h-4" /> Certificates Download
-                          </Link>
+                          {/* Recruitment Dashboard - admin and super_admin only */}
+                          {(isAdmin || isSuperAdmin) && (
+                            <Link 
+                              href={buildLink('/openedpositions/analytics')} 
+                              onClick={() => setIsHRToolsMenuOpen(false)}
+                              className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}
+                            >
+                              <BarChart3 className="w-4 h-4" /> Recruitment Dashboard
+                            </Link>
+                          )}
 
+                          {/* Happiness Dashboard - super_admin only */}
+                          {isSuperAdmin && (
+                            <HappyCheckMenuItem
+                              href={buildLink('/happiness-dashboard')}
+                              className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}
+                              onClick={() => setIsHRToolsMenuOpen(false)}
+                              canAccessHappyCheck={canAccessHappyCheck}
+                            >
+                              <BarChart3 className="w-4 h-4" /> Happiness Dashboard
+                            </HappyCheckMenuItem>
+                          )}
+
+                          {/* List of Certificates - super_admin only */}
+                          {isSuperAdmin && (
+                            <Link 
+                              href={buildLink('/medical-certificate/list')} 
+                              onClick={() => setIsHRToolsMenuOpen(false)}
+                              className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}
+                            >
+                              <Stethoscope className="w-4 h-4" /> List of Certificates
+                            </Link>
+                          )}
+
+                          {/* Certificates Download - super_admin only */}
+                          {isSuperAdmin && (
+                            <Link 
+                              href={buildLink('/medical-certificate/download')} 
+                              onClick={() => setIsHRToolsMenuOpen(false)}
+                              className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}
+                            >
+                              <Stethoscope className="w-4 h-4" /> Certificates Download
+                            </Link>
+                          )}
+
+                          {/* My Performance - all logged users */}
                           <Link 
                             href={myperformance} 
-                            onClick={() => setIsAccountMenuOpen(false)}
-                            className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3`}
+                            onClick={() => setIsHRToolsMenuOpen(false)}
+                            className={`${buttonBaseClasses} bg-white hover:bg-orange-50 text-orange-700 w-full px-4 py-3 border-b border-gray-100`}
                           >
                             <Target className="w-4 h-4" /> My Performance
                           </Link>
 
-                          <Link 
-                            href={teamperformance} 
-                            onClick={() => setIsAccountMenuOpen(false)}
-                            className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3`}
-                          >
-                            <Users className="w-4 h-4" /> Team Performance
-                          </Link>
+                          {/* Team Performance - admin and super_admin only */}
+                          {(isAdmin || isSuperAdmin) && (
+                            <Link 
+                              href={teamperformance} 
+                              onClick={() => setIsHRToolsMenuOpen(false)}
+                              className={`${buttonBaseClasses} bg-white hover:bg-orange-50 text-orange-700 w-full px-4 py-3 border-b border-gray-100`}
+                            >
+                              <Users className="w-4 h-4" /> Team Performance
+                            </Link>
+                          )}
 
-                          <Link 
-                            href={timeclockmanager} 
-                            onClick={() => setIsAccountMenuOpen(false)}
-                            className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3`}
-                          >
-                            <CalendarClock className="w-4 h-4" /> TimeClock Check
-                          </Link>
+                          {/* TimeClock Check - admin and super_admin only */}
+                          {(isAdmin || isSuperAdmin) && (
+                            <Link 
+                              href={timeclockmanager} 
+                              onClick={() => setIsHRToolsMenuOpen(false)}
+                              className={`${buttonBaseClasses} bg-white hover:bg-indigo-50 text-indigo-700 w-full px-4 py-3 border-b border-gray-100`}
+                            >
+                              <CalendarClock className="w-4 h-4" /> TimeClock Check
+                            </Link>
+                          )}
 
+                          {/* Absences - all logged users */}
+                          <Link 
+                            href={manageabsencesLink} 
+                            onClick={() => setIsHRToolsMenuOpen(false)}
+                            className={`${buttonBaseClasses} bg-white hover:bg-indigo-50 text-indigo-700 w-full px-4 py-3`}
+                          >
+                            <CalendarClock className="w-4 h-4" /> Absences
+                          </Link>
                         </div>
                       )}
                     </>
@@ -204,8 +268,8 @@ export default function Header() {
                 </div>
               )}
 
-              {/* Manage Account */}
-              {user && companySlug !== 'demo' && (
+              {/* Manage Account - only for super_admin and not demo */}
+              {isSuperAdmin && companySlug !== 'demo' && (
                 <div className="relative" ref={accountMenuRef}>
                   {isDemoExpired ? (
                     <div className={`${buttonBaseClasses} bg-gray-100 text-gray-400 cursor-not-allowed relative group`}>
@@ -231,7 +295,7 @@ export default function Header() {
                           <Link 
                             href={manageSubscriptionLink} 
                             onClick={() => setIsAccountMenuOpen(false)}
-                            className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3`}
+                            className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}
                           >
                             <CreditCard className="w-4 h-4" /> Manage Subscription
                           </Link>
@@ -239,9 +303,9 @@ export default function Header() {
                           <Link 
                             href={manageUsersLink} 
                             onClick={() => setIsAccountMenuOpen(false)}
-                            className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3`}
+                            className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}
                           >
-                            <UserCog className="w-4 h-4" /> Manage your users
+                            <UserCog className="w-4 h-4" /> Manage Users
                           </Link>
 
                           <Link 
@@ -251,57 +315,34 @@ export default function Header() {
                           >
                             <TicketPlus className="w-4 h-4" /> Support Tickets
                           </Link>
-
-                           <Link 
-                            href={manageabsencesLink} 
-                            onClick={() => setIsAccountMenuOpen(false)}
-                            className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3`}
-                          >
-                            <CalendarClock className="w-4 h-4" /> Absences
-                          </Link>
-
-                          
-
                         </div>
                       )}
                     </>
                   )}
                 </div>
               )}
-
-              {!user && companyId && (
-                <DemoAwareMenuItem 
-                  href={uploadCertificateLink}
-                  className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700`}
-                  isDemoExpired={isDemoExpired}
-                >
-                  <Stethoscope className="w-4 h-4" /> Upload Certificate
-                </DemoAwareMenuItem>
-              )}
             </nav>
 
-            {/* Right section - Notifications + User Area + Mobile Menu */}
+            {/* Right section - Notifications + Time Clock + User Area + Mobile Menu */}
             <div className="flex items-center gap-3 -mr-2">
-              {/* Notifications (only for logged in users) */}
+              {/* Notifications - only for logged users */}
               {user && (
                 <NotificationComponent
                   currentUser={user}
-                 // isHrinnoAdmin={user?.is_admin === true}
                   companySlug={companySlug}
                 />
               )}
 
-              {/* Time Clock icon (only for logged users) */}
-                {user && (
-                  <button
-                    onClick={() => setIsTimeClockOpen(true)}
-                    className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                    title="Open Time Clock"
-                  >
-                    <Clock className="w-5 h-5 text-gray-600" />
-                  </button>
-                )}
-
+              {/* Time Clock icon - only for logged users */}
+              {user && (
+                <button
+                  onClick={() => setIsTimeClockOpen(true)}
+                  className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  title="Open Time Clock"
+                >
+                  <Clock className="w-5 h-5 text-gray-600" />
+                </button>
+              )}
 
               {/* Demo timer for tablet/mobile */}
               {(isDemoMode || isDemoExpired) && (
@@ -405,6 +446,7 @@ export default function Header() {
         {isMobileMenuOpen && (
           <div className="xl:hidden bg-white border-t border-gray-200 shadow-lg">
             <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
+              {/* Available Positions */}
               <DemoAwareMenuItem 
                 href={buildLink('/openedpositions')} 
                 onClick={() => setIsMobileMenuOpen(false)} 
@@ -414,7 +456,8 @@ export default function Header() {
                 <Briefcase className="w-4 h-4" /> {user ? 'Your Available Positions' : 'Available Positions'}
               </DemoAwareMenuItem>
 
-              {user && (
+              {/* Create Position - super_admin only */}
+              {isSuperAdmin && (
                 <DemoAwareMenuItem 
                   href={buildLink('/openedpositions/new')} 
                   onClick={() => setIsMobileMenuOpen(false)} 
@@ -425,6 +468,7 @@ export default function Header() {
                 </DemoAwareMenuItem>
               )}
 
+              {/* Happy Check */}
               {companyId && (
                 <HappyCheckMenuItem 
                   href={happyCheckLink}
@@ -437,139 +481,190 @@ export default function Header() {
                 </HappyCheckMenuItem>
               )}
 
+              {/* HR Tools Collapsible Section - only for logged users */}
               {user && (
-                <>
-                  <div className="px-4 py-2 border-t border-gray-200">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Outils RH</p>
-                  </div>
-
-                  <DemoAwareMenuItem 
-                    href={buildLink('/openedpositions/analytics')} 
-                    onClick={() => setIsMobileMenuOpen(false)} 
-                    className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700 w-full justify-start`}
-                    isDemoExpired={isDemoExpired}
+                <div className="border-t border-gray-200 pt-2">
+                  <button
+                    onClick={() => setIsMobileHRToolsOpen(!isMobileHRToolsOpen)}
+                    className={`${buttonBaseClasses} ${
+                      isDemoExpired 
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                        : 'bg-blue-50 hover:bg-blue-100 text-blue-700'
+                    } w-full justify-between`}
+                    disabled={isDemoExpired}
                   >
-                    <BarChart3 className="w-4 h-4" /> Recruitment Dashboard
-                  </DemoAwareMenuItem>
+                    <div className="flex items-center gap-2">
+                      <Heart className="w-4 h-4" /> HR Tools
+                    </div>
+                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isMobileHRToolsOpen ? 'rotate-180' : ''}`} />
+                  </button>
 
-                  <HappyCheckMenuItem
-                    href={buildLink('/happiness-dashboard')}
-                    className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700 w-full justify-start`}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    canAccessHappyCheck={canAccessHappyCheck}
-                  >
-                    <BarChart3 className="w-4 h-4" /> Happiness Dashboard
-                  </HappyCheckMenuItem>
+                  {isMobileHRToolsOpen && !isDemoExpired && (
+                    <div className="mt-2 ml-4 space-y-2 pb-2">
+                      {/* Upload Certificate */}
+                      <DemoAwareMenuItem 
+                        href={uploadCertificateLink} 
+                        onClick={() => setIsMobileMenuOpen(false)} 
+                        className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700 w-full justify-start text-sm`}
+                        isDemoExpired={isDemoExpired}
+                      >
+                        <Stethoscope className="w-4 h-4" /> Upload Certificate
+                      </DemoAwareMenuItem>
 
-                  <DemoAwareMenuItem 
-                    href={buildLink('/medical-certificate/list')} 
-                    onClick={() => setIsMobileMenuOpen(false)} 
-                    className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700 w-full justify-start`}
-                    isDemoExpired={isDemoExpired}
-                  >
-                    <Stethoscope className="w-4 h-4" /> List of Certificates
-                  </DemoAwareMenuItem>
+                      {/* Recruitment Dashboard - admin and super_admin */}
+                      {(isAdmin || isSuperAdmin) && (
+                        <DemoAwareMenuItem 
+                          href={buildLink('/openedpositions/analytics')} 
+                          onClick={() => setIsMobileMenuOpen(false)} 
+                          className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700 w-full justify-start text-sm`}
+                          isDemoExpired={isDemoExpired}
+                        >
+                          <BarChart3 className="w-4 h-4" /> Recruitment Dashboard
+                        </DemoAwareMenuItem>
+                      )}
 
-                  <DemoAwareMenuItem 
-                    href={buildLink('/medical-certificate/download')} 
-                    onClick={() => setIsMobileMenuOpen(false)} 
-                    className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700 w-full justify-start`}
-                    isDemoExpired={isDemoExpired}
-                  >
-                    <Stethoscope className="w-4 h-4" /> Certificates Download
-                  </DemoAwareMenuItem>
+                      {/* Happiness Dashboard - super_admin only */}
+                      {isSuperAdmin && (
+                        <HappyCheckMenuItem
+                          href={buildLink('/happiness-dashboard')}
+                          className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700 w-full justify-start text-sm`}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          canAccessHappyCheck={canAccessHappyCheck}
+                        >
+                          <BarChart3 className="w-4 h-4" /> Happiness Dashboard
+                        </HappyCheckMenuItem>
+                      )}
 
+                      {/* List of Certificates - super_admin only */}
+                      {isSuperAdmin && (
+                        <DemoAwareMenuItem 
+                          href={buildLink('/medical-certificate/list')} 
+                          onClick={() => setIsMobileMenuOpen(false)} 
+                          className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700 w-full justify-start text-sm`}
+                          isDemoExpired={isDemoExpired}
+                        >
+                          <Stethoscope className="w-4 h-4" /> List of Certificates
+                        </DemoAwareMenuItem>
+                      )}
 
-                  <DemoAwareMenuItem 
-                    href={myperformance}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start`}
-                    isDemoExpired={isDemoExpired}
-                  >
-                    <Target className="w-4 h-4" /> My Performance
-                  </DemoAwareMenuItem>
+                      {/* Certificates Download - super_admin only */}
+                      {isSuperAdmin && (
+                        <DemoAwareMenuItem 
+                          href={buildLink('/medical-certificate/download')} 
+                          onClick={() => setIsMobileMenuOpen(false)} 
+                          className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700 w-full justify-start text-sm`}
+                          isDemoExpired={isDemoExpired}
+                        >
+                          <Stethoscope className="w-4 h-4" /> Certificates Download
+                        </DemoAwareMenuItem>
+                      )}
 
-                  <DemoAwareMenuItem 
-                    href={teamperformance}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start`}
-                    isDemoExpired={isDemoExpired}
-                  >
-                    <Users className="w-4 h-4" /> Team Performance
-                  </DemoAwareMenuItem>
+                      {/* My Performance - all users */}
+                      <DemoAwareMenuItem 
+                        href={myperformance}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={`${buttonBaseClasses} bg-orange-50 hover:bg-orange-100 text-orange-700 w-full justify-start text-sm`}
+                        isDemoExpired={isDemoExpired}
+                      >
+                        <Target className="w-4 h-4" /> My Performance
+                      </DemoAwareMenuItem>
 
-                  <DemoAwareMenuItem 
-                    href={timeclockmanager}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start`}
-                    isDemoExpired={isDemoExpired}
-                  >
-                    <CalendarClock className="w-4 h-4" /> TimeClock Check
-                  </DemoAwareMenuItem>
+                      {/* Team Performance - admin and super_admin */}
+                      {(isAdmin || isSuperAdmin) && (
+                        <DemoAwareMenuItem 
+                          href={teamperformance}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className={`${buttonBaseClasses} bg-orange-50 hover:bg-orange-100 text-orange-700 w-full justify-start text-sm`}
+                          isDemoExpired={isDemoExpired}
+                        >
+                          <Users className="w-4 h-4" /> Team Performance
+                        </DemoAwareMenuItem>
+                      )}
 
-                </>
+                      {/* TimeClock Check - admin and super_admin */}
+                      {(isAdmin || isSuperAdmin) && (
+                        <DemoAwareMenuItem 
+                          href={timeclockmanager}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className={`${buttonBaseClasses} bg-indigo-50 hover:bg-indigo-100 text-indigo-700 w-full justify-start text-sm`}
+                          isDemoExpired={isDemoExpired}
+                        >
+                          <CalendarClock className="w-4 h-4" /> TimeClock Check
+                        </DemoAwareMenuItem>
+                      )}
+
+                      {/* Absences - all users */}
+                      <DemoAwareMenuItem 
+                        href={manageabsencesLink}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={`${buttonBaseClasses} bg-indigo-50 hover:bg-indigo-100 text-indigo-700 w-full justify-start text-sm`}
+                        isDemoExpired={isDemoExpired}
+                      >
+                        <CalendarClock className="w-4 h-4" /> Absences
+                      </DemoAwareMenuItem>
+                    </div>
+                  )}
+                </div>
               )}
 
-              {user && companySlug !== 'demo' && (
-                <>
-                  <div className="px-4 py-2 border-t border-gray-200">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Account Management</p>
-                  </div>
-
-                  <DemoAwareMenuItem 
-                    href={manageSubscriptionLink}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start`}
-                    isDemoExpired={isDemoExpired}
+              {/* Manage Account Collapsible Section - only for super_admin and not demo */}
+              {isSuperAdmin && companySlug !== 'demo' && (
+                <div className="border-t border-gray-200 pt-2">
+                  <button
+                    onClick={() => setIsMobileAccountOpen(!isMobileAccountOpen)}
+                    className={`${buttonBaseClasses} ${
+                      isDemoExpired 
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                        : 'bg-teal-50 hover:bg-teal-100 text-teal-700'
+                    } w-full justify-between`}
+                    disabled={isDemoExpired}
                   >
-                    <CreditCard className="w-4 h-4" /> Manage Subscription
-                  </DemoAwareMenuItem>
+                    <div className="flex items-center gap-2">
+                      <UserCog className="w-4 h-4" /> Account Management
+                    </div>
+                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isMobileAccountOpen ? 'rotate-180' : ''}`} />
+                  </button>
 
-                  <DemoAwareMenuItem 
-                    href={manageUsersLink}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start`}
-                    isDemoExpired={isDemoExpired}
-                  >
-                    <UserCog className="w-4 h-4" /> Manage your users
-                  </DemoAwareMenuItem>
+                  {isMobileAccountOpen && !isDemoExpired && (
+                    <div className="mt-2 ml-4 space-y-2 pb-2">
+                      <DemoAwareMenuItem 
+                        href={manageSubscriptionLink}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start text-sm`}
+                        isDemoExpired={isDemoExpired}
+                      >
+                        <CreditCard className="w-4 h-4" /> Manage Subscription
+                      </DemoAwareMenuItem>
 
-                  <DemoAwareMenuItem 
-                    href={manageticketsLink}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start`}
-                    isDemoExpired={isDemoExpired}
-                  >
-                    <TicketPlus className="w-4 h-4" /> Support Tickets
-                  </DemoAwareMenuItem>
+                      <DemoAwareMenuItem 
+                        href={manageUsersLink}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start text-sm`}
+                        isDemoExpired={isDemoExpired}
+                      >
+                        <UserCog className="w-4 h-4" /> Manage Users
+                      </DemoAwareMenuItem>
 
-                  <DemoAwareMenuItem 
-                    href={manageabsencesLink}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start`}
-                    isDemoExpired={isDemoExpired}
-                  >
-                    <CalendarClock className="w-4 h-4" /> Absences
-                  </DemoAwareMenuItem>
-                  
-
-                </>
+                      <DemoAwareMenuItem 
+                        href={manageticketsLink}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start text-sm`}
+                        isDemoExpired={isDemoExpired}
+                      >
+                        <TicketPlus className="w-4 h-4" /> Support Tickets
+                      </DemoAwareMenuItem>
+                    </div>
+                  )}
+                </div>
               )}
 
-              {!user && companyId && (
-                <DemoAwareMenuItem 
-                  href={uploadCertificateLink}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full justify-start`}
-                  isDemoExpired={isDemoExpired}
-                >
-                  <Stethoscope className="w-4 h-4" /> Upload Certificate
-                </DemoAwareMenuItem>
-              )}
-
+              {/* Login/Logout Section */}
               <div className="pt-4 border-t border-gray-200">
                 {user ? (
-                  <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className={`${buttonBaseClasses} bg-white hover:bg-red-50 text-red-600 w-full justify-start`}>
+                  <button 
+                    onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} 
+                    className={`${buttonBaseClasses} bg-white hover:bg-red-50 text-red-600 w-full justify-start`}
+                  >
                     <LogOut className="w-4 h-4" /> Logout
                   </button>
                 ) : (
@@ -604,14 +699,15 @@ export default function Header() {
         isDemoExpired={isDemoExpired}
       />
 
+      {/* Time Clock Modal */}
       {user && (
-  <TimeClockModal 
-    isOpen={isTimeClockOpen} 
-    onClose={() => setIsTimeClockOpen(false)} 
-    userId={user.id}
-    userName={`${user.firstname} ${user.lastname}`}
-  />
-)}
+        <TimeClockModal 
+          isOpen={isTimeClockOpen} 
+          onClose={() => setIsTimeClockOpen(false)} 
+          userId={user.id}
+          userName={`${user.firstname} ${user.lastname}`}
+        />
+      )}
     </>
   );
 }
