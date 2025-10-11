@@ -33,6 +33,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Position not found' }, { status: 404 })
     }
 
+    // Fetch recruitment step
+    const { data: positionCandidat, error: pcErr } = await supabase
+      .from('position_to_candidat')
+      .select('candidat_next_step')
+      .eq('position_id', position_id)
+      .eq('candidat_id', candidat_id)
+      .single()
+
+    if (pcErr || !positionCandidat || !positionCandidat.candidat_next_step) {
+      console.error('[Interview Assistant] Recruitment step not found', pcErr)
+      return NextResponse.json({ error: 'Recruitment step not found' }, { status: 404 })
+    }
+
+    const { data: recruitmentStep, error: stepErr } = await supabase
+      .from('recruitment_steps')
+      .select('step_name')
+      .eq('id', positionCandidat.candidat_next_step)
+      .single()
+
+    if (stepErr || !recruitmentStep) {
+      console.error('[Interview Assistant] Step name not found', stepErr)
+      return NextResponse.json({ error: 'Step name not found' }, { status: 404 })
+    }
+
     let prompt = ''
     let aiMode = ''
 
@@ -41,13 +65,17 @@ export async function POST(req: NextRequest) {
       prompt = `
 You are an HR expert preparing a job interview.
 
+Candidate: ${candidat.candidat_firstname} ${candidat.candidat_lastname}
+
 CV:
 ${candidat.cv_text}
 
 Job:
 ${position.position_description_detailed}
 
-Generate 6–8 precise, role-specific questions in JSON:
+Current recruitment step: ${recruitmentStep.step_name}
+
+Generate 6–8 precise, role-specific questions tailored for the "${recruitmentStep.step_name}" stage in JSON:
 {
   "questions": [
     { "category": "technical", "text": "..." },
@@ -60,22 +88,27 @@ Generate 6–8 precise, role-specific questions in JSON:
       prompt = `
 You are an HR assistant.
 
+Candidate: ${candidat.candidat_firstname} ${candidat.candidat_lastname}
+
 CV:
 ${candidat.cv_text}
 
 Job:
 ${position.position_description_detailed}
 
+Current recruitment step: ${recruitmentStep.step_name}
+
 Recruiter notes:
 ${notes}
 
-Generate a structured interview summary:
+Generate a structured interview summary for the "${recruitmentStep.step_name}" stage and recommend the next step:
 {
   "summary": string,
   "strengths": [string],
   "weaknesses": [string],
   "cultural_fit": string,
   "recommendation": string,
+  "next_step_recommendation": string,
   "score": number
 }
 `
@@ -105,13 +138,11 @@ Generate a structured interview summary:
 
     // Save results to the specific interview
     if (aiMode === 'questions') {
-      // Update the specific interview with questions
       await supabase
         .from('interviews')
         .update({ questions: parsed })
         .eq('id', interview_id)
     } else if (aiMode === 'summary') {
-      // Update the specific interview with notes and summary
       await supabase
         .from('interviews')
         .update({ 

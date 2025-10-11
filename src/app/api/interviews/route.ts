@@ -16,7 +16,7 @@ export async function GET(req: Request) {
 
   const { data, error } = await supabase
     .from('interviews')
-    .select('*')
+    .select('*, recruitment_steps(step_name)')
     .eq('candidat_id', candidat_id)
     .order('interview_datetime', { ascending: true })
 
@@ -31,7 +31,23 @@ export async function POST(req: Request) {
 
     console.log('[Interviews API] Creating interview:', body)
 
-    // Insert interview into database
+    // Fetch the current recruitment step for this candidate/position
+    let recruitment_step_id: number | null = null
+    
+    if (position_id && candidat_id) {
+      const { data: positionCandidat, error: pcErr } = await supabase
+        .from('position_to_candidat')
+        .select('candidat_next_step')
+        .eq('position_id', position_id)
+        .eq('candidat_id', candidat_id)
+        .single()
+
+      if (!pcErr && positionCandidat?.candidat_next_step) {
+        recruitment_step_id = positionCandidat.candidat_next_step
+      }
+    }
+
+    // Insert interview into database with recruitment step
     const { data: interview, error: insertError } = await supabase
       .from('interviews')
       .insert([{ 
@@ -41,6 +57,7 @@ export async function POST(req: Request) {
         interview_datetime, 
         duration_minutes, 
         location,
+        recruitment_step_id,
         status: 'pending' 
       }])
       .select()
@@ -146,13 +163,13 @@ export async function POST(req: Request) {
     return NextResponse.json(interview)
 
   } catch (err: unknown) {
-  console.error('[Interviews API] Exception:', err)
+    console.error('[Interviews API] Exception:', err)
 
-  // Narrow unknown to Error safely
-  const message = err instanceof Error ? err.message : 'Unknown error'
+    // Narrow unknown to Error safely
+    const message = err instanceof Error ? err.message : 'Unknown error'
 
-  return NextResponse.json({ error: message }, { status: 500 })
-}
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
 }
 
 export async function PATCH(req: Request) {

@@ -24,6 +24,10 @@ interface Interview {
   status: 'pending' | 'done' | 'cancelled'
   notes?: string
   summary?: InterviewSummary
+  recruitment_step_id?: number | null
+  recruitment_steps?: {
+    step_name: string
+  }
 }
 
 interface Question {
@@ -176,6 +180,11 @@ export default function InterviewList({
                 }`}
               />
               {new Date(intv.interview_datetime).toLocaleString()}
+              
+              {/* Step Badge */}
+              <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs font-medium rounded-full">
+                {intv.recruitment_steps?.step_name || 'Unassigned'}
+              </span>
             </div>
             {intv.location && (
               <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
@@ -372,6 +381,11 @@ function InterviewSummaryModal({
           <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
             <Calendar className="w-4 h-4" />
             {new Date(interview.interview_datetime).toLocaleString()}
+            {interview.recruitment_steps?.step_name && (
+              <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs font-medium rounded-full">
+                {interview.recruitment_steps.step_name}
+              </span>
+            )}
           </div>
 
           <div className="bg-indigo-50 p-4 rounded-lg">
