@@ -25,9 +25,9 @@ interface CompanyWithForfait {
 export async function consumeCredit(companyId: string): Promise<boolean> {
   // Fetch company and related forfait
   const { data: company, error: companyErr } = await supabaseAdmin
-    .from("companies")
+    .from("company")
     .select(
-      "id, forfait_id, used_ai_credits, forfait:forfait_id (included_ai_credits)"
+     "id, forfait, used_ai_credits, forfait:forfait!company_forfait_fkey (included_ai_credits)"
     )
     .eq("id", companyId)
     .single<CompanyWithForfait>();
@@ -54,7 +54,7 @@ export async function consumeCredit(companyId: string): Promise<boolean> {
 
   // Increment usage
   const { error: updateError } = await supabaseAdmin
-    .from("companies")
+    .from("company")
     .update({ used_ai_credits: used + 1 })
     .eq("id", companyId);
 
@@ -71,7 +71,7 @@ export async function consumeCredit(companyId: string): Promise<boolean> {
  */
 export async function getRemainingCredits(companyId: string): Promise<number> {
   const { data: company, error } = await supabaseAdmin
-    .from("companies")
+    .from("company")
     .select(
       "used_ai_credits, forfait:forfait_id (included_ai_credits)"
     )

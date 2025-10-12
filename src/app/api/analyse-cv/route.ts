@@ -198,7 +198,25 @@ Remember: Write EVERYTHING in the same language as the CV!
    
 
     // === CHECK AI CREDITS BEFORE ANALYSIS ===
-    const companyId = formData.get('company_id')?.toString();
+    const companySlug = formData.get('companySlug')?.toString();
+    console.log('FormData keys:', Array.from(formData.keys()));
+
+    // === Fetch company_id from Supabase ===
+      const { data: company, error: companyError } = await supabase
+        .from('company')
+        .select('id')
+        .eq('slug', companySlug)
+        .single();
+
+      if (companyError) {
+        console.error('Error fetching company_id:', companyError);
+        return new Response(JSON.stringify({ error: 'Could not find company.' }), { status: 400 });
+}
+
+      const companyId = company.id;
+      console.log('Resolved company_id:', companyId);
+
+
 
     if (!companyId) {
       return NextResponse.json({ error: 'Missing company ID (needed to check AI credits).' }, { status: 400 });

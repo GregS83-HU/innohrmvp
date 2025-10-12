@@ -56,23 +56,23 @@ export default function Header() {
 
   // Helper functions to determine user roles
   const isRegularUser = useMemo(() => 
-    user && !user.is_admin && !user.is_super_admin, 
+    user && !user.is_manager && !user.is_admin, 
+    [user]
+  );
+  
+  const isManager = useMemo(() => 
+    user && user.is_manager && !user.is_admin, 
     [user]
   );
   
   const isAdmin = useMemo(() => 
-    user && user.is_admin && !user.is_super_admin, 
-    [user]
-  );
-  
-  const isSuperAdmin = useMemo(() => 
-    user && user.is_super_admin, 
+    user && user.is_admin, 
     [user]
   );
 
   // Memoized values
   const buttonBaseClasses = useMemo(() => 
-    'flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all shadow-sm hover:shadow-md whitespace-nowrap',
+    'flex items-center gap-2 px-3 py-2 rounded-xl font-medium text-sm transition-all shadow-sm hover:shadow-md whitespace-nowrap',
     []
   );
 
@@ -96,8 +96,8 @@ export default function Header() {
           formatTime={formatTime}
         />
 
-        <div className="w-full px-4 sm:px-6 lg:px-9 py-4">
-          <div className="flex items-center justify-between w-full max-w-8xl mx-auto">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between w-full mx-auto">
             {/* Logo section */}
             <div className="flex-shrink-0 flex flex-col items-start gap-1 -ml-2">
               <Link href={companySlug === 'demo' ? `/jobs/demo/contact` : buildLink('/')}>
@@ -111,7 +111,7 @@ export default function Header() {
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden xl:flex items-center gap-2 flex-1 justify-center mx-8">
+            <nav className="hidden xl:flex items-center gap-1.5 flex-1 justify-center mx-4 max-w-5xl">
               {/* Available Positions - visible for all */}
               <DemoAwareMenuItem 
                 href={buildLink('/openedpositions')}
@@ -122,7 +122,7 @@ export default function Header() {
               </DemoAwareMenuItem>
 
               {/* Create Position - only for super_admin */}
-              {isSuperAdmin && (
+              {isAdmin && (
                 <DemoAwareMenuItem 
                   href={buildLink('/openedpositions/new')}
                   className={`${buttonBaseClasses} bg-green-50 hover:bg-green-100 text-green-700`}
@@ -178,7 +178,7 @@ export default function Header() {
                           </Link>
 
                           {/* Recruitment Dashboard - admin and super_admin only */}
-                          {(isAdmin || isSuperAdmin) && (
+                          {(isManager || isAdmin) && (
                             <Link 
                               href={buildLink('/openedpositions/analytics')} 
                               onClick={() => setIsHRToolsMenuOpen(false)}
@@ -189,7 +189,7 @@ export default function Header() {
                           )}
 
                           {/* Happiness Dashboard - super_admin only */}
-                          {isSuperAdmin && (
+                          {isAdmin && (
                             <HappyCheckMenuItem
                               href={buildLink('/happiness-dashboard')}
                               className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}
@@ -201,7 +201,7 @@ export default function Header() {
                           )}
 
                           {/* List of Certificates - super_admin only */}
-                          {isSuperAdmin && (
+                          {isAdmin && (
                             <Link 
                               href={buildLink('/medical-certificate/list')} 
                               onClick={() => setIsHRToolsMenuOpen(false)}
@@ -212,7 +212,7 @@ export default function Header() {
                           )}
 
                           {/* Certificates Download - super_admin only */}
-                          {isSuperAdmin && (
+                          {isAdmin && (
                             <Link 
                               href={buildLink('/medical-certificate/download')} 
                               onClick={() => setIsHRToolsMenuOpen(false)}
@@ -232,7 +232,7 @@ export default function Header() {
                           </Link>
 
                           {/* Team Performance - admin and super_admin only */}
-                          {(isAdmin || isSuperAdmin) && (
+                          {(isManager || isAdmin) && (
                             <Link 
                               href={teamperformance} 
                               onClick={() => setIsHRToolsMenuOpen(false)}
@@ -243,7 +243,7 @@ export default function Header() {
                           )}
 
                           {/* TimeClock Check - admin and super_admin only */}
-                          {(isAdmin || isSuperAdmin) && (
+                          {(isManager || isAdmin) && (
                             <Link 
                               href={timeclockmanager} 
                               onClick={() => setIsHRToolsMenuOpen(false)}
@@ -268,8 +268,8 @@ export default function Header() {
                 </div>
               )}
 
-              {/* Manage Account - only for super_admin and not demo */}
-              {isSuperAdmin && companySlug !== 'demo' && (
+              {/* Manage Account - only for super_admin */}
+              {isAdmin && (
                 <div className="relative" ref={accountMenuRef}>
                   {isDemoExpired ? (
                     <div className={`${buttonBaseClasses} bg-gray-100 text-gray-400 cursor-not-allowed relative group`}>
@@ -292,29 +292,33 @@ export default function Header() {
                             <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Account Management</p>
                           </div>
 
-                          <Link 
-                            href={manageSubscriptionLink} 
-                            onClick={() => setIsAccountMenuOpen(false)}
-                            className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}
-                          >
-                            <CreditCard className="w-4 h-4" /> Manage Subscription
-                          </Link>
+                          {companySlug !== 'demo' && (
+                            <Link 
+                              href={manageSubscriptionLink} 
+                              onClick={() => setIsAccountMenuOpen(false)}
+                              className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}
+                            >
+                              <CreditCard className="w-4 h-4" /> Manage Subscription
+                            </Link>
+                          )}
 
                           <Link 
                             href={manageUsersLink} 
                             onClick={() => setIsAccountMenuOpen(false)}
-                            className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}
+                            className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 ${companySlug !== 'demo' ? 'border-b border-gray-100' : ''}`}
                           >
                             <UserCog className="w-4 h-4" /> Manage Users
                           </Link>
 
-                          <Link 
-                            href={manageticketsLink} 
-                            onClick={() => setIsAccountMenuOpen(false)}
-                            className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3`}
-                          >
-                            <TicketPlus className="w-4 h-4" /> Support Tickets
-                          </Link>
+                          {companySlug !== 'demo' && (
+                            <Link 
+                              href={manageticketsLink} 
+                              onClick={() => setIsAccountMenuOpen(false)}
+                              className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3`}
+                            >
+                              <TicketPlus className="w-4 h-4" /> Support Tickets
+                            </Link>
+                          )}
                         </div>
                       )}
                     </>
@@ -324,7 +328,7 @@ export default function Header() {
             </nav>
 
             {/* Right section - Notifications + Time Clock + User Area + Mobile Menu */}
-            <div className="flex items-center gap-3 -mr-2">
+            <div className="flex items-center gap-2 flex-shrink-0">
               {/* Notifications - only for logged users */}
               {user && (
                 <NotificationComponent
@@ -372,11 +376,6 @@ export default function Header() {
 
               {/* Desktop user area */}
               <div className="hidden xl:flex items-center gap-3">
-                {companySlug === 'demo' && !user && !isDemoExpired && (
-                  <div className="text-blue-700 font-medium text-sm">
-                    Login for employer view →
-                  </div>
-                )}
 
                 {user ? (
                   <div className="relative" ref={userMenuRef}>
@@ -457,7 +456,7 @@ export default function Header() {
               </DemoAwareMenuItem>
 
               {/* Create Position - super_admin only */}
-              {isSuperAdmin && (
+              {isAdmin && (
                 <DemoAwareMenuItem 
                   href={buildLink('/openedpositions/new')} 
                   onClick={() => setIsMobileMenuOpen(false)} 
@@ -512,7 +511,7 @@ export default function Header() {
                       </DemoAwareMenuItem>
 
                       {/* Recruitment Dashboard - admin and super_admin */}
-                      {(isAdmin || isSuperAdmin) && (
+                      {(isManager || isAdmin) && (
                         <DemoAwareMenuItem 
                           href={buildLink('/openedpositions/analytics')} 
                           onClick={() => setIsMobileMenuOpen(false)} 
@@ -524,7 +523,7 @@ export default function Header() {
                       )}
 
                       {/* Happiness Dashboard - super_admin only */}
-                      {isSuperAdmin && (
+                      {isAdmin && (
                         <HappyCheckMenuItem
                           href={buildLink('/happiness-dashboard')}
                           className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700 w-full justify-start text-sm`}
@@ -536,7 +535,7 @@ export default function Header() {
                       )}
 
                       {/* List of Certificates - super_admin only */}
-                      {isSuperAdmin && (
+                      {isAdmin && (
                         <DemoAwareMenuItem 
                           href={buildLink('/medical-certificate/list')} 
                           onClick={() => setIsMobileMenuOpen(false)} 
@@ -548,7 +547,7 @@ export default function Header() {
                       )}
 
                       {/* Certificates Download - super_admin only */}
-                      {isSuperAdmin && (
+                      {isAdmin && (
                         <DemoAwareMenuItem 
                           href={buildLink('/medical-certificate/download')} 
                           onClick={() => setIsMobileMenuOpen(false)} 
@@ -570,7 +569,7 @@ export default function Header() {
                       </DemoAwareMenuItem>
 
                       {/* Team Performance - admin and super_admin */}
-                      {(isAdmin || isSuperAdmin) && (
+                      {(isManager || isAdmin) && (
                         <DemoAwareMenuItem 
                           href={teamperformance}
                           onClick={() => setIsMobileMenuOpen(false)}
@@ -582,7 +581,7 @@ export default function Header() {
                       )}
 
                       {/* TimeClock Check - admin and super_admin */}
-                      {(isAdmin || isSuperAdmin) && (
+                      {(isManager || isAdmin) && (
                         <DemoAwareMenuItem 
                           href={timeclockmanager}
                           onClick={() => setIsMobileMenuOpen(false)}
@@ -607,8 +606,8 @@ export default function Header() {
                 </div>
               )}
 
-              {/* Manage Account Collapsible Section - only for super_admin and not demo */}
-              {isSuperAdmin && companySlug !== 'demo' && (
+              {/* Manage Account Collapsible Section - only for super_admin */}
+              {isAdmin && (
                 <div className="border-t border-gray-200 pt-2">
                   <button
                     onClick={() => setIsMobileAccountOpen(!isMobileAccountOpen)}
@@ -627,14 +626,16 @@ export default function Header() {
 
                   {isMobileAccountOpen && !isDemoExpired && (
                     <div className="mt-2 ml-4 space-y-2 pb-2">
-                      <DemoAwareMenuItem 
-                        href={manageSubscriptionLink}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start text-sm`}
-                        isDemoExpired={isDemoExpired}
-                      >
-                        <CreditCard className="w-4 h-4" /> Manage Subscription
-                      </DemoAwareMenuItem>
+                      {companySlug !== 'demo' && (
+                        <DemoAwareMenuItem 
+                          href={manageSubscriptionLink}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start text-sm`}
+                          isDemoExpired={isDemoExpired}
+                        >
+                          <CreditCard className="w-4 h-4" /> Manage Subscription
+                        </DemoAwareMenuItem>
+                      )}
 
                       <DemoAwareMenuItem 
                         href={manageUsersLink}
@@ -645,14 +646,16 @@ export default function Header() {
                         <UserCog className="w-4 h-4" /> Manage Users
                       </DemoAwareMenuItem>
 
-                      <DemoAwareMenuItem 
-                        href={manageticketsLink}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start text-sm`}
-                        isDemoExpired={isDemoExpired}
-                      >
-                        <TicketPlus className="w-4 h-4" /> Support Tickets
-                      </DemoAwareMenuItem>
+                      {companySlug !== 'demo' && (
+                        <DemoAwareMenuItem 
+                          href={manageticketsLink}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start text-sm`}
+                          isDemoExpired={isDemoExpired}
+                        >
+                          <TicketPlus className="w-4 h-4" /> Support Tickets
+                        </DemoAwareMenuItem>
+                      )}
                     </div>
                   )}
                 </div>

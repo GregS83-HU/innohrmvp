@@ -51,6 +51,7 @@ export default function CVAnalyseClient({
     formData.append('jobDescription', jobDescription)
     formData.append('jobDescriptionDetailed', jobDescriptionDetailed)
     formData.append('positionId', positionId)
+    formData.append('companySlug', companySlug)
 
     setLoading(true)
     setError('')

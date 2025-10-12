@@ -10,14 +10,15 @@ const supabase = createClient(
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { 
-      email, 
-      password, 
-      firstName, 
-      lastName, 
+    const {
+      email,
+      password,
+      firstName,
+      lastName,
       companyId,
       managerId,
-      employmentStartDate 
+      employmentStartDate,
+      isManager = false, // ✅ New field with default false
     } = body;
 
     // Validate required fields
@@ -48,12 +49,13 @@ export async function POST(req: NextRequest) {
 
     const userId = authData.user.id;
 
-    // 2️⃣ Insert into users table
+    // 2️⃣ Insert into users table with is_manager flag
     const { error: userError } = await supabase.from('users').insert({
       id: userId,
       user_firstname: firstName,
       user_lastname: lastName,
       is_admin: false,
+      is_manager: isManager, // ✅ Set the is_manager field
     });
 
     if (userError) {
@@ -91,7 +93,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, userId });
   } catch (err: unknown) {
     console.error('Error creating user:', err);
-
     if (err instanceof Error) {
       return NextResponse.json({ error: err.message }, { status: 400 });
     }

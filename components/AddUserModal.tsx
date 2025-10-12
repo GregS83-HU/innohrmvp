@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, X, CheckCircle, Loader2, Search, Calendar, UserCircle } from 'lucide-react';
+import { Plus, X, CheckCircle, Loader2, Search, Calendar, UserCircle, Users } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
 interface AddUserModalProps {
@@ -31,6 +31,7 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
     password: '',
     managerId: '',
     employmentStartDate: '',
+    isManager: false, // ✅ New field
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -150,6 +151,7 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
           password: '',
           managerId: '',
           employmentStartDate: '',
+          isManager: false, // ✅ Reset to default
         });
         setSuccess(null);
         setError(null);
@@ -255,77 +257,114 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
               </div>
             </div>
 
-            {/* Manager Selection */}
-            <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Manager *</label>
-              <button
-                type="button"
-                onClick={() => setShowManagerDropdown(!showManagerDropdown)}
-                disabled={loading || loadingManagers || managers.length === 0}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-left bg-white hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex items-center justify-between disabled:bg-gray-100 disabled:cursor-not-allowed"
-              >
-                <span className="flex items-center gap-2">
-                  <UserCircle className="w-4 h-4 text-gray-400" />
-                  <span className={formData.managerId ? 'text-gray-900' : 'text-gray-400'}>
-                    {loadingManagers ? 'Loading...' : (formData.managerId ? getSelectedManagerName() : 'Select a manager')}
-                  </span>
-                </span>
-                <span className="text-gray-400">▼</span>
-              </button>
+            {/* Manager Selection & Is Manager Toggle - Combined Row */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-medium text-gray-700">Manager *</label>
+                {/* ✅ Is Manager Toggle */}
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm text-gray-600">Is Manager</span>
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, isManager: !prev.isManager }))}
+                    disabled={loading}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                      formData.isManager ? 'bg-gradient-to-r from-blue-600 to-purple-600' : 'bg-gray-200'
+                    } ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                    role="switch"
+                    aria-checked={formData.isManager}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        formData.isManager ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
 
               {/* Manager Dropdown */}
-              {showManagerDropdown && (
-                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-hidden">
-                  {/* Search Bar */}
-                  <div className="p-2 border-b border-gray-200">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input
-                        type="text"
-                        placeholder="Search managers..."
-                        value={managerSearch}
-                        onChange={e => setManagerSearch(e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        onClick={e => e.stopPropagation()}
-                      />
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowManagerDropdown(!showManagerDropdown)}
+                  disabled={loading || loadingManagers || managers.length === 0}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-left bg-white hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex items-center justify-between disabled:bg-gray-100 disabled:cursor-not-allowed"
+                >
+                  <span className="flex items-center gap-2">
+                    <UserCircle className="w-4 h-4 text-gray-400" />
+                    <span className={formData.managerId ? 'text-gray-900' : 'text-gray-400'}>
+                      {loadingManagers ? 'Loading...' : (formData.managerId ? getSelectedManagerName() : 'Select a manager')}
+                    </span>
+                  </span>
+                  <span className="text-gray-400">▼</span>
+                </button>
+
+                {/* Manager Dropdown List */}
+                {showManagerDropdown && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-hidden">
+                    {/* Search Bar */}
+                    <div className="p-2 border-b border-gray-200">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                          type="text"
+                          placeholder="Search managers..."
+                          value={managerSearch}
+                          onChange={e => setManagerSearch(e.target.value)}
+                          className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          onClick={e => e.stopPropagation()}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Manager List */}
+                    <div className="overflow-y-auto max-h-48">
+                      {filteredManagers.length > 0 ? (
+                        filteredManagers.map(manager => (
+                          <button
+                            key={manager.user_id}
+                            type="button"
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, managerId: manager.user_id }));
+                              setShowManagerDropdown(false);
+                              setManagerSearch('');
+                            }}
+                            className={`w-full px-4 py-3 text-left hover:bg-blue-50 flex items-center gap-3 transition-colors ${
+                              formData.managerId === manager.user_id ? 'bg-blue-50' : ''
+                            }`}
+                          >
+                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                              <span className="text-white font-semibold text-xs">
+                                {manager.first_name[0]}{manager.last_name[0]}
+                              </span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-gray-900 truncate">
+                                {manager.first_name} {manager.last_name}
+                              </p>
+                              <p className="text-xs text-gray-500 truncate">{manager.email}</p>
+                            </div>
+                          </button>
+                        ))
+                      ) : (
+                        <div className="px-4 py-3 text-center text-gray-500 text-sm">
+                          No managers found
+                        </div>
+                      )}
                     </div>
                   </div>
+                )}
+              </div>
 
-                  {/* Manager List */}
-                  <div className="overflow-y-auto max-h-48">
-                    {filteredManagers.length > 0 ? (
-                      filteredManagers.map(manager => (
-                        <button
-                          key={manager.user_id}
-                          type="button"
-                          onClick={() => {
-                            setFormData(prev => ({ ...prev, managerId: manager.user_id }));
-                            setShowManagerDropdown(false);
-                            setManagerSearch('');
-                          }}
-                          className={`w-full px-4 py-3 text-left hover:bg-blue-50 flex items-center gap-3 ${
-                            formData.managerId === manager.user_id ? 'bg-blue-50' : ''
-                          }`}
-                        >
-                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                            <span className="text-white font-semibold text-xs">
-                              {manager.first_name[0]}{manager.last_name[0]}
-                            </span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-gray-900 truncate">
-                              {manager.first_name} {manager.last_name}
-                            </p>
-                            <p className="text-xs text-gray-500 truncate">{manager.email}</p>
-                          </div>
-                        </button>
-                      ))
-                    ) : (
-                      <div className="px-4 py-3 text-center text-gray-500 text-sm">
-                        No managers found
-                      </div>
-                    )}
-                  </div>
+              {/* ✅ Visual indicator when Is Manager is enabled */}
+              {formData.isManager && (
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
+                  <Users className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-blue-800">
+                    This user will be marked as a manager and can be assigned to other team members.
+                  </p>
                 </div>
               )}
             </div>

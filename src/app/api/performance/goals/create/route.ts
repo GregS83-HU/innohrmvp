@@ -1,119 +1,131 @@
-// app/api/performance/pulse/submit/route.ts
 import { NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { goal_id, status, progress_comment, blockers, employee_id } = body
+    console.log('📥 Request body:', body)
     
-    if (!goal_id || !status) {
+    const {
+      employee_id,
+      goal_title,
+      goal_description,
+      success_criteria,
+      created_by
+    } = body
+
+    if (!employee_id || !goal_title || !created_by) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
-    
-    if (!employee_id) {
-      return NextResponse.json({ error: 'Employee ID is required' }, { status: 400 })
-    }
-    
-    if (!['green', 'yellow', 'red'].includes(status)) {
-      return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
-    }
-    
-    const cookieStore = await cookies()
-    
-    // Use service role to bypass RLS for server-side operations
-    const supabase = createServerClient(
+
+    // Use service role client (like your openedpositions route)
+    const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
       {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll()
-          },
-          setAll(cookiesToSet) {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              )
-            } catch {
-              // Ignore if called from Server Component
-            }
-          },
-        },
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
       }
     )
-    
-    // Get week start date
-    const { data: weekStart, error: weekError } = await supabase.rpc('get_week_start')
-    
-    if (weekError) {
-      console.error('Week start error:', weekError)
-      return NextResponse.json({ error: 'Failed to get week start' }, { status: 500 })
-    }
-    
-    // Check if user already submitted pulse for this goal this week
-    const { data: existing, error: existingError } = await supabase
-      .from('goal_updates')
-      .select('id')
-      .eq('goal_id', goal_id)
-      .eq('employee_id', employee_id)
-      .eq('week_start_date', weekStart as string)
+
+    // Get company
+    const { data: company, error: companyError } = await supabaseAdmin
+      .from('company_to_users')
+      .select('company_id')
+      .eq('user_id', employee_id)
       .single()
     
-    if (existing && !existingError) {
-      // Update existing pulse
-      const { data: updatedData, error: updateError } = await supabase
-        .from('goal_updates')
-        .update({
-          status,
-          progress_comment: progress_comment || null,
-          blockers: blockers || null
-        })
-        .eq('id', existing.id)
-        .select()
-      
-      if (updateError) {
-        console.error('Update error:', updateError)
-        return NextResponse.json({ error: updateError.message }, { status: 500 })
-      }
-      
-      return NextResponse.json({
-        message: 'Pulse updated successfully',
-        update: updatedData[0]
-      })
+    console.log('🏢 Company lookup:', { company, error: companyError?.message })
+
+    if (companyError || !company) {
+      return NextResponse.json({ 
+        error: companyError?.message || 'Company not found' 
+      }, { status: 400 })
     }
+
+    // Get manager
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('user_profiles')
+      .select('manager_id')
+      .eq('user_id', employee_id)
+      .single()
     
-    // Insert new pulse
-    const { data: insertedData, error: insertError } = await supabase
-      .from('goal_updates')
-      .insert([
-        {
-          goal_id,
-          employee_id: employee_id,
-          status,
-          progress_comment: progress_comment || null,
-          blockers: blockers || null,
-          week_start_date: weekStart as string
-        }
-      ])
+    console.log('👤 Profile lookup:', { profile, error: profileError?.message })
+
+    if (profileError || !profile?.manager_id) {
+      return NextResponse.json({ 
+        error: 'Manager not found for employee' 
+      }, { status: 400 })
+    }
+
+    // Get quarter
+    const { data: quarterData, error: quarterError } = await supabaseAdmin.rpc('get_current_quarter')
+    console.log('📅 Quarter lookup:', { quarter: quarterData, error: quarterError?.message })
+
+    if (quarterError) {
+      return NextResponse.json({ 
+        error: 'Failed to get current quarter' 
+      }, { status: 500 })
+    }
+
+    const quarter = quarterData as string
+    const year = new Date().getFullYear()
+    const status = created_by === 'employee' ? 'draft' : 'active'
+
+    const goalData = {
+      employee_id,
+      manager_id: profile.manager_id,
+      company_id: company.company_id,
+      goal_title,
+      goal_description,
+      success_criteria,
+      quarter,
+      year,
+      status,
+      created_by
+    }
+
+    console.log('📝 Attempting insert with data:', goalData)
+
+    // Insert the goal using service role (bypasses RLS)
+    const { data: insertedData, error: insertError } = await supabaseAdmin
+      .from('performance_goals')
+      .insert([goalData])
       .select()
-    
+
     if (insertError) {
-      console.error('Insert error:', insertError)
-      return NextResponse.json({ error: insertError.message }, { status: 500 })
+      console.error('❌ Insert failed:', {
+        message: insertError.message,
+        details: insertError.details,
+        hint: insertError.hint,
+        code: insertError.code
+      })
+      return NextResponse.json({ 
+        error: insertError.message || 'Failed to create goal'
+      }, { status: 500 })
     }
-    
+
     if (!insertedData || insertedData.length === 0) {
-      return NextResponse.json({ error: 'Failed to submit pulse' }, { status: 500 })
+      return NextResponse.json({ 
+        error: 'Failed to create goal' 
+      }, { status: 500 })
     }
-    
+
+    console.log('✅ Goal created successfully:', insertedData)
+
     return NextResponse.json({
-      message: 'Pulse submitted successfully',
-      update: insertedData[0]
+      message: 'Goal created successfully',
+      goal: insertedData[0]
     })
+
   } catch (error) {
-    console.error('Pulse submission error:', error)
-    return NextResponse.json({ error: (error as Error).message }, { status: 500 })
+    console.error('💥 Unexpected error:', error)
+    return NextResponse.json({ 
+      error: (error as Error).message 
+    }, { status: 500 })
   }
 }

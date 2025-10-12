@@ -216,7 +216,7 @@ export async function GET(req: NextRequest) {
               candidat_score: score,
               candidat_ai_analyse: analysis,
               source: "Analyse from Database",
-              candidat_next_step: score < 5 ? "1" : "0",
+              candidat_next_step: score < 7 ? "1" : "0",
             });
 
             // ✅ Send progress event

@@ -14,7 +14,8 @@ interface User {
   firstname: string;
   lastname: string;
   is_admin: boolean;
-  is_super_admin: boolean;
+  is_super_admin: boolean
+  is_manager: boolean;
 }
 
 interface UseHeaderLogicReturn {
@@ -49,7 +50,7 @@ interface UseHeaderLogicReturn {
   companySlug: string | null;
   buildLink: (basePath: string) => string;
 
-  handleLogin: () => Promise<void>;
+  handleLogin: (email?: string, pwd?: string) => Promise<void>; 
   handleLogout: () => Promise<void>;
   formatTime: (seconds: number) => string;
 }
@@ -63,7 +64,7 @@ export const useHeaderLogic = () : UseHeaderLogicReturn => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
-  const [user, setUser] = useState<{ id: string; firstname: string; lastname: string; is_admin:boolean ; is_super_admin:boolean} | null>(null);
+  const [user, setUser] = useState<{ id: string; firstname: string; lastname: string; is_admin:boolean ; is_super_admin:boolean ; is_manager:boolean} | null>(null);
   const [error, setError] = useState('');
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
   const [companyId, setCompanyId] = useState<string | null>(null);
@@ -99,10 +100,10 @@ export const useHeaderLogic = () : UseHeaderLogicReturn => {
   const fetchUserProfile = useCallback(async (userId: string) => {
     const { data } = await supabase
       .from('users')
-      .select('id, user_firstname, user_lastname, is_admin, is_super_admin')
+      .select('id, user_firstname, user_lastname, is_admin, is_super_admin, is_manager')
       .eq('id', userId)
       .single();
-    if (data) setUser({ id: data.id, firstname: data.user_firstname, lastname: data.user_lastname, is_admin: data.is_admin, is_super_admin: data.is_super_admin });
+    if (data) setUser({ id: data.id, firstname: data.user_firstname, lastname: data.user_lastname, is_admin: data.is_admin, is_super_admin: data.is_super_admin, is_manager: data.is_manager });
   }, []);
 
   const fetchUserCompanyId = useCallback(async (userId: string) => {
@@ -251,26 +252,30 @@ useEffect(() => {
 
 
   // Auth handlers
-  const handleLogin = useCallback(async () => {
-    if (isDemoExpired) return;
-    
-    setError('');
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: login,
-      password,
-    });
-    if (error) {
-      setError('Invalid email or password!');
-      return;
-    }
-    if (data.user) {
-      fetchUserProfile(data.user.id);
-      fetchUserCompanyId(data.user.id);
-      setIsLoginOpen(false);
-      const homeUrl = companySlug ? `/jobs/${companySlug}` : '/';
-      router.push(homeUrl);
-    }
-  }, [login, password, companySlug, router, fetchUserProfile, fetchUserCompanyId, isDemoExpired]);
+ const handleLogin = useCallback(async (email?: string, pwd?: string) => {
+  if (isDemoExpired) return;
+  
+  // Use provided credentials or fall back to state
+  const loginEmail = email || login;
+  const loginPassword = pwd || password;
+  
+  setError('');
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: loginEmail,
+    password: loginPassword,
+  });
+  if (error) {
+    setError('Invalid email or password!');
+    return;
+  }
+  if (data.user) {
+    fetchUserProfile(data.user.id);
+    fetchUserCompanyId(data.user.id);
+    setIsLoginOpen(false);
+    const homeUrl = companySlug ? `/jobs/${companySlug}` : '/';
+    router.push(homeUrl);
+  }
+}, [login, password, companySlug, router, fetchUserProfile, fetchUserCompanyId, isDemoExpired]);
 
   const handleLogout = useCallback(async () => {
     await supabase.auth.signOut();
