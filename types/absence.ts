@@ -52,4 +52,6 @@ export interface PendingApproval {
   total_days: number;
   reason?: string;
   created_at: string;
+  medical_certificate_id?: number | null;  // ✅ NEW
+  certificate_file?: string | null;         // ✅ NEW
 }

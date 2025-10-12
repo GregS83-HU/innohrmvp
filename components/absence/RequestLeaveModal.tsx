@@ -286,17 +286,22 @@ try {
 } catch (err) {
   console.error("❌ Failed to update manager_id:", err);
 }
-
 // 2️⃣ If a certificate has been confirmed, update medical_certificate_id and link it
 if (certificateId) {
   try {
     // Update leave_request with certificate_id
-    await supabase
-      .from('leave_requests')
-      .update({ medical_certificate_id: certificateId })
-      .eq('id', leaveRequest.id);
+     
+   const { data: updateData, error: updateError } = await supabase
+     .from('leave_requests')
+     .update({ medical_certificate_id: certificateId })
+     .eq('id', leaveRequest.id);
+   
+   console.log("Update result:", { updateData, updateError });
+
 
     // Link the certificate to the leave_request
+
+   
     await supabase
       .from('medical_certificates')
       .update({ leave_request_id: leaveRequest.id })
