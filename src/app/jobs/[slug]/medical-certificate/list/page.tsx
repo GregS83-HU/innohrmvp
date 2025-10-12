@@ -15,7 +15,7 @@ type MedicalCertificate = {
   created_at: string
   treated: boolean
   treatment_date: string | null
-  document_url?: string
+  document_url?: string | null
   company_id?: number
 }
 
@@ -70,14 +70,39 @@ export default function MedicalCertificatesPage() {
           return
         }
 
-        const certificatesWithUrl: MedicalCertificate[] = (data || []).map(
-          (cert: MedicalCertificate) => ({
-            ...cert,
-            document_url: cert.certificate_file,
-            treated: !!cert.treated,
-            treatment_date: cert.treatment_date,
-          })
-        )
+const certificatesWithUrl: MedicalCertificate[] = (data || []).map(
+  (cert: MedicalCertificate) => {
+    let documentUrl = null;
+    
+    // Extract file path from certificate_file
+    let filePath = cert.certificate_file;
+    
+    if (typeof cert.certificate_file === 'string' && cert.certificate_file.startsWith('{')) {
+      try {
+        const parsed = JSON.parse(cert.certificate_file);
+        filePath = parsed.path || parsed.signedUrl || cert.certificate_file;
+      } catch (e) {
+        console.error('Error parsing certificate_file:', e);
+      }
+    }
+    
+    // Generate public URL
+    if (filePath) {
+      const { data: publicData } = supabase.storage
+        .from('medical-certificates')
+        .getPublicUrl(filePath);
+      
+      documentUrl = publicData.publicUrl;
+    }
+    
+    return {
+      ...cert,
+      document_url: documentUrl,
+      treated: !!cert.treated,
+      treatment_date: cert.treatment_date,
+    };
+  }
+);  
 
         setCertificates(certificatesWithUrl)
       } catch (err) {

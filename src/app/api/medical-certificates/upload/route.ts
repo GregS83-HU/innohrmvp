@@ -203,7 +203,7 @@ ${rawText}
       success: true,
       company_id: companyId, // AJOUT: retourner le company_id dans la réponse
       storage_path: filePath,
-      signed_url: signed.signedUrl,
+      //signed_url: signed.signedUrl,
       public_url: publicUrl,
       raw_text: rawText,
       extracted_data: structured,

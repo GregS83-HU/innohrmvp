@@ -65,7 +65,7 @@ const secureUrl = signedUrlData.signedUrl;
       absence_start_date: absenceDateStart,
       absence_end_date: absenceDateEnd,
       employee_comment,
-      certificate_file: signedUrlData,
+      certificate_file: filePath,
       company_id: companyIdNumber,
       leave_request_id: leave_request_id || null,
       treated: false
