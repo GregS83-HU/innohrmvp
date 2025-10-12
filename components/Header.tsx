@@ -374,18 +374,18 @@ export default function Header() {
                 </DemoAwareMenuItem>
               )}
 
-              {/* Desktop user area */}
-              <div className="hidden xl:flex items-center gap-3">
+            {/* Desktop user area */}
+              <div className="hidden xl:flex items-center gap-3 min-w-0 flex-shrink">
 
                 {user ? (
-                  <div className="relative" ref={userMenuRef}>
+                  <div className="relative min-w-0 flex-1 max-w-[180px]" ref={userMenuRef}>
                     {isDemoExpired ? (
-                      <div className={`${buttonBaseClasses} bg-gray-100 text-gray-400 cursor-not-allowed relative group`}>
-                        <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                      <div className={`${buttonBaseClasses} bg-gray-100 text-gray-400 cursor-not-allowed relative group min-w-0 w-full`}>
+                        <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
                           <User className="w-4 h-4 text-gray-500" />
                         </div>
-                        <span className="max-w-32 truncate">{user.firstname} {user.lastname}</span>
-                        <ChevronDown className="w-3 h-3" />
+                        <span className="truncate min-w-0 flex-1">{user.firstname} {user.lastname}</span>
+                        <ChevronDown className="w-3 h-3 flex-shrink-0" />
                         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
                           Demo expired - Contact us to continue
                           <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
@@ -393,12 +393,12 @@ export default function Header() {
                       </div>
                     ) : (
                       <>
-                        <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} className={`${buttonBaseClasses} bg-gray-50 hover:bg-gray-100 text-gray-700`}>
-                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} className={`${buttonBaseClasses} bg-gray-50 hover:bg-gray-100 text-gray-700 min-w-0 w-full`}>
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                             <User className="w-4 h-4 text-blue-600" />
                           </div>
-                          <span className="max-w-32 truncate">{user.firstname} {user.lastname}</span>
-                          <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+                          <span className="truncate min-w-0 flex-1">{user.firstname} {user.lastname}</span>
+                          <ChevronDown className={`w-3 h-3 flex-shrink-0 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
                         </button>
 
                         {isUserMenuOpen && (

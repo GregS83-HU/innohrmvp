@@ -44,13 +44,14 @@ export default function PerformanceDashboard() {
 
   useEffect(() => {
     if (!session) {
-      router.push('/')
+      // FIXED: Redirect to company home instead of root
+      router.push(`/jobs/${companySlug}`)
       return
     }
 
     fetchGoals()
     fetchQuarterAndWeek()
-  }, [session, router])
+  }, [session, router, companySlug])
 
   const fetchQuarterAndWeek = async () => {
     try {

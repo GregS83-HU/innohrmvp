@@ -278,11 +278,14 @@ useEffect(() => {
 }, [login, password, companySlug, router, fetchUserProfile, fetchUserCompanyId, isDemoExpired]);
 
   const handleLogout = useCallback(async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    const homeUrl = companySlug ? `/jobs/${companySlug}` : '/';
-    router.push(homeUrl);
-  }, [companySlug, router]);
+  console.log('Logout - companySlug:', companySlug);
+  const homeUrl = companySlug ? `/jobs/${companySlug}` : '/';
+  console.log('Logout - homeUrl:', homeUrl);
+  await supabase.auth.signOut();
+  setUser(null);
+  console.log('About to redirect to:', homeUrl);
+  router.push(homeUrl);
+}, [companySlug, router]);
 
   // Utility functions
   const formatTime = useCallback((seconds: number) => {
