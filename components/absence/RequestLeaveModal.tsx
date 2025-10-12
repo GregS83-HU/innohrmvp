@@ -275,19 +275,39 @@ const RequestLeaveModal: React.FC<Props> = ({
         return;
       }
 
-      // Update the manager id and certificate id if available
-      const updateData: { manager_id: string; medical_certificate_id?: number } = {
-        manager_id: managerId
-      };
-      
-      if (certificateId) {
-        updateData.medical_certificate_id = certificateId;
-      }
+      // 1️⃣ Update manager_id immediately
+try {
+  await supabase
+    .from('leave_requests')
+    .update({ manager_id: managerId })
+    .eq('id', leaveRequest.id);
 
-      await supabase
-        .from('leave_requests')
-        .update(updateData)
-        .eq('id', leaveRequest.id);
+  console.log("✅ Manager ID updated for leave request:", managerId);
+} catch (err) {
+  console.error("❌ Failed to update manager_id:", err);
+}
+
+// 2️⃣ If a certificate has been confirmed, update medical_certificate_id and link it
+if (certificateId) {
+  try {
+    // Update leave_request with certificate_id
+    await supabase
+      .from('leave_requests')
+      .update({ medical_certificate_id: certificateId })
+      .eq('id', leaveRequest.id);
+
+    // Link the certificate to the leave_request
+    await supabase
+      .from('medical_certificates')
+      .update({ leave_request_id: leaveRequest.id })
+      .eq('id', certificateId);
+
+    console.log("✅ Certificate linked to leave request with ID:", certificateId);
+  } catch (err) {
+    console.error("❌ Failed to link certificate:", err);
+  }
+}
+
       
       console.log('✅ Manager ID and certificate (if any) added to leave request');
 
