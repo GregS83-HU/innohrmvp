@@ -435,7 +435,7 @@ const AbsenceManagement: React.FC = () => {
               {/* Calendar View Button - Hidden on Mobile */}
   <button
     onClick={() => router.push(`/jobs/${companySlug}/absences/calendar`)}
-    className="hidden lg:flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+    className="hidden md:flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
   >
     <Calendar className="w-4 h-4" />
     Calendar View
