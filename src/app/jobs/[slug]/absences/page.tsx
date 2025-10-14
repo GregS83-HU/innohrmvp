@@ -415,6 +415,7 @@ const AbsenceManagement: React.FC = () => {
             </div>
 
             <div className="flex gap-2">
+              
               <button
                 onClick={() => setShowRequestModal(true)}
                 className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
@@ -423,7 +424,7 @@ const AbsenceManagement: React.FC = () => {
                 <span className="hidden sm:inline">Request Leave</span>
                 <span className="sm:hidden">Request</span>
               </button>
-
+              {/*}
               <button
                 onClick={handleCreateWithCertificate}
                 className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
@@ -432,14 +433,16 @@ const AbsenceManagement: React.FC = () => {
                 <span className="hidden sm:inline">With Certificate</span>
                 <span className="sm:hidden">+ Cert</span>
               </button>
+              {/*}
+
               {/* Calendar View Button - Hidden on Mobile */}
-  <button
-    onClick={() => router.push(`/jobs/${companySlug}/absences/calendar`)}
-    className="hidden md:flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-  >
-    <Calendar className="w-4 h-4" />
-    Calendar View
-  </button>
+                <button
+                  onClick={() => router.push(`/jobs/${companySlug}/absences/calendar`)}
+                  className="hidden md:flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                >
+                  <Calendar className="w-4 h-4" />
+                  Calendar View
+                </button>
             </div>
           </div>
 

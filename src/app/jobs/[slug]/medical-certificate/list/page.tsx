@@ -70,39 +70,39 @@ export default function MedicalCertificatesPage() {
           return
         }
 
-const certificatesWithUrl: MedicalCertificate[] = (data || []).map(
-  (cert: MedicalCertificate) => {
-    let documentUrl = null;
-    
-    // Extract file path from certificate_file
-    let filePath = cert.certificate_file;
-    
-    if (typeof cert.certificate_file === 'string' && cert.certificate_file.startsWith('{')) {
-      try {
-        const parsed = JSON.parse(cert.certificate_file);
-        filePath = parsed.path || parsed.signedUrl || cert.certificate_file;
-      } catch (e) {
-        console.error('Error parsing certificate_file:', e);
-      }
-    }
-    
-    // Generate public URL
-    if (filePath) {
-      const { data: publicData } = supabase.storage
-        .from('medical-certificates')
-        .getPublicUrl(filePath);
-      
-      documentUrl = publicData.publicUrl;
-    }
-    
-    return {
-      ...cert,
-      document_url: documentUrl,
-      treated: !!cert.treated,
-      treatment_date: cert.treatment_date,
-    };
-  }
-);  
+        const certificatesWithUrl: MedicalCertificate[] = (data || []).map(
+          (cert: MedicalCertificate) => {
+            let documentUrl = null;
+            
+            // Extract file path from certificate_file
+            let filePath = cert.certificate_file;
+            
+            if (typeof cert.certificate_file === 'string' && cert.certificate_file.startsWith('{')) {
+              try {
+                const parsed = JSON.parse(cert.certificate_file);
+                filePath = parsed.path || parsed.signedUrl || cert.certificate_file;
+              } catch (e) {
+                console.error('Error parsing certificate_file:', e);
+              }
+            }
+            
+            // Generate public URL
+            if (filePath) {
+              const { data: publicData } = supabase.storage
+                .from('medical-certificates')
+                .getPublicUrl(filePath);
+              
+              documentUrl = publicData.publicUrl;
+            }
+            
+            return {
+              ...cert,
+              document_url: documentUrl,
+              treated: !!cert.treated,
+              treatment_date: cert.treatment_date,
+            };
+          }
+        );  
 
         setCertificates(certificatesWithUrl)
       } catch (err) {
@@ -117,10 +117,22 @@ const certificatesWithUrl: MedicalCertificate[] = (data || []).map(
   }, [session, supabase])
 
   const handleCheckboxChange = async (certId: number, newValue: boolean) => {
+    if (!session?.user?.id) {
+      alert('User session not found')
+      return
+    }
+
+    console.log('=== Starting checkbox change ===')
+    console.log('CertId:', certId, 'Type:', typeof certId)
+    console.log('New value:', newValue)
+    console.log('User ID:', session.user.id)
+
     try {
       const treatmentDate = newValue ? new Date().toISOString() : null
+      const userId = session.user.id
 
-      const { data, error } = await supabase
+      // First, update the medical certificate
+      const { data: certData, error: certError } = await supabase
         .from('medical_certificates')
         .update({ 
           treated: newValue,
@@ -129,25 +141,86 @@ const certificatesWithUrl: MedicalCertificate[] = (data || []).map(
         .eq('id', certId)
         .select()
 
-      if (error) {
-        console.error('Erreur mise à jour traité:', error.message)
-        alert('Erreur lors de la mise à jour')
-      } else {
-        setCertificates((prev) =>
-          prev.map((cert) =>
-            cert.id === certId 
-              ? { 
-                  ...cert, 
-                  treated: newValue,
-                  treatment_date: treatmentDate
-                } 
-              : cert
-          )
-        )
+      if (certError) {
+        console.error('Error updating medical certificate:', certError.message)
+        alert('Error updating medical certificate status')
+        return
       }
+
+      console.log('Medical certificate updated successfully')
+
+      // Use RPC function to get leave requests (bypasses RLS issues)
+      const { data: leaveRequests, error: leaveCheckError } = await supabase
+        .rpc('get_leave_request_by_medical_cert', { cert_id: certId })
+
+      console.log('Leave requests found:', leaveRequests?.length || 0)
+
+      if (leaveCheckError) {
+        console.error('Error checking leave requests:', leaveCheckError)
+        // Rollback the medical certificate update
+        await supabase
+          .from('medical_certificates')
+          .update({ 
+            treated: !newValue,
+            treatment_date: !newValue ? new Date().toISOString() : null
+          })
+          .eq('id', certId)
+        alert('Error checking associated leave requests. Changes have been rolled back.')
+        return
+      }
+
+      // If there's a linked leave request, update it
+      if (leaveRequests && leaveRequests.length > 0) {
+        console.log('Found leave request(s), updating...')
+        
+        // Use RPC function to update (bypasses RLS issues)
+        const { error: leaveUpdateError } = await supabase
+          .rpc('update_leave_request_by_medical_cert', {
+            cert_id: certId,
+            is_confirmed: newValue ? true : null,
+            validated: newValue ? true : null,
+            validated_by_user: newValue ? userId : null,
+            validated_at_time: newValue ? new Date().toISOString() : null
+          })
+
+        console.log('Leave request update completed, error:', leaveUpdateError)
+
+        if (leaveUpdateError) {
+          console.error('Error updating leave request:', leaveUpdateError)
+          // Rollback the medical certificate update
+          await supabase
+            .from('medical_certificates')
+            .update({ 
+              treated: !newValue,
+              treatment_date: !newValue ? new Date().toISOString() : null
+            })
+            .eq('id', certId)
+          alert('Error updating associated leave request. Changes have been rolled back.')
+          return
+        }
+
+        console.log('Leave request updated successfully!')
+      } else {
+        console.log('No leave request found for this certificate')
+      }
+
+      // Success: update local state
+      setCertificates((prev) =>
+        prev.map((cert) =>
+          cert.id === certId 
+            ? { 
+                ...cert, 
+                treated: newValue,
+                treatment_date: treatmentDate
+              } 
+            : cert
+        )
+      )
+
+      console.log('=== Checkbox change completed successfully ===')
     } catch (err) {
-      console.error('Erreur réseau lors de update treated:', err)
-      alert('Erreur réseau lors de la mise à jour')
+      console.error('Network error during update:', err)
+      alert('Network error. Please try again.')
     }
   }
 
