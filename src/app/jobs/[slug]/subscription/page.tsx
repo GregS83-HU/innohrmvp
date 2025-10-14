@@ -62,6 +62,7 @@ export default function ManageSubscription() {
   const [companyId, setCompanyId] = useState<string | null>(null)
   const [currentPlan, setCurrentPlan] = useState<string | null>(null)
   const [toasts, setToasts] = useState<Toast[]>([])
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false)
   const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
   const addToast = (message: string, type: 'success' | 'error' = 'error') => {
@@ -82,9 +83,9 @@ export default function ManageSubscription() {
         addToast("Failed to fetch company information.")
         return
       }
-
+      console.log("UserID in Stripe component:",userId)
+       console.log("Companyid in Stripe component:",data.company_id)
       setCompanyId(data.company_id.toString())
-
       const { data: companyData, error: compErr } = await supabase
         .from('company')
         .select('forfait')
@@ -251,42 +252,42 @@ export default function ManageSubscription() {
   }, [fetchStripePrices])
 
   const handleSubscribe = async (plan: Plan) => {
-  if (!companyId) return addToast("Company information not available.", "error")
+    if (!companyId) return addToast("Company information not available.", "error")
 
-  if (plan.priceId === null) {
-    addToast("This is a free plan. No subscription needed.", "success")
-    return
-  }
-
-  if (plan.price === 0 && plan.priceId !== null) {
-    addToast("This plan is temporarily unavailable due to pricing issues.", "error")
-    return
-  }
-
-  try {
-    const res = await fetch('/api/stripe/create-subscription', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        company_id: companyId,
-        price_id: plan.priceId,
-        return_url: window.location.origin // better than href
-      }),
-    })
-
-    const data = await res.json()
-    if (data.sessionId) {
-      const stripe = await stripePromise
-      if (!stripe) throw new Error("Stripe failed to load")
-      await stripe.redirectToCheckout({ sessionId: data.sessionId })
-    } else {
-      addToast(data.error || "Unable to start checkout", "error")
+    if (plan.priceId === null) {
+      addToast("This is a free plan. No subscription needed.", "success")
+      return
     }
-  } catch (err) {
-    console.error(err)
-    addToast("Unexpected error starting checkout", "error")
+
+    if (plan.price === 0 && plan.priceId !== null) {
+      addToast("This plan is temporarily unavailable due to pricing issues.", "error")
+      return
+    }
+
+    try {
+      const res = await fetch('/api/stripe/create-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          company_id: companyId,
+          price_id: plan.priceId,
+          return_url: window.location.href
+        }),
+      })
+
+      const data = await res.json()
+      if (data.sessionId) {
+        const stripe = await stripePromise
+        if (!stripe) throw new Error("Stripe failed to load")
+        await stripe.redirectToCheckout({ sessionId: data.sessionId })
+      } else {
+        addToast(data.error || "Unable to start checkout", "error")
+      }
+    } catch (err) {
+      console.error(err)
+      addToast("Unexpected error starting checkout", "error")
+    }
   }
-}
 
   const getPlanIcon = (planName: string) => {
     switch (planName.toLowerCase()) {
@@ -300,14 +301,40 @@ export default function ManageSubscription() {
   const formatPrice = (price: number) => price === 0 ? 'Free' : (price/100).toLocaleString()
 
   useEffect(() => {
-    if (session?.user?.id) fetchUserCompanyId(session.user.id)
-    else {
+    if (session?.user?.id) {
+      fetchUserCompanyId(session.user.id)
+    } else {
       const urlCompanyId = getCompanyIdFromUrl()
-      if (urlCompanyId) fetchCompanyDetails(urlCompanyId)
-      else setLoadingSubscription(false)
+      if (urlCompanyId) {
+        setCompanyId(urlCompanyId)
+        fetchCompanyDetails(urlCompanyId)
+      } else {
+        setLoadingSubscription(false)
+      }
     }
     fetchPlans()
   }, [session?.user?.id, fetchUserCompanyId, getCompanyIdFromUrl, fetchCompanyDetails, fetchPlans])
+
+  useEffect(() => {
+    const success = searchParams.get("success")
+    const canceled = searchParams.get("canceled")
+
+    if (success && companyId) {
+      setIsProcessingPayment(true)
+      addToast("Payment successful! Updating your subscription...", "success")
+      
+      // Reload subscription info with a slight delay to ensure Stripe webhook has processed
+      setTimeout(async () => {
+        await fetchCompanyDetails(companyId)
+        setIsProcessingPayment(false)
+        addToast("Subscription updated successfully!", "success")
+      }, 2000)
+    }
+
+    if (canceled) {
+      addToast("Payment canceled", "error")
+    }
+  }, [searchParams, companyId, fetchCompanyDetails])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -320,6 +347,19 @@ export default function ManageSubscription() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Processing Payment Overlay */}
+        {isProcessingPayment && (
+          <div className="bg-blue-100 border-l-4 border-blue-500 rounded-lg p-6 mb-12">
+            <div className="flex items-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mr-4"></div>
+              <div>
+                <h3 className="text-lg font-semibold text-blue-900">Processing your payment...</h3>
+                <p className="text-blue-700">Please wait while we update your subscription.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {loadingSubscription ? (
           <div className="bg-white rounded-xl shadow-sm p-6 mb-12 animate-pulse h-32" />
         ) : currentPlan ? (
