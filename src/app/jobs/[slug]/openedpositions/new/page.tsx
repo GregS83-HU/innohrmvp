@@ -3,7 +3,7 @@
 import { useSession } from '@supabase/auth-helpers-react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { Plus, Calendar, FileText, Briefcase, BarChart3, CheckCircle, AlertCircle, Activity, Lock } from 'lucide-react'
+import { Plus, Calendar, FileText, Briefcase, BarChart3, CheckCircle, AlertCircle, Activity, Lock, X, Clock, Users } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -11,6 +11,126 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
+// Confirmation Modal Component
+interface ConfirmAnalysisModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onConfirm: () => void
+  onCreateWithoutAnalysis: () => void
+  candidateCount: number
+  loading?: boolean
+}
+
+function ConfirmAnalysisModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  onCreateWithoutAnalysis,
+  candidateCount,
+  loading = false
+}: ConfirmAnalysisModalProps) {
+  if (!isOpen) return null
+
+  const estimatedMinutes = Math.ceil((candidateCount * 5) / 60)
+  const estimatedTime = estimatedMinutes < 1 
+    ? `${candidateCount * 5} seconds`
+    : `${estimatedMinutes} minute${estimatedMinutes > 1 ? 's' : ''}`
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 relative">
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="absolute top-4 right-4 text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <AlertCircle className="w-12 h-12 text-white mx-auto mb-3" />
+          <h2 className="text-2xl font-bold text-white text-center">
+            Confirm Analysis
+          </h2>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 space-y-4">
+          <p className="text-gray-600 text-center">
+            You are about to analyze all candidates in your database against this position.
+          </p>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 text-center border border-blue-100">
+              <Users className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-blue-600">{candidateCount}</div>
+              <div className="text-xs text-gray-600">Candidates</div>
+            </div>
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4 text-center border border-purple-100">
+              <Clock className="w-6 h-6 text-purple-600 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-purple-600">{candidateCount}</div>
+              <div className="text-xs text-gray-600">AI Credits</div>
+            </div>
+          </div>
+
+          {/* Estimated Time */}
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-4 border border-amber-200">
+            <div className="flex items-center gap-2 justify-center text-amber-800">
+              <Clock className="w-4 h-4" />
+              <span className="text-sm font-medium">
+                Estimated time: ~{estimatedTime}
+              </span>
+            </div>
+          </div>
+
+          {/* Warning Text */}
+          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+            <p className="text-xs text-gray-600 text-center">
+              This will consume <span className="font-semibold text-gray-800">{candidateCount} AI credits</span> from your account.
+            </p>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="p-6 pt-0 space-y-3">
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            {loading ? (
+              <>
+                <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                Processing...
+              </>
+            ) : (
+              'Confirm & Start Analysis'
+            )}
+          </button>
+          
+          <button
+            onClick={onCreateWithoutAnalysis}
+            disabled={loading}
+            className="w-full bg-white text-gray-700 py-3 px-6 rounded-lg font-medium border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Create Position Without Analysis
+          </button>
+
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="w-full text-gray-500 py-2 px-6 rounded-lg font-medium hover:text-gray-700 hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Main Component
 export default function NewOpenedPositionPage() {
   const router = useRouter()
   const session = useSession()
@@ -29,6 +149,11 @@ export default function NewOpenedPositionPage() {
   const [canCreatePosition, setCanCreatePosition] = useState<boolean | null>(null)
   const positionAccessChecked = useRef(false)
   const pathname = usePathname()
+
+  // Modal states
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [candidateCount, setCandidateCount] = useState(0)
+  const [fetchingCount, setFetchingCount] = useState(false)
 
   useEffect(() => {
     if (!session) {
@@ -104,7 +229,6 @@ export default function NewOpenedPositionPage() {
         return;
       }
       
-      // Handle different possible return formats
       let hasAccess = false;
       
       if (typeof data === 'boolean') {
@@ -118,11 +242,10 @@ export default function NewOpenedPositionPage() {
         hasAccess = data === 1;
       } else if (typeof data === 'object' && data !== null) {
         console.log('🔧 Data is object:', data);
-        // Sometimes Supabase functions return objects, check if there's a result property
         hasAccess = data.result === true || data.result === 'true' || 
                    data.can_access === true || data.can_access === 'true' ||
-                   data[0] === true || data[0] === 'true' || // Sometimes it's an array
-                   data === true; // Sometimes the object itself is the boolean
+                   data[0] === true || data[0] === 'true' ||
+                   data === true;
       }
       
       console.log('✅ Final access decision:', hasAccess);
@@ -219,7 +342,7 @@ export default function NewOpenedPositionPage() {
         setMessage({ text: `${data.error || 'Error creating position'}`, type: 'error' })
       } else {
         setMessage({ text: 'New position successfully created', type: 'success' })
-        setPositionId(data.id) // récupère l'ID pour lancer l'analyse
+        setPositionId(data.id)
         setPositionName('')
         setPositionDescription('')
         setPositionDescriptionDetailed('')
@@ -232,23 +355,69 @@ export default function NewOpenedPositionPage() {
     setLoading(false)
   }
 
+  // Open modal and fetch candidate count
+  const handleAnalyseClick = async () => {
+   // await fetchCandidateCount();
+    
+    // Check if we fetched the count and if there are candidates
+    // We need to wait a bit for state to update, or we can use a different approach
+    // Let's refactor to handle this properly
+    setFetchingCount(true);
+    
+    try {
+      const res = await fetch(`/api/candidate-count?user_id=${userId}`);
+      const data = await res.json();
+      
+      if (!res.ok) {
+        setMessage({ 
+          text: 'Could not fetch candidate count. Please try again.', 
+          type: 'error' 
+        });
+        setFetchingCount(false);
+        return;
+      }
+      
+      const count = data.count || 0;
+      setCandidateCount(count);
+      
+      if (count === 0) {
+        setMessage({ 
+          text: 'No candidates found in your database. Please add candidates first.', 
+          type: 'error' 
+        });
+        setFetchingCount(false);
+        return;
+      }
+      
+      setFetchingCount(false);
+      setShowConfirmModal(true);
+    } catch (error) {
+      console.error('Error fetching candidate count:', error);
+      setMessage({ 
+        text: 'Unexpected error. Please try again.', 
+        type: 'error' 
+      });
+      setFetchingCount(false);
+    }
+  }
+
   // Lancement de l'analyse massive avec progression
   const handleAnalyseMassive = async () => {
     if (!positionId) return
 
+    setShowConfirmModal(false);
     setAnalysisLoading(true)
     setAnalysisResult(null)
     setMessage(null)
     setProgress(0)
 
     try {
-      // On utilise EventSource pour suivre la progression (Server-Sent Events)
-    const es = new EventSource(`/api/analyse-massive?position_id=${positionId}&user_id=${userId}&company_id=${companyId}`)
+      const es = new EventSource(`/api/analyse-massive?position_id=${positionId}&user_id=${userId}&company_id=${companyId}`)
 
       es.onmessage = (event) => {
         const data = JSON.parse(event.data)
         if (data.type === 'progress') {
-          setProgress(data.progress) // 0-100%
+          setProgress(data.progress)
         } else if (data.type === 'done') {
           setAnalysisResult({ matched: data.matched, total: data.total })
           setMessage({
@@ -274,6 +443,15 @@ export default function NewOpenedPositionPage() {
       setMessage({ text: `Unexpected error: ${(error as Error).message}`, type: 'error' })
       setAnalysisLoading(false)
     }
+  }
+
+  // Handle "Create Without Analysis" option
+  const handleCreateWithoutAnalysis = () => {
+    setShowConfirmModal(false);
+    setMessage({ 
+      text: 'Position created successfully. You can run the analysis later.', 
+      type: 'success' 
+    });
   }
 
   return (
@@ -307,8 +485,6 @@ export default function NewOpenedPositionPage() {
               <button 
                 className="bg-gradient-to-r from-red-600 to-rose-600 text-white py-3 px-8 rounded-lg font-medium hover:from-red-700 hover:to-rose-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
                 onClick={() => {
-                  // Add your upgrade logic here
-                  // For example: router.push('/upgrade') or open upgrade modal
                   console.log('Redirect to upgrade page')
                 }}
               >
@@ -414,7 +590,7 @@ export default function NewOpenedPositionPage() {
               </div>
             </div>
 
-            {/* Messages - Now positioned right after the form */}
+            {/* Messages */}
             {message && (
               <div className={`rounded-2xl p-4 sm:p-6 ${
                 message.type === 'success' 
@@ -446,11 +622,16 @@ export default function NewOpenedPositionPage() {
                   </h3>
                   
                   <button
-                    onClick={handleAnalyseMassive}
-                    disabled={analysisLoading}
+                    onClick={handleAnalyseClick}
+                    disabled={analysisLoading || fetchingCount}
                     className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-6 rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none mb-4"
                   >
-                    {analysisLoading ? (
+                    {fetchingCount ? (
+                      <>
+                        <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                        Loading...
+                      </>
+                    ) : analysisLoading ? (
                       <>
                         <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
                         Analyse running...
@@ -496,8 +677,7 @@ export default function NewOpenedPositionPage() {
 
                   <button
                     onClick={() => {
-                      // Take the slug part from current pathname, e.g. /jobs/demo/openedpositions/new
-                      const basePath = pathname.split('/openedpositions')[0] // /jobs/demo
+                      const basePath = pathname.split('/openedpositions')[0]
                       router.push(`${basePath}/stats?positionId=${positionId}`)
                     }}
                     className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
@@ -511,6 +691,16 @@ export default function NewOpenedPositionPage() {
           </>
         )}
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmAnalysisModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={handleAnalyseMassive}
+        onCreateWithoutAnalysis={handleCreateWithoutAnalysis}
+        candidateCount={candidateCount}
+        loading={analysisLoading}
+      />
     </main>
   )
 }

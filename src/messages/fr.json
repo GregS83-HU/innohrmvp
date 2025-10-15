@@ -1,0 +1,31 @@
+{
+  "Home": {
+    "hero": {
+      "main": "Les RH n'ont jamais été aussi <highlight>simples</highlight> qu'aujourd'hui !",
+      "subtitle": "Révolutionnez vos ressources humaines avec des outils IA pour le recrutement, le bien-être et l'évaluation du bonheur au travail."
+    },
+    "features": {
+      "cv": {
+        "title": "Analyse de CV par IA",
+        "desc": "Analyse intelligente des CV avec évaluation automatique de la compatibilité des candidats.",
+        "tag": "Correspondance intelligente"
+      },
+      "wellness": {
+        "title": "Bien-être au travail",
+        "desc": "Évaluation anonyme du bonheur des employés basée sur le modèle scientifique PERMA-W.",
+        "tag": "Anonyme & Sécurisé"
+      },
+      "recruitment": {
+        "title": "Recrutement intelligent",
+        "desc": "Processus d'embauche simplifié avec gestion des postes et tableau de bord analytique.",
+        "tag": "Pipeline complet"
+      }
+    },
+    "cta": {
+      "title": "Prêt à transformer vos RH ?",
+      "desc": "Rejoignez l’avenir des ressources humaines avec notre plateforme IA. Optimisez dès aujourd’hui votre recrutement et le bien-être de vos employés.",
+      "start": "Commencer",
+      "learn": "En savoir plus"
+    }
+  }
+}

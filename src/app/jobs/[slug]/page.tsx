@@ -1,4 +1,4 @@
-import Home from './../../jobs/[slug]/Home/page'
+import Home from './Home/page'
 
 export default function HomePage() {
   return (

@@ -1,6 +1,6 @@
 # Codebase - innohrmvp
 **Mode:** full-feature-extract  
-**Generated:** Sat Oct 11 07:17:27 CEST 2025
+**Generated:** Tue Oct 14 19:48:22 CEST 2025
 **Purpose:** Complete AI analysis including all APIs, components & features
 
 ---
@@ -184,7 +184,7 @@ Top definitions:
 
 ```
 Folder: .
-Type: ts | Lines:       14
+Type: ts | Lines:        7
 Top definitions:
 --- Exports ---
 export default nextConfig;
@@ -194,7 +194,7 @@ const nextConfig: NextConfig = {
 ```
 
 <details>
-<summary>📄 Full content (      14 lines)</summary>
+<summary>📄 Full content (       7 lines)</summary>
 
 ```ts
 import type { NextConfig } from "next";
@@ -202,13 +202,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
    serverExternalPackages: ['pdf-parse'],
 };
-
-module.exports = {
-  i18n: {
-    locales: ['en', 'fr', 'hu'],
-    defaultLocale: 'en',
-  }
-}
 
 export default nextConfig;
 ```
@@ -260,7 +253,7 @@ export interface MessageData {
 
 ```
 Folder: src/app/api/analyse-cv
-Type: ts | Lines:      304
+Type: ts | Lines:      322
 Top definitions:
 --- Exports ---
 export const runtime = "nodejs";
@@ -272,7 +265,7 @@ function sanitizeFileName(filename: string) {
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      304)</summary>
+<summary>📄 Preview (first 100 lines of      322)</summary>
 
 ```ts
 // src/app/api/analyse-cv/route.ts
@@ -375,7 +368,7 @@ function extractAndParseJSON(rawResponse: string, context = '') {
 }
 
 // Sanitize filenames
-... (truncated,      304 total lines)
+... (truncated,      322 total lines)
 ```
 </details>
 
@@ -615,7 +608,7 @@ export async function GET(req: NextRequest) {
               candidat_score: score,
               candidat_ai_analyse: analysis,
               source: "Analyse from Database",
-              candidat_next_step: score < 5 ? "1" : "0",
+              candidat_next_step: score < 7 ? "1" : "0",
             });
 
             // ✅ Send progress event
@@ -677,6 +670,73 @@ export async function GET(req: NextRequest) {
       Connection: "keep-alive",
     },
   });
+}
+```
+</details>
+
+---
+
+## `src/app/api/candidate-count/route.ts`
+
+```
+Folder: src/app/api/candidate-count
+Type: ts | Lines:       45
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+const supabase = createClient(
+```
+
+<details>
+<summary>📄 Full content (      45 lines)</summary>
+
+```ts
+// src/app/api/candidate-count/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+export async function GET(req: NextRequest) {
+  const url = new URL(req.url);
+  const user_id = url.searchParams.get("user_id");
+
+  if (!user_id) {
+    return NextResponse.json(
+      { error: "user_id is required" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    // Use the same RPC function that your analyse-massive uses
+    const { data: candidats, error } = await supabase.rpc(
+      "get_company_candidates",
+      { user_uuid: user_id }
+    );
+
+    if (error) {
+      console.error("Error fetching candidates:", error);
+      return NextResponse.json(
+        { error: "Failed to fetch candidate count" },
+        { status: 500 }
+      );
+    }
+
+    const count = candidats?.length || 0;
+
+    return NextResponse.json({ count });
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
 }
 ```
 </details>
@@ -1995,7 +2055,7 @@ const secureUrl = signedUrlData.signedUrl;
       absence_start_date: absenceDateStart,
       absence_end_date: absenceDateEnd,
       employee_comment,
-      certificate_file: signedUrlData,
+      certificate_file: filePath,
       company_id: companyIdNumber,
       leave_request_id: leave_request_id || null,
       treated: false
@@ -2268,7 +2328,7 @@ ${rawText}
       success: true,
       company_id: companyId, // AJOUT: retourner le company_id dans la réponse
       storage_path: filePath,
-      signed_url: signed.signedUrl,
+      //signed_url: signed.signedUrl,
       public_url: publicUrl,
       raw_text: rawText,
       extracted_data: structured,
@@ -2574,7 +2634,7 @@ export interface MessageData {
 
 ```
 Folder: src/app/api/performance/goals/create
-Type: ts | Lines:      118
+Type: ts | Lines:      130
 Top definitions:
 --- Exports ---
 
@@ -2582,126 +2642,138 @@ Top definitions:
 ```
 
 <details>
-<summary>📄 Full content (     118 lines)</summary>
+<summary>📄 Full content (     130 lines)</summary>
 
 ```ts
-// app/api/performance/pulse/submit/route.ts
 import { NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { goal_id, status, progress_comment, blockers, employee_id } = body
+    console.log('📥 Request body:', body)
     
-    if (!goal_id || !status) {
+    const {
+      employee_id,
+      goal_title,
+      goal_description,
+      success_criteria,
+      created_by
+    } = body
+
+    if (!employee_id || !goal_title || !created_by) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
-    
-    if (!employee_id) {
-      return NextResponse.json({ error: 'Employee ID is required' }, { status: 400 })
-    }
-    
-    if (!['green', 'yellow', 'red'].includes(status)) {
-      return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
-    }
-    
-    const cookieStore = await cookies()
-    
-    // Use service role to bypass RLS for server-side operations
-    const supabase = createServerClient(
+
+    // Use service role client (like your openedpositions route)
+    const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
       {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll()
-          },
-          setAll(cookiesToSet) {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              )
-            } catch {
-              // Ignore if called from Server Component
-            }
-          },
-        },
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
       }
     )
-    
-    // Get week start date
-    const { data: weekStart, error: weekError } = await supabase.rpc('get_week_start')
-    
-    if (weekError) {
-      console.error('Week start error:', weekError)
-      return NextResponse.json({ error: 'Failed to get week start' }, { status: 500 })
-    }
-    
-    // Check if user already submitted pulse for this goal this week
-    const { data: existing, error: existingError } = await supabase
-      .from('goal_updates')
-      .select('id')
-      .eq('goal_id', goal_id)
-      .eq('employee_id', employee_id)
-      .eq('week_start_date', weekStart as string)
+
+    // Get company
+    const { data: company, error: companyError } = await supabaseAdmin
+      .from('company_to_users')
+      .select('company_id')
+      .eq('user_id', employee_id)
       .single()
     
-    if (existing && !existingError) {
-      // Update existing pulse
-      const { data: updatedData, error: updateError } = await supabase
-        .from('goal_updates')
-        .update({
-          status,
-          progress_comment: progress_comment || null,
-          blockers: blockers || null
-        })
-        .eq('id', existing.id)
-        .select()
-      
-      if (updateError) {
-        console.error('Update error:', updateError)
-        return NextResponse.json({ error: updateError.message }, { status: 500 })
-      }
-      
-      return NextResponse.json({
-        message: 'Pulse updated successfully',
-        update: updatedData[0]
-      })
+    console.log('🏢 Company lookup:', { company, error: companyError?.message })
+
+    if (companyError || !company) {
+      return NextResponse.json({ 
+        error: companyError?.message || 'Company not found' 
+      }, { status: 400 })
     }
+
+    // Get manager
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('user_profiles')
+      .select('manager_id')
+      .eq('user_id', employee_id)
+      .single()
     
-    // Insert new pulse
-    const { data: insertedData, error: insertError } = await supabase
-      .from('goal_updates')
-      .insert([
-        {
-          goal_id,
-          employee_id: employee_id,
-          status,
-          progress_comment: progress_comment || null,
-          blockers: blockers || null,
-          week_start_date: weekStart as string
-        }
-      ])
+    console.log('👤 Profile lookup:', { profile, error: profileError?.message })
+
+    if (profileError || !profile?.manager_id) {
+      return NextResponse.json({ 
+        error: 'Manager not found for employee' 
+      }, { status: 400 })
+    }
+
+    // Get quarter
+    const { data: quarterData, error: quarterError } = await supabaseAdmin.rpc('get_current_quarter')
+    console.log('📅 Quarter lookup:', { quarter: quarterData, error: quarterError?.message })
+
+    if (quarterError) {
+      return NextResponse.json({ 
+        error: 'Failed to get current quarter' 
+      }, { status: 500 })
+    }
+
+    const quarter = quarterData as string
+    const year = new Date().getFullYear()
+    const status = created_by === 'employee' ? 'draft' : 'active'
+
+    const goalData = {
+      employee_id,
+      manager_id: profile.manager_id,
+      company_id: company.company_id,
+      goal_title,
+      goal_description,
+      success_criteria,
+      quarter,
+      year,
+      status,
+      created_by
+    }
+
+    console.log('📝 Attempting insert with data:', goalData)
+
+    // Insert the goal using service role (bypasses RLS)
+    const { data: insertedData, error: insertError } = await supabaseAdmin
+      .from('performance_goals')
+      .insert([goalData])
       .select()
-    
+
     if (insertError) {
-      console.error('Insert error:', insertError)
-      return NextResponse.json({ error: insertError.message }, { status: 500 })
+      console.error('❌ Insert failed:', {
+        message: insertError.message,
+        details: insertError.details,
+        hint: insertError.hint,
+        code: insertError.code
+      })
+      return NextResponse.json({ 
+        error: insertError.message || 'Failed to create goal'
+      }, { status: 500 })
     }
-    
+
     if (!insertedData || insertedData.length === 0) {
-      return NextResponse.json({ error: 'Failed to submit pulse' }, { status: 500 })
+      return NextResponse.json({ 
+        error: 'Failed to create goal' 
+      }, { status: 500 })
     }
-    
+
+    console.log('✅ Goal created successfully:', insertedData)
+
     return NextResponse.json({
-      message: 'Pulse submitted successfully',
-      update: insertedData[0]
+      message: 'Goal created successfully',
+      goal: insertedData[0]
     })
+
   } catch (error) {
-    console.error('Pulse submission error:', error)
-    return NextResponse.json({ error: (error as Error).message }, { status: 500 })
+    console.error('💥 Unexpected error:', error)
+    return NextResponse.json({ 
+      error: (error as Error).message 
+    }, { status: 500 })
   }
 }
 ```
@@ -4922,7 +4994,7 @@ export async function PATCH(req: NextRequest) {
 
 ```
 Folder: src/app/api/users/users-creation
-Type: ts | Lines:       99
+Type: ts | Lines:      100
 Top definitions:
 --- Exports ---
 
@@ -4931,7 +5003,7 @@ const supabase = createClient(
 ```
 
 <details>
-<summary>📄 Full content (      99 lines)</summary>
+<summary>📄 Full content (     100 lines)</summary>
 
 ```ts
 // app/api/users-creation/route.ts
@@ -4946,14 +5018,15 @@ const supabase = createClient(
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { 
-      email, 
-      password, 
-      firstName, 
-      lastName, 
+    const {
+      email,
+      password,
+      firstName,
+      lastName,
       companyId,
       managerId,
-      employmentStartDate 
+      employmentStartDate,
+      isManager = false, // ✅ New field with default false
     } = body;
 
     // Validate required fields
@@ -4984,12 +5057,13 @@ export async function POST(req: NextRequest) {
 
     const userId = authData.user.id;
 
-    // 2️⃣ Insert into users table
+    // 2️⃣ Insert into users table with is_manager flag
     const { error: userError } = await supabase.from('users').insert({
       id: userId,
       user_firstname: firstName,
       user_lastname: lastName,
       is_admin: false,
+      is_manager: isManager, // ✅ Set the is_manager field
     });
 
     if (userError) {
@@ -5027,7 +5101,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, userId });
   } catch (err: unknown) {
     console.error('Error creating user:', err);
-
     if (err instanceof Error) {
       return NextResponse.json({ error: err.message }, { status: 400 });
     }
@@ -5242,17 +5315,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 ```
 Folder: src/app/jobs/[slug]/openedpositions/new
-Type: tsx | Lines:      515
+Type: tsx | Lines:      705
 Top definitions:
 --- Exports ---
 export default function NewOpenedPositionPage() {
 
 --- Key Functions/Components ---
 const supabase = createClient(
+interface ConfirmAnalysisModalProps {
+function ConfirmAnalysisModal({
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      515)</summary>
+<summary>📄 Preview (first 100 lines of      705)</summary>
 
 ```tsx
 'use client'
@@ -5260,7 +5335,7 @@ const supabase = createClient(
 import { useSession } from '@supabase/auth-helpers-react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { Plus, Calendar, FileText, Briefcase, BarChart3, CheckCircle, AlertCircle, Activity, Lock } from 'lucide-react'
+import { Plus, Calendar, FileText, Briefcase, BarChart3, CheckCircle, AlertCircle, Activity, Lock, X, Clock, Users } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -5268,94 +5343,94 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-export default function NewOpenedPositionPage() {
-  const router = useRouter()
-  const session = useSession()
+// Confirmation Modal Component
+interface ConfirmAnalysisModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onConfirm: () => void
+  onCreateWithoutAnalysis: () => void
+  candidateCount: number
+  loading?: boolean
+}
 
-  const [positionName, setPositionName] = useState('')
-  const [positionDescription, setPositionDescription] = useState('')
-  const [positionDescriptionDetailed, setPositionDescriptionDetailed] = useState('')
-  const [positionStartDate, setPositionStartDate] = useState('')
-  const [message, setMessage] = useState<{ text: string; type: 'error' | 'success' } | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [positionId, setPositionId] = useState<string | null>(null)
-  const [analysisLoading, setAnalysisLoading] = useState(false)
-  const [analysisResult, setAnalysisResult] = useState<{ matched: number; total: number } | null>(null)
-  const [progress, setProgress] = useState<number>(0)
-  const [companyId, setCompanyId] = useState<string | null>(null)
-  const [canCreatePosition, setCanCreatePosition] = useState<boolean | null>(null)
-  const positionAccessChecked = useRef(false)
-  const pathname = usePathname()
+function ConfirmAnalysisModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  onCreateWithoutAnalysis,
+  candidateCount,
+  loading = false
+}: ConfirmAnalysisModalProps) {
+  if (!isOpen) return null
 
-  useEffect(() => {
-    if (!session) {
-      router.push('/')
-    }
-  }, [session, router])
+  const estimatedMinutes = Math.ceil((candidateCount * 5) / 60)
+  const estimatedTime = estimatedMinutes < 1 
+    ? `${candidateCount * 5} seconds`
+    : `${estimatedMinutes} minute${estimatedMinutes > 1 ? 's' : ''}`
 
-  // Fetch user's company_id
-  const fetchUserCompanyId = useCallback(async (userId: string) => {
-    console.log('👤 Starting to fetch company_id for userId:', userId);
-    
-    try {
-      const { data, error } = await supabase
-        .from('company_to_users')
-        .select('company_id')
-        .eq('user_id', userId)
-        .single();
-      
-      console.log('📊 Fetch company_id response:', { data, error });
-      
-      if (error) {
-        console.error('❌ Error fetching company_id:', error);
-        return;
-      }
-      
-      if (data?.company_id) {
-        console.log('✅ Company ID found:', data.company_id);
-        setCompanyId(data.company_id);
-      } else {
-        console.log('⚠️ No company_id found in user data:', data);
-      }
-    } catch (error) {
-      console.error('💥 Catch block error in fetchUserCompanyId:', error);
-    }
-  }, []);
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 relative">
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="absolute top-4 right-4 text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <AlertCircle className="w-12 h-12 text-white mx-auto mb-3" />
+          <h2 className="text-2xl font-bold text-white text-center">
+            Confirm Analysis
+          </h2>
+        </div>
 
-  // Check if user can create new position
-  const checkPositionCreationAccess = useCallback(async () => {
-    console.log('🎯 checkPositionCreationAccess called with:', {
-      companyId,
-      alreadyChecked: positionAccessChecked.current
-    });
-    
-    if (!companyId) {
-      console.log('❌ No companyId available, cannot check access');
-      return;
-    }
-    
-    if (positionAccessChecked.current) {
-      console.log('❌ Access already checked, skipping');
-      return;
-    }
-    
-    console.log('🔍 Checking position creation access for company_id:', companyId);
-    positionAccessChecked.current = true;
-    
-    try {
-      console.log('📞 Calling supabase.rpc with params:', { p_company_id: companyId });
-      
-      const { data, error } = await supabase.rpc('can_open_new_position', { p_company_id: companyId })
-      
-      console.log('📨 RPC Response:', { data, error, dataType: typeof data });
-      
-      if (error) {
-        console.log('❌ RPC Error:', error);
-        setCanCreatePosition(false);
-        return;
-      }
-      
-... (truncated,      515 total lines)
+        {/* Content */}
+        <div className="p-6 space-y-4">
+          <p className="text-gray-600 text-center">
+            You are about to analyze all candidates in your database against this position.
+          </p>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 text-center border border-blue-100">
+              <Users className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-blue-600">{candidateCount}</div>
+              <div className="text-xs text-gray-600">Candidates</div>
+            </div>
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4 text-center border border-purple-100">
+              <Clock className="w-6 h-6 text-purple-600 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-purple-600">{candidateCount}</div>
+              <div className="text-xs text-gray-600">AI Credits</div>
+            </div>
+          </div>
+
+          {/* Estimated Time */}
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-4 border border-amber-200">
+            <div className="flex items-center gap-2 justify-center text-amber-800">
+              <Clock className="w-4 h-4" />
+              <span className="text-sm font-medium">
+                Estimated time: ~{estimatedTime}
+              </span>
+            </div>
+          </div>
+
+          {/* Warning Text */}
+          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+            <p className="text-xs text-gray-600 text-center">
+              This will consume <span className="font-semibold text-gray-800">{candidateCount} AI credits</span> from your account.
+            </p>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="p-6 pt-0 space-y-3">
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+... (truncated,      705 total lines)
 ```
 </details>
 
@@ -5595,7 +5670,7 @@ const PositionAnalytics: React.FC = () => {
 
 ```
 Folder: src/app/jobs/[slug]/Home
-Type: tsx | Lines:      458
+Type: tsx | Lines:      138
 Top definitions:
 --- Exports ---
 export default function HomePage() {
@@ -5604,7 +5679,7 @@ export default function HomePage() {
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      458)</summary>
+<summary>📄 Full content (     138 lines)</summary>
 
 ```tsx
 'use client'
@@ -5707,7 +5782,45 @@ export default function HomePage() {
                 <CheckCircle className="w-4 h-4" />
                 <span>Full Pipeline</span>
               </div>
-... (truncated,      458 total lines)
+            </div>
+          </div>
+        </div>
+
+        {/* CTA Section */}
+        <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-lg p-8 text-center">
+          <div className="max-w-3xl mx-auto">
+            <Sparkles className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
+              Ready to Transform Your HR?
+            </h2>
+            <p className="text-gray-600 mb-6 text-lg">
+              Join the future of human resources with our AI-powered platform. 
+              Start optimizing your recruitment and employee wellness today.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105 flex items-center gap-2 justify-center">
+                Get Started
+                <ArrowRight className="w-5 h-5" />
+              </button>
+              
+              <button 
+                onClick={() => window.location.href = 'http://localhost:3000/jobs/demo/contact'}
+                className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-50 transition-all shadow-md hover:shadow-lg transform hover:scale-105 cursor-pointer"
+              >
+                Contact Us
+              </button>
+            </div>
+          </div>
+        </div>
+
+       
+
+    
+      </div>
+    </div>
+  )
+}
 ```
 </details>
 
@@ -6260,7 +6373,7 @@ const CalendarPage: React.FC = () => {
 
 ```
 Folder: src/app/jobs/[slug]/absences
-Type: tsx | Lines:      543
+Type: tsx | Lines:      546
 Top definitions:
 --- Exports ---
 export default AbsenceManagement;
@@ -6273,7 +6386,7 @@ const AbsenceManagement: React.FC = () => {
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      543)</summary>
+<summary>📄 Preview (first 100 lines of      546)</summary>
 
 ```tsx
 // File: app/absence-management/page.tsx
@@ -6376,7 +6489,7 @@ const AbsenceManagement: React.FC = () => {
       if (!user) return;
 
       setCurrentUser(user);
-... (truncated,      543 total lines)
+... (truncated,      546 total lines)
 ```
 </details>
 
@@ -6537,7 +6650,7 @@ export default function CertificateDownloadPage() {
 
 ```
 Folder: src/app/jobs/[slug]/medical-certificate/list
-Type: tsx | Lines:      400
+Type: tsx | Lines:      497
 Top definitions:
 --- Exports ---
 export default function MedicalCertificatesPage() {
@@ -6547,7 +6660,7 @@ type MedicalCertificate = {
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      400)</summary>
+<summary>📄 Preview (first 100 lines of      497)</summary>
 
 ```tsx
 'use client'
@@ -6567,7 +6680,7 @@ type MedicalCertificate = {
   created_at: string
   treated: boolean
   treatment_date: string | null
-  document_url?: string
+  document_url?: string | null
   company_id?: number
 }
 
@@ -6623,34 +6736,34 @@ export default function MedicalCertificatesPage() {
         }
 
         const certificatesWithUrl: MedicalCertificate[] = (data || []).map(
-          (cert: MedicalCertificate) => ({
-            ...cert,
-            document_url: cert.certificate_file,
-            treated: !!cert.treated,
-            treatment_date: cert.treatment_date,
-          })
-        )
-
-        setCertificates(certificatesWithUrl)
-      } catch (err) {
-        console.error('Erreur réseau', err)
-        setCertificates([])
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchCompanyIdAndCertificates()
-  }, [session, supabase])
-
-  const handleCheckboxChange = async (certId: number, newValue: boolean) => {
-    try {
-      const treatmentDate = newValue ? new Date().toISOString() : null
-
-      const { data, error } = await supabase
-        .from('medical_certificates')
-        .update({ 
-... (truncated,      400 total lines)
+          (cert: MedicalCertificate) => {
+            let documentUrl = null;
+            
+            // Extract file path from certificate_file
+            let filePath = cert.certificate_file;
+            
+            if (typeof cert.certificate_file === 'string' && cert.certificate_file.startsWith('{')) {
+              try {
+                const parsed = JSON.parse(cert.certificate_file);
+                filePath = parsed.path || parsed.signedUrl || cert.certificate_file;
+              } catch (e) {
+                console.error('Error parsing certificate_file:', e);
+              }
+            }
+            
+            // Generate public URL
+            if (filePath) {
+              const { data: publicData } = supabase.storage
+                .from('medical-certificates')
+                .getPublicUrl(filePath);
+              
+              documentUrl = publicData.publicUrl;
+            }
+            
+            return {
+              ...cert,
+              document_url: documentUrl,
+... (truncated,      497 total lines)
 ```
 </details>
 
@@ -6890,7 +7003,7 @@ export default function Page() {
 
 ```
 Folder: src/app/jobs/[slug]/subscription
-Type: tsx | Lines:      421
+Type: tsx | Lines:      461
 Top definitions:
 --- Exports ---
 export default function ManageSubscription() {
@@ -6905,7 +7018,7 @@ interface StripePriceData {
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      421)</summary>
+<summary>📄 Preview (first 100 lines of      461)</summary>
 
 ```tsx
 'use client'
@@ -6972,6 +7085,7 @@ export default function ManageSubscription() {
   const [companyId, setCompanyId] = useState<string | null>(null)
   const [currentPlan, setCurrentPlan] = useState<string | null>(null)
   const [toasts, setToasts] = useState<Toast[]>([])
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false)
   const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
   const addToast = (message: string, type: 'success' | 'error' = 'error') => {
@@ -6992,9 +7106,9 @@ export default function ManageSubscription() {
         addToast("Failed to fetch company information.")
         return
       }
-
+      console.log("UserID in Stripe component:",userId)
+       console.log("Companyid in Stripe component:",data.company_id)
       setCompanyId(data.company_id.toString())
-
       const { data: companyData, error: compErr } = await supabase
         .from('company')
         .select('forfait')
@@ -7007,8 +7121,7 @@ export default function ManageSubscription() {
       }
 
       if (companyData?.forfait) setCurrentPlan(companyData.forfait)
-    } catch (err) {
-... (truncated,      421 total lines)
+... (truncated,      461 total lines)
 ```
 </details>
 
@@ -7994,7 +8107,7 @@ export default function ManagerDashboard() {
 
 ```
 Folder: src/app/jobs/[slug]/performance
-Type: tsx | Lines:      339
+Type: tsx | Lines:      340
 Top definitions:
 --- Exports ---
 export default function PerformanceDashboard() {
@@ -8005,7 +8118,7 @@ interface Goal {
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      339)</summary>
+<summary>📄 Preview (first 100 lines of      340)</summary>
 
 ```tsx
 // app/jobs/[slug]/performance/page.tsx
@@ -8054,13 +8167,14 @@ export default function PerformanceDashboard() {
 
   useEffect(() => {
     if (!session) {
-      router.push('/')
+      // FIXED: Redirect to company home instead of root
+      router.push(`/jobs/${companySlug}`)
       return
     }
 
     fetchGoals()
     fetchQuarterAndWeek()
-  }, [session, router])
+  }, [session, router, companySlug])
 
   const fetchQuarterAndWeek = async () => {
     try {
@@ -8107,8 +8221,7 @@ export default function PerformanceDashboard() {
       case 'yellow': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
       case 'red': return 'bg-red-100 text-red-800 border-red-200'
       default: return 'bg-gray-100 text-gray-800 border-gray-200'
-    }
-... (truncated,      339 total lines)
+... (truncated,      340 total lines)
 ```
 </details>
 
@@ -8331,7 +8444,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
 
 ```
 Folder: src/app/jobs/[slug]/users-creation
-Type: tsx | Lines:      668
+Type: tsx | Lines:      669
 Top definitions:
 --- Exports ---
 export default function CompanyUsersPage() {
@@ -8343,7 +8456,7 @@ function ManagerDropdownPortal({
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      668)</summary>
+<summary>📄 Preview (first 100 lines of      669)</summary>
 
 ```tsx
 'use client';
@@ -8376,6 +8489,7 @@ interface CompanyUser {
   last_name: string;
   email: string;
   is_admin: boolean;
+  is_super_admin: boolean;
   manager_id: string | null;
   manager_first_name: string | null;
   manager_last_name: string | null;
@@ -8445,8 +8559,7 @@ function ManagerDropdownPortal({
     return () => {
       window.removeEventListener('resize', updatePos);
       window.removeEventListener('scroll', updatePos, true);
-    };
-... (truncated,      668 total lines)
+... (truncated,      669 total lines)
 ```
 </details>
 
@@ -8557,7 +8670,7 @@ export default async function StatsPage({
 
 ```
 Folder: components
-Type: tsx | Lines:      405
+Type: tsx | Lines:      444
 Top definitions:
 --- Exports ---
 export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserModalProps) => {
@@ -8569,13 +8682,13 @@ const supabase = createClient(
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      405)</summary>
+<summary>📄 Preview (first 100 lines of      444)</summary>
 
 ```tsx
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, X, CheckCircle, Loader2, Search, Calendar, UserCircle } from 'lucide-react';
+import { Plus, X, CheckCircle, Loader2, Search, Calendar, UserCircle, Users } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
 interface AddUserModalProps {
@@ -8605,6 +8718,7 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
     password: '',
     managerId: '',
     employmentStartDate: '',
+    isManager: false, // ✅ New field
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -8671,8 +8785,7 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
   // Filter managers based on search
   const filteredManagers = managers.filter(manager =>
     `${manager.first_name} ${manager.last_name}`.toLowerCase().includes(managerSearch.toLowerCase()) ||
-    manager.email.toLowerCase().includes(managerSearch.toLowerCase())
-... (truncated,      405 total lines)
+... (truncated,      444 total lines)
 ```
 </details>
 
@@ -9166,7 +9279,7 @@ const HappinessCheckInner = () => {
 
 ```
 Folder: components
-Type: tsx | Lines:      617
+Type: tsx | Lines:      715
 Top definitions:
 --- Exports ---
 export default function Header() {
@@ -9175,7 +9288,7 @@ export default function Header() {
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      617)</summary>
+<summary>📄 Preview (first 100 lines of      715)</summary>
 
 ```tsx
 'use client';
@@ -9185,7 +9298,7 @@ import Link from 'next/link';
 import { FiMenu, FiX } from 'react-icons/fi';
 import { 
   Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown, 
-  User, LogOut, Clock, CreditCard, UserCog, TicketPlus,CalendarClock,  Target, Users 
+  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users 
 } from 'lucide-react';
 import { useHeaderLogic } from '../hooks/useHeaderLogic';
 import { 
@@ -9230,12 +9343,29 @@ export default function Header() {
     formatTime,
   } = useHeaderLogic();
 
- const [isTimeClockOpen, setIsTimeClockOpen] = React.useState(false);
+  const [isTimeClockOpen, setIsTimeClockOpen] = React.useState(false);
+  const [isMobileHRToolsOpen, setIsMobileHRToolsOpen] = React.useState(false);
+  const [isMobileAccountOpen, setIsMobileAccountOpen] = React.useState(false);
 
+  // Helper functions to determine user roles
+  const isRegularUser = useMemo(() => 
+    user && !user.is_manager && !user.is_admin, 
+    [user]
+  );
+  
+  const isManager = useMemo(() => 
+    user && user.is_manager && !user.is_admin, 
+    [user]
+  );
+  
+  const isAdmin = useMemo(() => 
+    user && user.is_admin, 
+    [user]
+  );
 
   // Memoized values
   const buttonBaseClasses = useMemo(() => 
-    'flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all shadow-sm hover:shadow-md whitespace-nowrap',
+    'flex items-center gap-2 px-3 py-2 rounded-xl font-medium text-sm transition-all shadow-sm hover:shadow-md whitespace-nowrap',
     []
   );
 
@@ -9245,13 +9375,9 @@ export default function Header() {
   const manageUsersLink = useMemo(() => buildLink('/users-creation'), [buildLink]);
   const manageticketsLink = useMemo(() => buildLink('/tickets'), [buildLink]);
   const manageabsencesLink = useMemo(() => buildLink('/absences'), [buildLink]);
- ///const timeclockadmin = useMemo(() => buildLink('/time-clock/admin'), [buildLink]);
   const timeclockmanager = useMemo(() => buildLink('/time-clock/manager'), [buildLink]);
- // const timeclockshift = useMemo(() => buildLink('/time-clock/shifts'), [buildLink]);
   const myperformance = useMemo(() => buildLink('/performance'), [buildLink]);
   const teamperformance = useMemo(() => buildLink('/performance/team'), [buildLink]);
-
-
 
   return (
     <>
@@ -9263,22 +9389,9 @@ export default function Header() {
           formatTime={formatTime}
         />
 
-        <div className="w-full px-4 sm:px-6 lg:px-9 py-4">
-          <div className="flex items-center justify-between w-full max-w-8xl mx-auto">
-            {/* Logo section */}
-            <div className="flex-shrink-0 flex flex-col items-start gap-1 -ml-2">
-              <Link href={companySlug === 'demo' ? `/jobs/demo/contact` : buildLink('/')}>
-                <img
-                  src={companySlug && companyLogo ? companyLogo : '/HRInnoLogo.jpeg'}
-                  alt="Logo"
-                  className="h-10 sm:h-12 object-contain"
-                />
-              </Link>
-              <ForfaitBadge companyForfait={companyForfait} />
-            </div>
-
-            {/* Desktop Navigation */}
-... (truncated,      617 total lines)
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between w-full mx-auto">
+... (truncated,      715 total lines)
 ```
 </details>
 
@@ -9590,6 +9703,147 @@ export default function InterviewList({
 
 ---
 
+## `components/MassAnalysisConfirmationModal.tsx`
+
+```
+Folder: components
+Type: tsx | Lines:      118
+Top definitions:
+--- Exports ---
+export default function ConfirmAnalysisModal({
+
+--- Key Functions/Components ---
+interface ConfirmAnalysisModalProps {
+```
+
+<details>
+<summary>📄 Full content (     118 lines)</summary>
+
+```tsx
+import { X, AlertCircle, Clock, Users } from 'lucide-react'
+
+interface ConfirmAnalysisModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onConfirm: () => void
+  onCreateWithoutAnalysis: () => void
+  candidateCount: number
+  loading?: boolean
+}
+
+export default function ConfirmAnalysisModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  onCreateWithoutAnalysis,
+  candidateCount,
+  loading = false
+}: ConfirmAnalysisModalProps) {
+  if (!isOpen) return null
+
+  const estimatedMinutes = Math.ceil((candidateCount * 5) / 60)
+  const estimatedTime = estimatedMinutes < 1 
+    ? `${candidateCount * 5} seconds`
+    : `${estimatedMinutes} minute${estimatedMinutes > 1 ? 's' : ''}`
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 relative">
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="absolute top-4 right-4 text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <AlertCircle className="w-12 h-12 text-white mx-auto mb-3" />
+          <h2 className="text-2xl font-bold text-white text-center">
+            Confirm Analysis
+          </h2>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 space-y-4">
+          <p className="text-gray-600 text-center">
+            You are about to analyze all candidates in your database against this position.
+          </p>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 text-center border border-blue-100">
+              <Users className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-blue-600">{candidateCount}</div>
+              <div className="text-xs text-gray-600">Candidates</div>
+            </div>
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4 text-center border border-purple-100">
+              <Clock className="w-6 h-6 text-purple-600 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-purple-600">{candidateCount}</div>
+              <div className="text-xs text-gray-600">AI Credits</div>
+            </div>
+          </div>
+
+          {/* Estimated Time */}
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-4 border border-amber-200">
+            <div className="flex items-center gap-2 justify-center text-amber-800">
+              <Clock className="w-4 h-4" />
+              <span className="text-sm font-medium">
+                Estimated time: ~{estimatedTime}
+              </span>
+            </div>
+          </div>
+
+          {/* Warning Text */}
+          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+            <p className="text-xs text-gray-600 text-center">
+              This will consume <span className="font-semibold text-gray-800">{candidateCount} AI credits</span> from your account.
+            </p>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="p-6 pt-0 space-y-3">
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            {loading ? (
+              <>
+                <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                Processing...
+              </>
+            ) : (
+              'Confirm & Start Analysis'
+            )}
+          </button>
+          
+          <button
+            onClick={onCreateWithoutAnalysis}
+            disabled={loading}
+            className="w-full bg-white text-gray-700 py-3 px-6 rounded-lg font-medium border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Create Position Without Analysis
+          </button>
+
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="w-full text-gray-500 py-2 px-6 rounded-lg font-medium hover:text-gray-700 hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+```
+</details>
+
+---
+
 ## `components/NotificationComponent.tsx`
 
 ```
@@ -9710,6 +9964,171 @@ export default function NotificationComponent({ currentUser, companySlug }: Noti
         .from('notifications')
         .update({ read: true })
 ... (truncated,      399 total lines)
+```
+</details>
+
+---
+
+## `components/absence/ApprovalModal.tsx`
+
+```
+Folder: components/absence
+Type: tsx | Lines:      141
+Top definitions:
+--- Exports ---
+export default ApprovalModal;
+
+--- Key Functions/Components ---
+type ApprovalModalProps = {
+const ApprovalModal: React.FC<ApprovalModalProps> = ({
+```
+
+<details>
+<summary>📄 Full content (     141 lines)</summary>
+
+```tsx
+// File: components/absence/ApprovalModal.tsx
+import React, { useState } from 'react';
+import { X } from 'lucide-react';
+import { PendingApproval } from '../../types/absence';
+
+type ApprovalModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (notes?: string) => void;
+  type: 'approve' | 'reject' | null;
+  approval: PendingApproval | null;
+};
+
+const ApprovalModal: React.FC<ApprovalModalProps> = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  type,
+  approval
+}) => {
+  const [notes, setNotes] = useState('');
+  const isReject = type === 'reject';
+
+  if (!isOpen || !approval) return null;
+
+  const handleSubmit = () => {
+    if (isReject && !notes.trim()) {
+      return;
+    }
+    onConfirm(notes || undefined);
+    setNotes('');
+    onClose();
+  };
+
+  const handleClose = () => {
+    setNotes('');
+    onClose();
+  };
+
+  return (
+    <>
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideUp {
+          from { 
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to { 
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .modal-overlay {
+          animation: fadeIn 0.2s ease-out;
+        }
+        .modal-content {
+          animation: slideUp 0.3s ease-out;
+        }
+      `}</style>
+      
+      <div className="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+        <div className="modal-content bg-white rounded-2xl shadow-2xl max-w-md w-full">
+          {/* Header */}
+          <div className={`flex items-center justify-between p-6 border-b ${
+            isReject ? 'bg-red-50' : 'bg-green-50'
+          }`}>
+            <h3 className={`text-xl font-bold ${
+              isReject ? 'text-red-900' : 'text-green-900'
+            }`}>
+              {isReject ? 'Reject Request' : 'Approve Request'}
+            </h3>
+            <button
+              onClick={handleClose}
+              className="p-1 hover:bg-white rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5 text-gray-500" />
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="p-6">
+            <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+              <p className="text-sm text-gray-600 mb-1">Employee</p>
+              <p className="font-semibold text-gray-900">{approval.employee_name}</p>
+              <p className="text-sm text-gray-600 mt-2">Leave Type</p>
+              <p className="font-medium text-gray-800">{approval.leave_type_name_hu}</p>
+              <p className="text-sm text-gray-600 mt-2">Duration</p>
+              <p className="font-medium text-gray-800">{approval.total_days} day(s)</p>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {isReject ? 'Reason for rejection (required)' : 'Notes (optional)'}
+              </label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                rows={4}
+                placeholder={isReject ? 'Please explain why this request is being rejected...' : 'Add any additional notes...'}
+              />
+              {isReject && !notes.trim() && (
+                <p className="text-xs text-red-600 mt-1">Rejection reason is required</p>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={handleClose}
+                className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={isReject && !notes.trim()}
+                className={`flex-1 px-4 py-3 text-white rounded-lg font-medium transition-colors ${
+                  isReject && !notes.trim()
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : isReject
+                    ? 'bg-red-600 hover:bg-red-700'
+                    : 'bg-green-600 hover:bg-green-700'
+                }`}
+              >
+                {isReject ? 'Reject Request' : 'Approve Request'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default ApprovalModal;
 ```
 </details>
 
@@ -10716,26 +11135,34 @@ export default LeaveBalances;
 
 ```
 Folder: components/absence
-Type: tsx | Lines:      181
+Type: tsx | Lines:      241
 Top definitions:
 --- Exports ---
 export default PendingApprovals;
 
 --- Key Functions/Components ---
+const supabase = createClient(
 type Props = {
 const PendingApprovals: React.FC<Props> = ({
 ```
 
 <details>
-<summary>📄 Full content (     181 lines)</summary>
+<summary>📄 Full content (     241 lines)</summary>
 
 ```tsx
 // File: components/absence/PendingApprovals.tsx
-import React from 'react';
-import { Bell, RefreshCw, CheckCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Bell, RefreshCw, CheckCircle, FileText } from 'lucide-react';
 import { PendingApproval } from '../../types/absence';
 import { formatDate as defaultFormatDate } from '../../utils/formatDate';
 import { createLeaveReviewNotification, getUserName } from '../../utils/absenceNotifications';
+import { createClient } from '@supabase/supabase-js';
+import ApprovalModal from './ApprovalModal';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 type Props = {
   approvals: PendingApproval[];
@@ -10752,24 +11179,27 @@ const PendingApprovals: React.FC<Props> = ({
   formatDate = defaultFormatDate,
   currentUserId
 }) => {
+  // Modal state - THIS IS NEW
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    type: 'approve' | 'reject' | null;
+    approval: PendingApproval | null;
+  }>({
+    isOpen: false,
+    type: null,
+    approval: null
+  });
   
-// 👇 AJOUTE ÇA ICI
-  React.useEffect(() => {
-    if (approvals.length > 0) {
-      console.log('🔍 First approval raw data:', approvals[0]);
-      console.log('🔍 start_date value:', approvals[0].start_date);
-      console.log('🔍 start_date type:', typeof approvals[0].start_date);
-      console.log('🔍 Formatted result:', formatDate(approvals[0].start_date));
-      
-      // Test direct
-      const testDate = new Date(approvals[0].start_date);
-      console.log('🔍 Date object:', testDate);
-      console.log('🔍 toISOString:', testDate.toISOString());
-      console.log('🔍 getUTCFullYear:', testDate.getUTCFullYear());
-      console.log('🔍 getUTCMonth:', testDate.getUTCMonth());
-      console.log('🔍 getUTCDate:', testDate.getUTCDate());
-    }
-  }, [approvals, formatDate]);
+  // Generate public URL for certificate
+  const getCertificateUrl = (certificateFile: string | null | undefined): string | null => {
+    if (!certificateFile) return null;
+    
+    const { data } = supabase.storage
+      .from('medical-certificates')
+      .getPublicUrl(certificateFile);
+    
+    return data.publicUrl;
+  };
 
   const handleReviewWithNotification = async (
     approval: PendingApproval,
@@ -10815,99 +11245,149 @@ const PendingApprovals: React.FC<Props> = ({
     }
   };
 
+  // UPDATED - now opens modal instead of using prompt()
   const handleApprove = (approval: PendingApproval) => {
-    const notes = prompt('Optional notes for approval:');
-    handleReviewWithNotification(approval, 'approved', notes || undefined);
+    setModalState({
+      isOpen: true,
+      type: 'approve',
+      approval
+    });
   };
 
+  // UPDATED - now opens modal instead of using prompt()
   const handleReject = (approval: PendingApproval) => {
-    const notes = prompt('Reason for rejection (required):');
-    if (notes?.trim()) {
-      handleReviewWithNotification(approval, 'rejected', notes);
-    }
+    setModalState({
+      isOpen: true,
+      type: 'reject',
+      approval
+    });
+  };
+
+  // NEW - Close modal function
+  const closeModal = () => {
+    setModalState({
+      isOpen: false,
+      type: null,
+      approval: null
+    });
+  };
+
+  // NEW - Handle modal confirmation
+  const handleModalConfirm = (notes?: string) => {
+    if (!modalState.approval) return;
+    
+    const status = modalState.type === 'reject' ? 'rejected' : 'approved';
+    handleReviewWithNotification(modalState.approval, status, notes);
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <Bell className="w-5 h-5 text-orange-600" />
-          Pending Approvals
-        </h2>
-        <button
-          onClick={onRefresh}
-          className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-        >
-          <RefreshCw className="w-4 h-4" />
-        </button>
+    <>
+      <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <Bell className="w-5 h-5 text-orange-600" />
+            Pending Approvals
+          </h2>
+          <button
+            onClick={onRefresh}
+            className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
+        </div>
+
+        {approvals.length === 0 ? (
+          <div className="text-center py-8">
+            <CheckCircle className="w-12 h-12 text-green-300 mx-auto mb-4" />
+            <p className="text-gray-500">No pending approvals</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {approvals.map((approval) => {
+              const certificateUrl = getCertificateUrl(approval.certificate_file);
+              
+              return (
+                <div
+                  key={approval.id}
+                  className="border rounded-xl p-4 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: approval.leave_type_color }}
+                        />
+                        <h3 className="font-semibold text-gray-900">
+                          {approval.employee_name}
+                        </h3>
+                        <span className="text-sm text-gray-500">
+                          ({approval.leave_type_name_hu})
+                        </span>
+                        {certificateUrl && (
+                          <a
+                            href={certificateUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="ml-2 inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 hover:text-blue-800 rounded-lg transition-colors text-xs font-medium"
+                            title="View medical certificate"
+                          >
+                            <FileText className="w-3.5 h-3.5" />
+                            <span>Certificate</span>
+                          </a>
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-600 space-y-1">
+                        <p>
+                          <span className="font-medium">Period:</span>{' '}
+                          {formatDate(approval.start_date)} - {formatDate(approval.end_date)}
+                        </p>
+                        <p>
+                          <span className="font-medium">Duration:</span>{' '}
+                          {approval.total_days} day{approval.total_days !== 1 ? 's' : ''}
+                        </p>
+                        {approval.reason && (
+                          <p>
+                            <span className="font-medium">Reason:</span> {approval.reason}
+                          </p>
+                        )}
+                        <p className="text-xs text-gray-500">
+                          Requested: {formatDate(approval.created_at)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleApprove(approval)}
+                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => handleReject(approval)}
+                        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      {approvals.length === 0 ? (
-        <div className="text-center py-8">
-          <CheckCircle className="w-12 h-12 text-green-300 mx-auto mb-4" />
-          <p className="text-gray-500">No pending approvals</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {approvals.map((approval) => (
-            <div
-              key={approval.id}
-              className="border rounded-xl p-4 hover:shadow-md transition-shadow"
-            >
-              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: approval.leave_type_color }}
-                    />
-                    <h3 className="font-semibold text-gray-900">
-                      {approval.employee_name}
-                    </h3>
-                    <span className="text-sm text-gray-500">
-                      ({approval.leave_type_name_hu})
-                    </span>
-                  </div>
-                  <div className="text-sm text-gray-600 space-y-1">
-                    <p>
-                      <span className="font-medium">Period:</span>{' '}
-                      {formatDate(approval.start_date)} - {formatDate(approval.end_date)}
-                    </p>
-                    <p>
-                      <span className="font-medium">Duration:</span>{' '}
-                      {approval.total_days} day{approval.total_days !== 1 ? 's' : ''}
-                    </p>
-                    {approval.reason && (
-                      <p>
-                        <span className="font-medium">Reason:</span> {approval.reason}
-                      </p>
-                    )}
-                    <p className="text-xs text-gray-500">
-                      Requested: {formatDate(approval.created_at)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleApprove(approval)}
-                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
-                  >
-                    Approve
-                  </button>
-                  <button
-                    onClick={() => handleReject(approval)}
-                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
-                  >
-                    Reject
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+      {/* NEW - Modal component */}
+      <ApprovalModal
+        isOpen={modalState.isOpen}
+        onClose={closeModal}
+        onConfirm={handleModalConfirm}
+        type={modalState.type}
+        approval={modalState.approval}
+      />
+    </>
   );
 };
 
@@ -11081,7 +11561,7 @@ export default RecentRequests;
 
 ```
 Folder: components/absence
-Type: tsx | Lines:      651
+Type: tsx | Lines:      676
 Top definitions:
 --- Exports ---
 export default RequestLeaveModal;
@@ -11095,7 +11575,7 @@ const RequestLeaveModal: React.FC<Props> = ({
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      651)</summary>
+<summary>📄 Preview (first 100 lines of      676)</summary>
 
 ```tsx
 // File: components/absence/RequestLeaveModal.tsx
@@ -11198,7 +11678,7 @@ const RequestLeaveModal: React.FC<Props> = ({
     if (selectedFile.size > MAX_SIZE) {
       setCertificateError('File is too large. Maximum allowed size is 1MB.');
       setCertificateFile(null);
-... (truncated,      651 total lines)
+... (truncated,      676 total lines)
 ```
 </details>
 
@@ -11384,7 +11864,7 @@ export const ForfaitBadge: React.FC<ForfaitBadgeProps> = ({ companyForfait }) =>
 
 ```
 Folder: components/header
-Type: tsx | Lines:       79
+Type: tsx | Lines:      127
 Top definitions:
 --- Exports ---
 export const LoginModal: React.FC<LoginModalProps> = ({
@@ -11394,7 +11874,7 @@ interface LoginModalProps {
 ```
 
 <details>
-<summary>📄 Full content (      79 lines)</summary>
+<summary>📄 Full content (     127 lines)</summary>
 
 ```tsx
 // components/Header/LoginModal.tsx
@@ -11408,7 +11888,7 @@ interface LoginModalProps {
   password: string;
   setPassword: (value: string) => void;
   error: string;
-  onLogin: () => void;
+  onLogin: (email?: string, pwd?: string) => void | Promise<void>;
   isDemoExpired: boolean;
 }
 
@@ -11418,47 +11898,93 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   login,
   setLogin,
   password,
-  setPassword,
+  setPassword,  
   error,
   onLogin,
   isDemoExpired
 }) => {
   if (!isOpen || isDemoExpired) return null;
 
+  // Extract slug from URL (format: app/jobs/slug)
+  const pathSegments = window.location.pathname.split('/').filter(Boolean);
+  const slug = pathSegments[1] || ''; // Get the third segment (index 2)
+  const isDemoMode = slug === 'demo';
+
+  const handleDemoLogin = (email: string, pwd: string) => {
+    return () => {
+      // Call onLogin directly with the credentials
+      onLogin(email, pwd);
+    };
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900">Connexion</h2>
-          <p className="text-gray-600 mt-1">Connect to your account</p>
+          <p className="text-gray-600 mt-1">
+            {isDemoMode ? 'Choose a demo account' : 'Connect to your account'}
+          </p>
         </div>
-        <div className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-            <input 
-              type="email" 
-              placeholder="votre@email.com" 
-              value={login} 
-              onChange={(e) => setLogin(e.target.value)} 
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-            />
+        
+        {isDemoMode ? (
+          // Demo mode: Show 3 role options
+          <div className="p-6 space-y-3">
+            <button
+              onClick={handleDemoLogin('user@hrinno.hu', 'password')}
+              className="w-full px-4 py-4 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 rounded-lg transition-colors text-left"
+            >
+              <div className="font-semibold text-blue-900">Login as User</div>
+              <div className="text-sm text-blue-700 mt-1">user@hrinno.hu</div>
+            </button>
+            
+            <button
+              onClick={handleDemoLogin('demo@hrinno.hu', 'demo')}
+              className="w-full px-4 py-4 bg-green-50 hover:bg-green-100 border-2 border-green-200 rounded-lg transition-colors text-left"
+            >
+              <div className="font-semibold text-green-900">Login as Manager</div>
+              <div className="text-sm text-green-700 mt-1">manager@hrinno.hu</div>
+            </button>
+            
+            <button
+              onClick={handleDemoLogin('hrmanager@hrinno.hu', 'password')}
+              className="w-full px-4 py-4 bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 rounded-lg transition-colors text-left"
+            >
+              <div className="font-semibold text-purple-900">Login as HR Manager</div>
+              <div className="text-sm text-purple-700 mt-1">hrmanager@hrinno.hu</div>
+            </button>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
-            <input 
-              type="password" 
-              placeholder="••••••••" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-            />
-          </div>
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-red-700 text-sm">{error}</p>
+        ) : (
+          // Normal mode: Show login form
+          <div className="p-6 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+              <input 
+                type="email" 
+                placeholder="yours@email.com" 
+                value={login} 
+                onChange={(e) => setLogin(e.target.value)} 
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              />
             </div>
-          )}
-        </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+              <input 
+                type="password" 
+                placeholder="••••••••" 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              />
+            </div>
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-red-700 text-sm">{error}</p>
+              </div>
+            )}
+          </div>
+        )}
+        
         <div className="p-6 border-t border-gray-200 flex gap-3">
           <button 
             onClick={onClose} 
@@ -11466,12 +11992,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           >
             Cancel
           </button>
-          <button 
-            onClick={onLogin} 
-            className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
-          >
-            Connect
-          </button>
+          {!isDemoMode && (
+            <button 
+              onClick={() => onLogin()} 
+              className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+            >
+              Connect
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -11918,9 +12446,9 @@ interface CompanyWithForfait {
 export async function consumeCredit(companyId: string): Promise<boolean> {
   // Fetch company and related forfait
   const { data: company, error: companyErr } = await supabaseAdmin
-    .from("companies")
+    .from("company")
     .select(
-      "id, forfait_id, used_ai_credits, forfait:forfait_id (included_ai_credits)"
+     "id, forfait, used_ai_credits, forfait:forfait!company_forfait_fkey (included_ai_credits)"
     )
     .eq("id", companyId)
     .single<CompanyWithForfait>();
@@ -11947,7 +12475,7 @@ export async function consumeCredit(companyId: string): Promise<boolean> {
 
   // Increment usage
   const { error: updateError } = await supabaseAdmin
-    .from("companies")
+    .from("company")
     .update({ used_ai_credits: used + 1 })
     .eq("id", companyId);
 
@@ -11964,7 +12492,7 @@ export async function consumeCredit(companyId: string): Promise<boolean> {
  */
 export async function getRemainingCredits(companyId: string): Promise<number> {
   const { data: company, error } = await supabaseAdmin
-    .from("companies")
+    .from("company")
     .select(
       "used_ai_credits, forfait:forfait_id (included_ai_credits)"
     )
@@ -11992,17 +12520,20 @@ export async function getRemainingCredits(companyId: string): Promise<number> {
 
 ```
 Folder: lib
-Type: ts | Lines:       23
+Type: ts | Lines:       53
 Top definitions:
 --- Exports ---
 export const supabase = createClientComponentClient() */
 export const supabase = createClient(
+export const supabase = createClient(
 
 --- Key Functions/Components ---
+const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+const storage = isBrowser
 ```
 
 <details>
-<summary>📄 Full content (      23 lines)</summary>
+<summary>📄 Full content (      53 lines)</summary>
 
 ```ts
 /*'use client'
@@ -12011,7 +12542,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 export const supabase = createClientComponentClient() */
 
-'use client'
+/*'use client'
 
 import { createClient } from '@supabase/supabase-js'
 
@@ -12028,7 +12559,36 @@ export const supabase = createClient(
       },
     },
   }
-)
+)*/
+
+'use client';
+
+import { createClient } from '@supabase/supabase-js';
+
+const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+
+const storage = isBrowser
+  ? {
+      getItem: (key: string) => localStorage.getItem(key),
+      setItem: (key: string, value: string) => localStorage.setItem(key, value),
+      removeItem: (key: string) => localStorage.removeItem(key),
+    }
+  : {
+      getItem: (_key: string) => null,
+      setItem: (_key: string, _value: string) => {},
+      removeItem: (_key: string) => {},
+    };
+
+export const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  {
+    auth: {
+      persistSession: true,
+      storage,
+    },
+  }
+);
 ```
 </details>
 
@@ -13125,9 +13685,9 @@ export async function getUserName(userId: string) {
 ---
 
 # Statistics
-- **Files included:** 109
+- **Files included:** 112
 - **File size:** 388K
-- **Extraction date:** Sat Oct 11 07:17:31 CEST 2025
+- **Extraction date:** Tue Oct 14 19:48:28 CEST 2025
 
 # Technology Stack Detected
 
@@ -13157,6 +13717,7 @@ Based on this codebase, here are the detected features:
 ```
 src/app/api/analyse-cv/route.ts
 src/app/api/analyse-massive/route.ts
+src/app/api/candidate-count/route.ts
 src/app/api/close/route.ts
 src/app/api/contact/route.ts
 src/app/api/feedback/route.ts

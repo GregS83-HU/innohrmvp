@@ -1,0 +1,31 @@
+{
+  "Home": {
+    "hero": {
+      "main": "HR was never as <highlight>easy</highlight> as now!",
+      "subtitle": "Revolutionize your human resources with AI-powered tools for recruitment, employee wellness, and workplace happiness assessment."
+    },
+    "features": {
+      "cv": {
+        "title": "AI CV Analysis",
+        "desc": "Intelligent resume screening with detailed compatibility scoring and automated candidate evaluation.",
+        "tag": "Smart Matching"
+      },
+      "wellness": {
+        "title": "Workplace Wellness",
+        "desc": "Anonymous employee happiness assessment based on the scientific PERMA-W model for better workplace culture.",
+        "tag": "Anonymous & Secure"
+      },
+      "recruitment": {
+        "title": "Smart Recruitment",
+        "desc": "Streamlined hiring process with position management, applicant tracking, and detailed analytics dashboard.",
+        "tag": "Full Pipeline"
+      }
+    },
+    "cta": {
+      "title": "Ready to Transform Your HR?",
+      "desc": "Join the future of human resources with our AI-powered platform. Start optimizing your recruitment and employee wellness today.",
+      "start": "Get Started",
+      "learn": "Learn More"
+    }
+  }
+}
