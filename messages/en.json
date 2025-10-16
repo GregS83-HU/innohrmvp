@@ -140,4 +140,221 @@
     "logout": "Logout",
     "login": "Login"
   }
+
+
+
+  ,"positions": {
+    "availablePositions": "Available Positions",
+    "positionsAvailable": "positions available",
+    "searchPlaceholder": "Search positions...",
+    "noPositions": "No positions available",
+    "checkLater": "Check back later for new opportunities!",
+    "apply": "Apply",
+    "treatment": "Treatment",
+    "copyLink": "Copy Link",
+    "close": "Close",
+    "closing": "Closing...",
+    "linkCopied": "Link copied to clipboard!",
+    "copyFailed": "Failed to copy link",
+    "confirmClose": "Do you really want to close this position?",
+    "closedSuccess": "Position closed successfully",
+    "closeError": "Error closing position",
+    "unknownError": "Unknown error",
+    "loading": "Loading positions...",
+    "error": "Error",
+    "errorLoading": "Error loading positions"
+  }
+
+
+,  "analytics": {
+    "header": {
+      "title": "Position Analytics"
+    },
+    "labels": {
+      "selectPosition": "Select a position",
+      "choosePosition": "Choose a position...",
+      "notSpecified": "Not specified",
+      "unknown": "Unknown",
+      "period": "Period",
+      "loading": "Loading data..."
+    },
+    "placeholders": {
+      "selectPositionTitle": "Select a Position",
+      "selectPositionDescription": "Choose a position to see its detailed analytics.",
+      "noDataTitle": "No Data Available",
+      "noDataDescription": "This position has no applications yet."
+    },
+    "status": {
+      "open": "Open",
+      "closed": "Closed"
+    },
+    "timeFilters": {
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "90d": "Last 90 days",
+      "all": "Since opening"
+    },
+    "buttons": {
+      "retry": "Retry"
+    },
+    "error": {
+      "title": "Error"
+    },
+    "errors": {
+      "notLoggedIn": "User not logged in",
+      "noCompany": "Unable to retrieve user company",
+      "noPositions": "No positions found for this company.",
+      "unknownPositionsError": "Unknown error while loading positions",
+      "generic": "An error occurred"
+    },
+    "kpis": {
+      "totalApplications": "Total Applications",
+      "averageScore": "Average Score",
+      "medianScore": "Median Score",
+      "candidatesPerDay": "Applications/Day"
+    },
+    "charts": {
+      "applicationTrends": "Application Trends",
+      "scoreDistribution": "Score Distribution",
+      "sourceDistribution": "Distribution by Source",
+      "averageScoreOverTime": "Average Score Over Time",
+      "series": {
+        "applications": "Applications",
+        "numberOfCandidates": "Number of Candidates",
+        "averageScore": "Average Score"
+      }
+    },
+    "tables": {
+      "sourceDetails": "Source Details",
+      "headers": {
+        "source": "Source",
+        "numberOfCandidates": "Number of Candidates",
+        "averageScore": "Average Score",
+        "percentage": "Percentage"
+      }
+    }
+  }
+
+,  "newPosition": {
+    "modal": {
+      "title": "Confirm Analysis",
+      "message": "You are about to analyze all candidates in your database against this position.",
+      "candidates": "Candidates",
+      "aiCredits": "AI Credits",
+      "estimatedTime": "Estimated time:",
+      "seconds": "seconds",
+      "minute": "minute",
+      "willConsume": "This will consume",
+      "fromAccount": "from your account.",
+      "processing": "Processing...",
+      "confirmStart": "Confirm & Start Analysis",
+      "createWithoutAnalysis": "Create Position Without Analysis",
+      "cancel": "Cancel"
+    },
+    "header": {
+      "title": "Create a New Position",
+      "subtitle": "Fill out the form below to create a new job position"
+    },
+    "form": {
+      "positionName": "Position Name",
+      "positionNamePlaceholder": "e.g. Senior Software Developer",
+      "positionDescription": "Position Description (for display)",
+      "positionDescriptionPlaceholder": "Brief description that will be shown to candidates...",
+      "positionDescriptionDetailed": "Position Description Detailed (For AI analyse)",
+      "positionDescriptionDetailedPlaceholder": "Detailed requirements, skills, and qualifications for AI matching...",
+      "startingDate": "Starting Date"
+    },
+    "buttons": {
+      "createPosition": "Create Position",
+      "creating": "Creating..."
+    },
+    "loading": {
+      "userInfo": "Loading user info...",
+      "checkingLimits": "Checking position limits...",
+      "debug": "Debug: Session:",
+      "yes": "Yes",
+      "no": "No",
+      "none": "None",
+      "access": "Access:"
+    },
+    "limitReached": {
+      "title": "Position Limit Reached",
+      "message": "Sorry, you have reached the limit of your forfait. To create more positions, please upgrade your plan.",
+      "upgradeButton": "Upgrade Your Plan"
+    },
+    "messages": {
+      "errorCreating": "Error creating position",
+      "successCreated": "New position successfully created",
+      "unexpectedError": "Unexpected error:",
+      "errorFetchingCount": "Could not fetch candidate count. Please try again.",
+      "noCandidates": "No candidates found in your database. Please add candidates first.",
+      "unexpectedErrorRetry": "Unexpected error. Please try again.",
+      "analysisComplete": "Analyse completed:",
+      "candidatesCorresponding": "candidates are corresponding",
+      "serverError": "Unexpected server error during analysis",
+      "createdRunLater": "Position created successfully. You can run the analysis later."
+    },
+    "analysis": {
+      "title": "Candidate Analysis",
+      "loading": "Loading...",
+      "running": "Analyse running...",
+      "launchButton": "Launch analyse on the database"
+    },
+    "results": {
+      "title": "Analysis Results",
+      "matchingCandidates": "Matching candidates found",
+      "viewDetails": "View Details"
+    }
+  }
+,
+  "cvAnalyse": {
+    "header": {
+      "title": "AI CV Analysis",
+      "positionAt": "at"
+    },
+    "buttons": {
+      "back": "Back to positions",
+      "analyze": "Analyze your CV",
+      "analyzing": "Analysis running...",
+      "completed": "Analysis Completed"
+    },
+    "sections": {
+      "positionDescription": "Position Description",
+      "feedbackTitle": "Personalized Feedback",
+      "scoreTitle": "Your Score",
+      "demoTitle": "Download our fake CVs",
+      "demoSubtitle": "We strongly advise you to use our fake CV in the demo. If you would like to use a real one, please note that all the demo data including CVs are deleted each night at 2AM.",
+      "demoDownload": {
+        "software": "Fake Software Engineer",
+        "marketing": "Fake Marketing Expert"
+      }
+    },
+    "labels": {
+      "clickToChange": "Click to change file",
+      "clickToSelect": "Click here to select your CV",
+      "pdfOnly": "(PDF only)"
+    },
+    "forms": {
+      "uploadForm": "CV upload form"
+    },
+    "messages": {
+      "notice": "Please ensure that you have your phone number and email address in your CV",
+      "gdprPre": "Please read and accept our",
+      "gdprLinkText": "GDPR policy",
+      "gdprPost": "",
+      "success": "Analysis completed successfully! Your CV has been processed and saved.",
+      "error": {
+        "title": "Upload Error"
+      },
+      "score": {
+        "low": "Thank you for your application. Unfortunately, your resume does not sufficiently match the position. Explore our other openings.",
+        "medium": "Your CV partially matches the position. Our HR specialist will analyse it.",
+        "high": "Thank you for your application! Your resume is a good match. A member of HR will contact you shortly."
+      },
+      "unableToRead": "Unfortunately, we are not able to read your CV. Can you try to upload a new one?",
+      "generic": "An error occurred while processing your request."
+
+   
+    }
+  }
 }

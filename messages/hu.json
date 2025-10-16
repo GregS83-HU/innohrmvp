@@ -139,4 +139,217 @@
     "logout": "Kijelentkezés",
     "login": "Bejelentkezés"
   }
+
+ , "positions": {
+    "availablePositions": "Elérhető pozíciók",
+    "positionsAvailable": "pozíció elérhető",
+    "searchPlaceholder": "Pozíció keresése...",
+    "noPositions": "Nincs elérhető pozíció",
+    "checkLater": "Kérjük, később ellenőrizze az új lehetőségeket!",
+    "apply": "Jelentkezés",
+    "treatment": "Kezelés",
+    "copyLink": "Link másolása",
+    "close": "Bezárás",
+    "closing": "Bezárás folyamatban...",
+    "linkCopied": "A link a vágólapra másolva!",
+    "copyFailed": "A link másolása sikertelen",
+    "confirmClose": "Biztosan be akarja zárni ezt a pozíciót?",
+    "closedSuccess": "A pozíció sikeresen lezárva",
+    "closeError": "Hiba a pozíció lezárásakor",
+    "unknownError": "Ismeretlen hiba",
+    "loading": "Pozíciók betöltése...",
+    "error": "Hiba",
+    "errorLoading": "Hiba a pozíciók betöltése közben"
+  }
+
+
+,  "analytics": {
+    "header": {
+      "title": "Pozíció-analitika"
+    },
+    "labels": {
+      "selectPosition": "Válasszon egy pozíciót",
+      "choosePosition": "Válasszon pozíciót...",
+      "notSpecified": "Nincs megadva",
+      "unknown": "Ismeretlen",
+      "period": "Időszak",
+      "loading": "Adatok betöltése..."
+    },
+    "placeholders": {
+      "selectPositionTitle": "Válasszon pozíciót",
+      "selectPositionDescription": "Válasszon egy pozíciót az adatok megtekintéséhez.",
+      "noDataTitle": "Nincsenek adatok",
+      "noDataDescription": "Ehhez a pozícióhoz még nincs jelentkezés."
+    },
+    "status": {
+      "open": "Nyitott",
+      "closed": "Lezárt"
+    },
+    "timeFilters": {
+      "7d": "Elmúlt 7 nap",
+      "30d": "Elmúlt 30 nap",
+      "90d": "Elmúlt 90 nap",
+      "all": "Megnyitás óta"
+    },
+    "buttons": {
+      "retry": "Újrapróbálkozás"
+    },
+    "error": {
+      "title": "Hiba"
+    },
+    "errors": {
+      "notLoggedIn": "A felhasználó nincs bejelentkezve",
+      "noCompany": "Nem sikerült lekérni a cégadatokat",
+      "noPositions": "Ehhez a céghez nem találhatók pozíciók.",
+      "unknownPositionsError": "Ismeretlen hiba a pozíciók betöltésekor",
+      "generic": "Hiba történt"
+    },
+    "kpis": {
+      "totalApplications": "Összes jelentkezés",
+      "averageScore": "Átlagpontszám",
+      "medianScore": "Medián pontszám",
+      "candidatesPerDay": "Jelentkezések/nap"
+    },
+    "charts": {
+      "applicationTrends": "Jelentkezési trendek",
+      "scoreDistribution": "Pontszám-eloszlás",
+      "sourceDistribution": "Forrás szerinti eloszlás",
+      "averageScoreOverTime": "Átlagpontszám időben",
+      "series": {
+        "applications": "Jelentkezések",
+        "numberOfCandidates": "Jelöltek száma",
+        "averageScore": "Átlagpontszám"
+      }
+    },
+    "tables": {
+      "sourceDetails": "Forrás részletei",
+      "headers": {
+        "source": "Forrás",
+        "numberOfCandidates": "Jelöltek száma",
+        "averageScore": "Átlagpontszám",
+        "percentage": "Arány (%)"
+      }
+    }
+  }
+
+,  "newPosition": {
+    "modal": {
+      "title": "Elemzés megerősítése",
+      "message": "Minden jelöltet elemezni fog az adatbázisában ehhez a pozícióhoz.",
+      "candidates": "Jelöltek",
+      "aiCredits": "AI Kreditek",
+      "estimatedTime": "Becsült idő:",
+      "seconds": "másodperc",
+      "minute": "perc",
+      "willConsume": "Ez felhasznál",
+      "fromAccount": "a fiókjából.",
+      "processing": "Feldolgozás...",
+      "confirmStart": "Megerősítés és elemzés indítása",
+      "createWithoutAnalysis": "Pozíció létrehozása elemzés nélkül",
+      "cancel": "Mégse"
+    },
+    "header": {
+      "title": "Új pozíció létrehozása",
+      "subtitle": "Töltse ki az űrlapot egy új álláslehetőség létrehozásához"
+    },
+    "form": {
+      "positionName": "Pozíció neve",
+      "positionNamePlaceholder": "pl. Senior szoftverfejlesztő",
+      "positionDescription": "Pozíció leírása (megjelenítéshez)",
+      "positionDescriptionPlaceholder": "Rövid leírás, amelyet a jelöltek látni fognak...",
+      "positionDescriptionDetailed": "Részletes pozícióleírás (AI elemzéshez)",
+      "positionDescriptionDetailedPlaceholder": "Részletes követelmények, készségek és képesítések az AI párosításhoz...",
+      "startingDate": "Kezdési dátum"
+    },
+    "buttons": {
+      "createPosition": "Pozíció létrehozása",
+      "creating": "Létrehozás..."
+    },
+    "loading": {
+      "userInfo": "Felhasználói adatok betöltése...",
+      "checkingLimits": "Pozíció korlátok ellenőrzése...",
+      "debug": "Hibakeresés: Munkamenet:",
+      "yes": "Igen",
+      "no": "Nem",
+      "none": "Nincs",
+      "access": "Hozzáférés:"
+    },
+    "limitReached": {
+      "title": "Pozíció limit elérve",
+      "message": "Sajnáljuk, elérte a csomagja korlátját. További pozíciók létrehozásához kérjük, frissítse csomagját.",
+      "upgradeButton": "Csomag frissítése"
+    },
+    "messages": {
+      "errorCreating": "Hiba a pozíció létrehozása során",
+      "successCreated": "Új pozíció sikeresen létrehozva",
+      "unexpectedError": "Váratlan hiba:",
+      "errorFetchingCount": "A jelöltek számának lekérése sikertelen. Kérjük, próbálja újra.",
+      "noCandidates": "Nincs jelölt az adatbázisában. Kérjük, először adjon hozzá jelölteket.",
+      "unexpectedErrorRetry": "Váratlan hiba. Kérjük, próbálja újra.",
+      "analysisComplete": "Elemzés befejezve:",
+      "candidatesCorresponding": "megfelelő jelölt",
+      "serverError": "Váratlan szerverhiba az elemzés során",
+      "createdRunLater": "Pozíció sikeresen létrehozva. Az elemzést később futtathatja."
+    },
+    "analysis": {
+      "title": "Jelöltek elemzése",
+      "loading": "Betöltés...",
+      "running": "Elemzés folyamatban...",
+      "launchButton": "Elemzés indítása az adatbázison"
+    },
+    "results": {
+      "title": "Elemzési eredmények",
+      "matchingCandidates": "Megfelelő jelöltek találva",
+      "viewDetails": "Részletek megtekintése"
+    }
+  }
+,
+  "cvAnalyse": {
+    "header": {
+      "title": "AI Önéletrajz-analízis",
+      "positionAt": "helyen"
+    },
+    "buttons": {
+      "back": "Vissza a pozíciókhoz",
+      "analyze": "Elemezze az önéletrajzát",
+      "analyzing": "Elemzés folyamatban...",
+      "completed": "Elemzés befejezve"
+    },
+    "sections": {
+      "positionDescription": "Pozíció leírása",
+      "feedbackTitle": "Személyre szabott visszajelzés",
+      "scoreTitle": "Az Ön pontszáma",
+      "demoTitle": "Töltse le a demo önéletrajzainkat",
+      "demoSubtitle": "Erősen javasoljuk, hogy a demóban a mi minta önéletrajzainkat használja. Ha valósat szeretne használni, vegye figyelembe, hogy az összes demó adat, beleértve az önéletrajzokat is, minden éjjel 2:00-kor törlődik.",
+      "demoDownload": {
+        "software": "Minta szoftverfejlesztő önéletrajz",
+        "marketing": "Minta marketing szakértő önéletrajz"
+      }
+    },
+    "labels": {
+      "clickToChange": "Kattintson a fájl cseréjéhez",
+      "clickToSelect": "Kattintson ide az önéletrajz kiválasztásához",
+      "pdfOnly": "(Csak PDF)"
+    },
+    "forms": {
+      "uploadForm": "Önéletrajz feltöltési űrlap"
+    },
+    "messages": {
+      "notice": "Kérjük, biztosítsa, hogy a telefonszáma és e-mail címe szerepel az önéletrajzában",
+      "gdprPre": "Kérjük, olvassa el és fogadja el a",
+      "gdprLinkText": "GDPR szabályzatot",
+      "gdprPost": "",
+      "success": "Az elemzés sikeresen befejeződött! Az önéletrajzát feldolgoztuk és elmentettük.",
+      "error": {
+        "title": "Feltöltési hiba"
+      },
+      "unableToRead": "Sajnos nem tudjuk beolvasni az önéletrajzát. Kérjük, próbálja meg újra feltölteni.",
+      "generic": "Hiba történt a kérés feldolgozása során.",
+      "score": {
+        "low": "Köszönjük jelentkezését. Sajnos az önéletrajza nem felel meg eléggé a pozíciónak. Tekintse meg többi nyitott pozíciónkat.",
+        "medium": "Az önéletrajza részben megfelel a pozíciónak. HR szakértőnk további elemzést végez.",
+        "high": "Köszönjük jelentkezését! Az önéletrajza jól illik a pozícióhoz. HR munkatárs hamarosan felveszi Önnel a kapcsolatot."
+      }
+    }
+  }
 }

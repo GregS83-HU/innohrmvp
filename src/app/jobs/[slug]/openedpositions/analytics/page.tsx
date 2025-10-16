@@ -7,6 +7,7 @@ import {
 } from 'recharts';
 import { Users, TrendingUp, Award, Clock } from 'lucide-react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
+import { useLocale } from 'i18n/LocaleProvider';
 
 interface Position {
   id: number;
@@ -72,6 +73,8 @@ function getErrorMessage(err: unknown): string {
 }
 
 const PositionAnalytics: React.FC = () => {
+  const { t } = useLocale();
+
   const [positions, setPositions] = useState<Position[]>([]);
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
   const [candidates, setCandidates] = useState<PositionCandidate[]>([]);
@@ -84,18 +87,23 @@ const PositionAnalytics: React.FC = () => {
 
   useEffect(() => {
     loadPositions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (selectedPosition) {
       loadCandidates();
+    } else {
+      setCandidates([]);
+      setAnalytics(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPosition, timeFilter]);
 
   const loadPositions = async () => {
     try {
       if (!session?.user) {
-        setError('User not logged in');
+        setError(t('analytics.errors.notLoggedIn'));
         return;
       }
 
@@ -106,7 +114,7 @@ const PositionAnalytics: React.FC = () => {
         .single();
 
       if (userError) throw userError;
-      if (!userData) throw new Error('Unable to retrieve user company');
+      if (!userData) throw new Error(t('analytics.errors.noCompany'));
 
       const userCompanyId = userData.company_id;
 
@@ -116,11 +124,11 @@ const PositionAnalytics: React.FC = () => {
         .eq('company_id', userCompanyId)
         .order('created_at', { ascending: false });
 
-      if (error) throw new Error(error.message || 'Unknown error while loading positions');
+      if (error) throw new Error(error.message || t('analytics.errors.unknownPositionsError'));
 
       if (!data || data.length === 0) {
         setPositions([]);
-        setError('No positions found for this company.');
+        setError(t('analytics.errors.noPositions'));
         return;
       }
 
@@ -128,7 +136,7 @@ const PositionAnalytics: React.FC = () => {
       setError(null);
     } catch (err: unknown) {
       console.error('Error loading positions:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : t('analytics.errors.generic'));
     }
   };
 
@@ -166,7 +174,7 @@ const PositionAnalytics: React.FC = () => {
           return {
             created_at: item.created_at,
             candidat_score: item.candidat_score,
-            source: item.source ?? 'Not specified',
+            source: item.source ?? t('analytics.labels.notSpecified'),
             candidat_firstname: candidat.candidat_firstname ?? '',
             candidat_lastname: candidat.candidat_lastname ?? ''
           };
@@ -238,7 +246,7 @@ const PositionAnalytics: React.FC = () => {
 
     const timelineData = Array.from(timelineMap.entries())
       .map(([date, data]) => ({
-        date: new Date(date).toLocaleDateString('en-US', {
+        date: new Date(date).toLocaleDateString(undefined, {
           day: '2-digit',
           month: '2-digit'
         }),
@@ -248,7 +256,13 @@ const PositionAnalytics: React.FC = () => {
             ? data.scores.reduce((a, b) => a + b, 0) / data.scores.length
             : 0
       }))
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      .sort((a, b) => {
+        // parse using day/month or locale-specific format might be ambiguous; sort by ISO by reconstructing date
+        const aParts = a.date.split(/[^\d]/).map(Number);
+        const bParts = b.date.split(/[^\d]/).map(Number);
+        // fallback: compare as strings if parsing fails
+        return a.date.localeCompare(b.date);
+      });
 
     const scoreDistribution = Array.from({ length: 10 }, (_, i) => {
       const score = i + 1;
@@ -258,7 +272,7 @@ const PositionAnalytics: React.FC = () => {
 
     const sourceMap = new Map<string, { count: number; scores: number[] }>();
     candidateData.forEach((candidate) => {
-      const source = candidate.source || 'Not specified';
+      const source = candidate.source || t('analytics.labels.notSpecified');
       if (!sourceMap.has(source)) {
         sourceMap.set(source, { count: 0, scores: [] });
       }
@@ -293,15 +307,22 @@ const PositionAnalytics: React.FC = () => {
     return !position.position_end_date || new Date(position.position_end_date) > new Date();
   };
 
+  const timeFilterLabel = (filter: TimeFilter) => {
+    if (filter === '7d') return t('analytics.timeFilters.7d');
+    if (filter === '30d') return t('analytics.timeFilters.30d');
+    if (filter === '90d') return t('analytics.timeFilters.90d');
+    return t('analytics.timeFilters.all');
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header and selection */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Position Analytics</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">{t('analytics.header.title')}</h1>
           <div className="bg-white rounded-lg shadow p-6">
             <label htmlFor="position-select" className="block text-sm font-medium text-gray-700 mb-2">
-              Select a position
+              {t('analytics.labels.selectPosition')}
             </label>
             <select
               id="position-select"
@@ -312,17 +333,17 @@ const PositionAnalytics: React.FC = () => {
               }}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="">Choose a position...</option>
+              <option value="">{t('analytics.labels.choosePosition')}</option>
               {positions.map(p => (
                 <option key={p.id} value={p.id}>
-                  {p.position_name} {isPositionOpen(p) ? ' (🟢 Open)' : ' (🔴 Closed)'}
+                  {p.position_name} {isPositionOpen(p) ? ` (${t('analytics.status.open')})` : ` (${t('analytics.status.closed')})`}
                 </option>
               ))}
             </select>
 
             {selectedPosition && (
               <div className="mt-4 flex flex-wrap gap-2">
-                <span className="text-sm font-medium text-gray-700 mr-2">Period:</span>
+                <span className="text-sm font-medium text-gray-700 mr-2">{t('analytics.labels.period')}:</span>
                 {TIME_FILTERS.map(filter => (
                   <button
                     key={filter}
@@ -333,10 +354,7 @@ const PositionAnalytics: React.FC = () => {
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    {filter === '7d' ? 'Last 7 days'
-                      : filter === '30d' ? 'Last 30 days'
-                      : filter === '90d' ? 'Last 90 days'
-                      : "Since opening"}
+                    {timeFilterLabel(filter)}
                   </button>
                 ))}
               </div>
@@ -347,31 +365,31 @@ const PositionAnalytics: React.FC = () => {
         {/* Main content */}
         {error ? (
           <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-red-800 mb-2">Error</h3>
+            <h3 className="text-lg font-medium text-red-800 mb-2">{t('analytics.error.title')}</h3>
             <p className="text-red-700">{error}</p>
             <button
               onClick={selectedPosition ? loadCandidates : loadPositions}
               className="mt-4 px-4 py-2 bg-red-100 text-red-800 rounded-md hover:bg-red-200"
             >
-              Retry
+              {t('analytics.buttons.retry')}
             </button>
           </div>
         ) : !selectedPosition ? (
           <div className="text-center py-12">
             <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Select a Position</h3>
-            <p className="text-gray-500">Choose a position to see its detailed analytics.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">{t('analytics.placeholders.selectPositionTitle')}</h3>
+            <p className="text-gray-500">{t('analytics.placeholders.selectPositionDescription')}</p>
           </div>
         ) : loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-500">Loading data...</p>
+            <p className="text-gray-500">{t('analytics.labels.loading')}</p>
           </div>
         ) : !analytics ? (
           <div className="text-center py-12">
             <TrendingUp className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Data Available</h3>
-            <p className="text-gray-500">This position has no applications yet.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">{t('analytics.placeholders.noDataTitle')}</h3>
+            <p className="text-gray-500">{t('analytics.placeholders.noDataDescription')}</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -380,7 +398,7 @@ const PositionAnalytics: React.FC = () => {
               <div className="bg-white rounded-lg shadow p-6 flex items-center">
                 <Users className="h-8 w-8 text-blue-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Applications</p>
+                  <p className="text-sm font-medium text-gray-600">{t('analytics.kpis.totalApplications')}</p>
                   <p className="text-2xl font-bold text-gray-900">{analytics.totalCandidates}</p>
                 </div>
               </div>
@@ -388,7 +406,7 @@ const PositionAnalytics: React.FC = () => {
               <div className="bg-white rounded-lg shadow p-6 flex items-center">
                 <Award className="h-8 w-8 text-green-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Average Score</p>
+                  <p className="text-sm font-medium text-gray-600">{t('analytics.kpis.averageScore')}</p>
                   <p className="text-2xl font-bold text-gray-900">{analytics.averageScore}/10</p>
                 </div>
               </div>
@@ -396,7 +414,7 @@ const PositionAnalytics: React.FC = () => {
               <div className="bg-white rounded-lg shadow p-6 flex items-center">
                 <TrendingUp className="h-8 w-8 text-purple-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Median Score</p>
+                  <p className="text-sm font-medium text-gray-600">{t('analytics.kpis.medianScore')}</p>
                   <p className="text-2xl font-bold text-gray-900">{analytics.medianScore}/10</p>
                 </div>
               </div>
@@ -404,7 +422,7 @@ const PositionAnalytics: React.FC = () => {
               <div className="bg-white rounded-lg shadow p-6 flex items-center">
                 <Clock className="h-8 w-8 text-orange-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Applications/Day</p>
+                  <p className="text-sm font-medium text-gray-600">{t('analytics.kpis.candidatesPerDay')}</p>
                   <p className="text-2xl font-bold text-gray-900">{analytics.candidatesPerDay}</p>
                 </div>
               </div>
@@ -414,7 +432,7 @@ const PositionAnalytics: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Timeline */}
               <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Application Trends</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">{t('analytics.charts.applicationTrends')}</h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <AreaChart data={analytics.timelineData}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -426,7 +444,7 @@ const PositionAnalytics: React.FC = () => {
                       dataKey="candidates"
                       stroke="#3B82F6"
                       fill="#93C5FD"
-                      name="Applications"
+                      name={t('analytics.charts.series.applications')}
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -434,38 +452,37 @@ const PositionAnalytics: React.FC = () => {
 
               {/* Score Distribution */}
               <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Score Distribution</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">{t('analytics.charts.scoreDistribution')}</h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={analytics.scoreDistribution}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="score" />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="count" fill="#10B981" name="Number of Candidates" />
+                    <Bar dataKey="count" fill="#10B981" name={t('analytics.charts.series.numberOfCandidates')} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
 
               {/* Source Distribution */}
               <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Distribution by Source</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">{t('analytics.charts.sourceDistribution')}</h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
-  data={analytics.sourceDistribution}
-  cx="50%"
-  cy="50%"
-  labelLine={false}
-  label={(props: PieLabelRenderProps) => {
-    const name = props.name ?? 'Unknown';
-    // Coerce percent to number and fallback to 0
-    const percent = typeof props.percent === 'number' ? props.percent : 0;
-    return `${name}: ${(percent * 100).toFixed(0)}%`;
-  }}
-  outerRadius={80}
-  fill="#8884d8"
-  dataKey="value"
->
+                      data={analytics.sourceDistribution}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={(props: PieLabelRenderProps) => {
+                        const name = props.name ?? t('analytics.labels.unknown');
+                        const percent = typeof props.percent === 'number' ? props.percent : 0;
+                        return `${name}: ${(percent * 100).toFixed(0)}%`;
+                      }}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
                       {analytics.sourceDistribution.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
@@ -477,7 +494,7 @@ const PositionAnalytics: React.FC = () => {
 
               {/* Average Score Over Time */}
               <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Average Score Over Time</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">{t('analytics.charts.averageScoreOverTime')}</h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={analytics.timelineData}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -489,7 +506,7 @@ const PositionAnalytics: React.FC = () => {
                       dataKey="avgScore"
                       stroke="#F59E0B"
                       strokeWidth={2}
-                      name="Average Score"
+                      name={t('analytics.charts.series.averageScore')}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -498,22 +515,22 @@ const PositionAnalytics: React.FC = () => {
 
             {/* Source Table */}
             <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Source Details</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">{t('analytics.tables.sourceDetails')}</h3>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Source
+                        {t('analytics.tables.headers.source')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Number of Candidates
+                        {t('analytics.tables.headers.numberOfCandidates')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Average Score
+                        {t('analytics.tables.headers.averageScore')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Percentage
+                        {t('analytics.tables.headers.percentage')}
                       </th>
                     </tr>
                   </thead>

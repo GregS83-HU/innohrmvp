@@ -41,10 +41,10 @@ interface LocaleProviderProps {
 
 export function LocaleProvider({ children, messages }: LocaleProviderProps) {
   const [locale, setLocaleState] = useState<Locale>(defaultLocale);
-  const [isClient, setIsClient] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setIsClient(true);
+    setMounted(true);
 
     // Try to get locale from cookie first
     const cookieLocale = document.cookie
@@ -75,16 +75,17 @@ export function LocaleProvider({ children, messages }: LocaleProviderProps) {
     document.cookie = `${LOCALE_COOKIE}=${newLocale}; path=/; expires=${expiryDate.toUTCString()}`;
 
     // Also save to localStorage as backup
-    localStorage.setItem(LOCALE_COOKIE, newLocale);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(LOCALE_COOKIE, newLocale);
+    }
   };
 
   const t = createTranslator(locale, messages[locale] || messages[defaultLocale]);
 
-  if (!isClient) return null;
-
+  // Don't block rendering - just use default locale until mounted
   return (
     <LocaleContext.Provider value={{ locale, setLocale, t }}>
-      <div key={locale}>{children}</div>
+      {children}
     </LocaleContext.Provider>
   );
 }

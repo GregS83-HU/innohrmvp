@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { Plus, Calendar, FileText, Briefcase, BarChart3, CheckCircle, AlertCircle, Activity, Lock, X, Clock, Users } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
+import { useLocale } from 'i18n/LocaleProvider'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -29,12 +30,14 @@ function ConfirmAnalysisModal({
   candidateCount,
   loading = false
 }: ConfirmAnalysisModalProps) {
+  const { t } = useLocale()
+  
   if (!isOpen) return null
 
   const estimatedMinutes = Math.ceil((candidateCount * 5) / 60)
   const estimatedTime = estimatedMinutes < 1 
-    ? `${candidateCount * 5} seconds`
-    : `${estimatedMinutes} minute${estimatedMinutes > 1 ? 's' : ''}`
+    ? `${candidateCount * 5} ${t('newPosition.modal.seconds')}`
+    : `${estimatedMinutes} ${t('newPosition.modal.minute')}${estimatedMinutes > 1 ? 's' : ''}`
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
@@ -50,14 +53,14 @@ function ConfirmAnalysisModal({
           </button>
           <AlertCircle className="w-12 h-12 text-white mx-auto mb-3" />
           <h2 className="text-2xl font-bold text-white text-center">
-            Confirm Analysis
+            {t('newPosition.modal.title')}
           </h2>
         </div>
 
         {/* Content */}
         <div className="p-6 space-y-4">
           <p className="text-gray-600 text-center">
-            You are about to analyze all candidates in your database against this position.
+            {t('newPosition.modal.message')}
           </p>
 
           {/* Stats Cards */}
@@ -65,12 +68,12 @@ function ConfirmAnalysisModal({
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 text-center border border-blue-100">
               <Users className="w-6 h-6 text-blue-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-blue-600">{candidateCount}</div>
-              <div className="text-xs text-gray-600">Candidates</div>
+              <div className="text-xs text-gray-600">{t('newPosition.modal.candidates')}</div>
             </div>
             <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4 text-center border border-purple-100">
               <Clock className="w-6 h-6 text-purple-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-purple-600">{candidateCount}</div>
-              <div className="text-xs text-gray-600">AI Credits</div>
+              <div className="text-xs text-gray-600">{t('newPosition.modal.aiCredits')}</div>
             </div>
           </div>
 
@@ -79,7 +82,7 @@ function ConfirmAnalysisModal({
             <div className="flex items-center gap-2 justify-center text-amber-800">
               <Clock className="w-4 h-4" />
               <span className="text-sm font-medium">
-                Estimated time: ~{estimatedTime}
+                {t('newPosition.modal.estimatedTime')} ~{estimatedTime}
               </span>
             </div>
           </div>
@@ -87,7 +90,7 @@ function ConfirmAnalysisModal({
           {/* Warning Text */}
           <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
             <p className="text-xs text-gray-600 text-center">
-              This will consume <span className="font-semibold text-gray-800">{candidateCount} AI credits</span> from your account.
+              {t('newPosition.modal.willConsume')} <span className="font-semibold text-gray-800">{candidateCount} {t('newPosition.modal.aiCredits')}</span> {t('newPosition.modal.fromAccount')}
             </p>
           </div>
         </div>
@@ -102,10 +105,10 @@ function ConfirmAnalysisModal({
             {loading ? (
               <>
                 <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                Processing...
+                {t('newPosition.modal.processing')}
               </>
             ) : (
-              'Confirm & Start Analysis'
+              t('newPosition.modal.confirmStart')
             )}
           </button>
           
@@ -114,7 +117,7 @@ function ConfirmAnalysisModal({
             disabled={loading}
             className="w-full bg-white text-gray-700 py-3 px-6 rounded-lg font-medium border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Create Position Without Analysis
+            {t('newPosition.modal.createWithoutAnalysis')}
           </button>
 
           <button
@@ -122,7 +125,7 @@ function ConfirmAnalysisModal({
             disabled={loading}
             className="w-full text-gray-500 py-2 px-6 rounded-lg font-medium hover:text-gray-700 hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Cancel
+            {t('newPosition.modal.cancel')}
           </button>
         </div>
       </div>
@@ -132,6 +135,7 @@ function ConfirmAnalysisModal({
 
 // Main Component
 export default function NewOpenedPositionPage() {
+  const { t } = useLocale()
   const router = useRouter()
   const session = useSession()
 
@@ -302,7 +306,7 @@ export default function NewOpenedPositionPage() {
         <div className="bg-white rounded-xl shadow-lg p-8 text-center">
           <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
           <p className="text-gray-600">
-            {!session ? 'Loading user info...' : 'Checking position limits...'}
+            {!session ? t('newPosition.loading.userInfo') : t('newPosition.loading.checkingLimits')}
           </p>
           <div className="mt-4 text-xs text-gray-400">
             Debug: Session: {!!session ? 'Yes' : 'No'} | CompanyID: {companyId || 'None'} | Access: {String(canCreatePosition)}
@@ -339,9 +343,9 @@ export default function NewOpenedPositionPage() {
       const data = await res.json()
 
       if (!res.ok) {
-        setMessage({ text: `${data.error || 'Error creating position'}`, type: 'error' })
+        setMessage({ text: `${data.error || t('newPosition.messages.errorCreating')}`, type: 'error' })
       } else {
-        setMessage({ text: 'New position successfully created', type: 'success' })
+        setMessage({ text: t('newPosition.messages.successCreated'), type: 'success' })
         setPositionId(data.id)
         setPositionName('')
         setPositionDescription('')
@@ -349,7 +353,7 @@ export default function NewOpenedPositionPage() {
         setPositionStartDate('')
       }
     } catch (error) {
-      setMessage({ text: `Unexpected error: ${(error as Error).message}`, type: 'error' })
+      setMessage({ text: `${t('newPosition.messages.unexpectedError')} ${(error as Error).message}`, type: 'error' })
     }
 
     setLoading(false)
@@ -370,7 +374,7 @@ export default function NewOpenedPositionPage() {
       
       if (!res.ok) {
         setMessage({ 
-          text: 'Could not fetch candidate count. Please try again.', 
+          text: t('newPosition.messages.errorFetchingCount'), 
           type: 'error' 
         });
         setFetchingCount(false);
@@ -382,7 +386,7 @@ export default function NewOpenedPositionPage() {
       
       if (count === 0) {
         setMessage({ 
-          text: 'No candidates found in your database. Please add candidates first.', 
+          text: t('newPosition.messages.noCandidates'), 
           type: 'error' 
         });
         setFetchingCount(false);
@@ -394,7 +398,7 @@ export default function NewOpenedPositionPage() {
     } catch (error) {
       console.error('Error fetching candidate count:', error);
       setMessage({ 
-        text: 'Unexpected error. Please try again.', 
+        text: t('newPosition.messages.unexpectedErrorRetry'), 
         type: 'error' 
       });
       setFetchingCount(false);
@@ -421,7 +425,7 @@ export default function NewOpenedPositionPage() {
         } else if (data.type === 'done') {
           setAnalysisResult({ matched: data.matched, total: data.total })
           setMessage({
-            text: `Analyse completed: ${data.matched} / ${data.total} candidates are corresponding`,
+            text: `${t('newPosition.messages.analysisComplete')} ${data.matched} / ${data.total} ${t('newPosition.messages.candidatesCorresponding')}`,
             type: 'success',
           })
           setAnalysisLoading(false)
@@ -435,12 +439,12 @@ export default function NewOpenedPositionPage() {
 
       es.onerror = (err) => {
         console.error('SSE error:', err)
-        setMessage({ text: 'Unexpected server error during analysis', type: 'error' })
+        setMessage({ text: t('newPosition.messages.serverError'), type: 'error' })
         setAnalysisLoading(false)
         es.close()
       }
     } catch (error) {
-      setMessage({ text: `Unexpected error: ${(error as Error).message}`, type: 'error' })
+      setMessage({ text: `${t('newPosition.messages.unexpectedError')} ${(error as Error).message}`, type: 'error' })
       setAnalysisLoading(false)
     }
   }
@@ -449,7 +453,7 @@ export default function NewOpenedPositionPage() {
   const handleCreateWithoutAnalysis = () => {
     setShowConfirmModal(false);
     setMessage({ 
-      text: 'Position created successfully. You can run the analysis later.', 
+      text: t('newPosition.messages.createdRunLater'), 
       type: 'success' 
     });
   }
@@ -463,9 +467,9 @@ export default function NewOpenedPositionPage() {
           <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
             <Plus className="w-12 h-12 text-green-600 mx-auto mb-4" />
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-2">
-              Create a New Position
+              {t('newPosition.header.title')}
             </h1>
-            <p className="text-gray-600">Fill out the form below to create a new job position</p>
+            <p className="text-gray-600">{t('newPosition.header.subtitle')}</p>
           </div>
         </div>
 
@@ -477,10 +481,10 @@ export default function NewOpenedPositionPage() {
                 <Lock className="w-8 h-8 text-red-600" />
               </div>
               <h3 className="text-xl font-bold text-red-800 mb-2">
-                Position Limit Reached
+                {t('newPosition.limitReached.title')}
               </h3>
               <p className="text-red-700 mb-6">
-                Sorry, you have reached the limit of your forfait. To create more positions, please upgrade your plan.
+                {t('newPosition.limitReached.message')}
               </p>
               <button 
                 className="bg-gradient-to-r from-red-600 to-rose-600 text-white py-3 px-8 rounded-lg font-medium hover:from-red-700 hover:to-rose-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
@@ -488,7 +492,7 @@ export default function NewOpenedPositionPage() {
                   console.log('Redirect to upgrade page')
                 }}
               >
-                Upgrade Your Plan
+                {t('newPosition.limitReached.upgradeButton')}
               </button>
             </div>
           </div>
@@ -505,7 +509,7 @@ export default function NewOpenedPositionPage() {
                   <div>
                     <label htmlFor="positionName" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
                       <Briefcase className="w-4 h-4" />
-                      Position Name
+                      {t('newPosition.form.positionName')}
                     </label>
                     <input
                       id="positionName"
@@ -514,7 +518,7 @@ export default function NewOpenedPositionPage() {
                       onChange={(e) => setPositionName(e.target.value)}
                       required
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder="e.g. Senior Software Developer"
+                      placeholder={t('newPosition.form.positionNamePlaceholder')}
                     />
                   </div>
 
@@ -522,7 +526,7 @@ export default function NewOpenedPositionPage() {
                   <div>
                     <label htmlFor="positionDescription" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
                       <FileText className="w-4 h-4" />
-                      Position Description (for display)
+                      {t('newPosition.form.positionDescription')}
                     </label>
                     <textarea
                       id="positionDescription"
@@ -531,7 +535,7 @@ export default function NewOpenedPositionPage() {
                       required
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                       rows={4}
-                      placeholder="Brief description that will be shown to candidates..."
+                      placeholder={t('newPosition.form.positionDescriptionPlaceholder')}
                     />
                   </div>
 
@@ -539,7 +543,7 @@ export default function NewOpenedPositionPage() {
                   <div>
                     <label htmlFor="positionDescriptionDetailed" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
                       <Activity className="w-4 h-4" />
-                      Position Description Detailed (For AI analyse)
+                      {t('newPosition.form.positionDescriptionDetailed')}
                     </label>
                     <textarea
                       id="positionDescriptionDetailed"
@@ -548,7 +552,7 @@ export default function NewOpenedPositionPage() {
                       required
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                       rows={4}
-                      placeholder="Detailed requirements, skills, and qualifications for AI matching..."
+                      placeholder={t('newPosition.form.positionDescriptionDetailedPlaceholder')}
                     />
                   </div>
 
@@ -556,7 +560,7 @@ export default function NewOpenedPositionPage() {
                   <div>
                     <label htmlFor="positionStartDate" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
                       <Calendar className="w-4 h-4" />
-                      Starting Date
+                      {t('newPosition.form.startingDate')}
                     </label>
                     <input
                       id="positionStartDate"
@@ -577,12 +581,12 @@ export default function NewOpenedPositionPage() {
                     {loading ? (
                       <>
                         <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                        Creating...
+                        {t('newPosition.buttons.creating')}
                       </>
                     ) : (
                       <>
                         <Plus className="w-5 h-5" />
-                        Create Position
+                        {t('newPosition.buttons.createPosition')}
                       </>
                     )}
                   </button>
@@ -618,7 +622,7 @@ export default function NewOpenedPositionPage() {
                 <div className="p-4 sm:p-6 lg:p-8">
                   <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-4">
                     <Activity className="w-5 h-5" />
-                    Candidate Analysis
+                    {t('newPosition.analysis.title')}
                   </h3>
                   
                   <button
@@ -629,17 +633,17 @@ export default function NewOpenedPositionPage() {
                     {fetchingCount ? (
                       <>
                         <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                        Loading...
+                        {t('newPosition.analysis.loading')}
                       </>
                     ) : analysisLoading ? (
                       <>
                         <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                        Analyse running...
+                        {t('newPosition.analysis.running')}
                       </>
                     ) : (
                       <>
                         <Activity className="w-5 h-5" />
-                        Launch analyse on the database
+                        {t('newPosition.analysis.launchButton')}
                       </>
                     )}
                   </button>
@@ -663,7 +667,7 @@ export default function NewOpenedPositionPage() {
                 <div className="p-4 sm:p-6 lg:p-8">
                   <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-4">
                     <BarChart3 className="w-5 h-5" />
-                    Analysis Results
+                    {t('newPosition.results.title')}
                   </h3>
                   
                   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-4">
@@ -671,7 +675,7 @@ export default function NewOpenedPositionPage() {
                       <div className="text-3xl font-bold text-blue-600 mb-1">
                         {analysisResult.matched} / {analysisResult.total}
                       </div>
-                      <p className="text-gray-600">Matching candidates found</p>
+                      <p className="text-gray-600">{t('newPosition.results.matchingCandidates')}</p>
                     </div>
                   </div>
 
@@ -683,7 +687,7 @@ export default function NewOpenedPositionPage() {
                     className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
                   >
                     <BarChart3 className="w-5 h-5" />
-                    View Details
+                    {t('newPosition.results.viewDetails')}
                   </button>
                 </div>
               </div>
