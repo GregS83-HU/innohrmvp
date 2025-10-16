@@ -1,11 +1,8 @@
-'use client';
+'use client'
 
-import { Heart, Users, TrendingUp, Sparkles, ArrowRight, CheckCircle } from 'lucide-react';
-import { useLocale } from '../../../../i18n/LocaleProvider';
+import { Heart, Users, TrendingUp, Sparkles, ArrowRight, CheckCircle } from 'lucide-react'
 
 export default function HomePage() {
-  const { t } = useLocale();
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       
@@ -28,15 +25,14 @@ export default function HomePage() {
         {/* Main Title */}
         <div className="text-center mb-12 max-w-6xl w-full">
           <h1 className="text-4xl md:text-6xl font-bold text-gray-800 mb-6 leading-tight">
-            {t('home.hero.title')}
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              {' '}{t('home.hero.titleHighlight')}{' '}
-            </span>
-            {t('home.hero.titleEnd')}
+            HR was never as
+            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> easy </span>
+            as now!
           </h1>
           
           <p className="text-lg md:text-xl text-gray-600 leading-relaxed mb-8 max-w-4xl mx-auto">
-            {t('home.hero.subtitle')}
+            Revolutionize your human resources with AI-powered tools for recruitment, 
+            employee wellness, and workplace happiness assessment.
           </p>
 
           {/* Animated Decoration */}
@@ -60,15 +56,13 @@ export default function HomePage() {
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <TrendingUp className="w-8 h-8 text-blue-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-3">
-                {t('home.features.cvAnalysis.title')}
-              </h3>
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">AI CV Analysis</h3>
               <p className="text-gray-600 mb-4">
-                {t('home.features.cvAnalysis.description')}
+                Intelligent resume screening with detailed compatibility scoring and automated candidate evaluation.
               </p>
               <div className="flex items-center justify-center gap-2 text-blue-600 font-medium">
                 <CheckCircle className="w-4 h-4" />
-                <span>{t('home.features.cvAnalysis.badge')}</span>
+                <span>Smart Matching</span>
               </div>
             </div>
           </div>
@@ -79,15 +73,13 @@ export default function HomePage() {
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Heart className="w-8 h-8 text-green-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-3">
-                {t('home.features.wellness.title')}
-              </h3>
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">Workplace Wellness</h3>
               <p className="text-gray-600 mb-4">
-                {t('home.features.wellness.description')}
+                Anonymous employee happiness assessment based on the scientific PERMA-W model for better workplace culture.
               </p>
               <div className="flex items-center justify-center gap-2 text-green-600 font-medium">
                 <CheckCircle className="w-4 h-4" />
-                <span>{t('home.features.wellness.badge')}</span>
+                <span>Anonymous & Secure</span>
               </div>
             </div>
           </div>
@@ -98,15 +90,13 @@ export default function HomePage() {
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-purple-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-3">
-                {t('home.features.teamManagement.title')}
-              </h3>
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">HR Team powered</h3>
               <p className="text-gray-600 mb-4">
-                {t('home.features.teamManagement.description')}
+                Streamlined hiring process with position management, applicant tracking, candidates database AI analyze and detailed analytics dashboard.
               </p>
               <div className="flex items-center justify-center gap-2 text-purple-600 font-medium">
                 <CheckCircle className="w-4 h-4" />
-                <span>{t('home.features.teamManagement.badge')}</span>
+                <span>Full Pipeline</span>
               </div>
             </div>
           </div>
@@ -117,28 +107,33 @@ export default function HomePage() {
           <div className="max-w-3xl mx-auto">
             <Sparkles className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
             <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
-              {t('home.cta.title')}
+              Ready to Transform Your HR?
             </h2>
             <p className="text-gray-600 mb-6 text-lg">
-              {t('home.cta.subtitle')}
+              Join the future of human resources with our AI-powered platform. 
+              Start optimizing your recruitment and employee wellness today.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105 flex items-center gap-2 justify-center">
-                {t('home.cta.getStarted')}
+                Get Started
                 <ArrowRight className="w-5 h-5" />
               </button>
               
               <button 
-                onClick={() => window.location.href = './contact'}
+                onClick={() => window.location.href = 'http://localhost:3000/jobs/demo/contact'}
                 className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-50 transition-all shadow-md hover:shadow-lg transform hover:scale-105 cursor-pointer"
               >
-                {t('home.cta.contactUs')}
+                Contact Us
               </button>
             </div>
           </div>
         </div>
+
+       
+
+    
       </div>
     </div>
-  );
+  )
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { Heart, Users, TrendingUp, Sparkles, ArrowRight, CheckCircle } from 'lucide-react';
-import { useLocale } from '../../../../i18n/LocaleProvider';
+import { useLocale } from '../../i18n/LocaleProvider';
 
 export default function HomePage() {
   const { t } = useLocale();

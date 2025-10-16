@@ -198,7 +198,7 @@ ${sortedScores.map(([dim, score]) => `- ${dim}: ${score}/10`).join('\n')}
 
 CONTEXT (sample responses): "${contextResponses.substring(0, 400)}..."
 
-TASK: Create 3 short, encouraging, actionable tips (max 4 lines each).
+TASK: Create 3 short, encouraging, actionable tips (max 4 lines each). The 3 proposed tips should be different to each others
 
 TONE: ${avgScore >= 7 ? 'Encouraging and optimizing' : avgScore >= 5 ? 'Supportive and constructive' : 'Kind and reassuring'}
 

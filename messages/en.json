@@ -1,32 +1,77 @@
-
 {
-  "navigation": {
-    "availablePositions": "Available Positions",
-    "createPosition": "Create Position",
-    "happyCheck": "Happy Check",
-    "hrTools": "HR Tools"
+  "home": {
+    "hero": {
+      "title": "HR was never as",
+      "titleHighlight": "easy",
+      "titleEnd": "as now!",
+      "subtitle": "Revolutionize your human resources with AI-powered tools for recruitment, employee wellness, and workplace happiness assessment."
+    },
+    "features": {
+      "cvAnalysis": {
+        "title": "AI CV Analysis",
+        "description": "Intelligent resume screening with detailed compatibility scoring and automated candidate evaluation.",
+        "badge": "Smart Matching"
+      },
+      "wellness": {
+        "title": "Workplace Wellness",
+        "description": "Anonymous employee happiness assessment based on the scientific PERMA-W model for better workplace culture.",
+        "badge": "Anonymous & Secure"
+      },
+      "teamManagement": {
+        "title": "HR Team powered",
+        "description": "Streamlined hiring process with position management, applicant tracking, candidates database AI analyze and detailed analytics dashboard.",
+        "badge": "Full Pipeline"
+      }
+    },
+    "cta": {
+      "title": "Ready to Transform Your HR?",
+      "subtitle": "Join the future of human resources with our AI-powered platform. Start optimizing your recruitment and employee wellness today.",
+      "getStarted": "Get Started",
+      "contactUs": "Contact Us"
+    }
   },
-  "positions": {
-    "title": "Available Positions",
-    "create": "Create a New Position",
-    "apply": "Apply",
-    "noPositions": "No positions available"
-  },
-  "recruitment": {
-    "aiAnalysis": "AI CV Analysis",
-    "score": "Score",
-    "treatment": "Treatment"
-  },
-  "happiness": {
-    "dashboard": "HR Wellbeing Dashboard",
-    "permaModel": "PERMA-W Analysis"
-  },
-  "medical": {
-    "uploadCertificate": "Upload Medical Certificate",
-    "listCertificates": "List of Certificates"
-  },
-  "tickets": {
-    "supportTickets": "Support Tickets",
-    "createTicket": "Create Support Ticket"
+  "contactForm": {
+    "header": {
+      "title": "Contact Us",
+      "subtitleDemo": "Interested in our workplace well-being solutions?",
+      "subtitleOther": "We'd love to hear from you!"
+    },
+    "success": {
+      "title": "Thank you!",
+      "description": "We'll get back to you within 24 hours."
+    },
+    "error": {
+      "title": "Submission failed",
+      "description": "Please try again later."
+    },
+    "labels": {
+      "firstName": "First Name *",
+      "lastName": "Last Name *",
+      "email": "Email *",
+      "phone": "Phone",
+      "companyName": "Company Name *",
+      "comment": "Message / Comment",
+      "gdprTitle": "Data Protection & Privacy",
+      "gdprText": "I consent to the processing of my personal data *\nMy data will be used to respond to my inquiry and may be stored for legitimate business purposes.",
+      "marketingTitle": "Marketing Communications (Optional)",
+      "marketingText": "I would like to receive updates about products, services, and industry insights."
+    },
+    "placeholders": {
+      "phone": "+36 30 123 4567"
+    },
+    "buttons": {
+      "send": "Send Message",
+      "sending": "Sending...",
+      "sent": "Message Sent!"
+    },
+    "validation": {
+      "firstName": "First name is required",
+      "lastName": "Last name is required",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email address",
+      "phoneInvalid": "Please enter a valid phone number",
+      "companyName": "Company name is required",
+      "gdprConsent": "GDPR consent is required"
+    }
   }
 }

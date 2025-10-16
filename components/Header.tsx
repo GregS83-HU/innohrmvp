@@ -13,6 +13,7 @@ import {
 } from './header/';
 import NotificationComponent from './NotificationComponent';
 import TimeClockModal from '../components/timeclock/TimeClockModal';
+import LanguageSwitcher from './LanguageSwitcher';
 
 
 export default function Header() {
@@ -98,17 +99,24 @@ export default function Header() {
 
         <div className="w-full px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between w-full mx-auto">
-            {/* Logo section */}
-            <div className="flex-shrink-0 flex flex-col items-start gap-1 -ml-2">
-              <Link href={companySlug === 'demo' ? `/jobs/demo/contact` : buildLink('/')}>
-                <img
-                  src={companySlug && companyLogo ? companyLogo : '/HRInnoLogo.jpeg'}
-                  alt="Logo"
-                  className="h-10 sm:h-12 object-contain"
-                />
-              </Link>
-              <ForfaitBadge companyForfait={companyForfait} />
-            </div>
+           {/* Logo + Forfait + Language section */}
+<div className="flex-shrink-0 flex flex-col items-start gap-1 -ml-2">
+  <Link href={companySlug === 'demo' ? `/jobs/demo/contact` : buildLink('/')}>
+    <img
+      src={companySlug && companyLogo ? companyLogo : '/HRInnoLogo.jpeg'}
+      alt="Logo"
+      className="h-10 sm:h-12 object-contain"
+    />
+  </Link>
+
+  <div className="flex items-center gap-2 mt-1">
+    <ForfaitBadge companyForfait={companyForfait} />
+    <div className="hidden sm:flex">
+      <LanguageSwitcher />
+    </div>
+  </div>
+</div>
+
 
             {/* Desktop Navigation */}
             <nav className="hidden xl:flex items-center gap-1.5 flex-1 justify-center mx-4 max-w-5xl">

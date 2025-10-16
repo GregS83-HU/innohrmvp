@@ -1,6 +1,6 @@
 # Codebase - innohrmvp
 **Mode:** full-feature-extract  
-**Generated:** Tue Oct 14 19:48:22 CEST 2025
+**Generated:** Wed Oct 15 05:31:40 CEST 2025
 **Purpose:** Complete AI analysis including all APIs, components & features
 
 ---
@@ -93,7 +93,7 @@ Top definitions:
     "jszip": "^3.10.1",
     "lucide-react": "^0.539.0",
     "next": "^15.5.2",
-    "next-intl": "^4.3.9",
+    "next-intl": "^4.3.12",
     "openai": "^5.11.0",
     "patch-package": "^8.0.0",
     "pdf-parse": "^1.1.1",
@@ -184,7 +184,7 @@ Top definitions:
 
 ```
 Folder: .
-Type: ts | Lines:        7
+Type: ts | Lines:        9
 Top definitions:
 --- Exports ---
 export default nextConfig;
@@ -194,14 +194,16 @@ const nextConfig: NextConfig = {
 ```
 
 <details>
-<summary>📄 Full content (       7 lines)</summary>
+<summary>📄 Full content (       9 lines)</summary>
 
 ```ts
 import type { NextConfig } from "next";
+import createNextIntlPlugin from 'next-intl/plugin';
 
 const nextConfig: NextConfig = {
    serverExternalPackages: ['pdf-parse'],
 };
+
 
 export default nextConfig;
 ```
@@ -5116,7 +5118,7 @@ export async function POST(req: NextRequest) {
 
 ```
 Folder: src/app/Home
-Type: tsx | Lines:      131
+Type: tsx | Lines:      138
 Top definitions:
 --- Exports ---
 export default function HomePage() {
@@ -5125,7 +5127,7 @@ export default function HomePage() {
 ```
 
 <details>
-<summary>📄 Full content (     131 lines)</summary>
+<summary>📄 Full content (     138 lines)</summary>
 
 ```tsx
 'use client'
@@ -5220,9 +5222,9 @@ export default function HomePage() {
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-purple-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-3">Smart Recruitment</h3>
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">HR Team powered</h3>
               <p className="text-gray-600 mb-4">
-                Streamlined hiring process with position management, applicant tracking, and detailed analytics dashboard.
+                Streamlined hiring process with position management, applicant tracking, candidates database AI analyze and detailed analytics dashboard.
               </p>
               <div className="flex items-center justify-center gap-2 text-purple-600 font-medium">
                 <CheckCircle className="w-4 h-4" />
@@ -5250,12 +5252,19 @@ export default function HomePage() {
                 <ArrowRight className="w-5 h-5" />
               </button>
               
-              <button className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-50 transition-all shadow-md hover:shadow-lg transform hover:scale-105">
-                Learn More
+              <button 
+                onClick={() => window.location.href = 'http://localhost:3000/jobs/demo/contact'}
+                className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-50 transition-all shadow-md hover:shadow-lg transform hover:scale-105 cursor-pointer"
+              >
+                Contact Us
               </button>
             </div>
           </div>
         </div>
+
+       
+
+    
       </div>
     </div>
   )
@@ -8243,7 +8252,7 @@ export default function HomePage() {
 <summary>📄 Full content (       8 lines)</summary>
 
 ```tsx
-import Home from './../../jobs/[slug]/Home/page'
+import Home from './Home/page'
 
 export default function HomePage() {
   return (
@@ -13687,7 +13696,7 @@ export async function getUserName(userId: string) {
 # Statistics
 - **Files included:** 112
 - **File size:** 388K
-- **Extraction date:** Tue Oct 14 19:48:28 CEST 2025
+- **Extraction date:** Wed Oct 15 05:31:44 CEST 2025
 
 # Technology Stack Detected
 

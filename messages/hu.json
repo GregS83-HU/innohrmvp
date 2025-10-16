@@ -1,0 +1,77 @@
+{
+  "home": {
+    "hero": {
+      "title": "Az HR soha nem volt még ilyen",
+      "titleHighlight": "egyszerű",
+      "titleEnd": "mint most!",
+      "subtitle": "Forradalmasítsd a humán erőforrás menedzsmentet AI-alapú eszközökkel a toborzáshoz, az alkalmazottak jóllétéhez és a munkahelyi boldogság méréséhez."
+    },
+    "features": {
+      "cvAnalysis": {
+        "title": "AI Önéletrajz Elemzés",
+        "description": "Intelligens önéletrajz szűrés részletes kompatibilitási pontozással és automatizált jelölt értékeléssel.",
+        "badge": "Intelligens Párosítás"
+      },
+      "wellness": {
+        "title": "Munkahelyi Jóllét",
+        "description": "Anonim alkalmazotti boldogság mérés a tudományos PERMA-W modell alapján a jobb munkahelyi kultúráért.",
+        "badge": "Anonim és Biztonságos"
+      },
+      "teamManagement": {
+        "title": "HR Csapat Támogatás",
+        "description": "Egyszerűsített toborzási folyamat pozíciókezeléssel, pályázókövetéssel, jelölt adatbázis AI elemzéssel és részletes elemző irányítópulttal.",
+        "badge": "Teljes Folyamat"
+      }
+    },
+    "cta": {
+      "title": "Készen állsz a HR forradalmasítására?",
+      "subtitle": "Csatlakozz a humán erőforrás jövőjéhez AI-alapú platformunkkal. Kezdd el optimalizálni a toborzást és az alkalmazottak jóllétét még ma.",
+      "getStarted": "Kezdjük El",
+      "contactUs": "Kapcsolat"
+    }
+  },
+  "contactForm": {
+    "header": {
+      "title": "Kapcsolat",
+      "subtitleDemo": "Érdekelnek a munkahelyi jóllét megoldásaink?",
+      "subtitleOther": "Szeretnénk hallani Önről!"
+    },
+    "success": {
+      "title": "Köszönjük!",
+      "description": "24 órán belül felvesszük Önnel a kapcsolatot."
+    },
+    "error": {
+      "title": "Sikertelen küldés",
+      "description": "Kérjük, próbálja újra később."
+    },
+    "labels": {
+      "firstName": "Keresztnév *",
+      "lastName": "Vezetéknév *",
+      "email": "Email *",
+      "phone": "Telefon",
+      "companyName": "Cég neve *",
+      "comment": "Üzenet / Megjegyzés",
+      "gdprTitle": "Adatvédelem & Privacy",
+      "gdprText": "Hozzájárulok személyes adataim feldolgozásához *\nAdataimat az érdeklődésem megválaszolására használják, és jogos üzleti célokra tárolhatók.",
+      "marketingTitle": "Marketing kommunikáció (opcionális)",
+      "marketingText": "Szeretnék frissítéseket kapni termékekről, szolgáltatásokról és iparági hírekről."
+    },
+    "placeholders": {
+      "phone": "+36 30 123 4567"
+    },
+    "buttons": {
+      "send": "Üzenet küldése",
+      "sending": "Küldés...",
+      "sent": "Üzenet elküldve!"
+    },
+    "validation": {
+      "firstName": "A keresztnév megadása kötelező",
+      "lastName": "A vezetéknév megadása kötelező",
+      "emailRequired": "Az email megadása kötelező",
+      "emailInvalid": "Kérjük, adjon meg egy érvényes email címet",
+      "phoneInvalid": "Kérjük, adjon meg egy érvényes telefonszámot",
+      "companyName": "A cég neve kötelező",
+      "gdprConsent": "A GDPR hozzájárulás kötelező"
+    }
+  }
+}

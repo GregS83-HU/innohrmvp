@@ -1,23 +1,31 @@
 import type { Metadata } from "next";
 import "./globals.css";
-//import Header from "./Header";
-import Header from "../../components/Header"
+import Header from "../../components/Header";
 import ClientProvider from "./ClientProvider";
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import { LocaleProvider } from "../i18n/LocaleProvider";
+import { messages } from "../i18n/messages";
 
 export const metadata: Metadata = {
   title: "InnoHR",
   description: "HR was never as easy as NOW",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ 
+  children 
+}: { 
+  children: React.ReactNode 
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ClientProvider>
-          <Header />
-          <main style={{ padding: '2rem' }}>{children}</main>
-        </ClientProvider>
+        <LocaleProvider messages={messages}>
+          <ClientProvider>
+            <Header />
+            <main style={{ padding: '2rem' }}>
+              {children}
+            </main>
+          </ClientProvider>
+        </LocaleProvider>
       </body>
     </html>
   );
