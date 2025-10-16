@@ -74,4 +74,70 @@
       "gdprConsent": "GDPR consent is required"
     }
   }
+
+
+  ,"feedback": {
+    "header": {
+      "title": "How was your demo experience?",
+      "subtitle": "Your feedback helps us improve our platform and better serve our users."
+    },
+    "rating": {
+      "label": "Rate your experience *",
+      "labels": {
+        "poor": "Poor",
+        "fair": "Fair",
+        "good": "Good",
+        "veryGood": "Very Good",
+        "excellent": "Excellent"
+      }
+    },
+    "comment": {
+      "label": "Additional Comments",
+      "placeholder": "Tell us more about your experience... (optional)",
+      "characters": "characters"
+    },
+    "submit": {
+      "button": "Submit Feedback",
+      "submitting": "Submitting..."
+    },
+    "errors": {
+      "selectRating": "Please select a rating",
+      "submitFailed": "Failed to submit feedback. Please try again."
+    },
+    "success": {
+      "title": "Thank You!",
+      "subtitle": "Your feedback has been submitted successfully. We appreciate your time and input!",
+      "contactUs": "Contact Us"
+    }
+  }
+
+ 
+ , "header": {
+    "yourPositions": "Your Available Positions",
+    "availablePositions": "Available Positions",
+    "createPosition": "Create Position",
+    "happyCheck": "Happy Check",
+    "hrTools": "HR Tools",
+    "demoExpiredTooltip": "Demo expired - Contact us to continue",
+    "uploadCertificate": "Upload Certificate",
+    "recruitmentDashboard": "Recruitment Dashboard",
+    "happinessDashboard": "Happiness Dashboard",
+    "listCertificates": "List of Certificates",
+    "certificatesDownload": "Certificates Download",
+    "myPerformance": "My Performance",
+    "teamPerformance": "Team Performance",
+    "timeClockCheck": "TimeClock Check",
+    "absences": "Absences",
+    "manageAccount": "Manage Account",
+    "accountManagement": "Account Management",
+    "manageSubscription": "Manage Subscription",
+    "manageUsers": "Manage Users",
+    "supportTickets": "Support Tickets",
+    "openTimeClock": "Open Time Clock",
+    "expired": "EXPIRED",
+    "contactUs": "Contact Us",
+    "connectedAs": "Connected as",
+    "logout": "Logout",
+    "login": "Login"
+  }
 }

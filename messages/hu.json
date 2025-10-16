@@ -74,4 +74,69 @@
       "gdprConsent": "A GDPR hozzájárulás kötelező"
     }
   }
+
+,  "feedback": {
+    "header": {
+      "title": "Milyen volt a demó élményed?",
+      "subtitle": "Visszajelzésed segít nekünk fejleszteni a platformot és jobban kiszolgálni felhasználóinkat."
+    },
+    "rating": {
+      "label": "Értékeld az élményt *",
+      "labels": {
+        "poor": "Gyenge",
+        "fair": "Elfogadható",
+        "good": "Jó",
+        "veryGood": "Nagyon jó",
+        "excellent": "Kiváló"
+      }
+    },
+    "comment": {
+      "label": "További megjegyzések",
+      "placeholder": "Mesélj nekünk a tapasztalatodról... (opcionális)",
+      "characters": "karakter"
+    },
+    "submit": {
+      "button": "Visszajelzés küldése",
+      "submitting": "Küldés..."
+    },
+    "errors": {
+      "selectRating": "Kérjük, válassz értékelést",
+      "submitFailed": "A visszajelzés elküldése sikertelen. Kérjük, próbáld újra."
+    },
+    "success": {
+      "title": "Köszönjük!",
+      "subtitle": "A visszajelzésed sikeresen elküldve. Nagyra értékeljük az idődet és a véleményedet!",
+      "contactUs": "Kapcsolatfelvétel"
+    }
+  }
+
+  
+  ,"header": {
+    "yourPositions": "Pozícióim",
+    "availablePositions": "Elérhető pozíciók",
+    "createPosition": "Pozíció létrehozása",
+    "happyCheck": "Elégedettségi felmérés",
+    "hrTools": "HR eszközök",
+    "demoExpiredTooltip": "A demó hozzáférés lejárt - Lépjen kapcsolatba velünk",
+    "uploadCertificate": "Orvosi igazolás feltöltése",
+    "recruitmentDashboard": "Toborzási irányítópult",
+    "happinessDashboard": "Elégedettségi irányítópult",
+    "listCertificates": "Orvosi igazolások listája",
+    "certificatesDownload": "Orvosi igazolások letöltése",
+    "myPerformance": "Teljesítményem",
+    "teamPerformance": "Csapat teljesítménye",
+    "timeClockCheck": "Munkaidő-kezelő",
+    "absences": "Hiányzások",
+    "manageAccount": "Fiók kezelése",
+    "accountManagement": "Fiókkezelés",
+    "manageSubscription": "Előfizetés kezelése",
+    "manageUsers": "Felhasználók kezelése",
+    "supportTickets": "Támogatási jegyek",
+    "openTimeClock": "Munkaidő megnyitása",
+    "expired": "LEJÁRT",
+    "contactUs": "Kapcsolat",
+    "connectedAs": "Csatlakozva mint",
+    "logout": "Kijelentkezés",
+    "login": "Bejelentkezés"
+  }
 }
