@@ -352,4 +352,65 @@
       }
     }
   }
+,
+  "app": {
+    "title": "Munkahelyi Jóllét Felmérés",
+    "subtitle": "{{companyName}} számára",
+    "description": "Szánj néhány percet arra, hogy felmérd boldogságodat és szakmai jóllétedet. Ez a felmérés 100%-ban névtelen és bizalmas.",
+    "startButton": "Felmérés indítása",
+    "noPersonalData": "Nem gyűjtünk személyes adatokat • Csak anonim, összesített eredmények",
+    "resultsIncluded": "• Az eredmények szerepelni fognak a(z) {{companyName}} jólléti összesítésében",
+    "loading": "Felmérés betöltése...",
+    "header": "Boldogság Ellenőrzés 😊",
+    "inputPlaceholder": "Írd be a válaszodat...",
+    "confidentiality": "💬 Bizalmas és névtelen beszélgetés • Az adataidat nem tároljuk személyesen",
+    "aggregate": "• Az összesített adatok segítik a(z) {{companyName}} munkahelyi jóllétének fejlesztését"
+  },
+  "features": {
+    "conversationalTitle": "Beszélgető jellegű",
+    "conversationalText": "Természetes és támogató beszélgetés",
+    "scientificTitle": "Tudományos alapú",
+    "scientificText": "A PERMA-W modell alapján",
+    "quickTitle": "Gyors",
+    "quickText": "Legfeljebb 5-10 perc",
+    "quickSub": "mindössze 12 kérdésben"
+  },
+  "welcome": {
+    "default": "Szia! 😊 Azért vagyok itt, hogy segítsek felmérni a munkahelyi jóllétedet. Ez a felmérés teljesen névtelen és bizalmas. Néhány perc alatt átbeszéljük a munkáddal kapcsolatos különböző területeket. Készen állsz?",
+    "company": "Szia! 😊 Azért vagyok itt, hogy segítsek felmérni a munkahelyi jóllétedet a(z) {{companyName}} cégnél. Ez a felmérés teljesen névtelen és bizalmas. Néhány perc alatt átbeszéljük a munkáddal kapcsolatos különböző területeket. Készen állsz?"
+  },
+  "progress": {
+    "title": "Boldogság Ellenőrzés Folyamatban",
+    "step": "Lépés {{currentStep}}/12",
+    "permaIntro": "A PERMA pontszámok a felmérés során fokozatosan jelennek meg"
+  },
+  "perma": {
+    "positive": "Pozitív érzelmek",
+    "engagement": "Elköteleződés",
+    "relationships": "Kapcsolatok",
+    "meaning": "Munka értelme",
+    "accomplishment": "Eredmények",
+    "work_life_balance": "Munka–magánélet egyensúly"
+  },
+  "completion": {
+    "thankYou": "Köszönjük a részvételedet! 🎉",
+    "complete": "A munkahelyi jóllét felmérésed befejeződött.",
+    "recordedFor": "Eredmények rögzítve a(z) {{companyName}} számára",
+    "summaryTitle": "Jólléti Összefoglalód",
+    "excellent": "Fantasztikus! A munkahelyi jólléted ragyogóan pozitív. Tartsd fenn ezt a remek energiát! 🌟",
+    "good": "Nagyon jó! Szilárd alapjaid vannak a szakmai jóllétedhez. Néhány apró fejlesztéssel még tovább javíthatod! ✨",
+    "improvable": "A helyzetedben nagy lehetőség van a fejlődésre. Az alábbi tippek segítenek új szintre lépni! 🚀",
+    "poor": "Köszönjük az őszinteségedet. A válaszaid valódi kihívásokat mutatnak, de ne feledd: minden javítható megfelelő stratégiákkal és támogatással. 💙",
+    "overallScore": "Összesített pontszám",
+    "happinessLevel": "Munkahelyi boldogságod szintje",
+    "scoreByDomain": "Pontszám területenként",
+    "adviceTitle": "Személyre szabott tanácsaid",
+    "adviceIntro": "A jólléti profilod alapján íme 3 tipp, hogy még jobban boldogulj:",
+    "aiTips": "✨ AI által generált személyes tippek",
+    "privacyNote": "Adatvédelem: a válaszaid teljesen névtelenek és a munkahelyi jóllét fejlesztését szolgálják.",
+    "newAssessment": "Új felmérés indítása",
+    "backTo": "Vissza ide: {{companyName}}",
+    "backHome": "Vissza a főoldalra"
+  }
 }
+

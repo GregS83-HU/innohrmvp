@@ -1,9 +1,10 @@
-'use client'
+'use client';
 
 import React, { Suspense, useState, useEffect, useRef } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 import { Send, MessageCircle, Heart, BarChart3, CheckCircle, ArrowLeft } from 'lucide-react';
+import { useLocale } from 'i18n/LocaleProvider';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,7 +32,9 @@ interface CreateSessionRequest {
   company_id?: number;
 }
 
-const HappinessCheckInner = () => {
+const HappinessCheckInner: React.FC = () => {
+  const { t, locale } = useLocale();
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -47,7 +50,7 @@ const HappinessCheckInner = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Refs
+  // Refs for scroll + focus control
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -55,15 +58,19 @@ const HappinessCheckInner = () => {
   // Extract company info from URL or search params
   useEffect(() => {
     const extractCompanyInfo = async () => {
-      const slugMatch = pathname?.match(/^\/jobs\/([^/]+)/);
-      const companySlug = slugMatch ? slugMatch[1] : null;
-      const companyIdFromParams = searchParams?.get('company_id');
+      try {
+        const slugMatch = pathname?.match(/^\/jobs\/([^/]+)/);
+        const companySlug = slugMatch ? slugMatch[1] : null;
+        const companyIdFromParams = searchParams?.get('company_id');
 
-      if (companyIdFromParams) {
-        setCompanyId(companyIdFromParams);
-        await fetchCompanyName(companyIdFromParams);
-      } else if (companySlug && companySlug !== 'demo') {
-        await fetchCompanyFromSlug(companySlug);
+        if (companyIdFromParams) {
+          setCompanyId(companyIdFromParams);
+          await fetchCompanyName(companyIdFromParams);
+        } else if (companySlug && companySlug !== 'demo') {
+          await fetchCompanyFromSlug(companySlug);
+        }
+      } catch (err) {
+        console.error('Error extracting company info:', err);
       }
     };
 
@@ -79,7 +86,12 @@ const HappinessCheckInner = () => {
         .eq('slug', slug)
         .single();
 
-      if (data && !error) {
+      if (error) {
+        console.error('Supabase error fetching company by slug:', error);
+        return;
+      }
+
+      if (data) {
         setCompanyId(data.id.toString());
         setCompanyName(data.company_name || '');
       }
@@ -96,7 +108,12 @@ const HappinessCheckInner = () => {
         .eq('id', id)
         .single();
 
-      if (data && !error) {
+      if (error) {
+        console.error('Supabase error fetching company name:', error);
+        return;
+      }
+
+      if (data) {
         setCompanyName(data.company_name || '');
       }
     } catch (error) {
@@ -112,7 +129,10 @@ const HappinessCheckInner = () => {
 
       const response = await fetch('/api/happiness/session', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-lang': locale,
+        },
         body: JSON.stringify(requestBody),
       });
 
@@ -121,8 +141,8 @@ const HappinessCheckInner = () => {
         setSessionToken(data.sessionToken);
 
         const welcomeText = companyName
-          ? `Hello! 😊 I'm here to help you assess your workplace well-being at ${companyName}. This evaluation is completely anonymous and confidential. We'll discuss various aspects of your work life for a few minutes. Are you ready to start?`
-          : "Hello! 😊 I'm here to help you assess your workplace well-being. This evaluation is completely anonymous and confidential. We'll discuss various aspects of your work life for a few minutes. Are you ready to start?";
+          ? t('welcome.company', { companyName })
+          : t('welcome.default');
 
         const welcomeMessage: Message = {
           id: 'welcome',
@@ -134,8 +154,7 @@ const HappinessCheckInner = () => {
         // Add message to state first so that the container can render it and we can scroll to it.
         setMessages([welcomeMessage]);
 
-        // We mark sessionStarted shortly after the welcome message is rendered.
-        // This small delay helps avoid race conditions with scroll/focus effects.
+        // Mark sessionStarted shortly after welcome rendered.
         setTimeout(() => {
           setSessionStarted(true);
         }, 120);
@@ -143,10 +162,11 @@ const HappinessCheckInner = () => {
         console.error('Session creation error:', data.error);
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error creating session:', error);
     }
   };
 
+  // Send a user's message to the chat API
   const sendMessage = async (messageText: string) => {
     if (!messageText.trim() || !sessionToken || isLoading) return;
 
@@ -178,13 +198,14 @@ const HappinessCheckInner = () => {
         headers: {
           'Content-Type': 'application/json',
           'x-session-token': sessionToken!,
+          'x-lang': locale,
         },
         body: JSON.stringify({ message: messageText }),
       });
 
       const data = await response.json();
 
-      // Remove typing
+      // Remove typing indicator
       setMessages((prev) => prev.filter((m) => m.id !== 'typing'));
 
       if (response.ok) {
@@ -210,7 +231,7 @@ const HappinessCheckInner = () => {
         console.error('Chat error:', data.error);
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error sending chat message:', error);
       setMessages((prev) => prev.filter((m) => m.id !== 'typing'));
     } finally {
       setIsLoading(false);
@@ -245,12 +266,12 @@ const HappinessCheckInner = () => {
   };
 
   const permaLabels = {
-    positive: 'Positive Emotions',
-    engagement: 'Engagement',
-    relationships: 'Relationships',
-    meaning: 'Work Meaning',
-    accomplishment: 'Accomplishment',
-    work_life_balance: 'Work-Life Balance',
+    positive: t('perma.positive'),
+    engagement: t('perma.engagement'),
+    relationships: t('perma.relationships'),
+    meaning: t('perma.meaning'),
+    accomplishment: t('perma.accomplishment'),
+    work_life_balance: t('perma.work_life_balance'),
   };
 
   const resetSession = () => {
@@ -266,16 +287,18 @@ const HappinessCheckInner = () => {
   };
 
   // Progress and scores component
-  const ProgressSection = () => (
+  const ProgressSection: React.FC = () => (
     <div className="border-t border-gray-200 bg-gray-50 p-3">
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-sm font-semibold text-gray-700">
-          Happy Check Progress
+          {t('progress.title')}
           {companyName && (
             <span className="text-xs font-normal text-blue-600 ml-2">• {companyName}</span>
           )}
         </h2>
-        <div className="text-sm text-gray-500 font-medium">Step {currentStep}/12</div>
+        <div className="text-sm text-gray-500 font-medium">
+          {t('progress.step', { currentStep })}
+        </div>
       </div>
 
       <div className="w-full bg-gray-300 rounded-full h-2 mb-3">
@@ -295,7 +318,7 @@ const HappinessCheckInner = () => {
         </div>
       ) : (
         <div className="text-xs text-gray-500 text-center">
-          PERMA scores will appear as you progress through the assessment
+          {t('progress.permaIntro')}
         </div>
       )}
     </div>
@@ -352,41 +375,42 @@ const HappinessCheckInner = () => {
         ? Math.round((Object.values(permaScores).reduce((a, b) => a + b, 0) / Object.keys(permaScores).length) * 10) / 10
         : 0;
 
+    const endMessage =
+      avgScore >= 8
+        ? t('completion.excellent')
+        : avgScore >= 6.5
+        ? t('completion.good')
+        : avgScore >= 5
+        ? t('completion.improvable')
+        : t('completion.poor');
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-xl shadow-lg p-8 text-center">
             <div className="mb-6">
               <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">Thank you for your participation! 🎉</h1>
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('completion.thankYou')}</h1>
               <p className="text-gray-600 text-lg">
-                Your workplace well-being assessment is now complete.
-                {companyName && <span className="block mt-2 text-blue-600 font-medium">Results recorded for {companyName}</span>}
+                {t('completion.complete')}
+                {companyName && <span className="block mt-2 text-blue-600 font-medium">{t('completion.recordedFor', { companyName })}</span>}
               </p>
             </div>
 
             <div className="mb-6 p-4 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200">
-              <h3 className="text-lg font-semibold text-blue-800 mb-2">Your Well-being Summary</h3>
-              <p className="text-blue-700">
-                {avgScore >= 8
-                  ? "Fantastic! Your workplace well-being is shining positively. Keep cultivating this great energy! 🌟"
-                  : avgScore >= 6.5
-                  ? "Very good! You have solid foundations for your professional well-being. A few tweaks can make you shine even more! ✨"
-                  : avgScore >= 5
-                  ? "Your situation has good potential for improvement. The tips below will help you reach new heights! 🚀"
-                  : "Thank you for your honesty. Your answers show real challenges, but remember that everything can improve with the right strategies and support. 💙"}
-              </p>
+              <h3 className="text-lg font-semibold text-blue-800 mb-2">{t('completion.summaryTitle')}</h3>
+              <p className="text-blue-700">{endMessage}</p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-8 mb-8">
               <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-6 text-white">
-                <h2 className="text-xl font-semibold mb-2">Overall Score</h2>
+                <h2 className="text-xl font-semibold mb-2">{t('completion.overallScore')}</h2>
                 <div className="text-4xl font-bold mb-2">{avgScore}/10</div>
-                <p className="text-blue-100">Your workplace happiness level</p>
+                <p className="text-blue-100">{t('completion.happinessLevel')}</p>
               </div>
 
               <div className="bg-gray-50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4 text-gray-800">Score by domain</h3>
+                <h3 className="text-lg font-semibold mb-4 text-gray-800">{t('completion.scoreByDomain')}</h3>
                 <div className="space-y-2">
                   {Object.entries(permaScores).map(([key, score]) => (
                     <div key={key} className="flex justify-between items-center">
@@ -404,9 +428,9 @@ const HappinessCheckInner = () => {
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-6 mb-8">
                 <h3 className="text-xl font-semibold text-purple-800 mb-4 flex items-center gap-2">
                   <span className="text-2xl">💡</span>
-                  Your Personalized Advice
+                  {t('completion.adviceTitle')}
                 </h3>
-                <p className="text-purple-700 text-sm mb-4">Based on your well-being profile, here are 3 tailored tips to help you thrive:</p>
+                <p className="text-purple-700 text-sm mb-4">{t('completion.adviceIntro')}</p>
                 <div className="space-y-3">
                   {personalizedAdvice.map((advice, index) => (
                     <div key={index} className="bg-white/70 rounded-lg p-4 border border-purple-100 hover:shadow-sm transition-shadow">
@@ -418,25 +442,25 @@ const HappinessCheckInner = () => {
                   ))}
                 </div>
                 <div className="mt-4 text-center">
-                  <p className="text-xs text-purple-600">✨ AI-generated tips tailored for you</p>
+                  <p className="text-xs text-purple-600">{t('completion.aiTips')}</p>
                 </div>
               </div>
             ) : null}
 
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
               <p className="text-yellow-800 text-sm">
-                <strong>Privacy:</strong> Your responses are fully anonymous and help improve overall workplace well-being.
+                <strong>{t('completion.privacyNote')}</strong>
               </p>
             </div>
 
             <div className="flex gap-4 justify-center">
               <button onClick={resetSession} className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 <ArrowLeft className="w-4 h-4" />
-                Start a New Assessment
+                {t('completion.newAssessment')}
               </button>
 
               <button onClick={() => (window.location.href = companyId ? `/jobs/company-${companyId}` : '/')} className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                Back to {companyName || 'Home'}
+                {companyName ? t('completion.backTo', { companyName }) : t('completion.backHome')}
               </button>
             </div>
           </div>
@@ -454,44 +478,44 @@ const HappinessCheckInner = () => {
             <div className="mb-6">
               <Heart className="w-16 h-16 text-red-500 mx-auto mb-4" />
               <h1 className="text-3xl font-bold text-gray-800 mb-4">
-                Workplace Well-Being Assessment
-                {companyName && <span className="block text-lg text-blue-600 font-medium mt-2">for {companyName}</span>}
+                {t('app.title')}
+                {companyName && <span className="block text-lg text-blue-600 font-medium mt-2">{t('app.subtitle', { companyName })}</span>}
               </h1>
               <p className="text-gray-600 text-lg mb-6">
-                Take a few minutes to evaluate your happiness and professional well-being. This assessment is <strong>100% anonymous</strong> and confidential.
+                {t('app.description')}
               </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-4 mb-8">
               <div className="flex flex-col items-center p-4 bg-blue-50 rounded-lg">
                 <MessageCircle className="w-8 h-8 text-blue-600 mb-2" />
-                <h3 className="font-semibold text-blue-800">Conversational</h3>
-                <p className="text-sm text-blue-600 text-center">Natural and supportive discussion</p>
+                <h3 className="font-semibold text-blue-800">{t('features.conversationalTitle')}</h3>
+                <p className="text-sm text-blue-600 text-center">{t('features.conversationalText')}</p>
               </div>
 
               <div className="flex flex-col items-center p-4 bg-green-50 rounded-lg">
                 <BarChart3 className="w-8 h-8 text-green-600 mb-2" />
-                <h3 className="font-semibold text-green-800">Scientific</h3>
-                <p className="text-sm text-green-600 text-center">Based on the PERMA-W model</p>
+                <h3 className="font-semibold text-green-800">{t('features.scientificTitle')}</h3>
+                <p className="text-sm text-green-600 text-center">{t('features.scientificText')}</p>
               </div>
 
               <div className="flex flex-col items-center p-4 bg-purple-50 rounded-lg">
                 <CheckCircle className="w-8 h-8 text-purple-600 mb-2" />
-                <h3 className="font-semibold text-purple-800">Quick</h3>
+                <h3 className="font-semibold text-purple-800">{t('features.quickTitle')}</h3>
                 <p className="text-sm text-purple-600 text-center">
-                  5-10 minutes maximum
-                  <span className="block text-xs mt-1 opacity-80">in only 12 questions</span>
+                  {t('features.quickText')}
+                  <span className="block text-xs mt-1 opacity-80">{t('features.quickSub')}</span>
                 </p>
               </div>
             </div>
 
             <button onClick={createSession} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105">
-              Start the Assessment
+              {t('app.startButton')}
             </button>
 
             <p className="text-xs text-gray-500 mt-4">
-              No personal data is collected • Only anonymous aggregated results
-              {companyName && ` • Results will be included in ${companyName}'s wellness insights`}
+              {t('app.noPersonalData')}
+              {companyName && ` ${t('app.resultsIncluded', { companyName })}`}
             </p>
           </div>
         </div>
@@ -506,7 +530,7 @@ const HappinessCheckInner = () => {
         <div className="bg-white shadow-lg rounded-lg overflow-hidden" style={{ height: 'calc(100vh - 2rem)' }}>
           {/* Header */}
           <div className="bg-white border-b p-3">
-            <h1 className="text-lg font-bold text-gray-800 text-center">Happy Check 😊</h1>
+            <h1 className="text-lg font-bold text-gray-800 text-center">{t('app.header')}</h1>
           </div>
 
           {/* Scrollable Messages Area - ref attached */}
@@ -536,8 +560,6 @@ const HappinessCheckInner = () => {
             <div ref={messagesEndRef} />
           </div>
 
-          
-
           {/* Input Area */}
           <div className="border-t bg-white p-4">
             <div className="flex space-x-2 mb-2">
@@ -547,7 +569,7 @@ const HappinessCheckInner = () => {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Type your response..."
+                placeholder={t('app.inputPlaceholder')}
                 className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 disabled={isLoading}
                 // IMPORTANT: do NOT autoFocus here — we control focus from effects
@@ -561,12 +583,12 @@ const HappinessCheckInner = () => {
               </button>
             </div>
 
-{/* Progress Section (between chat and footer) */}
-          <ProgressSection />
+            {/* Progress Section (between chat and footer) */}
+            <ProgressSection />
 
-            <p className="text-xs text-gray-500 text-center">
-              💬 Confidential and anonymous conversation • Your data is not stored personally
-              {companyName && ` • Aggregate insights help improve ${companyName}'s workplace wellness`}
+            <p className="text-xs text-gray-500 text-center mt-3">
+              {t('app.confidentiality')}
+              {companyName && ` ${t('app.aggregate', { companyName })}`}
             </p>
           </div>
         </div>
@@ -575,14 +597,14 @@ const HappinessCheckInner = () => {
   );
 };
 
-const HappinessCheck = () => {
+const HappinessCheck: React.FC = () => {
   return (
     <Suspense
       fallback={
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
-            <p className="text-gray-600">Loading assessment...</p>
+            <p className="text-gray-600">{/* use t in parent if available; simple fallback: */}Loading assessment...</p>
           </div>
         </div>
       }

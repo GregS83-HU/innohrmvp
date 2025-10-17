@@ -357,4 +357,65 @@
    
     }
   }
+,
+  "app": {
+    "title": "Workplace Well-Being Assessment",
+    "subtitle": "for {{companyName}}",
+    "description": "Take a few minutes to evaluate your happiness and professional well-being. This assessment is 100% anonymous and confidential.",
+    "startButton": "Start the Assessment",
+    "noPersonalData": "No personal data is collected • Only anonymous aggregated results",
+    "resultsIncluded": "• Results will be included in {{companyName}}'s wellness insights",
+    "loading": "Loading assessment...",
+    "header": "Happy Check 😊",
+    "inputPlaceholder": "Type your response...",
+    "confidentiality": "💬 Confidential and anonymous conversation • Your data is not stored personally",
+    "aggregate": "• Aggregate insights help improve {{companyName}}'s workplace wellness"
+  },
+  "features": {
+    "conversationalTitle": "Conversational",
+    "conversationalText": "Natural and supportive discussion",
+    "scientificTitle": "Scientific",
+    "scientificText": "Based on the PERMA-W model",
+    "quickTitle": "Quick",
+    "quickText": "5-10 minutes maximum",
+    "quickSub": "in only 12 questions"
+  },
+  "welcome": {
+    "default": "Hello! 😊 I'm here to help you assess your workplace well-being. This evaluation is completely anonymous and confidential. We'll discuss various aspects of your work life for a few minutes. Are you ready to start?",
+    "company": "Hello! 😊 I'm here to help you assess your workplace well-being at {{companyName}}. This evaluation is completely anonymous and confidential. We'll discuss various aspects of your work life for a few minutes. Are you ready to start?"
+  },
+  "progress": {
+    "title": "Happy Check Progress",
+    "step": "Step {{currentStep}}/12",
+    "permaIntro": "PERMA scores will appear as you progress through the assessment"
+  },
+  "perma": {
+    "positive": "Positive Emotions",
+    "engagement": "Engagement",
+    "relationships": "Relationships",
+    "meaning": "Work Meaning",
+    "accomplishment": "Accomplishment",
+    "work_life_balance": "Work-Life Balance"
+  },
+  "completion": {
+    "thankYou": "Thank you for your participation! 🎉",
+    "complete": "Your workplace well-being assessment is now complete.",
+    "recordedFor": "Results recorded for {{companyName}}",
+    "summaryTitle": "Your Well-being Summary",
+    "excellent": "Fantastic! Your workplace well-being is shining positively. Keep cultivating this great energy! 🌟",
+    "good": "Very good! You have solid foundations for your professional well-being. A few tweaks can make you shine even more! ✨",
+    "improvable": "Your situation has good potential for improvement. The tips below will help you reach new heights! 🚀",
+    "poor": "Thank you for your honesty. Your answers show real challenges, but remember that everything can improve with the right strategies and support. 💙",
+    "overallScore": "Overall Score",
+    "happinessLevel": "Your workplace happiness level",
+    "scoreByDomain": "Score by domain",
+    "adviceTitle": "Your Personalized Advice",
+    "adviceIntro": "Based on your well-being profile, here are 3 tailored tips to help you thrive:",
+    "aiTips": "✨ AI-generated tips tailored for you",
+    "privacyNote": "Privacy: Your responses are fully anonymous and help improve overall workplace well-being.",
+    "newAssessment": "Start a New Assessment",
+    "backTo": "Back to {{companyName}}",
+    "backHome": "Back to Home"
+  }
 }
+

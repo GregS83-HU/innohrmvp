@@ -11,17 +11,18 @@ type Messages = {
 interface LocaleContextType {
   locale: Locale;
   setLocale: (locale: Locale) => void;
-  t: (key: string) => string;
+  t: (key: string, vars?: Record<string, string | number>) => string;
 }
 
 const LocaleContext = createContext<LocaleContextType | undefined>(undefined);
 
 // Typed translation function
 function createTranslator(locale: Locale, messages: Messages) {
-  return (key: string): string => {
+  return (key: string, vars?: Record<string, string | number>): string => {
     const keys = key.split('.');
     let value: string | Messages = messages;
 
+    // Traverse object by dot-separated keys
     for (const k of keys) {
       if (value && typeof value === 'object' && k in value) {
         value = value[k];
@@ -30,7 +31,18 @@ function createTranslator(locale: Locale, messages: Messages) {
       }
     }
 
-    return typeof value === 'string' ? value : key;
+    // If value found and is a string, optionally interpolate {{placeholders}}
+    if (typeof value === 'string') {
+      if (vars) {
+        return value.replace(/\{\{(.*?)\}\}/g, (_, v) => {
+          const key = v.trim();
+          return vars[key] !== undefined ? String(vars[key]) : '';
+        });
+      }
+      return value;
+    }
+
+    return key;
   };
 }
 
@@ -82,7 +94,6 @@ export function LocaleProvider({ children, messages }: LocaleProviderProps) {
 
   const t = createTranslator(locale, messages[locale] || messages[defaultLocale]);
 
-  // Don't block rendering - just use default locale until mounted
   return (
     <LocaleContext.Provider value={{ locale, setLocale, t }}>
       {children}
