@@ -633,4 +633,142 @@
       "fetchDataError": "Error fetching data"
     }
   }
+,
+  "medicalCertificates": {
+    "title": "Medical Certificates",
+    "loading": "Loading certificates...",
+    "stats": {
+      "total": "total certificates",
+      "pending": "pending",
+      "treated": "treated"
+    },
+    "search": {
+      "placeholder": "Search by employee name...",
+      "showAll": "Show all certificates",
+      "hideTreated": "Hide treated"
+    },
+    "table": {
+      "headers": {
+        "employeeName": "Employee Name",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "certificate": "Certificate",
+        "uploadDate": "Upload Date",
+        "comment": "Comment",
+        "status": "Status",
+        "treatmentDate": "Treatment Date"
+      },
+      "actions": {
+        "view": "View",
+        "viewComment": "View comment"
+      },
+      "empty": {
+        "title": "No certificates found",
+        "withSearch": "Try adjusting your search terms.",
+        "withoutSearch": "No medical certificates match your current filters."
+      },
+      "noData": "—"
+    },
+    "alerts": {
+      "sessionNotFound": "User session not found",
+      "updateError": "Error updating medical certificate status",
+      "leaveRequestError": "Error checking associated leave requests. Changes have been rolled back.",
+      "leaveUpdateError": "Error updating associated leave request. Changes have been rolled back.",
+      "networkError": "Network error. Please try again."
+    },
+    "errors": {
+      "fetchCompanyId": "Error fetching company_id",
+      "userWithoutCompany": "User without company_id",
+      "loadCertificates": "Error loading certificates"
+    }
+  }
+,
+  "certificateDownload": {
+    "title": "Download Medical Certificates",
+    "loading": "Loading certificates...",
+    "stats": {
+      "total": "total certificates",
+      "pending": "pending",
+      "treated": "treated"
+    },
+    "dateSelection": {
+      "startDateLabel": "Start Date",
+      "endDateLabel": "End Date",
+      "searchButton": "Search",
+      "searching": "Searching...",
+      "downloadButton": "Download ZIP",
+      "preparing": "Preparing..."
+    },
+    "table": {
+      "headers": {
+        "employeeName": "Employee Name",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "hrComment": "HR Comment",
+        "status": "Status"
+      },
+      "empty": {
+        "title": "No certificates found",
+        "withSearch": "Try adjusting your date range.",
+        "withoutSearch": "Select a date range and click search to view medical certificates."
+      },
+      "noData": "—"
+    },
+    "errors": {
+      "selectDates": "Please select both start and end dates.",
+      "fetchFailed": "Failed to fetch certificates.",
+      "noDownload": "No certificates to download.",
+      "downloadFailed": "Failed to generate download."
+    },
+    "alerts": {
+      "noResults": "No certificate found for the selected dates."
+    }
+  }
+,
+  "uploadCertificate": {
+    "header": {
+      "title": "Upload Medical Certificate",
+      "subtitle": "Upload your medical certificate for automatic processing"
+    },
+    "demo": {
+      "downloadButton": "Download fake certificate",
+      "description": "We strongly recommend to use our fake medical certificate during the demo. If you want to use your own file, please note that all the data will be deleted from our demo system each night at 1 am."
+    },
+    "upload": {
+      "fileLabel": "Select Certificate File",
+      "dropzoneSelected": "File selected",
+      "dropzoneEmpty": "Click here to select your file",
+      "dropzoneHelp": "PDF or Image • Maximum 1MB",
+      "uploadButton": "Upload & Process",
+      "processing": "Processing..."
+    },
+    "results": {
+      "titleSuccess": "Extracted Certificate Details",
+      "titleManual": "Certificate Details - Please Complete Missing Information",
+      "employeeName": "Employee Name",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "doctorName": "Doctor Name",
+      "comment": "Additional Comment (Optional)",
+      "commentPlaceholder": "Add any additional information or comments...",
+      "employeeNamePlaceholder": "Enter employee name",
+      "noData": "—"
+    },
+    "buttons": {
+      "confirmSave": "Confirm & Save",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "tryAgain": "Try Again"
+    },
+    "alerts": {
+      "success": "Certificate saved successfully!",
+      "processingFailed": "Processing Failed",
+      "processingFailedDesc": "Some information could not be recognized automatically, please fulfill the form below with the missing information. Your document will be automatically sent to the HR department.",
+      "fileTooLarge": "File is too large. Maximum allowed size is 1MB.",
+      "selectFile": "Please select a file",
+      "cannotSave": "Cannot save: missing file or extracted data.",
+      "uploadError": "Unknown error occurred",
+      "saveError": "Unknown error occurred while saving"
+    }
+  }
 }

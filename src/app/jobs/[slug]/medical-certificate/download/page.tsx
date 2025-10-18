@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import { useLocale } from 'i18n/LocaleProvider';
 import * as XLSX from 'xlsx';
 import JSZip from 'jszip';
 import { Download, Search, Calendar, FileText, Users, AlertCircle, CheckCircle, User, Clock } from 'lucide-react';
@@ -23,6 +24,8 @@ const supabase = createClient(
 );
 
 export default function CertificateDownloadPage() {
+  const { t } = useLocale();
+  
   // today's date in YYYY-MM-DD
   const today = new Date().toISOString().split('T')[0];
 
@@ -35,7 +38,7 @@ export default function CertificateDownloadPage() {
 
   const fetchCertificates = async () => {
     if (!startDate || !endDate) {
-      setError('Please select both start and end dates.');
+      setError(t('certificateDownload.errors.selectDates'));
       return;
     }
 
@@ -62,7 +65,7 @@ export default function CertificateDownloadPage() {
       }
     } catch (e) {
       console.error(e);
-      setError('Failed to fetch certificates.');
+      setError(t('certificateDownload.errors.fetchFailed'));
     } finally {
       setLoading(false);
     }
@@ -87,7 +90,7 @@ export default function CertificateDownloadPage() {
 
   const handleDownload = async () => {
     if (certificates.length === 0) {
-      setError('No certificates to download.');
+      setError(t('certificateDownload.errors.noDownload'));
       return;
     }
 
@@ -141,14 +144,14 @@ export default function CertificateDownloadPage() {
       downloadBlob(content, `medical_certificates_${startDate}_${endDate}.zip`);
     } catch (e) {
       console.error(e);
-      setError('Failed to generate download.');
+      setError(t('certificateDownload.errors.downloadFailed'));
     } finally {
       setLoading(false);
     }
   };
 
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return '—'
+    if (!dateString) return t('certificateDownload.table.noData')
     try {
       const date = new Date(dateString)
       return date.toLocaleDateString('fr-FR')
@@ -167,7 +170,7 @@ export default function CertificateDownloadPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-lg p-8 text-center">
           <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading certificates...</p>
+          <p className="text-gray-600">{t('certificateDownload.loading')}</p>
         </div>
       </div>
     )
@@ -182,23 +185,23 @@ export default function CertificateDownloadPage() {
           <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
             <Download className="w-12 h-12 text-green-600 mx-auto mb-4" />
             <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              Download Medical Certificates
+              {t('certificateDownload.title')}
             </h1>
             <div className="flex items-center justify-center gap-6">
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full">
                 <FileText className="w-4 h-4" />
                 <span className="font-semibold">{certificates.length}</span>
-                <span>total certificates</span>
+                <span>{t('certificateDownload.stats.total')}</span>
               </div>
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-600 text-white px-4 py-2 rounded-full">
                 <Clock className="w-4 h-4" />
                 <span className="font-semibold">{pendingCount}</span>
-                <span>pending</span>
+                <span>{t('certificateDownload.stats.pending')}</span>
               </div>
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-full">
                 <CheckCircle className="w-4 h-4" />
                 <span className="font-semibold">{treatedCount}</span>
-                <span>treated</span>
+                <span>{t('certificateDownload.stats.treated')}</span>
               </div>
             </div>
           </div>
@@ -208,7 +211,7 @@ export default function CertificateDownloadPage() {
         <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('certificateDownload.dateSelection.startDateLabel')}</label>
               <input
                 type="date"
                 value={startDate}
@@ -218,7 +221,7 @@ export default function CertificateDownloadPage() {
             </div>
             
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('certificateDownload.dateSelection.endDateLabel')}</label>
               <input
                 type="date"
                 value={endDate}
@@ -236,12 +239,12 @@ export default function CertificateDownloadPage() {
                 {loading ? (
                   <>
                     <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                    Searching...
+                    {t('certificateDownload.dateSelection.searching')}
                   </>
                 ) : (
                   <>
                     <Search className="w-5 h-5" />
-                    Search
+                    {t('certificateDownload.dateSelection.searchButton')}
                   </>
                 )}
               </button>
@@ -255,12 +258,12 @@ export default function CertificateDownloadPage() {
                   {loading ? (
                     <>
                       <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                      Preparing...
+                      {t('certificateDownload.dateSelection.preparing')}
                     </>
                   ) : (
                     <>
                       <Download className="w-5 h-5" />
-                      Download ZIP
+                      {t('certificateDownload.dateSelection.downloadButton')}
                     </>
                   )}
                 </button>
@@ -284,7 +287,7 @@ export default function CertificateDownloadPage() {
             <div className="flex items-center gap-2">
               <AlertCircle className="w-5 h-5 text-yellow-600" />
               <p className="font-medium text-yellow-800">
-                No certificate found for the selected dates.
+                {t('certificateDownload.alerts.noResults')}
               </p>
             </div>
           </div>
@@ -299,23 +302,23 @@ export default function CertificateDownloadPage() {
                   <th className="px-4 py-4 text-left font-semibold text-gray-700 w-40">
                     <div className="flex items-center gap-2">
                       <User className="w-4 h-4" />
-                      Employee Name
+                      {t('certificateDownload.table.headers.employeeName')}
                     </div>
                   </th>
                   <th className="px-4 py-4 text-left font-semibold text-gray-700 w-32">
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4" />
-                      Start Date
+                      {t('certificateDownload.table.headers.startDate')}
                     </div>
                   </th>
                   <th className="px-4 py-4 text-left font-semibold text-gray-700 w-32">
-                    End Date
+                    {t('certificateDownload.table.headers.endDate')}
                   </th>
                   <th className="px-4 py-4 text-left font-semibold text-gray-700 w-40">
-                    HR Comment
+                    {t('certificateDownload.table.headers.hrComment')}
                   </th>
                   <th className="px-4 py-4 text-center font-semibold text-gray-700 w-24">
-                    Status
+                    {t('certificateDownload.table.headers.status')}
                   </th>
                 </tr>
               </thead>
@@ -324,9 +327,9 @@ export default function CertificateDownloadPage() {
                   <tr>
                     <td colSpan={5} className="px-4 py-12 text-center">
                       <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-gray-600 mb-2">No certificates found</h3>
+                      <h3 className="text-lg font-semibold text-gray-600 mb-2">{t('certificateDownload.table.empty.title')}</h3>
                       <p className="text-gray-500">
-                        {noResults ? 'Try adjusting your date range.' : 'Select a date range and click search to view medical certificates.'}
+                        {noResults ? t('certificateDownload.table.empty.withSearch') : t('certificateDownload.table.empty.withoutSearch')}
                       </p>
                     </td>
                   </tr>
@@ -340,7 +343,7 @@ export default function CertificateDownloadPage() {
                     >
                       <td className="px-4 py-4 font-medium text-gray-800 w-40">
                         <div className="truncate" title={cert.employee_name || ''}>
-                          {cert.employee_name || '—'}
+                          {cert.employee_name || t('certificateDownload.table.noData')}
                         </div>
                       </td>
                       
@@ -354,7 +357,7 @@ export default function CertificateDownloadPage() {
                       
                       <td className="px-4 py-4 text-gray-700 w-40">
                         <div className="truncate" title={cert.hr_comment || ''}>
-                          {cert.hr_comment || '—'}
+                          {cert.hr_comment || t('certificateDownload.table.noData')}
                         </div>
                       </td>
                       

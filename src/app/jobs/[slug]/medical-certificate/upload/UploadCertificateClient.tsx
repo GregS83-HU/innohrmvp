@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { useLocale } from 'i18n/LocaleProvider';
 import { Upload, FileText, User, Calendar, Stethoscope, MessageCircle, Check, X, AlertTriangle, CheckCircle } from 'lucide-react';
 
 type UploadCertificateClientProps = {
@@ -9,6 +10,7 @@ type UploadCertificateClientProps = {
 };
 
 export default function UploadCertificateClient({ companyId }: UploadCertificateClientProps) {
+  const { t } = useLocale();
   
   const pathname = usePathname();
   const segments = pathname.split('/').filter(Boolean);
@@ -50,7 +52,7 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
     setError('');
     if (!file) return setFile(null);
     if (file.size > MAX_SIZE) {
-      setError('File is too large. Maximum allowed size is 1MB.');
+      setError(t('uploadCertificate.alerts.fileTooLarge'));
       setFile(null);
     } else {
       setFile(file);
@@ -58,7 +60,7 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
   };
 
   const handleUpload = async () => {
-    if (!file) return setError('Please select a file');
+    if (!file) return setError(t('uploadCertificate.alerts.selectFile'));
     setLoading(true);
     setError('');
     setResult(null);
@@ -95,7 +97,7 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
       });
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
-      else setError('Unknown error occurred');
+      else setError(t('uploadCertificate.alerts.uploadError'));
     } finally {
       setLoading(false);
     }
@@ -106,7 +108,7 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
   };
 
   const handleConfirm = async () => {
-    if (!result || !file) return setError('Cannot save: missing file or extracted data.');
+    if (!result || !file) return setError(t('uploadCertificate.alerts.cannotSave'));
 
     setSaving(true);
     setError('');
@@ -132,7 +134,7 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
       if (!res.ok) throw new Error(await res.text());
 
       const data = await res.json();
-      setSuccessMessage(data.message || 'Certificate saved successfully!');
+      setSuccessMessage(data.message || t('uploadCertificate.alerts.success'));
       setResult(null);
       setFile(null);
       setComment('');
@@ -144,7 +146,7 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
       });
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
-      else setError('Unknown error occurred while saving');
+      else setError(t('uploadCertificate.alerts.saveError'));
     } finally {
       setSaving(false);
     }
@@ -179,9 +181,9 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
           <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
             <Upload className="w-12 h-12 text-blue-600 mx-auto mb-4" />
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-2">
-              Upload Medical Certificate
+              {t('uploadCertificate.header.title')}
             </h1>
-            <p className="text-gray-600">Upload your medical certificate for automatic processing</p>
+            <p className="text-gray-600">{t('uploadCertificate.header.subtitle')}</p>
           </div>
         </div>
 
@@ -200,16 +202,15 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
           <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 sm:p-6">
             <div className="flex flex-col gap-3">
               <a
-              
                 href="https://drive.google.com/uc?export=download&id=1ASXxoxYw4hq28BSTNm54fKKZEv4NOjcG"
                 download
                 className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
               >
                 <FileText className="w-5 h-5" />
-                Download fake certificate
+                {t('uploadCertificate.demo.downloadButton')}
               </a>
               <p className="text-sm text-gray-700">
-                We strongly recommend to use our fake medical certificate during the demo. If you want to use your own file, please note that all the data will be deleted from our demo system each night at 1 am.
+                {t('uploadCertificate.demo.description')}
               </p>
             </div>
           </div>
@@ -220,10 +221,10 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
           <div className="bg-red-50 border border-red-200 rounded-2xl p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-2">
               <AlertTriangle className="w-5 h-5 text-red-600" />
-              <h3 className="font-semibold text-red-800">Processing Failed</h3>
+              <h3 className="font-semibold text-red-800">{t('uploadCertificate.alerts.processingFailed')}</h3>
             </div>
             <p className="text-red-700">
-              Some information could not be recognized automatically, please fulfill the form below with the missing information. Your document will be automatically sent to the HR department.
+              {t('uploadCertificate.alerts.processingFailedDesc')}
             </p>
           </div>
         )}
@@ -242,7 +243,7 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
                 {/* File Upload Area */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Select Certificate File
+                    {t('uploadCertificate.upload.fileLabel')}
                   </label>
                   <div 
                     className={`border-2 border-dashed rounded-xl p-6 sm:p-8 text-center transition-all ${
@@ -268,10 +269,10 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
                         <div>
                           <FileText className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                           <p className="text-blue-600 font-medium hover:text-blue-700 text-sm sm:text-base">
-                            Click here to select your file
+                            {t('uploadCertificate.upload.dropzoneEmpty')}
                           </p>
                           <p className="text-sm text-gray-500 mt-2">
-                            PDF or Image • Maximum 1MB
+                            {t('uploadCertificate.upload.dropzoneHelp')}
                           </p>
                         </div>
                       )}
@@ -288,12 +289,12 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
                   {loading ? (
                     <>
                       <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                      Processing...
+                      {t('uploadCertificate.upload.processing')}
                     </>
                   ) : (
                     <>
                       <Upload className="w-5 h-5" />
-                      Upload & Process
+                      {t('uploadCertificate.upload.uploadButton')}
                     </>
                   )}
                 </button>
@@ -318,7 +319,7 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
             <div className="p-4 sm:p-6 lg:p-8">
               <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-800 mb-6">
                 <FileText className="w-6 h-6" />
-                {hasUnrecognised ? 'Certificate Details - Please Complete Missing Information' : 'Extracted Certificate Details'}
+                {hasUnrecognised ? t('uploadCertificate.results.titleManual') : t('uploadCertificate.results.titleSuccess')}
               </h2>
 
               <div className="grid gap-4 mb-6">
@@ -326,18 +327,18 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
                 <div className="bg-gray-50 rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <User className="w-4 h-4 text-blue-600" />
-                    <label className="font-medium text-gray-700">Employee Name</label>
+                    <label className="font-medium text-gray-700">{t('uploadCertificate.results.employeeName')}</label>
                   </div>
                   {isFieldUnrecognised(result.employee_name) ? (
                     <input
                       type="text"
                       value={manualData.employee_name}
                       onChange={(e) => setManualData({...manualData, employee_name: e.target.value})}
-                      placeholder="Enter employee name"
+                      placeholder={t('uploadCertificate.results.employeeNamePlaceholder')}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   ) : (
-                    <p className="text-gray-800 font-medium">{result.employee_name || '—'}</p>
+                    <p className="text-gray-800 font-medium">{result.employee_name || t('uploadCertificate.results.noData')}</p>
                   )}
                 </div>
 
@@ -346,7 +347,7 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
                   <div className="bg-gray-50 rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <Calendar className="w-4 h-4 text-blue-600" />
-                      <label className="font-medium text-gray-700">Start Date</label>
+                      <label className="font-medium text-gray-700">{t('uploadCertificate.results.startDate')}</label>
                     </div>
                     {isFieldUnrecognised(result.absenceDateStart) ? (
                       <input
@@ -356,14 +357,14 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     ) : (
-                      <p className="text-gray-800 font-medium">{result.absenceDateStart || '—'}</p>
+                      <p className="text-gray-800 font-medium">{result.absenceDateStart || t('uploadCertificate.results.noData')}</p>
                     )}
                   </div>
 
                   <div className="bg-gray-50 rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <Calendar className="w-4 h-4 text-blue-600" />
-                      <label className="font-medium text-gray-700">End Date</label>
+                      <label className="font-medium text-gray-700">{t('uploadCertificate.results.endDate')}</label>
                     </div>
                     {isFieldUnrecognised(result.absenceDateEnd) ? (
                       <input
@@ -373,24 +374,22 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     ) : (
-                      <p className="text-gray-800 font-medium">{result.absenceDateEnd || '—'}</p>
+                      <p className="text-gray-800 font-medium">{result.absenceDateEnd || t('uploadCertificate.results.noData')}</p>
                     )}
                   </div>
                 </div>
-
-               
               </div>
 
               {/* Comment field - always displayed */}
               <div className="mb-6">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
                   <MessageCircle className="w-4 h-4" />
-                  Additional Comment (Optional)
+                  {t('uploadCertificate.results.comment')}
                 </label>
                 <textarea
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  placeholder="Add any additional information or comments..."
+                  placeholder={t('uploadCertificate.results.commentPlaceholder')}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                   rows={4}
                 />
@@ -400,7 +399,6 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
               <div className="flex flex-col sm:flex-row gap-4">
                 {hasUnrecognised ? (
                   <>
-                
                     <button
                       onClick={handleConfirm}
                       disabled={saving}
@@ -409,22 +407,22 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
                       {saving ? (
                         <>
                           <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                          Saving...
+                          {t('uploadCertificate.buttons.saving')}
                         </>
                       ) : (
                         <>
                           <Check className="w-5 h-5" />
-                          Confirm & Save
+                          {t('uploadCertificate.buttons.confirmSave')}
                         </>
                       )}
                     </button>
-                    {/* When processing failed - show Try Again, Confirm & Save buttons */}
+                    {/* When processing failed - show Try Again button */}
                     <button
                       onClick={handleCancel}
                       className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
                     >
                       <Upload className="w-5 h-5" />
-                      Try Again
+                      {t('uploadCertificate.buttons.tryAgain')}
                     </button>
                   </>
                 ) : (
@@ -438,12 +436,12 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
                       {saving ? (
                         <>
                           <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                          Saving...
+                          {t('uploadCertificate.buttons.saving')}
                         </>
                       ) : (
                         <>
                           <Check className="w-5 h-5" />
-                          Confirm & Save
+                          {t('uploadCertificate.buttons.confirmSave')}
                         </>
                       )}
                     </button>
@@ -452,7 +450,7 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
                       className="flex-1 flex items-center justify-center gap-2 bg-gray-500 hover:bg-gray-600 text-white py-3 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
                     >
                       <X className="w-5 h-5" />
-                      Cancel
+                      {t('uploadCertificate.buttons.cancel')}
                     </button>
                   </>
                 )}

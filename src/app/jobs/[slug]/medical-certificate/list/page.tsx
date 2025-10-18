@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
+import { useLocale } from 'i18n/LocaleProvider'
 import * as Popover from '@radix-ui/react-popover'
 import { Search, FileText, User, Calendar, MessageCircle, CheckCircle, Clock, Filter, Eye, Upload } from 'lucide-react'
 
@@ -20,6 +21,7 @@ type MedicalCertificate = {
 }
 
 export default function MedicalCertificatesPage() {
+  const { t } = useLocale()
   const [certificates, setCertificates] = useState<MedicalCertificate[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [search, setSearch] = useState<string>('')
@@ -42,14 +44,14 @@ export default function MedicalCertificatesPage() {
           .single()
 
         if (userError) {
-          console.error('Erreur récupération company_id:', userError.message)
+          console.error(t('medicalCertificates.errors.fetchCompanyId'), userError.message)
           setCertificates([])
           setLoading(false)
           return
         }
 
         if (!userProfile || !userProfile.company_id) {
-          console.warn('Utilisateur sans company_id')
+          console.warn(t('medicalCertificates.errors.userWithoutCompany'))
           setCertificates([])
           setLoading(false)
           return
@@ -65,7 +67,7 @@ export default function MedicalCertificatesPage() {
           .order('created_at', { ascending: false })
 
         if (error) {
-          console.error('Erreur chargement certificats:', error.message)
+          console.error(t('medicalCertificates.errors.loadCertificates'), error.message)
           setCertificates([])
           return
         }
@@ -114,11 +116,11 @@ export default function MedicalCertificatesPage() {
     }
 
     fetchCompanyIdAndCertificates()
-  }, [session, supabase])
+  }, [session, supabase, t])
 
   const handleCheckboxChange = async (certId: number, newValue: boolean) => {
     if (!session?.user?.id) {
-      alert('User session not found')
+      alert(t('medicalCertificates.alerts.sessionNotFound'))
       return
     }
 
@@ -143,7 +145,7 @@ export default function MedicalCertificatesPage() {
 
       if (certError) {
         console.error('Error updating medical certificate:', certError.message)
-        alert('Error updating medical certificate status')
+        alert(t('medicalCertificates.alerts.updateError'))
         return
       }
 
@@ -165,7 +167,7 @@ export default function MedicalCertificatesPage() {
             treatment_date: !newValue ? new Date().toISOString() : null
           })
           .eq('id', certId)
-        alert('Error checking associated leave requests. Changes have been rolled back.')
+        alert(t('medicalCertificates.alerts.leaveRequestError'))
         return
       }
 
@@ -195,7 +197,7 @@ export default function MedicalCertificatesPage() {
               treatment_date: !newValue ? new Date().toISOString() : null
             })
             .eq('id', certId)
-          alert('Error updating associated leave request. Changes have been rolled back.')
+          alert(t('medicalCertificates.alerts.leaveUpdateError'))
           return
         }
 
@@ -220,12 +222,12 @@ export default function MedicalCertificatesPage() {
       console.log('=== Checkbox change completed successfully ===')
     } catch (err) {
       console.error('Network error during update:', err)
-      alert('Network error. Please try again.')
+      alert(t('medicalCertificates.alerts.networkError'))
     }
   }
 
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return '—'
+    if (!dateString) return t('medicalCertificates.table.noData')
     try {
       const date = new Date(dateString)
       return date.toLocaleDateString('fr-FR', {
@@ -241,7 +243,7 @@ export default function MedicalCertificatesPage() {
   }
 
   const formatSimpleDate = (dateString: string | null) => {
-    if (!dateString) return '—'
+    if (!dateString) return t('medicalCertificates.table.noData')
     try {
       const date = new Date(dateString)
       return date.toLocaleDateString('fr-FR')
@@ -264,7 +266,7 @@ export default function MedicalCertificatesPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-lg p-8 text-center">
           <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading certificates...</p>
+          <p className="text-gray-600">{t('medicalCertificates.loading')}</p>
         </div>
       </div>
     )
@@ -279,23 +281,23 @@ export default function MedicalCertificatesPage() {
           <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
             <FileText className="w-12 h-12 text-blue-600 mx-auto mb-4" />
             <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              Medical Certificates
+              {t('medicalCertificates.title')}
             </h1>
             <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full">
                 <FileText className="w-4 h-4" />
                 <span className="font-semibold">{certificates.length}</span>
-                <span>total certificates</span>
+                <span>{t('medicalCertificates.stats.total')}</span>
               </div>
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-600 text-white px-4 py-2 rounded-full">
                 <Clock className="w-4 h-4" />
                 <span className="font-semibold">{pendingCount}</span>
-                <span>pending</span>
+                <span>{t('medicalCertificates.stats.pending')}</span>
               </div>
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-full">
                 <CheckCircle className="w-4 h-4" />
                 <span className="font-semibold">{treatedCount}</span>
-                <span>treated</span>
+                <span>{t('medicalCertificates.stats.treated')}</span>
               </div>
             </div>
           </div>
@@ -308,7 +310,7 @@ export default function MedicalCertificatesPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search by employee name..."
+                placeholder={t('medicalCertificates.search.placeholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -324,7 +326,7 @@ export default function MedicalCertificatesPage() {
               }`}
             >
               <Filter className="w-4 h-4" />
-              {showAll ? 'Hide treated' : 'Show all certificates'}
+              {showAll ? t('medicalCertificates.search.hideTreated') : t('medicalCertificates.search.showAll')}
             </button>
           </div>
         </div>
@@ -338,38 +340,38 @@ export default function MedicalCertificatesPage() {
                   <th className="px-4 py-4 text-left font-semibold text-gray-700 w-40">
                     <div className="flex items-center gap-2">
                       <User className="w-4 h-4" />
-                      Employee Name
+                      {t('medicalCertificates.table.headers.employeeName')}
                     </div>
                   </th>
                   <th className="px-4 py-4 text-left font-semibold text-gray-700 w-32">
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4" />
-                      Start Date
+                      {t('medicalCertificates.table.headers.startDate')}
                     </div>
                   </th>
                   <th className="px-4 py-4 text-left font-semibold text-gray-700 w-32">
-                    End Date
+                    {t('medicalCertificates.table.headers.endDate')}
                   </th>
                   <th className="px-4 py-4 text-left font-semibold text-gray-700 w-32">
-                    Certificate
+                    {t('medicalCertificates.table.headers.certificate')}
                   </th>
                   <th className="px-4 py-4 text-left font-semibold text-gray-700 w-32">
                     <div className="flex items-center gap-2">
                       <Upload className="w-4 h-4" />
-                      Upload Date
+                      {t('medicalCertificates.table.headers.uploadDate')}
                     </div>
                   </th>
                   <th className="px-4 py-4 text-left font-semibold text-gray-700 w-40">
                     <div className="flex items-center gap-2">
                       <MessageCircle className="w-4 h-4" />
-                      Comment
+                      {t('medicalCertificates.table.headers.comment')}
                     </div>
                   </th>
                   <th className="px-4 py-4 text-center font-semibold text-gray-700 w-24">
-                    Status
+                    {t('medicalCertificates.table.headers.status')}
                   </th>
                   <th className="px-4 py-4 text-left font-semibold text-gray-700 w-40">
-                    Treatment Date
+                    {t('medicalCertificates.table.headers.treatmentDate')}
                   </th>
                 </tr>
               </thead>
@@ -378,9 +380,9 @@ export default function MedicalCertificatesPage() {
                   <tr>
                     <td colSpan={8} className="px-4 py-12 text-center">
                       <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-gray-600 mb-2">No certificates found</h3>
+                      <h3 className="text-lg font-semibold text-gray-600 mb-2">{t('medicalCertificates.table.empty.title')}</h3>
                       <p className="text-gray-500">
-                        {search ? 'Try adjusting your search terms.' : 'No medical certificates match your current filters.'}
+                        {search ? t('medicalCertificates.table.empty.withSearch') : t('medicalCertificates.table.empty.withoutSearch')}
                       </p>
                     </td>
                   </tr>
@@ -415,10 +417,10 @@ export default function MedicalCertificatesPage() {
                             className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"
                           >
                             <Eye className="w-4 h-4" />
-                            View
+                            {t('medicalCertificates.table.actions.view')}
                           </a>
                         ) : (
-                          <span className="text-gray-500">—</span>
+                          <span className="text-gray-500">{t('medicalCertificates.table.noData')}</span>
                         )}
                       </td>
 
@@ -430,7 +432,7 @@ export default function MedicalCertificatesPage() {
                         {cert.employee_comment ? (
                           <Popover.Root>
                             <Popover.Trigger asChild>
-                              <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" aria-label="View comment">
+                              <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" aria-label={t('medicalCertificates.table.actions.viewComment')}>
                                 <MessageCircle className="w-4 h-4" />
                               </button>
                             </Popover.Trigger>
@@ -454,7 +456,7 @@ export default function MedicalCertificatesPage() {
                             </Popover.Portal>
                           </Popover.Root>
                         ) : (
-                          <span className="text-gray-500">—</span>
+                          <span className="text-gray-500">{t('medicalCertificates.table.noData')}</span>
                         )}
                       </td>
                       

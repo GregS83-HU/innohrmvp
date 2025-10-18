@@ -628,4 +628,142 @@
       "fetchDataError": "Hiba az adatok lekérésekor"
     }
   }
+,
+  "medicalCertificates": {
+    "title": "Orvosi igazolások",
+    "loading": "Igazolások betöltése...",
+    "stats": {
+      "total": "összes igazolás",
+      "pending": "függőben",
+      "treated": "feldolgozva"
+    },
+    "search": {
+      "placeholder": "Keresés dolgozó neve alapján...",
+      "showAll": "Összes igazolás megjelenítése",
+      "hideTreated": "Feldolgozottak elrejtése"
+    },
+    "table": {
+      "headers": {
+        "employeeName": "Dolgozó neve",
+        "startDate": "Kezdő dátum",
+        "endDate": "Záró dátum",
+        "certificate": "Igazolás",
+        "uploadDate": "Feltöltés dátuma",
+        "comment": "Megjegyzés",
+        "status": "Állapot",
+        "treatmentDate": "Feldolgozás dátuma"
+      },
+      "actions": {
+        "view": "Megtekintés",
+        "viewComment": "Megjegyzés megtekintése"
+      },
+      "empty": {
+        "title": "Nem találhatók igazolások",
+        "withSearch": "Próbáld meg módosítani a keresési feltételeket.",
+        "withoutSearch": "A jelenlegi szűrőknek megfelelő orvosi igazolás nem található."
+      },
+      "noData": "—"
+    },
+    "alerts": {
+      "sessionNotFound": "Felhasználói munkamenet nem található",
+      "updateError": "Hiba az orvosi igazolás állapotának frissítésekor",
+      "leaveRequestError": "Hiba a kapcsolódó távolléti kérelmek ellenőrzésekor. A módosításokat visszavontuk.",
+      "leaveUpdateError": "Hiba a kapcsolódó távolléti kérelem frissítésekor. A módosításokat visszavontuk.",
+      "networkError": "Hálózati hiba. Kérlek, próbáld újra."
+    },
+    "errors": {
+      "fetchCompanyId": "Hiba a company_id lekérésekor",
+      "userWithoutCompany": "A felhasználónak nincs company_id-ja",
+      "loadCertificates": "Hiba az igazolások betöltésekor"
+    }
+  }
+,
+  "certificateDownload": {
+    "title": "Orvosi igazolások letöltése",
+    "loading": "Igazolások betöltése...",
+    "stats": {
+      "total": "összes igazolás",
+      "pending": "függőben",
+      "treated": "feldolgozva"
+    },
+    "dateSelection": {
+      "startDateLabel": "Kezdő dátum",
+      "endDateLabel": "Záró dátum",
+      "searchButton": "Keresés",
+      "searching": "Keresés...",
+      "downloadButton": "ZIP letöltése",
+      "preparing": "Előkészítés..."
+    },
+    "table": {
+      "headers": {
+        "employeeName": "Dolgozó neve",
+        "startDate": "Kezdő dátum",
+        "endDate": "Záró dátum",
+        "hrComment": "HR megjegyzés",
+        "status": "Állapot"
+      },
+      "empty": {
+        "title": "Nem találhatók igazolások",
+        "withSearch": "Próbáld meg módosítani a dátumtartományt.",
+        "withoutSearch": "Válassz dátumtartományt, majd kattints a keresésre az orvosi igazolások megtekintéséhez."
+      },
+      "noData": "—"
+    },
+    "errors": {
+      "selectDates": "Kérlek, válaszd ki a kezdő és záró dátumot is.",
+      "fetchFailed": "Nem sikerült lekérni az igazolásokat.",
+      "noDownload": "Nincs letölthető igazolás.",
+      "downloadFailed": "Nem sikerült létrehozni a letöltést."
+    },
+    "alerts": {
+      "noResults": "A kiválasztott dátumokra nem található igazolás."
+    }
+  }
+,
+  "uploadCertificate": {
+    "header": {
+      "title": "Orvosi igazolás feltöltése",
+      "subtitle": "Töltsd fel az orvosi igazolásodat automatikus feldolgozáshoz"
+    },
+    "demo": {
+      "downloadButton": "Hamis igazolás letöltése",
+      "description": "Erősen javasoljuk, hogy a demó során a hamis orvosi igazolásunkat használd. Ha saját fájlt szeretnél feltölteni, kérlek vedd figyelembe, hogy minden adatot minden éjjel 1 órakor automatikusan törlünk a demórendszerből."
+    },
+    "upload": {
+      "fileLabel": "Igazolásfájl kiválasztása",
+      "dropzoneSelected": "Fájl kiválasztva",
+      "dropzoneEmpty": "Kattints ide a fájl kiválasztásához",
+      "dropzoneHelp": "PDF vagy kép • Maximum 1 MB",
+      "uploadButton": "Feltöltés és feldolgozás",
+      "processing": "Feldolgozás..."
+    },
+    "results": {
+      "titleSuccess": "Kinyert igazolás adatai",
+      "titleManual": "Igazolás adatai – Kérlek, töltsd ki a hiányzó információkat",
+      "employeeName": "Dolgozó neve",
+      "startDate": "Kezdő dátum",
+      "endDate": "Záró dátum",
+      "doctorName": "Orvos neve",
+      "comment": "További megjegyzés (opcionális)",
+      "commentPlaceholder": "Adj meg bármilyen további információt vagy megjegyzést...",
+      "employeeNamePlaceholder": "Add meg a dolgozó nevét",
+      "noData": "—"
+    },
+    "buttons": {
+      "confirmSave": "Megerősítés és mentés",
+      "saving": "Mentés...",
+      "cancel": "Mégse",
+      "tryAgain": "Próbáld újra"
+    },
+    "alerts": {
+      "success": "Az igazolás sikeresen mentve!",
+      "processingFailed": "Feldolgozás sikertelen",
+      "processingFailedDesc": "Néhány információt nem sikerült automatikusan felismerni. Kérlek, töltsd ki az alábbi űrlapot a hiányzó adatokkal. A dokumentum automatikusan elküldésre kerül a HR osztályhoz.",
+      "fileTooLarge": "A fájl túl nagy. A maximális méret 1 MB.",
+      "selectFile": "Kérlek, válassz egy fájlt",
+      "cannotSave": "Nem menthető: hiányzó fájl vagy kinyert adatok.",
+      "uploadError": "Ismeretlen hiba történt",
+      "saveError": "Ismeretlen hiba történt mentés közben"
+    }
+  }
 }
