@@ -494,4 +494,143 @@
       "exportTodo": "Export functionality to be implemented"
     }
   }
+,
+
+  "interviewList": {
+    "loading": "Loading...",
+    "noInterviews": "No interviews yet",
+    "stepUnassigned": "Unassigned",
+    "addInterview": "Add Interview",
+    "locationPlaceholder": "Location or link",
+    "loginRequired": "You must be logged in to create an interview.",
+    "createError": "Failed to create interview",
+    "tooltips": {
+      "viewSummary": "View Summary",
+      "startAssistant": "Start Interview Assistant",
+      "cancelInterview": "Cancel Interview"
+    },
+    "cancelModal": {
+      "title": "Cancel Interview?",
+      "description": "Are you sure you want to cancel this interview? The candidate will be notified via email.",
+      "dateLabel": "Date",
+      "locationLabel": "Location",
+      "goBackButton": "Go Back",
+      "confirmButton": "Cancel Interview"
+    },
+    "summaryModal": {
+      "title": "Interview Summary",
+      "noSummary": "No summary available for this interview.",
+      "summaryLabel": "Summary",
+      "strengthsLabel": "Strengths",
+      "weaknessesLabel": "Weaknesses",
+      "culturalFitLabel": "Cultural Fit",
+      "recommendationLabel": "Recommendation",
+      "scoreLabel": "Score",
+      "notesLabel": "Interview Notes",
+      "closeButton": "Close"
+    },
+    "assistantModal": {
+      "title": "AI Interview Assistant",
+      "step1Description": "Generate smart, role-specific interview questions based on the candidate's CV and the job description.",
+      "generateQuestionsButton": "Generate Questions",
+      "generating": "Generating…",
+      "suggestedQuestionsTitle": "Suggested Questions",
+      "notesPlaceholder": "Write your interview notes here...",
+      "generateSummaryButton": "Generate Summary",
+      "analyzing": "Analyzing…",
+      "summaryTitle": "Interview Summary",
+      "summaryLabel": "Summary",
+      "strengthsLabel": "Strengths",
+      "weaknessesLabel": "Weaknesses",
+      "culturalFitLabel": "Cultural Fit",
+      "recommendationLabel": "Recommendation",
+      "scoreLabel": "Score",
+      "closeButton": "Close",
+      "closeInterviewButton": "Close the Interview"
+    }
+  },
+  "interviewAssistant": {
+    "title": "AI Interview Assistant",
+    "step1": {
+      "description": "Generate smart, role-specific interview questions based on the candidate's CV and the job description.",
+      "generateButton": "Generate Questions",
+      "generating": "Generating…"
+    },
+    "questions": {
+      "title": "Suggested Questions",
+      "notesPlaceholder": "Write your interview notes here...",
+      "generateSummaryButton": "Generate Summary",
+      "analyzing": "Analyzing…"
+    },
+    "summary": {
+      "title": "Interview Summary",
+      "summaryLabel": "Summary",
+      "strengthsLabel": "Strengths",
+      "weaknessesLabel": "Weaknesses",
+      "culturalFitLabel": "Cultural Fit",
+      "recommendationLabel": "Recommendation",
+      "scoreLabel": "Score"
+    },
+    "buttons": {
+      "close": "Close"
+    }
+  },
+  "trelloBoard": {
+    "header": {
+      "title": "Recruitment Treatment",
+      "subtitle": "Manage your candidates by dragging cards between steps. Hold Ctrl/Cmd + click to select multiple.",
+      "loading": "Loading board..."
+    },
+    "stats": {
+      "candidates": "candidates",
+      "hidden": "hidden",
+      "selected": "selected"
+    },
+    "buttons": {
+      "hideRejected": "Hide Rejected",
+      "showRejected": "Show Rejected",
+      "selectAll": "All",
+      "selectNone": "None",
+      "close": "Close",
+      "edit": "Edit",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel"
+    },
+    "column": {
+      "unassigned": "Unassigned",
+      "unknown": "Unknown",
+      "dropHere": "Drop candidates here",
+      "rejectedHidden": "Rejected candidates hidden"
+    },
+    "card": {
+      "id": "ID",
+      "viewCV": "CV",
+      "notScored": "Not scored"
+    },
+    "modal": {
+      "candidateInfo": "Candidate Information",
+      "candidateId": "Candidate ID",
+      "email": "Email",
+      "phone": "Phone",
+      "cvFile": "CV File",
+      "viewCV": "View CV",
+      "source": "Source",
+      "notProvided": "Not provided",
+      "notSpecified": "Not specified",
+      "score": "Score",
+      "comment": "Comment",
+      "noComments": "No comments yet",
+      "commentPlaceholder": "Add your comment here...",
+      "aiAnalysis": "AI Analysis",
+      "noAiAnalysis": "No AI analysis available",
+      "nextStep": "Next Step",
+      "interviews": "Interviews"
+    },
+    "errors": {
+      "updateStepError": "Error updating step",
+      "updateCommentError": "Error updating comment",
+      "fetchDataError": "Error fetching data"
+    }
+  }
 }

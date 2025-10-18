@@ -6,10 +6,27 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+// Language mapping for AI prompts
+const languageNames: Record<string, string> = {
+  en: 'English',
+  fr: 'French',
+  hu: 'Hungarian',
+  es: 'Spanish',
+  de: 'German',
+  it: 'Italian',
+  pt: 'Portuguese',
+  nl: 'Dutch',
+  pl: 'Polish',
+  ro: 'Romanian',
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { mode, candidat_id, position_id, interview_id, notes } = body
+    const { mode, candidat_id, position_id, interview_id, notes, locale = 'en' } = body
+
+    // Get the language name for the AI prompt
+    const languageName = languageNames[locale] || 'English'
 
     const { data: candidat, error: candErr } = await supabase
       .from('candidats')
@@ -65,6 +82,8 @@ export async function POST(req: NextRequest) {
       prompt = `
 You are an HR expert preparing a job interview.
 
+IMPORTANT: Generate all content in ${languageName}. All questions must be in ${languageName}.
+
 Candidate: ${candidat.candidat_firstname} ${candidat.candidat_lastname}
 
 CV:
@@ -75,7 +94,8 @@ ${position.position_description_detailed}
 
 Current recruitment step: ${recruitmentStep.step_name}
 
-Generate 6–8 precise, role-specific questions tailored for the "${recruitmentStep.step_name}" stage in JSON:
+Generate 6–8 precise, role-specific questions tailored for the "${recruitmentStep.step_name}" stage.
+Return ONLY valid JSON in this exact format (with all text in ${languageName}):
 {
   "questions": [
     { "category": "technical", "text": "..." },
@@ -87,6 +107,8 @@ Generate 6–8 precise, role-specific questions tailored for the "${recruitmentS
       aiMode = 'summary'
       prompt = `
 You are an HR assistant.
+
+IMPORTANT: Generate all content in ${languageName}. The entire summary, strengths, weaknesses, cultural fit assessment, and recommendations must be in ${languageName}.
 
 Candidate: ${candidat.candidat_firstname} ${candidat.candidat_lastname}
 
@@ -101,14 +123,15 @@ Current recruitment step: ${recruitmentStep.step_name}
 Recruiter notes:
 ${notes}
 
-Generate a structured interview summary for the "${recruitmentStep.step_name}" stage and recommend the next step:
+Generate a structured interview summary for the "${recruitmentStep.step_name}" stage and recommend the next step.
+Return ONLY valid JSON in this exact format (with all text in ${languageName} including the category titles):
 {
-  "summary": string,
-  "strengths": [string],
-  "weaknesses": [string],
-  "cultural_fit": string,
-  "recommendation": string,
-  "next_step_recommendation": string,
+  "summary": "detailed summary in ${languageName}",
+  "strengths": ["strength 1 in ${languageName}", "strength 2 in ${languageName}"],
+  "weaknesses": ["weakness 1 in ${languageName}", "weakness 2 in ${languageName}"],
+  "cultural_fit": "cultural fit assessment in ${languageName}",
+  "recommendation": "recommendation in ${languageName}",
+  "next_step_recommendation": "next step recommendation in ${languageName}",
   "score": number
 }
 `

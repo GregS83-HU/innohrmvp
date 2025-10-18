@@ -489,4 +489,143 @@
       "exportTodo": "Az exportálás funkció hamarosan elérhető lesz"
     }
   }
+,
+  
+  "interviewList": {
+    "loading": "Betöltés...",
+    "noInterviews": "Még nincsenek interjúk",
+    "stepUnassigned": "Nincs hozzárendelve",
+    "addInterview": "Interjú hozzáadása",
+    "locationPlaceholder": "Helyszín vagy hivatkozás",
+    "loginRequired": "Be kell jelentkezned az interjú létrehozásához.",
+    "createError": "Nem sikerült létrehozni az interjút",
+    "tooltips": {
+      "viewSummary": "Összefoglaló megtekintése",
+      "startAssistant": "Interjúasszisztens indítása",
+      "cancelInterview": "Interjú lemondása"
+    },
+    "cancelModal": {
+      "title": "Lemondod az interjút?",
+      "description": "Biztosan le akarod mondani ezt az interjút? A jelölt e-mailben értesítést kap.",
+      "dateLabel": "Dátum",
+      "locationLabel": "Helyszín",
+      "goBackButton": "Vissza",
+      "confirmButton": "Interjú lemondása"
+    },
+    "summaryModal": {
+      "title": "Interjú összefoglaló",
+      "noSummary": "Ehhez az interjúhoz nem áll rendelkezésre összefoglaló.",
+      "summaryLabel": "Összefoglaló",
+      "strengthsLabel": "Erősségek",
+      "weaknessesLabel": "Gyengeségek",
+      "culturalFitLabel": "Kultúrához illeszkedés",
+      "recommendationLabel": "Ajánlás",
+      "scoreLabel": "Pontszám",
+      "notesLabel": "Interjújegyzetek",
+      "closeButton": "Bezárás"
+    },
+    "assistantModal": {
+      "title": "AI interjúasszisztens",
+      "step1Description": "Generálj okos, szerepkör-specifikus interjúkérdéseket a jelölt önéletrajza és a munkaköri leírás alapján.",
+      "generateQuestionsButton": "Kérdések generálása",
+      "generating": "Generálás...",
+      "suggestedQuestionsTitle": "Javasolt kérdések",
+      "notesPlaceholder": "Írd ide az interjú jegyzeteit...",
+      "generateSummaryButton": "Összefoglaló generálása",
+      "analyzing": "Elemzés...",
+      "summaryTitle": "Interjú összefoglaló",
+      "summaryLabel": "Összefoglaló",
+      "strengthsLabel": "Erősségek",
+      "weaknessesLabel": "Gyengeségek",
+      "culturalFitLabel": "Kultúrához illeszkedés",
+      "recommendationLabel": "Ajánlás",
+      "scoreLabel": "Pontszám",
+      "closeButton": "Bezárás",
+      "closeInterviewButton": "Interjú lezárása"
+    }
+  },
+  "interviewAssistant": {
+    "title": "AI interjúasszisztens",
+    "step1": {
+      "description": "Generálj okos, szerepkör-specifikus interjúkérdéseket a jelölt önéletrajza és a munkaköri leírás alapján.",
+      "generateButton": "Kérdések generálása",
+      "generating": "Generálás..."
+    },
+    "questions": {
+      "title": "Javasolt kérdések",
+      "notesPlaceholder": "Írd ide az interjú jegyzeteit...",
+      "generateSummaryButton": "Összefoglaló generálása",
+      "analyzing": "Elemzés..."
+    },
+    "summary": {
+      "title": "Interjú összefoglaló",
+      "summaryLabel": "Összefoglaló",
+      "strengthsLabel": "Erősségek",
+      "weaknessesLabel": "Gyengeségek",
+      "culturalFitLabel": "Kultúrához illeszkedés",
+      "recommendationLabel": "Ajánlás",
+      "scoreLabel": "Pontszám"
+    },
+    "buttons": {
+      "close": "Bezárás"
+    }
+  },
+  "trelloBoard": {
+    "header": {
+      "title": "Toborzási folyamat",
+      "subtitle": "Kezeld a jelölteket a kártyák lépéseken való áthúzásával. Több kijelöléshez tartsd lenyomva a Ctrl/Cmd billentyűt és kattints.",
+      "loading": "Tábla betöltése..."
+    },
+    "stats": {
+      "candidates": "jelöltek",
+      "hidden": "elrejtve",
+      "selected": "kiválasztva"
+    },
+    "buttons": {
+      "hideRejected": "Elutasítottak elrejtése",
+      "showRejected": "Elutasítottak megjelenítése",
+      "selectAll": "Összes",
+      "selectNone": "Nincs kijelölés",
+      "close": "Bezárás",
+      "edit": "Szerkesztés",
+      "save": "Mentés",
+      "saving": "Mentés folyamatban...",
+      "cancel": "Mégse"
+    },
+    "column": {
+      "unassigned": "Nincs hozzárendelve",
+      "unknown": "Ismeretlen",
+      "dropHere": "Húzd ide a jelölteket",
+      "rejectedHidden": "Az elutasított jelöltek elrejtve"
+    },
+    "card": {
+      "id": "Azonosító",
+      "viewCV": "Önéletrajz",
+      "notScored": "Nincs értékelve"
+    },
+    "modal": {
+      "candidateInfo": "Jelölt információk",
+      "candidateId": "Jelölt azonosító",
+      "email": "E-mail",
+      "phone": "Telefon",
+      "cvFile": "Önéletrajz fájl",
+      "viewCV": "Önéletrajz megtekintése",
+      "source": "Forrás",
+      "notProvided": "Nincs megadva",
+      "notSpecified": "Nincs meghatározva",
+      "score": "Pontszám",
+      "comment": "Megjegyzés",
+      "noComments": "Még nincsenek megjegyzések",
+      "commentPlaceholder": "Írd ide a megjegyzésed...",
+      "aiAnalysis": "AI elemzés",
+      "noAiAnalysis": "Nincs elérhető AI elemzés",
+      "nextStep": "Következő lépés",
+      "interviews": "Interjúk"
+    },
+    "errors": {
+      "updateStepError": "Hiba a lépés frissítésekor",
+      "updateCommentError": "Hiba a megjegyzés frissítésekor",
+      "fetchDataError": "Hiba az adatok lekérésekor"
+    }
+  }
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useSession } from '@supabase/auth-helpers-react'
+import { useLocale } from 'i18n/LocaleProvider'
 import { Calendar, MapPin, PlusCircle, Trash, Eye, MessageSquare } from 'lucide-react'
 
 // Define types
@@ -42,6 +43,7 @@ export default function InterviewList({
   candidatId: number
   positionId: number | null
 }) {
+  const { t } = useLocale()
   const session = useSession()
   const [interviews, setInterviews] = useState<Interview[]>([])
   const [loading, setLoading] = useState(false)
@@ -75,7 +77,7 @@ export default function InterviewList({
 
   const createInterview = async () => {
     if (!session?.user?.id) {
-      alert('You must be logged in to create an interview.')
+      alert(t('interviewList.loginRequired'))
       return
     }
 
@@ -104,7 +106,7 @@ export default function InterviewList({
       setLocation('')
     } else {
       console.error('❌ Interview creation error:', result)
-      alert(result.error || 'Failed to create interview')
+      alert(result.error || t('interviewList.createError'))
     }
   }
 
@@ -156,9 +158,9 @@ export default function InterviewList({
 
   return (
     <div className="space-y-3">
-      {loading && <p className="text-gray-500 text-sm">Loading...</p>}
+      {loading && <p className="text-gray-500 text-sm">{t('interviewList.loading')}</p>}
       {!loading && interviews.length === 0 && (
-        <p className="text-gray-500 text-sm italic">No interviews yet</p>
+        <p className="text-gray-500 text-sm italic">{t('interviewList.noInterviews')}</p>
       )}
 
       {interviews.map((intv) => (
@@ -183,7 +185,7 @@ export default function InterviewList({
               
               {/* Step Badge */}
               <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs font-medium rounded-full">
-                {intv.recruitment_steps?.step_name || 'Unassigned'}
+                {intv.recruitment_steps?.step_name || t('interviewList.stepUnassigned')}
               </span>
             </div>
             {intv.location && (
@@ -199,7 +201,7 @@ export default function InterviewList({
               <button
                 onClick={() => handleInterviewAction(intv)}
                 className="text-indigo-600 hover:text-indigo-800 p-1"
-                title="View Summary"
+                title={t('interviewList.tooltips.viewSummary')}
               >
                 <Eye className="w-5 h-5" />
               </button>
@@ -208,7 +210,7 @@ export default function InterviewList({
               <button
                 onClick={() => handleInterviewAction(intv)}
                 className="text-green-600 hover:text-green-800 p-1"
-                title="Start Interview Assistant"
+                title={t('interviewList.tooltips.startAssistant')}
               >
                 <MessageSquare className="w-5 h-5" />
               </button>
@@ -217,7 +219,7 @@ export default function InterviewList({
               <button
                 onClick={() => handleCancelClick(intv)}
                 className="text-red-600 hover:text-red-800 p-1"
-                title="Cancel Interview"
+                title={t('interviewList.tooltips.cancelInterview')}
               >
                 <Trash className="w-4 h-4" />
               </button>
@@ -246,7 +248,7 @@ export default function InterviewList({
           type="text"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
-          placeholder="Location or link"
+          placeholder={t('interviewList.locationPlaceholder')}
           className="border rounded px-2 py-1 text-sm w-full"
         />
         <button
@@ -254,7 +256,7 @@ export default function InterviewList({
           disabled={!newDate || !newTime}
           className="flex items-center gap-2 text-sm text-green-700 hover:text-green-900 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <PlusCircle className="w-4 h-4" /> Add Interview
+          <PlusCircle className="w-4 h-4" /> {t('interviewList.addInterview')}
         </button>
       </div>
 
@@ -299,6 +301,8 @@ function CancelInterviewModal({
   onConfirm: () => void
   onCancel: () => void
 }) {
+  const { t } = useLocale()
+  
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
@@ -306,20 +310,20 @@ function CancelInterviewModal({
           <div className="bg-red-100 rounded-full p-3">
             <Trash className="w-6 h-6 text-red-600" />
           </div>
-          <h2 className="text-xl font-bold text-gray-800">Cancel Interview?</h2>
+          <h2 className="text-xl font-bold text-gray-800">{t('interviewList.cancelModal.title')}</h2>
         </div>
         
         <p className="text-gray-600 mb-4">
-          Are you sure you want to cancel this interview? The candidate will be notified via email.
+          {t('interviewList.cancelModal.description')}
         </p>
         
         <div className="bg-gray-50 p-3 rounded-lg mb-6">
           <p className="text-sm text-gray-700">
-            <strong>Date:</strong> {new Date(interview.interview_datetime).toLocaleString()}
+            <strong>{t('interviewList.cancelModal.dateLabel')}:</strong> {new Date(interview.interview_datetime).toLocaleString()}
           </p>
           {interview.location && (
             <p className="text-sm text-gray-700 mt-1">
-              <strong>Location:</strong> {interview.location}
+              <strong>{t('interviewList.cancelModal.locationLabel')}:</strong> {interview.location}
             </p>
           )}
         </div>
@@ -329,13 +333,13 @@ function CancelInterviewModal({
             onClick={onCancel}
             className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all font-medium"
           >
-            Go Back
+            {t('interviewList.cancelModal.goBackButton')}
           </button>
           <button
             onClick={onConfirm}
             className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-all font-medium"
           >
-            Cancel Interview
+            {t('interviewList.cancelModal.confirmButton')}
           </button>
         </div>
       </div>
@@ -351,20 +355,21 @@ function InterviewSummaryModal({
   interview: Interview
   onClose: () => void 
 }) {
+  const { t } = useLocale()
   const summary = interview.summary
 
   if (!summary) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Interview Summary</h2>
-          <p className="text-gray-600">No summary available for this interview.</p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('interviewList.summaryModal.title')}</h2>
+          <p className="text-gray-600">{t('interviewList.summaryModal.noSummary')}</p>
           <div className="flex justify-end mt-6">
             <button
               onClick={onClose}
               className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-all"
             >
-              Close
+              {t('interviewList.summaryModal.closeButton')}
             </button>
           </div>
         </div>
@@ -375,7 +380,7 @@ function InterviewSummaryModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Interview Summary</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('interviewList.summaryModal.title')}</h2>
         
         <div className="space-y-4 text-gray-800">
           <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
@@ -389,12 +394,12 @@ function InterviewSummaryModal({
           </div>
 
           <div className="bg-indigo-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-indigo-900 mb-2">Summary</h3>
+            <h3 className="font-semibold text-indigo-900 mb-2">{t('interviewList.summaryModal.summaryLabel')}</h3>
             <p className="text-sm">{summary.summary}</p>
           </div>
 
           <div className="bg-green-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-green-900 mb-2">Strengths</h3>
+            <h3 className="font-semibold text-green-900 mb-2">{t('interviewList.summaryModal.strengthsLabel')}</h3>
             <ul className="list-disc pl-5 text-sm space-y-1">
               {summary.strengths?.map((strength: string, i: number) => (
                 <li key={i}>{strength}</li>
@@ -403,7 +408,7 @@ function InterviewSummaryModal({
           </div>
 
           <div className="bg-orange-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-orange-900 mb-2">Weaknesses</h3>
+            <h3 className="font-semibold text-orange-900 mb-2">{t('interviewList.summaryModal.weaknessesLabel')}</h3>
             <ul className="list-disc pl-5 text-sm space-y-1">
               {summary.weaknesses?.map((weakness: string, i: number) => (
                 <li key={i}>{weakness}</li>
@@ -412,23 +417,23 @@ function InterviewSummaryModal({
           </div>
 
           <div className="bg-blue-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-blue-900 mb-2">Cultural Fit</h3>
+            <h3 className="font-semibold text-blue-900 mb-2">{t('interviewList.summaryModal.culturalFitLabel')}</h3>
             <p className="text-sm">{summary.cultural_fit}</p>
           </div>
 
           <div className="bg-purple-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-purple-900 mb-2">Recommendation</h3>
+            <h3 className="font-semibold text-purple-900 mb-2">{t('interviewList.summaryModal.recommendationLabel')}</h3>
             <p className="text-sm">{summary.recommendation}</p>
           </div>
 
           <div className="bg-yellow-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-yellow-900 mb-2">Score</h3>
+            <h3 className="font-semibold text-yellow-900 mb-2">{t('interviewList.summaryModal.scoreLabel')}</h3>
             <p className="text-2xl font-bold">{summary.score}/10</p>
           </div>
 
           {interview.notes && (
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-semibold text-gray-900 mb-2">Interview Notes</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">{t('interviewList.summaryModal.notesLabel')}</h3>
               <p className="text-sm whitespace-pre-wrap">{interview.notes}</p>
             </div>
           )}
@@ -439,7 +444,7 @@ function InterviewSummaryModal({
             onClick={onClose}
             className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-all"
           >
-            Close
+            {t('interviewList.summaryModal.closeButton')}
           </button>
         </div>
       </div>
@@ -459,6 +464,7 @@ function InterviewAssistantModal({
   interviewId: number
   onClose: () => void
 }) {
+  const { t, locale } = useLocale()
   const [interviewQuestions, setInterviewQuestions] = useState<Question[] | null>(null)
   const [interviewNotes, setInterviewNotes] = useState('')
   const [interviewSummary, setInterviewSummary] = useState<InterviewSummary | null>(null)
@@ -477,6 +483,7 @@ function InterviewAssistantModal({
           candidat_id: candidatId,
           position_id: positionId,
           interview_id: interviewId,
+          locale, // Pass current locale
         }),
       })
       const data = await res.json()
@@ -501,6 +508,7 @@ function InterviewAssistantModal({
           position_id: positionId,
           interview_id: interviewId,
           notes: interviewNotes,
+          locale, // Pass current locale
         }),
       })
       const data = await res.json()
@@ -534,20 +542,20 @@ function InterviewAssistantModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full relative p-6 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">AI Interview Assistant</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('interviewList.assistantModal.title')}</h2>
 
         {/* Step 1: Questions */}
         {!interviewQuestions && step === 'questions' && (
           <div className="space-y-4">
             <p className="text-gray-600">
-              Generate smart, role-specific interview questions based on the candidate&apos;s CV and the job description.
+              {t('interviewList.assistantModal.step1Description')}
             </p>
             <button
               onClick={handleGenerateQuestions}
               disabled={isLoading}
               className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-all disabled:opacity-50"
             >
-              {isLoading ? 'Generating…' : 'Generate Questions'}
+              {isLoading ? t('interviewList.assistantModal.generating') : t('interviewList.assistantModal.generateQuestionsButton')}
             </button>
           </div>
         )}
@@ -555,7 +563,7 @@ function InterviewAssistantModal({
         {/* Show questions */}
         {interviewQuestions && (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-indigo-800">Suggested Questions</h3>
+            <h3 className="text-lg font-semibold text-indigo-800">{t('interviewList.assistantModal.suggestedQuestionsTitle')}</h3>
             <ul className="list-disc pl-6 text-gray-700 space-y-1">
               {interviewQuestions.map((q: Question, i: number) => (
                 <li key={i}>
@@ -567,7 +575,7 @@ function InterviewAssistantModal({
             <textarea
               value={interviewNotes}
               onChange={(e) => setInterviewNotes(e.target.value)}
-              placeholder="Write your interview notes here..."
+              placeholder={t('interviewList.assistantModal.notesPlaceholder')}
               className="w-full border rounded-lg p-3 text-sm mt-4 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               rows={6}
             ></textarea>
@@ -577,7 +585,7 @@ function InterviewAssistantModal({
               disabled={isLoading || !interviewNotes}
               className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-all disabled:opacity-50"
             >
-              {isLoading ? 'Analyzing…' : 'Generate Summary'}
+              {isLoading ? t('interviewList.assistantModal.analyzing') : t('interviewList.assistantModal.generateSummaryButton')}
             </button>
           </div>
         )}
@@ -585,30 +593,30 @@ function InterviewAssistantModal({
         {/* Show summary */}
         {interviewSummary && (
           <div className="mt-6 space-y-3">
-            <h3 className="text-lg font-semibold text-green-800">Interview Summary</h3>
+            <h3 className="text-lg font-semibold text-green-800">{t('interviewList.assistantModal.summaryTitle')}</h3>
             
             <div className="bg-indigo-50 p-3 rounded-lg">
-              <p className="text-sm"><strong>Summary:</strong> {interviewSummary.summary}</p>
+              <p className="text-sm"><strong>{t('interviewList.assistantModal.summaryLabel')}:</strong> {interviewSummary.summary}</p>
             </div>
             
             <div className="bg-green-50 p-3 rounded-lg">
-              <p className="text-sm"><strong>Strengths:</strong> {interviewSummary.strengths?.join(', ')}</p>
+              <p className="text-sm"><strong>{t('interviewList.assistantModal.strengthsLabel')}:</strong> {interviewSummary.strengths?.join(', ')}</p>
             </div>
             
             <div className="bg-orange-50 p-3 rounded-lg">
-              <p className="text-sm"><strong>Weaknesses:</strong> {interviewSummary.weaknesses?.join(', ')}</p>
+              <p className="text-sm"><strong>{t('interviewList.assistantModal.weaknessesLabel')}:</strong> {interviewSummary.weaknesses?.join(', ')}</p>
             </div>
             
             <div className="bg-blue-50 p-3 rounded-lg">
-              <p className="text-sm"><strong>Cultural Fit:</strong> {interviewSummary.cultural_fit}</p>
+              <p className="text-sm"><strong>{t('interviewList.assistantModal.culturalFitLabel')}:</strong> {interviewSummary.cultural_fit}</p>
             </div>
             
             <div className="bg-purple-50 p-3 rounded-lg">
-              <p className="text-sm"><strong>Recommendation:</strong> {interviewSummary.recommendation}</p>
+              <p className="text-sm"><strong>{t('interviewList.assistantModal.recommendationLabel')}:</strong> {interviewSummary.recommendation}</p>
             </div>
             
             <div className="bg-yellow-50 p-3 rounded-lg">
-              <p className="text-sm"><strong>Score:</strong> <span className="text-lg font-bold">{interviewSummary.score}/10</span></p>
+              <p className="text-sm"><strong>{t('interviewList.assistantModal.scoreLabel')}:</strong> <span className="text-lg font-bold">{interviewSummary.score}/10</span></p>
             </div>
           </div>
         )}
@@ -618,7 +626,7 @@ function InterviewAssistantModal({
             onClick={handleClose}
             className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-all"
           >
-            {interviewSummary ? 'Close the Interview' : 'Close'}
+            {interviewSummary ? t('interviewList.assistantModal.closeInterviewButton') : t('interviewList.assistantModal.closeButton')}
           </button>
         </div>
       </div>

@@ -1,10 +1,12 @@
 'use client'
 
 import React, { useEffect, useState, useRef } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
-import InterviewList from '../../../../../components/InterviewList'
+import { useSearchParams,useRouter } from 'next/navigation'
+import InterviewList from '../../../../../components/InterviewList' 
+
+
+
 import { useSession } from '@supabase/auth-helpers-react'
-import { useLocale } from 'i18n/LocaleProvider'
 import {
   DndContext,
   DragEndEvent,
@@ -60,7 +62,6 @@ function Card({
   isSelected: boolean
   onToggleSelection: (candidateId: number, event: React.MouseEvent) => void
 }) {
-  const { t } = useLocale()
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: row.candidat_id.toString(),
   })
@@ -71,6 +72,7 @@ function Card({
     opacity: isDragging ? 0.5 : 1,
   }
 
+  // Get color based on score
   const getScoreColor = (score: number | null) => {
     if (score === null || score === undefined) return { bg: 'bg-gray-100', text: 'text-gray-700', border: 'border-gray-200' }
     if (score >= 8) return { bg: 'bg-green-50', text: 'text-green-800', border: 'border-green-200' }
@@ -87,6 +89,7 @@ function Card({
 
   const scoreColors = getScoreColor(row.candidat_score)
 
+  // Modify styling for selected cards
   const cardClasses = `
     ${scoreColors.bg} rounded-lg shadow-sm border 
     ${isSelected 
@@ -105,6 +108,7 @@ function Card({
       onClick={(e) => {
         e.stopPropagation()
         if (!isDragging) {
+          // Check if Ctrl (Windows) or Cmd (Mac) is pressed
           if (e.ctrlKey || e.metaKey) {
             onToggleSelection(row.candidat_id, e)
           } else {
@@ -114,6 +118,7 @@ function Card({
       }}
       className={cardClasses}
     >
+      {/* Selection indicator */}
       {isSelected && (
         <div className="absolute top-2 right-2 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
           <Check className="w-3 h-3 text-white" />
@@ -125,7 +130,7 @@ function Card({
           <p className={`font-medium ${isSelected ? 'text-blue-800' : scoreColors.text} text-sm leading-tight`}>
             {row.candidats?.candidat_firstname ?? '—'} {row.candidats?.candidat_lastname ?? ''}
           </p>
-          <p className="text-xs text-gray-500">{t('trelloBoard.card.id')}: {row.candidat_id}</p>
+          <p className="text-xs text-gray-500">ID: {row.candidat_id}</p>
         </div>
         {row.candidat_score !== null && (
           <span className={`${getScoreBadgeColor(row.candidat_score)} text-xs px-2 py-1 rounded-full font-medium ${isSelected ? 'ml-6' : ''}`}>
@@ -134,6 +139,7 @@ function Card({
         )}
       </div>
 
+      {/* Candidate email & phone */}
       <div className="space-y-1 mb-2">
         {row.candidats?.candidat_email && (
           <a
@@ -174,14 +180,16 @@ function Card({
             onClick={(e) => e.stopPropagation()}
           >
             <FileText className="w-3 h-3" />
-            <span>{t('trelloBoard.card.viewCV')}</span>
+            <span>CV</span>
           </a>
         )}
       </div>
+
     </div>
   )
 }
 
+// Droppable column with useDroppable hook
 function Column({ 
   columnId, 
   columnName, 
@@ -205,7 +213,6 @@ function Column({
   onSelectAll: (columnId: string) => void
   onDeselectAll: (columnId: string) => void
 }) {
-  const { t } = useLocale()
   const { isOver, setNodeRef } = useDroppable({
     id: columnId,
   })
@@ -215,11 +222,15 @@ function Column({
   const badgeBg = isRejected ? "bg-red-200 text-red-700" : "bg-gray-200 text-gray-600"
   const titleColor = isRejected ? "text-red-700" : "text-gray-700"
 
+  // Filter out rejected candidates if showRejected is false
   const displayRows = isRejectedColumn && !showRejected ? [] : rows
   const actualCount = rows.length
 
+  // Count selected candidates in this column
   const selectedInColumn = displayRows.filter(row => selectedCandidates.has(row.candidat_id)).length
   const allSelected = displayRows.length > 0 && selectedInColumn === displayRows.length
+  const someSelected = selectedInColumn > 0 && selectedInColumn < displayRows.length
+
 
   return (
     <div
@@ -238,12 +249,13 @@ function Column({
           </span>
           {selectedInColumn > 0 && (
             <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-              {selectedInColumn} {t('trelloBoard.stats.selected')}
+              {selectedInColumn} selected
             </span>
           )}
         </div>
       </div>
 
+      {/* Column selection controls */}
       {displayRows.length > 0 && (
         <div className="flex gap-1 mb-2">
           <button
@@ -251,14 +263,14 @@ function Column({
             className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
             disabled={allSelected}
           >
-            {t('trelloBoard.buttons.selectAll')}
+            All
           </button>
           <button
             onClick={() => onDeselectAll(columnId)}
             className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200 transition-colors"
             disabled={selectedInColumn === 0}
           >
-            {t('trelloBoard.buttons.selectNone')}
+            None
           </button>
         </div>
       )}
@@ -279,9 +291,9 @@ function Column({
         {displayRows.length === 0 && (
           <div className="flex items-center justify-center h-32 border-2 border-dashed border-gray-300 rounded-lg">
             {isRejectedColumn && !showRejected ? (
-              <p className="text-gray-500 text-sm italic">{t('trelloBoard.column.rejectedHidden')}</p>
+              <p className="text-gray-500 text-sm italic">Rejected candidates hidden</p>
             ) : (
-              <p className="text-gray-500 text-sm italic">{t('trelloBoard.column.dropHere')}</p>
+              <p className="text-gray-500 text-sm italic">Drop candidates here</p>
             )}
           </div>
         )}
@@ -291,7 +303,6 @@ function Column({
 }
 
 export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
-  const { t } = useLocale()
   const session = useSession()
   const [steps, setSteps] = useState<RecruitmentStep[]>([])
   const [rows, setRows] = useState<Row[]>([])
@@ -302,35 +313,47 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
   const [isDragging, setIsDragging] = useState(false)
   const [autoScrollInterval, setAutoScrollInterval] = useState<NodeJS.Timeout | null>(null)
   const [currentMousePosition, setCurrentMousePosition] = useState({ x: 0, y: 0 })
+  
+  // New state for show/hide rejected candidates
   const [showRejected, setShowRejected] = useState(false)
+  
+  // New states for comment editing
   const [isEditingComment, setIsEditingComment] = useState(false)
   const [editedComment, setEditedComment] = useState('')
   const [isSavingComment, setIsSavingComment] = useState(false)
+
+  // NEW: Multi-selection state
   const [selectedCandidates, setSelectedCandidates] = useState<Set<number>>(new Set())
   const [draggingMultiple, setDraggingMultiple] = useState<Row[]>([])
 
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const [positionId, setPositionId] = useState<number | null>(null)
+  //Get the position ID from the URL
+ 
 
-  useEffect(() => {
-    const id = Number(searchParams.get('positionId'))
-    if (!isNaN(id)) {
-      setPositionId(id)
-    } else {
-      setPositionId(null)
-    }
-  }, [searchParams])
+const searchParams = useSearchParams()
+const router = useRouter()
+const [positionId, setPositionId] = useState<number | null>(null)
 
-  useEffect(() => {
-    router.refresh()
-  }, [searchParams])
+useEffect(() => {
+  const id = Number(searchParams.get('positionId'))
+  if (!isNaN(id)) {
+    setPositionId(id)
+  } else {
+    setPositionId(null)
+  }
+}, [searchParams]) // <-- makes it reactive
+
+// optional but can help if your routing is slow to reflect params
+useEffect(() => {
+  router.refresh()
+}, [searchParams])
+
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } })
   )
 
+  // Auto-scroll functionality for smooth column transitions
   const handleAutoScroll = (clientX: number) => {
     if (!scrollContainer || !isDragging) return
 
@@ -401,6 +424,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
         const stepsData = await resSteps.json()
         setSteps(stepsData)
 
+        // Normalize next_step values so that 0, '0', 'NULL', null, undefined all become null
         const normalizedRows = initialRows.map(r => {
           const raw = r.candidat_next_step
           const rawStr = raw === null || raw === undefined ? '' : String(raw).trim().toLowerCase()
@@ -413,14 +437,15 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
         
         setRows(normalizedRows)
       } catch (err) {
-        console.error(t('trelloBoard.errors.fetchDataError'), err)
+        console.error('Error fetching data:', err)
       } finally {
         setLoading(false)
       }
     }
     fetchData()
-  }, [session, initialRows, t])
+  }, [session, initialRows])
 
+  // NEW: Multi-selection handlers
   const handleToggleSelection = (candidateId: number, event: React.MouseEvent) => {
     event.stopPropagation()
     setSelectedCandidates(prev => {
@@ -433,6 +458,8 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
       return newSelection
     })
   }
+
+  
 
   const handleSelectAllInColumn = (columnId: string) => {
     const columnRows = columnId === 'unassigned' 
@@ -462,9 +489,11 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     setSelectedCandidates(new Set())
   }
 
+  // NEW: Handle batch step changes for multiple candidates
   const handleBatchStepChange = async (candidateIds: number[], step_id: string | null) => {
     const originalRows = [...rows]
     
+    // Optimistically update UI for all selected candidates
     setRows(prev =>
       prev.map(r => candidateIds.includes(r.candidat_id) ? { 
         ...r, 
@@ -473,6 +502,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     )
 
     try {
+      // Make API calls for each candidate (you might want to create a batch API endpoint)
       await Promise.all(candidateIds.map(candidateId => 
         fetch('/api/update-next-step', {
           method: 'POST',
@@ -484,11 +514,12 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
         })
       ))
 
+      // Clear selections after successful batch update
       setSelectedCandidates(new Set())
     } catch (err) {
-      console.error(t('trelloBoard.errors.updateStepError'), err)
+      console.error('Error updating steps:', err)
       setRows(originalRows)
-      alert(t('trelloBoard.errors.updateStepError'))
+      alert("Erreur lors de la mise à jour des étapes")
     }
   }
 
@@ -514,12 +545,13 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
 
       if (!response.ok) throw new Error('Failed to update step')
     } catch (err) {
-      console.error(t('trelloBoard.errors.updateStepError'), err)
+      console.error('Error updating step:', err)
       setRows(originalRows)
-      alert(t('trelloBoard.errors.updateStepError'))
+      alert("Erreur lors de la mise à jour de l'étape")
     }
   }
 
+  // Comment update handler (unchanged)
   const handleCommentUpdate = async () => {
     if (!selectedCandidate) return
     
@@ -552,10 +584,10 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
       
       setIsEditingComment(false)
     } catch (err) {
-      console.error(t('trelloBoard.errors.updateCommentError'), err)
+      console.error('Error updating comment:', err)
       setRows(originalRows)
       setSelectedCandidate(originalRows.find(r => r.candidat_id === selectedCandidate.candidat_id) || null)
-      alert(t('trelloBoard.errors.updateCommentError'))
+      alert("Erreur lors de la mise à jour du commentaire")
     } finally {
       setIsSavingComment(false)
     }
@@ -566,11 +598,14 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     const draggedCandidateId = Number(active.id)
     const row = rows.find(r => r.candidat_id === draggedCandidateId) || null
     
+    // NEW: Check if dragging a selected candidate or multiple candidates
     if (selectedCandidates.has(draggedCandidateId) && selectedCandidates.size > 1) {
+      // Multi-drag: get all selected rows
       const selectedRows = rows.filter(r => selectedCandidates.has(r.candidat_id))
       setDraggingMultiple(selectedRows)
-      setDraggingRow(row)
+      setDraggingRow(row) // Keep the main dragged row for overlay
     } else {
+      // Single drag: clear selections and drag only this card
       setSelectedCandidates(new Set())
       setDraggingMultiple([])
       setDraggingRow(row)
@@ -587,7 +622,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
   }
 
   const findColumnForElement = (elementId: string): string | null => {
-    const columns = [{ step_id: 'unassigned', step_name: t('trelloBoard.column.unassigned') }, ...steps]
+    const columns = [{ step_id: 'unassigned', step_name: 'Unassigned' }, ...steps]
     if (columns.some(col => col.step_id === elementId)) return elementId
 
     const candidateId = Number(elementId)
@@ -618,13 +653,17 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     const newStepId: string | null = targetColumnId === 'unassigned' ? null : targetColumnId
     
     if (multiDragActive) {
+      // NEW: Handle multiple candidates drag
       const candidateIds = draggingMultiple.map(r => r.candidat_id)
+      
+      // Check if any candidate needs to be moved
       const needsUpdate = draggingMultiple.some(row => row.candidat_next_step !== newStepId)
       
       if (needsUpdate) {
         handleBatchStepChange(candidateIds, newStepId)
       }
     } else {
+      // Handle single candidate drag
       const activeId = Number(active.id)
       const currentRow = rows.find(r => r.candidat_id === activeId)
       if (!currentRow) return
@@ -647,13 +686,14 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
   }
 
   const getStepName = (stepId: string | null) => {
-    if (!stepId || stepId === '0') return t('trelloBoard.column.unassigned')
+    if (!stepId || stepId === '0') return 'Unassigned'
     const stepIdStr = String(stepId)
     const foundStep = steps.find(s => String(s.step_id) === stepIdStr)
-    return foundStep?.step_name ?? t('trelloBoard.column.unknown')
+    return foundStep?.step_name ?? 'Unknown'
   }
 
   const handleCandidateClick = (row: Row) => {
+    // Clear selections when opening modal to avoid confusion
     setSelectedCandidates(new Set())
     setSelectedCandidate(row)
     setEditedComment(row.candidat_comment || '')
@@ -665,6 +705,8 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
     setIsEditingComment(false)
     setEditedComment('')
   }
+
+
 
   const startEditingComment = () => {
     setIsEditingComment(true)
@@ -688,13 +730,15 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">{t('trelloBoard.header.loading')}</p>
+          <p className="text-gray-600 text-lg">Loading board...</p>
         </div>
       </div>
     )
   }
 
-  const columns = [{ step_id: 'unassigned', step_name: t('trelloBoard.column.unassigned') }, ...steps]
+  const columns = [{ step_id: 'unassigned', step_name: 'Unassigned' }, ...steps]
+
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -706,8 +750,8 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
               <div className="flex items-center gap-4">
                 <Workflow className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600 flex-shrink-0" />
                 <div className="text-center">
-                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">{t('trelloBoard.header.title')}</h1>
-                  <p className="text-xs sm:text-sm text-gray-600 mt-1">{t('trelloBoard.header.subtitle')}</p>
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">Recruitment Treatment</h1>
+                  <p className="text-xs sm:text-sm text-gray-600 mt-1">Manage your candidates by dragging cards between steps. Hold Ctrl/Cmd + click to select multiple.</p>
                 </div>
               </div>
 
@@ -716,17 +760,17 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                 <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full">
                   <Users className="w-5 h-5" />
                   <span className="font-semibold text-lg">{showRejected ? rows.length : nonRejectedCandidatesCount}</span>
-                  <span>{t('trelloBoard.stats.candidates')}</span>
+                  <span>candidates</span>
                   {!showRejected && rejectedCandidatesCount > 0 && (
-                    <span className="text-blue-100 text-sm">({rejectedCandidatesCount} {t('trelloBoard.stats.hidden')})</span>
+                    <span className="text-blue-100 text-sm">({rejectedCandidatesCount} hidden)</span>
                   )}
                 </div>
 
-                {/* Selection info and clear button */}
+                {/* NEW: Selection info and clear button */}
                 {selectedCandidates.size > 0 && (
                   <div className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-full">
                     <Check className="w-4 h-4" />
-                    <span className="font-medium">{selectedCandidates.size} {t('trelloBoard.stats.selected')}</span>
+                    <span className="font-medium">{selectedCandidates.size} selected</span>
                     <button
                       onClick={clearAllSelections}
                       className="ml-2 text-blue-200 hover:text-white transition-colors"
@@ -746,12 +790,12 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                     {showRejected ? (
                       <>
                         <EyeOff className="w-4 h-4" />
-                        <span>{t('trelloBoard.buttons.hideRejected')}</span>
+                        <span>Hide Rejected</span>
                       </>
                     ) : (
                       <>
                         <Eye className="w-4 h-4" />
-                        <span>{t('trelloBoard.buttons.showRejected')}</span>
+                        <span>Show Rejected</span>
                       </>
                     )}
                   </button>
@@ -811,12 +855,13 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                   <p className="font-medium text-gray-800 text-sm">
                     {draggingRow.candidats?.candidat_firstname} #{draggingRow.candidat_id}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">{t('trelloBoard.modal.score')}: {draggingRow.candidat_score ?? '—'}</p>
+                  <p className="text-xs text-gray-500 mt-1">Score: {draggingRow.candidat_score ?? '—'}</p>
                 </div>
                 
-                {/* Multi-drag indicator */}
+                {/* NEW: Multi-drag indicator */}
                 {draggingMultiple.length > 1 && (
                   <>
+                    {/* Shadow cards to show multiple items being dragged */}
                     <div className="absolute top-1 left-1 bg-blue-100 rounded-lg shadow-md border border-blue-200 p-3 w-72 transform rotate-2 -z-10">
                       <div className="h-4 bg-blue-200 rounded mb-2"></div>
                       <div className="h-3 bg-blue-150 rounded"></div>
@@ -838,7 +883,6 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
         </DndContext>
       </div>
 
-      {/* Candidate Modal */}
       {selectedCandidate && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full relative max-h-[90vh] overflow-y-auto">
@@ -854,7 +898,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                       {selectedCandidate.candidats?.candidat_firstname ?? '—'}{' '}
                       {selectedCandidate.candidats?.candidat_lastname ?? ''}
                     </h2>
-                    <p className="text-sm text-gray-500 font-medium">{t('trelloBoard.modal.candidateId')}: {selectedCandidate.candidat_id}</p>
+                    <p className="text-sm text-gray-500 font-medium">Candidate ID: {selectedCandidate.candidat_id}</p>
                   </div>
                 </div>
                 
@@ -865,7 +909,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                       <Mail className="w-4 h-4 text-blue-600" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{t('trelloBoard.modal.email')}</p>
+                      <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Email</p>
                       {selectedCandidate.candidats?.candidat_email ? (
                         <a
                           href={`mailto:${selectedCandidate.candidats.candidat_email}`}
@@ -874,7 +918,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                           {selectedCandidate.candidats.candidat_email}
                         </a>
                       ) : (
-                        <span className="text-gray-400 italic">{t('trelloBoard.modal.notProvided')}</span>
+                        <span className="text-gray-400 italic">Not provided</span>
                       )}
                     </div>
                   </div>
@@ -885,7 +929,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                       <Phone className="w-4 h-4 text-green-600" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{t('trelloBoard.modal.phone')}</p>
+                      <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Phone</p>
                       {selectedCandidate.candidats?.candidat_phone ? (
                         <a
                           href={`tel:${selectedCandidate.candidats.candidat_phone}`}
@@ -894,7 +938,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                           {selectedCandidate.candidats.candidat_phone}
                         </a>
                       ) : (
-                        <span className="text-gray-400 italic">{t('trelloBoard.modal.notProvided')}</span>
+                        <span className="text-gray-400 italic">Not provided</span>
                       )}
                     </div>
                   </div>
@@ -906,14 +950,14 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                         <FileText className="w-4 h-4 text-purple-600" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{t('trelloBoard.modal.cvFile')}</p>
+                        <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">CV File</p>
                         <a
                           href={selectedCandidate.candidats.cv_file}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-purple-600 hover:text-purple-800 hover:underline transition-colors font-medium"
                         >
-                          {t('trelloBoard.modal.viewCV')}
+                          View CV
                         </a>
                       </div>
                     </div>
@@ -925,8 +969,8 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                       <FileText className="w-4 h-4 text-gray-600" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{t('trelloBoard.modal.source')}</p>
-                      <p className="text-gray-800 font-medium">{selectedCandidate.source ?? t('trelloBoard.modal.notSpecified')}</p>
+                      <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Source</p>
+                      <p className="text-gray-800 font-medium">{selectedCandidate.source ?? 'Not specified'}</p>
                     </div>
                   </div>
                 </div>
@@ -934,21 +978,21 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
               
               <div className="space-y-4">
                 <div className="bg-blue-50 p-4 rounded-lg">
-                  <h3 className="text-sm font-semibold text-blue-800 mb-2">{t('trelloBoard.modal.score')}</h3>
-                  <p className="text-2xl font-bold text-blue-900">{selectedCandidate.candidat_score ?? t('trelloBoard.card.notScored')}</p>
+                  <h3 className="text-sm font-semibold text-blue-800 mb-2">Score</h3>
+                  <p className="text-2xl font-bold text-blue-900">{selectedCandidate.candidat_score ?? 'Not scored'}</p>
                 </div>
                 
                 {/* Enhanced Comment Section with Edit Functionality */}
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-semibold text-gray-700">{t('trelloBoard.modal.comment')}</h3>
+                    <h3 className="text-sm font-semibold text-gray-700">Comment</h3>
                     {!isEditingComment && (
                       <button
                         onClick={startEditingComment}
                         className="flex items-center gap-1 text-gray-600 hover:text-gray-800 transition-colors"
                       >
                         <Edit3 className="w-4 h-4" />
-                        <span className="text-xs">{t('trelloBoard.buttons.edit')}</span>
+                        <span className="text-xs">Edit</span>
                       </button>
                     )}
                   </div>
@@ -960,7 +1004,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                         onChange={(e) => setEditedComment(e.target.value)}
                         className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         rows={4}
-                        placeholder={t('trelloBoard.modal.commentPlaceholder')}
+                        placeholder="Add your comment here..."
                       />
                       <div className="flex gap-2">
                         <button
@@ -969,7 +1013,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                           className="flex items-center gap-1 bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
                         >
                           <Save className="w-4 h-4" />
-                          {isSavingComment ? t('trelloBoard.buttons.saving') : t('trelloBoard.buttons.save')}
+                          {isSavingComment ? 'Saving...' : 'Save'}
                         </button>
                         <button
                           onClick={cancelEditingComment}
@@ -977,29 +1021,31 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                           className="flex items-center gap-1 bg-gray-500 text-white px-3 py-2 rounded-lg hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
                         >
                           <XCircle className="w-4 h-4" />
-                          {t('trelloBoard.buttons.cancel')}
+                          Cancel
                         </button>
                       </div>
                     </div>
                   ) : (
-                    <p className="text-gray-800 whitespace-pre-wrap">{selectedCandidate.candidat_comment || t('trelloBoard.modal.noComments')}</p>
+                    <p className="text-gray-800 whitespace-pre-wrap">{selectedCandidate.candidat_comment || 'No comments yet'}</p>
                   )}
                 </div>
                 
                 <div className="bg-blue-50 p-4 rounded-lg">
-                  <h3 className="text-sm font-semibold text-blue-800 mb-2">{t('trelloBoard.modal.aiAnalysis')}</h3>
-                  <p className="text-gray-800 whitespace-pre-wrap">{selectedCandidate.candidat_ai_analyse ?? t('trelloBoard.modal.noAiAnalysis')}</p>
+                  <h3 className="text-sm font-semibold text-blue-800 mb-2">AI Analysis</h3>
+                  <p className="text-gray-800 whitespace-pre-wrap">{selectedCandidate.candidat_ai_analyse ?? 'No AI analysis available'}</p>
                 </div>
                 
                 <div className="bg-orange-50 p-4 rounded-lg">
-                  <h3 className="text-sm font-semibold text-orange-800 mb-2">{t('trelloBoard.modal.nextStep')}</h3>
+                  <h3 className="text-sm font-semibold text-orange-800 mb-2">Next Step</h3>
                   <p className="text-gray-800">{getStepName(selectedCandidate.candidat_next_step)}</p>
                 </div>
               </div>
 
               {/* INTERVIEW MANAGEMENT */}
               <div className="bg-green-50 p-4 rounded-lg mt-4">
-                <h3 className="text-sm font-semibold text-green-800 mb-3">{t('trelloBoard.modal.interviews')}</h3>
+                <h3 className="text-sm font-semibold text-green-800 mb-3">Interviews</h3>
+
+                {/* List scheduled interviews */}
                 <InterviewList candidatId={selectedCandidate.candidat_id} positionId={positionId} />
               </div>
 
@@ -1009,7 +1055,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
                   className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                   onClick={handleCloseModal}
                 >
-                  {t('trelloBoard.buttons.close')}
+                  Close
                 </button>
               </div>
             </div>
@@ -1017,13 +1063,14 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
         </div>
       )}
 
-      {/* Scrollbar styling */}
+      {/* Small stylesheet to improve scrollbar appearance */}
       <style>{`
         #scroll-container::-webkit-scrollbar { height: 10px; }
         #scroll-container::-webkit-scrollbar-thumb { background: rgba(156,163,175,0.6); border-radius: 6px; }
         #scroll-container::-webkit-scrollbar-track { background: rgba(229,231,235,0.4); }
         #scroll-container { scrollbar-gutter: stable; }
         
+        /* Animation for selected cards */
         .animate-pulse-blue {
           animation: pulse-blue 2s infinite;
         }

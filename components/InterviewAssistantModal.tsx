@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useLocale } from 'i18n/LocaleProvider'
 
 type InterviewQuestion = {
   category: string
@@ -25,6 +26,7 @@ export default function InterviewAssistantModal({
   positionId: number | null
   onClose: () => void
 }) {
+  const { t } = useLocale()
   const [interviewQuestions, setInterviewQuestions] = useState<InterviewQuestion[] | null>(null)
   const [interviewNotes, setInterviewNotes] = useState('')
   const [interviewSummary, setInterviewSummary] = useState<InterviewSummary | null>(null)
@@ -80,20 +82,20 @@ export default function InterviewAssistantModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full relative p-6 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">AI Interview Assistant</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('interviewAssistant.title')}</h2>
 
         {/* Step 1: Questions */}
         {!interviewQuestions && step === 'questions' && (
           <div className="space-y-4">
             <p className="text-gray-600">
-              Generate smart, role-specific interview questions based on the candidate’s CV and the job description.
+              {t('interviewAssistant.step1.description')}
             </p>
             <button
               onClick={handleGenerateQuestions}
               disabled={isLoading}
               className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-all"
             >
-              {isLoading ? 'Generating…' : 'Generate Questions'}
+              {isLoading ? t('interviewAssistant.step1.generating') : t('interviewAssistant.step1.generateButton')}
             </button>
           </div>
         )}
@@ -101,7 +103,7 @@ export default function InterviewAssistantModal({
         {/* Show questions */}
         {interviewQuestions && (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-indigo-800">Suggested Questions</h3>
+            <h3 className="text-lg font-semibold text-indigo-800">{t('interviewAssistant.questions.title')}</h3>
             <ul className="list-disc pl-6 text-gray-700 space-y-1">
               {interviewQuestions.map((q: InterviewQuestion, i: number) => (
                 <li key={i}>
@@ -113,7 +115,7 @@ export default function InterviewAssistantModal({
             <textarea
               value={interviewNotes}
               onChange={(e) => setInterviewNotes(e.target.value)}
-              placeholder="Write your interview notes here..."
+              placeholder={t('interviewAssistant.questions.notesPlaceholder')}
               className="w-full border rounded-lg p-3 text-sm mt-4 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               rows={4}
             />
@@ -123,7 +125,7 @@ export default function InterviewAssistantModal({
               disabled={isLoading || !interviewNotes}
               className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-all"
             >
-              {isLoading ? 'Analyzing…' : 'Generate Summary'}
+              {isLoading ? t('interviewAssistant.questions.analyzing') : t('interviewAssistant.questions.generateSummaryButton')}
             </button>
           </div>
         )}
@@ -131,13 +133,13 @@ export default function InterviewAssistantModal({
         {/* Show summary */}
         {interviewSummary && (
           <div className="mt-6 space-y-2 text-gray-800 text-sm">
-            <h3 className="text-lg font-semibold text-green-800">Interview Summary</h3>
-            <p><strong>Summary:</strong> {interviewSummary.summary}</p>
-            <p><strong>Strengths:</strong> {interviewSummary.strengths?.join(', ')}</p>
-            <p><strong>Weaknesses:</strong> {interviewSummary.weaknesses?.join(', ')}</p>
-            <p><strong>Cultural Fit:</strong> {interviewSummary.cultural_fit}</p>
-            <p><strong>Recommendation:</strong> {interviewSummary.recommendation}</p>
-            <p><strong>Score:</strong> {interviewSummary.score}/10</p>
+            <h3 className="text-lg font-semibold text-green-800">{t('interviewAssistant.summary.title')}</h3>
+            <p><strong>{t('interviewAssistant.summary.summaryLabel')}:</strong> {interviewSummary.summary}</p>
+            <p><strong>{t('interviewAssistant.summary.strengthsLabel')}:</strong> {interviewSummary.strengths?.join(', ')}</p>
+            <p><strong>{t('interviewAssistant.summary.weaknessesLabel')}:</strong> {interviewSummary.weaknesses?.join(', ')}</p>
+            <p><strong>{t('interviewAssistant.summary.culturalFitLabel')}:</strong> {interviewSummary.cultural_fit}</p>
+            <p><strong>{t('interviewAssistant.summary.recommendationLabel')}:</strong> {interviewSummary.recommendation}</p>
+            <p><strong>{t('interviewAssistant.summary.scoreLabel')}:</strong> {interviewSummary.score}/10</p>
           </div>
         )}
 
@@ -146,7 +148,7 @@ export default function InterviewAssistantModal({
             onClick={onClose}
             className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-all"
           >
-            Close
+            {t('interviewAssistant.buttons.close')}
           </button>
         </div>
       </div>
