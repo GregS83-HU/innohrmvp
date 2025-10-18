@@ -417,5 +417,81 @@
     "backTo": "Back to {{companyName}}",
     "backHome": "Back to Home"
   }
+,
+  "dashboard": {
+    "title": "HR Wellbeing Dashboard",
+    "subtitle": "Anonymous workplace happiness analytics",
+    "loading": "Loading data...",
+    "error": "Error",
+    "retry": "Retry",
+    "refresh": "Refresh",
+    
+    "auth": {
+      "required": "Authentication Required",
+      "description": "You must be logged in to access the HR dashboard.",
+      "login": "Log In"
+    },
+    
+    "errors": {
+      "notAuthenticated": "Not authenticated - please log in again",
+      "accessDenied": "Access denied - no company associated with your account",
+      "loadingData": "Error loading data",
+      "unknown": "Unknown error"
+    },
+    
+    "levels": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "needsImprovement": "Needs Improvement"
+    },
+    
+    "period": {
+      "days": "{{count}} days"
+    },
+    
+    "metrics": {
+      "avgScore": "Average Score",
+      "participations": "Participations",
+      "strongestArea": "Strongest Area",
+      "improvementArea": "Area for Improvement"
+    },
+    
+    "perma": {
+      "positive": "Positive Emotions",
+      "engagement": "Engagement",
+      "relationships": "Relationships",
+      "meaning": "Work Meaning",
+      "accomplishment": "Accomplishment",
+      "workLifeBalance": "Work-Life Balance"
+    },
+    
+    "recommendations": {
+      "positive": "Organize team events, celebrate successes, improve recognition",
+      "engagement": "Offer challenging projects, skill development, increased autonomy",
+      "relationships": "Team building, communication training, collaboration spaces",
+      "meaning": "Clarify mission, show impact, align with personal values",
+      "accomplishment": "Clear goals, regular feedback, growth opportunities",
+      "workLifeBalance": "Flexible hours, remote work, disconnection policies"
+    },
+    
+    "charts": {
+      "permaAnalysis": "PERMA-W Analysis",
+      "distribution": "Domain Distribution",
+      "comparison": "Detailed Comparison",
+      "score": "Score"
+    },
+    
+    "actions": {
+      "title": "Recommended Actions"
+    },
+    
+    "footer": {
+      "privacy": "Privacy",
+      "privacyText": "All data is fully anonymized. No personal information is stored or displayed.",
+      "lastUpdate": "Last update",
+      "filteredFor": "Data filtered for",
+      "export": "Export",
+      "exportTodo": "Export functionality to be implemented"
+    }
+  }
 }
-

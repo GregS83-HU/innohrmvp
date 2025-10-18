@@ -412,5 +412,81 @@
     "backTo": "Vissza ide: {{companyName}}",
     "backHome": "Vissza a főoldalra"
   }
+,
+  "dashboard": {
+    "title": "HR Jóllét Irányítópult",
+    "subtitle": "Anonim munkahelyi boldogság elemzések",
+    "loading": "Adatok betöltése...",
+    "error": "Hiba",
+    "retry": "Újra",
+    "refresh": "Frissítés",
+    
+    "auth": {
+      "required": "Hitelesítés szükséges",
+      "description": "Be kell jelentkezned, hogy hozzáférj a HR irányítópulthoz.",
+      "login": "Bejelentkezés"
+    },
+    
+    "errors": {
+      "notAuthenticated": "Nincs hitelesítve - kérlek jelentkezz be újra",
+      "accessDenied": "Hozzáférés megtagadva - nincs cég hozzárendelve a fiókodhoz",
+      "loadingData": "Hiba az adatok betöltésekor",
+      "unknown": "Ismeretlen hiba"
+    },
+    
+    "levels": {
+      "excellent": "Kiváló",
+      "good": "Jó",
+      "needsImprovement": "Fejlesztésre szorul"
+    },
+    
+    "period": {
+      "days": "{{count}} nap"
+    },
+    
+    "metrics": {
+      "avgScore": "Átlagos pontszám",
+      "participations": "Részvételek",
+      "strongestArea": "Legerősebb terület",
+      "improvementArea": "Fejlesztendő terület"
+    },
+    
+    "perma": {
+      "positive": "Pozitív érzelmek",
+      "engagement": "Elkötelezettség",
+      "relationships": "Kapcsolatok",
+      "meaning": "Munka értelme",
+      "accomplishment": "Teljesítmény",
+      "workLifeBalance": "Munka-magánélet egyensúly"
+    },
+    
+    "recommendations": {
+      "positive": "Csapatrendezvények szervezése, sikerek ünneplése, elismerés javítása",
+      "engagement": "Kihívást jelentő projektek, készségfejlesztés, nagyobb autonómia",
+      "relationships": "Csapatépítés, kommunikációs tréning, együttműködési terek",
+      "meaning": "Küldetés tisztázása, hatás bemutatása, személyes értékekkel való összhang",
+      "accomplishment": "Világos célok, rendszeres visszajelzés, növekedési lehetőségek",
+      "workLifeBalance": "Rugalmas munkaidő, távmunka, kikapcsolódási szabályok"
+    },
+    
+    "charts": {
+      "permaAnalysis": "PERMA-W elemzés",
+      "distribution": "Területi eloszlás",
+      "comparison": "Részletes összehasonlítás",
+      "score": "Pontszám"
+    },
+    
+    "actions": {
+      "title": "Javasolt intézkedések"
+    },
+    
+    "footer": {
+      "privacy": "Adatvédelem",
+      "privacyText": "Minden adat teljesen anonimizált. Személyes információk nem kerülnek tárolásra vagy megjelenítésre.",
+      "lastUpdate": "Utolsó frissítés",
+      "filteredFor": "Adatok szűrve",
+      "export": "Exportálás",
+      "exportTodo": "Az exportálás funkció hamarosan elérhető lesz"
+    }
+  }
 }
-
