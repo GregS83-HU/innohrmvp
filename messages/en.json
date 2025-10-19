@@ -895,4 +895,211 @@
       "reject": "Reject Request"
     }
   }
+,
+  "leaveBalances": {
+    "title": "Leave Balances ({{year}})",
+    "noBalances": "No leave balances found",
+    "fields": {
+      "total": "Total:",
+      "used": "Used:",
+      "pending": "Pending:",
+      "remaining": "Remaining:",
+      "days": "days"
+    }
+  }
+,
+  "pendingApprovals": {
+    "title": "Pending Approvals",
+    "noApprovals": "No pending approvals",
+    "fields": {
+      "period": "Period:",
+      "duration": "Duration:",
+      "day": "day",
+      "days": "days",
+      "reason": "Reason:",
+      "requested": "Requested:",
+      "certificate": "Certificate",
+      "viewCertificate": "View medical certificate"
+    },
+    "buttons": {
+      "approve": "Approve",
+      "reject": "Reject"
+    },
+    "console": {
+      "reviewCompleted": "Review action completed",
+      "managerNameRetrieved": "Manager name retrieved:",
+      "sendingNotification": "Sending notification with data:",
+      "notificationSuccess": "{{status}} notification sent to employee (userId: {{userId}})",
+      "notificationFailed": "Notification failed:",
+      "reviewError": "Error in review with notification:"
+    }
+  }
+,
+  "recentRequests": {
+    "title": "Recent Requests",
+    "empty": {
+      "noRequests": "No leave requests yet",
+      "firstLeaveButton": "Request Your First Leave"
+    },
+    "fields": {
+      "period": "Period:",
+      "duration": "Duration:",
+      "day": "day",
+      "days": "days",
+      "reason": "Reason:",
+      "managerNotes": "Manager Notes:",
+      "requested": "Requested:",
+      "reviewed": "Reviewed:"
+    },
+    "buttons": {
+      "uploadCertificate": "Upload Certificate"
+    }
+  }
+,
+  "requestLeaveModal": {
+    "title": "Request Leave",
+    "fields": {
+      "leaveType": "Leave Type",
+      "leaveTypePlaceholder": "Select leave type",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "reason": "Reason (optional)",
+      "reasonPlaceholder": "Brief description of your leave request...",
+      "dateLocked": "Date locked from certificate"
+    },
+    "certificate": {
+      "title": "Medical Certificate (Optional)",
+      "selectFile": "Click to select certificate",
+      "fileHelp": "PDF or Image • Max 1MB",
+      "processButton": "Process Certificate",
+      "processing": "Processing...",
+      "confirmButton": "Confirm Certificate",
+      "saving": "Saving...",
+      "confirmed": "Certificate Confirmed",
+      "confirmedDescription": "{{fileName}} - Dates will be used for leave request",
+      "employeeName": "Employee Name",
+      "employeeNamePlaceholder": "Enter employee name",
+      "additionalComment": "Additional Comment (Optional)",
+      "commentPlaceholder": "Add any additional information..."
+    },
+    "errors": {
+      "fileTooLarge": "File is too large. Maximum allowed size is 1MB.",
+      "selectFile": "Please select a file",
+      "cannotSave": "Cannot save: missing file or extracted data.",
+      "confirmBeforeSubmit": "Please confirm the certificate before submitting the leave request.",
+      "ocrIncomplete": "OCR Processing Incomplete",
+      "ocrIncompleteDesc": "Some information could not be recognized. Please fill in the missing fields below."
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "submit": "Submit Request",
+      "submitting": "Submitting..."
+    },
+    "console": {
+      "managerUpdated": "Manager ID updated for leave request:",
+      "managerUpdateFailed": "Failed to update manager_id:",
+      "certificateLinked": "Certificate linked to leave request with ID:",
+      "certificateLinkFailed": "Failed to link certificate:",
+      "managerCertificateAdded": "Manager ID and certificate (if any) added to leave request",
+      "notificationSent": "Leave request notification sent to manager",
+      "notificationError": "Error sending leave request notification:",
+      "noManager": "No manager found for user, skipping notification",
+      "requestNotFound": "Could not find created leave request"
+    }
+  }
+,
+  "demoTimer": {
+    "expired": "Demo Expired - Contact us to continue",
+    "active": "Demonstration Mode - Remaining time: {{time}}",
+    "autoCloseWarning": "The application will close automatically at the end of the timer"
+  }
+,
+  "loginModal": {
+    "title": "Login",
+    "subtitle": {
+      "demo": "Choose a demo account",
+      "normal": "Connect to your account"
+    },
+    "demoAccounts": {
+      "user": "Login as User",
+      "manager": "Login as Manager",
+      "hrManager": "Login as HR Manager"
+    },
+    "fields": {
+      "email": "Email",
+      "emailPlaceholder": "yours@email.com",
+      "password": "Password",
+      "passwordPlaceholder": "••••••••"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "connect": "Connect"
+    }
+  }
+,
+  "menuItem": {
+    "tooltips": {
+      "demoExpired": "Demo expired - Contact us to continue",
+      "notAvailable": "Not available in your forfait"
+    }
+  }
+,
+  "addUserModal": {
+    "header": {
+      "title": "Add New User"
+    },
+    "success": {
+      "message": "User created successfully! Temporary password: {{password}}",
+      "email": "Email:",
+      "password": "Password:",
+      "copyCredentials": "Copy credentials",
+      "copied": "✓ Copied!",
+      "autoClose": "This window will close automatically"
+    },
+    "fields": {
+      "email": {
+        "label": "Email",
+        "placeholder": "user@example.com"
+      },
+      "firstName": {
+        "label": "First Name",
+        "placeholder": "John"
+      },
+      "lastName": {
+        "label": "Last Name",
+        "placeholder": "Doe"
+      },
+      "manager": {
+        "label": "Manager",
+        "placeholder": "Select a manager",
+        "loading": "Loading...",
+        "search": "Search managers...",
+        "noResults": "No managers found",
+        "isManagerToggle": "Is Manager",
+        "isManagerInfo": "This user will be marked as a manager and can be assigned to other team members."
+      },
+      "employmentStartDate": {
+        "label": "Employment Start Date"
+      },
+      "password": {
+        "label": "Temporary Password",
+        "show": "Show",
+        "hide": "Hide",
+        "regenerate": "Regenerate Password"
+      },
+      "required": "*"
+    },
+    "buttons": {
+      "create": "Create User",
+      "creating": "Creating..."
+    },
+    "errors": {
+      "selectManager": "Please select a manager",
+      "selectStartDate": "Please select an employment start date",
+      "failedToLoadManagers": "Failed to load managers",
+      "noUsersFound": "No existing users found. Please ensure there is at least one user in the company before adding new users.",
+      "failedToCreate": "Failed to create user",
+      "unexpectedError": "An unexpected error occurred"
+    }
+  }
 }

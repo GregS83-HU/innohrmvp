@@ -1,5 +1,6 @@
 // File: components/absence/PendingApprovals.tsx
 import React, { useState } from 'react';
+import { useLocale } from 'i18n/LocaleProvider';
 import { Bell, RefreshCw, CheckCircle, FileText } from 'lucide-react';
 import { PendingApproval } from '../../types/absence';
 import { formatDate as defaultFormatDate } from '../../utils/formatDate';
@@ -27,7 +28,9 @@ const PendingApprovals: React.FC<Props> = ({
   formatDate = defaultFormatDate,
   currentUserId
 }) => {
-  // Modal state - THIS IS NEW
+  const { t } = useLocale();
+  
+  // Modal state
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
     type: 'approve' | 'reject' | null;
@@ -62,11 +65,11 @@ const PendingApprovals: React.FC<Props> = ({
 
       // First, perform the actual review action
       await onReview(approval.id, status, notes);
-      console.log('✅ Review action completed');
+      console.log(t('pendingApprovals.console.reviewCompleted'));
       
       // Then send the notification to the employee
       const { name: managerName, error: nameError } = await getUserName(currentUserId);
-      console.log('👤 Manager name retrieved:', managerName, 'Error:', nameError);
+      console.log(t('pendingApprovals.console.managerNameRetrieved'), managerName, 'Error:', nameError);
       
       const notificationData = {
         leaveRequestId: approval.id,
@@ -77,23 +80,25 @@ const PendingApprovals: React.FC<Props> = ({
         status,
         reviewNotes: notes
       };
-      console.log('📧 Sending notification with data:', notificationData);
+      console.log(t('pendingApprovals.console.sendingNotification'), notificationData);
       
       const result = await createLeaveReviewNotification(notificationData);
       console.log('📬 Notification result:', result);
       
       if (result.success) {
-        console.log(`✅ ${status} notification sent to employee (userId: ${approval.user_id})`);
+        console.log(t('pendingApprovals.console.notificationSuccess', { 
+          status, 
+          userId: approval.user_id 
+        }));
       } else {
-        console.error('❌ Notification failed:', result.error);
+        console.error(t('pendingApprovals.console.notificationFailed'), result.error);
       }
     } catch (error) {
-      console.error('Error in review with notification:', error);
+      console.error(t('pendingApprovals.console.reviewError'), error);
       // The review itself might have succeeded, so we don't re-throw
     }
   };
 
-  // UPDATED - now opens modal instead of using prompt()
   const handleApprove = (approval: PendingApproval) => {
     setModalState({
       isOpen: true,
@@ -102,7 +107,6 @@ const PendingApprovals: React.FC<Props> = ({
     });
   };
 
-  // UPDATED - now opens modal instead of using prompt()
   const handleReject = (approval: PendingApproval) => {
     setModalState({
       isOpen: true,
@@ -111,7 +115,6 @@ const PendingApprovals: React.FC<Props> = ({
     });
   };
 
-  // NEW - Close modal function
   const closeModal = () => {
     setModalState({
       isOpen: false,
@@ -120,7 +123,6 @@ const PendingApprovals: React.FC<Props> = ({
     });
   };
 
-  // NEW - Handle modal confirmation
   const handleModalConfirm = (notes?: string) => {
     if (!modalState.approval) return;
     
@@ -134,7 +136,7 @@ const PendingApprovals: React.FC<Props> = ({
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <Bell className="w-5 h-5 text-orange-600" />
-            Pending Approvals
+            {t('pendingApprovals.title')}
           </h2>
           <button
             onClick={onRefresh}
@@ -147,7 +149,7 @@ const PendingApprovals: React.FC<Props> = ({
         {approvals.length === 0 ? (
           <div className="text-center py-8">
             <CheckCircle className="w-12 h-12 text-green-300 mx-auto mb-4" />
-            <p className="text-gray-500">No pending approvals</p>
+            <p className="text-gray-500">{t('pendingApprovals.noApprovals')}</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -178,29 +180,31 @@ const PendingApprovals: React.FC<Props> = ({
                             target="_blank"
                             rel="noopener noreferrer"
                             className="ml-2 inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 hover:text-blue-800 rounded-lg transition-colors text-xs font-medium"
-                            title="View medical certificate"
+                            title={t('pendingApprovals.fields.viewCertificate')}
                           >
                             <FileText className="w-3.5 h-3.5" />
-                            <span>Certificate</span>
+                            <span>{t('pendingApprovals.fields.certificate')}</span>
                           </a>
                         )}
                       </div>
                       <div className="text-sm text-gray-600 space-y-1">
                         <p>
-                          <span className="font-medium">Period:</span>{' '}
+                          <span className="font-medium">{t('pendingApprovals.fields.period')}</span>{' '}
                           {formatDate(approval.start_date)} - {formatDate(approval.end_date)}
                         </p>
                         <p>
-                          <span className="font-medium">Duration:</span>{' '}
-                          {approval.total_days} day{approval.total_days !== 1 ? 's' : ''}
+                          <span className="font-medium">{t('pendingApprovals.fields.duration')}</span>{' '}
+                          {approval.total_days} {approval.total_days !== 1 
+                            ? t('pendingApprovals.fields.days') 
+                            : t('pendingApprovals.fields.day')}
                         </p>
                         {approval.reason && (
                           <p>
-                            <span className="font-medium">Reason:</span> {approval.reason}
+                            <span className="font-medium">{t('pendingApprovals.fields.reason')}</span> {approval.reason}
                           </p>
                         )}
                         <p className="text-xs text-gray-500">
-                          Requested: {formatDate(approval.created_at)}
+                          {t('pendingApprovals.fields.requested')} {formatDate(approval.created_at)}
                         </p>
                       </div>
                     </div>
@@ -210,13 +214,13 @@ const PendingApprovals: React.FC<Props> = ({
                         onClick={() => handleApprove(approval)}
                         className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
                       >
-                        Approve
+                        {t('pendingApprovals.buttons.approve')}
                       </button>
                       <button
                         onClick={() => handleReject(approval)}
                         className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
                       >
-                        Reject
+                        {t('pendingApprovals.buttons.reject')}
                       </button>
                     </div>
                   </div>
@@ -227,7 +231,7 @@ const PendingApprovals: React.FC<Props> = ({
         )}
       </div>
 
-      {/* NEW - Modal component */}
+      {/* Modal component */}
       <ApprovalModal
         isOpen={modalState.isOpen}
         onClose={closeModal}

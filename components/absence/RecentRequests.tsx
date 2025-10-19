@@ -1,9 +1,10 @@
 // File: components/absence/RecentRequests.tsx
 import React from 'react';
+import { useLocale } from 'i18n/LocaleProvider';
 import { RefreshCw, Calendar, FileText } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import { LeaveRequest } from '../../types/absence';
-import { CertificateStatusBadge } from './../CertificateStatusBadge'; // adjust path if your CertificateStatusBadge is elsewhere
+import { CertificateStatusBadge } from './../CertificateStatusBadge';
 import { formatDate as defaultFormatDate } from '../../utils/formatDate';
 
 type Props = {
@@ -23,12 +24,14 @@ const RecentRequests: React.FC<Props> = ({
   isSickLeaveType,
   formatDate = defaultFormatDate
 }) => {
+  const { t } = useLocale();
+
   return (
     <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
           <FileText className="w-5 h-5 text-blue-600" />
-          Recent Requests
+          {t('recentRequests.title')}
         </h2>
         <button
           onClick={onRefresh}
@@ -41,12 +44,12 @@ const RecentRequests: React.FC<Props> = ({
       {requests.length === 0 ? (
         <div className="text-center py-8">
           <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 mb-4">No leave requests yet</p>
+          <p className="text-gray-500 mb-4">{t('recentRequests.empty.noRequests')}</p>
           <button
             onClick={onOpenRequestModal}
             className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors"
           >
-            Request Your First Leave
+            {t('recentRequests.empty.firstLeaveButton')}
           </button>
         </div>
       ) : (
@@ -74,32 +77,34 @@ const RecentRequests: React.FC<Props> = ({
 
                     <div className="text-sm text-gray-600 space-y-1">
                       <p>
-                        <span className="font-medium">Period:</span>{' '}
+                        <span className="font-medium">{t('recentRequests.fields.period')}</span>{' '}
                         {formatDate(request.start_date)} - {formatDate(request.end_date)}
                       </p>
                       <p>
-                        <span className="font-medium">Duration:</span>{' '}
-                        {request.total_days} day{request.total_days !== 1 ? 's' : ''}
+                        <span className="font-medium">{t('recentRequests.fields.duration')}</span>{' '}
+                        {request.total_days} {request.total_days !== 1 
+                          ? t('recentRequests.fields.days') 
+                          : t('recentRequests.fields.day')}
                       </p>
                       {request.reason && (
                         <p>
-                          <span className="font-medium">Reason:</span> {request.reason}
+                          <span className="font-medium">{t('recentRequests.fields.reason')}</span> {request.reason}
                         </p>
                       )}
                       {request.review_notes && (
                         <p>
-                          <span className="font-medium">Manager Notes:</span> {request.review_notes}
+                          <span className="font-medium">{t('recentRequests.fields.managerNotes')}</span> {request.review_notes}
                         </p>
                       )}
                     </div>
                   </div>
 
                   <div className="text-xs text-gray-500">
-                    Requested: {formatDate(request.created_at)}
+                    {t('recentRequests.fields.requested')} {formatDate(request.created_at)}
                     {request.reviewed_at && (
                       <>
                         <br />
-                        Reviewed: {formatDate(request.reviewed_at)}
+                        {t('recentRequests.fields.reviewed')} {formatDate(request.reviewed_at)}
                       </>
                     )}
                   </div>
@@ -121,7 +126,7 @@ const RecentRequests: React.FC<Props> = ({
                         onClick={() => onUploadCertificateForRequest(request.id)}
                         className="text-xs px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg font-medium transition-colors"
                       >
-                        Upload Certificate
+                        {t('recentRequests.buttons.uploadCertificate')}
                       </button>
                     )}
                 </div>

@@ -890,4 +890,215 @@
       "reject": "Kérelem elutasítása"
     }
   }
+,
+  "leaveBalances": {
+    "title": "Szabadságegyenleg ({{year}})",
+    "noBalances": "Nem található szabadságegyenleg",
+    "fields": {
+      "total": "Összesen:",
+      "used": "Felhasznált:",
+      "pending": "Függőben:",
+      "remaining": "Hátralévő:",
+      "days": "nap"
+    }
+  }
+,
+  "pendingApprovals": {
+    "title": "Függő jóváhagyások",
+    "noApprovals": "Nincsenek függő jóváhagyások",
+    "fields": {
+      "period": "Időszak:",
+      "duration": "Időtartam:",
+      "day": "nap",
+      "days": "nap",
+      "reason": "Indok:",
+      "requested": "Kérelmezve:",
+      "certificate": "Orvosi igazolás",
+      "viewCertificate": "Orvosi igazolás megtekintése"
+    },
+    "buttons": {
+      "approve": "Jóváhagyás",
+      "reject": "Elutasítás"
+    },
+    "console": {
+      "reviewCompleted": "Ellenőrzés befejezve",
+      "managerNameRetrieved": "Vezető neve lekérve:",
+      "sendingNotification": "Értesítés küldése az alábbi adatokkal:",
+      "notificationSuccess": "{{status}} értesítés elküldve a munkavállalónak (userId: {{userId}})",
+      "notificationFailed": "Értesítés sikertelen:",
+      "reviewError": "Hiba az ellenőrzés során az értesítéssel kapcsolatban:"
+    }
+  }
+,
+  "recentRequests": {
+    "title": "Legutóbbi kérelmek",
+    "empty": {
+      "noRequests": "Még nincs szabadságkérelem",
+      "firstLeaveButton": "Kérje az első szabadságát"
+    },
+    "fields": {
+      "period": "Időszak:",
+      "duration": "Időtartam:",
+      "day": "nap",
+      "days": "nap",
+      "reason": "Indok:",
+      "managerNotes": "Vezető megjegyzései:",
+      "requested": "Kérelmezve:",
+      "reviewed": "Ellenőrizve:"
+    },
+    "buttons": {
+      "uploadCertificate": "Igazolás feltöltése"
+    }
+  }
+,
+  "requestLeaveModal": {
+    "title": "Szabadságkérelem",
+    "fields": {
+      "leaveType": "Szabadság típusa",
+      "leaveTypePlaceholder": "Válasszon szabadságtípust",
+      "startDate": "Kezdő dátum",
+      "endDate": "Befejező dátum",
+      "reason": "Indok (nem kötelező)",
+      "reasonPlaceholder": "A szabadságkérelem rövid leírása...",
+      "dateLocked": "A dátum az igazolás alapján zárolva"
+    },
+    "certificate": {
+      "title": "Orvosi igazolás (nem kötelező)",
+      "selectFile": "Kattintson az igazolás kiválasztásához",
+      "fileHelp": "PDF vagy kép • Max. 1 MB",
+      "processButton": "Igazolás feldolgozása",
+      "processing": "Feldolgozás...",
+      "confirmButton": "Igazolás megerősítése",
+      "saving": "Mentés...",
+      "confirmed": "Igazolás megerősítve",
+      "confirmedDescription": "{{fileName}} – A dátumok a szabadságkérelemhez lesznek felhasználva",
+      "employeeName": "Munkavállaló neve",
+      "employeeNamePlaceholder": "Adja meg a munkavállaló nevét",
+      "additionalComment": "További megjegyzés (nem kötelező)",
+      "commentPlaceholder": "Adjon meg további információt vagy megjegyzést..."
+    },
+    "errors": {
+      "fileTooLarge": "A fájl túl nagy. A maximális méret 1 MB.",
+      "selectFile": "Kérjük, válasszon ki egy fájlt",
+      "cannotSave": "Nem lehet menteni: hiányzik a fájl vagy a feldolgozott adat.",
+      "confirmBeforeSubmit": "Kérjük, erősítse meg az igazolást a szabadságkérelem benyújtása előtt.",
+      "ocrIncomplete": "Az OCR feldolgozás nem teljes",
+      "ocrIncompleteDesc": "Néhány információt nem sikerült felismerni. Kérjük, töltse ki az alábbi hiányzó mezőket."
+    },
+    "buttons": {
+      "cancel": "Mégse",
+      "submit": "Kérelem benyújtása",
+      "submitting": "Küldés..."
+    },
+    "console": {
+      "managerUpdated": "A vezető azonosítója frissítve a szabadságkérelemhez:",
+      "managerUpdateFailed": "A manager_id frissítése sikertelen:",
+      "certificateLinked": "Az igazolás összekapcsolva a szabadságkérelemmel (ID:)",
+      "certificateLinkFailed": "Az igazolás összekapcsolása sikertelen:",
+      "managerCertificateAdded": "A vezető azonosítója és az igazolás (ha van) hozzáadva a szabadságkérelemhez",
+      "notificationSent": "Szabadságkérelem értesítés elküldve a vezetőnek",
+      "notificationError": "Hiba történt az értesítés küldésekor:",
+      "noManager": "Nem található vezető a felhasználóhoz, értesítés kihagyva",
+      "requestNotFound": "A létrehozott szabadságkérelem nem található"
+    }
+  }
+,
+  "demoTimer": {
+    "expired": "A demó lejárt – Lépjen kapcsolatba velünk a folytatáshoz",
+    "active": "Demó üzemmód – Hátralévő idő: {{time}}",
+    "autoCloseWarning": "Az alkalmazás automatikusan bezárul az időzítő lejártakor"
+  }
+,
+  "loginModal": {
+    "title": "Bejelentkezés",
+    "subtitle": {
+      "demo": "Válasszon egy demó fiókot",
+      "normal": "Jelentkezzen be a fiókjába"
+    },
+    "demoAccounts": {
+      "user": "Bejelentkezés felhasználóként",
+      "manager": "Bejelentkezés vezetőként",
+      "hrManager": "Bejelentkezés HR vezetőként"
+    },
+    "fields": {
+      "email": "E-mail",
+      "emailPlaceholder": "onk@example.com",
+      "password": "Jelszó",
+      "passwordPlaceholder": "••••••••"
+    },
+    "buttons": {
+      "cancel": "Mégse",
+      "connect": "Bejelentkezés"
+    }
+  }
+,
+  "menuItem": {
+    "tooltips": {
+      "demoExpired": "A demó lejárt – Lépjen kapcsolatba velünk a folytatáshoz",
+      "notAvailable": "Nem érhető el az Ön csomagjában"
+    }
+  }
+,
+  "addUserModal": {
+    "header": {
+      "title": "Új felhasználó hozzáadása"
+    },
+    "success": {
+      "message": "A felhasználó sikeresen létrehozva! Ideiglenes jelszó: {{password}}",
+      "email": "E-mail:",
+      "password": "Jelszó:",
+      "copyCredentials": "Bejelentkezési adatok másolása",
+      "copied": "✓ Másolva!",
+      "autoClose": "Ez az ablak automatikusan bezárul"
+    },
+    "fields": {
+      "email": {
+        "label": "E-mail",
+        "placeholder": "user@example.com"
+      },
+      "firstName": {
+        "label": "Keresztnév",
+        "placeholder": "János"
+      },
+      "lastName": {
+        "label": "Vezetéknév",
+        "placeholder": "Kovács"
+      },
+      "manager": {
+        "label": "Vezető",
+        "placeholder": "Válasszon vezetőt",
+        "loading": "Betöltés...",
+        "search": "Vezetők keresése...",
+        "noResults": "Nem található vezető",
+        "isManagerToggle": "Vezetői szerep",
+        "isManagerInfo": "Ez a felhasználó vezetőként lesz megjelölve, és más csapattagokhoz rendelhető."
+      },
+      "employmentStartDate": {
+        "label": "Munkaviszony kezdete"
+      },
+      "password": {
+        "label": "Ideiglenes jelszó",
+        "show": "Mutat",
+        "hide": "Elrejt",
+        "regenerate": "Új jelszó generálása"
+      },
+      "required": "*"
+    },
+    "buttons": {
+      "create": "Felhasználó létrehozása",
+      "creating": "Létrehozás..."
+    },
+    "errors": {
+      "selectManager": "Kérjük, válasszon vezetőt",
+      "selectStartDate": "Kérjük, válassza ki a munkaviszony kezdetét",
+      "failedToLoadManagers": "A vezetők betöltése nem sikerült",
+      "noUsersFound": "Nem található meglévő felhasználó. Kérjük, győződjön meg arról, hogy van legalább egy felhasználó a vállalatban, mielőtt újakat adna hozzá.",
+      "failedToCreate": "A felhasználó létrehozása nem sikerült",
+      "unexpectedError": "Váratlan hiba történt"
+    }
+  }
 }
+
+
+
+

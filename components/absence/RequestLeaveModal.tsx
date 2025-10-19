@@ -1,5 +1,6 @@
 // File: components/absence/RequestLeaveModal.tsx
 import React, { useState, useEffect } from 'react';
+import { useLocale } from 'i18n/LocaleProvider';
 import { XCircle, Loader2, Upload, FileText, CheckCircle, AlertTriangle, Calendar, User } from 'lucide-react';
 import { LeaveType } from '../../types/absence';
 import { createLeaveRequestNotification, getUserManager, getUserName } from '../../utils/absenceNotifications';
@@ -50,7 +51,8 @@ const RequestLeaveModal: React.FC<Props> = ({
   companyId,
   currentUserName
 }) => {
-  // Certificate upload state
+  const { t } = useLocale();
+  
   const [certificateFile, setCertificateFile] = useState<File | null>(null);
   const [uploadingCertificate, setUploadingCertificate] = useState(false);
   const [certificateError, setCertificateError] = useState('');
@@ -58,20 +60,17 @@ const RequestLeaveModal: React.FC<Props> = ({
   const [certificateComment, setCertificateComment] = useState('');
   const [certificateId, setCertificateId] = useState<number | null>(null);
   
-  // Manual correction state for unrecognized fields
   const [manualData, setManualData] = useState({
     employee_name: '',
     sickness_start_date: '',
     sickness_end_date: ''
   });
 
-  const MAX_SIZE = 1 * 1024 * 1024; // 1MB
+  const MAX_SIZE = 1 * 1024 * 1024;
   
-  // Check if selected leave type is sick leave
   const selectedLeaveType = leaveTypes.find(lt => lt.id === requestForm.leave_type_id);
   const isSickLeave = selectedLeaveType?.requires_medical_certificate || false;
 
-  // Reset certificate state when modal closes or leave type changes
   useEffect(() => {
     if (!isOpen || !isSickLeave) {
       setCertificateFile(null);
@@ -79,11 +78,7 @@ const RequestLeaveModal: React.FC<Props> = ({
       setCertificateError('');
       setCertificateComment('');
       setCertificateId(null);
-      setManualData({
-        employee_name: '',
-        sickness_start_date: '',
-        sickness_end_date: ''
-      });
+      setManualData({ employee_name: '', sickness_start_date: '', sickness_end_date: '' });
     }
   }, [isOpen, isSickLeave]);
 
@@ -96,7 +91,7 @@ const RequestLeaveModal: React.FC<Props> = ({
     if (!selectedFile) return setCertificateFile(null);
     
     if (selectedFile.size > MAX_SIZE) {
-      setCertificateError('File is too large. Maximum allowed size is 1MB.');
+      setCertificateError(t('requestLeaveModal.errors.fileTooLarge'));
       setCertificateFile(null);
     } else {
       setCertificateFile(selectedFile);
@@ -105,7 +100,7 @@ const RequestLeaveModal: React.FC<Props> = ({
 
   const handleCertificateUpload = async () => {
     if (!certificateFile) {
-      setCertificateError('Please select a file');
+      setCertificateError(t('requestLeaveModal.errors.selectFile'));
       return;
     }
     
@@ -138,14 +133,12 @@ const RequestLeaveModal: React.FC<Props> = ({
       
       setExtractedData(resultData);
       
-      // Initialize manual data for unrecognised fields
       setManualData({
         employee_name: isFieldUnrecognised(resultData.employee_name) ? currentUserName : resultData.employee_name || '',
         sickness_start_date: isFieldUnrecognised(resultData.sickness_start_date) ? '' : resultData.sickness_start_date || '',
         sickness_end_date: isFieldUnrecognised(resultData.sickness_end_date) ? '' : resultData.sickness_end_date || '',
       });
 
-      // If dates are successfully extracted, update form dates (and lock them)
       if (resultData.sickness_start_date && !isFieldUnrecognised(resultData.sickness_start_date)) {
         setRequestForm(prev => ({ ...prev, start_date: resultData.sickness_start_date || '' }));
       }
@@ -163,7 +156,7 @@ const RequestLeaveModal: React.FC<Props> = ({
 
   const handleConfirmCertificate = async () => {
     if (!extractedData || !certificateFile) {
-      setCertificateError('Cannot save: missing file or extracted data.');
+      setCertificateError(t('requestLeaveModal.errors.cannotSave'));
       return;
     }
 
@@ -208,7 +201,6 @@ const RequestLeaveModal: React.FC<Props> = ({
       const data = await res.json();
       setCertificateId(data.insertedData?.[0]?.id ?? null);
 
-      // Update form dates with final values
       const finalStartDate = isFieldUnrecognised(extractedData.sickness_start_date)
         ? manualData.sickness_start_date
         : extractedData.sickness_start_date ?? '';
@@ -235,21 +227,18 @@ const RequestLeaveModal: React.FC<Props> = ({
   const handleSubmitWithNotification = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // If sick leave and certificate is uploaded but not confirmed, prevent submission
     if (isSickLeave && extractedData && !certificateId) {
-      setCertificateError('Please confirm the certificate before submitting the leave request.');
+      setCertificateError(t('requestLeaveModal.errors.confirmBeforeSubmit'));
       return;
     }
 
-    // Call the original onSubmit handler first (which now needs to know about certificateId)
     await onSubmit(e);
     
-    // After successful submission, create notification
     try {
       const { managerId } = await getUserManager(currentUserId);
       
       if (!managerId) {
-        console.warn('No manager found for user, skipping notification');
+        console.warn(t('requestLeaveModal.console.noManager'));
         return;
       }
 
@@ -271,50 +260,42 @@ const RequestLeaveModal: React.FC<Props> = ({
         .single();
 
       if (!leaveRequest) {
-        console.error('Could not find created leave request');
+        console.error(t('requestLeaveModal.console.requestNotFound'));
         return;
       }
 
-      // 1️⃣ Update manager_id immediately
-try {
-  await supabase
-    .from('leave_requests')
-    .update({ manager_id: managerId })
-    .eq('id', leaveRequest.id);
+      try {
+        await supabase
+          .from('leave_requests')
+          .update({ manager_id: managerId })
+          .eq('id', leaveRequest.id);
 
-  console.log("✅ Manager ID updated for leave request:", managerId);
-} catch (err) {
-  console.error("❌ Failed to update manager_id:", err);
-}
-// 2️⃣ If a certificate has been confirmed, update medical_certificate_id and link it
-if (certificateId) {
-  try {
-    // Update leave_request with certificate_id
-     
-   const { data: updateData, error: updateError } = await supabase
-     .from('leave_requests')
-     .update({ medical_certificate_id: certificateId })
-     .eq('id', leaveRequest.id);
-   
-   console.log("Update result:", { updateData, updateError });
+        console.log(t('requestLeaveModal.console.managerUpdated'), managerId);
+      } catch (err) {
+        console.error(t('requestLeaveModal.console.managerUpdateFailed'), err);
+      }
 
+      if (certificateId) {
+        try {
+          const { data: updateData, error: updateError } = await supabase
+            .from('leave_requests')
+            .update({ medical_certificate_id: certificateId })
+            .eq('id', leaveRequest.id);
+          
+          console.log("Update result:", { updateData, updateError });
 
-    // Link the certificate to the leave_request
+          await supabase
+            .from('medical_certificates')
+            .update({ leave_request_id: leaveRequest.id })
+            .eq('id', certificateId);
 
-   
-    await supabase
-      .from('medical_certificates')
-      .update({ leave_request_id: leaveRequest.id })
-      .eq('id', certificateId);
-
-    console.log("✅ Certificate linked to leave request with ID:", certificateId);
-  } catch (err) {
-    console.error("❌ Failed to link certificate:", err);
-  }
-}
-
+          console.log(t('requestLeaveModal.console.certificateLinked'), certificateId);
+        } catch (err) {
+          console.error(t('requestLeaveModal.console.certificateLinkFailed'), err);
+        }
+      }
       
-      console.log('✅ Manager ID and certificate (if any) added to leave request');
+      console.log(t('requestLeaveModal.console.managerCertificateAdded'));
 
       await createLeaveRequestNotification({
         leaveRequestId: leaveRequest.id,
@@ -327,9 +308,9 @@ if (certificateId) {
         totalDays
       });
 
-      console.log('✅ Leave request notification sent to manager');
+      console.log(t('requestLeaveModal.console.notificationSent'));
     } catch (error) {
-      console.error('Error sending leave request notification:', error);
+      console.error(t('requestLeaveModal.console.notificationError'), error);
     }
   };
 
@@ -339,11 +320,7 @@ if (certificateId) {
     setCertificateError('');
     setCertificateComment('');
     setCertificateId(null);
-    setManualData({
-      employee_name: '',
-      sickness_start_date: '',
-      sickness_end_date: ''
-    });
+    setManualData({ employee_name: '', sickness_start_date: '', sickness_end_date: '' });
     onClose();
   };
 
@@ -361,20 +338,16 @@ if (certificateId) {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-gray-900">Request Leave</h3>
-          <button
-            onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600"
-          >
+          <h3 className="text-xl font-bold text-gray-900">{t('requestLeaveModal.title')}</h3>
+          <button onClick={handleClose} className="text-gray-400 hover:text-gray-600">
             <XCircle className="w-6 h-6" />
           </button>
         </div>
 
         <form onSubmit={handleSubmitWithNotification} className="space-y-4">
-          {/* Leave Type */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Leave Type
+              {t('requestLeaveModal.fields.leaveType')}
             </label>
             <select
               value={requestForm.leave_type_id}
@@ -382,7 +355,7 @@ if (certificateId) {
               required
               className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="">Select leave type</option>
+              <option value="">{t('requestLeaveModal.fields.leaveTypePlaceholder')}</option>
               {leaveTypes.map((type) => (
                 <option key={type.id} value={type.id}>
                   {type.name_hu} ({type.name})
@@ -391,12 +364,11 @@ if (certificateId) {
             </select>
           </div>
 
-          {/* Certificate Upload Section - Only for Sick Leave */}
           {isSickLeave && (
             <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 space-y-4">
               <div className="flex items-center gap-2 mb-2">
                 <FileText className="w-5 h-5 text-blue-600" />
-                <h4 className="font-semibold text-gray-900">Medical Certificate (Optional)</h4>
+                <h4 className="font-semibold text-gray-900">{t('requestLeaveModal.certificate.title')}</h4>
               </div>
 
               {certificateError && (
@@ -412,25 +384,20 @@ if (certificateId) {
                 <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="w-4 h-4 text-orange-600" />
-                    <h5 className="font-semibold text-orange-800 text-sm">OCR Processing Incomplete</h5>
+                    <h5 className="font-semibold text-orange-800 text-sm">{t('requestLeaveModal.errors.ocrIncomplete')}</h5>
                   </div>
                   <p className="text-xs text-orange-700">
-                    Some information could not be recognized. Please fill in the missing fields below.
+                    {t('requestLeaveModal.errors.ocrIncompleteDesc')}
                   </p>
                 </div>
               )}
 
               {!extractedData ? (
                 <>
-                  {/* File Upload */}
                   <div>
-                    <div 
-                      className={`border-2 border-dashed rounded-lg p-4 text-center transition-all ${
-                        certificateFile 
-                          ? 'border-green-300 bg-green-50' 
-                          : 'border-gray-300 bg-white hover:border-blue-400 hover:bg-blue-50'
-                      }`}
-                    >
+                    <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-all ${
+                      certificateFile ? 'border-green-300 bg-green-50' : 'border-gray-300 bg-white hover:border-blue-400 hover:bg-blue-50'
+                    }`}>
                       <input
                         type="file"
                         accept=".pdf,image/*"
@@ -448,10 +415,10 @@ if (certificateId) {
                           <div>
                             <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                             <p className="text-blue-600 font-medium text-sm hover:text-blue-700">
-                              Click to select certificate
+                              {t('requestLeaveModal.certificate.selectFile')}
                             </p>
                             <p className="text-xs text-gray-500 mt-1">
-                              PDF or Image • Max 1MB
+                              {t('requestLeaveModal.certificate.fileHelp')}
                             </p>
                           </div>
                         )}
@@ -468,32 +435,30 @@ if (certificateId) {
                     {uploadingCertificate ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        Processing...
+                        {t('requestLeaveModal.certificate.processing')}
                       </>
                     ) : (
                       <>
                         <Upload className="w-4 h-4" />
-                        Process Certificate
+                        {t('requestLeaveModal.certificate.processButton')}
                       </>
                     )}
                   </button>
                 </>
               ) : !certificateId ? (
                 <>
-                  {/* Extracted Data Review */}
                   <div className="space-y-3">
-                    {/* Employee Name */}
                     <div>
                       <label className="flex items-center gap-2 text-xs font-medium text-gray-700 mb-1">
                         <User className="w-3 h-3" />
-                        Employee Name
+                        {t('requestLeaveModal.certificate.employeeName')}
                       </label>
                       {isFieldUnrecognised(extractedData.employee_name) ? (
                         <input
                           type="text"
                           value={manualData.employee_name}
                           onChange={(e) => setManualData({...manualData, employee_name: e.target.value})}
-                          placeholder="Enter employee name"
+                          placeholder={t('requestLeaveModal.certificate.employeeNamePlaceholder')}
                           className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                       ) : (
@@ -503,12 +468,11 @@ if (certificateId) {
                       )}
                     </div>
 
-                    {/* Dates */}
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="flex items-center gap-2 text-xs font-medium text-gray-700 mb-1">
                           <Calendar className="w-3 h-3" />
-                          Start Date
+                          {t('requestLeaveModal.fields.startDate')}
                         </label>
                         {isFieldUnrecognised(extractedData.sickness_start_date) ? (
                           <input
@@ -527,7 +491,7 @@ if (certificateId) {
                       <div>
                         <label className="flex items-center gap-2 text-xs font-medium text-gray-700 mb-1">
                           <Calendar className="w-3 h-3" />
-                          End Date
+                          {t('requestLeaveModal.fields.endDate')}
                         </label>
                         {isFieldUnrecognised(extractedData.sickness_end_date) ? (
                           <input
@@ -544,15 +508,14 @@ if (certificateId) {
                       </div>
                     </div>
 
-                    {/* Comment */}
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
-                        Additional Comment (Optional)
+                        {t('requestLeaveModal.certificate.additionalComment')}
                       </label>
                       <textarea
                         value={certificateComment}
                         onChange={(e) => setCertificateComment(e.target.value)}
-                        placeholder="Add any additional information..."
+                        placeholder={t('requestLeaveModal.certificate.commentPlaceholder')}
                         className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                         rows={2}
                       />
@@ -567,12 +530,12 @@ if (certificateId) {
                       {uploadingCertificate ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          Saving...
+                          {t('requestLeaveModal.certificate.saving')}
                         </>
                       ) : (
                         <>
                           <CheckCircle className="w-4 h-4" />
-                          Confirm Certificate
+                          {t('requestLeaveModal.certificate.confirmButton')}
                         </>
                       )}
                     </button>
@@ -583,9 +546,9 @@ if (certificateId) {
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-5 h-5 text-green-600" />
                     <div>
-                      <p className="font-medium text-green-800 text-sm">Certificate Confirmed</p>
+                      <p className="font-medium text-green-800 text-sm">{t('requestLeaveModal.certificate.confirmed')}</p>
                       <p className="text-xs text-green-700 mt-0.5">
-                        {certificateFile?.name} - Dates will be used for leave request
+                        {t('requestLeaveModal.certificate.confirmedDescription', { fileName: certificateFile?.name || '' })}
                       </p>
                     </div>
                   </div>
@@ -594,11 +557,10 @@ if (certificateId) {
             </div>
           )}
 
-          {/* Date Fields */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Start Date
+                {t('requestLeaveModal.fields.startDate')}
               </label>
               <input
                 type="date"
@@ -609,12 +571,12 @@ if (certificateId) {
                 className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
               />
               {datesLocked && (
-                <p className="text-xs text-gray-500 mt-1">Date locked from certificate</p>
+                <p className="text-xs text-gray-500 mt-1">{t('requestLeaveModal.fields.dateLocked')}</p>
               )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                End Date
+                {t('requestLeaveModal.fields.endDate')}
               </label>
               <input
                 type="date"
@@ -625,33 +587,31 @@ if (certificateId) {
                 className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
               />
               {datesLocked && (
-                <p className="text-xs text-gray-500 mt-1">Date locked from certificate</p>
+                <p className="text-xs text-gray-500 mt-1">{t('requestLeaveModal.fields.dateLocked')}</p>
               )}
             </div>
           </div>
 
-          {/* Reason */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Reason (optional)
+              {t('requestLeaveModal.fields.reason')}
             </label>
             <textarea
               value={requestForm.reason}
               onChange={(e) => setRequestForm(prev => ({ ...prev, reason: e.target.value }))}
               rows={3}
               className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Brief description of your leave request..."
+              placeholder={t('requestLeaveModal.fields.reasonPlaceholder')}
             />
           </div>
 
-          {/* Action Buttons */}
           <div className="flex gap-3 pt-4">
             <button
               type="button"
               onClick={handleClose}
               className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-medium transition-colors"
             >
-              Cancel
+              {t('requestLeaveModal.buttons.cancel')}
             </button>
             <button
               type="submit"
@@ -661,10 +621,10 @@ if (certificateId) {
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Submitting...
+                  {t('requestLeaveModal.buttons.submitting')}
                 </>
               ) : (
-                'Submit Request'
+                t('requestLeaveModal.buttons.submit')
               )}
             </button>
           </div>

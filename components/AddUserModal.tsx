@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, X, CheckCircle, Loader2, Search, Calendar, UserCircle, Users } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
+import { useLocale } from 'i18n/LocaleProvider';
 
 interface AddUserModalProps {
   isOpen: boolean;
@@ -24,6 +25,8 @@ const supabase = createClient(
 );
 
 export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserModalProps) => {
+  const { t } = useLocale();
+  
   const [formData, setFormData] = useState({
     email: '',
     firstName: '',
@@ -31,7 +34,7 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
     password: '',
     managerId: '',
     employmentStartDate: '',
-    isManager: false, // ✅ New field
+    isManager: false,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -77,7 +80,7 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
 
       if (error) {
         console.error('Error fetching managers:', error);
-        setError('Failed to load managers');
+        setError(t('addUserModal.errors.failedToLoadManagers'));
         return;
       }
 
@@ -85,11 +88,11 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
       
       // Check if there are no managers available
       if (!data || data.length === 0) {
-        setError('No existing users found. Please ensure there is at least one user in the company before adding new users.');
+        setError(t('addUserModal.errors.noUsersFound'));
       }
     } catch (err) {
       console.error('Error fetching managers:', err);
-      setError('Failed to load managers');
+      setError(t('addUserModal.errors.failedToLoadManagers'));
     } finally {
       setLoadingManagers(false);
     }
@@ -115,14 +118,14 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
 
     // Validate manager selection
     if (!formData.managerId) {
-      setError('Please select a manager');
+      setError(t('addUserModal.errors.selectManager'));
       setLoading(false);
       return;
     }
 
     // Validate employment start date
     if (!formData.employmentStartDate) {
-      setError('Please select an employment start date');
+      setError(t('addUserModal.errors.selectStartDate'));
       setLoading(false);
       return;
     }
@@ -139,9 +142,9 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
 
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.error || 'Failed to create user');
+      if (!res.ok) throw new Error(data.error || t('addUserModal.errors.failedToCreate'));
 
-      setSuccess(`User created successfully! Temporary password: ${formData.password}`);
+      setSuccess(t('addUserModal.success.message', { password: formData.password }));
 
       setTimeout(() => {
         setFormData({ 
@@ -151,7 +154,7 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
           password: '',
           managerId: '',
           employmentStartDate: '',
-          isManager: false, // ✅ Reset to default
+          isManager: false,
         });
         setSuccess(null);
         setError(null);
@@ -162,7 +165,7 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError('An unexpected error occurred');
+        setError(t('addUserModal.errors.unexpectedError'));
       }
     } finally {
       setLoading(false);
@@ -191,7 +194,7 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-900">Add New User</h2>
+          <h2 className="text-xl font-bold text-gray-900">{t('addUserModal.header.title')}</h2>
           <button onClick={onClose} disabled={loading}>
             <X className="w-5 h-5 text-gray-500 hover:text-gray-700" />
           </button>
@@ -202,26 +205,28 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
             <p className="text-gray-900 font-semibold mb-2">{success}</p>
             <div className="bg-gray-50 rounded-lg border border-gray-200 p-3 mb-4">
-              <p className="text-sm"><strong>Email:</strong> {formData.email}</p>
-              <p className="text-sm"><strong>Password:</strong> {formData.password}</p>
+              <p className="text-sm"><strong>{t('addUserModal.success.email')}</strong> {formData.email}</p>
+              <p className="text-sm"><strong>{t('addUserModal.success.password')}</strong> {formData.password}</p>
               <button 
                 onClick={copyPassword} 
                 className="mt-2 text-blue-600 text-xs hover:text-blue-700 font-medium"
               >
-                {copied ? '✓ Copied!' : 'Copy credentials'}
+                {copied ? t('addUserModal.success.copied') : t('addUserModal.success.copyCredentials')}
               </button>
             </div>
-            <p className="text-xs text-gray-500">This window will close automatically</p>
+            <p className="text-xs text-gray-500">{t('addUserModal.success.autoClose')}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t('addUserModal.fields.email.label')} {t('addUserModal.fields.required')}
+              </label>
               <input
                 type="email"
                 required
-                placeholder="user@example.com"
+                placeholder={t('addUserModal.fields.email.placeholder')}
                 value={formData.email}
                 onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -232,11 +237,13 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
             {/* First and Last Name */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('addUserModal.fields.firstName.label')} {t('addUserModal.fields.required')}
+                </label>
                 <input
                   type="text"
                   required
-                  placeholder="John"
+                  placeholder={t('addUserModal.fields.firstName.placeholder')}
                   value={formData.firstName}
                   onChange={e => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -244,11 +251,13 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('addUserModal.fields.lastName.label')} {t('addUserModal.fields.required')}
+                </label>
                 <input
                   type="text"
                   required
-                  placeholder="Doe"
+                  placeholder={t('addUserModal.fields.lastName.placeholder')}
                   value={formData.lastName}
                   onChange={e => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -260,11 +269,13 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
             {/* Manager Selection & Is Manager Toggle - Combined Row */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <label className="block text-sm font-medium text-gray-700">Manager *</label>
-                {/* ✅ Is Manager Toggle */}
+                <label className="block text-sm font-medium text-gray-700">
+                  {t('addUserModal.fields.manager.label')} {t('addUserModal.fields.required')}
+                </label>
+                {/* Is Manager Toggle */}
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm text-gray-600">Is Manager</span>
+                  <span className="text-sm text-gray-600">{t('addUserModal.fields.manager.isManagerToggle')}</span>
                   <button
                     type="button"
                     onClick={() => setFormData(prev => ({ ...prev, isManager: !prev.isManager }))}
@@ -295,7 +306,7 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
                   <span className="flex items-center gap-2">
                     <UserCircle className="w-4 h-4 text-gray-400" />
                     <span className={formData.managerId ? 'text-gray-900' : 'text-gray-400'}>
-                      {loadingManagers ? 'Loading...' : (formData.managerId ? getSelectedManagerName() : 'Select a manager')}
+                      {loadingManagers ? t('addUserModal.fields.manager.loading') : (formData.managerId ? getSelectedManagerName() : t('addUserModal.fields.manager.placeholder'))}
                     </span>
                   </span>
                   <span className="text-gray-400">▼</span>
@@ -310,7 +321,7 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <input
                           type="text"
-                          placeholder="Search managers..."
+                          placeholder={t('addUserModal.fields.manager.search')}
                           value={managerSearch}
                           onChange={e => setManagerSearch(e.target.value)}
                           className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -350,7 +361,7 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
                         ))
                       ) : (
                         <div className="px-4 py-3 text-center text-gray-500 text-sm">
-                          No managers found
+                          {t('addUserModal.fields.manager.noResults')}
                         </div>
                       )}
                     </div>
@@ -358,12 +369,12 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
                 )}
               </div>
 
-              {/* ✅ Visual indicator when Is Manager is enabled */}
+              {/* Visual indicator when Is Manager is enabled */}
               {formData.isManager && (
                 <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
                   <Users className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                   <p className="text-sm text-blue-800">
-                    This user will be marked as a manager and can be assigned to other team members.
+                    {t('addUserModal.fields.manager.isManagerInfo')}
                   </p>
                 </div>
               )}
@@ -371,7 +382,9 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
 
             {/* Employment Start Date */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Employment Start Date *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t('addUserModal.fields.employmentStartDate.label')} {t('addUserModal.fields.required')}
+              </label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                 <input
@@ -387,7 +400,9 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Temporary Password *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t('addUserModal.fields.password.label')} {t('addUserModal.fields.required')}
+              </label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
@@ -402,14 +417,14 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
                   onClick={() => setShowPassword(!showPassword)} 
                   className="text-xs text-gray-600 hover:text-gray-800"
                 >
-                  {showPassword ? 'Hide' : 'Show'}
+                  {showPassword ? t('addUserModal.fields.password.hide') : t('addUserModal.fields.password.show')}
                 </button>
                 <button 
                   type="button" 
                   onClick={regeneratePassword} 
                   className="text-xs text-blue-600 hover:text-blue-700 font-medium"
                 >
-                  Regenerate Password
+                  {t('addUserModal.fields.password.regenerate')}
                 </button>
               </div>
             </div>
@@ -428,12 +443,12 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
               {loading ? (
                 <>
                   <Loader2 className="animate-spin w-4 h-4" />
-                  Creating...
+                  {t('addUserModal.buttons.creating')}
                 </>
               ) : (
                 <>
                   <Plus className="w-4 h-4" />
-                  Create User
+                  {t('addUserModal.buttons.create')}
                 </>
               )}
             </button>

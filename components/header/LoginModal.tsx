@@ -1,5 +1,6 @@
 // components/Header/LoginModal.tsx
 import React from 'react';
+import { useLocale } from 'i18n/LocaleProvider';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -19,11 +20,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   login,
   setLogin,
   password,
-  setPassword,  
+  setPassword,
   error,
   onLogin,
   isDemoExpired
 }) => {
+  const { t } = useLocale();
+
   if (!isOpen || isDemoExpired) return null;
 
   // Extract slug from URL (format: app/jobs/slug)
@@ -42,9 +45,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
         <div className="p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">Connexion</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{t('loginModal.title')}</h2>
           <p className="text-gray-600 mt-1">
-            {isDemoMode ? 'Choose a demo account' : 'Connect to your account'}
+            {isDemoMode ? t('loginModal.subtitle.demo') : t('loginModal.subtitle.normal')}
           </p>
         </div>
         
@@ -55,7 +58,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               onClick={handleDemoLogin('user@hrinno.hu', 'password')}
               className="w-full px-4 py-4 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 rounded-lg transition-colors text-left"
             >
-              <div className="font-semibold text-blue-900">Login as User</div>
+              <div className="font-semibold text-blue-900">{t('loginModal.demoAccounts.user')}</div>
               <div className="text-sm text-blue-700 mt-1">user@hrinno.hu</div>
             </button>
             
@@ -63,7 +66,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               onClick={handleDemoLogin('demo@hrinno.hu', 'demo')}
               className="w-full px-4 py-4 bg-green-50 hover:bg-green-100 border-2 border-green-200 rounded-lg transition-colors text-left"
             >
-              <div className="font-semibold text-green-900">Login as Manager</div>
+              <div className="font-semibold text-green-900">{t('loginModal.demoAccounts.manager')}</div>
               <div className="text-sm text-green-700 mt-1">manager@hrinno.hu</div>
             </button>
             
@@ -71,7 +74,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               onClick={handleDemoLogin('hrmanager@hrinno.hu', 'password')}
               className="w-full px-4 py-4 bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 rounded-lg transition-colors text-left"
             >
-              <div className="font-semibold text-purple-900">Login as HR Manager</div>
+              <div className="font-semibold text-purple-900">{t('loginModal.demoAccounts.hrManager')}</div>
               <div className="text-sm text-purple-700 mt-1">hrmanager@hrinno.hu</div>
             </button>
           </div>
@@ -79,20 +82,20 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           // Normal mode: Show login form
           <div className="p-6 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('loginModal.fields.email')}</label>
               <input 
                 type="email" 
-                placeholder="yours@email.com" 
+                placeholder={t('loginModal.fields.emailPlaceholder')}
                 value={login} 
                 onChange={(e) => setLogin(e.target.value)} 
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('loginModal.fields.password')}</label>
               <input 
                 type="password" 
-                placeholder="••••••••" 
+                placeholder={t('loginModal.fields.passwordPlaceholder')}
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
@@ -111,14 +114,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({
             onClick={onClose} 
             className="flex-1 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors"
           >
-            Cancel
+            {t('loginModal.buttons.cancel')}
           </button>
           {!isDemoMode && (
             <button 
               onClick={() => onLogin()} 
               className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
             >
-              Connect
+              {t('loginModal.buttons.connect')}
             </button>
           )}
         </div>

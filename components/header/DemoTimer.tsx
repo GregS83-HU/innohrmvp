@@ -1,5 +1,6 @@
 // components/Header/DemoTimer.tsx
 import React from 'react';
+import { useLocale } from 'i18n/LocaleProvider';
 import { Clock } from 'lucide-react';
 
 interface DemoTimerProps {
@@ -15,17 +16,19 @@ export const DemoTimer: React.FC<DemoTimerProps> = ({
   demoTimeLeft,
   formatTime
 }) => {
+  const { t } = useLocale();
+
   if (!isDemoMode && !isDemoExpired) return null;
 
-  const timerBarColor = isDemoExpired 
-    ? 'bg-gradient-to-r from-red-600 to-red-700' 
+  const timerBarColor = isDemoExpired
+    ? 'bg-gradient-to-r from-red-600 to-red-700'
     : demoTimeLeft && demoTimeLeft < 300 // Less than 5 minutes
     ? 'bg-gradient-to-r from-red-400 to-orange-500'
     : 'bg-gradient-to-r from-orange-400 to-red-500';
 
-  const timerMessage = isDemoExpired 
-    ? 'Demo Expired - Contact us to continue'
-    : `Demonstration Mode - Remaining time: ${demoTimeLeft ? formatTime(demoTimeLeft) : '00:00'}`;
+  const timerMessage = isDemoExpired
+    ? t('demoTimer.expired')
+    : t('demoTimer.active', { time: demoTimeLeft ? formatTime(demoTimeLeft) : '00:00' });
 
   return (
     <div className={`${timerBarColor} text-white px-4 py-2`}>
@@ -36,7 +39,7 @@ export const DemoTimer: React.FC<DemoTimerProps> = ({
         </span>
         {!isDemoExpired && (
           <div className="hidden sm:block text-xs opacity-90">
-            The application will close automatically at the end of the timer
+            {t('demoTimer.autoCloseWarning')}
           </div>
         )}
       </div>
