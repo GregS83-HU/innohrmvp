@@ -766,4 +766,128 @@
       "saveError": "Ismeretlen hiba történt mentés közben"
     }
   }
+,
+  "calendarLeaveModal": {
+    "title": "Gyors távolléti kérelem",
+    "fields": {
+      "leaveType": "Távollét típusa",
+      "leaveTypePlaceholder": "Válassz távollét típust",
+      "startDate": "Kezdő dátum",
+      "endDate": "Záró dátum",
+      "reason": "Indoklás (opcionális)",
+      "reasonPlaceholder": "Rövid leírás..."
+    },
+    "certificate": {
+      "uploadPrompt": "Betegszabadság esetén feltölthetsz orvosi igazolást",
+      "uploadButton": "Igazolás feltöltése",
+      "uploaded": "Orvosi igazolás feltöltve"
+    },
+    "buttons": {
+      "cancel": "Mégse",
+      "submit": "Kérelem benyújtása",
+      "submitting": "Küldés..."
+    },
+    "alerts": {
+      "selectLeaveType": "Kérlek, válassz távollét típust",
+      "submitError": "Hiba a kérelem benyújtásakor: {{message}}"
+    },
+    "console": {
+      "fetchError": "Hiba a távollét típusok lekérésekor:",
+      "notificationSent": "A távolléti kérelmet elküldtük a vezetőnek",
+      "notificationError": "Hiba a távolléti kérelem értesítésének küldésekor:",
+      "noManager": "Nem található vezető a felhasználóhoz, értesítés kihagyva"
+    }
+  }
+,
+  "calendarLegend": {
+    "title": "Jelmagyarázat",
+    "myView": {
+      "leaveTypes": "Távollét típusai:",
+      "status": "Állapot:",
+      "statusApproved": "Jóváhagyva",
+      "statusPending": "Függőben",
+      "statusOverlapError": "Átfedési hiba",
+      "specialDays": "Különleges napok:",
+      "weekend": "Hétvége",
+      "publicHoliday": "Munkaszüneti nap"
+    },
+    "managerView": {
+      "teamAbsenceLevels": "Csapat távolléti arányok:",
+      "noAbsences": "0% (Nincs távollét)",
+      "lowAbsence": "1–20%",
+      "mediumAbsence": "21–40%",
+      "highAbsence": ">40% (Magas távollét)",
+      "weekend": "Hétvége",
+      "hoverHint": "Vidd az egeret a napok fölé a csapattagok nevének megtekintéséhez"
+    }
+  }
+,
+  "calendarDay": {
+    "holidayIndicator": "M",
+    "tooltip": {
+      "publicHoliday": "🎉 Munkaszüneti nap",
+      "overlappingLeaves": "⚠️ Átfedő szabadságok!",
+      "statusPending": "⏳ Függőben",
+      "statusApproved": "✓ Jóváhagyva"
+    }
+  }
+,
+  "managerHeatmapCell": {
+    "tooltip": {
+      "absent": "{{count}} / {{total}} hiányzik ({{percentage}}%)",
+      "pending": "(Függőben)"
+    }
+  }
+,
+  "yearCalendarGrid": {
+    "months": {
+      "january": "Január",
+      "february": "Február",
+      "march": "Március",
+      "april": "Április",
+      "may": "Május",
+      "june": "Június",
+      "july": "Július",
+      "august": "Augusztus",
+      "september": "Szeptember",
+      "october": "Október",
+      "november": "November",
+      "december": "December"
+    },
+    "weekDays": {
+      "monday": "H",
+      "tuesday": "K",
+      "wednesday": "Sze",
+      "thursday": "Cs",
+      "friday": "P",
+      "saturday": "Szo",
+      "sunday": "V"
+    },
+    "defaults": {
+      "unknownLeaveType": "Ismeretlen"
+    }
+  }
+,
+  "approvalModal": {
+    "titles": {
+      "approve": "Kérelem jóváhagyása",
+      "reject": "Kérelem elutasítása"
+    },
+    "fields": {
+      "employee": "Munkavállaló",
+      "leaveType": "Szabadság típusa",
+      "duration": "Időtartam",
+      "days": "nap",
+      "notesLabel": "Megjegyzés (nem kötelező)",
+      "rejectionReasonLabel": "Elutasítás oka (kötelező)",
+      "notesPlaceholder": "További megjegyzések hozzáadása...",
+      "rejectionReasonPlaceholder": "Kérjük, magyarázza el, miért kerül elutasításra ez a kérelem...",
+      "rejectionRequired": "Az elutasítás oka megadása kötelező"
+    },
+    "buttons": {
+      "cancel": "Mégse",
+      "approve": "Kérelem jóváhagyása",
+      "reject": "Kérelem elutasítása"
+    }
+  }
 }

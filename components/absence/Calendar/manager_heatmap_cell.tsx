@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import { useLocale } from 'i18n/LocaleProvider';
 
 interface Absence {
   user_id: string;
@@ -38,6 +38,7 @@ const ManagerHeatmapCell: React.FC<ManagerHeatmapCellProps> = ({
   absences,
   isWeekend
 }) => {
+  const { t } = useLocale();
   const [showTooltip, setShowTooltip] = useState(false);
 
   // Calculate absence percentage
@@ -104,7 +105,11 @@ const ManagerHeatmapCell: React.FC<ManagerHeatmapCellProps> = ({
           <div className="space-y-1">
             <p className="font-semibold">{formatDate(date)}</p>
             <p className="text-orange-300">
-              {absentEmployees.length} of {teamSize} absent ({Math.round(percentage)}%)
+              {t('managerHeatmapCell.tooltip.absent', {
+                count: absentEmployees.length,
+                total: teamSize,
+                percentage: Math.round(percentage)
+              })}
             </p>
             
             <div className="border-t border-gray-700 mt-2 pt-2 space-y-1.5">
@@ -114,7 +119,7 @@ const ManagerHeatmapCell: React.FC<ManagerHeatmapCellProps> = ({
                   {employee.leaves.map((leave, leaveIndex) => (
                     <p key={leaveIndex} className="text-gray-400 text-[10px]">
                       • {leave.leave_type_name_hu} 
-                      {leave.status === 'pending' && ' (Pending)'}
+                      {leave.status === 'pending' && ` ${t('managerHeatmapCell.tooltip.pending')}`}
                     </p>
                   ))}
                 </div>

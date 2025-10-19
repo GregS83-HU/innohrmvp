@@ -1,5 +1,6 @@
 // File: components/absence/ApprovalModal.tsx
 import React, { useState } from 'react';
+import { useLocale } from 'i18n/LocaleProvider';
 import { X } from 'lucide-react';
 import { PendingApproval } from '../../types/absence';
 
@@ -18,6 +19,7 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({
   type,
   approval
 }) => {
+  const { t } = useLocale();
   const [notes, setNotes] = useState('');
   const isReject = type === 'reject';
 
@@ -71,7 +73,7 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({
             <h3 className={`text-xl font-bold ${
               isReject ? 'text-red-900' : 'text-green-900'
             }`}>
-              {isReject ? 'Reject Request' : 'Approve Request'}
+              {isReject ? t('approvalModal.titles.reject') : t('approvalModal.titles.approve')}
             </h3>
             <button
               onClick={handleClose}
@@ -84,27 +86,27 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({
           {/* Content */}
           <div className="p-6">
             <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600 mb-1">Employee</p>
+              <p className="text-sm text-gray-600 mb-1">{t('approvalModal.fields.employee')}</p>
               <p className="font-semibold text-gray-900">{approval.employee_name}</p>
-              <p className="text-sm text-gray-600 mt-2">Leave Type</p>
+              <p className="text-sm text-gray-600 mt-2">{t('approvalModal.fields.leaveType')}</p>
               <p className="font-medium text-gray-800">{approval.leave_type_name_hu}</p>
-              <p className="text-sm text-gray-600 mt-2">Duration</p>
-              <p className="font-medium text-gray-800">{approval.total_days} day(s)</p>
+              <p className="text-sm text-gray-600 mt-2">{t('approvalModal.fields.duration')}</p>
+              <p className="font-medium text-gray-800">{approval.total_days} {t('approvalModal.fields.days')}</p>
             </div>
 
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {isReject ? 'Reason for rejection (required)' : 'Notes (optional)'}
+                {isReject ? t('approvalModal.fields.rejectionReasonLabel') : t('approvalModal.fields.notesLabel')}
               </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 rows={4}
-                placeholder={isReject ? 'Please explain why this request is being rejected...' : 'Add any additional notes...'}
+                placeholder={isReject ? t('approvalModal.fields.rejectionReasonPlaceholder') : t('approvalModal.fields.notesPlaceholder')}
               />
               {isReject && !notes.trim() && (
-                <p className="text-xs text-red-600 mt-1">Rejection reason is required</p>
+                <p className="text-xs text-red-600 mt-1">{t('approvalModal.fields.rejectionRequired')}</p>
               )}
             </div>
 
@@ -115,7 +117,7 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({
                 onClick={handleClose}
                 className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors"
               >
-                Cancel
+                {t('approvalModal.buttons.cancel')}
               </button>
               <button
                 type="button"
@@ -129,7 +131,7 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({
                     : 'bg-green-600 hover:bg-green-700'
                 }`}
               >
-                {isReject ? 'Reject Request' : 'Approve Request'}
+                {isReject ? t('approvalModal.buttons.reject') : t('approvalModal.buttons.approve')}
               </button>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocale } from 'i18n/LocaleProvider';
 
 interface CalendarDayProps {
   date: Date;
@@ -40,6 +41,7 @@ const CalendarDay: React.FC<CalendarDayProps> = ({
   onMouseDown,
   onMouseEnter
 }) => {
+  const { t } = useLocale();
   const [showTooltip, setShowTooltip] = useState(false);
 
   // Check if there are overlapping leaves (error state)
@@ -132,7 +134,7 @@ const CalendarDay: React.FC<CalendarDayProps> = ({
         {/* Holiday indicator */}
         {isHoliday && !hasOverlap && (
           <span className="absolute top-0.5 right-0.5 text-[8px] font-bold text-purple-600">
-            H
+            {t('calendarDay.holidayIndicator')}
           </span>
         )}
       </div>
@@ -144,18 +146,20 @@ const CalendarDay: React.FC<CalendarDayProps> = ({
             <p className="font-semibold">{formatDate(date)}</p>
             
             {isHoliday && (
-              <p className="text-purple-300">🎉 Public Holiday</p>
+              <p className="text-purple-300">{t('calendarDay.tooltip.publicHoliday')}</p>
             )}
             
             {hasOverlap && (
-              <p className="text-red-300 font-bold">⚠️ Overlapping Leaves!</p>
+              <p className="text-red-300 font-bold">{t('calendarDay.tooltip.overlappingLeaves')}</p>
             )}
             
             {leaves.map((leave, index) => (
               <div key={index} className="space-y-0.5">
                 <p className="font-medium">{leave.leave_type_name_hu}</p>
                 <p className="text-gray-300 text-[10px]">
-                  {leave.status === 'pending' ? '⏳ Pending' : '✓ Approved'}
+                  {leave.status === 'pending' 
+                    ? t('calendarDay.tooltip.statusPending') 
+                    : t('calendarDay.tooltip.statusApproved')}
                 </p>
                 {leave.reason && (
                   <p className="text-gray-400 text-[10px] italic">{leave.reason}</p>

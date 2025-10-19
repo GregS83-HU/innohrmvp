@@ -1,6 +1,7 @@
 // components/CalendarLeaveModal.tsx
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import { useLocale } from 'i18n/LocaleProvider';
 import { X, Loader2, CheckCircle, Upload } from 'lucide-react';
 import CertificateUploadModal from '../../CertificateUploadModal';
 import { createLeaveRequestNotification } from '../../../utils/absenceNotifications';
@@ -60,6 +61,7 @@ const CalendarLeaveModal: React.FC<CalendarLeaveModalProps> = ({
   currentUser,
   prefilledDates
 }) => {
+  const { t } = useLocale();
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
   const [loading, setLoading] = useState(false);
   const [showCertificateModal, setShowCertificateModal] = useState(false);
@@ -92,11 +94,11 @@ const CalendarLeaveModal: React.FC<CalendarLeaveModalProps> = ({
         if (error) throw error;
         setLeaveTypes(data || []);
       } catch (err) {
-        console.error('Error fetching leave types:', err);
+        console.error(t('calendarLeaveModal.console.fetchError'), err);
       }
     };
     if (isOpen) fetchLeaveTypes();
-  }, [isOpen]);
+  }, [isOpen, t]);
 
   const isSickLeaveType = (leaveTypeId: string) => {
     const type = leaveTypes.find(t => t.id === leaveTypeId);
@@ -120,7 +122,7 @@ const CalendarLeaveModal: React.FC<CalendarLeaveModalProps> = ({
     e.preventDefault();
 
     if (!formData.leave_type_id) {
-      alert('Please select a leave type');
+      alert(t('calendarLeaveModal.alerts.selectLeaveType'));
       return;
     }
 
@@ -187,18 +189,18 @@ const CalendarLeaveModal: React.FC<CalendarLeaveModalProps> = ({
             totalDays: workingDays
           });
 
-          console.log('Leave request notification sent to manager');
+          console.log(t('calendarLeaveModal.console.notificationSent'));
         } catch (notificationError) {
-          console.error('Error sending leave request notification:', notificationError);
+          console.error(t('calendarLeaveModal.console.notificationError'), notificationError);
         }
       } else {
-        console.warn('No manager found for user, skipping notification');
+        console.warn(t('calendarLeaveModal.console.noManager'));
       }
 
       onSuccess();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      alert('Error submitting request: ' + message);
+      alert(t('calendarLeaveModal.alerts.submitError', { message }));
     } finally {
       setLoading(false);
     }
@@ -212,7 +214,7 @@ const CalendarLeaveModal: React.FC<CalendarLeaveModalProps> = ({
         <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
           <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between rounded-t-2xl">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Quick Leave Request</h2>
+              <h2 className="text-xl font-bold text-gray-900">{t('calendarLeaveModal.title')}</h2>
               <p className="text-sm text-gray-600">
                 {prefilledDates.start.toLocaleDateString('hu-HU')} -{' '}
                 {prefilledDates.end.toLocaleDateString('hu-HU')}
@@ -229,14 +231,16 @@ const CalendarLeaveModal: React.FC<CalendarLeaveModalProps> = ({
 
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Leave Type</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('calendarLeaveModal.fields.leaveType')}
+              </label>
               <select
                 value={formData.leave_type_id}
                 onChange={e => setFormData({ ...formData, leave_type_id: e.target.value })}
                 required
                 className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
-                <option value="">Select leave type</option>
+                <option value="">{t('calendarLeaveModal.fields.leaveTypePlaceholder')}</option>
                 {leaveTypes.map(type => (
                   <option key={type.id} value={type.id}>
                     {type.name_hu} ({type.name})
@@ -248,7 +252,7 @@ const CalendarLeaveModal: React.FC<CalendarLeaveModalProps> = ({
             {isSickLeaveType(formData.leave_type_id) && !certificateData && (
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                 <p className="text-sm text-blue-800 mb-3">
-                  For sick leave, you can upload a medical certificate
+                  {t('calendarLeaveModal.certificate.uploadPrompt')}
                 </p>
                 <button
                   type="button"
@@ -256,7 +260,7 @@ const CalendarLeaveModal: React.FC<CalendarLeaveModalProps> = ({
                   className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
                 >
                   <Upload className="w-4 h-4" />
-                  Upload Certificate
+                  {t('calendarLeaveModal.certificate.uploadButton')}
                 </button>
               </div>
             )}
@@ -265,14 +269,16 @@ const CalendarLeaveModal: React.FC<CalendarLeaveModalProps> = ({
               <div className="bg-green-50 border border-green-200 rounded-xl p-4">
                 <div className="flex items-center gap-2 text-green-800">
                   <CheckCircle className="w-5 h-5" />
-                  <span className="text-sm font-medium">Medical certificate uploaded</span>
+                  <span className="text-sm font-medium">{t('calendarLeaveModal.certificate.uploaded')}</span>
                 </div>
               </div>
             )}
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('calendarLeaveModal.fields.startDate')}
+                </label>
                 <input
                   type="date"
                   value={formData.start_date}
@@ -282,7 +288,9 @@ const CalendarLeaveModal: React.FC<CalendarLeaveModalProps> = ({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('calendarLeaveModal.fields.endDate')}
+                </label>
                 <input
                   type="date"
                   value={formData.end_date}
@@ -295,12 +303,14 @@ const CalendarLeaveModal: React.FC<CalendarLeaveModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Reason (optional)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('calendarLeaveModal.fields.reason')}
+              </label>
               <textarea
                 value={formData.reason}
                 onChange={e => setFormData({ ...formData, reason: e.target.value })}
                 rows={3}
-                placeholder="Brief description..."
+                placeholder={t('calendarLeaveModal.fields.reasonPlaceholder')}
                 className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
               />
             </div>
@@ -311,7 +321,7 @@ const CalendarLeaveModal: React.FC<CalendarLeaveModalProps> = ({
                 onClick={onClose}
                 className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-medium transition-colors"
               >
-                Cancel
+                {t('calendarLeaveModal.buttons.cancel')}
               </button>
               <button
                 type="submit"
@@ -321,10 +331,10 @@ const CalendarLeaveModal: React.FC<CalendarLeaveModalProps> = ({
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Submitting...
+                    {t('calendarLeaveModal.buttons.submitting')}
                   </>
                 ) : (
-                  'Submit Request'
+                  t('calendarLeaveModal.buttons.submit')
                 )}
               </button>
             </div>

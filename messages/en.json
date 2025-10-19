@@ -771,4 +771,128 @@
       "saveError": "Unknown error occurred while saving"
     }
   }
+,
+  "calendarLeaveModal": {
+    "title": "Quick Leave Request",
+    "fields": {
+      "leaveType": "Leave Type",
+      "leaveTypePlaceholder": "Select leave type",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "reason": "Reason (optional)",
+      "reasonPlaceholder": "Brief description..."
+    },
+    "certificate": {
+      "uploadPrompt": "For sick leave, you can upload a medical certificate",
+      "uploadButton": "Upload Certificate",
+      "uploaded": "Medical certificate uploaded"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "submit": "Submit Request",
+      "submitting": "Submitting..."
+    },
+    "alerts": {
+      "selectLeaveType": "Please select a leave type",
+      "submitError": "Error submitting request: {{message}}"
+    },
+    "console": {
+      "fetchError": "Error fetching leave types:",
+      "notificationSent": "Leave request notification sent to manager",
+      "notificationError": "Error sending leave request notification:",
+      "noManager": "No manager found for user, skipping notification"
+    }
+  }
+,
+  "calendarLegend": {
+    "title": "Legend",
+    "myView": {
+      "leaveTypes": "Leave Types:",
+      "status": "Status:",
+      "statusApproved": "Approved",
+      "statusPending": "Pending",
+      "statusOverlapError": "Overlap Error",
+      "specialDays": "Special Days:",
+      "weekend": "Weekend",
+      "publicHoliday": "Public Holiday"
+    },
+    "managerView": {
+      "teamAbsenceLevels": "Team Absence Levels:",
+      "noAbsences": "0% (No absences)",
+      "lowAbsence": "1-20%",
+      "mediumAbsence": "21-40%",
+      "highAbsence": ">40% (High absence)",
+      "weekend": "Weekend",
+      "hoverHint": "Hover over days to see team member names"
+    }
+  }
+,
+  "calendarDay": {
+    "holidayIndicator": "H",
+    "tooltip": {
+      "publicHoliday": "🎉 Public Holiday",
+      "overlappingLeaves": "⚠️ Overlapping Leaves!",
+      "statusPending": "⏳ Pending",
+      "statusApproved": "✓ Approved"
+    }
+  }
+,
+  "managerHeatmapCell": {
+    "tooltip": {
+      "absent": "{{count}} of {{total}} absent ({{percentage}}%)",
+      "pending": "(Pending)"
+    }
+  }
+,
+  "yearCalendarGrid": {
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    },
+    "weekDays": {
+      "monday": "M",
+      "tuesday": "T",
+      "wednesday": "W",
+      "thursday": "T",
+      "friday": "F",
+      "saturday": "S",
+      "sunday": "S"
+    },
+    "defaults": {
+      "unknownLeaveType": "Unknown"
+    }
+  }
+,
+  "approvalModal": {
+    "titles": {
+      "approve": "Approve Request",
+      "reject": "Reject Request"
+    },
+    "fields": {
+      "employee": "Employee",
+      "leaveType": "Leave Type",
+      "duration": "Duration",
+      "days": "day(s)",
+      "notesLabel": "Notes (optional)",
+      "rejectionReasonLabel": "Reason for rejection (required)",
+      "notesPlaceholder": "Add any additional notes...",
+      "rejectionReasonPlaceholder": "Please explain why this request is being rejected...",
+      "rejectionRequired": "Rejection reason is required"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "approve": "Approve Request",
+      "reject": "Reject Request"
+    }
+  }
 }

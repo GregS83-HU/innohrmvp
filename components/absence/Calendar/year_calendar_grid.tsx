@@ -1,5 +1,6 @@
 // File: components/absence/Calendar/year_calendar_grid.tsx
 import React, { useState } from 'react';
+import { useLocale } from 'i18n/LocaleProvider';
 import CalendarDay, { CalendarLeave } from './calendar_day';
 import ManagerHeatmapCell, { TeamLeave } from './manager_heatmap_cell';
 
@@ -46,16 +47,35 @@ const YearCalendarGrid: React.FC<YearCalendarGridProps> = ({
   teamData,
   onDateSelection
 }) => {
+  const { t } = useLocale();
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState<Date | null>(null);
   const [dragEnd, setDragEnd] = useState<Date | null>(null);
 
-  const monthsHu = [
-    'Január', 'Február', 'Március', 'Április', 'Május', 'Június',
-    'Július', 'Augusztus', 'Szeptember', 'Október', 'November', 'December'
+  const months = [
+    t('yearCalendarGrid.months.january'),
+    t('yearCalendarGrid.months.february'),
+    t('yearCalendarGrid.months.march'),
+    t('yearCalendarGrid.months.april'),
+    t('yearCalendarGrid.months.may'),
+    t('yearCalendarGrid.months.june'),
+    t('yearCalendarGrid.months.july'),
+    t('yearCalendarGrid.months.august'),
+    t('yearCalendarGrid.months.september'),
+    t('yearCalendarGrid.months.october'),
+    t('yearCalendarGrid.months.november'),
+    t('yearCalendarGrid.months.december')
   ];
 
-  const weekDaysHu = ['H', 'K', 'Sze', 'Cs', 'P', 'Szo', 'V'];
+  const weekDays = [
+    t('yearCalendarGrid.weekDays.monday'),
+    t('yearCalendarGrid.weekDays.tuesday'),
+    t('yearCalendarGrid.weekDays.wednesday'),
+    t('yearCalendarGrid.weekDays.thursday'),
+    t('yearCalendarGrid.weekDays.friday'),
+    t('yearCalendarGrid.weekDays.saturday'),
+    t('yearCalendarGrid.weekDays.sunday')
+  ];
 
   const today = new Date();
 
@@ -180,7 +200,7 @@ const YearCalendarGrid: React.FC<YearCalendarGridProps> = ({
         start_date: req.start_date,
         end_date: req.end_date,
         leave_type_color: req.leave_type_color || '#ffffff',
-        leave_type_name_hu: req.leave_type_name_hu || 'Unknown',
+        leave_type_name_hu: req.leave_type_name_hu || t('yearCalendarGrid.defaults.unknownLeaveType'),
         status: req.status || 'approved',
         reason: req.reason,
       }));
@@ -199,7 +219,7 @@ const YearCalendarGrid: React.FC<YearCalendarGridProps> = ({
         employee_name: leave.employee_name,
         start_date: leave.start_date,
         end_date: leave.end_date,
-        leave_type_name_hu: leave.leave_type_name_hu || 'Unknown',
+        leave_type_name_hu: leave.leave_type_name_hu || t('yearCalendarGrid.defaults.unknownLeaveType'),
         status: leave.status || 'approved'
       }));
   };
@@ -207,15 +227,15 @@ const YearCalendarGrid: React.FC<YearCalendarGridProps> = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 print:grid-cols-3 print:gap-4"
          onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
-      {monthsHu.map((monthName, monthIndex) => {
+      {months.map((monthName, monthIndex) => {
         const days = getDaysInMonth(monthIndex);
 
         return (
           <div key={monthName} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 print:break-inside-avoid">
             <h3 className="font-bold text-gray-900 mb-3 text-center">{monthName}</h3>
             <div className="grid grid-cols-7 gap-1 mb-2">
-              {weekDaysHu.map(day => (
-                <div key={day} className="text-xs font-medium text-gray-500 text-center">{day}</div>
+              {weekDays.map((day, index) => (
+                <div key={`${day}-${index}`} className="text-xs font-medium text-gray-500 text-center">{day}</div>
               ))}
             </div>
 
