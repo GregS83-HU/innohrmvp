@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Calendar, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
+import { useLocale } from 'i18n/LocaleProvider'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,6 +32,7 @@ interface PulseData {
 }
 
 export default function WeeklyPulsePage() {
+  const { t } = useLocale()
   const router = useRouter()
   const session = useSession()
   const params = useParams()
@@ -100,7 +102,7 @@ export default function WeeklyPulsePage() {
 
     try {
       if (!session?.user?.id) {
-        setMessage({ text: 'No session found', type: 'error' })
+        setMessage({ text: t('weeklyPulsePage.messages.noSession'), type: 'error' })
         return
       }
 
@@ -120,15 +122,15 @@ export default function WeeklyPulsePage() {
       const allSuccessful = results.every(r => r.ok)
       
       if (allSuccessful) {
-        setMessage({ text: 'Weekly pulse submitted successfully!', type: 'success' })
+        setMessage({ text: t('weeklyPulsePage.messages.submitSuccess'), type: 'success' })
         setTimeout(() => {
           router.push(`/jobs/${companySlug}/performance`)
         }, 1500)
       } else {
-        setMessage({ text: 'Some updates failed. Please try again.', type: 'error' })
+        setMessage({ text: t('weeklyPulsePage.messages.submitFailed'), type: 'error' })
       }
     } catch (error) {
-      setMessage({ text: `Error: ${(error as Error).message}`, type: 'error' })
+      setMessage({ text: t('weeklyPulsePage.messages.error', { message: (error as Error).message }), type: 'error' })
     }
 
     setSubmitting(false)
@@ -159,12 +161,16 @@ export default function WeeklyPulsePage() {
     }
   }
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString()
+  }
+
   if (!session || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-lg p-8 text-center">
           <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading pulse check...</p>
+          <p className="text-gray-600">{t('weeklyPulsePage.loading.message')}</p>
         </div>
       </div>
     )
@@ -175,13 +181,13 @@ export default function WeeklyPulsePage() {
       <main className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">All Caught Up!</h2>
-          <p className="text-gray-600 mb-6">You&apos;ve already submitted your weekly pulse for all goals.</p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">{t('weeklyPulsePage.allCaughtUp.title')}</h2>
+          <p className="text-gray-600 mb-6">{t('weeklyPulsePage.allCaughtUp.description')}</p>
           <button
             onClick={() => router.push(`/jobs/${companySlug}/performance`)}
             className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all"
           >
-            Back to Dashboard
+            {t('weeklyPulsePage.allCaughtUp.backButton')}
           </button>
         </div>
       </main>
@@ -199,15 +205,17 @@ export default function WeeklyPulsePage() {
             className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Dashboard
+            {t('weeklyPulsePage.header.backButton')}
           </button>
           <div className="flex items-center gap-4">
             <div className="bg-blue-100 rounded-lg p-3">
               <Calendar className="w-8 h-8 text-blue-600" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">Weekly Pulse Check</h1>
-              <p className="text-gray-600">Week starting: {new Date(weekStart).toLocaleDateString()}</p>
+              <h1 className="text-3xl font-bold text-gray-800">{t('weeklyPulsePage.header.title')}</h1>
+              <p className="text-gray-600">
+                {t('weeklyPulsePage.header.weekStarting', { date: formatDate(weekStart) })}
+              </p>
             </div>
           </div>
         </div>
@@ -217,8 +225,8 @@ export default function WeeklyPulsePage() {
           <div className="flex gap-3">
             <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div className="text-sm text-gray-700">
-              <p className="font-medium mb-1">Quick 2-minute check-in on your goals</p>
-              <p>🟢 Green = On track | 🟡 Yellow = Some issues | 🔴 Red = Blocked/Need help</p>
+              <p className="font-medium mb-1">{t('weeklyPulsePage.infoBox.title')}</p>
+              <p>{t('weeklyPulsePage.infoBox.statusLegend')}</p>
             </div>
           </div>
         </div>
@@ -250,7 +258,7 @@ export default function WeeklyPulsePage() {
             <div key={goal.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b border-gray-100">
                 <h3 className="font-semibold text-gray-800 text-lg">
-                  Goal {index + 1}: {goal.goal_title}
+                  {t('weeklyPulsePage.form.goalLabel', { number: index + 1, title: goal.goal_title })}
                 </h3>
               </div>
               
@@ -258,7 +266,7 @@ export default function WeeklyPulsePage() {
                 {/* Status Selection */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    How is this goal progressing?
+                    {t('weeklyPulsePage.form.statusQuestion')}
                   </label>
                   <div className="flex gap-3">
                     <button
@@ -266,21 +274,21 @@ export default function WeeklyPulsePage() {
                       onClick={() => updatePulse(goal.id, 'status', 'green')}
                       className={getStatusButtonClass(goal.id, 'green')}
                     >
-                      🟢 On Track
+                      {t('weeklyPulsePage.form.statusButtons.onTrack')}
                     </button>
                     <button
                       type="button"
                       onClick={() => updatePulse(goal.id, 'status', 'yellow')}
                       className={getStatusButtonClass(goal.id, 'yellow')}
                     >
-                      🟡 Some Issues
+                      {t('weeklyPulsePage.form.statusButtons.someIssues')}
                     </button>
                     <button
                       type="button"
                       onClick={() => updatePulse(goal.id, 'status', 'red')}
                       className={getStatusButtonClass(goal.id, 'red')}
                     >
-                      🔴 Blocked
+                      {t('weeklyPulsePage.form.statusButtons.blocked')}
                     </button>
                   </div>
                 </div>
@@ -288,14 +296,14 @@ export default function WeeklyPulsePage() {
                 {/* Progress Comment */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Progress Update (optional)
+                    {t('weeklyPulsePage.form.progressUpdate.label')}
                   </label>
                   <textarea
                     value={pulseData[goal.id]?.progress_comment || ''}
                     onChange={(e) => updatePulse(goal.id, 'progress_comment', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                     rows={3}
-                    placeholder="What did you accomplish this week?"
+                    placeholder={t('weeklyPulsePage.form.progressUpdate.placeholder')}
                   />
                 </div>
 
@@ -303,14 +311,14 @@ export default function WeeklyPulsePage() {
                 {pulseData[goal.id]?.status === 'red' && (
                   <div>
                     <label className="block text-sm font-semibold text-red-700 mb-2">
-                      What&apos;s blocking you? *
+                      {t('weeklyPulsePage.form.blockers.label')} {t('weeklyPulsePage.form.blockers.required')}
                     </label>
                     <textarea
                       value={pulseData[goal.id]?.blockers || ''}
                       onChange={(e) => updatePulse(goal.id, 'blockers', e.target.value)}
                       className="w-full px-4 py-3 border border-red-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none bg-red-50"
                       rows={2}
-                      placeholder="Describe what&apos;s blocking your progress so your manager can help"
+                      placeholder={t('weeklyPulsePage.form.blockers.placeholder')}
                       required
                     />
                   </div>
@@ -328,12 +336,12 @@ export default function WeeklyPulsePage() {
             {submitting ? (
               <>
                 <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                Submitting...
+                {t('weeklyPulsePage.form.submitButton.submitting')}
               </>
             ) : (
               <>
                 <CheckCircle className="w-5 h-5" />
-                Submit Weekly Pulse
+                {t('weeklyPulsePage.form.submitButton.submit')}
               </>
             )}
           </button>

@@ -6,6 +6,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Plus, Target, TrendingUp, Calendar, AlertCircle, CheckCircle } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
+import { useLocale } from 'i18n/LocaleProvider'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,6 +33,7 @@ interface Goal {
 }
 
 export default function PerformanceDashboard() {
+  const { t } = useLocale()
   const router = useRouter()
   const session = useSession()
   const params = useParams()
@@ -44,7 +46,6 @@ export default function PerformanceDashboard() {
 
   useEffect(() => {
     if (!session) {
-      // FIXED: Redirect to company home instead of root
       router.push(`/jobs/${companySlug}`)
       return
     }
@@ -66,26 +67,26 @@ export default function PerformanceDashboard() {
   }
 
   const fetchGoals = async () => {
-  setLoading(true)
-  try {
-    if (!session?.user?.id) {
-      console.error('No session found')
-      setLoading(false)
-      return
+    setLoading(true)
+    try {
+      if (!session?.user?.id) {
+        console.error('No session found')
+        setLoading(false)
+        return
+      }
+      
+      const res = await fetch(`/api/performance/goals?view=employee&user_id=${session.user.id}`)
+      const data = await res.json()
+      if (res.ok) {
+        setGoals(data.goals || [])
+      } else {
+        console.error('Error fetching goals:', data.error)
+      }
+    } catch (error) {
+      console.error('Error fetching goals:', error)
     }
-    
-    const res = await fetch(`/api/performance/goals?view=employee&user_id=${session.user.id}`)
-    const data = await res.json()
-    if (res.ok) {
-      setGoals(data.goals || [])
-    } else {
-      console.error('Error fetching goals:', data.error)
-    }
-  } catch (error) {
-    console.error('Error fetching goals:', error)
+    setLoading(false)
   }
-  setLoading(false)
-}
 
   const activeGoals = goals.filter(g => g.status === 'active')
   const draftGoals = goals.filter(g => g.status === 'draft')
@@ -110,12 +111,22 @@ export default function PerformanceDashboard() {
     }
   }
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString()
+  }
+
+  const getPulseReminderText = (count: number) => {
+    return count === 1
+      ? t('performanceDashboard.pulseReminder.description', { count })
+      : t('performanceDashboard.pulseReminder.description_plural', { count })
+  }
+
   if (!session || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-lg p-8 text-center">
           <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your performance dashboard...</p>
+          <p className="text-gray-600">{t('performanceDashboard.loading.message')}</p>
         </div>
       </div>
     )
@@ -129,15 +140,19 @@ export default function PerformanceDashboard() {
         <div className="bg-white rounded-2xl shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">My Performance</h1>
-              <p className="text-gray-600">{currentQuarter} - Track your goals and progress</p>
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                {t('performanceDashboard.header.title')}
+              </h1>
+              <p className="text-gray-600">
+                {t('performanceDashboard.header.subtitle', { quarter: currentQuarter })}
+              </p>
             </div>
             <button
               onClick={() => router.push(`/jobs/${companySlug}/performance/goals/new`)}
               className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105"
             >
               <Plus className="w-5 h-5" />
-              New Goal
+              {t('performanceDashboard.header.newGoalButton')}
             </button>
           </div>
         </div>
@@ -151,7 +166,7 @@ export default function PerformanceDashboard() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-800">{activeGoals.length}</p>
-                <p className="text-sm text-gray-600">Active Goals</p>
+                <p className="text-sm text-gray-600">{t('performanceDashboard.quickStats.activeGoals')}</p>
               </div>
             </div>
           </div>
@@ -163,7 +178,7 @@ export default function PerformanceDashboard() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-800">{needsPulseGoals.length}</p>
-                <p className="text-sm text-gray-600">Needs Pulse</p>
+                <p className="text-sm text-gray-600">{t('performanceDashboard.quickStats.needsPulse')}</p>
               </div>
             </div>
           </div>
@@ -175,7 +190,7 @@ export default function PerformanceDashboard() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-800">{redFlagGoals.length}</p>
-                <p className="text-sm text-gray-600">Red Flags</p>
+                <p className="text-sm text-gray-600">{t('performanceDashboard.quickStats.redFlags')}</p>
               </div>
             </div>
           </div>
@@ -187,7 +202,7 @@ export default function PerformanceDashboard() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-800">{draftGoals.length}</p>
-                <p className="text-sm text-gray-600">Pending Approval</p>
+                <p className="text-sm text-gray-600">{t('performanceDashboard.quickStats.pendingApproval')}</p>
               </div>
             </div>
           </div>
@@ -200,16 +215,16 @@ export default function PerformanceDashboard() {
               <Calendar className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-1" />
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                  Weekly Pulse Check Needed
+                  {t('performanceDashboard.pulseReminder.title')}
                 </h3>
                 <p className="text-gray-700 mb-4">
-                  You have {needsPulseGoals.length} goal{needsPulseGoals.length !== 1 ? 's' : ''} that need a weekly update. It only takes 2 minutes!
+                  {getPulseReminderText(needsPulseGoals.length)}
                 </p>
                 <button
                   onClick={() => router.push(`/jobs/${companySlug}/performance/pulse`)}
                   className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-2 px-6 rounded-lg font-medium hover:from-yellow-600 hover:to-orange-600 transition-all shadow-md hover:shadow-lg"
                 >
-                  Submit Weekly Pulse
+                  {t('performanceDashboard.pulseReminder.submitButton')}
                 </button>
               </div>
             </div>
@@ -222,7 +237,7 @@ export default function PerformanceDashboard() {
             <div className="p-6 border-b border-gray-100">
               <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5" />
-                Pending Manager Approval
+                {t('performanceDashboard.pendingApproval.title')}
               </h2>
             </div>
             <div className="divide-y divide-gray-100">
@@ -233,13 +248,13 @@ export default function PerformanceDashboard() {
                       <h3 className="font-semibold text-gray-800 mb-2">{goal.goal_title}</h3>
                       <p className="text-sm text-gray-600 mb-2">{goal.goal_description}</p>
                       <div className="flex items-center gap-4 text-xs text-gray-500">
-                        <span>Manager: {goal.manager_name}</span>
-                        <span>•</span>
-                        <span>Created: {new Date(goal.created_at).toLocaleDateString()}</span>
+                        <span>{t('performanceDashboard.pendingApproval.manager', { name: goal.manager_name })}</span>
+                        <span>{t('performanceDashboard.pendingApproval.separator')}</span>
+                        <span>{t('performanceDashboard.pendingApproval.created', { date: formatDate(goal.created_at) })}</span>
                       </div>
                     </div>
                     <span className="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
-                      Pending
+                      {t('performanceDashboard.pendingApproval.pendingBadge')}
                     </span>
                   </div>
                 </div>
@@ -253,20 +268,24 @@ export default function PerformanceDashboard() {
           <div className="p-6 border-b border-gray-100">
             <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
               <Target className="w-5 h-5" />
-              Active Goals ({activeGoals.length})
+              {t('performanceDashboard.activeGoals.title', { count: activeGoals.length })}
             </h2>
           </div>
           
           {activeGoals.length === 0 ? (
             <div className="p-12 text-center">
               <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-700 mb-2">No active goals yet</h3>
-              <p className="text-gray-500 mb-6">Start by creating your first goal for this quarter</p>
+              <h3 className="text-lg font-medium text-gray-700 mb-2">
+                {t('performanceDashboard.activeGoals.noGoals.title')}
+              </h3>
+              <p className="text-gray-500 mb-6">
+                {t('performanceDashboard.activeGoals.noGoals.description')}
+              </p>
               <button
                 onClick={() => router.push(`/jobs/${companySlug}/performance/goals/new`)}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all"
               >
-                Create First Goal
+                {t('performanceDashboard.activeGoals.noGoals.createButton')}
               </button>
             </div>
           ) : (
@@ -300,30 +319,34 @@ export default function PerformanceDashboard() {
                       
                       {goal.latest_blockers && (
                         <div className="bg-red-50 rounded-lg p-3 mb-3">
-                          <p className="text-sm font-medium text-red-800 mb-1">Blockers:</p>
+                          <p className="text-sm font-medium text-red-800 mb-1">
+                            {t('performanceDashboard.activeGoals.goalCard.blockers')}
+                          </p>
                           <p className="text-sm text-gray-700">{goal.latest_blockers}</p>
                         </div>
                       )}
                       
                       <div className="flex items-center gap-4 text-xs text-gray-500">
-                        <span>Manager: {goal.manager_name}</span>
-                        <span>•</span>
+                        <span>{t('performanceDashboard.activeGoals.goalCard.manager', { name: goal.manager_name })}</span>
+                        <span>{t('performanceDashboard.activeGoals.goalCard.separator')}</span>
                         <span>
                           {goal.last_update_date 
-                            ? `Updated: ${new Date(goal.last_update_date).toLocaleDateString()}`
-                            : 'No updates yet'}
+                            ? t('performanceDashboard.activeGoals.goalCard.updated', { date: formatDate(goal.last_update_date) })
+                            : t('performanceDashboard.activeGoals.goalCard.noUpdates')}
                         </span>
                         {!goal.last_update_week || goal.last_update_week !== weekStart ? (
                           <>
-                            <span>•</span>
-                            <span className="text-yellow-600 font-medium">Needs pulse this week</span>
+                            <span>{t('performanceDashboard.activeGoals.goalCard.separator')}</span>
+                            <span className="text-yellow-600 font-medium">
+                              {t('performanceDashboard.activeGoals.goalCard.needsPulse')}
+                            </span>
                           </>
                         ) : (
                           <>
-                            <span>•</span>
+                            <span>{t('performanceDashboard.activeGoals.goalCard.separator')}</span>
                             <span className="text-green-600 font-medium flex items-center gap-1">
                               <CheckCircle className="w-3 h-3" />
-                              Pulse submitted
+                              {t('performanceDashboard.activeGoals.goalCard.pulseSubmitted')}
                             </span>
                           </>
                         )}

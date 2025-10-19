@@ -1102,4 +1102,317 @@
       "unexpectedError": "An unexpected error occurred"
     }
   }
+,
+  "goalDetailPage": {
+    "loading": {
+      "message": "Loading goal details..."
+    },
+    "notFound": {
+      "title": "Goal Not Found",
+      "description": "This goal doesn't exist or you don't have access to it.",
+      "backButton": "Back to Dashboard"
+    },
+    "header": {
+      "backToTeam": "Back to Team Dashboard",
+      "backToMy": "Back to My Dashboard",
+      "employee": "Employee:",
+      "manager": "Manager:",
+      "separator": "•"
+    },
+    "status": {
+      "pendingApproval": "Pending Approval",
+      "active": "Active",
+      "green": "GREEN",
+      "yellow": "YELLOW",
+      "red": "RED"
+    },
+    "approval": {
+      "title": "Manager Approval Required",
+      "description": "{{employeeName}} is waiting for your approval on this goal.",
+      "approveButton": "Approve Goal"
+    },
+    "details": {
+      "descriptionLabel": "Description",
+      "noDescription": "No description provided",
+      "successCriteriaLabel": "Success Criteria",
+      "createdByEmployee": "Created by employee on {{date}}",
+      "createdByManager": "Created by manager on {{date}}",
+      "deleteButton": "Delete Goal"
+    },
+    "timeline": {
+      "title": "Progress Timeline ({{count}} updates)",
+      "noUpdates": {
+        "title": "No Updates Yet",
+        "description": "Weekly pulse updates will appear here"
+      },
+      "weekOf": "Week of {{date}}",
+      "progressUpdate": "Progress Update:",
+      "blockers": "Blockers:"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "description": "Keep your goal up to date with weekly pulse checks",
+      "submitPulseButton": "Submit Weekly Pulse"
+    },
+    "messages": {
+      "noSession": "No session found",
+      "approveSuccess": "Goal approved successfully!",
+      "approveFailed": "Failed to approve goal",
+      "deleteFailed": "Failed to delete goal",
+      "deleteConfirm": "Are you sure you want to delete this goal? This action cannot be undone.",
+      "error": "Error: {{message}}"
+    }
+  }
+,
+  "newGoalPage": {
+    "header": {
+      "backButton": "Back to Dashboard",
+      "title": "Create New Goal",
+      "subtitle": "Define a goal for this quarter"
+    },
+    "infoBox": {
+      "title": "Tips for effective goals:",
+      "tips": {
+        "specific": "Be specific and measurable",
+        "criteria": "Define clear success criteria",
+        "approval": "Your manager will review and approve the goal"
+      }
+    },
+    "form": {
+      "goalTitle": {
+        "label": "Goal Title",
+        "placeholder": "e.g., Improve customer satisfaction score by 15%",
+        "required": "*"
+      },
+      "goalDescription": {
+        "label": "Goal Description",
+        "placeholder": "Describe what you want to achieve and why it matters..."
+      },
+      "successCriteria": {
+        "label": "Success Criteria",
+        "placeholder": "How will you know you've achieved this goal? Be specific..."
+      },
+      "submitButton": {
+        "create": "Create Goal",
+        "creating": "Creating Goal..."
+      }
+    },
+    "messages": {
+      "createError": "Error creating goal",
+      "createSuccess": "Goal created and sent for manager approval!",
+      "error": "Error: {{message}}"
+    }
+  }
+,
+  "weeklyPulsePage": {
+    "loading": {
+      "message": "Loading pulse check..."
+    },
+    "allCaughtUp": {
+      "title": "All Caught Up!",
+      "description": "You've already submitted your weekly pulse for all goals.",
+      "backButton": "Back to Dashboard"
+    },
+    "header": {
+      "backButton": "Back to Dashboard",
+      "title": "Weekly Pulse Check",
+      "weekStarting": "Week starting: {{date}}"
+    },
+    "infoBox": {
+      "title": "Quick 2-minute check-in on your goals",
+      "statusLegend": "🟢 Green = On track | 🟡 Yellow = Some issues | 🔴 Red = Blocked/Need help"
+    },
+    "form": {
+      "goalLabel": "Goal {{number}}: {{title}}",
+      "statusQuestion": "How is this goal progressing?",
+      "statusButtons": {
+        "onTrack": "🟢 On Track",
+        "someIssues": "🟡 Some Issues",
+        "blocked": "🔴 Blocked"
+      },
+      "progressUpdate": {
+        "label": "Progress Update (optional)",
+        "placeholder": "What did you accomplish this week?"
+      },
+      "blockers": {
+        "label": "What's blocking you?",
+        "placeholder": "Describe what's blocking your progress so your manager can help",
+        "required": "*"
+      },
+      "submitButton": {
+        "submit": "Submit Weekly Pulse",
+        "submitting": "Submitting..."
+      }
+    },
+    "messages": {
+      "noSession": "No session found",
+      "submitSuccess": "Weekly pulse submitted successfully!",
+      "submitFailed": "Some updates failed. Please try again.",
+      "error": "Error: {{message}}"
+    }
+  }
+,
+  "managerDashboard": {
+    "loading": {
+      "message": "Loading team dashboard..."
+    },
+    "header": {
+      "title": "Team Performance",
+      "subtitle": "Monitor your team's goals and progress",
+      "myGoalsButton": "My Goals"
+    },
+    "viewSelector": {
+      "overview": "Overview",
+      "redFlags": "Red Flags ({{count}})",
+      "pendingApproval": "Pending Approval ({{count}})"
+    },
+    "overview": {
+      "noTeamMembers": {
+        "title": "No Team Members Yet",
+        "description": "Your team members' goals will appear here"
+      },
+      "employeeCard": {
+        "activeGoals": "{{count}} active goal",
+        "activeGoals_plural": "{{count}} active goals",
+        "stats": {
+          "active": "Active",
+          "needsPulse": "Needs Pulse",
+          "pending": "Pending"
+        },
+        "viewGoalsButton": "View Goals"
+      }
+    },
+    "redFlags": {
+      "title": "Goals Needing Attention",
+      "noRedFlags": {
+        "title": "No Red Flags",
+        "description": "All team goals are on track!"
+      },
+      "blockers": "Blockers:",
+      "updated": "Updated: {{date}}"
+    },
+    "pendingApproval": {
+      "title": "Goals Awaiting Your Approval",
+      "noPending": {
+        "title": "No Pending Goals",
+        "description": "All goals have been reviewed"
+      },
+      "successCriteria": "Success Criteria:",
+      "approveButton": "Approve Goal",
+      "viewDetailsButton": "View Details"
+    }
+  }
+,
+  "performanceDashboard": {
+    "loading": {
+      "message": "Loading your performance dashboard..."
+    },
+    "header": {
+      "title": "My Performance",
+      "subtitle": "{{quarter}} - Track your goals and progress",
+      "newGoalButton": "New Goal"
+    },
+    "quickStats": {
+      "activeGoals": "Active Goals",
+      "needsPulse": "Needs Pulse",
+      "redFlags": "Red Flags",
+      "pendingApproval": "Pending Approval"
+    },
+    "pulseReminder": {
+      "title": "Weekly Pulse Check Needed",
+      "description": "You have {{count}} goal that needs a weekly update. It only takes 2 minutes!",
+      "description_plural": "You have {{count}} goals that need a weekly update. It only takes 2 minutes!",
+      "submitButton": "Submit Weekly Pulse"
+    },
+    "pendingApproval": {
+      "title": "Pending Manager Approval",
+      "manager": "Manager: {{name}}",
+      "created": "Created: {{date}}",
+      "pendingBadge": "Pending",
+      "separator": "•"
+    },
+    "activeGoals": {
+      "title": "Active Goals ({{count}})",
+      "noGoals": {
+        "title": "No active goals yet",
+        "description": "Start by creating your first goal for this quarter",
+        "createButton": "Create First Goal"
+      },
+      "goalCard": {
+        "manager": "Manager: {{name}}",
+        "updated": "Updated: {{date}}",
+        "noUpdates": "No updates yet",
+        "needsPulse": "Needs pulse this week",
+        "pulseSubmitted": "Pulse submitted",
+        "blockers": "Blockers:",
+        "separator": "•"
+      }
+    }
+  }
+,
+  "timeClockPage": {
+    "header": {
+      "title": "Time Clock",
+      "tabs": {
+        "clockInOut": "Clock In/Out",
+        "history": "History"
+      }
+    },
+    "clock": {
+      "shift": "Shift: {{start}} - {{end}}",
+      "clockInButton": "Clock In",
+      "clockOutButton": "Clock Out",
+      "clockingIn": "Clocking In...",
+      "clockingOut": "Clocking Out...",
+      "activeSession": {
+        "title": "Active Session",
+        "clockedInAt": "Clocked in at {{time}}",
+        "timeWorked": "Time Worked"
+      },
+      "weeklySummary": {
+        "title": "This Week",
+        "hours": "Hours",
+        "onTime": "On Time",
+        "overtime": "Overtime"
+      }
+    },
+    "history": {
+      "title": "Recent Entries",
+      "noEntries": {
+        "title": "No time entries yet",
+        "description": "Clock in to start tracking your hours"
+      },
+      "entry": {
+        "in": "In: {{time}}",
+        "out": "Out: {{time}}",
+        "outPending": "Out: —",
+        "hours": "{{hours}}h",
+        "status": {
+          "late": "Late",
+          "overtime": "Overtime",
+          "onTime": "On Time"
+        }
+      }
+    },
+    "messages": {
+      "clockInSuccess": "Clocked in successfully! ✓",
+      "clockOutSuccess": "Clocked out successfully! ✓",
+      "clockInFailed": "Failed to clock in",
+      "clockOutFailed": "Failed to clock out",
+      "loadStatusFailed": "Failed to load clock status",
+      "loadHistoryFailed": "Failed to load history",
+      "userNotFound": "User not found",
+      "loadUserFailed": "Failed to load user",
+      "unableToLoad": "Unable to load user information"
+    },
+    "error": {
+      "title": "Error"
+    }
+  }
+,
+  "managerTimeClockPage": {
+    "loading": "Loading...",
+    "loginRequired": "Please log in to view this page.",
+    "defaultManagerName": "Manager"
+  }
 }

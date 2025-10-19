@@ -1097,8 +1097,319 @@
       "unexpectedError": "Váratlan hiba történt"
     }
   }
+,
+  "goalDetailPage": {
+    "loading": {
+      "message": "Cél részleteinek betöltése..."
+    },
+    "notFound": {
+      "title": "A cél nem található",
+      "description": "Ez a cél nem létezik, vagy nincs hozzáférése.",
+      "backButton": "Vissza a vezérlőpultra"
+    },
+    "header": {
+      "backToTeam": "Vissza a csapat vezérlőpultra",
+      "backToMy": "Vissza a saját vezérlőpultra",
+      "employee": "Munkavállaló:",
+      "manager": "Vezető:",
+      "separator": "•"
+    },
+    "status": {
+      "pendingApproval": "Jóváhagyásra vár",
+      "active": "Aktív",
+      "green": "ZÖLD",
+      "yellow": "SÁRGA",
+      "red": "PIROS"
+    },
+    "approval": {
+      "title": "Vezetői jóváhagyás szükséges",
+      "description": "{{employeeName}} az Ön jóváhagyására vár ehhez a célhoz.",
+      "approveButton": "Cél jóváhagyása"
+    },
+    "details": {
+      "descriptionLabel": "Leírás",
+      "noDescription": "Nincs megadott leírás",
+      "successCriteriaLabel": "Sikerkritériumok",
+      "createdByEmployee": "A munkavállaló hozta létre: {{date}}",
+      "createdByManager": "A vezető hozta létre: {{date}}",
+      "deleteButton": "Cél törlése"
+    },
+    "timeline": {
+      "title": "Előrehaladási idővonal ({{count}} frissítés)",
+      "noUpdates": {
+        "title": "Még nincs frissítés",
+        "description": "A heti státuszjelentések itt fognak megjelenni"
+      },
+      "weekOf": "{{date}} hete",
+      "progressUpdate": "Előrehaladási frissítés:",
+      "blockers": "Akadályok:"
+    },
+    "quickActions": {
+      "title": "Gyorsműveletek",
+      "description": "Tartsa naprakészen célját heti státuszjelentésekkel",
+      "submitPulseButton": "Heti jelentés beküldése"
+    },
+    "messages": {
+      "noSession": "Nem található munkamenet",
+      "approveSuccess": "A cél sikeresen jóváhagyva!",
+      "approveFailed": "A cél jóváhagyása nem sikerült",
+      "deleteFailed": "A cél törlése nem sikerült",
+      "deleteConfirm": "Biztosan törölni szeretné ezt a célt? Ez a művelet nem vonható vissza.",
+      "error": "Hiba: {{message}}"
+    }
+  }
+,
+  "newGoalPage": {
+    "header": {
+      "backButton": "Vissza a vezérlőpultra",
+      "title": "Új cél létrehozása",
+      "subtitle": "Határozza meg a negyedéves célt"
+    },
+    "infoBox": {
+      "title": "Tippek a hatékony célokhoz:",
+      "tips": {
+        "specific": "Legyen konkrét és mérhető",
+        "criteria": "Határozzon meg egyértelmű sikerkritériumokat",
+        "approval": "A vezetője felülvizsgálja és jóváhagyja a célt"
+      }
+    },
+    "form": {
+      "goalTitle": {
+        "label": "Cél megnevezése",
+        "placeholder": "pl.: Ügyfél-elégedettségi pontszám növelése 15%-kal",
+        "required": "*"
+      },
+      "goalDescription": {
+        "label": "Cél leírása",
+        "placeholder": "Írja le, mit szeretne elérni és miért fontos ez..."
+      },
+      "successCriteria": {
+        "label": "Sikerkritériumok",
+        "placeholder": "Honnan fogja tudni, hogy elérte a célt? Legyen konkrét..."
+      },
+      "submitButton": {
+        "create": "Cél létrehozása",
+        "creating": "Cél létrehozása folyamatban..."
+      }
+    },
+    "messages": {
+      "createError": "Hiba történt a cél létrehozásakor",
+      "createSuccess": "A cél létrehozva és elküldve a vezető jóváhagyására!",
+      "error": "Hiba: {{message}}"
+    }
+  }
+,
+  "weeklyPulsePage": {
+    "loading": {
+      "message": "Heti státusz ellenőrzés betöltése..."
+    },
+    "allCaughtUp": {
+      "title": "Minden rendben!",
+      "description": "Már elküldte a heti státuszt minden célhoz.",
+      "backButton": "Vissza a vezérlőpultra"
+    },
+    "header": {
+      "backButton": "Vissza a vezérlőpultra",
+      "title": "Heti státusz ellenőrzés",
+      "weekStarting": "A hét kezdete: {{date}}"
+    },
+    "infoBox": {
+      "title": "Gyors, 2 perces ellenőrzés a céljaival kapcsolatban",
+      "statusLegend": "🟢 Zöld = A terv szerint | 🟡 Sárga = Néhány probléma | 🔴 Piros = Akadályozott / Segítségre van szükség"
+    },
+    "form": {
+      "goalLabel": "Cél {{number}}: {{title}}",
+      "statusQuestion": "Hogyan halad ez a cél?",
+      "statusButtons": {
+        "onTrack": "🟢 A terv szerint",
+        "someIssues": "🟡 Néhány probléma",
+        "blocked": "🔴 Akadályozott"
+      },
+      "progressUpdate": {
+        "label": "Haladási frissítés (nem kötelező)",
+        "placeholder": "Mit ért el ezen a héten?"
+      },
+      "blockers": {
+        "label": "Mi akadályozza?",
+        "placeholder": "Írja le, mi hátráltatja a haladást, hogy a vezető segíthessen",
+        "required": "*"
+      },
+      "submitButton": {
+        "submit": "Heti státusz elküldése",
+        "submitting": "Küldés..."
+      }
+    },
+    "messages": {
+      "noSession": "Nem található munkamenet",
+      "submitSuccess": "A heti státusz sikeresen elküldve!",
+      "submitFailed": "Néhány frissítés nem sikerült. Kérjük, próbálja meg újra.",
+      "error": "Hiba: {{message}}"
+    }
+  }
+,
+  "managerDashboard": {
+    "loading": {
+      "message": "Csapat irányítópult betöltése..."
+    },
+    "header": {
+      "title": "Csapat teljesítmény",
+      "subtitle": "Kövesse nyomon a csapat céljait és előrehaladását",
+      "myGoalsButton": "Saját céljaim"
+    },
+    "viewSelector": {
+      "overview": "Áttekintés",
+      "redFlags": "Figyelmeztetések ({{count}})",
+      "pendingApproval": "Jóváhagyásra vár ({{count}})"
+    },
+    "overview": {
+      "noTeamMembers": {
+        "title": "Még nincsenek csapattagok",
+        "description": "A csapattagok céljai itt fognak megjelenni"
+      },
+      "employeeCard": {
+        "activeGoals": "{{count}} aktív cél",
+        "activeGoals_plural": "{{count}} aktív cél",
+        "stats": {
+          "active": "Aktív",
+          "needsPulse": "Frissítés szükséges",
+          "pending": "Függőben"
+        },
+        "viewGoalsButton": "Célok megtekintése"
+      }
+    },
+    "redFlags": {
+      "title": "Figyelmet igénylő célok",
+      "noRedFlags": {
+        "title": "Nincsenek figyelmeztetések",
+        "description": "Minden csapatcél a terv szerint halad!"
+      },
+      "blockers": "Akadályok:",
+      "updated": "Frissítve: {{date}}"
+    },
+    "pendingApproval": {
+      "title": "Jóváhagyásra váró célok",
+      "noPending": {
+        "title": "Nincsenek függőben lévő célok",
+        "description": "Minden célt felülvizsgáltak"
+      },
+      "successCriteria": "Sikerkritériumok:",
+      "approveButton": "Cél jóváhagyása",
+      "viewDetailsButton": "Részletek megtekintése"
+    }
+  }
+,
+  "performanceDashboard": {
+    "loading": {
+      "message": "Teljesítmény irányítópult betöltése..."
+    },
+    "header": {
+      "title": "Saját teljesítmény",
+      "subtitle": "{{quarter}} – Kövesse nyomon céljait és előrehaladását",
+      "newGoalButton": "Új cél"
+    },
+    "quickStats": {
+      "activeGoals": "Aktív célok",
+      "needsPulse": "Frissítés szükséges",
+      "redFlags": "Figyelmeztetések",
+      "pendingApproval": "Jóváhagyásra vár"
+    },
+    "pulseReminder": {
+      "title": "Heti frissítés szükséges",
+      "description": "{{count}} célhoz szükséges heti frissítés. Csak 2 perc!",
+      "description_plural": "{{count}} célhoz szükséges heti frissítés. Csak 2 perc!",
+      "submitButton": "Heti frissítés beküldése"
+    },
+    "pendingApproval": {
+      "title": "Jóváhagyásra vár a vezetőtől",
+      "manager": "Vezető: {{name}}",
+      "created": "Létrehozva: {{date}}",
+      "pendingBadge": "Függőben",
+      "separator": "•"
+    },
+    "activeGoals": {
+      "title": "Aktív célok ({{count}})",
+      "noGoals": {
+        "title": "Még nincsenek aktív célok",
+        "description": "Kezdje az első negyedéves cél létrehozásával",
+        "createButton": "Első cél létrehozása"
+      },
+      "goalCard": {
+        "manager": "Vezető: {{name}}",
+        "updated": "Frissítve: {{date}}",
+        "noUpdates": "Még nincsenek frissítések",
+        "needsPulse": "E heti frissítés szükséges",
+        "pulseSubmitted": "Frissítés beküldve",
+        "blockers": "Akadályok:",
+        "separator": "•"
+      }
+    }
+  }
+,
+  "timeClockPage": {
+    "header": {
+      "title": "Munkaidő-nyilvántartás",
+      "tabs": {
+        "clockInOut": "Be- és kijelentkezés",
+        "history": "Előzmények"
+      }
+    },
+    "clock": {
+      "shift": "Műszak: {{start}} - {{end}}",
+      "clockInButton": "Bejelentkezés",
+      "clockOutButton": "Kijelentkezés",
+      "clockingIn": "Bejelentkezés folyamatban...",
+      "clockingOut": "Kijelentkezés folyamatban...",
+      "activeSession": {
+        "title": "Aktív műszak",
+        "clockedInAt": "Bejelentkezve ekkor: {{time}}",
+        "timeWorked": "Ledolgozott idő"
+      },
+      "weeklySummary": {
+        "title": "Ezen a héten",
+        "hours": "Órák",
+        "onTime": "Pontos",
+        "overtime": "Túlóra"
+      }
+    },
+    "history": {
+      "title": "Legutóbbi bejegyzések",
+      "noEntries": {
+        "title": "Még nincs időbejegyzés",
+        "description": "Kezdje az órák rögzítését bejelentkezéssel"
+      },
+      "entry": {
+        "in": "Be: {{time}}",
+        "out": "Ki: {{time}}",
+        "outPending": "Ki: —",
+        "hours": "{{hours}} óra",
+        "status": {
+          "late": "Késés",
+          "overtime": "Túlóra",
+          "onTime": "Pontos"
+        }
+      }
+    },
+    "messages": {
+      "clockInSuccess": "Sikeres bejelentkezés! ✓",
+      "clockOutSuccess": "Sikeres kijelentkezés! ✓",
+      "clockInFailed": "A bejelentkezés nem sikerült",
+      "clockOutFailed": "A kijelentkezés nem sikerült",
+      "loadStatusFailed": "Nem sikerült betölteni az állapotot",
+      "loadHistoryFailed": "Nem sikerült betölteni az előzményeket",
+      "userNotFound": "Felhasználó nem található",
+      "loadUserFailed": "Nem sikerült betölteni a felhasználót",
+      "unableToLoad": "Nem sikerült betölteni a felhasználói adatokat"
+    },
+    "error": {
+      "title": "Hiba"
+    }
+  }
+,
+  "managerTimeClockPage": {
+    "loading": "Betöltés...",
+    "loginRequired": "A megtekintéshez kérjük, jelentkezzen be.",
+    "defaultManagerName": "Vezető"
+  }
 }
-
-
 
 

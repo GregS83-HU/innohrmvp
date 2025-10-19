@@ -4,8 +4,9 @@
 import { useSession } from '@supabase/auth-helpers-react'
 import { useRouter, useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { Users, AlertTriangle, Target, TrendingUp, Plus } from 'lucide-react'
+import { Users, AlertTriangle, Target, TrendingUp } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
+import { useLocale } from 'i18n/LocaleProvider'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -45,6 +46,7 @@ interface EmployeeStats {
 }
 
 export default function ManagerDashboard() {
+  const { t } = useLocale()
   const router = useRouter()
   const session = useSession()
   const params = useParams()
@@ -56,7 +58,6 @@ export default function ManagerDashboard() {
   const [weekStart, setWeekStart] = useState('')
   const [selectedView, setSelectedView] = useState<'overview' | 'red-flags' | 'pending'>('overview')
   const [expandedEmployee, setExpandedEmployee] = useState<string | null>(null)
-  //const [expandedEmployee, setExpandedEmployee] = useState<string | null>(null)
 
   useEffect(() => {
     if (!session) {
@@ -180,6 +181,16 @@ export default function ManagerDashboard() {
     }
   }
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString()
+  }
+
+  const getActiveGoalsText = (count: number) => {
+    return count === 1 
+      ? t('managerDashboard.overview.employeeCard.activeGoals', { count })
+      : t('managerDashboard.overview.employeeCard.activeGoals_plural', { count })
+  }
+
   const redFlagGoals = goals.filter(g => g.status === 'active' && g.latest_status === 'red')
   const pendingGoals = goals.filter(g => g.status === 'draft')
   const totalRedFlags = redFlagGoals.length
@@ -190,7 +201,7 @@ export default function ManagerDashboard() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-lg p-8 text-center">
           <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading team dashboard...</p>
+          <p className="text-gray-600">{t('managerDashboard.loading.message')}</p>
         </div>
       </div>
     )
@@ -208,15 +219,15 @@ export default function ManagerDashboard() {
                 <Users className="w-8 h-8 text-purple-600" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-800">Team Performance</h1>
-                <p className="text-gray-600">Monitor your team&apos;s goals and progress</p>
+                <h1 className="text-3xl font-bold text-gray-800">{t('managerDashboard.header.title')}</h1>
+                <p className="text-gray-600">{t('managerDashboard.header.subtitle')}</p>
               </div>
             </div>
             <button
               onClick={() => router.push(`/jobs/${companySlug}/performance`)}
               className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
             >
-              My Goals
+              {t('managerDashboard.header.myGoalsButton')}
             </button>
           </div>
         </div>
@@ -231,7 +242,7 @@ export default function ManagerDashboard() {
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
-            Overview
+            {t('managerDashboard.viewSelector.overview')}
           </button>
           <button
             onClick={() => setSelectedView('red-flags')}
@@ -241,7 +252,7 @@ export default function ManagerDashboard() {
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
-            Red Flags ({totalRedFlags})
+            {t('managerDashboard.viewSelector.redFlags', { count: totalRedFlags })}
           </button>
           <button
             onClick={() => setSelectedView('pending')}
@@ -251,7 +262,7 @@ export default function ManagerDashboard() {
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
-            Pending Approval ({totalPending})
+            {t('managerDashboard.viewSelector.pendingApproval', { count: totalPending })}
           </button>
         </div>
 
@@ -261,8 +272,12 @@ export default function ManagerDashboard() {
             {employeeStats.length === 0 ? (
               <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
                 <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-700 mb-2">No Team Members Yet</h3>
-                <p className="text-gray-500">Your team members&apos; goals will appear here</p>
+                <h3 className="text-lg font-medium text-gray-700 mb-2">
+                  {t('managerDashboard.overview.noTeamMembers.title')}
+                </h3>
+                <p className="text-gray-500">
+                  {t('managerDashboard.overview.noTeamMembers.description')}
+                </p>
               </div>
             ) : (
               employeeStats.map(employee => (
@@ -272,7 +287,7 @@ export default function ManagerDashboard() {
                       <div>
                         <h3 className="text-xl font-semibold text-gray-800">{employee.employee_name}</h3>
                         <p className="text-sm text-gray-600 mt-1">
-                          {employee.active_goals} active goal{employee.active_goals !== 1 ? 's' : ''}
+                          {getActiveGoalsText(employee.active_goals)}
                         </p>
                       </div>
                       <div className="flex gap-2">
@@ -299,15 +314,21 @@ export default function ManagerDashboard() {
                     <div className="grid grid-cols-3 gap-4 mb-4">
                       <div className="text-center">
                         <p className="text-2xl font-bold text-gray-800">{employee.active_goals}</p>
-                        <p className="text-xs text-gray-600">Active</p>
+                        <p className="text-xs text-gray-600">
+                          {t('managerDashboard.overview.employeeCard.stats.active')}
+                        </p>
                       </div>
                       <div className="text-center">
                         <p className="text-2xl font-bold text-yellow-600">{employee.needs_pulse}</p>
-                        <p className="text-xs text-gray-600">Needs Pulse</p>
+                        <p className="text-xs text-gray-600">
+                          {t('managerDashboard.overview.employeeCard.stats.needsPulse')}
+                        </p>
                       </div>
                       <div className="text-center">
                         <p className="text-2xl font-bold text-purple-600">{employee.pending_approval}</p>
-                        <p className="text-xs text-gray-600">Pending</p>
+                        <p className="text-xs text-gray-600">
+                          {t('managerDashboard.overview.employeeCard.stats.pending')}
+                        </p>
                       </div>
                     </div>
 
@@ -323,7 +344,7 @@ export default function ManagerDashboard() {
                         }}
                         className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-600 transition-colors text-sm"
                       >
-                        View Goals
+                        {t('managerDashboard.overview.employeeCard.viewGoalsButton')}
                       </button>
                     </div>
                   </div>
@@ -339,15 +360,19 @@ export default function ManagerDashboard() {
             <div className="p-6 border-b border-gray-100">
               <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-red-600" />
-                Goals Needing Attention
+                {t('managerDashboard.redFlags.title')}
               </h2>
             </div>
             
             {redFlagGoals.length === 0 ? (
               <div className="p-12 text-center">
                 <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-700 mb-2">No Red Flags</h3>
-                <p className="text-gray-500">All team goals are on track!</p>
+                <h3 className="text-lg font-medium text-gray-700 mb-2">
+                  {t('managerDashboard.redFlags.noRedFlags.title')}
+                </h3>
+                <p className="text-gray-500">
+                  {t('managerDashboard.redFlags.noRedFlags.description')}
+                </p>
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
@@ -369,7 +394,9 @@ export default function ManagerDashboard() {
                         
                         {goal.latest_blockers && (
                           <div className="bg-red-50 border border-red-200 rounded-lg p-3 mt-3">
-                            <p className="text-sm font-medium text-red-800 mb-1">Blockers:</p>
+                            <p className="text-sm font-medium text-red-800 mb-1">
+                              {t('managerDashboard.redFlags.blockers')}
+                            </p>
                             <p className="text-sm text-gray-700">{goal.latest_blockers}</p>
                           </div>
                         )}
@@ -381,7 +408,9 @@ export default function ManagerDashboard() {
                         )}
                         
                         <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
-                          <span>Updated: {new Date(goal.last_update_date!).toLocaleDateString()}</span>
+                          <span>
+                            {t('managerDashboard.redFlags.updated', { date: formatDate(goal.last_update_date!) })}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -398,15 +427,19 @@ export default function ManagerDashboard() {
             <div className="p-6 border-b border-gray-100">
               <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-purple-600" />
-                Goals Awaiting Your Approval
+                {t('managerDashboard.pendingApproval.title')}
               </h2>
             </div>
             
             {pendingGoals.length === 0 ? (
               <div className="p-12 text-center">
                 <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-700 mb-2">No Pending Goals</h3>
-                <p className="text-gray-500">All goals have been reviewed</p>
+                <h3 className="text-lg font-medium text-gray-700 mb-2">
+                  {t('managerDashboard.pendingApproval.noPending.title')}
+                </h3>
+                <p className="text-gray-500">
+                  {t('managerDashboard.pendingApproval.noPending.description')}
+                </p>
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
@@ -419,7 +452,9 @@ export default function ManagerDashboard() {
                         <p className="text-sm text-gray-700 mb-3">{goal.goal_description}</p>
                         {goal.success_criteria && (
                           <div className="bg-blue-50 rounded-lg p-3 mb-3">
-                            <p className="text-xs font-medium text-blue-800 mb-1">Success Criteria:</p>
+                            <p className="text-xs font-medium text-blue-800 mb-1">
+                              {t('managerDashboard.pendingApproval.successCriteria')}
+                            </p>
                             <p className="text-sm text-gray-700">{goal.success_criteria}</p>
                           </div>
                         )}
@@ -428,13 +463,13 @@ export default function ManagerDashboard() {
                             onClick={() => handleApproveGoal(goal.id)}
                             className="bg-green-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-600 transition-all text-sm"
                           >
-                            Approve Goal
+                            {t('managerDashboard.pendingApproval.approveButton')}
                           </button>
                           <button
                             onClick={() => router.push(`/jobs/${companySlug}/performance/goals/${goal.id}`)}
                             className="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-300 transition-all text-sm"
                           >
-                            View Details
+                            {t('managerDashboard.pendingApproval.viewDetailsButton')}
                           </button>
                         </div>
                       </div>

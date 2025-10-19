@@ -13,6 +13,7 @@ import {
   LogOut,
   Loader2,
 } from 'lucide-react';
+import { useLocale } from 'i18n/LocaleProvider';
 
 // --------------------
 // Types
@@ -80,6 +81,7 @@ const supabase = createClient(
 // TimeClock Component
 // --------------------
 function TimeClock({ userId, userName }: { userId: string; userName: string }) {
+  const { t } = useLocale();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [clockedIn, setClockedIn] = useState(false);
   const [clockInTime, setClockInTime] = useState<Date | null>(null);
@@ -119,7 +121,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
         if (data.todayEntry?.clock_in) setClockInTime(new Date(data.todayEntry.clock_in));
       }
     } catch {
-      showError('Failed to load clock status');
+      showError(t('timeClockPage.messages.loadStatusFailed'));
     } finally {
       setLoading(false);
     }
@@ -131,7 +133,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
       const data: HistoryResponse = await res.json();
       if (data.success) setTimeEntries(data.entries);
     } catch {
-      showError('Failed to load history');
+      showError(t('timeClockPage.messages.loadHistoryFailed'));
     }
   };
 
@@ -154,16 +156,16 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
         body: JSON.stringify({ userId, action: 'clock_in' }),
       });
       const data: ActionResponse = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to clock in');
+      if (!res.ok) throw new Error(data.error || t('timeClockPage.messages.clockInFailed'));
       if (data.success) {
         setClockedIn(true);
         setClockInTime(new Date(data.entry.clock_in));
         setTodayEntry(data.entry);
-        showSuccess('Clocked in successfully! ✓');
+        showSuccess(t('timeClockPage.messages.clockInSuccess'));
         fetchWeeklySummary();
       }
     } catch (err) {
-      showError(err instanceof Error ? err.message : 'Failed to clock in');
+      showError(err instanceof Error ? err.message : t('timeClockPage.messages.clockInFailed'));
     } finally {
       setActionLoading(false);
     }
@@ -178,16 +180,16 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
         body: JSON.stringify({ userId, action: 'clock_out' }),
       });
       const data: ActionResponse = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to clock out');
+      if (!res.ok) throw new Error(data.error || t('timeClockPage.messages.clockOutFailed'));
       if (data.success) {
         setClockedIn(false);
         setClockInTime(null);
         setTodayEntry(data.entry);
-        showSuccess('Clocked out successfully! ✓');
+        showSuccess(t('timeClockPage.messages.clockOutSuccess'));
         fetchWeeklySummary();
       }
     } catch (err) {
-      showError(err instanceof Error ? err.message : 'Failed to clock out');
+      showError(err instanceof Error ? err.message : t('timeClockPage.messages.clockOutFailed'));
     } finally {
       setActionLoading(false);
     }
@@ -226,7 +228,11 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
     return 'text-green-600 bg-green-50';
   };
 
-  const getStatusText = (e: TimeEntry) => (e.is_late ? 'Late' : e.is_overtime ? 'Overtime' : 'On Time');
+  const getStatusText = (e: TimeEntry) => {
+    if (e.is_late) return t('timeClockPage.history.entry.status.late');
+    if (e.is_overtime) return t('timeClockPage.history.entry.status.overtime');
+    return t('timeClockPage.history.entry.status.onTime');
+  };
 
   const getStatusIcon = (e: TimeEntry) =>
     e.is_late ? <AlertCircle className="w-3 h-3" /> : e.is_overtime ? <TrendingUp className="w-3 h-3" /> : <Check className="w-3 h-3" />;
@@ -248,7 +254,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
               <Clock className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-gray-900">Time Clock</h1>
+              <h1 className="text-lg font-bold text-gray-900">{t('timeClockPage.header.title')}</h1>
               <p className="text-xs text-gray-600">{userName}</p>
             </div>
           </div>
@@ -262,7 +268,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              Clock In/Out
+              {t('timeClockPage.header.tabs.clockInOut')}
             </button>
             <button
               onClick={() => setActiveTab('history')}
@@ -272,7 +278,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              History
+              {t('timeClockPage.header.tabs.history')}
             </button>
           </div>
         </div>
@@ -307,7 +313,10 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
               <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
                 <Calendar className="w-4 h-4" />
                 <span>
-                  Shift: {shift.start_time.slice(0, 5)} - {shift.end_time.slice(0, 5)}
+                  {t('timeClockPage.clock.shift', { 
+                    start: shift.start_time.slice(0, 5), 
+                    end: shift.end_time.slice(0, 5) 
+                  })}
                 </span>
               </div>
             </div>
@@ -320,7 +329,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
               >
                 <div className="flex items-center justify-center gap-3">
                   {actionLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <LogIn className="w-6 h-6" />}
-                  {actionLoading ? 'Clocking In...' : 'Clock In'}
+                  {actionLoading ? t('timeClockPage.clock.clockingIn') : t('timeClockPage.clock.clockInButton')}
                 </div>
               </button>
             ) : (
@@ -329,14 +338,20 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                      <span className="text-green-800 font-semibold">Active Session</span>
+                      <span className="text-green-800 font-semibold">
+                        {t('timeClockPage.clock.activeSession.title')}
+                      </span>
                     </div>
                     <span className="text-green-600 text-sm">
-                      Clocked in at {clockInTime ? formatTime(clockInTime) : ''}
+                      {t('timeClockPage.clock.activeSession.clockedInAt', { 
+                        time: clockInTime ? formatTime(clockInTime) : '' 
+                      })}
                     </span>
                   </div>
                   <div className="bg-white rounded-xl p-4 border border-green-200 text-center">
-                    <p className="text-sm text-gray-600 mb-1">Time Worked</p>
+                    <p className="text-sm text-gray-600 mb-1">
+                      {t('timeClockPage.clock.activeSession.timeWorked')}
+                    </p>
                     <div className="text-3xl font-bold text-gray-900 font-mono">
                       {calculateWorkedHours()}
                     </div>
@@ -350,7 +365,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
                 >
                   <div className="flex items-center justify-center gap-3">
                     {actionLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <LogOut className="w-6 h-6" />}
-                    {actionLoading ? 'Clocking Out...' : 'Clock Out'}
+                    {actionLoading ? t('timeClockPage.clock.clockingOut') : t('timeClockPage.clock.clockOutButton')}
                   </div>
                 </button>
               </div>
@@ -360,26 +375,34 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
               <div className="mt-6 bg-white rounded-2xl shadow-lg border p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <TrendingUp className="w-5 h-5 text-blue-600" />
-                  <h3 className="font-semibold text-gray-900">This Week</h3>
+                  <h3 className="font-semibold text-gray-900">
+                    {t('timeClockPage.clock.weeklySummary.title')}
+                  </h3>
                 </div>
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
                     <p className="text-2xl font-bold text-gray-900">
                       {weeklySummary.totalHours.toFixed(1)}
                     </p>
-                    <p className="text-xs text-gray-600">Hours</p>
+                    <p className="text-xs text-gray-600">
+                      {t('timeClockPage.clock.weeklySummary.hours')}
+                    </p>
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-green-600">
                       {weeklySummary.onTimeDays}
                     </p>
-                    <p className="text-xs text-gray-600">On Time</p>
+                    <p className="text-xs text-gray-600">
+                      {t('timeClockPage.clock.weeklySummary.onTime')}
+                    </p>
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-orange-600">
                       {weeklySummary.overtimeHours.toFixed(1)}
                     </p>
-                    <p className="text-xs text-gray-600">Overtime</p>
+                    <p className="text-xs text-gray-600">
+                      {t('timeClockPage.clock.weeklySummary.overtime')}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -387,13 +410,15 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
           </>
         ) : (
           <div className="space-y-3">
-            <h3 className="font-semibold text-gray-900 mb-4">Recent Entries</h3>
+            <h3 className="font-semibold text-gray-900 mb-4">
+              {t('timeClockPage.history.title')}
+            </h3>
             {timeEntries.length === 0 ? (
               <div className="bg-white rounded-xl border p-8 text-center shadow-sm">
                 <Clock className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No time entries yet</p>
+                <p className="text-gray-500">{t('timeClockPage.history.noEntries.title')}</p>
                 <p className="text-sm text-gray-400 mt-1">
-                  Clock in to start tracking your hours
+                  {t('timeClockPage.history.noEntries.description')}
                 </p>
               </div>
             ) : (
@@ -417,12 +442,18 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
                   </div>
                   <div className="flex items-center justify-between text-sm text-gray-600">
                     <div className="flex items-center gap-4">
-                      <span>In: {formatTimeShort(entry.clock_in)}</span>
-                      <span>Out: {entry.clock_out ? formatTimeShort(entry.clock_out) : '—'}</span>
+                      <span>
+                        {t('timeClockPage.history.entry.in', { time: formatTimeShort(entry.clock_in) })}
+                      </span>
+                      <span>
+                        {entry.clock_out 
+                          ? t('timeClockPage.history.entry.out', { time: formatTimeShort(entry.clock_out) })
+                          : t('timeClockPage.history.entry.outPending')}
+                      </span>
                     </div>
                     {entry.total_hours && (
                       <span className="font-semibold text-gray-900">
-                        {entry.total_hours.toFixed(2)}h
+                        {t('timeClockPage.history.entry.hours', { hours: entry.total_hours.toFixed(2) })}
                       </span>
                     )}
                   </div>
@@ -440,6 +471,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
 // Page Component (Default Export)
 // --------------------
 export default function TimeClockPage({ params }: PageProps) {
+  const { t } = useLocale();
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -449,7 +481,6 @@ export default function TimeClockPage({ params }: PageProps) {
   useEffect(() => {
     const loadUser = async () => {
       try {
-        // Await params
         const resolvedParams = await params;
         setSlug(resolvedParams.slug);
 
@@ -466,13 +497,13 @@ export default function TimeClockPage({ params }: PageProps) {
           .single();
 
         if (userError || !userData) {
-          setError('User not found');
+          setError(t('timeClockPage.messages.userNotFound'));
           return;
         }
 
         setCurrentUser(userData);
       } catch (err) {
-        setError('Failed to load user');
+        setError(t('timeClockPage.messages.loadUserFailed'));
         console.error(err);
       } finally {
         setLoading(false);
@@ -480,7 +511,7 @@ export default function TimeClockPage({ params }: PageProps) {
     };
 
     loadUser();
-  }, [params, router]);
+  }, [params, router, t]);
 
   if (loading) {
     return (
@@ -495,8 +526,12 @@ export default function TimeClockPage({ params }: PageProps) {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
         <div className="bg-white rounded-2xl shadow-lg border p-8 max-w-md">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 text-center mb-2">Error</h2>
-          <p className="text-gray-600 text-center">{error || 'Unable to load user information'}</p>
+          <h2 className="text-xl font-bold text-gray-900 text-center mb-2">
+            {t('timeClockPage.error.title')}
+          </h2>
+          <p className="text-gray-600 text-center">
+            {error || t('timeClockPage.messages.unableToLoad')}
+          </p>
         </div>
       </div>
     );
