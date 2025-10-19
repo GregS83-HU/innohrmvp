@@ -3,9 +3,23 @@
 import { useLocale } from '../src/i18n/LocaleProvider';
 import { Globe } from 'lucide-react';
 
-export default function LanguageSwitcher() {
+export default function LanguageSwitcher({ compact = false }) {
   const { locale, setLocale } = useLocale();
 
+  // Compact mobile icon version
+  if (compact) {
+    return (
+      <button
+        onClick={() => setLocale(locale === 'en' ? 'hu' : 'en')}
+        className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+        title="Change language"
+      >
+        <Globe className="w-5 h-5 text-gray-600" />
+      </button>
+    );
+  }
+
+  // Full version (desktop + mobile menu)
   return (
     <div className="flex items-center gap-2">
       <button

@@ -345,6 +345,10 @@ export default function Header() {
                 />
               )}
 
+              {/* Mobile language icon (visible only on mobile) */}
+                <div className="flex sm:hidden">
+                  <LanguageSwitcher compact />
+                </div>
               {/* Time Clock icon - only for logged users */}
               {user && (
                 <button
@@ -447,6 +451,11 @@ export default function Header() {
         {isMobileMenuOpen && (
           <div className="xl:hidden bg-white border-t border-gray-200 shadow-lg">
             <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
+
+              {/* Language Switcher inside mobile menu */}
+              <div className="flex justify-end mb-3">
+                <LanguageSwitcher />
+              </div>
               {/* Available Positions */}
               <DemoAwareMenuItem
                 href={buildLink('/openedpositions')}
