@@ -758,7 +758,8 @@
       "confirmSave": "Confirm & Save",
       "saving": "Saving...",
       "cancel": "Cancel",
-      "tryAgain": "Try Again"
+      "tryAgain": "Try Again",
+      "uploadAnother": "Upload another certificate"
     },
     "alerts": {
       "success": "Certificate saved successfully!",

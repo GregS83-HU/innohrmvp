@@ -133,33 +133,38 @@ export async function GET(request: NextRequest) {
     // -------------------
     // Pending Approvals
     // -------------------
-    if (action === 'pending-approvals') {
-      const teamMembers = await getTeamMembers(managerId);
-      if (teamMembers.length === 0) return NextResponse.json({ success: true, entries: [] });
+   if (action === 'pending-approvals') {
+  const teamMembers = await getTeamMembers(managerId);
+  if (teamMembers.length === 0) return NextResponse.json({ success: true, entries: [] });
 
-      const userIds = teamMembers.map((m) => m.user_id);
+  const userIds = teamMembers.map((m) => m.user_id);
 
-      const { data, error } = await supabase
-        .from('time_entries')
-        .select('*, users!inner(user_firstname, user_lastname)')
-        .in('user_id', userIds)
-        .eq('status', 'pending')
-        .not('clock_out', 'is', null)
-        .order('clock_in', { ascending: false })
-        .limit(50);
+  // Récupère SEULEMENT les time_entries, sans join
+  const { data, error } = await supabase
+    .from('time_entries')
+    .select('*')
+    .in('user_id', userIds)
+    .eq('status', 'pending')
+    .not('clock_out', 'is', null)
+    .order('clock_in', { ascending: false })
+    .limit(50);
 
-      if (error) throw error;
+  if (error) throw error;
 
-      const entries: PendingEntry[] = data.map((e) => ({
-        ...e,
-        user_profiles: {
-          first_name: e.users.user_firstname,
-          last_name: e.users.user_lastname,
-        },
-      }));
+  // Map manuellement avec les données de teamMembers
+  const entries: PendingEntry[] = data.map((e) => {
+    const member = teamMembers.find(m => m.user_id === e.user_id);
+    return {
+      ...e,
+      user_profiles: {
+        first_name: member?.first_name || 'Unknown',
+        last_name: member?.last_name || 'User',
+      },
+    };
+  });
 
-      return NextResponse.json({ success: true, entries });
-    }
+  return NextResponse.json({ success: true, entries });
+}
 
     // -------------------
     // Team Summary

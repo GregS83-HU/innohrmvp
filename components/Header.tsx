@@ -127,7 +127,7 @@ export default function Header() {
                 className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700`}
                 isDemoExpired={isDemoExpired}
               >
-                <Briefcase className="w-4 h-4" /> {user ? t('header.yourPositions') : t('header.availablePositions')}
+                <Briefcase className="w-4 h-4" /> {(isManager || isAdmin) ? t('header.yourPositions') : t('header.availablePositions')}
               </DemoAwareMenuItem>
 
               {/* Create Position - only for super_admin */}
@@ -463,7 +463,7 @@ export default function Header() {
                 className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full justify-start`}
                 isDemoExpired={isDemoExpired}
               >
-                <Briefcase className="w-4 h-4" /> {user ? t('header.yourPositions') : t('header.availablePositions')}
+                <Briefcase className="w-4 h-4" /> {(isManager || isAdmin) ? t('header.yourPositions') : t('header.availablePositions')}
               </DemoAwareMenuItem>
 
               {/* Create Position - super_admin only */}

@@ -29,6 +29,7 @@ interface CompanyUser {
   email: string;
   is_admin: boolean;
   is_super_admin: boolean;
+  is_manager: boolean;
   manager_id: string | null;
   manager_first_name: string | null;
   manager_last_name: string | null;
@@ -217,6 +218,35 @@ export default function CompanyUsersPage() {
   const [updateSuccess, setUpdateSuccess] = useState<string | null>(null);
   // anchorRef points to the button that opened the dropdown
   const anchorRef = useRef<HTMLElement | null>(null);
+
+
+  // ✅ Helper function to get role badge
+  const getRoleBadge = (user: CompanyUser) => {
+    // Admin takes priority over manager
+    if (user.is_admin) {
+      return (
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200">
+          <ShieldCheck className="w-3 h-3 mr-1" /> Admin
+        </span>
+      );
+    }
+    
+    // Show manager badge if user is manager but not admin
+    if (user.is_manager) {
+      return (
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border border-blue-200">
+          <Users className="w-3 h-3 mr-1" /> Manager
+        </span>
+      );
+    }
+    
+    // Default user badge
+    return (
+      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-gray-100 to-slate-100 text-gray-700 border border-gray-200">
+        <Shield className="w-3 h-3 mr-1" /> User
+      </span>
+    );
+  };
 
   // ✅ Format date helper
   const formatDate = (dateString: string | null) => {
@@ -541,17 +571,9 @@ export default function CompanyUsersPage() {
                           </div>
                         </td>
 
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {user.is_admin ? (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200">
-                              <ShieldCheck className="w-3 h-3 mr-1" /> Admin
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-gray-100 to-slate-100 text-gray-700 border border-gray-200">
-                              <Shield className="w-3 h-3 mr-1" /> User
-                            </span>
-                          )}
-                        </td>
+                       <td className="px-6 py-4 whitespace-nowrap">
+  {getRoleBadge(user)}
+</td>
                       </tr>
                     ))}
                   </tbody>
@@ -579,15 +601,7 @@ export default function CompanyUsersPage() {
                             <span className="truncate">{user.email}</span>
                           </div>
                         </div>
-                        {user.is_admin ? (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200 flex-shrink-0">
-                            <ShieldCheck className="w-3 h-3 mr-1" /> Admin
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-gray-100 to-slate-100 text-gray-700 border border-gray-200 flex-shrink-0">
-                            <Shield className="w-3 h-3 mr-1" /> User
-                          </span>
-                        )}
+                        {getRoleBadge(user)}
                       </div>
                     </div>
                   </div>

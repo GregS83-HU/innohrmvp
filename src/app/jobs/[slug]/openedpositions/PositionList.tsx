@@ -46,6 +46,41 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
   const [loadingClose, setLoadingClose] = useState<number | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null)
+  
+  // Add user role states
+  const [isManager, setIsManager] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [userRoleLoading, setUserRoleLoading] = useState(true)
+
+  // Fetch user role when logged in
+  useEffect(() => {
+    async function fetchUserRole() {
+      if (!isLoggedIn || !userId) {
+        setUserRoleLoading(false)
+        return
+      }
+
+      try {
+        const res = await fetch(`/api/user-role?userId=${userId}`)
+        if (res.ok) {
+          const data = await res.json()
+          setIsManager(data.is_manager || false)
+          setIsAdmin(data.is_admin || false)
+        }
+      } catch (err) {
+        console.error('Error fetching user role:', err)
+      } finally {
+        setUserRoleLoading(false)
+      }
+    }
+
+    fetchUserRole()
+  }, [isLoggedIn, userId])
+
+  // Determine if user should see admin features
+  const canManagePositions = useMemo(() => {
+    return isLoggedIn && (isManager || isAdmin)
+  }, [isLoggedIn, isManager, isAdmin])
 
   useEffect(() => {
     if (!companySlug) {
@@ -154,7 +189,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
 
   if (!companySlug) return null
 
-  if (loading) {
+  if (loading || userRoleLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-lg p-8 text-center max-w-sm w-full">
@@ -259,7 +294,8 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                  {!isLoggedIn && companySlug && (
+                  {/* Show "Apply" button for non-logged users OR regular users (non-manager and non-admin) */}
+                  {!canManagePositions && companySlug && (
                     <Link
                       href={getApplyLink(position)!}
                       className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base"
@@ -269,7 +305,8 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
                     </Link>
                   )}
 
-                  {isLoggedIn && companySlug && (
+                  {/* Show management buttons only for managers and admins */}
+                  {canManagePositions && companySlug && (
                     <>
                       <Link
                         href={getStatsLink(position)!}

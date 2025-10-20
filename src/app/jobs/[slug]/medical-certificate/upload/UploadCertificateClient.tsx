@@ -194,6 +194,26 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
               <CheckCircle className="w-5 h-5 text-green-600" />
               <p className="font-medium text-green-800">{successMessage}</p>
             </div>
+             {/* ✅ Multilingual button */}
+    <button
+      onClick={() => {
+        setSuccessMessage('');
+        setFile(null);
+        setError('');
+        setResult(null);
+        setManualData({
+          employee_name: '',
+          absenceDateStart: '',
+          absenceDateEnd: '',
+          doctor_name: ''
+        });
+        setComment('');
+      }}
+      className="inline-flex items-center justify-center gap-2 mt-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-5 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+    >
+      <Upload className="w-5 h-5" />
+      {t('buttons.uploadAnother')}
+    </button>
           </div>
         )}
 
