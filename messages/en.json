@@ -1573,4 +1573,60 @@
     "title": "Date Alignment Issue",
     "description": "Certificate dates ({{certificateStart}} to {{certificateEnd}}) don't match leave request dates ({{leaveStart}} to {{leaveEnd}})."
   }
+,
+  "emailService": {
+    "cancellation": {
+      "subject": "Interview Cancelled - {{positionTitle}}",
+      "title": "Interview Cancelled",
+      "greeting": "Dear {{candidateName}},",
+      "body": "We regret to inform you that your interview for the position of <strong>{{positionTitle}}</strong> has been cancelled.",
+      "cancelledDate": "📅 Cancelled Date:",
+      "cancelledTime": "⏰ Cancelled Time:",
+      "contactInfo": "If you have any questions, please feel free to contact {{recruiterName}}.",
+      "closing": "Thank you for your understanding,",
+      "footer": "Sent via HRInno Interview Scheduler",
+      "icsDescription": "This interview has been cancelled.",
+      "icsSummary": "CANCELLED: Interview - {{positionTitle}}"
+    },
+    "invitation": {
+      "subjectCandidate": "Interview Invitation - {{positionTitle}}",
+      "subjectRecruiter": "Interview Scheduled - {{candidateName}}",
+      "icsTitle": "Interview: {{positionTitle}}",
+      "icsDescription": "Interview for the position of {{positionTitle}} with {{recruiterName}}",
+      "icsFilename": "interview.ics",
+      "icsFilenameCancelled": "interview-cancelled.ics"
+    },
+    "from": {
+      "interviews": "HRInno Interviews"
+    }
+  }
+,
+"emailTemplate": {
+    "candidate": {
+      "title": "Interview Invitation",
+      "greeting": "Dear {{candidateName}},",
+      "body": "You have been invited for an interview for the position of <strong>{{positionTitle}}</strong> with {{recruiterName}}.",
+      "dateLabel": "📅 Date:",
+      "timeLabel": "⏰ Time:",
+      "locationLabel": "📍 Location:",
+      "virtualLocationLabel": "🔗 Location:",
+      "calendarInfo": "A calendar invitation has been attached to this email. Please accept it to add this interview to your calendar.",
+      "questions": "If you have any questions or need to reschedule, please contact {{recruiterName}}.",
+      "closing": "Best regards,",
+      "footer": "Sent via HRInno Interview Scheduler"
+    },
+    "recruiter": {
+      "title": "Interview Scheduled",
+      "greeting": "Hi {{recruiterName}},",
+      "body": "Your interview with <strong>{{candidateName}}</strong> for the position of <strong>{{positionTitle}}</strong> has been scheduled.",
+      "candidateLabel": "👤 Candidate:",
+      "dateLabel": "📅 Date:",
+      "timeLabel": "⏰ Time:",
+      "locationLabel": "📍 Location:",
+      "virtualLocationLabel": "🔗 Location:",
+      "notification": "The candidate has been notified and will receive a calendar invitation. A copy has been added to your calendar as well.",
+      "goodLuck": "Good luck with the interview!",
+      "footer": "Sent via HRInno Interview Scheduler"
+    }
+  }
 }

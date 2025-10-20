@@ -6,6 +6,9 @@ import { generateInterviewEmail } from './email-templates'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+// Translation function type
+type TranslationFunction = (key: string, params?: Record<string, string | number>) => string
+
 interface SendInterviewInvitationParams {
   candidate: {
     email: string
@@ -25,9 +28,10 @@ interface SendInterviewInvitationParams {
     location: string
     durationMinutes?: number
   }
+  t?: TranslationFunction // Optional translation function
 }
 
-export async function sendInterviewCancellation(params: {
+interface SendInterviewCancellationParams {
   candidate: {
     email: string
     firstName: string
@@ -45,8 +49,32 @@ export async function sendInterviewCancellation(params: {
     location: string
     durationMinutes?: number
   }
-}) {
-  const { candidate, recruiter, position, interview } = params
+  t?: TranslationFunction // Optional translation function
+}
+
+export async function sendInterviewCancellation(params: SendInterviewCancellationParams) {
+  const { candidate, recruiter, position, interview, t } = params
+
+  // Fallback translation function if none provided
+  const translate: TranslationFunction = t || ((key, params) => {
+    // Default English fallbacks
+    const defaults: Record<string, string> = {
+      'emailService.cancellation.subject': `Interview Cancelled - ${params?.positionTitle}`,
+      'emailService.cancellation.title': 'Interview Cancelled',
+      'emailService.cancellation.greeting': `Dear ${params?.candidateName},`,
+      'emailService.cancellation.body': `We regret to inform you that your interview for the position of <strong>${params?.positionTitle}</strong> has been cancelled.`,
+      'emailService.cancellation.cancelledDate': '📅 Cancelled Date:',
+      'emailService.cancellation.cancelledTime': '⏰ Cancelled Time:',
+      'emailService.cancellation.contactInfo': `If you have any questions, please feel free to contact ${params?.recruiterName}.`,
+      'emailService.cancellation.closing': 'Thank you for your understanding,',
+      'emailService.cancellation.footer': 'Sent via HRInno Interview Scheduler',
+      'emailService.cancellation.icsDescription': 'This interview has been cancelled.',
+      'emailService.cancellation.icsSummary': `CANCELLED: Interview - ${params?.positionTitle}`,
+      'emailService.from.interviews': 'HRInno Interviews',
+      'emailService.invitation.icsFilenameCancelled': 'interview-cancelled.ics',
+    }
+    return defaults[key] || key
+  })
 
   const candidateName = `${candidate.firstName} ${candidate.lastName}`
   const recruiterName = `${recruiter.firstName} ${recruiter.lastName}`
@@ -96,8 +124,8 @@ export async function sendInterviewCancellation(params: {
     `DTSTAMP:${formatDate(now)}`,
     `DTSTART:${formatDate(interview.datetime)}`,
     `DTEND:${formatDate(endTime)}`,
-    `SUMMARY:${escape(`CANCELLED: Interview - ${position.title}`)}`,
-    `DESCRIPTION:${escape('This interview has been cancelled.')}`,
+    `SUMMARY:${escape(translate('emailService.cancellation.icsSummary', { positionTitle: position.title }))}`,
+    `DESCRIPTION:${escape(translate('emailService.cancellation.icsDescription'))}`,
     `LOCATION:${escape(interview.location)}`,
     'STATUS:CANCELLED',
     'SEQUENCE:1',
@@ -118,40 +146,39 @@ export async function sendInterviewCancellation(params: {
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   
   <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-    <h1 style="color: white; margin: 0; font-size: 24px;">Interview Cancelled</h1>
+    <h1 style="color: white; margin: 0; font-size: 24px;">${translate('emailService.cancellation.title')}</h1>
   </div>
   
   <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
     
-    <p style="font-size: 16px; margin-top: 0;">Dear ${candidateName},</p>
+    <p style="font-size: 16px; margin-top: 0;">${translate('emailService.cancellation.greeting', { candidateName })}</p>
     
     <p style="font-size: 16px;">
-      We regret to inform you that your interview for the position of <strong>${position.title}</strong> 
-      has been cancelled.
+      ${translate('emailService.cancellation.body', { positionTitle: position.title })}
     </p>
     
     <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 20px; margin: 25px 0; border-radius: 4px;">
       <p style="margin: 0 0 10px 0; font-size: 14px; color: #6b7280;">
-        <strong style="color: #111827;">📅 Cancelled Date:</strong> ${interviewDate}
+        <strong style="color: #111827;">${translate('emailService.cancellation.cancelledDate')}</strong> ${interviewDate}
       </p>
       <p style="margin: 0; font-size: 14px; color: #6b7280;">
-        <strong style="color: #111827;">⏰ Cancelled Time:</strong> ${interviewTime}
+        <strong style="color: #111827;">${translate('emailService.cancellation.cancelledTime')}</strong> ${interviewTime}
       </p>
     </div>
     
     <p style="font-size: 16px;">
-      If you have any questions, please feel free to contact ${recruiterName}.
+      ${translate('emailService.cancellation.contactInfo', { recruiterName })}
     </p>
     
     <p style="font-size: 16px; margin-bottom: 0;">
-      Thank you for your understanding,<br>
+      ${translate('emailService.cancellation.closing')}<br>
       <strong>${recruiterName}</strong>
     </p>
     
   </div>
   
   <div style="text-align: center; padding: 20px; color: #6b7280; font-size: 12px;">
-    <p style="margin: 0;">Sent via HRInno Interview Scheduler</p>
+    <p style="margin: 0;">${translate('emailService.cancellation.footer')}</p>
   </div>
   
 </body>
@@ -160,13 +187,13 @@ export async function sendInterviewCancellation(params: {
 
   try {
     const result = await resend.emails.send({
-      from: 'HRInno Interviews <onboarding@resend.dev>',
+      from: `${translate('emailService.from.interviews')} <onboarding@resend.dev>`,
       to: candidate.email,
-      subject: `Interview Cancelled - ${position.title}`,
+      subject: translate('emailService.cancellation.subject', { positionTitle: position.title }),
       html: cancellationEmail,
       attachments: [
         {
-          filename: 'interview-cancelled.ics',
+          filename: translate('emailService.invitation.icsFilenameCancelled'),
           content: icsBase64,
         },
       ],
@@ -185,7 +212,21 @@ export async function sendInterviewCancellation(params: {
 }
 
 export async function sendInterviewInvitation(params: SendInterviewInvitationParams) {
-  const { candidate, recruiter, position, interview } = params
+  const { candidate, recruiter, position, interview, t } = params
+
+  // Fallback translation function if none provided
+  const translate: TranslationFunction = t || ((key, params) => {
+    // Default English fallbacks
+    const defaults: Record<string, string> = {
+      'emailService.invitation.subjectCandidate': `Interview Invitation - ${params?.positionTitle}`,
+      'emailService.invitation.subjectRecruiter': `Interview Scheduled - ${params?.candidateName}`,
+      'emailService.invitation.icsTitle': `Interview: ${params?.positionTitle}`,
+      'emailService.invitation.icsDescription': `Interview for the position of ${params?.positionTitle} with ${params?.recruiterName}`,
+      'emailService.invitation.icsFilename': 'interview.ics',
+      'emailService.from.interviews': 'HRInno Interviews',
+    }
+    return defaults[key] || key
+  })
 
   const candidateName = `${candidate.firstName} ${candidate.lastName}`
   const recruiterName = `${recruiter.firstName} ${recruiter.lastName}`
@@ -209,8 +250,11 @@ export async function sendInterviewInvitation(params: SendInterviewInvitationPar
 
   // Generate ICS file
   const icsContent = generateICS({
-    title: `Interview: ${position.title}`,
-    description: `Interview for the position of ${position.title} with ${recruiterName}`,
+    title: translate('emailService.invitation.icsTitle', { positionTitle: position.title }),
+    description: translate('emailService.invitation.icsDescription', { 
+      positionTitle: position.title,
+      recruiterName 
+    }),
     location: interview.location,
     startTime: interview.datetime,
     endTime: endTime,
@@ -226,9 +270,9 @@ export async function sendInterviewInvitation(params: SendInterviewInvitationPar
   try {
     // Send email to candidate
     const candidateEmailResult = await resend.emails.send({
-      from: 'HRInno Interviews <interviews@hrinno.hu>',
+      from: `${translate('emailService.from.interviews')} <interviews@hrinno.hu>`,
       to: candidate.email,
-      subject: `Interview Invitation - ${position.title}`,
+      subject: translate('emailService.invitation.subjectCandidate', { positionTitle: position.title }),
       html: generateInterviewEmail({
         candidateName,
         recruiterName,
@@ -237,10 +281,11 @@ export async function sendInterviewInvitation(params: SendInterviewInvitationPar
         interviewTime,
         location: interview.location,
         isForCandidate: true,
+        //t: translate, // Pass translation function to email template generator
       }),
       attachments: [
         {
-          filename: 'interview.ics',
+          filename: translate('emailService.invitation.icsFilename'),
           content: icsBase64,
         },
       ],
@@ -250,9 +295,9 @@ export async function sendInterviewInvitation(params: SendInterviewInvitationPar
 
     // Send confirmation email to recruiter
     const recruiterEmailResult = await resend.emails.send({
-      from: 'HRInno Interviews <interviews@hrinno.hu>',
+      from: `${translate('emailService.from.interviews')} <interviews@hrinno.hu>`,
       to: recruiter.email,
-      subject: `Interview Scheduled - ${candidateName}`,
+      subject: translate('emailService.invitation.subjectRecruiter', { candidateName }),
       html: generateInterviewEmail({
         candidateName,
         recruiterName,
@@ -261,10 +306,11 @@ export async function sendInterviewInvitation(params: SendInterviewInvitationPar
         interviewTime,
         location: interview.location,
         isForCandidate: false,
+       // t: translate, // Pass translation function to email template generator
       }),
       attachments: [
         {
-          filename: 'interview.ics',
+          filename: translate('emailService.invitation.icsFilename'),
           content: icsBase64,
         },
       ],

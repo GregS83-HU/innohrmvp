@@ -1568,8 +1568,64 @@
     "title": "Dátumeltérés",
     "description": "Az igazolás dátumai ({{certificateStart}} – {{certificateEnd}}) nem egyeznek a szabadságkérelem dátumaival ({{leaveStart}} – {{leaveEnd}})."
   }
+,
+  "emailService": {
+    "cancellation": {
+      "subject": "Interjú lemondva - {{positionTitle}}",
+      "title": "Interjú lemondva",
+      "greeting": "Kedves {{candidateName}}!",
+      "body": "Sajnálattal értesítjük, hogy a(z) <strong>{{positionTitle}}</strong> pozícióra tervezett interjúja lemondásra került.",
+      "cancelledDate": "📅 Lemondás dátuma:",
+      "cancelledTime": "⏰ Lemondás ideje:",
+      "contactInfo": "Ha bármilyen kérdése van, forduljon bizalommal {{recruiterName}} munkatársunkhoz.",
+      "closing": "Köszönjük megértését,",
+      "footer": "Küldte: HRInno Interjúütemező",
+      "icsDescription": "Ez az interjú lemondásra került.",
+      "icsSummary": "LEMONDVA: Interjú - {{positionTitle}}"
+    },
+    "invitation": {
+      "subjectCandidate": "Interjú meghívó - {{positionTitle}}",
+      "subjectRecruiter": "Interjú ütemezve - {{candidateName}}",
+      "icsTitle": "Interjú: {{positionTitle}}",
+      "icsDescription": "Interjú a(z) {{positionTitle}} pozícióra, {{recruiterName}} részvételével",
+      "icsFilename": "interju.ics",
+      "icsFilenameCancelled": "interju-lemondva.ics"
+    },
+    "from": {
+      "interviews": "HRInno Interjúk"
+    }
+  }
+,
+  
+  "emailTemplate": {
+    "candidate": {
+      "title": "Interjú meghívó",
+      "greeting": "Kedves {{candidateName}}!",
+      "body": "Meghívást kapott egy interjúra a(z) <strong>{{positionTitle}}</strong> pozícióra {{recruiterName}} kollégánkkal.",
+      "dateLabel": "📅 Dátum:",
+      "timeLabel": "⏰ Időpont:",
+      "locationLabel": "📍 Helyszín:",
+      "virtualLocationLabel": "🔗 Helyszín:",
+      "calendarInfo": "Egy naptármeghívó csatolva van az e-mailhez. Kérjük, fogadja el, hogy hozzáadja ezt az interjút a naptárához.",
+      "questions": "Kérdés vagy időpont-módosítás esetén kérjük, vegye fel a kapcsolatot {{recruiterName}} kollégánkkal.",
+      "closing": "Üdvözlettel,",
+      "footer": "Üzenetet az HRInno Interjú Ütemező küldte"
+    },
+    "recruiter": {
+      "title": "Interjú ütemezve",
+      "greeting": "Szia {{recruiterName}}!",
+      "body": "Az interjú <strong>{{candidateName}}</strong> jelölttel a(z) <strong>{{positionTitle}}</strong> pozícióra ütemezve lett.",
+      "candidateLabel": "👤 Jelölt:",
+      "dateLabel": "📅 Dátum:",
+      "timeLabel": "⏰ Időpont:",
+      "locationLabel": "📍 Helyszín:",
+      "virtualLocationLabel": "🔗 Helyszín:",
+      "notification": "A jelölt értesítést kapott és naptármeghívót fog kapni. Egy másolat a te naptáradba is be lett illesztve.",
+      "goodLuck": "Sok sikert az interjúhoz!",
+      "footer": "Üzenetet az HRInno Interjú Ütemező küldte"
+    }
+  }
 }
-
 
 
 

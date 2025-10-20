@@ -8,7 +8,6 @@ import { v4 as uuidv4 } from 'uuid'
 import { Check, X, Star, Zap, Shield, Crown } from 'lucide-react'
 import { loadStripe } from "@stripe/stripe-js"
 
-
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -22,11 +21,12 @@ type Plan = {
   features: string[]
   popular?: boolean
   priceId?: string | null
+  includedAICredits?: number
 }
 
 type Subscription = { 
   plan: string
-  status: string 
+  status: string
 }
 
 type Toast = { 
@@ -35,7 +35,6 @@ type Toast = {
   type: 'success' | 'error' 
 }
 
-// Define proper types for database objects
 interface ForfaitData {
   id: number
   forfait_name?: string
@@ -44,12 +43,21 @@ interface ForfaitData {
   max_medical_certificates?: number
   access_happy_check?: boolean
   stripe_price_id?: string | null
+  included_ai_credits?: number
 }
 
 interface StripePriceData {
   id: string
   name: string
   price?: number
+}
+
+interface AICreditPack {
+  id: string
+  credits: number
+  stripe_price_id: string
+  price: number
+  currency: string
 }
 
 export default function ManageSubscription() {
@@ -64,11 +72,86 @@ export default function ManageSubscription() {
   const [toasts, setToasts] = useState<Toast[]>([])
   const [isProcessingPayment, setIsProcessingPayment] = useState(false)
   const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+  const [currentAICredits, setCurrentAICredits] = useState<number | null>(null)
+  const [aiCreditPacks, setAICreditPacks] = useState<AICreditPack[]>([])
+  const [includedAICredits, setIncludedAICredits] = useState<number>(0)
+
 
   const addToast = (message: string, type: 'success' | 'error' = 'error') => {
     const id = uuidv4()
     setToasts(prev => [...prev, { id, message, type }])
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 4000)
+  }
+
+  // --- Fetch AI credit packs dynamically
+  const fetchAICreditPacks = useCallback(async () => {
+    try {
+      console.log("Fetching AI credit packs...")
+      const { data: creditPacks, error } = await supabase
+        .from('ai_credit_packs')
+        .select('*')
+        .order('credits')
+        console.log("AI credit packs data:", creditPacks, "Error:", error)
+
+
+      if (error || !creditPacks) {
+        addToast("Failed to fetch AI credit packs", "error")
+        return
+      }
+
+      const mappedPacks = creditPacks.map(pack => ({
+      ...pack,
+      stripe_price_id: pack.price_id
+    }))
+
+      setAICreditPacks(mappedPacks)
+    } catch (err) {
+      console.error(err)
+      addToast("Unexpected error fetching AI credit packs", "error")
+    }
+  }, [])
+
+  const handleBuyCredits = async (credits: number, priceId: string) => {
+    if (!companyId) return addToast("Company not found", "error")
+    setIsProcessingPayment(true)
+
+    try {
+   
+    const url = new URL(window.location.href)  // preserve path and existing params
+    url.searchParams.set('success_credit', '1')
+    url.searchParams.set('company_id', companyId)
+    const returnUrl = url.toString()
+
+    const cancelUrlObj = new URL(window.location.href)
+    cancelUrlObj.searchParams.set('canceled_credit', '1')
+    cancelUrlObj.searchParams.set('company_id', companyId)
+    const cancelUrl = cancelUrlObj.toString()
+      const res = await fetch("/api/stripe/create-credit-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company_id: companyId,
+          price_id: priceId,
+          credits,
+          return_url: returnUrl,
+          cancel_url: cancelUrl,
+        }),
+      })
+
+      const data = await res.json()
+      if (data.sessionId) {
+        const stripe = await stripePromise
+        if (!stripe) throw new Error("Stripe failed to load")
+        await stripe.redirectToCheckout({ sessionId: data.sessionId })
+      } else {
+        addToast(data.error || "Could not start payment", "error")
+      }
+    } catch (err) {
+      console.error(err)
+      addToast("Error creating checkout", "error")
+    } finally {
+      setIsProcessingPayment(false)
+    }
   }
 
   const fetchUserCompanyId = useCallback(async (userId: string) => {
@@ -83,14 +166,14 @@ export default function ManageSubscription() {
         addToast("Failed to fetch company information.")
         return
       }
-      console.log("UserID in Stripe component:",userId)
-       console.log("Companyid in Stripe component:",data.company_id)
+
       setCompanyId(data.company_id.toString())
       const { data: companyData, error: compErr } = await supabase
         .from('company')
-        .select('forfait')
+        .select('forfait, used_ai_credits')
         .eq('id', data.company_id)
         .single()
+
 
       if (compErr) {
         addToast('Failed to fetch company details')
@@ -98,6 +181,7 @@ export default function ManageSubscription() {
       }
 
       if (companyData?.forfait) setCurrentPlan(companyData.forfait)
+      setCurrentAICredits(companyData?.used_ai_credits ?? 0)
     } catch (err) {
       console.error('Error fetching company ID:', err)
       addToast("Unexpected error fetching company information.")
@@ -117,27 +201,49 @@ export default function ManageSubscription() {
     return null
   }, [searchParams])
 
-  const fetchCompanyDetails = useCallback(async (companyId: string) => {
-    try {
-      const { data: companyData, error: compErr } = await supabase
-        .from('company')
-        .select('forfait')
-        .eq('id', companyId)
+const fetchCompanyDetails = useCallback(async (companyId: string) => {
+  try {
+    // 1️⃣ Get the company and its current forfait
+    const { data: companyData, error: compErr } = await supabase
+      .from('company')
+      .select('forfait, used_ai_credits')
+      .eq('id', companyId)
+      .single()
+
+    if (compErr || !companyData) {
+      addToast('Failed to fetch company details')
+      return
+    }
+    console.log("Currently Used AI credit:", companyData.used_ai_credits)
+    setCurrentPlan(companyData.forfait)
+    setCurrentAICredits(companyData.used_ai_credits ?? 0)
+
+    // 2️⃣ Fetch the forfait details to get included_ai_credits
+    if (companyData.forfait) {
+      const { data: forfaitData, error: forfaitErr } = await supabase
+        .from('forfait')
+        .select('included_ai_credits')
+        .eq('forfait_name', companyData.forfait)
         .single()
 
-      if (compErr) {
-        addToast('Failed to fetch company details')
-        return
+      if (forfaitErr || !forfaitData) {
+        addToast('Failed to fetch plan details')
+        setIncludedAICredits(0)
+      } else {
+        setIncludedAICredits(forfaitData.included_ai_credits ?? 0)
+        console.log("AI credit in forfait:", forfaitData.included_ai_credits)
       }
-
-      if (companyData?.forfait) setCurrentPlan(companyData.forfait)
-    } catch (err) {
-      console.error('Error fetching company details:', err)
-      addToast("Unexpected error fetching company information.")
-    } finally {
-      setLoadingSubscription(false)
+    } else {
+      setIncludedAICredits(0)
     }
-  }, [])
+  } catch (err) {
+    console.error('Error fetching company details:', err)
+    addToast("Unexpected error fetching company information.")
+  } finally {
+    setLoadingSubscription(false)
+  }
+}, [])
+
 
   const generateDescription = (forfait: ForfaitData) => {
     const features: string[] = []
@@ -158,17 +264,12 @@ export default function ManageSubscription() {
 
   const fetchStripePrices = useCallback(async (plansToUpdate: Plan[]) => {
     const paidPlans = plansToUpdate.filter(plan => plan.priceId !== null)
-    
-    if (paidPlans.length === 0) {
-      // All plans are free, no need to call Stripe
-      return
-    }
+    if (paidPlans.length === 0) return
 
     try {
       const res = await fetch('/api/stripe/prices')
       if (!res.ok) {
         addToast("Failed to load pricing from Stripe. Paid plans are temporarily unavailable.", "error")
-        // Only show free plans when Stripe fails
         const freePlansOnly = plansToUpdate.filter(plan => plan.priceId === null)
         setPlans(freePlansOnly)
         return
@@ -177,7 +278,6 @@ export default function ManageSubscription() {
       const data = await res.json()
       if (!data.prices || !Array.isArray(data.prices)) {
         addToast("Invalid pricing data from Stripe. Paid plans are temporarily unavailable.", "error")
-        // Only show free plans when Stripe data is invalid
         const freePlansOnly = plansToUpdate.filter(plan => plan.priceId === null)
         setPlans(freePlansOnly)
         return
@@ -186,32 +286,20 @@ export default function ManageSubscription() {
       let hasStripePricingIssues = false
       const updatedPlans = plansToUpdate
         .map(plan => {
-          // If it's a free plan (no stripe_price_id), keep it as is
-          if (plan.priceId === null) {
-            return plan
-          }
-          
-          // For paid plans, find the price in Stripe data
+          if (plan.priceId === null) return plan
           const stripePrice = data.prices.find((p: StripePriceData) => p.id === plan.priceId)
-          if (stripePrice && typeof stripePrice.price === 'number') {
-            return { ...plan, price: stripePrice.price }
-          } else {
-            // Stripe price not found or invalid for this paid plan
-            hasStripePricingIssues = true
-            return null
-          }
+          if (stripePrice && typeof stripePrice.price === 'number') return { ...plan, price: stripePrice.price }
+          hasStripePricingIssues = true
+          return null
         })
         .filter(plan => plan !== null) as Plan[]
 
-      if (hasStripePricingIssues) {
-        addToast("Some paid plans are temporarily unavailable due to pricing issues.", "error")
-      }
+      if (hasStripePricingIssues) addToast("Some paid plans are temporarily unavailable due to pricing issues.", "error")
       
       setPlans(updatedPlans)
     } catch (err) {
       console.error("Error fetching Stripe prices:", err)
       addToast("Could not connect to Stripe. Paid plans are temporarily unavailable.", "error")
-      // Only show free plans when Stripe connection fails
       const freePlansOnly = plansToUpdate.filter(plan => plan.priceId === null)
       setPlans(freePlansOnly)
     }
@@ -234,11 +322,12 @@ export default function ManageSubscription() {
         const formattedPlans: Plan[] = forfaits.map((forfait: ForfaitData, index: number) => ({
           id: forfait.id?.toString() || `forfait_${forfait.id}`,
           name: forfait.forfait_name || `Plan ${forfait.id}`,
-          price: 0, // Will be updated from Stripe for paid plans
+          price: 0,
           description: forfait.description || generateDescription(forfait),
           features: generateFeatures(forfait),
           popular: index === 1,
-          priceId: forfait.stripe_price_id || null // Use stripe_price_id from database
+          priceId: forfait.stripe_price_id || null,
+          includedAICredits: forfait.included_ai_credits ?? 0,
         }))
         setPlans(formattedPlans)
         await fetchStripePrices(formattedPlans)
@@ -253,12 +342,10 @@ export default function ManageSubscription() {
 
   const handleSubscribe = async (plan: Plan) => {
     if (!companyId) return addToast("Company information not available.", "error")
-
     if (plan.priceId === null) {
       addToast("This is a free plan. No subscription needed.", "success")
       return
     }
-
     if (plan.price === 0 && plan.priceId !== null) {
       addToast("This plan is temporarily unavailable due to pricing issues.", "error")
       return
@@ -313,7 +400,19 @@ export default function ManageSubscription() {
       }
     }
     fetchPlans()
-  }, [session?.user?.id, fetchUserCompanyId, getCompanyIdFromUrl, fetchCompanyDetails, fetchPlans])
+    fetchAICreditPacks()
+  }, [session?.user?.id, fetchUserCompanyId, getCompanyIdFromUrl, fetchCompanyDetails, fetchPlans, fetchAICreditPacks])
+
+  useEffect(() => {
+    const successCredit = searchParams.get("success_credit")
+    const canceledCredit = searchParams.get("canceled_credit")
+
+    if (successCredit && companyId) {
+      addToast("AI credits added successfully!", "success")
+      setTimeout(() => fetchCompanyDetails(companyId), 2000)
+    }
+    if (canceledCredit) addToast("AI credit purchase canceled", "error")
+  }, [searchParams, companyId, fetchCompanyDetails])
 
   useEffect(() => {
     const success = searchParams.get("success")
@@ -322,8 +421,6 @@ export default function ManageSubscription() {
     if (success && companyId) {
       setIsProcessingPayment(true)
       addToast("Payment successful! Updating your subscription...", "success")
-      
-      // Reload subscription info with a slight delay to ensure Stripe webhook has processed
       setTimeout(async () => {
         await fetchCompanyDetails(companyId)
         setIsProcessingPayment(false)
@@ -331,10 +428,11 @@ export default function ManageSubscription() {
       }, 2000)
     }
 
-    if (canceled) {
-      addToast("Payment canceled", "error")
-    }
+    if (canceled) addToast("Payment canceled", "error")
   }, [searchParams, companyId, fetchCompanyDetails])
+
+const remainingAICredits = (includedAICredits ?? 0) - (currentAICredits ?? 0)
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -360,19 +458,25 @@ export default function ManageSubscription() {
           </div>
         )}
 
+        {/* Current Subscription with AI Credits */}
         {loadingSubscription ? (
           <div className="bg-white rounded-xl shadow-sm p-6 mb-12 animate-pulse h-32" />
         ) : currentPlan ? (
           <div className="bg-gradient-to-r from-green-400 to-blue-500 rounded-xl shadow-lg p-6 mb-12 text-white">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row items-center justify-between">
               <div>
                 <h2 className="text-xl font-semibold mb-2">Current Subscription</h2>
-                <p className="text-lg">
+                <p className="text-lg mb-2">
                   <span className="font-bold">{currentPlan}</span> Plan
                   <span className="ml-4 px-3 py-1 bg-white/20 rounded-full text-sm">Active</span>
                 </p>
+                {remainingAICredits !== null && (
+                  <p className="text-lg">
+                    <span className="font-bold">{remainingAICredits}</span> AI Credits remaining
+                  </p>
+                )}
               </div>
-              <Shield className="w-12 h-12 text-white/80" />
+              <Shield className="w-12 h-12 text-white/80 mt-4 md:mt-0" />
             </div>
           </div>
         ) : (
@@ -416,20 +520,22 @@ export default function ManageSubscription() {
                   </div>
                   <ul className="space-y-3 mb-8">
                     {plan.features.map((feature, idx) => <li key={idx} className="flex items-center text-gray-700"><Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />{feature}</li>)}
+                    {plan.includedAICredits !== undefined && (
+                    <li className="flex items-center text-gray-700">
+                      <Zap className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                      {plan.includedAICredits} AI Credits included
+                    </li>
+                  )}
                   </ul>
                   <button
                     onClick={() => handleSubscribe(plan)}
                     className={`w-full py-3 px-4 rounded-lg font-semibold transition-all ${
-                      // Free plan button
                       plan.priceId === null 
                         ? 'bg-green-100 text-green-800 cursor-default' 
-                        // Paid plan with pricing issues
                         : (plan.price === 0 && plan.priceId !== null)
                         ? 'bg-red-100 text-red-800 cursor-not-allowed'
-                        // Current plan
                         : plan.name.toLowerCase() === currentPlan?.toLowerCase() 
                         ? 'bg-blue-100 text-blue-800' 
-                        // Available paid plan
                         : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl'
                     }`}
                     disabled={plan.price === 0 && plan.priceId !== null}
@@ -447,15 +553,48 @@ export default function ManageSubscription() {
             ))}
           </div>
         )}
-      </div>
 
-      {/* Toast Notifications */}
-      <div className="fixed top-5 right-5 flex flex-col gap-2 z-40">
-        {toasts.map(t => (
-          <div key={t.id} className={`px-6 py-3 rounded-lg shadow-lg text-white font-medium transform transition-all ${t.type === 'error' ? 'bg-red-500' : 'bg-green-500'} animate-in slide-in-from-right`}>
-            {t.message}
+        {/* --- Buy AI Credits Section --- */}
+        <div className="mt-16">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Buy AI Credits</h2>
+          <p className="text-gray-600 mb-10">Need more AI power? Choose a credit pack below for one-time purchase.</p>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {aiCreditPacks.map((pack) => (
+              <div key={pack.id} className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-2xl hover:-translate-y-2 transition-all">
+                <div className="flex items-center mb-4">
+                  <Zap className="w-8 h-8 text-blue-600" />
+                  <h3 className="text-2xl font-bold text-gray-900 ml-3">
+                    {pack.credits} AI Credits
+                  </h3>
+                </div>
+                <p className="text-gray-600 mb-6">
+                  Perfect for generating extra results or insights.
+                </p>
+                <div className="mb-8">
+                  <span className="text-4xl font-bold text-gray-900">
+                    {(pack.price / 100).toLocaleString()} {pack.currency} 
+                  </span>
+                </div>
+                <button
+                  onClick={() => handleBuyCredits(pack.credits, pack.stripe_price_id)}
+                  className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold hover:from-purple-700 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all"
+                >
+                  Buy {pack.credits} Credits
+                </button>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
+
+        {/* Toast Notifications */}
+        <div className="fixed top-5 right-5 flex flex-col gap-2 z-40">
+          {toasts.map(t => (
+            <div key={t.id} className={`px-6 py-3 rounded-lg shadow-lg text-white font-medium transform transition-all ${t.type === 'error' ? 'bg-red-500' : 'bg-green-500'} animate-in slide-in-from-right`}>
+              {t.message}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
