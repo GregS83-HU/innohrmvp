@@ -18,11 +18,11 @@ import {
 import { supabase } from '../../../../../lib/supabaseClient';
 import { LeaveBalance, LeaveRequest, LeaveType, PendingApproval } from '../../../../../types/absence';
 import { formatDate as utilFormatDate } from '../../../../../utils/formatDate';
-import { useRouter,useParams } from 'next/navigation';
-
+import { useRouter, useParams } from 'next/navigation';
+import { useLocale } from 'i18n/LocaleProvider';
 
 import CertificateUploadModal from '../../../../../components/CertificateUploadModal';
-import {CertificateStatusBadge} from '../../../../../components/CertificateStatusBadge';
+import { CertificateStatusBadge } from '../../../../../components/CertificateStatusBadge';
 
 import StatusBadge from '../../../../../components/absence/StatusBadge';
 import LeaveBalances from '../../../../../components/absence/LeaveBalances';
@@ -58,6 +58,8 @@ interface LeaveRequestInsertData {
 }
 
 const AbsenceManagement: React.FC = () => {
+  const { t } = useLocale();
+  
   // State
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -78,9 +80,9 @@ const AbsenceManagement: React.FC = () => {
   const [certificateData, setCertificateData] = useState<CertificateData | null>(null);
   const [uploadMode, setUploadMode] = useState<'new' | 'existing'>('new');
 
- //Extract CompanySlug:
-   const params = useParams<{ slug: string }>();
-   const companySlug = params.slug;
+  // Extract CompanySlug:
+  const params = useParams<{ slug: string }>();
+  const companySlug = params.slug;
 
   // Request form state
   const [requestForm, setRequestForm] = useState({
@@ -98,7 +100,6 @@ const AbsenceManagement: React.FC = () => {
       if (!user) return;
 
       setCurrentUser(user);
-      
 
       // Fetch company_id from company_to_users
       const { data: companyData } = await supabase
@@ -118,8 +119,8 @@ const AbsenceManagement: React.FC = () => {
         .select('id')
         .eq('manager_id', user.id)
         .limit(1);
-      
-      console.log("DirectReport from DB:",directReports?.length)
+
+      console.log("DirectReport from DB:", directReports?.length);
 
       setIsManager((directReports?.length || 0) > 0);
     } catch (err) {
@@ -163,12 +164,12 @@ const AbsenceManagement: React.FC = () => {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError('An unexpected error occurred');
+        setError(t('absenceManagement.messages.unexpectedError'));
       }
     } finally {
       setLoading(false);
     }
-  }, [currentUser]);
+  }, [currentUser, t]);
 
   // Fetch pending approvals for managers
   const fetchPendingApprovals = useCallback(async () => {
@@ -191,11 +192,11 @@ const AbsenceManagement: React.FC = () => {
 
   // Check if leave type is sick leave
   const isSickLeaveType = useCallback(
-  (leaveTypeId: string): boolean => {
-    return leaveTypes.find(t => t.id === leaveTypeId)?.requires_medical_certificate ?? false;
-  },
-  [leaveTypes]
-);
+    (leaveTypeId: string): boolean => {
+      return leaveTypes.find(t => t.id === leaveTypeId)?.requires_medical_certificate ?? false;
+    },
+    [leaveTypes]
+  );
 
   // Handle certificate upload success
   const handleCertificateSuccess = async (data: CertificateData) => {
@@ -212,10 +213,10 @@ const AbsenceManagement: React.FC = () => {
         if (error) throw error;
 
         await fetchLeaveOverview();
-        alert('Certificate uploaded and linked to sick leave!');
+        alert(t('absenceManagement.messages.certificateLinked'));
       } catch (err) {
         console.error('Error linking certificate:', err);
-        alert('Certificate uploaded but failed to link to request');
+        alert(t('absenceManagement.messages.certificateLinkFailed'));
       }
     } else {
       // New request - pre-fill form
@@ -250,72 +251,72 @@ const AbsenceManagement: React.FC = () => {
 
   // Submit leave request
   const submitLeaveRequest = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!currentUser) return;
+    e.preventDefault();
+    if (!currentUser) return;
 
-  try {
-    setSubmitLoading(true);
+    try {
+      setSubmitLoading(true);
 
-    // Get user's manager
-    const { data: userData } = await supabase
-      .from('users')
-      .select('manager_id')
-      .eq('id', currentUser.id)
-      .single();
+      // Get user's manager
+      const { data: userData } = await supabase
+        .from('users')
+        .select('manager_id')
+        .eq('id', currentUser.id)
+        .single();
 
-    // Calculate working days
-    const { data: workingDays } = await supabase
-      .rpc('calculate_working_days', {
+      // Calculate working days
+      const { data: workingDays } = await supabase
+        .rpc('calculate_working_days', {
+          start_date: requestForm.start_date,
+          end_date: requestForm.end_date
+        });
+
+      const insertData: LeaveRequestInsertData = {
+        user_id: currentUser.id,
+        leave_type_id: requestForm.leave_type_id,
         start_date: requestForm.start_date,
-        end_date: requestForm.end_date
+        end_date: requestForm.end_date,
+        total_days: workingDays as number,
+        reason: requestForm.reason,
+        manager_id: userData?.manager_id
+        // Certificate ID will be added in the modal's handleSubmitWithNotification
+      };
+
+      const { error } = await supabase
+        .from('leave_requests')
+        .insert(insertData);
+
+      if (error) throw error;
+
+      // Reset form and close modal
+      setRequestForm({
+        leave_type_id: '',
+        start_date: '',
+        end_date: '',
+        reason: ''
       });
+      setShowRequestModal(false);
 
-    const insertData: LeaveRequestInsertData = {
-      user_id: currentUser.id,
-      leave_type_id: requestForm.leave_type_id,
-      start_date: requestForm.start_date,
-      end_date: requestForm.end_date,
-      total_days: workingDays as number,
-      reason: requestForm.reason,
-      manager_id: userData?.manager_id
-      // Certificate ID will be added in the modal's handleSubmitWithNotification
-    };
-
-    const { error } = await supabase
-      .from('leave_requests')
-      .insert(insertData);
-
-    if (error) throw error;
-
-    // Reset form and close modal
-    setRequestForm({
-      leave_type_id: '',
-      start_date: '',
-      end_date: '',
-      reason: ''
-    });
-    setShowRequestModal(false);
-
-    // Refresh data
-    await fetchLeaveOverview();
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      setError(err.message);
-    } else {
-      setError('An unexpected error occurred');
+      // Refresh data
+      await fetchLeaveOverview();
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(t('absenceManagement.messages.unexpectedError'));
+      }
+    } finally {
+      setSubmitLoading(false);
     }
-  } finally {
-    setSubmitLoading(false);
-  }
-};
+  };
 
   // Approve/reject leave request
   const handleRequestReview = async (requestId: string, status: 'approved' | 'rejected', notes?: string) => {
     try {
-      console.log("user_id before update", currentUser?.id)
-      console.log("status before update", status)
-      console.log("notes before update", notes)
-      console.log("requestI before update", requestId)
+      console.log("user_id before update", currentUser?.id);
+      console.log("status before update", status);
+      console.log("notes before update", notes);
+      console.log("requestI before update", requestId);
 
       const { error } = await supabase
         .from('leave_requests')
@@ -335,7 +336,7 @@ const AbsenceManagement: React.FC = () => {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError('An unexpected error occurred');
+        setError(t('absenceManagement.messages.unexpectedError'));
       }
     }
   };
@@ -367,7 +368,7 @@ const AbsenceManagement: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
         <div className="bg-white p-8 rounded-2xl shadow-lg">
           <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600 text-center">Loading absence data...</p>
+          <p className="text-gray-600 text-center">{t('absenceManagement.loading.message')}</p>
         </div>
       </div>
     );
@@ -381,21 +382,23 @@ const AbsenceManagement: React.FC = () => {
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="w-8 h-8 text-red-600" />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Error</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">{t('absenceManagement.error.title')}</h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
             className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors"
           >
-            Try Again
+            {t('absenceManagement.error.tryAgain')}
           </button>
         </div>
       </div>
     );
   }
+  
   if (!currentUser) {
-  return null;
+    return null;
   }
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
@@ -408,41 +411,30 @@ const AbsenceManagement: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                  Absence Management
+                  {t('absenceManagement.header.title')}
                 </h1>
-                <p className="text-gray-600">Manage your leave and time off</p>
+                <p className="text-gray-600">{t('absenceManagement.header.subtitle')}</p>
               </div>
             </div>
 
             <div className="flex gap-2">
-              
               <button
                 onClick={() => setShowRequestModal(true)}
                 className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">Request Leave</span>
-                <span className="sm:hidden">Request</span>
+                <span className="hidden sm:inline">{t('absenceManagement.header.requestLeave')}</span>
+                <span className="sm:hidden">{t('absenceManagement.header.requestShort')}</span>
               </button>
-              {/*}
-              <button
-                onClick={handleCreateWithCertificate}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-              >
-                <FileText className="w-4 h-4" />
-                <span className="hidden sm:inline">With Certificate</span>
-                <span className="sm:hidden">+ Cert</span>
-              </button>
-              {/*}
 
               {/* Calendar View Button - Hidden on Mobile */}
-                <button
-                  onClick={() => router.push(`/jobs/${companySlug}/absences/calendar`)}
-                  className="hidden md:flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-                >
-                  <Calendar className="w-4 h-4" />
-                  Calendar View
-                </button>
+              <button
+                onClick={() => router.push(`/jobs/${companySlug}/absences/calendar`)}
+                className="hidden md:flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <Calendar className="w-4 h-4" />
+                {t('absenceManagement.header.calendarView')}
+              </button>
             </div>
           </div>
 
@@ -459,7 +451,7 @@ const AbsenceManagement: React.FC = () => {
                   }`}
                 >
                   <Users className="w-4 h-4 inline mr-2" />
-                  My Leave
+                  {t('absenceManagement.tabs.myLeave')}
                 </button>
                 <button
                   onClick={() => setActiveTab('approvals')}
@@ -470,7 +462,7 @@ const AbsenceManagement: React.FC = () => {
                   }`}
                 >
                   <Users className="w-4 h-4 inline mr-2" />
-                  Team Approvals
+                  {t('absenceManagement.tabs.teamApprovals')}
                   {pendingApprovals.length > 0 && (
                     <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
                       {pendingApprovals.length}
@@ -480,9 +472,6 @@ const AbsenceManagement: React.FC = () => {
               </div>
             </div>
           )}
-  
-  
-
         </div>
 
         {/* Main Content */}
@@ -505,7 +494,7 @@ const AbsenceManagement: React.FC = () => {
             onRefresh={fetchPendingApprovals}
             onReview={handleRequestReview}
             formatDate={formatDate}
-            currentUserId={currentUser.id} 
+            currentUserId={currentUser.id}
           />
         )}
       </div>
@@ -519,8 +508,8 @@ const AbsenceManagement: React.FC = () => {
         leaveTypes={leaveTypes}
         onSubmit={submitLeaveRequest}
         loading={submitLoading}
-        currentUserId={currentUser.id} 
-        companyId={companyId || ''} // Add this
+        currentUserId={currentUser.id}
+        companyId={companyId || ''}
         currentUserName={`${currentUser?.user_metadata?.first_name || ''} ${currentUser?.user_metadata?.last_name || ''}`.trim() || currentUser?.email || ''}
       />
 

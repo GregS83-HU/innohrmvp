@@ -10,6 +10,7 @@ import {
   Check,
   AlertCircle
 } from 'lucide-react';
+import { useLocale } from 'i18n/LocaleProvider';
 
 interface WeeklySummary {
   totalHours: number;
@@ -59,6 +60,7 @@ export default function TimeClockModal({
   userRole,
   onOpenManagerDashboard
 }: TimeClockModalProps) {
+  const { t } = useLocale();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [clockedIn, setClockedIn] = useState(false);
   const [clockInTime, setClockInTime] = useState<Date | null>(null);
@@ -132,7 +134,7 @@ export default function TimeClockModal({
       const data: ClockInOutResponse = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Failed to clock in');
+        throw new Error(data.error || t('timeClockModal.messages.clockInFailed'));
       }
 
       setClockedIn(true);
@@ -140,14 +142,14 @@ export default function TimeClockModal({
         setClockInTime(new Date(data.entry.clock_in));
       }
 
-      setSuccess('Clocked in successfully!');
+      setSuccess(t('timeClockModal.messages.clockInSuccess'));
       setTimeout(() => setSuccess(null), 3000);
       fetchWeeklySummary();
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError('Failed to clock in');
+        setError(t('timeClockModal.messages.clockInFailed'));
       }
       setTimeout(() => setError(null), 5000);
     } finally {
@@ -169,19 +171,19 @@ export default function TimeClockModal({
       const data: ClockInOutResponse = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Failed to clock out');
+        throw new Error(data.error || t('timeClockModal.messages.clockOutFailed'));
       }
 
       setClockedIn(false);
       setClockInTime(null);
-      setSuccess('Clocked out successfully!');
+      setSuccess(t('timeClockModal.messages.clockOutSuccess'));
       setTimeout(() => setSuccess(null), 3000);
       fetchWeeklySummary();
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError('Failed to clock out');
+        setError(t('timeClockModal.messages.clockOutFailed'));
       }
       setTimeout(() => setError(null), 5000);
     } finally {
@@ -218,7 +220,9 @@ export default function TimeClockModal({
               <Clock className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Time Clock</h2>
+              <h2 className="text-lg font-bold text-gray-900">
+                {t('timeClockModal.header.title')}
+              </h2>
               <p className="text-xs text-gray-600">{userName}</p>
             </div>
           </div>
@@ -280,7 +284,7 @@ export default function TimeClockModal({
                     ) : (
                       <LogIn className="w-5 h-5" />
                     )}
-                    {actionLoading ? 'Clocking In...' : 'Clock In'}
+                    {actionLoading ? t('timeClockModal.clock.clockingIn') : t('timeClockModal.clock.clockInButton')}
                   </div>
                 </button>
               ) : (
@@ -291,16 +295,20 @@ export default function TimeClockModal({
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                         <span className="text-green-800 font-semibold text-sm">
-                          Active Session
+                          {t('timeClockModal.clock.activeSession.title')}
                         </span>
                       </div>
                       <span className="text-green-600 text-xs">
-                        Since {clockInTime ? formatTime(clockInTime) : ''}
+                        {t('timeClockModal.clock.activeSession.since', { 
+                          time: clockInTime ? formatTime(clockInTime) : '' 
+                        })}
                       </span>
                     </div>
 
                     <div className="bg-white rounded-lg p-3 border border-green-200">
-                      <p className="text-xs text-gray-600 mb-1">Time Worked</p>
+                      <p className="text-xs text-gray-600 mb-1">
+                        {t('timeClockModal.clock.activeSession.timeWorked')}
+                      </p>
                       <div className="text-2xl font-bold text-gray-900 font-mono">
                         {calculateWorkedHours()}
                       </div>
@@ -319,7 +327,7 @@ export default function TimeClockModal({
                       ) : (
                         <LogOut className="w-5 h-5" />
                       )}
-                      {actionLoading ? 'Clocking Out...' : 'Clock Out'}
+                      {actionLoading ? t('timeClockModal.clock.clockingOut') : t('timeClockModal.clock.clockOutButton')}
                     </div>
                   </button>
                 </div>
@@ -331,7 +339,7 @@ export default function TimeClockModal({
                   <div className="flex items-center gap-2 mb-3">
                     <TrendingUp className="w-4 h-4 text-blue-600" />
                     <h3 className="font-semibold text-gray-900 text-sm">
-                      This Week
+                      {t('timeClockModal.clock.weeklySummary.title')}
                     </h3>
                   </div>
                   <div className="grid grid-cols-3 gap-3">
@@ -339,19 +347,25 @@ export default function TimeClockModal({
                       <p className="text-xl font-bold text-gray-900">
                         {weeklySummary.totalHours.toFixed(1)}
                       </p>
-                      <p className="text-xs text-gray-600">Hours</p>
+                      <p className="text-xs text-gray-600">
+                        {t('timeClockModal.clock.weeklySummary.hours')}
+                      </p>
                     </div>
                     <div className="text-center">
                       <p className="text-xl font-bold text-green-600">
                         {weeklySummary.onTimeDays}
                       </p>
-                      <p className="text-xs text-gray-600">On Time</p>
+                      <p className="text-xs text-gray-600">
+                        {t('timeClockModal.clock.weeklySummary.onTime')}
+                      </p>
                     </div>
                     <div className="text-center">
                       <p className="text-xl font-bold text-orange-600">
                         {weeklySummary.overtimeHours.toFixed(1)}
                       </p>
-                      <p className="text-xs text-gray-600">Overtime</p>
+                      <p className="text-xs text-gray-600">
+                        {t('timeClockModal.clock.weeklySummary.overtime')}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -366,7 +380,7 @@ export default function TimeClockModal({
                   }}
                   className="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 py-3 rounded-xl font-medium text-sm transition-colors border border-indigo-200"
                 >
-                  View Team Dashboard
+                  {t('timeClockModal.actions.viewTeamDashboard')}
                 </button>
               )}
 
@@ -375,7 +389,7 @@ export default function TimeClockModal({
                 onClick={onClose}
                 className="w-full text-blue-600 hover:text-blue-700 py-2 text-sm font-medium transition-colors"
               >
-                View Full History →
+                {t('timeClockModal.actions.viewFullHistory')}
               </button>
             </>
           )}

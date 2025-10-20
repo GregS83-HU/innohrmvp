@@ -1,6 +1,7 @@
 // components/CertificateStatusBadge.tsx
 import React from 'react';
 import { CheckCircle, Clock, AlertTriangle, FileText } from 'lucide-react';
+import { useLocale } from 'i18n/LocaleProvider';
 
 interface CertificateStatusBadgeProps {
   hasCertificate?: boolean;
@@ -15,11 +16,13 @@ export const CertificateStatusBadge: React.FC<CertificateStatusBadgeProps> = ({
   isHrValidated,
   isMedicalConfirmed
 }) => {
+  const { t } = useLocale();
+
   if (!hasCertificate) {
     return (
       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
         <FileText className="w-3 h-3 mr-1" />
-        No Certificate
+        {t('certificateStatusBadge.noCertificate')}
       </span>
     );
   }
@@ -28,7 +31,7 @@ export const CertificateStatusBadge: React.FC<CertificateStatusBadgeProps> = ({
     return (
       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-200">
         <CheckCircle className="w-3 h-3 mr-1" />
-        Certificate Confirmed
+        {t('certificateStatusBadge.certificateConfirmed')}
       </span>
     );
   }
@@ -37,7 +40,7 @@ export const CertificateStatusBadge: React.FC<CertificateStatusBadgeProps> = ({
     return (
       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700 border border-orange-200">
         <Clock className="w-3 h-3 mr-1" />
-        Pending HR Review
+        {t('certificateStatusBadge.pendingHrReview')}
       </span>
     );
   }
@@ -45,7 +48,7 @@ export const CertificateStatusBadge: React.FC<CertificateStatusBadgeProps> = ({
   return (
     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200">
       <FileText className="w-3 h-3 mr-1" />
-      Certificate Uploaded
+      {t('certificateStatusBadge.certificateUploaded')}
     </span>
   );
 };
@@ -64,14 +67,23 @@ export const DateMismatchAlert: React.FC<DateMismatchAlertProps> = ({
   leaveStart,
   leaveEnd
 }) => {
+  const { t } = useLocale();
+
   return (
     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-2">
       <div className="flex items-start gap-2">
         <AlertTriangle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
         <div className="text-sm">
-          <p className="font-medium text-yellow-800 mb-1">Date Alignment Issue</p>
+          <p className="font-medium text-yellow-800 mb-1">
+            {t('dateMismatchAlert.title')}
+          </p>
           <p className="text-yellow-700">
-            Certificate dates ({certificateStart} to {certificateEnd}) don&apos;t match leave request dates ({leaveStart} to {leaveEnd}).
+            {t('dateMismatchAlert.description', {
+              certificateStart,
+              certificateEnd,
+              leaveStart,
+              leaveEnd
+            })}
           </p>
         </div>
       </div>

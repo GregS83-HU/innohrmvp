@@ -1071,7 +1071,8 @@
         "search": "Vezetők keresése...",
         "noResults": "Nem található vezető",
         "isManagerToggle": "Vezetői szerep",
-        "isManagerInfo": "Ez a felhasználó vezetőként lesz megjelölve, és más csapattagokhoz rendelhető."
+        "isManagerInfo": "Ez a felhasználó vezetőként lesz megjelölve, és más csapattagokhoz rendelhető.",
+        "noManager": "Nincs menedzser"
       },
       "employmentStartDate": {
         "label": "Munkaviszony kezdete"
@@ -1410,6 +1411,165 @@
     "loginRequired": "A megtekintéshez kérjük, jelentkezzen be.",
     "defaultManagerName": "Vezető"
   }
+,
+  "managerTimeClockDashboard": {
+    "header": {
+      "title": "Csapat munkaidő-nyilvántartás",
+      "refreshButton": "Adatok frissítése",
+      "pendingApprovals": "{{count}} jóváhagyásra vár",
+      "pendingApprovals_plural": "{{count}} jóváhagyásra vár"
+    },
+    "tabs": {
+      "todayStatus": "Mai állapot",
+      "pendingApprovals": "Jóváhagyásra várók"
+    },
+    "summary": {
+      "workingNow": "Most dolgozik",
+      "finishedToday": "Ma befejezte",
+      "notStarted": "Még nem kezdte el"
+    },
+    "teamMembers": {
+      "title": "Csapattagok",
+      "noMembers": {
+        "title": "Nem találhatók csapattagok",
+        "description": "Az alkalmazottak itt fognak megjelenni, ha hozzád lesznek rendelve vezetőként."
+      },
+      "clockIn": "Bejelentkezés: {{time}}",
+      "clockOut": "Kijelentkezés: {{time}}",
+      "thisWeek": "Ezen a héten",
+      "hours": "{{hours}} óra",
+      "status": {
+        "working": "Dolgozik",
+        "finished": "Befejezte",
+        "notStarted": "Nem kezdte el",
+        "late": "Késés"
+      }
+    },
+    "pendingApprovals": {
+      "title": "Jóváhagyásra váró munkaidő-bejegyzések",
+      "noPending": {
+        "title": "Minden rendben!",
+        "description": "Nincsenek jóváhagyásra váró bejegyzések"
+      },
+      "employeeNote": "Dolgozói megjegyzés:",
+      "overtime": "Túlóra",
+      "late": "Késés",
+      "rejectButton": "Elutasítás",
+      "approveButton": "Jóváhagyás"
+    },
+    "messages": {
+      "loadTeamFailed": "A csapatadatok betöltése nem sikerült",
+      "loadPendingFailed": "A függő bejegyzések betöltése nem sikerült",
+      "refreshSuccess": "Az adatok sikeresen frissültek",
+      "refreshFailed": "Az adatok frissítése nem sikerült",
+      "entryApproved": "Bejegyzés jóváhagyva!",
+      "entryRejected": "Bejegyzés elutasítva!",
+      "updateFailed": "A bejegyzés frissítése nem sikerült",
+      "unexpectedError": "Váratlan hiba történt"
+    }
+  }
+,
+  "timeClockModal": {
+    "header": {
+      "title": "Munkaidő-nyilvántartás"
+    },
+    "clock": {
+      "clockInButton": "Bejelentkezés",
+      "clockOutButton": "Kijelentkezés",
+      "clockingIn": "Bejelentkezés folyamatban...",
+      "clockingOut": "Kijelentkezés folyamatban...",
+      "activeSession": {
+        "title": "Aktív műszak",
+        "since": "Ettől az időponttól: {{time}}",
+        "timeWorked": "Ledolgozott idő"
+      },
+      "weeklySummary": {
+        "title": "Ezen a héten",
+        "hours": "Órák",
+        "onTime": "Pontos",
+        "overtime": "Túlóra"
+      }
+    },
+    "actions": {
+      "viewTeamDashboard": "Csapat áttekintése",
+      "viewFullHistory": "Teljes előzmények megtekintése →"
+    },
+    "messages": {
+      "clockInSuccess": "Sikeres bejelentkezés!",
+      "clockOutSuccess": "Sikeres kijelentkezés!",
+      "clockInFailed": "A bejelentkezés nem sikerült",
+      "clockOutFailed": "A kijelentkezés nem sikerült"
+    }
+  }
+,
+  "confirmAnalysisModal": {
+    "header": {
+      "title": "Elemzés megerősítése"
+    },
+    "content": {
+      "description": "Az adatbázisban szereplő összes jelöltet elemezni fogja ehhez a pozícióhoz.",
+      "stats": {
+        "candidates": "Jelöltek",
+        "aiCredits": "AI kreditek"
+      },
+      "estimatedTime": "Becsült idő: ~{{time}}",
+      "timeFormat": {
+        "seconds": "{{count}} másodperc",
+        "minute": "{{count}} perc",
+        "minutes": "{{count}} perc"
+      },
+      "warning": "Ez a művelet {{count}} AI kreditet fog felhasználni a fiókjából.",
+      "warningBold": "{{count}} AI kredit"
+    },
+    "actions": {
+      "confirm": "Megerősítés és elemzés indítása",
+      "processing": "Feldolgozás...",
+      "createWithout": "Pozíció létrehozása elemzés nélkül",
+      "cancel": "Mégse"
+    }
+  }
+,
+  "absenceManagement": {
+    "loading": {
+      "message": "Távolléti adatok betöltése..."
+    },
+    "error": {
+      "title": "Hiba",
+      "tryAgain": "Próbálja újra"
+    },
+    "header": {
+      "title": "Távollétek kezelése",
+      "subtitle": "Szabadságok és távollétek kezelése",
+      "requestLeave": "Szabadság igénylése",
+      "requestShort": "Igénylés",
+      "withCertificate": "Orvosi igazolással",
+      "withCertShort": "+ Igazolás",
+      "calendarView": "Naptár nézet"
+    },
+    "tabs": {
+      "myLeave": "Saját szabadságok",
+      "teamApprovals": "Csapat jóváhagyások"
+    },
+    "messages": {
+      "certificateLinked": "Az igazolás sikeresen feltöltve és a betegszabadsághoz kapcsolva!",
+      "certificateLinkFailed": "Az igazolás feltöltve, de nem sikerült a kérelemhez kapcsolni",
+      "unexpectedError": "Váratlan hiba történt"
+    }
+  }
+,
+  "certificateStatusBadge": {
+    "noCertificate": "Nincs igazolás",
+    "certificateConfirmed": "Igazolás megerősítve",
+    "pendingHrReview": "HR jóváhagyásra vár",
+    "certificateUploaded": "Igazolás feltöltve"
+  },
+  "dateMismatchAlert": {
+    "title": "Dátumeltérés",
+    "description": "Az igazolás dátumai ({{certificateStart}} – {{certificateEnd}}) nem egyeznek a szabadságkérelem dátumaival ({{leaveStart}} – {{leaveEnd}})."
+  }
 }
+
+
+
 
 

@@ -116,13 +116,6 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
     setLoading(true);
     setError(null);
 
-    // Validate manager selection
-    if (!formData.managerId) {
-      setError(t('addUserModal.errors.selectManager'));
-      setLoading(false);
-      return;
-    }
-
     // Validate employment start date
     if (!formData.employmentStartDate) {
       setError(t('addUserModal.errors.selectStartDate'));
@@ -270,7 +263,7 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <label className="block text-sm font-medium text-gray-700">
-                  {t('addUserModal.fields.manager.label')} {t('addUserModal.fields.required')}
+                  {t('addUserModal.fields.manager.label')}
                 </label>
                 {/* Is Manager Toggle */}
                 <div className="flex items-center gap-2">
@@ -309,7 +302,22 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
                       {loadingManagers ? t('addUserModal.fields.manager.loading') : (formData.managerId ? getSelectedManagerName() : t('addUserModal.fields.manager.placeholder'))}
                     </span>
                   </span>
-                  <span className="text-gray-400">▼</span>
+                  <div className="flex items-center gap-2">
+                    {formData.managerId && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFormData(prev => ({ ...prev, managerId: '' }));
+                        }}
+                        className="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-100 transition-colors"
+                        disabled={loading}
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                    <span className="text-gray-400">▼</span>
+                  </div>
                 </button>
 
                 {/* Manager Dropdown List */}
@@ -332,6 +340,28 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
 
                     {/* Manager List */}
                     <div className="overflow-y-auto max-h-48">
+                      {/* Option "Aucun manager" */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, managerId: '' }));
+                          setShowManagerDropdown(false);
+                          setManagerSearch('');
+                        }}
+                        className={`w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors border-b border-gray-100 ${
+                          !formData.managerId ? 'bg-gray-50' : ''
+                        }`}
+                      >
+                        <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
+                          <X className="w-4 h-4 text-gray-500" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-600 italic">
+                            {t('addUserModal.fields.manager.noManager') || 'Aucun manager'}
+                          </p>
+                        </div>
+                      </button>
+
                       {filteredManagers.length > 0 ? (
                         filteredManagers.map(manager => (
                           <button

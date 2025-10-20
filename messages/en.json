@@ -1076,7 +1076,8 @@
         "search": "Search managers...",
         "noResults": "No managers found",
         "isManagerToggle": "Is Manager",
-        "isManagerInfo": "This user will be marked as a manager and can be assigned to other team members."
+        "isManagerInfo": "This user will be marked as a manager and can be assigned to other team members.",
+        "noManager": "No manager"
       },
       "employmentStartDate": {
         "label": "Employment Start Date"
@@ -1414,5 +1415,161 @@
     "loading": "Loading...",
     "loginRequired": "Please log in to view this page.",
     "defaultManagerName": "Manager"
+  }
+,
+  "managerTimeClockDashboard": {
+    "header": {
+      "title": "Team Time Clock",
+      "refreshButton": "Refresh data",
+      "pendingApprovals": "{{count}} pending approval",
+      "pendingApprovals_plural": "{{count}} pending approvals"
+    },
+    "tabs": {
+      "todayStatus": "Today's Status",
+      "pendingApprovals": "Pending Approvals"
+    },
+    "summary": {
+      "workingNow": "Working Now",
+      "finishedToday": "Finished Today",
+      "notStarted": "Not Started"
+    },
+    "teamMembers": {
+      "title": "Team Members",
+      "noMembers": {
+        "title": "No team members found",
+        "description": "Employees will appear here once they're assigned to you as manager"
+      },
+      "clockIn": "In: {{time}}",
+      "clockOut": "Out: {{time}}",
+      "thisWeek": "This Week",
+      "hours": "{{hours}}h",
+      "status": {
+        "working": "Working",
+        "finished": "Finished",
+        "notStarted": "Not started",
+        "late": "Late"
+      }
+    },
+    "pendingApprovals": {
+      "title": "Time Entries Awaiting Approval",
+      "noPending": {
+        "title": "All caught up!",
+        "description": "No time entries pending approval"
+      },
+      "employeeNote": "Employee Note:",
+      "overtime": "Overtime",
+      "late": "Late",
+      "rejectButton": "Reject",
+      "approveButton": "Approve"
+    },
+    "messages": {
+      "loadTeamFailed": "Failed to load team data",
+      "loadPendingFailed": "Failed to load pending entries",
+      "refreshSuccess": "Data refreshed successfully",
+      "refreshFailed": "Failed to refresh data",
+      "entryApproved": "Entry approved!",
+      "entryRejected": "Entry rejected!",
+      "updateFailed": "Failed to update entry",
+      "unexpectedError": "An unexpected error occurred"
+    }
+  }
+,
+  "timeClockModal": {
+    "header": {
+      "title": "Time Clock"
+    },
+    "clock": {
+      "clockInButton": "Clock In",
+      "clockOutButton": "Clock Out",
+      "clockingIn": "Clocking In...",
+      "clockingOut": "Clocking Out...",
+      "activeSession": {
+        "title": "Active Session",
+        "since": "Since {{time}}",
+        "timeWorked": "Time Worked"
+      },
+      "weeklySummary": {
+        "title": "This Week",
+        "hours": "Hours",
+        "onTime": "On Time",
+        "overtime": "Overtime"
+      }
+    },
+    "actions": {
+      "viewTeamDashboard": "View Team Dashboard",
+      "viewFullHistory": "View Full History →"
+    },
+    "messages": {
+      "clockInSuccess": "Clocked in successfully!",
+      "clockOutSuccess": "Clocked out successfully!",
+      "clockInFailed": "Failed to clock in",
+      "clockOutFailed": "Failed to clock out"
+    }
+  }
+,
+  "confirmAnalysisModal": {
+    "header": {
+      "title": "Confirm Analysis"
+    },
+    "content": {
+      "description": "You are about to analyze all candidates in your database against this position.",
+      "stats": {
+        "candidates": "Candidates",
+        "aiCredits": "AI Credits"
+      },
+      "estimatedTime": "Estimated time: ~{{time}}",
+      "timeFormat": {
+        "seconds": "{{count}} seconds",
+        "minute": "{{count}} minute",
+        "minutes": "{{count}} minutes"
+      },
+      "warning": "This will consume {{count}} AI credits from your account.",
+      "warningBold": "{{count}} AI credits"
+    },
+    "actions": {
+      "confirm": "Confirm & Start Analysis",
+      "processing": "Processing...",
+      "createWithout": "Create Position Without Analysis",
+      "cancel": "Cancel"
+    }
+  }
+,
+  "absenceManagement": {
+    "loading": {
+      "message": "Loading absence data..."
+    },
+    "error": {
+      "title": "Error",
+      "tryAgain": "Try Again"
+    },
+    "header": {
+      "title": "Absence Management",
+      "subtitle": "Manage your leave and time off",
+      "requestLeave": "Request Leave",
+      "requestShort": "Request",
+      "withCertificate": "With Certificate",
+      "withCertShort": "+ Cert",
+      "calendarView": "Calendar View"
+    },
+    "tabs": {
+      "myLeave": "My Leave",
+      "teamApprovals": "Team Approvals"
+    },
+    "messages": {
+      "certificateLinked": "Certificate uploaded and linked to sick leave!",
+      "certificateLinkFailed": "Certificate uploaded but failed to link to request",
+      "unexpectedError": "An unexpected error occurred"
+    }
+  }
+,
+  "certificateStatusBadge": {
+    "noCertificate": "No Certificate",
+    "certificateConfirmed": "Certificate Confirmed",
+    "pendingHrReview": "Pending HR Review",
+    "certificateUploaded": "Certificate Uploaded"
+  },
+  "dateMismatchAlert": {
+    "title": "Date Alignment Issue",
+    "description": "Certificate dates ({{certificateStart}} to {{certificateEnd}}) don't match leave request dates ({{leaveStart}} to {{leaveEnd}})."
   }
 }
