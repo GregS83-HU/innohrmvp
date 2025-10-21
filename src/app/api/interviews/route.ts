@@ -3,6 +3,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { sendInterviewInvitation, sendInterviewCancellation } from '../../../../lib/email-service'
+import { getServerTranslation } from '../../../i18n/server-translations' 
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -27,7 +28,15 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { position_id, candidat_id, recruiter_id, interview_datetime, duration_minutes, location } = body
+    const { 
+      position_id, 
+      candidat_id, 
+      recruiter_id, 
+      interview_datetime, 
+      duration_minutes, 
+      location,
+      locale  // ⭐ Added: Get locale from request
+    } = body
 
     console.log('[Interviews API] Creating interview:', body)
 
@@ -126,6 +135,9 @@ export async function POST(req: Request) {
       }, { status: 207 })
     }
 
+    // ⭐ Added: Get translation function for the user's locale
+    const t = getServerTranslation(locale || 'en')
+
     // Send interview invitation emails
     try {
       await sendInterviewInvitation({
@@ -147,6 +159,7 @@ export async function POST(req: Request) {
           location: location || 'TBD',
           durationMinutes: duration_minutes || 60,
         },
+        t,  // ⭐ Added: Pass translation function
       })
 
       console.log('[Interviews API] ✅ Invitation emails sent successfully')
@@ -174,7 +187,7 @@ export async function POST(req: Request) {
 
 export async function PATCH(req: Request) {
   const body = await req.json()
-  const { id, status, notes, ai_summary } = body
+  const { id, status, notes, ai_summary, locale } = body  // ⭐ Added: Get locale from request
 
   // Update interview status
   const { data, error } = await supabase
@@ -239,6 +252,9 @@ export async function PATCH(req: Request) {
         return NextResponse.json(data)
       }
 
+      // ⭐ Added: Get translation function for the user's locale
+      const t = getServerTranslation(locale || 'en')
+
       // Send cancellation email
       await sendInterviewCancellation({
         candidate: {
@@ -258,6 +274,7 @@ export async function PATCH(req: Request) {
           location: interview.location || 'TBD',
           durationMinutes: interview.duration_minutes || 60,
         },
+        t,  // ⭐ Added: Pass translation function
       })
 
       console.log('[Interviews API] ✅ Cancellation email sent successfully')

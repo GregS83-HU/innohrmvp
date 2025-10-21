@@ -721,6 +721,16 @@
   }
 ,
   "uploadCertificate": {
+    "loading": "Jogosultságok ellenőrzése...",
+    "error": {
+      "title": "Hiba",
+      "noCompanyId": "Nincs megadva céges azonosító. Kérjük, ezen az oldalon a megfelelő linken keresztül lépjen be."
+    },
+    "planLimit": {
+      "title": "Elérte a csomag korlátját",
+      "message": "A vállalata csomagkorlátja elérte a maximumot. A folytatáshoz kérjük, vegye fel a kapcsolatot a vállalat rendszergazdájával."
+    },
+    
     "header": {
       "title": "Orvosi igazolás feltöltése",
       "subtitle": "Töltsd fel az orvosi igazolásodat automatikus feldolgozáshoz"
@@ -754,7 +764,9 @@
       "saving": "Mentés...",
       "cancel": "Mégse",
       "tryAgain": "Próbáld újra",
-      "uploadAnother": "Tölts fel egy másik igazolást"
+      "uploadAnother": "Tölts fel egy másik igazolást",
+      "back": "Vissza",
+      "home": "Kezdőlap"
     },
     "alerts": {
       "success": "Az igazolás sikeresen mentve!",
@@ -1597,15 +1609,15 @@
   }
 ,
   
-  "emailTemplate": {
+  "emailTemplates": {
     "candidate": {
       "title": "Interjú meghívó",
       "greeting": "Kedves {{candidateName}}!",
       "body": "Meghívást kapott egy interjúra a(z) <strong>{{positionTitle}}</strong> pozícióra {{recruiterName}} kollégánkkal.",
-      "dateLabel": "📅 Dátum:",
-      "timeLabel": "⏰ Időpont:",
-      "locationLabel": "📍 Helyszín:",
-      "virtualLocationLabel": "🔗 Helyszín:",
+      "date": "📅 Dátum:",
+      "time": "⏰ Időpont:",
+      "locationPhysical": "📍 Helyszín:",
+      "locationVirtual": "🔗 Helyszín:",
       "calendarInfo": "Egy naptármeghívó csatolva van az e-mailhez. Kérjük, fogadja el, hogy hozzáadja ezt az interjút a naptárához.",
       "questions": "Kérdés vagy időpont-módosítás esetén kérjük, vegye fel a kapcsolatot {{recruiterName}} kollégánkkal.",
       "closing": "Üdvözlettel,",
@@ -1616,16 +1628,255 @@
       "greeting": "Szia {{recruiterName}}!",
       "body": "Az interjú <strong>{{candidateName}}</strong> jelölttel a(z) <strong>{{positionTitle}}</strong> pozícióra ütemezve lett.",
       "candidateLabel": "👤 Jelölt:",
-      "dateLabel": "📅 Dátum:",
-      "timeLabel": "⏰ Időpont:",
-      "locationLabel": "📍 Helyszín:",
-      "virtualLocationLabel": "🔗 Helyszín:",
+      "date": "📅 Dátum:",
+      "time": "⏰ Időpont:",
+      "locationPhysical": "📍 Helyszín:",
+      "locationVirtual": "🔗 Helyszín:",
       "notification": "A jelölt értesítést kapott és naptármeghívót fog kapni. Egy másolat a te naptáradba is be lett illesztve.",
       "goodLuck": "Sok sikert az interjúhoz!",
       "footer": "Üzenetet az HRInno Interjú Ütemező küldte"
     }
   }
+,
+  "notifications": {
+    "header": {
+      "title": "Értesítések",
+      "markAllRead": "Összes megjelölése olvasottként"
+    },
+    "empty": "Még nincsenek értesítések",
+    "viewDetails": "Részletek megtekintése",
+    "fallback": {
+      "user": "Felhasználó",
+      "admin": "Rendszergazda"
+    },
+    "ticket_created": {
+      "title": "Új jegy",
+      "message": "{{user}} létrehozott egy jegyet: \"{{title}}\""
+    },
+    "ticket_message": {
+      "title": "Új üzenet",
+      "message": "{{sender}} üzenetet küldött",
+      "sent_by_admin": "{{sender}} üzenetet küldött"
+    },
+    "ticket_status_changed": {
+      "title": "A jegy állapota frissült",
+      "message": "A(z) \"{{title}}\" jegy állapota megváltozott erre: {{status}}"
+    },
+    "leave_request_created": {
+      "title": "Szabadságkérelem",
+      "message": "Egy új szabadságkérelem lett benyújtva"
+    },
+    "goal_created": {
+      "title": "Új cél",
+      "message": "Új cél lett létrehozva: {{title}}"
+    },
+    "pulse_reminder": {
+      "title": "Pulse emlékeztető",
+      "message": "Itt az ideje kitölteni a pulse-t"
+    },
+    "unknown": {
+      "title": "Értesítés",
+      "message": "Új értesítésed érkezett"
+    }
+  }
+,
+  "statsPage": {
+    "error": {
+      "missingPositionId": "Hiányzik a pozíció azonosító.",
+      "loadingError": "Hiba történt a statisztika betöltése közben."
+    },
+    "noCandidates": "Ehhez a pozícióhoz nincs jelentkező."
+  }
+,
+  "subscription": {
+    "header": {
+      "title": "Előfizetés kezelése",
+      "subtitle": "Válassza ki az üzleti igényeinek legmegfelelőbb csomagot"
+    },
+    "errors": {
+      "fetchCreditPacks": "Nem sikerült lekérni az AI kreditcsomagokat",
+      "unexpectedCreditPacks": "Váratlan hiba történt az AI kreditcsomagok lekérésekor",
+      "companyNotFound": "A vállalat nem található",
+      "startPayment": "Nem sikerült elindítani a fizetést",
+      "createCheckout": "Hiba történt a fizetési folyamat létrehozásakor",
+      "fetchCompany": "Nem sikerült lekérni a vállalat adatait",
+      "fetchCompanyDetails": "Nem sikerült lekérni a vállalat részletes adatait",
+      "unexpectedCompany": "Váratlan hiba történt a vállalati adatok lekérésekor",
+      "fetchPlanDetails": "Nem sikerült lekérni a csomag részleteit",
+      "stripePricing": "Nem sikerült betölteni az árakat a Stripe-ból. A fizetős csomagok átmenetileg nem elérhetők.",
+      "invalidPricing": "Érvénytelen áradatok érkeztek a Stripe-tól. A fizetős csomagok átmenetileg nem elérhetők.",
+      "somePlansUnavailable": "Néhány fizetős csomag átmenetileg nem elérhető árképzési problémák miatt.",
+      "stripeConnect": "Nem sikerült csatlakozni a Stripe-hoz. A fizetős csomagok átmenetileg nem elérhetők.",
+      "fetchPlans": "Nem sikerült lekérni a csomagokat",
+      "companyNotAvailable": "A vállalati információk nem elérhetők.",
+      "planUnavailable": "Ez a csomag átmenetileg nem elérhető árképzési problémák miatt.",
+      "unableCheckout": "Nem sikerült elindítani a fizetési folyamatot",
+      "unexpectedCheckout": "Váratlan hiba történt a fizetési folyamat indításakor"
+    },
+    "messages": {
+      "freePlan": "Ez egy ingyenes csomag. Nem szükséges előfizetés.",
+      "creditsAdded": "AI kreditek sikeresen hozzáadva!",
+      "creditsCanceled": "Az AI kreditvásárlás megszakítva",
+      "paymentSuccess": "A fizetés sikeres! Az előfizetés frissítése folyamatban...",
+      "subscriptionUpdated": "Az előfizetés sikeresen frissítve!",
+      "paymentCanceled": "A fizetés megszakítva"
+    },
+    "processing": {
+      "title": "Fizetés feldolgozása...",
+      "message": "Kérjük, várjon, amíg frissítjük az előfizetését."
+    },
+    "current": {
+      "title": "Aktuális előfizetés",
+      "plan": "Csomag",
+      "active": "Aktív",
+      "creditsRemaining": "Fennmaradó AI kreditek"
+    },
+    "noSubscription": {
+      "title": "Nincs aktív előfizetés",
+      "message": "Válasszon egy csomagot a kezdéshez"
+    },
+    "noPlans": {
+      "title": "Nem érhetők el csomagok",
+      "message": "Nem sikerült betölteni az árakat. Kérjük, próbálja meg később."
+    },
+    "badges": {
+      "currentPlan": "Aktuális csomag"
+    },
+    "plan": {
+      "positions": "{{count}} pozíció",
+      "certificates": "{{count}} orvosi igazolás",
+      "happyCheckAccess": "Happy Check hozzáférés",
+      "description": "Tökéletes választás azoknak a vállalatoknak, amelyeknek szükségük van: {{features}}",
+      "defaultDescription": "Kiváló csomag az Ön üzleti igényeihez",
+      "defaultName": "Csomag {{id}}"
+    },
+    "features": {
+      "unlimitedPositions": "Korlátlan számú nyitott pozíció",
+      "maxPositions": "Legfeljebb {{count}} nyitott pozíció",
+      "unlimitedCertificates": "Korlátlan számú orvosi igazolás",
+      "maxCertificates": "Legfeljebb {{count}} orvosi igazolás",
+      "happyCheck": "Happy Check funkció tartalmazva",
+      "emailSupport": "E-mailes támogatás",
+      "analytics": "Alap statisztikák",
+      "secureStorage": "Biztonságos adatkezelés",
+      "aiCreditsIncluded": "{{count}} AI kredit tartalmazva"
+    },
+    "pricing": {
+      "free": "Ingyenes",
+      "perMonth": "HUF/hó"
+    },
+    "buttons": {
+      "freePlan": "Ingyenes csomag",
+      "unavailable": "Átmenetileg nem elérhető",
+      "currentPlan": "Aktuális csomag",
+      "subscribe": "Előfizetés a(z) {{plan}} csomagra"
+    },
+    "credits": {
+      "title": "AI kreditek vásárlása",
+      "subtitle": "Több AI teljesítményre van szüksége? Válasszon egy egyszeri kreditcsomagot az alábbiak közül.",
+      "packTitle": "{{count}} AI kredit",
+      "packDescription": "Tökéletes extra eredmények vagy elemzések generálásához.",
+      "buyButton": "{{count}} kredit vásárlása"
+    }
+  }
+,
+  "companyUsers": {
+    "header": {
+      "title": "Vállalati felhasználók",
+      "teamMembers": "{{count}} csapattag",
+      "addUser": "Felhasználó hozzáadása",
+      "add": "Hozzáadás"
+    },
+    "roles": {
+      "admin": "Adminisztrátor",
+      "manager": "Menedzser",
+      "user": "Felhasználó"
+    },
+    "common": {
+      "na": "N/A"
+    },
+    "errors": {
+      "companyNotFound": "A vállalat nem található",
+      "fetchCompanyId": "Hiba történt a vállalati azonosító lekérésekor",
+      "fetchUsers": "Váratlan hiba történt a felhasználók lekérésekor",
+      "updateManager": "Nem sikerült frissíteni a menedzsert"
+    },
+    "loading": "Felhasználók betöltése...",
+    "errorState": {
+      "title": "Hoppá! Valami hiba történt",
+      "tryAgain": "Próbálja újra"
+    },
+    "search": {
+      "placeholder": "Keresés név vagy e-mail alapján..."
+    },
+    "filter": {
+      "allRoles": "Összes szerepkör",
+      "admins": "Adminisztrátorok",
+      "users": "Felhasználók"
+    },
+    "empty": {
+      "noUsersFound": "Nem található felhasználó",
+      "noUsersYet": "Még nincsenek felhasználók",
+      "tryAdjusting": "Próbálja módosítani a keresési vagy szűrési feltételeket.",
+      "getStarted": "Kezdje az első csapattag hozzáadásával.",
+      "addFirstUser": "Első felhasználó hozzáadása"
+    },
+    "table": {
+      "name": "Név",
+      "email": "E-mail",
+      "manager": "Menedzser",
+      "startDate": "Kezdés dátuma",
+      "role": "Szerepkör",
+      "addManager": "+ Menedzser hozzáadása"
+    },
+    "mobile": {
+      "manager": "Menedzser:",
+      "startDate": "Kezdés dátuma:",
+      "addManager": "+ Menedzser hozzáadása"
+    },
+    "managerDropdown": {
+      "searchPlaceholder": "Menedzserek keresése...",
+      "updating": "Frissítés...",
+      "noManagers": "Nem található menedzser"
+    }
+  }
+,
+  "ticketDetail": {
+    "loading": "Jegy betöltése...",
+    "errors": {
+      "userCompanyNotFound": "A felhasználó vállalati hozzárendelése nem található",
+      "noCompanyAssociation": "A felhasználó nincs hozzárendelve egyetlen vállalathoz sem",
+      "userProfileNotFound": "A felhasználói profil nem található",
+      "loadUserData": "Nem sikerült betölteni a felhasználói adatokat",
+      "ticketNotFound": "A jegy nem található",
+      "loadTicket": "Nem sikerült betölteni a jegyet",
+      "sendMessage": "Nem sikerült elküldeni az üzenetet",
+      "updateStatus": "Nem sikerült frissíteni a jegy státuszát",
+      "downloadFile": "Nem sikerült letölteni a fájlt"
+    },
+    "common": {
+      "unknownUser": "Ismeretlen felhasználó",
+      "user": "Felhasználó"
+    },
+    "notifications": {
+      "newMessage": "Új üzenet",
+      "messageSent": "{{user}} üzenetet küldött",
+      "statusUpdated": "A jegy státusza frissítve",
+      "statusChanged": "A(z) „{{title}}” jegy státusza megváltozott: {{status}}"
+    },
+    "errorState": {
+      "title": "Hoppá! Valami hiba történt",
+      "goBack": "Vissza"
+    },
+    "header": {
+      "backToTickets": "Vissza a jegyekhez",
+      "created": "Létrehozva",
+      "updateStatus": "Státusz frissítése"
+    }
+  }
 }
+
+
 
 
 

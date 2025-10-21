@@ -43,7 +43,7 @@ export default function InterviewList({
   candidatId: number
   positionId: number | null
 }) {
-  const { t } = useLocale()
+  const { t, locale } = useLocale()  // ⭐ Added: Get locale from context
   const session = useSession()
   const [interviews, setInterviews] = useState<Interview[]>([])
   const [loading, setLoading] = useState(false)
@@ -90,6 +90,7 @@ export default function InterviewList({
       recruiter_id: recruiterId,
       interview_datetime: datetime,
       location,
+      locale,  // ⭐ Added: Pass current locale to API
     }
 
     const res = await fetch('/api/interviews', {
@@ -114,7 +115,11 @@ export default function InterviewList({
     await fetch(`/api/interviews`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, status: 'cancelled' }),
+      body: JSON.stringify({ 
+        id, 
+        status: 'cancelled',
+        locale  // ⭐ Added: Pass current locale to API
+      }),
     })
     setShowCancelModal(false)
     setSelectedInterview(null)
@@ -452,7 +457,7 @@ function InterviewSummaryModal({
   )
 }
 
-// Interview Assistant Modal (updated version)
+// Interview Assistant Modal
 function InterviewAssistantModal({
   candidatId,
   positionId,
@@ -483,7 +488,7 @@ function InterviewAssistantModal({
           candidat_id: candidatId,
           position_id: positionId,
           interview_id: interviewId,
-          locale, // Pass current locale
+          locale,
         }),
       })
       const data = await res.json()
@@ -508,7 +513,7 @@ function InterviewAssistantModal({
           position_id: positionId,
           interview_id: interviewId,
           notes: interviewNotes,
-          locale, // Pass current locale
+          locale,
         }),
       })
       const data = await res.json()

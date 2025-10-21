@@ -20,8 +20,8 @@ import {
   Edit3,
 } from 'lucide-react';
 import { AddUserModal } from '../../../../../components/AddUserModal';
+import { useLocale } from '../../../../i18n/LocaleProvider';
 
-// ✅ Updated type for company users with new fields
 interface CompanyUser {
   user_id: string;
   first_name: string;
@@ -41,12 +41,6 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-/* --------------------
- ManagerDropdownPortal
- - Renders the manager list into document.body
- - Positions next to the anchor element (anchorRef)
- - Handles outside clicks, Escape, reposition on scroll/resize
----------------------*/
 function ManagerDropdownPortal({
   open,
   anchorRef,
@@ -57,6 +51,7 @@ function ManagerDropdownPortal({
   updatingManager,
   selectedManagerId,
   onClose,
+  t,
 }: {
   open: boolean;
   anchorRef: React.MutableRefObject<HTMLElement | null>;
@@ -67,6 +62,7 @@ function ManagerDropdownPortal({
   updatingManager: boolean;
   selectedManagerId?: string | null;
   onClose: () => void;
+  t: (key: string) => string;
 }) {
   const portalRef = useRef<HTMLDivElement | null>(null);
   const [style, setStyle] = useState({ top: 0, left: 0, width: 320 });
@@ -79,7 +75,6 @@ function ManagerDropdownPortal({
       if (!a) return;
       const rect = a.getBoundingClientRect();
 
-      // position the portal under the anchor, align left if possible
       const desiredWidth = 320;
       let left = rect.left + window.scrollX;
       const viewportRight = window.scrollX + window.innerWidth;
@@ -94,7 +89,6 @@ function ManagerDropdownPortal({
 
     updatePos();
     window.addEventListener('resize', updatePos);
-    // listen to scroll on capture so we catch ancestor scrolling
     window.addEventListener('scroll', updatePos, true);
     return () => {
       window.removeEventListener('resize', updatePos);
@@ -145,7 +139,7 @@ function ManagerDropdownPortal({
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Search managers..."
+            placeholder={t('companyUsers.managerDropdown.searchPlaceholder')}
             value={managerSearch}
             onChange={(e) => setManagerSearch(e.target.value)}
             className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -158,7 +152,7 @@ function ManagerDropdownPortal({
         {updatingManager ? (
           <div className="px-4 py-8 text-center">
             <Loader2 className="w-6 h-6 animate-spin text-blue-600 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">Updating...</p>
+            <p className="text-sm text-gray-500">{t('companyUsers.managerDropdown.updating')}</p>
           </div>
         ) : managers.length > 0 ? (
           managers.map((manager) => (
@@ -188,7 +182,7 @@ function ManagerDropdownPortal({
             </button>
           ))
         ) : (
-          <div className="px-4 py-3 text-center text-gray-500 text-sm">No managers found</div>
+          <div className="px-4 py-3 text-center text-gray-500 text-sm">{t('companyUsers.managerDropdown.noManagers')}</div>
         )}
       </div>
     </div>,
@@ -196,12 +190,10 @@ function ManagerDropdownPortal({
   );
 }
 
-/* --------------------
- Main component
----------------------*/
 export default function CompanyUsersPage() {
   const params = useParams<{ slug: string }>();
   const companySlug = params.slug;
+  const { t } = useLocale();
 
   const [users, setUsers] = useState<CompanyUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -211,46 +203,38 @@ export default function CompanyUsersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'user'>('all');
 
-  // Manager edit states
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [managerSearch, setManagerSearch] = useState('');
   const [updatingManager, setUpdatingManager] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState<string | null>(null);
-  // anchorRef points to the button that opened the dropdown
   const anchorRef = useRef<HTMLElement | null>(null);
 
-
-  // ✅ Helper function to get role badge
   const getRoleBadge = (user: CompanyUser) => {
-    // Admin takes priority over manager
     if (user.is_admin) {
       return (
         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200">
-          <ShieldCheck className="w-3 h-3 mr-1" /> Admin
+          <ShieldCheck className="w-3 h-3 mr-1" /> {t('companyUsers.roles.admin')}
         </span>
       );
     }
     
-    // Show manager badge if user is manager but not admin
     if (user.is_manager) {
       return (
         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border border-blue-200">
-          <Users className="w-3 h-3 mr-1" /> Manager
+          <Users className="w-3 h-3 mr-1" /> {t('companyUsers.roles.manager')}
         </span>
       );
     }
     
-    // Default user badge
     return (
       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-gray-100 to-slate-100 text-gray-700 border border-gray-200">
-        <Shield className="w-3 h-3 mr-1" /> User
+        <Shield className="w-3 h-3 mr-1" /> {t('companyUsers.roles.user')}
       </span>
     );
   };
 
-  // ✅ Format date helper
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'N/A';
+    if (!dateString) return t('companyUsers.common.na');
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
@@ -259,24 +243,22 @@ export default function CompanyUsersPage() {
     });
   };
 
-  // ✅ Fetch company ID by slug
   const fetchCompanyId = useCallback(async () => {
     try {
       const { data, error } = await supabase.from('company').select('id').eq('slug', companySlug).single();
 
       if (error || !data?.id) {
-        setError('Company not found');
+        setError(t('companyUsers.errors.companyNotFound'));
         setLoading(false);
         return;
       }
       setCompanyId(data.id.toString());
     } catch {
-      setError('Error fetching company ID');
+      setError(t('companyUsers.errors.fetchCompanyId'));
       setLoading(false);
     }
-  }, [companySlug]);
+  }, [companySlug, t]);
 
-  // ✅ Fetch company users via RPC
   const fetchCompanyUsers = useCallback(async () => {
     if (!companyId) return;
     try {
@@ -292,13 +274,12 @@ export default function CompanyUsersPage() {
 
       setUsers(Array.isArray(data) ? (data as CompanyUser[]) : []);
     } catch {
-      setError('Unexpected error fetching users');
+      setError(t('companyUsers.errors.fetchUsers'));
     } finally {
       setLoading(false);
     }
-  }, [companyId]);
+  }, [companyId, t]);
 
-  // ✅ Update manager
   const updateManager = async (userId: string, newManagerId: string) => {
     setUpdatingManager(true);
     try {
@@ -310,25 +291,22 @@ export default function CompanyUsersPage() {
 
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.error || 'Failed to update manager');
+      if (!res.ok) throw new Error(data.error || t('companyUsers.errors.updateManager'));
 
-      // Show success feedback
       setUpdateSuccess(userId);
       setTimeout(() => setUpdateSuccess(null), 2000);
 
-      // Refresh users list
       await fetchCompanyUsers();
       setEditingUserId(null);
       setManagerSearch('');
     } catch (err) {
       console.error('Error updating manager:', err);
-      alert(err instanceof Error ? err.message : 'Failed to update manager');
+      alert(err instanceof Error ? err.message : t('companyUsers.errors.updateManager'));
     } finally {
       setUpdatingManager(false);
     }
   };
 
-  // ✅ Filter managers based on search (exclude the user being edited)
   const getFilteredManagers = (excludeUserId: string) => {
     return users.filter(
       (user) =>
@@ -338,7 +316,6 @@ export default function CompanyUsersPage() {
     );
   };
 
-  // ✅ Close dropdown on Escape (keeps original behavior)
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -354,7 +331,6 @@ export default function CompanyUsersPage() {
     }
   }, [editingUserId]);
 
-  // ✅ Filtering logic
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       !searchTerm ||
@@ -369,7 +345,6 @@ export default function CompanyUsersPage() {
     return matchesSearch && matchesRole;
   });
 
-  // ✅ Effects
   useEffect(() => {
     fetchCompanyId();
   }, [fetchCompanyId]);
@@ -378,18 +353,16 @@ export default function CompanyUsersPage() {
     if (companyId) fetchCompanyUsers();
   }, [companyId, fetchCompanyUsers]);
 
-  // ✅ Loading state
   if (loading)
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
         <div className="bg-white p-8 rounded-2xl shadow-lg">
           <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600 text-center">Loading users...</p>
+          <p className="text-gray-600 text-center">{t('companyUsers.loading')}</p>
         </div>
       </div>
     );
 
-  // ✅ Error state
   if (error)
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col items-center justify-center p-4">
@@ -397,19 +370,18 @@ export default function CompanyUsersPage() {
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="w-8 h-8 text-red-600" />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Oops! Something went wrong</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">{t('companyUsers.errorState.title')}</h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
             className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors shadow-lg hover:shadow-xl"
           >
-            Try Again
+            {t('companyUsers.errorState.tryAgain')}
           </button>
         </div>
       </div>
     );
 
-  // find the user object currently being edited
   const editingUser = editingUserId ? users.find((u) => u.user_id === editingUserId) ?? null : null;
   const managersForEditingUser = editingUserId ? getFilteredManagers(editingUserId) : [];
 
@@ -424,8 +396,8 @@ export default function CompanyUsersPage() {
                 <Users className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Company Users</h1>
-                <p className="text-gray-600">{users.length} team members</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('companyUsers.header.title')}</h1>
+                <p className="text-gray-600">{t('companyUsers.header.teamMembers', { count: users.length })}</p>
               </div>
             </div>
 
@@ -434,8 +406,8 @@ export default function CompanyUsersPage() {
               className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Add User</span>
-              <span className="sm:hidden">Add</span>
+              <span className="hidden sm:inline">{t('companyUsers.header.addUser')}</span>
+              <span className="sm:hidden">{t('companyUsers.header.add')}</span>
             </button>
           </div>
 
@@ -447,7 +419,7 @@ export default function CompanyUsersPage() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search by name or email..."
+                  placeholder={t('companyUsers.search.placeholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
@@ -462,9 +434,9 @@ export default function CompanyUsersPage() {
                   onChange={(e) => setRoleFilter(e.target.value as 'all' | 'admin' | 'user')}
                   className="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
                 >
-                  <option value="all">All Roles</option>
-                  <option value="admin">Admins</option>
-                  <option value="user">Users</option>
+                  <option value="all">{t('companyUsers.filter.allRoles')}</option>
+                  <option value="admin">{t('companyUsers.filter.admins')}</option>
+                  <option value="user">{t('companyUsers.filter.users')}</option>
                 </select>
               </div>
             </div>
@@ -478,14 +450,14 @@ export default function CompanyUsersPage() {
               <Users className="w-10 h-10 text-gray-400" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              {searchTerm || roleFilter !== 'all' ? 'No users found' : 'No users yet'}
+              {searchTerm || roleFilter !== 'all' ? t('companyUsers.empty.noUsersFound') : t('companyUsers.empty.noUsersYet')}
             </h3>
             <p className="text-gray-600 mb-6">
-              {searchTerm || roleFilter !== 'all' ? 'Try adjusting your search or filter criteria.' : 'Get started by adding your first team member.'}
+              {searchTerm || roleFilter !== 'all' ? t('companyUsers.empty.tryAdjusting') : t('companyUsers.empty.getStarted')}
             </p>
             {!searchTerm && roleFilter === 'all' && (
               <button onClick={() => setIsAddUserModalOpen(true)} className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors">
-                Add First User
+                {t('companyUsers.empty.addFirstUser')}
               </button>
             )}
           </div>
@@ -497,11 +469,11 @@ export default function CompanyUsersPage() {
                 <table className="min-w-full">
                   <thead>
                     <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Manager</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Start Date</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Role</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{t('companyUsers.table.name')}</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{t('companyUsers.table.email')}</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{t('companyUsers.table.manager')}</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{t('companyUsers.table.startDate')}</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{t('companyUsers.table.role')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
@@ -558,7 +530,7 @@ export default function CompanyUsersPage() {
                                 disabled={updatingManager}
                                 className="text-gray-400 text-sm hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded-lg transition-colors"
                               >
-                                + Add manager
+                                {t('companyUsers.table.addManager')}
                               </button>
                             )}
                           </div>
@@ -571,9 +543,9 @@ export default function CompanyUsersPage() {
                           </div>
                         </td>
 
-                       <td className="px-6 py-4 whitespace-nowrap">
-  {getRoleBadge(user)}
-</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {getRoleBadge(user)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -606,12 +578,11 @@ export default function CompanyUsersPage() {
                     </div>
                   </div>
 
-                  {/* Additional Info */}
                   <div className="space-y-2 pt-3 border-t border-gray-100">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-sm text-gray-500">
                         <UserCircle className="w-4 h-4" />
-                        <span>Manager:</span>
+                        <span>{t('companyUsers.mobile.manager')}</span>
                       </div>
                       <div className="relative">
                         {user.manager_first_name && user.manager_last_name ? (
@@ -637,7 +608,7 @@ export default function CompanyUsersPage() {
                             disabled={updatingManager}
                             className="text-sm text-blue-600 hover:text-blue-700"
                           >
-                            + Add manager
+                            {t('companyUsers.mobile.addManager')}
                           </button>
                         )}
                       </div>
@@ -645,7 +616,7 @@ export default function CompanyUsersPage() {
 
                     <div className="flex items-center gap-2 text-sm text-gray-700">
                       <Calendar className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-500">Start Date:</span>
+                      <span className="text-gray-500">{t('companyUsers.mobile.startDate')}</span>
                       <span className="font-medium">{formatDate(user.employment_start_date)}</span>
                     </div>
                   </div>
@@ -656,7 +627,6 @@ export default function CompanyUsersPage() {
         )}
       </div>
 
-      {/* Manager dropdown portal (single shared portal) */}
       <ManagerDropdownPortal
         open={!!editingUserId}
         anchorRef={anchorRef}
@@ -674,9 +644,9 @@ export default function CompanyUsersPage() {
           setManagerSearch('');
           anchorRef.current = null;
         }}
+        t={t}
       />
 
-      {/* Add User Modal */}
       <AddUserModal isOpen={isAddUserModalOpen} onClose={() => setIsAddUserModalOpen(false)} onSuccess={fetchCompanyUsers} companyId={companyId || ''} />
     </div>
   );

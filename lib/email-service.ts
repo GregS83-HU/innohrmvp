@@ -187,7 +187,7 @@ export async function sendInterviewCancellation(params: SendInterviewCancellatio
 
   try {
     const result = await resend.emails.send({
-      from: `${translate('emailService.from.interviews')} <onboarding@resend.dev>`,
+      from: `${translate('emailService.from.interviews')} <interviews@notifications.hrinno.hu>`,
       to: candidate.email,
       subject: translate('emailService.cancellation.subject', { positionTitle: position.title }),
       html: cancellationEmail,
@@ -270,7 +270,7 @@ export async function sendInterviewInvitation(params: SendInterviewInvitationPar
   try {
     // Send email to candidate
     const candidateEmailResult = await resend.emails.send({
-      from: `${translate('emailService.from.interviews')} <interviews@hrinno.hu>`,
+      from: `${translate('emailService.from.interviews')} <interviews@notifications.hrinno.hu>`,
       to: candidate.email,
       subject: translate('emailService.invitation.subjectCandidate', { positionTitle: position.title }),
       html: generateInterviewEmail({
@@ -281,7 +281,7 @@ export async function sendInterviewInvitation(params: SendInterviewInvitationPar
         interviewTime,
         location: interview.location,
         isForCandidate: true,
-        //t: translate, // Pass translation function to email template generator
+        t: translate, // Pass translation function to email template generator
       }),
       attachments: [
         {
@@ -295,7 +295,7 @@ export async function sendInterviewInvitation(params: SendInterviewInvitationPar
 
     // Send confirmation email to recruiter
     const recruiterEmailResult = await resend.emails.send({
-      from: `${translate('emailService.from.interviews')} <interviews@hrinno.hu>`,
+      from: `${translate('emailService.from.interviews')} <interviews@notifications.hrinno.hu>`,
       to: recruiter.email,
       subject: translate('emailService.invitation.subjectRecruiter', { candidateName }),
       html: generateInterviewEmail({
@@ -306,7 +306,7 @@ export async function sendInterviewInvitation(params: SendInterviewInvitationPar
         interviewTime,
         location: interview.location,
         isForCandidate: false,
-       // t: translate, // Pass translation function to email template generator
+        t: translate, // Pass translation function to email template generator
       }),
       attachments: [
         {

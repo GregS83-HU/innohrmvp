@@ -726,6 +726,16 @@
   }
 ,
   "uploadCertificate": {
+    "loading": "Checking permissions...",
+    "error": {
+      "title": "Error",
+      "noCompanyId": "No company ID provided. Please access this page via the appropriate link."
+    },
+    "planLimit": {
+      "title": "Plan Limit Reached",
+      "message": "Your company's plan limit has been reached. To continue, please reach out to your company administrator."
+    },
+    
     "header": {
       "title": "Upload Medical Certificate",
       "subtitle": "Upload your medical certificate for automatic processing"
@@ -759,7 +769,9 @@
       "saving": "Saving...",
       "cancel": "Cancel",
       "tryAgain": "Try Again",
-      "uploadAnother": "Upload another certificate"
+      "uploadAnother": "Upload another certificate",
+      "back": "Back",
+      "home": "Home"
     },
     "alerts": {
       "success": "Certificate saved successfully!",
@@ -1601,15 +1613,15 @@
     }
   }
 ,
-"emailTemplate": {
+"emailTemplates": {
     "candidate": {
       "title": "Interview Invitation",
       "greeting": "Dear {{candidateName}},",
       "body": "You have been invited for an interview for the position of <strong>{{positionTitle}}</strong> with {{recruiterName}}.",
-      "dateLabel": "📅 Date:",
-      "timeLabel": "⏰ Time:",
-      "locationLabel": "📍 Location:",
-      "virtualLocationLabel": "🔗 Location:",
+      "date": "📅 Date:",
+      "time": "⏰ Time:",
+      "locationPhysical": "📍 Location:",
+      "locationVirtual": "🔗 Location:",
       "calendarInfo": "A calendar invitation has been attached to this email. Please accept it to add this interview to your calendar.",
       "questions": "If you have any questions or need to reschedule, please contact {{recruiterName}}.",
       "closing": "Best regards,",
@@ -1620,13 +1632,216 @@
       "greeting": "Hi {{recruiterName}},",
       "body": "Your interview with <strong>{{candidateName}}</strong> for the position of <strong>{{positionTitle}}</strong> has been scheduled.",
       "candidateLabel": "👤 Candidate:",
-      "dateLabel": "📅 Date:",
-      "timeLabel": "⏰ Time:",
-      "locationLabel": "📍 Location:",
-      "virtualLocationLabel": "🔗 Location:",
+      "date": "📅 Date:",
+      "time": "⏰ Time:",
+      "locationPhysical": "📍 Location:",
+      "locationVirtual": "🔗 Location:",
       "notification": "The candidate has been notified and will receive a calendar invitation. A copy has been added to your calendar as well.",
       "goodLuck": "Good luck with the interview!",
       "footer": "Sent via HRInno Interview Scheduler"
     }
   }
+,
+  "notifications": {
+    "header": {
+      "title": "Notifications",
+      "markAllRead": "Mark all read"
+    },
+    "empty": "No notifications yet",
+    "viewDetails": "View details",
+    "fallback": {
+      "user": "User",
+      "admin": "Administrator"
+    },
+    "ticket_created": {
+      "title": "New Ticket",
+      "message": "{{user}} created a ticket: \"{{title}}\""
+    },
+    "ticket_message": {
+      "title": "New Message",
+      "message": "{{sender}} sent a message",
+      "sent_by_admin": "{{sender}} sent a message"
+    },
+    "ticket_status_changed": {
+      "title": "Ticket Status Updated",
+      "message": "Ticket \"{{title}}\" status changed to: {{status}}"
+    },
+    "leave_request_created": {
+      "title": "Leave Request",
+      "message": "A leave request has been submitted"
+    },
+    "goal_created": {
+      "title": "New Goal",
+      "message": "A new goal was created: {{title}}"
+    },
+    "pulse_reminder": {
+      "title": "Pulse Reminder",
+      "message": "It's time to complete your pulse"
+    },
+    "unknown": {
+      "title": "Notification",
+      "message": "You have a new notification"
+    }
+  }
+,
+  "statsPage": {
+    "error": {
+      "missingPositionId": "Position identifier is missing.",
+      "loadingError": "Error loading the statistics."
+    },
+    "noCandidates": "No candidates for this position."
+  }
+,
+  "subscription": {
+    "header": {
+      "title": "Subscription Management",
+      "subtitle": "Choose the perfect plan for your business needs"
+    },
+    "errors": {
+      "fetchCreditPacks": "Failed to fetch AI credit packs",
+      "unexpectedCreditPacks": "Unexpected error fetching AI credit packs",
+      "companyNotFound": "Company not found",
+      "startPayment": "Could not start payment",
+      "createCheckout": "Error creating checkout",
+      "fetchCompany": "Failed to fetch company information",
+      "fetchCompanyDetails": "Failed to fetch company details",
+      "unexpectedCompany": "Unexpected error fetching company information",
+      "fetchPlanDetails": "Failed to fetch plan details",
+      "stripePricing": "Failed to load pricing from Stripe. Paid plans are temporarily unavailable.",
+      "invalidPricing": "Invalid pricing data from Stripe. Paid plans are temporarily unavailable.",
+      "somePlansUnavailable": "Some paid plans are temporarily unavailable due to pricing issues.",
+      "stripeConnect": "Could not connect to Stripe. Paid plans are temporarily unavailable.",
+      "fetchPlans": "Failed to fetch plans",
+      "companyNotAvailable": "Company information not available.",
+      "planUnavailable": "This plan is temporarily unavailable due to pricing issues.",
+      "unableCheckout": "Unable to start checkout",
+      "unexpectedCheckout": "Unexpected error starting checkout"},
+    "messages": {
+      "freePlan": "This is a free plan. No subscription needed.",
+      "creditsAdded": "AI credits added successfully!",
+      "creditsCanceled": "AI credit purchase canceled",
+      "paymentSuccess": "Payment successful! Updating your subscription...",
+      "subscriptionUpdated": "Subscription updated successfully!",
+      "paymentCanceled": "Payment canceled"
+    },
+    "processing": {
+      "title": "Processing your payment...",
+      "message": "Please wait while we update your subscription."
+    },
+    "current": {
+      "title": "Current Subscription",
+      "plan": "Plan",
+      "active": "Active",
+      "creditsRemaining": "AI Credits remaining"
+    },
+    "noSubscription": {
+      "title": "No Active Subscription",
+      "message": "Choose a plan to get started"
+    },
+    "noPlans": {
+      "title": "No Plans Available",
+      "message": "Unable to load pricing information. Please try again later."
+    },
+    "badges": {
+      "currentPlan": "Current Plan"
+    },
+    "plan": {
+      "positions": "{{count}} positions",
+      "certificates": "{{count}} certificates",
+      "happyCheckAccess": "Happy Check access",
+      "description": "Perfect for businesses needing {{features}}",
+      "defaultDescription": "A great plan for your business needs",
+      "defaultName": "Plan {{id}}"
+    },
+    "features": {
+      "unlimitedPositions": "Unlimited open positions",
+      "maxPositions": "Up to {{count}} open positions",
+      "unlimitedCertificates": "Unlimited medical certificates",
+      "maxCertificates": "Up to {{count}} medical certificates",
+      "happyCheck": "Happy Check feature included",
+      "emailSupport": "Email support",
+      "analytics": "Basic analytics",
+      "secureStorage": "Secure data storage",
+      "aiCreditsIncluded": "{{count}} AI Credits included"
+    },
+    "pricing": {
+      "free": "Free",
+      "perMonth": "HUF/month"
+    },
+    "buttons": {
+      "freePlan": "Free Plan",
+      "unavailable": "Temporarily Unavailable",
+      "currentPlan": "Current Plan",
+      "subscribe": "Subscribe to {{plan}}"
+    },
+    "credits": {
+      "title": "Buy AI Credits",
+      "subtitle": "Need more AI power? Choose a credit pack below for one-time purchase.",
+      "packTitle": "{{count}} AI Credits",
+      "packDescription": "Perfect for generating extra results or insights.",
+      "buyButton": "Buy {{count}} Credits"
+    }
+  }
+,
+  "companyUsers": {
+    "header": {
+      "title": "Company Users",
+      "teamMembers": "{{count}} team members",
+      "addUser": "Add User",
+      "add": "Add"
+    },
+    "roles": {
+      "admin": "Admin",
+      "manager": "Manager",
+      "user": "User"
+    },
+    "common": {
+      "na": "N/A"
+    },
+    "errors": {
+      "companyNotFound": "Company not found",
+      "fetchCompanyId": "Error fetching company ID",
+      "fetchUsers": "Unexpected error fetching users",
+      "updateManager": "Failed to update manager"
+    },
+    "loading": "Loading users...",
+    "errorState": {
+      "title": "Oops! Something went wrong",
+      "tryAgain": "Try Again"
+    },
+    "search": {
+      "placeholder": "Search by name or email..."
+    },
+    "filter": {
+      "allRoles": "All Roles",
+      "admins": "Admins",
+      "users": "Users"
+    },
+    "empty": {
+      "noUsersFound": "No users found",
+      "noUsersYet": "No users yet",
+      "tryAdjusting": "Try adjusting your search or filter criteria.",
+      "getStarted": "Get started by adding your first team member.",
+      "addFirstUser": "Add First User"
+    },
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "manager": "Manager",
+      "startDate": "Start Date",
+      "role": "Role",
+      "addManager": "+ Add manager"
+    },
+    "mobile": {
+      "manager": "Manager:",
+      "startDate": "Start Date:",
+      "addManager": "+ Add manager"
+    },
+    "managerDropdown": {
+      "searchPlaceholder": "Search managers...",
+      "updating": "Updating...",
+      "noManagers": "No managers found"
+    }
+  }
 }
+
