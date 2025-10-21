@@ -55,6 +55,30 @@ interface NotificationComponentProps {
   companySlug: string | null;
 }
 
+interface TicketPayload {
+  id: string;
+  title?: string;
+  user_id?: string;
+  user_name?: string;
+  created_at: string;
+  status?: string;
+  assigned_to?: string;
+}
+
+interface TicketMessagePayload {
+  id: string;
+  ticket_id: string;
+  sender_id?: string;
+  sender_name?: string;
+  created_at: string;
+}
+
+interface PostgresChangePayload<T = Record<string, unknown>> {
+  new: T;
+  old?: Partial<T>;
+  eventType?: 'INSERT' | 'UPDATE' | 'DELETE';
+}
+
 export default function NotificationComponent({
   currentUser,
   companySlug,
@@ -221,7 +245,7 @@ export default function NotificationComponent({
 
     const fetchOldNotifications = async () => {
       try {
-        let query: any = supabase.from('notifications').select('*').order('created_at', { ascending: false });
+        let query = supabase.from('notifications').select('*').order('created_at', { ascending: false });
 
         if (isHrinnoAdmin) {
           query = query.or(
@@ -235,7 +259,7 @@ export default function NotificationComponent({
             .select('id')
             .eq('user_id', currentUser.id);
 
-          const ticketIds = (userTickets || []).map((t: any) => t.id);
+          const ticketIds = (userTickets || []).map((t: { id: string }) => t.id);
 
           if (ticketIds.length > 0) {
             query = query.or(`recipient_id.eq.${currentUser.id},ticket_id.in.(${ticketIds.join(',')})`);
@@ -264,7 +288,7 @@ export default function NotificationComponent({
 
     if (isHrinnoAdmin) {
       channel
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'tickets' }, (payload: any) => {
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'tickets' }, (payload: { new: TicketPayload; old?: Partial<TicketPayload> }) => {
           const p = payload.new;
           const notification: NotificationData = {
             id: p.id,
@@ -282,7 +306,7 @@ export default function NotificationComponent({
 
           if (notification.sender_id !== currentUser.id) addNotification(notification);
         })
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ticket_messages' }, (payload: any) => {
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ticket_messages' }, (payload: { new: TicketMessagePayload; old?: Partial<TicketMessagePayload> }) => {
           const p = payload.new;
           const notification: NotificationData = {
             id: p.id,
@@ -302,7 +326,7 @@ export default function NotificationComponent({
         .subscribe();
     } else {
       channel
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ticket_messages' }, (payload: any) => {
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ticket_messages' }, (payload: { new: TicketMessagePayload; old?: Partial<TicketMessagePayload> }) => {
           const p = payload.new;
           const notification: NotificationData = {
             id: p.id,
@@ -318,10 +342,10 @@ export default function NotificationComponent({
           };
           if (notification.sender_id !== currentUser.id) addNotification(notification);
         })
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'tickets' }, (payload: any) => {
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'tickets' }, (payload: { new: TicketPayload; old?: Partial<TicketPayload> }) => {
           const p = payload.new;
           if (p.user_id !== currentUser.id) return;
-          if (p.status !== payload.old.status) {
+          if (payload.old && p.status !== payload.old.status) {
             addNotification({
               id: p.id,
               type: 'ticket_status_changed',
@@ -350,7 +374,7 @@ export default function NotificationComponent({
           table: 'notifications',
           filter: `recipient_id=eq.${currentUser.id}`,
         },
-        (payload: any) => {
+        (payload: { new: NotificationData; old?: Partial<NotificationData> }) => {
           const notification = payload.new as NotificationData;
           if (notification.sender_id !== currentUser.id) {
             // if DB messages contain title/message, use them; otherwise fallback to translations by type
