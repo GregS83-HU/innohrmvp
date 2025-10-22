@@ -18,7 +18,7 @@ import {
   MessageSquare,
   Paperclip
 } from 'lucide-react';
-import { useDynamicRouteParams } from 'next/dist/server/app-render/dynamic-rendering';
+import { useLocale } from '../../../../i18n/LocaleProvider';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -50,34 +50,7 @@ interface TicketData {
   attachment_count: number;
 }
 
-const statusColors = {
-  open: 'bg-blue-100 text-blue-800 border-blue-200',
-  in_progress: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  resolved: 'bg-green-100 text-green-800 border-green-200',
-  closed: 'bg-gray-100 text-gray-800 border-gray-200'
-};
-
-const priorityColors = {
-  low: 'bg-gray-100 text-gray-700',
-  medium: 'bg-blue-100 text-blue-700',
-  high: 'bg-orange-100 text-orange-700',
-  urgent: 'bg-red-100 text-red-700'
-};
-
-export default function TicketsPage() {
-  const params = useParams<{ slug: string }>();
-  const router = useRouter();
-  const companySlug = params.slug;
-
-  const [tickets, setTickets] = useState<TicketData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [priorityFilter, setPriorityFilter] = useState<string>('all');
-  
-  
-  interface UserData {
+interface UserData {
   id: string;
   email: string;
   user_firstname: string;
@@ -91,15 +64,38 @@ export default function TicketsPage() {
     };
   }[];
 }
-const [currentUser, setCurrentUser] = useState<UserData | null>(null);
-  
+
+export default function TicketsPage() {
+  const params = useParams<{ slug: string }>();
+  const router = useRouter();
+  const companySlug = params.slug;
+  const { t } = useLocale();
+
+  const [tickets, setTickets] = useState<TicketData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [priorityFilter, setPriorityFilter] = useState<string>('all');
+  const [currentUser, setCurrentUser] = useState<UserData | null>(null);
   const [isHrinnoAdmin, setIsHrinnoAdmin] = useState(false);
 
-  // Fetch current user and determine access level
-  const fetchCurrentUser = useCallback(async () => {
+  const statusColors = {
+    open: 'bg-blue-100 text-blue-800 border-blue-200',
+    in_progress: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    resolved: 'bg-green-100 text-green-800 border-green-200',
+    closed: 'bg-gray-100 text-gray-800 border-gray-200'
+  };
 
-    // 🚩 reset before anything else
-      setIsHrinnoAdmin(false);
+  const priorityColors = {
+    low: 'bg-gray-100 text-gray-700',
+    medium: 'bg-blue-100 text-blue-700',
+    high: 'bg-orange-100 text-orange-700',
+    urgent: 'bg-red-100 text-red-700'
+  };
+
+  const fetchCurrentUser = useCallback(async () => {
+    setIsHrinnoAdmin(false);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -119,32 +115,28 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
         .single();
 
       if (userError || !userData) {
-        setError('User not found');
+        setError(t('ticketsPage.errors.userNotFound'));
         return;
       }
-      console.log('userData', JSON.stringify(userData, null, 2));
+      
       setCurrentUser(userData);
 
       const userCompany = userData.company_to_users?.[0]?.company;
       setIsHrinnoAdmin(
-      ['hrinno', 'innohr'].includes(userCompany?.slug ?? '')
-     
-      
-);
+        ['hrinno', 'innohr'].includes(userCompany?.slug ?? '')
+      );
       
     } catch (_err) {
-      setError('Failed to load user data');
+      setError(t('ticketsPage.errors.loadUserData'));
     }
-  }, [companySlug, router]);
+  }, [companySlug, router, t]);
 
-  // Fetch tickets based on user access level
   const fetchTickets = useCallback(async () => {
     if (!currentUser) return;
 
     try {
       setLoading(true);
       
-      // First, get tickets with company info
       let ticketsQuery = supabase
         .from('tickets')
         .select(`
@@ -152,13 +144,9 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
           company:company_id(id,slug,name:company_name)
         `)
         .order('created_at', { ascending: false });
-      console.log("Admin?:",isHrinnoAdmin)
       
-      
-      // If not hrinno admin, filter by company
       if (!isHrinnoAdmin) {
         const userCompanyId = currentUser.company_to_users?.[0]?.company?.id;
-        console.log("Company_id:",userCompanyId)
         if (userCompanyId) {
           ticketsQuery = ticketsQuery.eq('company_id', userCompanyId);
         }
@@ -173,7 +161,6 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
         return;
       }
 
-      // Get message counts for all tickets
       const ticketIds = ticketsData.map(t => t.id);
       
       const { data: messageCounts } = await supabase
@@ -186,7 +173,6 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
         .select('ticket_id')
         .in('ticket_id', ticketIds);
 
-      // Count messages and attachments per ticket
       const messageCountMap: { [key: string]: number } = {};
       const attachmentCountMap: { [key: string]: number } = {};
 
@@ -198,7 +184,6 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
         attachmentCountMap[att.ticket_id] = (attachmentCountMap[att.ticket_id] || 0) + 1;
       });
 
-      // Process the tickets with counts
       const processedTickets: TicketData[] = ticketsData.map(ticket => ({
         ...ticket,
         message_count: messageCountMap[ticket.id] || 0,
@@ -207,17 +192,16 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
 
       setTickets(processedTickets);
     } catch (err: unknown) {
-  if (err instanceof Error) {
-    setError(err.message);
-  } else {
-    setError('Failed to fetch tickets');
-  }
-} finally {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(t('ticketsPage.errors.fetchTickets'));
+      }
+    } finally {
       setLoading(false);
     }
-  }, [currentUser, isHrinnoAdmin]);
+  }, [currentUser, isHrinnoAdmin, t]);
 
-  // Filter tickets
   const filteredTickets = tickets.filter((ticket) => {
     const matchesSearch = !searchTerm || 
       ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -231,7 +215,6 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
-  // Effects
   useEffect(() => {
     fetchCurrentUser();
   }, [fetchCurrentUser]);
@@ -242,34 +225,31 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
     }
   }, [currentUser, fetchTickets]);
 
-  // Format date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInMinutes = (now.getTime() - date.getTime()) / (1000 * 60);
 
     if (diffInMinutes < 60) {
-      return `${Math.floor(diffInMinutes)}m ago`;
+      return t('ticketsPage.time.minutesAgo', { count: Math.floor(diffInMinutes) });
     } else if (diffInMinutes < 1440) {
-      return `${Math.floor(diffInMinutes / 60)}h ago`;
+      return t('ticketsPage.time.hoursAgo', { count: Math.floor(diffInMinutes / 60) });
     } else {
       return date.toLocaleDateString();
     }
   };
 
-  // Loading state
   if (loading && tickets.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
         <div className="bg-white p-8 rounded-2xl shadow-lg">
           <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600 text-center">Loading tickets...</p>
+          <p className="text-gray-600 text-center">{t('ticketsPage.loading')}</p>
         </div>
       </div>
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col items-center justify-center p-4">
@@ -278,14 +258,14 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
             <AlertCircle className="w-8 h-8 text-red-600" />
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">
-            Oops! Something went wrong
+            {t('ticketsPage.errorState.title')}
           </h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
             className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors shadow-lg hover:shadow-xl"
           >
-            Try Again
+            {t('ticketsPage.errorState.tryAgain')}
           </button>
         </div>
       </div>
@@ -295,7 +275,6 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div className="flex items-center gap-3">
@@ -304,11 +283,11 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
               </div>
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                  {isHrinnoAdmin ? 'All Support Tickets' : 'Support Tickets'}
+                  {isHrinnoAdmin ? t('ticketsPage.header.titleAdmin') : t('ticketsPage.header.title')}
                 </h1>
                 <p className="text-gray-600">
-                  {filteredTickets.length} ticket{filteredTickets.length !== 1 ? 's' : ''}
-                  {isHrinnoAdmin && ' across all companies'}
+                  {t('ticketsPage.header.count', { count: filteredTickets.length })}
+                  {isHrinnoAdmin && ' ' + t('ticketsPage.header.acrossCompanies')}
                 </p>
               </div>
             </div>
@@ -318,27 +297,24 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
               className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">New Ticket</span>
-              <span className="sm:hidden">New</span>
+              <span className="hidden sm:inline">{t('ticketsPage.header.newTicket')}</span>
+              <span className="sm:hidden">{t('ticketsPage.header.new')}</span>
             </button>
           </div>
 
-          {/* Search and Filter Section */}
           <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100">
             <div className="flex flex-col lg:flex-row gap-4">
-              {/* Search */}
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search tickets..."
+                  placeholder={t('ticketsPage.search.placeholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 />
               </div>
 
-              {/* Filters */}
               <div className="flex flex-col sm:flex-row gap-4 lg:w-auto">
                 <div className="flex items-center gap-2 min-w-fit">
                   <Filter className="w-4 h-4 text-gray-500" />
@@ -347,11 +323,11 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
                     onChange={(e) => setStatusFilter(e.target.value)}
                     className="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
                   >
-                    <option value="all">All Status</option>
-                    <option value="open">Open</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="resolved">Resolved</option>
-                    <option value="closed">Closed</option>
+                    <option value="all">{t('ticketsPage.filters.allStatus')}</option>
+                    <option value="open">{t('ticketsPage.status.open')}</option>
+                    <option value="in_progress">{t('ticketsPage.status.in_progress')}</option>
+                    <option value="resolved">{t('ticketsPage.status.resolved')}</option>
+                    <option value="closed">{t('ticketsPage.status.closed')}</option>
                   </select>
                 </div>
 
@@ -362,11 +338,11 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
                     onChange={(e) => setPriorityFilter(e.target.value)}
                     className="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
                   >
-                    <option value="all">All Priority</option>
-                    <option value="urgent">Urgent</option>
-                    <option value="high">High</option>
-                    <option value="medium">Medium</option>
-                    <option value="low">Low</option>
+                    <option value="all">{t('ticketsPage.filters.allPriority')}</option>
+                    <option value="urgent">{t('ticketsPage.priority.urgent')}</option>
+                    <option value="high">{t('ticketsPage.priority.high')}</option>
+                    <option value="medium">{t('ticketsPage.priority.medium')}</option>
+                    <option value="low">{t('ticketsPage.priority.low')}</option>
                   </select>
                 </div>
               </div>
@@ -374,7 +350,6 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
           </div>
         </div>
 
-        {/* Tickets Content */}
         {filteredTickets.length === 0 ? (
           <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 text-center">
             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -382,53 +357,52 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
               {searchTerm || statusFilter !== 'all' || priorityFilter !== 'all'
-                ? 'No tickets found'
-                : 'No tickets yet'}
+                ? t('ticketsPage.empty.noTicketsFound')
+                : t('ticketsPage.empty.noTicketsYet')}
             </h3>
             <p className="text-gray-600 mb-6">
               {searchTerm || statusFilter !== 'all' || priorityFilter !== 'all'
-                ? 'Try adjusting your search or filter criteria.'
-                : 'Create your first support ticket to get started.'}
+                ? t('ticketsPage.empty.tryAdjusting')
+                : t('ticketsPage.empty.createFirst')}
             </p>
             {!searchTerm && statusFilter === 'all' && priorityFilter === 'all' && (
               <button
                 onClick={() => router.push(`/jobs/${companySlug}/tickets/create`)}
                 className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors"
               >
-                Create First Ticket
+                {t('ticketsPage.empty.createFirstButton')}
               </button>
             )}
           </div>
         ) : (
           <>
-            {/* Desktop Table View */}
             <div className="hidden lg:block bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="min-w-full">
                   <thead>
                     <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Ticket
+                        {t('ticketsPage.table.ticket')}
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Status
+                        {t('ticketsPage.table.status')}
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Priority
+                        {t('ticketsPage.table.priority')}
                       </th>
                       {isHrinnoAdmin && (
                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                          Company
+                          {t('ticketsPage.table.company')}
                         </th>
                       )}
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        User
+                        {t('ticketsPage.table.user')}
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Created
+                        {t('ticketsPage.table.created')}
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Activity
+                        {t('ticketsPage.table.activity')}
                       </th>
                     </tr>
                   </thead>
@@ -451,12 +425,12 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${statusColors[ticket.status]}`}>
-                            {ticket.status.replace('_', ' ')}
+                            {t(`ticketsPage.status.${ticket.status}`)}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold ${priorityColors[ticket.priority]}`}>
-                            {ticket.priority}
+                            {t(`ticketsPage.priority.${ticket.priority}`)}
                           </span>
                         </td>
                         {isHrinnoAdmin && (
@@ -464,7 +438,7 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
                             <div className="flex items-center gap-2">
                               <Building className="w-4 h-4 text-gray-400" />
                               <span className="text-sm text-gray-600">
-                                {ticket.company?.name || 'Unknown'}
+                                {ticket.company?.name || t('ticketsPage.common.unknown')}
                               </span>
                             </div>
                           </td>
@@ -507,7 +481,6 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
               </div>
             </div>
 
-            {/* Mobile Card View */}
             <div className="lg:hidden space-y-4">
               {filteredTickets.map((ticket) => (
                 <div
@@ -526,10 +499,10 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
                     </div>
                     <div className="ml-3 flex flex-col gap-2">
                       <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold border ${statusColors[ticket.status]}`}>
-                        {ticket.status.replace('_', ' ')}
+                        {t(`ticketsPage.status.${ticket.status}`)}
                       </span>
                       <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold ${priorityColors[ticket.priority]}`}>
-                        {ticket.priority}
+                        {t(`ticketsPage.priority.${ticket.priority}`)}
                       </span>
                     </div>
                   </div>
@@ -548,7 +521,7 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
                   {isHrinnoAdmin && (
                     <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
                       <Building className="w-4 h-4" />
-                      <span>{ticket.company?.name || 'Unknown Company'}</span>
+                      <span>{ticket.company?.name || t('ticketsPage.common.unknownCompany')}</span>
                     </div>
                   )}
 
@@ -557,13 +530,13 @@ const [currentUser, setCurrentUser] = useState<UserData | null>(null);
                       {ticket.message_count > 0 && (
                         <div className="flex items-center gap-1">
                           <MessageSquare className="w-3 h-3" />
-                          {ticket.message_count} message{ticket.message_count !== 1 ? 's' : ''}
+                          {t('ticketsPage.mobile.messages', { count: ticket.message_count })}
                         </div>
                       )}
                       {ticket.attachment_count > 0 && (
                         <div className="flex items-center gap-1">
                           <Paperclip className="w-3 h-3" />
-                          {ticket.attachment_count} file{ticket.attachment_count !== 1 ? 's' : ''}
+                          {t('ticketsPage.mobile.files', { count: ticket.attachment_count })}
                         </div>
                       )}
                     </div>

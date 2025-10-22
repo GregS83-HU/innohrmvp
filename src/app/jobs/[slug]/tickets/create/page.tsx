@@ -13,6 +13,7 @@ import {
   Loader2,
   Check
 } from 'lucide-react';
+import { useLocale } from '../../../../../i18n/LocaleProvider';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -23,10 +24,18 @@ interface AttachmentFile extends File {
   id: string;
 }
 
+interface User {
+  id: string;
+  email: string;
+  user_firstname: string;
+  user_lastname: string;
+}
+
 export default function CreateTicketPage() {
   const params = useParams<{ slug: string }>();
   const router = useRouter();
   const companySlug = params.slug;
+  const { t } = useLocale();
 
   const [formData, setFormData] = useState({
     title: '',
@@ -39,17 +48,7 @@ export default function CreateTicketPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [companyId, setCompanyId] = useState<string | null>(null);
- 
-  
-  interface User {
-  id: string;
-  email: string;
-  user_firstname: string;
-  user_lastname: string;
-  //[key: string]: unknown; // optional for extra fields
-}
-
-const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   // Categories for the dropdown
   const categories = [
@@ -81,7 +80,7 @@ const [currentUser, setCurrentUser] = useState<User | null>(null);
           .single();
 
         if (userError || !userData) {
-          setError('User not found');
+          setError(t('createTicket.errors.userNotFound'));
           return;
         }
 
@@ -95,18 +94,18 @@ const [currentUser, setCurrentUser] = useState<User | null>(null);
           .single();
 
         if (companyError || !companyData) {
-          setError('Company not found');
+          setError(t('createTicket.errors.companyNotFound'));
           return;
         }
 
         setCompanyId(companyData.id.toString());
       } catch (_err) {
-        setError('Failed to load initial data');
+        setError(t('createTicket.errors.loadInitialData'));
       }
     };
 
     fetchInitialData();
-  }, [companySlug, router]);
+  }, [companySlug, router, t]);
 
   // Handle file upload
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -116,7 +115,7 @@ const [currentUser, setCurrentUser] = useState<User | null>(null);
     files.forEach((file) => {
       // Check file size (5MB max)
       if (file.size > 5 * 1024 * 1024) {
-        setError(`File "${file.name}" is too large. Maximum size is 5MB.`);
+        setError(t('createTicket.errors.fileTooLarge', { fileName: file.name }));
         return;
       }
 
@@ -138,8 +137,8 @@ const [currentUser, setCurrentUser] = useState<User | null>(null);
   // Upload files to Supabase Storage
   const uploadFiles = async (ticketId: string) => {
     const uploadPromises = attachments.map(async (file) => {
-            if (!currentUser) {
-        setError('User not loaded');
+      if (!currentUser) {
+        setError(t('createTicket.errors.userNotLoaded'));
         return;
       }
       const fileName = `${currentUser.id}/${ticketId}/${Date.now()}-${file.name}`;
@@ -193,14 +192,16 @@ const [currentUser, setCurrentUser] = useState<User | null>(null);
         .select()
         .single();
 
-        await supabase.from('notifications').insert({
+      await supabase.from('notifications').insert({
         type: 'ticket_created',
-        title: 'New Ticket',
-        message: `${currentUser.user_firstname || 'User'} created a ticket: "${ticketData.title}"`,
+        title: t('createTicket.notifications.newTicket'),
+        message: t('createTicket.notifications.ticketCreated', { 
+          user: currentUser.user_firstname || t('createTicket.common.user'),
+          title: ticketData.title 
+        }),
         ticket_id: ticketData.id,
         sender_id: currentUser.id
       });
-
 
       if (ticketError) throw ticketError;
 
@@ -218,10 +219,10 @@ const [currentUser, setCurrentUser] = useState<User | null>(null);
 
     } catch (err: unknown) {
       if (err instanceof Error) {
-    setError(err.message);
-  } else {
-    setError('Failed to create ticket');
-  }
+        setError(err.message);
+      } else {
+        setError(t('createTicket.errors.createTicket'));
+      }
     } finally {
       setLoading(false);
     }
@@ -244,12 +245,12 @@ const [currentUser, setCurrentUser] = useState<User | null>(null);
             <Check className="w-8 h-8 text-green-600" />
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">
-            Ticket Created Successfully!
+            {t('createTicket.success.title')}
           </h2>
           <p className="text-gray-600 mb-4">
-            Your support ticket has been submitted and our team will respond soon.
+            {t('createTicket.success.message')}
           </p>
-          <div className="animate-pulse text-blue-600">Redirecting...</div>
+          <div className="animate-pulse text-blue-600">{t('createTicket.success.redirecting')}</div>
         </div>
       </div>
     );
@@ -265,7 +266,7 @@ const [currentUser, setCurrentUser] = useState<User | null>(null);
             className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back
+            {t('createTicket.header.back')}
           </button>
 
           <div className="flex items-center gap-3">
@@ -274,9 +275,9 @@ const [currentUser, setCurrentUser] = useState<User | null>(null);
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                Create Support Ticket
+                {t('createTicket.header.title')}
               </h1>
-              <p className="text-gray-600">Describe your issue and we&apos;ll help you resolve it</p>
+              <p className="text-gray-600">{t('createTicket.header.subtitle')}</p>
             </div>
           </div>
         </div>
@@ -289,7 +290,7 @@ const [currentUser, setCurrentUser] = useState<User | null>(null);
               <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="font-semibold text-red-900">Error</h4>
+                  <h4 className="font-semibold text-red-900">{t('createTicket.form.errorTitle')}</h4>
                   <p className="text-red-700">{error}</p>
                 </div>
               </div>
@@ -299,7 +300,7 @@ const [currentUser, setCurrentUser] = useState<User | null>(null);
               {/* Title */}
               <div>
                 <label htmlFor="title" className="block text-sm font-semibold text-gray-900 mb-2">
-                  Title *
+                  {t('createTicket.form.titleLabel')} *
                 </label>
                 <input
                   type="text"
@@ -308,7 +309,7 @@ const [currentUser, setCurrentUser] = useState<User | null>(null);
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                   className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="Brief description of your issue"
+                  placeholder={t('createTicket.form.titlePlaceholder')}
                 />
               </div>
 
@@ -316,7 +317,7 @@ const [currentUser, setCurrentUser] = useState<User | null>(null);
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="priority" className="block text-sm font-semibold text-gray-900 mb-2">
-                    Priority *
+                    {t('createTicket.form.priorityLabel')} *
                   </label>
                   <select
                     id="priority"
@@ -324,16 +325,16 @@ const [currentUser, setCurrentUser] = useState<User | null>(null);
                     onChange={(e) => setFormData(prev => ({ ...prev, priority: e.target.value }))}
                     className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
                   >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                    <option value="urgent">Urgent</option>
+                    <option value="low">{t('createTicket.priority.low')}</option>
+                    <option value="medium">{t('createTicket.priority.medium')}</option>
+                    <option value="high">{t('createTicket.priority.high')}</option>
+                    <option value="urgent">{t('createTicket.priority.urgent')}</option>
                   </select>
                 </div>
 
                 <div>
                   <label htmlFor="category" className="block text-sm font-semibold text-gray-900 mb-2">
-                    Category
+                    {t('createTicket.form.categoryLabel')}
                   </label>
                   <select
                     id="category"
@@ -341,7 +342,7 @@ const [currentUser, setCurrentUser] = useState<User | null>(null);
                     onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
                     className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
                   >
-                    <option value="">Select a category</option>
+                    <option value="">{t('createTicket.form.categoryPlaceholder')}</option>
                     {categories.map(category => (
                       <option key={category} value={category}>{category}</option>
                     ))}
@@ -352,7 +353,7 @@ const [currentUser, setCurrentUser] = useState<User | null>(null);
               {/* Description */}
               <div>
                 <label htmlFor="description" className="block text-sm font-semibold text-gray-900 mb-2">
-                  Description *
+                  {t('createTicket.form.descriptionLabel')} *
                 </label>
                 <textarea
                   id="description"
@@ -361,14 +362,14 @@ const [currentUser, setCurrentUser] = useState<User | null>(null);
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                   className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="Please provide detailed information about your issue..."
+                  placeholder={t('createTicket.form.descriptionPlaceholder')}
                 />
               </div>
 
               {/* File Attachments */}
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Attachments <span className="font-normal text-gray-500">(Max 5MB per file)</span>
+                  {t('createTicket.form.attachmentsLabel')} <span className="font-normal text-gray-500">({t('createTicket.form.maxFileSize')})</span>
                 </label>
                 
                 <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:border-blue-300 transition-colors">
@@ -383,7 +384,7 @@ const [currentUser, setCurrentUser] = useState<User | null>(null);
                   <label htmlFor="file-upload" className="cursor-pointer">
                     <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                     <p className="text-gray-600">
-                      <span className="text-blue-600 font-semibold">Click to upload</span> or drag and drop files here
+                      <span className="text-blue-600 font-semibold">{t('createTicket.form.clickToUpload')}</span> {t('createTicket.form.dragAndDrop')}
                     </p>
                   </label>
                 </div>
@@ -421,7 +422,7 @@ const [currentUser, setCurrentUser] = useState<User | null>(null);
                 onClick={() => router.back()}
                 className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
               >
-                Cancel
+                {t('createTicket.form.cancelButton')}
               </button>
               <button
                 type="submit"
@@ -431,10 +432,10 @@ const [currentUser, setCurrentUser] = useState<User | null>(null);
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Creating...
+                    {t('createTicket.form.creatingButton')}
                   </>
                 ) : (
-                  'Create Ticket'
+                  t('createTicket.form.createButton')
                 )}
               </button>
             </div>

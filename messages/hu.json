@@ -1872,12 +1872,160 @@
       "backToTickets": "Vissza a jegyekhez",
       "created": "Létrehozva",
       "updateStatus": "Státusz frissítése"
+    },
+    "status": {
+      "open": "Nyitott",
+      "in_progress": "Folyamatban",
+      "resolved": "Megoldva",
+      "closed": "Lezárva"
+    },
+    "priority": {
+      "low": "Alacsony prioritás",
+      "medium": "Közepes prioritás",
+      "high": "Magas prioritás",
+      "urgent": "Sürgős prioritás"
+    },
+    "time": {
+      "justNow": "Épp most",
+      "minutesAgo": "{{count}} perce",
+      "hoursAgo": "{{count}} órája"
+    },
+    "messages": {
+      "title": "Beszélgetés",
+      "count": "{{count}} üzenet",
+      "empty": "Még nincsenek üzenetek. Indítsa el a beszélgetést!",
+      "placeholder": "Írja be üzenetét..."
+    },
+    "attachments": {
+      "title": "Mellékletek",
+      "empty": "Nincsenek mellékletek"
+    },
+    "statusModal": {
+      "title": "Jegy státuszának frissítése",
+      "updating": "Frissítés...",
+      "cancel": "Mégse"
+    }
+  }
+,
+  "createTicket": {
+    "common": {
+      "user": "Felhasználó"
+    },
+    "errors": {
+      "userNotFound": "A felhasználó nem található",
+      "companyNotFound": "A vállalat nem található",
+      "loadInitialData": "Nem sikerült betölteni a kezdeti adatokat",
+      "fileTooLarge": "A(z) „{{fileName}}” fájl túl nagy. A maximális méret 5 MB.",
+      "userNotLoaded": "A felhasználó nem lett betöltve",
+      "createTicket": "Nem sikerült létrehozni a jegyet"
+    },
+    "notifications": {
+      "newTicket": "Új jegy",
+      "ticketCreated": "{{user}} létrehozott egy jegyet: „{{title}}”"
+    },
+    "success": {
+      "title": "A jegy sikeresen létrehozva!",
+      "message": "A támogatási jegyét elküldtük, csapatunk hamarosan válaszol.",
+      "redirecting": "Átirányítás..."
+    },
+    "header": {
+      "back": "Vissza",
+      "title": "Támogatási jegy létrehozása",
+      "subtitle": "Írja le a problémáját, és segítünk megoldani"
+    },
+    "form": {
+      "errorTitle": "Hiba",
+      "titleLabel": "Cím",
+      "titlePlaceholder": "A probléma rövid leírása",
+      "priorityLabel": "Prioritás",
+      "categoryLabel": "Kategória",
+      "categoryPlaceholder": "Válasszon kategóriát",
+      "descriptionLabel": "Leírás",
+      "descriptionPlaceholder": "Kérjük, adjon meg részletes információkat a problémáról...",
+      "attachmentsLabel": "Mellékletek",
+      "maxFileSize": "Max. 5 MB fájlonként",
+      "clickToUpload": "Kattintson a feltöltéshez",
+      "dragAndDrop": "vagy húzza ide a fájlokat",
+      "cancelButton": "Mégse",
+      "createButton": "Jegy létrehozása",
+      "creatingButton": "Létrehozás..."
+    },
+    "priority": {
+      "low": "Alacsony",
+      "medium": "Közepes",
+      "high": "Magas",
+      "urgent": "Sürgős"
+    }
+  }
+,
+  "ticketsPage": {
+    "loading": "Jegyek betöltése...",
+    "errors": {
+      "userNotFound": "A felhasználó nem található",
+      "loadUserData": "Nem sikerült betölteni a felhasználói adatokat",
+      "fetchTickets": "Nem sikerült lekérni a jegyeket"
+    },
+    "errorState": {
+      "title": "Hoppá! Valami hiba történt",
+      "tryAgain": "Próbálja újra"
+    },
+    "header": {
+      "title": "Támogatási jegyek",
+      "titleAdmin": "Összes támogatási jegy",
+      "count": "{{count}} jegy",
+      "acrossCompanies": "az összes vállalatnál",
+      "newTicket": "Új jegy",
+      "new": "Új"
+    },
+    "search": {
+      "placeholder": "Jegyek keresése..."
+    },
+    "filters": {
+      "allStatus": "Összes státusz",
+      "allPriority": "Összes prioritás"
+    },
+    "status": {
+      "open": "Nyitott",
+      "in_progress": "Folyamatban",
+      "resolved": "Megoldva",
+      "closed": "Lezárva"
+    },
+    "priority": {
+      "low": "Alacsony",
+      "medium": "Közepes",
+      "high": "Magas",
+      "urgent": "Sürgős"
+    },
+    "time": {
+      "minutesAgo": "{{count}} perce",
+      "hoursAgo": "{{count}} órája"
+    },
+    "common": {
+      "unknown": "Ismeretlen",
+      "unknownCompany": "Ismeretlen vállalat"
+    },
+    "empty": {
+      "noTicketsFound": "Nem találhatók jegyek",
+      "noTicketsYet": "Még nincsenek jegyek",
+      "tryAdjusting": "Próbálja módosítani a keresési vagy szűrési feltételeket.",
+      "createFirst": "Hozza létre az első támogatási jegyét a kezdéshez.",
+      "createFirstButton": "Első jegy létrehozása"
+    },
+    "table": {
+      "ticket": "Jegy",
+      "status": "Státusz",
+      "priority": "Prioritás",
+      "company": "Vállalat",
+      "user": "Felhasználó",
+      "created": "Létrehozva",
+      "activity": "Tevékenység"
+    },
+    "mobile": {
+      "messages": "{{count}} üzenet",
+      "files": "{{count}} fájl"
     }
   }
 }
 
 
-
-
-
-
+  

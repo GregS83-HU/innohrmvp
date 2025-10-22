@@ -1843,5 +1843,192 @@
       "noManagers": "No managers found"
     }
   }
-}
+  ,
+ 
+  "ticketDetail": {
+    "loading": "Loading ticket...",
+    "errors": {
+      "userCompanyNotFound": "User company association not found",
+      "noCompanyAssociation": "User is not associated with any company",
+      "userProfileNotFound": "User profile not found",
+      "loadUserData": "Failed to load user data",
+      "ticketNotFound": "Ticket not found",
+      "loadTicket": "Failed to load ticket",
+      "sendMessage": "Failed to send message",
+      "updateStatus": "Failed to update ticket status",
+      "downloadFile": "Failed to download file"
+    },
+    "common": {
+      "unknownUser": "Unknown user",
+      "user": "User"
+    },
+    "notifications": {
+      "newMessage": "New message",
+      "messageSent": "{{user}} sent a message",
+      "statusUpdated": "Ticket status updated",
+      "statusChanged": "The status of ticket \"{{title}}\" has changed to: {{status}}"
+    },
+    "errorState": {
+      "title": "Oops! Something went wrong",
+      "goBack": "Go back"
+    },
+    "header": {
+      "backToTickets": "Back to tickets",
+      "created": "Created",
+      "updateStatus": "Update status"
+    },
+    "status": {
+      "open": "Open",
+      "in_progress": "In progress",
+      "resolved": "Resolved",
+      "closed": "Closed"
+    },
+    "priority": {
+      "low": "Low priority",
+      "medium": "Medium priority",
+      "high": "High priority",
+      "urgent": "Urgent priority"
+    },
+    "time": {
+      "justNow": "Just now",
+      "minutesAgo": "{{count}} minutes ago",
+      "hoursAgo": "{{count}} hours ago"
+    },
+    "messages": {
+      "title": "Conversation",
+      "count": "{{count}} messages",
+      "empty": "No messages yet. Start the conversation!",
+      "placeholder": "Type your message..."
+    },
+    "attachments": {
+      "title": "Attachments",
+      "empty": "No attachments"
+    },
+    "statusModal": {
+      "title": "Update ticket status",
+      "updating": "Updating...",
+      "cancel": "Cancel"
+    }
+  }
 
+,
+
+  "createTicket": {
+    "common": {
+      "user": "User"
+    },
+    "errors": {
+      "userNotFound": "User not found",
+      "companyNotFound": "Company not found",
+      "loadInitialData": "Failed to load initial data",
+      "fileTooLarge": "File \"{{fileName}}\" is too large. Maximum size is 5MB.",
+      "userNotLoaded": "User not loaded",
+      "createTicket": "Failed to create ticket"
+    },
+    "notifications": {
+      "newTicket": "New Ticket",
+      "ticketCreated": "{{user}} created a ticket: \"{{title}}\""
+    },
+    "success": {
+      "title": "Ticket Created Successfully!",
+      "message": "Your support ticket has been submitted and our team will respond soon.",
+      "redirecting": "Redirecting..."
+    },
+    "header": {
+      "back": "Back",
+      "title": "Create Support Ticket",
+      "subtitle": "Describe your issue and we'll help you resolve it"
+    },
+    "form": {
+      "errorTitle": "Error",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Brief description of your issue",
+      "priorityLabel": "Priority",
+      "categoryLabel": "Category",
+      "categoryPlaceholder": "Select a category",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Please provide detailed information about your issue...",
+      "attachmentsLabel": "Attachments",
+      "maxFileSize": "Max 5MB per file",
+      "clickToUpload": "Click to upload",
+      "dragAndDrop": "or drag and drop files here",
+      "cancelButton": "Cancel",
+      "createButton": "Create Ticket",
+      "creatingButton": "Creating..."
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    }
+  }
+,
+  "ticketsPage": {
+    "loading": "Loading tickets...",
+    "errors": {
+      "userNotFound": "User not found",
+      "loadUserData": "Failed to load user data",
+      "fetchTickets": "Failed to fetch tickets"
+    },
+    "errorState": {
+      "title": "Oops! Something went wrong",
+      "tryAgain": "Try Again"
+    },
+    "header": {
+      "title": "Support Tickets",
+      "titleAdmin": "All Support Tickets",
+      "count": "{{count}} ticket",
+      "acrossCompanies": "across all companies",
+      "newTicket": "New Ticket",
+      "new": "New"
+    },
+    "search": {
+      "placeholder": "Search tickets..."
+    },
+    "filters": {
+      "allStatus": "All Status",
+      "allPriority": "All Priority"
+    },
+    "status": {
+      "open": "Open",
+      "in_progress": "In Progress",
+      "resolved": "Resolved",
+      "closed": "Closed"
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "time": {
+      "minutesAgo": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago"
+    },
+    "common": {
+      "unknown": "Unknown",
+      "unknownCompany": "Unknown Company"
+    },
+    "empty": {
+      "noTicketsFound": "No tickets found",
+      "noTicketsYet": "No tickets yet",
+      "tryAdjusting": "Try adjusting your search or filter criteria.",
+      "createFirst": "Create your first support ticket to get started.",
+      "createFirstButton": "Create First Ticket"
+    },
+    "table": {
+      "ticket": "Ticket",
+      "status": "Status",
+      "priority": "Priority",
+      "company": "Company",
+      "user": "User",
+      "created": "Created",
+      "activity": "Activity"
+    },
+    "mobile": {
+      "messages": "{{count}} message",
+      "files": "{{count}} file"
+    }
+  }
+}
