@@ -208,7 +208,7 @@ useEffect(() => {
     return;
   }
 
-  const DEMO_DURATION = 20 * 60 * 1000; // 20 minutes
+  const DEMO_DURATION = 60 * 60 * 1000; // 60 minutes
   const DEMO_START_KEY = 'demo_start_time';
 
   // Initialize demo start time
