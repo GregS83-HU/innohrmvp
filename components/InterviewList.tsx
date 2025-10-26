@@ -39,9 +39,11 @@ interface Question {
 export default function InterviewList({
   candidatId,
   positionId,
+  stepId,
 }: {
   candidatId: number
   positionId: number | null
+  stepId: string | null
 }) {
   const { t, locale } = useLocale()  // ⭐ Added: Get locale from context
   const session = useSession()
@@ -234,36 +236,39 @@ export default function InterviewList({
       ))}
 
       {/* Add new interview */}
-      <div className="bg-white border border-green-200 p-3 rounded-lg space-y-2">
-        <div className="flex gap-2">
-          <input
-            type="date"
-            value={newDate}
-            onChange={(e) => setNewDate(e.target.value)}
-            className="border rounded px-2 py-1 text-sm flex-1"
-          />
-          <input
-            type="time"
-            value={newTime}
-            onChange={(e) => setNewTime(e.target.value)}
-            className="border rounded px-2 py-1 text-sm flex-1"
-          />
-        </div>
-        <input
-          type="text"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder={t('interviewList.locationPlaceholder')}
-          className="border rounded px-2 py-1 text-sm w-full"
-        />
-        <button
-          onClick={createInterview}
-          disabled={!newDate || !newTime}
-          className="flex items-center gap-2 text-sm text-green-700 hover:text-green-900 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <PlusCircle className="w-4 h-4" /> {t('interviewList.addInterview')}
-        </button>
-      </div>
+{stepId && stepId !== undefined && (
+  <div className="bg-white border border-green-200 p-3 rounded-lg space-y-2">
+    <div className="flex gap-2">
+      <input
+        type="date"
+        value={newDate}
+        onChange={(e) => setNewDate(e.target.value)}
+        className="border rounded px-2 py-1 text-sm flex-1"
+      />
+      <input
+        type="time"
+        value={newTime}
+        onChange={(e) => setNewTime(e.target.value)}
+        className="border rounded px-2 py-1 text-sm flex-1"
+      />
+    </div>
+    <input
+      type="text"
+      value={location}
+      onChange={(e) => setLocation(e.target.value)}
+      placeholder={t('interviewList.locationPlaceholder')}
+      className="border rounded px-2 py-1 text-sm w-full"
+    />
+    <button
+      onClick={createInterview}
+      disabled={!newDate || !newTime}
+      className="flex items-center gap-2 text-sm text-green-700 hover:text-green-900 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      <PlusCircle className="w-4 h-4" /> {t('interviewList.addInterview')}
+    </button>
+  </div>
+)}
+
 
       {/* Modals */}
       {showAssistantModal && selectedInterview && (

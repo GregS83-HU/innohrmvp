@@ -1000,7 +1000,7 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
               {/* INTERVIEW MANAGEMENT */}
               <div className="bg-green-50 p-4 rounded-lg mt-4">
                 <h3 className="text-sm font-semibold text-green-800 mb-3">{t('trelloBoard.modal.interviews')}</h3>
-                <InterviewList candidatId={selectedCandidate.candidat_id} positionId={positionId} />
+                <InterviewList candidatId={selectedCandidate.candidat_id} positionId={positionId} stepId={selectedCandidate.candidat_next_step} />
               </div>
 
               
