@@ -3,6 +3,7 @@
 import { Resend } from 'resend'
 import { generateICS } from './ics-generator'
 import { generateInterviewEmail } from './email-templates'
+import { sendEmailWithCompanySMTP } from './smtp-mailer'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -28,6 +29,7 @@ interface SendInterviewInvitationParams {
     location: string
     durationMinutes?: number
   }
+  companyId: number // Added: to fetch company SMTP settings
   t?: TranslationFunction // Optional translation function
 }
 
@@ -49,11 +51,12 @@ interface SendInterviewCancellationParams {
     location: string
     durationMinutes?: number
   }
+  companyId: number // Added: to fetch company SMTP settings
   t?: TranslationFunction // Optional translation function
 }
 
 export async function sendInterviewCancellation(params: SendInterviewCancellationParams) {
-  const { candidate, recruiter, position, interview, t } = params
+  const { candidate, recruiter, position, interview, companyId, t } = params
 
   // Fallback translation function if none provided
   const translate: TranslationFunction = t || ((key, params) => {
@@ -186,24 +189,51 @@ export async function sendInterviewCancellation(params: SendInterviewCancellatio
 `
 
   try {
-    const result = await resend.emails.send({
-      from: `${translate('emailService.from.interviews')} <interviews@notifications.hrinno.hu>`,
-      to: candidate.email,
-      subject: translate('emailService.cancellation.subject', { positionTitle: position.title }),
-      html: cancellationEmail,
-      attachments: [
-        {
-          filename: translate('emailService.invitation.icsFilenameCancelled'),
-          content: icsBase64,
-        },
-      ],
-    })
+    // Try to send via company SMTP first
+    try {
+      const result = await sendEmailWithCompanySMTP(companyId, {
+        to: candidate.email,
+        subject: translate('emailService.cancellation.subject', { positionTitle: position.title }),
+        html: cancellationEmail,
+        attachments: [
+          {
+            filename: translate('emailService.invitation.icsFilenameCancelled'),
+            content: icsBase64,
+          },
+        ],
+      })
 
-    console.log('✅ Cancellation email sent to candidate:', result)
+      console.log('✅ Cancellation email sent to candidate via company SMTP:', result)
 
-    return {
-      success: true,
-      emailId: result.data?.id,
+      return {
+        success: true,
+        emailId: result.emailId,
+        provider: result.provider,
+      }
+    } catch (smtpError) {
+      // If company SMTP fails, fall back to Resend
+      console.log('⚠️ Company SMTP failed, falling back to Resend')
+      
+      const result = await resend.emails.send({
+        from: `${translate('emailService.from.interviews')} <interviews@notifications.hrinno.hu>`,
+        to: candidate.email,
+        subject: translate('emailService.cancellation.subject', { positionTitle: position.title }),
+        html: cancellationEmail,
+        attachments: [
+          {
+            filename: translate('emailService.invitation.icsFilenameCancelled'),
+            content: icsBase64,
+          },
+        ],
+      })
+
+      console.log('✅ Cancellation email sent to candidate via Resend:', result)
+
+      return {
+        success: true,
+        emailId: result.data?.id,
+        provider: 'resend',
+      }
     }
   } catch (error) {
     console.error('❌ Failed to send cancellation email:', error)
@@ -212,7 +242,7 @@ export async function sendInterviewCancellation(params: SendInterviewCancellatio
 }
 
 export async function sendInterviewInvitation(params: SendInterviewInvitationParams) {
-  const { candidate, recruiter, position, interview, t } = params
+  const { candidate, recruiter, position, interview, companyId, t } = params
 
   // Fallback translation function if none provided
   const translate: TranslationFunction = t || ((key, params) => {
@@ -268,60 +298,122 @@ export async function sendInterviewInvitation(params: SendInterviewInvitationPar
   const icsBase64 = Buffer.from(icsContent).toString('base64')
 
   try {
-    // Send email to candidate
-    const candidateEmailResult = await resend.emails.send({
-      from: `${translate('emailService.from.interviews')} <interviews@notifications.hrinno.hu>`,
-      to: candidate.email,
-      subject: translate('emailService.invitation.subjectCandidate', { positionTitle: position.title }),
-      html: generateInterviewEmail({
-        candidateName,
-        recruiterName,
-        positionTitle: position.title,
-        interviewDate,
-        interviewTime,
-        location: interview.location,
-        isForCandidate: true,
-        t: translate, // Pass translation function to email template generator
-      }),
-      attachments: [
-        {
-          filename: translate('emailService.invitation.icsFilename'),
-          content: icsBase64,
-        },
-      ],
-    })
+    // Try to send via company SMTP first
+    try {
+      // Send email to candidate
+      const candidateResult = await sendEmailWithCompanySMTP(companyId, {
+        to: candidate.email,
+        subject: translate('emailService.invitation.subjectCandidate', { positionTitle: position.title }),
+        html: generateInterviewEmail({
+          candidateName,
+          recruiterName,
+          positionTitle: position.title,
+          interviewDate,
+          interviewTime,
+          location: interview.location,
+          isForCandidate: true,
+          t: translate,
+        }),
+        attachments: [
+          {
+            filename: translate('emailService.invitation.icsFilename'),
+            content: icsBase64,
+          },
+        ],
+      })
 
-    console.log('✅ Email sent to candidate:', candidateEmailResult)
+      console.log('✅ Email sent to candidate via company SMTP:', candidateResult)
 
-    // Send confirmation email to recruiter
-    const recruiterEmailResult = await resend.emails.send({
-      from: `${translate('emailService.from.interviews')} <interviews@notifications.hrinno.hu>`,
-      to: recruiter.email,
-      subject: translate('emailService.invitation.subjectRecruiter', { candidateName }),
-      html: generateInterviewEmail({
-        candidateName,
-        recruiterName,
-        positionTitle: position.title,
-        interviewDate,
-        interviewTime,
-        location: interview.location,
-        isForCandidate: false,
-        t: translate, // Pass translation function to email template generator
-      }),
-      attachments: [
-        {
-          filename: translate('emailService.invitation.icsFilename'),
-          content: icsBase64,
-        },
-      ],
-    })
+      // Send confirmation email to recruiter
+      const recruiterResult = await sendEmailWithCompanySMTP(companyId, {
+        to: recruiter.email,
+        subject: translate('emailService.invitation.subjectRecruiter', { candidateName }),
+        html: generateInterviewEmail({
+          candidateName,
+          recruiterName,
+          positionTitle: position.title,
+          interviewDate,
+          interviewTime,
+          location: interview.location,
+          isForCandidate: false,
+          t: translate,
+        }),
+        attachments: [
+          {
+            filename: translate('emailService.invitation.icsFilename'),
+            content: icsBase64,
+          },
+        ],
+      })
 
-    console.log('✅ Email sent to recruiter:', recruiterEmailResult)
+      console.log('✅ Email sent to recruiter via company SMTP:', recruiterResult)
 
-    return {
-      success: true,
-      candidateEmailId: candidateEmailResult.data?.id,
-      recruiterEmailId: recruiterEmailResult.data?.id,
+      return {
+        success: true,
+        candidateEmailId: candidateResult.emailId,
+        recruiterEmailId: recruiterResult.emailId,
+        provider: 'company-smtp',
+      }
+    } catch (smtpError) {
+      // If company SMTP fails, fall back to Resend
+      console.log('⚠️ Company SMTP failed, falling back to Resend')
+
+      // Send email to candidate via Resend
+      const candidateEmailResult = await resend.emails.send({
+        from: `${translate('emailService.from.interviews')} <interviews@notifications.hrinno.hu>`,
+        to: candidate.email,
+        subject: translate('emailService.invitation.subjectCandidate', { positionTitle: position.title }),
+        html: generateInterviewEmail({
+          candidateName,
+          recruiterName,
+          positionTitle: position.title,
+          interviewDate,
+          interviewTime,
+          location: interview.location,
+          isForCandidate: true,
+          t: translate,
+        }),
+        attachments: [
+          {
+            filename: translate('emailService.invitation.icsFilename'),
+            content: icsBase64,
+          },
+        ],
+      })
+
+      console.log('✅ Email sent to candidate via Resend:', candidateEmailResult)
+
+      // Send confirmation email to recruiter via Resend
+      const recruiterEmailResult = await resend.emails.send({
+        from: `${translate('emailService.from.interviews')} <interviews@notifications.hrinno.hu>`,
+        to: recruiter.email,
+        subject: translate('emailService.invitation.subjectRecruiter', { candidateName }),
+        html: generateInterviewEmail({
+          candidateName,
+          recruiterName,
+          positionTitle: position.title,
+          interviewDate,
+          interviewTime,
+          location: interview.location,
+          isForCandidate: false,
+          t: translate,
+        }),
+        attachments: [
+          {
+            filename: translate('emailService.invitation.icsFilename'),
+            content: icsBase64,
+          },
+        ],
+      })
+
+      console.log('✅ Email sent to recruiter via Resend:', recruiterEmailResult)
+
+      return {
+        success: true,
+        candidateEmailId: candidateEmailResult.data?.id,
+        recruiterEmailId: recruiterEmailResult.data?.id,
+        provider: 'resend',
+      }
     }
   } catch (error) {
     console.error('❌ Failed to send interview invitation emails:', error)

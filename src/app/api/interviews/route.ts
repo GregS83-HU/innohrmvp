@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       interview_datetime, 
       duration_minutes, 
       location,
-      locale  // ⭐ Added: Get locale from request
+      locale
     } = body
 
     console.log('[Interviews API] Creating interview:', body)
@@ -123,7 +123,7 @@ export async function POST(req: Request) {
     // Fetch position details
     const { data: position, error: positionError } = await supabase
       .from('openedpositions')
-      .select('position_name')
+      .select('position_name, company_id')
       .eq('id', position_id)
       .single()
 
@@ -135,10 +135,16 @@ export async function POST(req: Request) {
       }, { status: 207 })
     }
 
-    // ⭐ Added: Get translation function for the user's locale
+    // ⭐ Get translation function for the user's locale
     const t = getServerTranslation(locale || 'en')
 
-    // Send interview invitation emails
+    // ⭐ Check if company_id is 6 (demo mode) - skip email sending
+    if (position.company_id === 6) {
+      console.log('[Interviews API] 🎭 Demo mode detected (company_id = 6) - skipping email')
+      return NextResponse.json(interview)
+    }
+
+    // Send interview invitation emails (only if NOT demo mode)
     try {
       await sendInterviewInvitation({
         candidate: {
@@ -159,7 +165,8 @@ export async function POST(req: Request) {
           location: location || 'TBD',
           durationMinutes: duration_minutes || 60,
         },
-        t,  // ⭐ Added: Pass translation function
+        companyId: position.company_id,
+        t,
       })
 
       console.log('[Interviews API] ✅ Invitation emails sent successfully')
@@ -187,7 +194,7 @@ export async function POST(req: Request) {
 
 export async function PATCH(req: Request) {
   const body = await req.json()
-  const { id, status, notes, ai_summary, locale } = body  // ⭐ Added: Get locale from request
+  const { id, status, notes, ai_summary, locale } = body
 
   // Update interview status
   const { data, error } = await supabase
@@ -243,7 +250,7 @@ export async function PATCH(req: Request) {
       // Fetch position
       const { data: position, error: positionError } = await supabase
         .from('openedpositions')
-        .select('position_name')
+        .select('position_name, company_id')
         .eq('id', interview.position_id)
         .single()
 
@@ -252,10 +259,16 @@ export async function PATCH(req: Request) {
         return NextResponse.json(data)
       }
 
-      // ⭐ Added: Get translation function for the user's locale
+      // ⭐ Get translation function for the user's locale
       const t = getServerTranslation(locale || 'en')
 
-      // Send cancellation email
+      // ⭐ Check if company_id is 6 (demo mode) - skip email sending
+      if (position.company_id === 6) {
+        console.log('[Interviews API] 🎭 Demo mode detected (company_id = 6) - skipping cancellation email')
+        return NextResponse.json(data)
+      }
+
+      // Send cancellation email (only if NOT demo mode)
       await sendInterviewCancellation({
         candidate: {
           email: candidate.candidat_email,
@@ -274,7 +287,8 @@ export async function PATCH(req: Request) {
           location: interview.location || 'TBD',
           durationMinutes: interview.duration_minutes || 60,
         },
-        t,  // ⭐ Added: Pass translation function
+        companyId: position.company_id,
+        t,
       })
 
       console.log('[Interviews API] ✅ Cancellation email sent successfully')
