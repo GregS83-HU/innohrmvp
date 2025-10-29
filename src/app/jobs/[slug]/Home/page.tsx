@@ -112,7 +112,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* CTA Section */}
+        {/* CTA Section }
         <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-lg p-8 text-center">
           <div className="max-w-3xl mx-auto">
             <Sparkles className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
@@ -138,6 +138,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+        {*/}
       </div>
     </div>
   );

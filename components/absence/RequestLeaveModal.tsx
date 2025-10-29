@@ -557,7 +557,7 @@ const RequestLeaveModal: React.FC<Props> = ({
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
+         <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 {t('requestLeaveModal.fields.startDate')}
@@ -565,7 +565,16 @@ const RequestLeaveModal: React.FC<Props> = ({
               <input
                 type="date"
                 value={requestForm.start_date}
-                onChange={(e) => setRequestForm(prev => ({ ...prev, start_date: e.target.value }))}
+                onChange={(e) => {
+                  const newStartDate = e.target.value;
+                  setRequestForm(prev => {
+                    // If end date is before new start date, clear it
+                    if (prev.end_date && newStartDate > prev.end_date) {
+                      return { ...prev, start_date: newStartDate, end_date: '' };
+                    }
+                    return { ...prev, start_date: newStartDate };
+                  });
+                }}
                 required
                 disabled={!!datesLocked}
                 className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
@@ -582,6 +591,7 @@ const RequestLeaveModal: React.FC<Props> = ({
                 type="date"
                 value={requestForm.end_date}
                 onChange={(e) => setRequestForm(prev => ({ ...prev, end_date: e.target.value }))}
+                min={requestForm.start_date}
                 required
                 disabled={!!datesLocked}
                 className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
