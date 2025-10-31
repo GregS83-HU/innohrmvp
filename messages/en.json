@@ -2031,4 +2031,203 @@
       "files": "{{count}} file"
     }
   }
+
+,
+"footer": {
+  "operatedBy": "Operated by Saussez Grégory, Budapest, Hungary",
+  "privacyLink": "Privacy Policy",
+  "termsLink": "Terms of Use",
+  "cookiesLink": "Cookie Policy",
+  "impressumLink": "Impressum",
+  "contact": "For any privacy inquiries, contact",
+  "aiDisclaimer": "AI features are for demonstration purposes only and should not be used for real HR decisions."
+},
+
+
+"privacyDemo": {
+  "title": "Privacy Notice (Demo Version)",
+  "intro": "This demo application is operated by Saussez Grégory (Budapest, Hungary). The purpose of the demo is to test InnoHR’s features and collect feedback. No commercial activity is conducted, and the service is free of charge.",
+  "sections": {
+    "dataCollected": {
+      "title": "Data Collected",
+      "items": {
+        "0": "Information you voluntarily provide (e.g. name, email, feedback, or test data).",
+        "1": "Technical data (browser type, approximate geographic region) used for performance analysis."
+      }
+    },
+    "purpose": {
+      "title": "Purpose of Data Processing",
+      "text": "The data is used solely to evaluate the usability of the demo and to improve development."
+    },
+    "storage": {
+      "title": "Data Storage",
+      "text": "Data is securely stored on Supabase (EU-based servers) and may be automatically deleted after up to 90 days."
+    },
+    "aiProcessing": {
+      "title": "AI Processing",
+      "text": "Some demo features use AI-generated responses (OpenAI or similar APIs). These responses are for demonstration purposes only and must not be used for decision-making."
+    },
+    "thirdParty": {
+      "title": "Third-Party Services",
+      "items": {
+        "supabase": {
+          "name": "Supabase (BaaS Platform)",
+          "desc": "Purpose: Database hosting and authentication. Headquarters: USA (using EU-based servers).",
+          "linkHref": "https://supabase.com/privacy",
+          "linkText": "Privacy Policy",
+          "color": "border-blue-500"
+        },
+        "openai": {
+          "name": "OpenRouter / OpenAI (AI Service)",
+          "desc": "Purpose: CV analysis, happiness chat. Headquarters: USA. Data is not stored long-term.",
+          "linkHref": "https://openai.com/privacy",
+          "linkText": "Privacy Policy",
+          "color": "border-green-500"
+        },
+        "vercel": {
+          "name": "Vercel (Hosting)",
+          "desc": "Purpose: Web hosting and CDN. Headquarters: USA.",
+          "linkHref": "https://vercel.com/legal/privacy-policy",
+          "linkText": "Privacy Policy",
+          "color": "border-purple-500"
+        },
+        "stripe": {
+          "name": "Stripe (Payment Service)",
+          "desc": "Purpose: Subscription management. Headquarters: USA (EU data storage).",
+          "linkHref": "https://stripe.com/privacy",
+          "linkText": "Privacy Policy",
+          "color": "border-orange-500"
+        }
+      },
+      "noticeTitle": "Data Transfer:",
+      "noticeText": "Data may be transferred outside the EU. Standard Contractual Clauses (SCC) are used to ensure adequate data protection."
+    },
+    "dataController": {
+      "title": "Data Controller Contact Information",
+      "nameLabel": "Name:",
+      "emailLabel": "Email:",
+      "addressLabel": "Address:",
+      "dpoLabel": "Data Protection Officer:",
+      "name": "Saussez Grégory",
+      "email": "privacy@innohr.hu",
+      "address": "Budapest, Hungary",
+      "dpo": "privacy@innohr.hu"
+    },
+    "userRights": {
+      "title": "Your Rights",
+      "text": "You may request access to or deletion of your data at any time by contacting privacy@innohr.hu."
+    },
+    "contact": {
+      "title": "Contact",
+      "text": "Operator: Saussez Grégory, Budapest, Hungary",
+      "email": "privacy@innohr.hu"
+    }
+  },
+  "lastUpdated": "Last updated: October 2025"
 }
+,
+  "cookies": {
+    "title": "Cookies & Data",
+    "text": "We use cookies to improve the demo experience. No tracking or third-party marketing cookies are used.",
+    "accept": "Accept",
+    "reject": "Reject"
+  }
+  ,
+  
+  "termsDemo": {
+  "title": "Demo Terms of Service",
+  "lastUpdated": "Last updated: {date}",
+  "sections": {
+    "demoFeatures": {
+      "title": "1. Demo Version Characteristics",
+      "content": "This is a free demo version for testing purposes. System features are limited, and data will be automatically deleted after 30 days."
+    },
+    "liability": {
+      "title": "2. Disclaimer of Liability",
+      "content": "The demo version is provided \"as is\" without any warranties. Do not use real personal data or sensitive information."
+    },
+    "dataProcessing": {
+      "title": "3. Data Processing",
+      "content": "Data provided during demo usage is used solely for system testing purposes.",
+      "detailsLink": "Details:",
+      "privacyPolicy": "Privacy Policy"
+    },
+    "aiContent": {
+      "title": "4. AI Content",
+      "content": "Content generated by AI does not constitute professional advice. Inaccuracies may occur."
+    },
+    "termination": {
+      "title": "5. Access Termination",
+      "content": "We reserve the right to immediately terminate demo access without notice."
+    },
+    "contact": {
+      "title": "6. Contact",
+      "content": "For questions:"
+    }
+  }
+}
+,
+  "demoBanner": {
+  "title": "Demo version:",
+  "text": "Do not use real personal data. All demo data is automatically deleted every night."
+}
+,
+"impressumDemo": {
+    "title": "Impressum",
+    "intro": "In accordance with EU law, the following legal information applies to this website and demo.",
+    "fields": {
+      "operator": "Operator",
+      "address": "Address",
+      "email": "Email",
+      "website": "Website"
+    },
+    "sections": {
+      "liability": {
+        "title": "Disclaimer of Liability",
+        "text": "Despite careful content control, we assume no liability for the content of external links. The operators of linked pages are solely responsible for their content."
+      },
+      "copyright": {
+        "title": "Copyright Notice",
+        "text": "All texts, images, and source code are protected by copyright. Any reproduction or use outside the limits of copyright law requires prior written consent."
+      }
+    },
+    "lastUpdated": "Last updated: October 2025"
+  }
+,
+"cookiesDemo": {
+  "title": "Cookie Policy (Demo Version)",
+  "intro": "This page explains how cookies are used. The HRinno demo application uses cookies only for technical and analytical purposes.",
+  "sections": {
+    "whatAreCookies": {
+      "title": "What Are Cookies?",
+      "text": "Cookies are small text files stored by your browser on your computer or device. They help a website recognize you and remember your preferences or settings."
+    },
+    "howWeUse": {
+      "title": "How We Use Cookies",
+      "text": "The HRinno demo uses technical cookies to ensure the site functions properly and anonymous analytics cookies to measure performance."
+    },
+    "types": {
+      "title": "Types of Cookies We Use",
+      "items": {
+        "necessary": "Necessary cookies – enable basic site functionality (e.g., login, language settings).",
+        "analytics": "Analytics cookies – help us understand how visitors use the site so we can improve user experience.",
+        "functional": "Functional cookies – allow the site to remember user preferences (e.g., theme, language)."
+      }
+    },
+    "manage": {
+      "title": "Managing Cookies",
+      "text": "Most browsers allow you to delete or block cookies. Please note that disabling cookies may affect site functionality."
+    },
+    "moreInfo": {
+      "title": "More Information",
+      "text": "If you have any questions about our cookie usage, please contact us at:"
+    }
+  },
+  "lastUpdated": "Last updated: October 2025"
+}
+
+}
+
+
+
+

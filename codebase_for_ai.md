@@ -1,6 +1,6 @@
 # Codebase - innohrmvp
 **Mode:** full-feature-extract  
-**Generated:** Sat Oct 25 06:49:26 CEST 2025
+**Generated:** Fri Oct 31 06:14:30 CET 2025
 **Purpose:** Complete AI analysis including all APIs, components & features
 
 ---
@@ -2059,7 +2059,7 @@ Return ONLY valid JSON in this exact format (with all text in ${languageName} in
 
 ```
 Folder: src/app/api/interviews
-Type: ts | Lines:      289
+Type: ts | Lines:      301
 Top definitions:
 --- Exports ---
 
@@ -2068,7 +2068,7 @@ const supabase = createClient(
 ```
 
 <details>
-<summary>📄 Full content (     289 lines)</summary>
+<summary>📄 Preview (first 100 lines of      301)</summary>
 
 ```ts
 // app/api/interviews/route.ts
@@ -2171,196 +2171,7 @@ export async function POST(req: Request) {
     const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(recruiter_id)
 
     if (authError || !authUser) {
-      console.error('[Interviews API] Recruiter auth not found:', authError)
-      return NextResponse.json({ 
-        error: 'Interview created but recruiter not found for email',
-        interview 
-      }, { status: 207 })
-    }
-
-    // Fetch recruiter name from users table
-    const { data: recruiterData, error: recruiterError } = await supabase
-      .from('users')
-      .select('user_firstname, user_lastname')
-      .eq('id', recruiter_id)
-      .single()
-
-    if (recruiterError || !recruiterData) {
-      console.error('[Interviews API] Recruiter data not found:', recruiterError)
-      return NextResponse.json({ 
-        error: 'Interview created but recruiter data not found',
-        interview 
-      }, { status: 207 })
-    }
-
-    // Fetch position details
-    const { data: position, error: positionError } = await supabase
-      .from('openedpositions')
-      .select('position_name, company_id')  // ⭐ Added: Fetch company_id
-      .eq('id', position_id)
-      .single()
-
-    if (positionError || !position) {
-      console.error('[Interviews API] Position not found:', positionError)
-      return NextResponse.json({ 
-        error: 'Interview created but position not found',
-        interview 
-      }, { status: 207 })
-    }
-
-    // ⭐ Added: Get translation function for the user's locale
-    const t = getServerTranslation(locale || 'en')
-
-    // Send interview invitation emails
-    try {
-      await sendInterviewInvitation({
-        candidate: {
-          email: candidate.candidat_email,
-          firstName: candidate.candidat_firstname,
-          lastName: candidate.candidat_lastname,
-        },
-        recruiter: {
-          email: authUser.user.email!,
-          firstName: recruiterData.user_firstname,
-          lastName: recruiterData.user_lastname,
-        },
-        position: {
-          title: position.position_name,
-        },
-        interview: {
-          datetime: new Date(interview_datetime),
-          location: location || 'TBD',
-          durationMinutes: duration_minutes || 60,
-        },
-        companyId: position.company_id,  // ⭐ Added: Pass company_id
-        t,
-      })
-
-      console.log('[Interviews API] ✅ Invitation emails sent successfully')
-    } catch (emailError) {
-      console.error('[Interviews API] ❌ Failed to send emails:', emailError)
-      // Interview is still created, just email failed
-      return NextResponse.json({ 
-        warning: 'Interview created but failed to send emails',
-        interview,
-        emailError: emailError instanceof Error ? emailError.message : 'Unknown error'
-      }, { status: 201 })
-    }
-
-    return NextResponse.json(interview)
-
-  } catch (err: unknown) {
-    console.error('[Interviews API] Exception:', err)
-
-    // Narrow unknown to Error safely
-    const message = err instanceof Error ? err.message : 'Unknown error'
-
-    return NextResponse.json({ error: message }, { status: 500 })
-  }
-}
-
-export async function PATCH(req: Request) {
-  const body = await req.json()
-  const { id, status, notes, ai_summary, locale } = body
-
-  // Update interview status
-  const { data, error } = await supabase
-    .from('interviews')
-    .update({ status, notes, ai_summary })
-    .eq('id', id)
-    .select()
-    .single()
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 })
-
-  // If status is being set to "cancelled", send cancellation email
-  if (status === 'cancelled') {
-    try {
-      // Fetch interview details with all related data
-      const { data: interview, error: interviewError } = await supabase
-        .from('interviews')
-        .select('*, candidat_id, position_id, recruiter_id')
-        .eq('id', id)
-        .single()
-
-      if (interviewError || !interview) {
-        console.error('[Interviews API] Interview not found for cancellation email')
-        return NextResponse.json(data) // Still return success, just no email
-      }
-
-      // Fetch candidate
-      const { data: candidate, error: candidateError } = await supabase
-        .from('candidats')
-        .select('candidat_email, candidat_firstname, candidat_lastname')
-        .eq('id', interview.candidat_id)
-        .single()
-
-      if (candidateError || !candidate?.candidat_email) {
-        console.error('[Interviews API] Candidate not found for cancellation email')
-        return NextResponse.json(data)
-      }
-
-      // Fetch recruiter
-      const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(interview.recruiter_id)
-      
-      const { data: recruiterData, error: recruiterError } = await supabase
-        .from('users')
-        .select('user_firstname, user_lastname')
-        .eq('id', interview.recruiter_id)
-        .single()
-
-      if (authError || recruiterError || !authUser || !recruiterData) {
-        console.error('[Interviews API] Recruiter not found for cancellation email')
-        return NextResponse.json(data)
-      }
-
-      // Fetch position
-      const { data: position, error: positionError } = await supabase
-        .from('openedpositions')
-        .select('position_name, company_id')  // ⭐ Added: Fetch company_id
-        .eq('id', interview.position_id)
-        .single()
-
-      if (positionError || !position) {
-        console.error('[Interviews API] Position not found for cancellation email')
-        return NextResponse.json(data)
-      }
-
-      // ⭐ Added: Get translation function for the user's locale
-      const t = getServerTranslation(locale || 'en')
-
-      // Send cancellation email
-      await sendInterviewCancellation({
-        candidate: {
-          email: candidate.candidat_email,
-          firstName: candidate.candidat_firstname,
-          lastName: candidate.candidat_lastname,
-        },
-        recruiter: {
-          firstName: recruiterData.user_firstname,
-          lastName: recruiterData.user_lastname,
-        },
-        position: {
-          title: position.position_name,
-        },
-        interview: {
-          datetime: new Date(interview.interview_datetime),
-          location: interview.location || 'TBD',
-          durationMinutes: interview.duration_minutes || 60,
-        },
-        companyId: position.company_id,  // ⭐ Added: Pass company_id
-        t,
-      })
-
-      console.log('[Interviews API] ✅ Cancellation email sent successfully')
-    } catch (emailError) {
-      console.error('[Interviews API] ❌ Failed to send cancellation email:', emailError)
-      // Interview is still cancelled, just email failed
-    }
-  }
-
-  return NextResponse.json(data)
-}
+... (truncated,      301 total lines)
 ```
 </details>
 
@@ -5291,6 +5102,65 @@ async function getUserActiveShift(userId: string): Promise<WorkShift> {
 
 ---
 
+## `src/app/api/unsubscribe/route.tsx`
+
+```
+Folder: src/app/api/unsubscribe
+Type: tsx | Lines:       37
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+const supabase = createClient(
+```
+
+<details>
+<summary>📄 Full content (      37 lines)</summary>
+
+```tsx
+// Create: src/app/api/unsubscribe/route.ts
+
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+export async function POST(req: NextRequest) {
+  try {
+    const { email } = await req.json();
+
+    if (!email) {
+      return NextResponse.json({ error: 'Email required' }, { status: 400 });
+    }
+
+    // Update contact_submissions to unsubscribe
+    const { error } = await supabase
+      .from('contact_submissions')
+      .update({ 
+        marketing_consent: false,
+        unsubscribed_at: new Date().toISOString()
+      })
+      .eq('email', email.toLowerCase());
+
+    if (error) {
+      console.error('Unsubscribe error:', error);
+      return NextResponse.json({ error: 'Failed to unsubscribe' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Unsubscribe error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+```
+</details>
+
+---
+
 ## `src/app/api/update-comment/route.ts`
 
 ```
@@ -5677,6 +5547,233 @@ export async function POST(req: NextRequest) {
 
 ---
 
+## `src/app/terms-demo/page.tsx`
+
+```
+Folder: src/app/terms-demo
+Type: tsx | Lines:       53
+Top definitions:
+--- Exports ---
+export default function TermsDemoPage() {
+
+--- Key Functions/Components ---
+```
+
+<details>
+<summary>📄 Full content (      53 lines)</summary>
+
+```tsx
+// src/app/terms-demo/page.tsx
+
+'use client';
+
+import React from 'react';
+import { useLocale } from 'i18n/LocaleProvider';
+
+export default function TermsDemoPage() {
+  const { t } = useLocale();
+
+  return (
+    <div className="max-w-4xl mx-auto py-12 px-6 text-gray-800">
+      <h1 className="text-3xl font-bold mb-6">{t('termsDemo.title', 'Demo Felhasználási Feltételek')}</h1>
+      
+      <div className="prose prose-blue">
+        <h2>1. Demó Verzió Jellemzői</h2>
+        <p>
+          Ez egy ingyenes demó verzió tesztelési célokra. A rendszer funkciói korlátozottak, 
+          és az adatok 30 nap után automatikusan törlésre kerülnek.
+        </p>
+
+        <h2>2. Felelősség Kizárása</h2>
+        <p>
+          A demó verzió "ahogy van" állapotban kerül biztosításra, mindenféle garancia nélkül. 
+          Ne használjon valós személyes adatokat vagy érzékeny információkat.
+        </p>
+
+        <h2>3. Adatkezelés</h2>
+        <p>
+          A demó használata során megadott adatokat kizárólag a rendszer teszteléséhez használjuk fel. 
+          Részletek: <a href="/privacy-demo" className="text-blue-600 underline">Adatvédelmi Tájékoztató</a>
+        </p>
+
+        <h2>4. AI Tartalom</h2>
+        <p>
+          Az AI által generált tartalma nem minősül szakmai tanácsadásnak. 
+          Pontatlanságok előfordulhatnak.
+        </p>
+
+        <h2>5. Hozzáférés Megszüntetése</h2>
+        <p>
+          Fenntartjuk a jogot a demó hozzáférés azonnali megszüntetésére indoklás nélkül.
+        </p>
+
+        <h2>6. Kapcsolat</h2>
+        <p>
+          Kérdés esetén: <a href="mailto:privacy@innohr.hu" className="text-blue-600 underline">privacy@innohr.hu</a>
+        </p>
+
+        <p className="text-sm text-gray-500 mt-8">Utolsó frissítés: 2025. január 29.</p>
+      </div>
+    </div>
+  );
+}
+```
+</details>
+
+---
+
+## `src/app/privacy-demo/page.tsx`
+
+```
+Folder: src/app/privacy-demo
+Type: tsx | Lines:      127
+Top definitions:
+--- Exports ---
+export default PrivacyDemoPage;
+
+--- Key Functions/Components ---
+const PrivacyDemoPage: React.FC = () => {
+const ThirdPartyServices = () => (
+const DataControllerInfo = () => (
+```
+
+<details>
+<summary>📄 Full content (     127 lines)</summary>
+
+```tsx
+'use client';
+
+import React from 'react';
+import { useLocale } from 'i18n/LocaleProvider';
+
+const PrivacyDemoPage: React.FC = () => {
+  const { t } = useLocale();
+
+  return (
+    <div className="max-w-3xl mx-auto py-12 px-6 text-gray-800">
+      <h1 className="text-3xl font-bold mb-6">{t('privacyDemo.title')}</h1>
+
+      {/* ✅ ADD: Data Controller Info */}
+      <DataControllerInfo />
+
+      <p className="mb-4">{t('privacyDemo.intro')}</p>
+
+      <h2 className="text-xl font-semibold mt-8 mb-3">
+        {t('privacyDemo.sections.dataCollected.title')}
+      </h2>
+      <ul className="list-disc list-inside space-y-1 mb-4">
+        <li>{t('privacyDemo.sections.dataCollected.items.0')}</li>
+        <li>{t('privacyDemo.sections.dataCollected.items.1')}</li>
+      </ul>
+
+      <h2 className="text-xl font-semibold mt-8 mb-3">
+        {t('privacyDemo.sections.purpose.title')}
+      </h2>
+      <p className="mb-4">{t('privacyDemo.sections.purpose.text')}</p>
+
+      <h2 className="text-xl font-semibold mt-8 mb-3">
+        {t('privacyDemo.sections.storage.title')}
+      </h2>
+      <p className="mb-4">{t('privacyDemo.sections.storage.text')}</p>
+
+      <h2 className="text-xl font-semibold mt-8 mb-3">
+        {t('privacyDemo.sections.aiProcessing.title')}
+      </h2>
+      <p className="mb-4">{t('privacyDemo.sections.aiProcessing.text')}</p>
+
+      {/* ✅ ADD: Third Party Services */}
+      <ThirdPartyServices />
+
+      <h2 className="text-xl font-semibold mt-8 mb-3">
+        {t('privacyDemo.sections.userRights.title')}
+      </h2>
+      <p className="mb-4">{t('privacyDemo.sections.userRights.text')}</p>
+
+      <h2 className="text-xl font-semibold mt-8 mb-3">
+        {t('privacyDemo.sections.contact.title')}
+      </h2>
+      <p className="mb-2">{t('privacyDemo.sections.contact.text')}</p>
+      <a
+        href="mailto:privacy@innohr.hu"
+        className="text-blue-600 underline hover:text-blue-800"
+      >
+        privacy@innohr.hu
+      </a>
+
+      <p className="text-sm text-gray-500 mt-8">
+        {t('privacyDemo.lastUpdated')}
+      </p>
+    </div>
+  );
+};
+
+const ThirdPartyServices = () => (
+  <div className="mt-8">
+    <h2 className="text-xl font-semibold mb-3">Harmadik Felek Szolgáltatásai</h2>
+    <div className="space-y-3">
+      <div className="border-l-4 border-blue-500 pl-4">
+        <h3 className="font-semibold">Supabase (BaaS Platform)</h3>
+        <p className="text-sm text-gray-600">
+          Cél: Adatbázis hosting, auth<br/>
+          Székhely: USA (EU szerverre tárolunk)<br/>
+          <a href="https://supabase.com/privacy" className="text-blue-600 underline">Adatvédelem</a>
+        </p>
+      </div>
+
+      <div className="border-l-4 border-green-500 pl-4">
+        <h3 className="font-semibold">OpenRouter/OpenAI (AI szolgáltatás)</h3>
+        <p className="text-sm text-gray-600">
+          Cél: CV elemzés, happiness chat<br/>
+          Székhely: USA<br/>
+          Adatkezelés: Nem tárolják hosszú távon<br/>
+          <a href="https://openai.com/privacy" className="text-blue-600 underline">Adatvédelem</a>
+        </p>
+      </div>
+
+      <div className="border-l-4 border-purple-500 pl-4">
+        <h3 className="font-semibold">Vercel (Hosting)</h3>
+        <p className="text-sm text-gray-600">
+          Cél: Web hosting, CDN<br/>
+          Székhely: USA<br/>
+          <a href="https://vercel.com/legal/privacy-policy" className="text-blue-600 underline">Adatvédelem</a>
+        </p>
+      </div>
+
+      <div className="border-l-4 border-orange-500 pl-4">
+        <h3 className="font-semibold">Stripe (Fizetés)</h3>
+        <p className="text-sm text-gray-600">
+          Cél: Előfizetés kezelés<br/>
+          Székhely: USA (EU adattárolás)<br/>
+          <a href="https://stripe.com/privacy" className="text-blue-600 underline">Adatvédelem</a>
+        </p>
+      </div>
+    </div>
+
+    <p className="text-sm text-gray-600 mt-4 bg-yellow-50 p-3 rounded">
+      ⚠️ <strong>Adatátvitel:</strong> Az adatok az EU-n kívülre kerülhetnek. 
+      Standard szerződéses záradékokat (SCC) alkalmazunk az adatvédelem biztosítására.
+    </p>
+  </div>
+);
+
+const DataControllerInfo = () => (
+  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+    <h3 className="font-semibold text-blue-900 mb-2">Adatkezelő Elérhetősége</h3>
+    <p className="text-sm text-blue-800">
+      <strong>Név:</strong> [Your Full Name / Company Name]<br/>
+      <strong>Email:</strong> privacy@innohr.hu<br/>
+      <strong>Cím:</strong> [Your Address - Optional for demo]<br/>
+      <strong>Adatvédelmi tisztviselő:</strong> privacy@innohr.hu
+    </p>
+  </div>
+);
+
+export default PrivacyDemoPage;
+```
+</details>
+
+---
+
 ## `src/app/ObsoleteHome/page copy.tsx`
 
 ```
@@ -6006,45 +6103,50 @@ export default function HomePage() {
 
 ```
 Folder: src/app
-Type: tsx | Lines:       31
+Type: tsx | Lines:       37
 Top definitions:
 --- Exports ---
 export const metadata: Metadata = {
-export default function RootLayout({ 
+export default function RootLayout({
 
 --- Key Functions/Components ---
 ```
 
 <details>
-<summary>📄 Full content (      31 lines)</summary>
+<summary>📄 Full content (      37 lines)</summary>
 
 ```tsx
 import type { Metadata } from "next";
 import "./globals.css";
 import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 import ClientProvider from "./ClientProvider";
 import { LocaleProvider } from "../i18n/LocaleProvider";
 import { messages } from "../i18n/messages";
+import CookieConsent from "../../components/CookieConsent";
+import DemoWarningBanner from "../../components/DemoWarningBanner";
+
 
 export const metadata: Metadata = {
   title: "InnoHR",
   description: "HR was never as easy as NOW",
 };
 
-export default function RootLayout({ 
-  children 
-}: { 
-  children: React.ReactNode 
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
         <LocaleProvider messages={messages}>
           <ClientProvider>
+            <DemoWarningBanner /> 
             <Header />
-            <main style={{ padding: '2rem' }}>
-              {children}
-            </main>
+            <main style={{ padding: "2rem" }}>{children}</main>
+            <Footer />
+            <CookieConsent /> {/* ✅ Add here, after Footer */}
           </ClientProvider>
         </LocaleProvider>
       </body>
@@ -6415,7 +6517,7 @@ const PositionAnalytics: React.FC = () => {
 
 ```
 Folder: src/app/jobs/[slug]/Home
-Type: tsx | Lines:      143
+Type: tsx | Lines:      144
 Top definitions:
 --- Exports ---
 export default function HomePage() {
@@ -6424,7 +6526,7 @@ export default function HomePage() {
 ```
 
 <details>
-<summary>📄 Full content (     143 lines)</summary>
+<summary>📄 Full content (     144 lines)</summary>
 
 ```tsx
 'use client';
@@ -6541,7 +6643,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* CTA Section */}
+        {/* CTA Section }
         <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-lg p-8 text-center">
           <div className="max-w-3xl mx-auto">
             <Sparkles className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
@@ -6567,6 +6669,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+        {*/}
       </div>
     </div>
   );
@@ -9074,263 +9177,6 @@ export default function Page() {
 
 ---
 
-## `src/app/jobs/[slug]/time-clock/page.tsx`
-
-```
-Folder: src/app/jobs/[slug]/time-clock
-Type: tsx | Lines:      545
-Top definitions:
---- Exports ---
-export default function TimeClockPage({ params }: PageProps) {
-
---- Key Functions/Components ---
-interface PageProps {
-interface TimeEntry {
-interface WeeklySummary {
-interface ClockStatusResponse {
-interface HistoryResponse {
-interface SummaryResponse {
-interface ActionResponse {
-interface UserData {
-const supabase = createClient(
-function TimeClock({ userId, userName }: { userId: string; userName: string }) {
-```
-
-<details>
-<summary>📄 Preview (first 100 lines of      545)</summary>
-
-```tsx
-'use client';
-
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@supabase/supabase-js';
-import {
-  Clock,
-  Check,
-  Calendar,
-  TrendingUp,
-  AlertCircle,
-  LogIn,
-  LogOut,
-  Loader2,
-} from 'lucide-react';
-import { useLocale } from 'i18n/LocaleProvider';
-
-// --------------------
-// Types
-// --------------------
-interface PageProps {
-  params: Promise<{ slug: string }>;
-}
-
-interface TimeEntry {
-  id: number;
-  clock_in: string;
-  clock_out: string | null;
-  total_hours: number | null;
-  is_late: boolean;
-  is_early_leave: boolean;
-  is_overtime: boolean;
-  status: string;
-}
-
-interface WeeklySummary {
-  totalHours: number;
-  regularHours: number;
-  overtimeHours: number;
-  onTimeDays: number;
-  lateDays: number;
-  totalDays: number;
-}
-
-interface ClockStatusResponse {
-  success: boolean;
-  clockedIn: boolean;
-  todayEntry: TimeEntry | null;
-  shift?: { start_time: string; end_time: string };
-}
-
-interface HistoryResponse {
-  success: boolean;
-  entries: TimeEntry[];
-}
-
-interface SummaryResponse {
-  success: boolean;
-  summary: WeeklySummary;
-}
-
-interface ActionResponse {
-  success: boolean;
-  entry: TimeEntry;
-  error?: string;
-}
-
-interface UserData {
-  id: string;
-  full_name?: string;
-  email?: string;
-}
-
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
-// --------------------
-// TimeClock Component
-// --------------------
-function TimeClock({ userId, userName }: { userId: string; userName: string }) {
-  const { t } = useLocale();
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [clockedIn, setClockedIn] = useState(false);
-  const [clockInTime, setClockInTime] = useState<Date | null>(null);
-  const [todayEntry, setTodayEntry] = useState<TimeEntry | null>(null);
-  const [activeTab, setActiveTab] = useState<'clock' | 'history'>('clock');
-  const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(false);
-  const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
-  const [weeklySummary, setWeeklySummary] = useState<WeeklySummary | null>(null);
-  const [shift, setShift] = useState({ start_time: '09:00:00', end_time: '17:00:00' });
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-... (truncated,      545 total lines)
-```
-</details>
-
----
-
-## `src/app/jobs/[slug]/users-creation/page.tsx`
-
-```
-Folder: src/app/jobs/[slug]/users-creation
-Type: tsx | Lines:      652
-Top definitions:
---- Exports ---
-export default function CompanyUsersPage() {
-
---- Key Functions/Components ---
-interface CompanyUser {
-const supabase = createClient(
-function ManagerDropdownPortal({
-```
-
-<details>
-<summary>📄 Preview (first 100 lines of      652)</summary>
-
-```tsx
-'use client';
-
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { createPortal } from 'react-dom';
-import { useParams } from 'next/navigation';
-import { createClient } from '@supabase/supabase-js';
-import {
-  Users,
-  Plus,
-  Loader2,
-  AlertCircle,
-  Mail,
-  Shield,
-  ShieldCheck,
-  Search,
-  Filter,
-  UserCircle,
-  Calendar,
-  Check,
-  Edit3,
-} from 'lucide-react';
-import { AddUserModal } from '../../../../../components/AddUserModal';
-import { useLocale } from '../../../../i18n/LocaleProvider';
-
-interface CompanyUser {
-  user_id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  is_admin: boolean;
-  is_super_admin: boolean;
-  is_manager: boolean;
-  manager_id: string | null;
-  manager_first_name: string | null;
-  manager_last_name: string | null;
-  employment_start_date: string | null;
-}
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
-function ManagerDropdownPortal({
-  open,
-  anchorRef,
-  managers,
-  managerSearch,
-  setManagerSearch,
-  onSelect,
-  updatingManager,
-  selectedManagerId,
-  onClose,
-  t,
-}: {
-  open: boolean;
-  anchorRef: React.MutableRefObject<HTMLElement | null>;
-  managers: CompanyUser[];
-  managerSearch: string;
-  setManagerSearch: (v: string) => void;
-  onSelect: (managerId: string) => void;
-  updatingManager: boolean;
-  selectedManagerId?: string | null;
-  onClose: () => void;
-  t: (key: string) => string;
-}) {
-  const portalRef = useRef<HTMLDivElement | null>(null);
-  const [style, setStyle] = useState({ top: 0, left: 0, width: 320 });
-
-  useEffect(() => {
-    if (!open) return;
-
-    const updatePos = () => {
-      const a = anchorRef.current;
-      if (!a) return;
-      const rect = a.getBoundingClientRect();
-
-      const desiredWidth = 320;
-      let left = rect.left + window.scrollX;
-      const viewportRight = window.scrollX + window.innerWidth;
-      if (left + desiredWidth > viewportRight - 8) {
-        left = Math.max(8 + window.scrollX, viewportRight - desiredWidth - 8);
-      }
-      const top = rect.bottom + window.scrollY + 6;
-      const width = Math.min(desiredWidth, window.innerWidth - 16);
-
-      setStyle({ top, left, width });
-    };
-
-    updatePos();
-    window.addEventListener('resize', updatePos);
-    window.addEventListener('scroll', updatePos, true);
-    return () => {
-      window.removeEventListener('resize', updatePos);
-      window.removeEventListener('scroll', updatePos, true);
-    };
-  }, [open, anchorRef]);
-
-  useEffect(() => {
-    if (!open) return;
-... (truncated,      652 total lines)
-```
-</details>
-
----
-
 ## `components/AddUserModal.tsx`
 
 ```
@@ -9986,6 +9832,197 @@ export default ContactForm;
 
 ---
 
+## `components/CookieConsent.tsx`
+
+```
+Folder: components
+Type: tsx | Lines:       58
+Top definitions:
+--- Exports ---
+export default CookieConsent;
+
+--- Key Functions/Components ---
+const CookieConsent: React.FC = () => {
+```
+
+<details>
+<summary>📄 Full content (      58 lines)</summary>
+
+```tsx
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { useLocale } from 'i18n/LocaleProvider';
+import { X, Check } from 'lucide-react';
+
+const CookieConsent: React.FC = () => {
+  const { t } = useLocale();
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const consent = localStorage.getItem('cookieConsent');
+    if (!consent) {
+      // Show banner only if no previous choice
+      setVisible(true);
+    }
+  }, []);
+
+  const acceptCookies = () => {
+    localStorage.setItem('cookieConsent', 'accepted');
+    setVisible(false);
+  };
+
+  const declineCookies = () => {
+    localStorage.setItem('cookieConsent', 'declined');
+    setVisible(false);
+  };
+
+  if (!visible) return null;
+
+  return (
+    <div className="fixed bottom-4 left-4 right-4 md:right-auto md:max-w-md bg-white border border-gray-200 rounded-2xl shadow-lg p-4 z-50 flex flex-col md:flex-row md:items-center md:justify-between gap-3 animate-fade-in">
+      <div className="text-sm text-gray-700 leading-snug">
+        <strong className="block mb-1">{t('cookies.title')}</strong>
+        <p className="text-xs text-gray-600">{t('cookies.text')}</p>
+      </div>
+
+      <div className="flex items-center gap-2 self-end md:self-center">
+        <button
+          onClick={declineCookies}
+          className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors flex items-center gap-1"
+        >
+          <X className="w-4 h-4" />
+          {t('cookies.reject')}
+        </button>
+        <button
+          onClick={acceptCookies}
+          className="px-3 py-2 text-sm bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all flex items-center gap-1"
+        >
+          <Check className="w-4 h-4" />
+          {t('cookies.accept')}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default CookieConsent;
+```
+</details>
+
+---
+
+## `components/DemoWarningBanner.tsx`
+
+```
+Folder: components
+Type: tsx | Lines:       32
+Top definitions:
+--- Exports ---
+export default function DemoWarningBanner() {
+
+--- Key Functions/Components ---
+```
+
+<details>
+<summary>📄 Full content (      32 lines)</summary>
+
+```tsx
+'use client';
+
+import React, { useState } from 'react';
+import { useLocale } from 'i18n/LocaleProvider';
+import { AlertTriangle, X } from 'lucide-react';
+
+export default function DemoWarningBanner() {
+  const [visible, setVisible] = useState(true);
+  const { t } = useLocale();
+
+  if (!visible) return null;
+
+  return (
+    <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-3">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <AlertTriangle className="w-5 h-5 text-yellow-600" />
+          <p className="text-sm text-yellow-800">
+            <strong>{t('demoBanner.title')}</strong>{' '}
+            {t('demoBanner.text')}
+          </p>
+        </div>
+        <button
+          onClick={() => setVisible(false)}
+          className="text-yellow-600 hover:text-yellow-800"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+    </div>
+  );
+}
+```
+</details>
+
+---
+
+## `components/Footer.tsx`
+
+```
+Folder: components
+Type: tsx | Lines:       36
+Top definitions:
+--- Exports ---
+export default Footer;
+
+--- Key Functions/Components ---
+const Footer: React.FC = () => {
+```
+
+<details>
+<summary>📄 Full content (      36 lines)</summary>
+
+```tsx
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
+import { useLocale } from 'i18n/LocaleProvider';
+
+const Footer: React.FC = () => {
+  const { t, locale } = useLocale();
+
+  return (
+    <footer className="text-center text-sm text-gray-500 mt-8 py-6 border-t border-gray-200">
+  <p>© 2025 HRinno Demo – {t('footer.operatedBy')}</p>
+  <div className="flex justify-center gap-4 mt-2">
+    <Link href="/privacy-demo" className="underline hover:text-blue-600">
+      {t('footer.privacyLink')}
+    </Link>
+    <Link href="/terms-demo" className="underline hover:text-blue-600">
+      Felhasználási Feltételek
+    </Link>
+    <Link href="/cookies" className="underline hover:text-blue-600">
+      Süti Szabályzat
+    </Link>
+  </div>
+  <p className="mt-2">
+    {t('footer.contact')}{' '}
+    <a href="mailto:privacy@innohr.hu" className="underline hover:text-blue-600">
+      privacy@innohr.hu
+    </a>
+  </p>
+  <p className="mt-2 text-xs">{t('footer.aiDisclaimer')}</p>
+</footer>
+
+  );
+};
+
+export default Footer;
+```
+</details>
+
+---
+
 ## `components/HappinessCheck.tsx`
 
 ```
@@ -10420,7 +10457,7 @@ export default function InterviewAssistantModal({
 
 ```
 Folder: components
-Type: tsx | Lines:      639
+Type: tsx | Lines:      644
 Top definitions:
 --- Exports ---
 export default function InterviewList({
@@ -10435,7 +10472,7 @@ function InterviewAssistantModal({
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      639)</summary>
+<summary>📄 Preview (first 100 lines of      644)</summary>
 
 ```tsx
 'use client'
@@ -10479,9 +10516,11 @@ interface Question {
 export default function InterviewList({
   candidatId,
   positionId,
+  stepId,
 }: {
   candidatId: number
   positionId: number | null
+  stepId: string | null
 }) {
   const { t, locale } = useLocale()  // ⭐ Added: Get locale from context
   const session = useSession()
@@ -10536,9 +10575,7 @@ export default function InterviewList({
     const res = await fetch('/api/interviews', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    })
-... (truncated,      639 total lines)
+... (truncated,      644 total lines)
 ```
 </details>
 
@@ -12533,7 +12570,7 @@ export default RecentRequests;
 
 ```
 Folder: components/absence
-Type: tsx | Lines:      636
+Type: tsx | Lines:      646
 Top definitions:
 --- Exports ---
 export default RequestLeaveModal;
@@ -12547,7 +12584,7 @@ const RequestLeaveModal: React.FC<Props> = ({
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      636)</summary>
+<summary>📄 Preview (first 100 lines of      646)</summary>
 
 ```tsx
 // File: components/absence/RequestLeaveModal.tsx
@@ -12649,7 +12686,7 @@ const RequestLeaveModal: React.FC<Props> = ({
       setCertificateFile(selectedFile);
     }
   };
-... (truncated,      636 total lines)
+... (truncated,      646 total lines)
 ```
 </details>
 
@@ -14808,9 +14845,9 @@ export async function getUserName(userId: string) {
 ---
 
 # Statistics
-- **Files included:** 118
-- **File size:** 452K
-- **Extraction date:** Sat Oct 25 06:49:33 CEST 2025
+- **Files included:** 122
+- **File size:** 456K
+- **Extraction date:** Fri Oct 31 06:14:35 CET 2025
 
 # Technology Stack Detected
 
@@ -14914,6 +14951,8 @@ src/app/jobs/[slug]/time-clock/manager/page.tsx
 src/app/jobs/[slug]/time-clock/page.tsx
 src/app/jobs/[slug]/users-creation/page.tsx
 src/app/page.tsx
+src/app/privacy-demo/page.tsx
+src/app/terms-demo/page.tsx
 ```
 
 ## Components

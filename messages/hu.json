@@ -2025,6 +2025,197 @@
       "files": "{{count}} fájl"
     }
   }
+,"footer": {
+   "operatedBy": "Üzemeltető: Saussez Grégory, Budapest, Magyarország",
+  "privacyLink": "Adatvédelmi tájékoztató",
+  "termsLink": "Felhasználási feltételek",
+  "cookiesLink": "Süti szabályzat",
+  "impressumLink": "Impresszum",
+  "contact": "Adatvédelmi megkeresés esetén írjon a következő címre:",
+  "aiDisclaimer": "Az AI funkciók kizárólag bemutató jellegűek, és nem alkalmasak valódi HR-döntések meghozatalára."
+}
+,
+"privacyDemo": {
+  "title": "Adatvédelmi tájékoztató (Bemutató verzió)",
+  "intro": "Ezt a bemutató alkalmazást Saussez Grégory (Budapest, Magyarország) üzemelteti. A bemutató célja az InnoHR funkcióinak tesztelése és visszajelzések gyűjtése. Kereskedelmi tevékenység nem történik, a szolgáltatás ingyenes.",
+  "sections": {
+    "dataCollected": {
+      "title": "Gyűjtött adatok",
+      "items": {
+        "0": "Az Ön által önként megadott információk (pl. név, e-mail, visszajelzés, tesztadatok).",
+        "1": "Technikai adatok (böngésző típusa, hozzávetőleges földrajzi régió) a teljesítmény elemzéséhez."
+      }
+    },
+    "purpose": {
+      "title": "Az adatkezelés célja",
+      "text": "Az adatokat kizárólag a bemutató használhatóságának értékelésére és a fejlesztés javítására használjuk."
+    },
+    "storage": {
+      "title": "Adattárolás",
+      "text": "Az adatok biztonságosan tárolódnak a Supabase (EU-alapú szervereken), és legfeljebb 90 nap elteltével automatikusan törlésre kerülhetnek."
+    },
+    "aiProcessing": {
+      "title": "AI feldolgozás",
+      "text": "Néhány bemutató funkció AI által generált válaszokat használ (OpenAI vagy hasonló API-k). Ezek a válaszok kizárólag bemutatási célokra szolgálnak, és nem használhatók döntéshozatalra."
+    },
+    "thirdParty": {
+      "title": "Harmadik felek szolgáltatásai",
+      "items": {
+        "supabase": {
+          "name": "Supabase (BaaS platform)",
+          "desc": "Cél: Adatbázis hosting és hitelesítés. Székhely: USA (EU szerver használatával).",
+          "linkHref": "https://supabase.com/privacy",
+          "linkText": "Adatvédelmi szabályzat",
+          "color": "border-blue-500"
+        },
+        "openai": {
+          "name": "OpenRouter / OpenAI (AI szolgáltatás)",
+          "desc": "Cél: CV elemzés, 'happiness chat'. Székhely: USA. Az adatokat nem tárolják hosszú távon.",
+          "linkHref": "https://openai.com/privacy",
+          "linkText": "Adatvédelmi szabályzat",
+          "color": "border-green-500"
+        },
+        "vercel": {
+          "name": "Vercel (Hosting)",
+          "desc": "Cél: Web hosting és CDN. Székhely: USA.",
+          "linkHref": "https://vercel.com/legal/privacy-policy",
+          "linkText": "Adatvédelmi szabályzat",
+          "color": "border-purple-500"
+        },
+        "stripe": {
+          "name": "Stripe (Fizetési szolgáltatás)",
+          "desc": "Cél: Előfizetések kezelése. Székhely: USA (EU adattárolás).",
+          "linkHref": "https://stripe.com/privacy",
+          "linkText": "Adatvédelmi szabályzat",
+          "color": "border-orange-500"
+        }
+      },
+      "noticeTitle": "Adatátvitel:",
+      "noticeText": "Az adatok az EU-n kívülre is továbbíthatók. Standard szerződéses záradékokat (SCC) alkalmazunk az adatvédelem biztosítására."
+    },
+    "dataController": {
+      "title": "Adatkezelő elérhetősége",
+      "nameLabel": "Név:",
+      "emailLabel": "E-mail:",
+      "addressLabel": "Cím:",
+      "dpoLabel": "Adatvédelmi tisztviselő:",
+      "name": "Saussez Grégory",
+      "email": "privacy@innohr.hu",
+      "address": "Budapest, Magyarország",
+      "dpo": "privacy@innohr.hu"
+    },
+    "userRights": {
+      "title": "Az Ön jogai",
+      "text": "Az adataihoz való hozzáférést vagy azok törlését bármikor kérheti a privacy@innohr.hu címen."
+    },
+    "contact": {
+      "title": "Kapcsolat",
+      "text": "Üzemeltető: Saussez Grégory, Budapest, Magyarország",
+      "email": "privacy@innohr.hu"
+    }
+  },
+  "lastUpdated": "Utolsó frissítés: 2025. október"
+}
+
+,
+"cookies": {
+  "title": "Sütik és adatok",
+  "text": "A sütiket a bemutató élményének javítása érdekében használjuk. Harmadik fél által használt nyomkövető sütiket nem alkalmazunk.",
+  "accept": "Elfogadom",
+  "reject": "Elutasítom"
+}
+,
+  "termsDemo": {
+    "title": "Demo Felhasználási Feltételek",
+    "lastUpdated": "Utolsó frissítés: {date}",
+    "sections": {
+      "demoFeatures": {
+        "title": "1. Demó Verzió Jellemzői",
+        "content": "Ez egy ingyenes demó verzió tesztelési célokra. A rendszer funkciói korlátozottak, és az adatok 30 nap után automatikusan törlésre kerülnek."
+      },
+      "liability": {
+        "title": "2. Felelősség Kizárása",
+        "content": "A demó verzió \"ahogy van\" állapotban kerül biztosításra, mindenféle garancia nélkül. Ne használjon valós személyes adatokat vagy érzékeny információkat."
+      },
+      "dataProcessing": {
+        "title": "3. Adatkezelés",
+        "content": "A demó használata során megadott adatokat kizárólag a rendszer teszteléséhez használjuk fel.",
+        "detailsLink": "Részletek:",
+        "privacyPolicy": "Adatvédelmi Tájékoztató"
+      },
+      "aiContent": {
+        "title": "4. AI Tartalom",
+        "content": "Az AI által generált tartalom nem minősül szakmai tanácsadásnak. Pontatlanságok előfordulhatnak."
+      },
+      "termination": {
+        "title": "5. Hozzáférés Megszüntetése",
+        "content": "Fenntartjuk a jogot a demó hozzáférés azonnali megszüntetésére indoklás nélkül."
+      },
+      "contact": {
+        "title": "6. Kapcsolat",
+        "content": "Kérdés esetén:"
+      }
+    }
+  },
+  "demoBanner": {
+  "title": "Demo verzió:",
+  "text": "Ne használj valódi személyes adatokat. Minden demóadat minden éjjel automatikusan törlődik."
+}
+,
+"impressumDemo": {
+  "title": "Impresszum",
+  "intro": "Az uniós jogszabályoknak megfelelően az alábbi jogi információk vonatkoznak erre a weboldalra és a demóra.",
+  "fields": {
+    "operator": "Üzemeltető",
+    "address": "Cím",
+    "email": "E-mail",
+    "website": "Weboldal"
+  },
+  "sections": {
+    "liability": {
+      "title": "Felelősség kizárása",
+      "text": "A tartalom gondos ellenőrzése ellenére sem vállalunk felelősséget a külső hivatkozások tartalmáért. A hivatkozott oldalak tartalmáért kizárólag azok üzemeltetői felelősek."
+    },
+    "copyright": {
+      "title": "Szerzői jogi nyilatkozat",
+      "text": "Minden szöveg, kép és forráskód szerzői jogvédelem alatt áll. A szerzői jogi törvény határain kívüli bármilyen másolás vagy felhasználás előzetes írásbeli engedélyhez kötött."
+    }
+  },
+  "lastUpdated": "Utoljára frissítve: 2025. október"
+}
+,
+"cookiesDemo": {
+  "title": "Cookie tájékoztató (Bemutató verzió)",
+  "intro": "Ez az oldal a sütik (cookie-k) használatáról tájékoztat. A HRinno demó alkalmazás sütiket kizárólag technikai és analitikai célokra használ.",
+  "sections": {
+    "whatAreCookies": {
+      "title": "Mik azok a sütik?",
+      "text": "A sütik kis szövegfájlok, amelyeket a böngésző tárol a számítógépeden vagy eszközödön. Segítenek a webhelynek felismerni a felhasználót és megjegyezni bizonyos beállításokat."
+    },
+    "howWeUse": {
+      "title": "Hogyan használjuk a sütiket?",
+      "text": "A HRinno demó alkalmazás technikai sütiket használ a webhely megfelelő működéséhez, valamint névtelen analitikai sütiket a teljesítmény elemzéséhez."
+    },
+    "types": {
+      "title": "A használt sütik típusai",
+      "items": {
+        "necessary": "Szükséges sütik – ezek biztosítják az oldal alapvető funkcióit (pl. bejelentkezés, nyelvi beállítás).",
+        "analytics": "Analitikai sütik – segítenek megérteni, hogyan használják a látogatók az oldalt, hogy fejleszthessük a felhasználói élményt.",
+        "functional": "Funkcionális sütik – lehetővé teszik, hogy az oldal megjegyezze a felhasználói preferenciákat (pl. téma, nyelv)."
+      }
+    },
+    "manage": {
+      "title": "Sütik kezelése",
+      "text": "A legtöbb böngésző lehetővé teszi a sütik törlését vagy blokkolását. Felhívjuk figyelmedet, hogy a sütik letiltása befolyásolhatja az oldal működését."
+    },
+    "moreInfo": {
+      "title": "További információ",
+      "text": "Ha bármilyen kérdésed van a sütik használatával kapcsolatban, írj nekünk:"
+    }
+  },
+  "lastUpdated": "Utolsó frissítés: 2025. október"
+}
+
 }
 
 
