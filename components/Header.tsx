@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { FiMenu, FiX } from 'react-icons/fi';
 import {
   Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown,
-  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users
+  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users,Users2
 } from 'lucide-react';
 import { useHeaderLogic } from '../hooks/useHeaderLogic';
 import {
@@ -73,6 +73,11 @@ export default function Header() {
     [user]
   );
 
+  const isSuperAdmin = useMemo(() => 
+  user && user.is_super_admin === true, 
+  [user]
+);
+
   // Memoized values
   const buttonBaseClasses = useMemo(() =>
     'flex items-center gap-2 px-3 py-2 rounded-xl font-medium text-sm transition-all shadow-sm hover:shadow-md whitespace-nowrap',
@@ -88,6 +93,8 @@ export default function Header() {
   const timeclockmanager = useMemo(() => buildLink('/time-clock/manager'), [buildLink]);
   const myperformance = useMemo(() => buildLink('/performance'), [buildLink]);
   const teamperformance = useMemo(() => buildLink('/performance/team'), [buildLink]);
+  const manageContactsLink = useMemo(() => buildLink('/contact-submissions'), [buildLink]);
+
 
   return (
     <>
@@ -317,6 +324,18 @@ export default function Header() {
                           >
                             <UserCog className="w-4 h-4" /> {t('header.manageUsers')}
                           </Link>
+
+                          {/* NEW: Manage Contacts - super_admin only */}
+                           
+            {isSuperAdmin && (
+              <Link
+                href={manageContactsLink}
+                onClick={() => setIsAccountMenuOpen(false)}
+                className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}
+              >
+                <Users2 className="w-4 h-4" /> {t('header.manageContacts')}
+              </Link>
+            )}
 
                           {companySlug !== 'demo' && (
                             <Link
@@ -648,6 +667,19 @@ export default function Header() {
                       >
                         <UserCog className="w-4 h-4" /> {t('header.manageUsers')}
                       </DemoAwareMenuItem>
+
+                        {/* NEW: Manage Contacts - super_admin only */}
+                         {isSuperAdmin && (
+          <DemoAwareMenuItem
+            href={manageContactsLink}
+            onClick={() => setIsMobileMenuOpen(false)}
+            className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start text-sm`}
+            isDemoExpired={isDemoExpired}
+          >
+            <Users2 className="w-4 h-4" /> {t('header.manageContacts')}
+          </DemoAwareMenuItem>
+        )}
+
 
                       {companySlug !== 'demo' && (
                         <DemoAwareMenuItem
