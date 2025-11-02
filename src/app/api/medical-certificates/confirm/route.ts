@@ -18,6 +18,8 @@ export async function POST(request: Request) {
     const file = formData.get('file') as File | null
     const company_id = formData.get('company_id') as string | null
     const leave_request_id = formData.get('leave_request_id') as string | null
+    const employee_ai_consent_date = formData.get('employee_ai_consent_date') as string | null
+
 
     if (!company_id || !file) {
       return NextResponse.json(
@@ -68,7 +70,9 @@ const secureUrl = signedUrlData.signedUrl;
       certificate_file: filePath,
       company_id: companyIdNumber,
       leave_request_id: leave_request_id || null,
-      treated: false
+      treated: false,
+      employee_ai_consent_date: employee_ai_consent_date ? new Date(employee_ai_consent_date).toISOString() : null
+
     }
 
     const { data: insertedData, error: dbError } = await supabase

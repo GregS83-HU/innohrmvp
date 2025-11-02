@@ -283,7 +283,8 @@ Remember: Write EVERYTHING in the same language as the CV!
         cv_file: cvFileUrl,
         candidat_email,
         candidat_phone,
-        candidat_gdpr_consent_date: new Date().toISOString()
+        candidat_gdpr_consent_date: new Date().toISOString(),
+        candidat_ai_consent_date: new Date().toISOString()
       })
       .select()
       .single();

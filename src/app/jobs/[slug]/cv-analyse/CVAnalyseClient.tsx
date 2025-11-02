@@ -49,6 +49,8 @@ export default function CVAnalyseClient({
   const [gdprAccepted, setGdprAccepted] = useState(false)
   const [analysisCompleted, setAnalysisCompleted] = useState(false)
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
+  const [aiConsentAccepted, setAiConsentAccepted] = useState(false)
+
 
   // Handle back navigation - simulate browser back button
   const handleBackToPositions = useCallback(() => {
@@ -239,7 +241,10 @@ export default function CVAnalyseClient({
                 <input
                   type="file"
                   accept=".pdf"
-                  onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                  onChange={(e) => {
+  setFile(e.target.files?.[0] ?? null)
+  setAiConsentAccepted(false)
+}}
                   className="hidden"
                   id="cv-upload"
                   disabled={analysisCompleted}
@@ -292,17 +297,38 @@ export default function CVAnalyseClient({
                 </div>
               </div>
             )}
+            {/* AI Consent Checkbox */}
+{file && !analysisCompleted && (
+  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 sm:p-4">
+    <div className="flex items-start gap-3">
+      <input
+        id="ai-consent"
+        type="checkbox"
+        checked={aiConsentAccepted}
+        onChange={(e) => setAiConsentAccepted(e.target.checked)}
+        className="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded flex-shrink-0"
+        disabled={analysisCompleted}
+      />
+      <label htmlFor="ai-consent" className="text-xs sm:text-sm text-gray-700 flex-1">
+        🤖 {t('cvAnalyse.messages.aiConsent')}
+      </label>
+    </div>
+  </div>
+)}
+
 
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={!file || (gdpr_file_url && !gdprAccepted) || loading || analysisCompleted}
+              disabled={!file || (gdpr_file_url && !gdprAccepted) || !aiConsentAccepted || loading || analysisCompleted}
+
               className={`w-full py-3 sm:py-4 px-4 sm:px-6 rounded-lg font-semibold text-white text-base sm:text-lg transition-all shadow-md hover:shadow-lg transform ${
                 loading || !file || (gdpr_file_url && !gdprAccepted) || analysisCompleted
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:scale-105'
               }`}
-              aria-disabled={!file || (gdpr_file_url && !gdprAccepted) || loading || analysisCompleted}
+              aria-disabled={!file || (gdpr_file_url && !gdprAccepted) || !aiConsentAccepted || loading || analysisCompleted}
+
             >
               {analysisCompleted ? (
                 <div className="flex items-center justify-center gap-2">

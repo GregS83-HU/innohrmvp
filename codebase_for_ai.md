@@ -1,6 +1,6 @@
 # Codebase - innohrmvp
 **Mode:** full-feature-extract  
-**Generated:** Fri Oct 31 06:14:30 CET 2025
+**Generated:** Sat Nov  1 07:08:34 CET 2025
 **Purpose:** Complete AI analysis including all APIs, components & features
 
 ---
@@ -1035,6 +1035,213 @@ export async function DELETE(request: Request) {
       { error: (error as Error).message },
       { status: 500 }
     )
+  }
+}
+```
+</details>
+
+---
+
+## `src/app/api/contact-submissions/route.ts`
+
+```
+Folder: src/app/api/contact-submissions
+Type: ts | Lines:      184
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+const supabase = createClient(
+interface UpdateData {
+```
+
+<details>
+<summary>📄 Full content (     184 lines)</summary>
+
+```ts
+// /app/api/contact-submissions/route.ts
+
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import { cookies } from 'next/headers';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+// Define proper types
+interface UpdateData {
+  updated_at: string;
+  status?: string;
+  notes?: string | null;
+}
+
+// Helper function to verify super_admin access
+async function verifySuperAdmin(request: NextRequest): Promise<{ authorized: boolean; userId?: string; error?: string }> {
+  try {
+    // Get auth token from cookie or header
+    const cookieStore = await cookies();
+    const authToken = cookieStore.get('sb-access-token')?.value || 
+                      cookieStore.get('supabase-auth-token')?.value ||
+                      request.headers.get('authorization')?.replace('Bearer ', '');
+    
+    if (!authToken) {
+      return { authorized: false, error: 'No authentication token found' };
+    }
+
+    // Verify the token and get user
+    const { data: { user }, error: authError } = await supabase.auth.getUser(authToken);
+    
+    if (authError || !user) {
+      return { authorized: false, error: 'Invalid authentication token' };
+    }
+
+    // Check if user is super_admin
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('id, is_super_admin')
+      .eq('id', user.id)
+      .single();
+
+    if (userError || !userData || userData.is_super_admin !== true) {
+      return { authorized: false, error: 'User is not authorized. Super admin access required.' };
+    }
+
+    return { authorized: true, userId: userData.id };
+  } catch (error) {
+    console.error('Authorization error:', error);
+    return { authorized: false, error: 'Authorization check failed' };
+  }
+}
+
+// GET - Fetch all submissions with filtering and sorting
+export async function GET(request: NextRequest) {
+  try {
+    // Verify super_admin access
+    const authCheck = await verifySuperAdmin(request);
+    if (!authCheck.authorized) {
+      return NextResponse.json(
+        { error: authCheck.error || 'Unauthorized access' }, 
+        { status: 403 }
+      );
+    }
+
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status');
+    const search = searchParams.get('search');
+    const sortBy = searchParams.get('sortBy') || 'submitted_at';
+    const sortOrder = searchParams.get('sortOrder') || 'desc';
+
+    let query = supabase
+      .from('contact_submissions')
+      .select('*');
+
+    // Filter by status
+    if (status && status !== 'all') {
+      query = query.eq('status', status);
+    }
+
+    // Search functionality
+    if (search) {
+      query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%,company_name.ilike.%${search}%`);
+    }
+
+    // Sorting
+    query = query.order(sortBy, { ascending: sortOrder === 'asc' });
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Database error:', error);
+      return NextResponse.json({ error: 'Failed to fetch submissions' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, data }, { status: 200 });
+  } catch (error) {
+    console.error('Error fetching submissions:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+// PATCH - Update submission (status, notes, etc.)
+export async function PATCH(request: NextRequest) {
+  try {
+    // Verify super_admin access
+    const authCheck = await verifySuperAdmin(request);
+    if (!authCheck.authorized) {
+      return NextResponse.json(
+        { error: authCheck.error || 'Unauthorized access' }, 
+        { status: 403 }
+      );
+    }
+
+    const body = await request.json();
+    const { id, status, notes } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: 'Submission ID is required' }, { status: 400 });
+    }
+
+    const updateData: UpdateData = {
+      updated_at: new Date().toISOString(),
+    };
+
+    if (status) updateData.status = status;
+    if (notes !== undefined) updateData.notes = notes;
+
+    const { data, error } = await supabase
+      .from('contact_submissions')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Database error:', error);
+      return NextResponse.json({ error: 'Failed to update submission' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, data }, { status: 200 });
+  } catch (error) {
+    console.error('Error updating submission:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+// DELETE - Delete a submission
+export async function DELETE(request: NextRequest) {
+  try {
+    // Verify super_admin access
+    const authCheck = await verifySuperAdmin(request);
+    if (!authCheck.authorized) {
+      return NextResponse.json(
+        { error: authCheck.error || 'Unauthorized access' }, 
+        { status: 403 }
+      );
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: 'Submission ID is required' }, { status: 400 });
+    }
+
+    const { error } = await supabase
+      .from('contact_submissions')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Database error:', error);
+      return NextResponse.json({ error: 'Failed to delete submission' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch (error) {
+    console.error('Error deleting submission:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 ```
@@ -5547,233 +5754,6 @@ export async function POST(req: NextRequest) {
 
 ---
 
-## `src/app/terms-demo/page.tsx`
-
-```
-Folder: src/app/terms-demo
-Type: tsx | Lines:       53
-Top definitions:
---- Exports ---
-export default function TermsDemoPage() {
-
---- Key Functions/Components ---
-```
-
-<details>
-<summary>📄 Full content (      53 lines)</summary>
-
-```tsx
-// src/app/terms-demo/page.tsx
-
-'use client';
-
-import React from 'react';
-import { useLocale } from 'i18n/LocaleProvider';
-
-export default function TermsDemoPage() {
-  const { t } = useLocale();
-
-  return (
-    <div className="max-w-4xl mx-auto py-12 px-6 text-gray-800">
-      <h1 className="text-3xl font-bold mb-6">{t('termsDemo.title', 'Demo Felhasználási Feltételek')}</h1>
-      
-      <div className="prose prose-blue">
-        <h2>1. Demó Verzió Jellemzői</h2>
-        <p>
-          Ez egy ingyenes demó verzió tesztelési célokra. A rendszer funkciói korlátozottak, 
-          és az adatok 30 nap után automatikusan törlésre kerülnek.
-        </p>
-
-        <h2>2. Felelősség Kizárása</h2>
-        <p>
-          A demó verzió "ahogy van" állapotban kerül biztosításra, mindenféle garancia nélkül. 
-          Ne használjon valós személyes adatokat vagy érzékeny információkat.
-        </p>
-
-        <h2>3. Adatkezelés</h2>
-        <p>
-          A demó használata során megadott adatokat kizárólag a rendszer teszteléséhez használjuk fel. 
-          Részletek: <a href="/privacy-demo" className="text-blue-600 underline">Adatvédelmi Tájékoztató</a>
-        </p>
-
-        <h2>4. AI Tartalom</h2>
-        <p>
-          Az AI által generált tartalma nem minősül szakmai tanácsadásnak. 
-          Pontatlanságok előfordulhatnak.
-        </p>
-
-        <h2>5. Hozzáférés Megszüntetése</h2>
-        <p>
-          Fenntartjuk a jogot a demó hozzáférés azonnali megszüntetésére indoklás nélkül.
-        </p>
-
-        <h2>6. Kapcsolat</h2>
-        <p>
-          Kérdés esetén: <a href="mailto:privacy@innohr.hu" className="text-blue-600 underline">privacy@innohr.hu</a>
-        </p>
-
-        <p className="text-sm text-gray-500 mt-8">Utolsó frissítés: 2025. január 29.</p>
-      </div>
-    </div>
-  );
-}
-```
-</details>
-
----
-
-## `src/app/privacy-demo/page.tsx`
-
-```
-Folder: src/app/privacy-demo
-Type: tsx | Lines:      127
-Top definitions:
---- Exports ---
-export default PrivacyDemoPage;
-
---- Key Functions/Components ---
-const PrivacyDemoPage: React.FC = () => {
-const ThirdPartyServices = () => (
-const DataControllerInfo = () => (
-```
-
-<details>
-<summary>📄 Full content (     127 lines)</summary>
-
-```tsx
-'use client';
-
-import React from 'react';
-import { useLocale } from 'i18n/LocaleProvider';
-
-const PrivacyDemoPage: React.FC = () => {
-  const { t } = useLocale();
-
-  return (
-    <div className="max-w-3xl mx-auto py-12 px-6 text-gray-800">
-      <h1 className="text-3xl font-bold mb-6">{t('privacyDemo.title')}</h1>
-
-      {/* ✅ ADD: Data Controller Info */}
-      <DataControllerInfo />
-
-      <p className="mb-4">{t('privacyDemo.intro')}</p>
-
-      <h2 className="text-xl font-semibold mt-8 mb-3">
-        {t('privacyDemo.sections.dataCollected.title')}
-      </h2>
-      <ul className="list-disc list-inside space-y-1 mb-4">
-        <li>{t('privacyDemo.sections.dataCollected.items.0')}</li>
-        <li>{t('privacyDemo.sections.dataCollected.items.1')}</li>
-      </ul>
-
-      <h2 className="text-xl font-semibold mt-8 mb-3">
-        {t('privacyDemo.sections.purpose.title')}
-      </h2>
-      <p className="mb-4">{t('privacyDemo.sections.purpose.text')}</p>
-
-      <h2 className="text-xl font-semibold mt-8 mb-3">
-        {t('privacyDemo.sections.storage.title')}
-      </h2>
-      <p className="mb-4">{t('privacyDemo.sections.storage.text')}</p>
-
-      <h2 className="text-xl font-semibold mt-8 mb-3">
-        {t('privacyDemo.sections.aiProcessing.title')}
-      </h2>
-      <p className="mb-4">{t('privacyDemo.sections.aiProcessing.text')}</p>
-
-      {/* ✅ ADD: Third Party Services */}
-      <ThirdPartyServices />
-
-      <h2 className="text-xl font-semibold mt-8 mb-3">
-        {t('privacyDemo.sections.userRights.title')}
-      </h2>
-      <p className="mb-4">{t('privacyDemo.sections.userRights.text')}</p>
-
-      <h2 className="text-xl font-semibold mt-8 mb-3">
-        {t('privacyDemo.sections.contact.title')}
-      </h2>
-      <p className="mb-2">{t('privacyDemo.sections.contact.text')}</p>
-      <a
-        href="mailto:privacy@innohr.hu"
-        className="text-blue-600 underline hover:text-blue-800"
-      >
-        privacy@innohr.hu
-      </a>
-
-      <p className="text-sm text-gray-500 mt-8">
-        {t('privacyDemo.lastUpdated')}
-      </p>
-    </div>
-  );
-};
-
-const ThirdPartyServices = () => (
-  <div className="mt-8">
-    <h2 className="text-xl font-semibold mb-3">Harmadik Felek Szolgáltatásai</h2>
-    <div className="space-y-3">
-      <div className="border-l-4 border-blue-500 pl-4">
-        <h3 className="font-semibold">Supabase (BaaS Platform)</h3>
-        <p className="text-sm text-gray-600">
-          Cél: Adatbázis hosting, auth<br/>
-          Székhely: USA (EU szerverre tárolunk)<br/>
-          <a href="https://supabase.com/privacy" className="text-blue-600 underline">Adatvédelem</a>
-        </p>
-      </div>
-
-      <div className="border-l-4 border-green-500 pl-4">
-        <h3 className="font-semibold">OpenRouter/OpenAI (AI szolgáltatás)</h3>
-        <p className="text-sm text-gray-600">
-          Cél: CV elemzés, happiness chat<br/>
-          Székhely: USA<br/>
-          Adatkezelés: Nem tárolják hosszú távon<br/>
-          <a href="https://openai.com/privacy" className="text-blue-600 underline">Adatvédelem</a>
-        </p>
-      </div>
-
-      <div className="border-l-4 border-purple-500 pl-4">
-        <h3 className="font-semibold">Vercel (Hosting)</h3>
-        <p className="text-sm text-gray-600">
-          Cél: Web hosting, CDN<br/>
-          Székhely: USA<br/>
-          <a href="https://vercel.com/legal/privacy-policy" className="text-blue-600 underline">Adatvédelem</a>
-        </p>
-      </div>
-
-      <div className="border-l-4 border-orange-500 pl-4">
-        <h3 className="font-semibold">Stripe (Fizetés)</h3>
-        <p className="text-sm text-gray-600">
-          Cél: Előfizetés kezelés<br/>
-          Székhely: USA (EU adattárolás)<br/>
-          <a href="https://stripe.com/privacy" className="text-blue-600 underline">Adatvédelem</a>
-        </p>
-      </div>
-    </div>
-
-    <p className="text-sm text-gray-600 mt-4 bg-yellow-50 p-3 rounded">
-      ⚠️ <strong>Adatátvitel:</strong> Az adatok az EU-n kívülre kerülhetnek. 
-      Standard szerződéses záradékokat (SCC) alkalmazunk az adatvédelem biztosítására.
-    </p>
-  </div>
-);
-
-const DataControllerInfo = () => (
-  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-    <h3 className="font-semibold text-blue-900 mb-2">Adatkezelő Elérhetősége</h3>
-    <p className="text-sm text-blue-800">
-      <strong>Név:</strong> [Your Full Name / Company Name]<br/>
-      <strong>Email:</strong> privacy@innohr.hu<br/>
-      <strong>Cím:</strong> [Your Address - Optional for demo]<br/>
-      <strong>Adatvédelmi tisztviselő:</strong> privacy@innohr.hu
-    </p>
-  </div>
-);
-
-export default PrivacyDemoPage;
-```
-</details>
-
----
-
 ## `src/app/ObsoleteHome/page copy.tsx`
 
 ```
@@ -7350,6 +7330,119 @@ const AbsenceManagement: React.FC = () => {
 
 ---
 
+## `src/app/jobs/[slug]/terms-demo/page.tsx`
+
+```
+Folder: src/app/jobs/[slug]/terms-demo
+Type: tsx | Lines:       90
+Top definitions:
+--- Exports ---
+export default function TermsDemoPage({ params }: TermsDemoPageProps) {
+
+--- Key Functions/Components ---
+interface TermsDemoPageProps {
+```
+
+<details>
+<summary>📄 Full content (      90 lines)</summary>
+
+```tsx
+// src/app/terms-demo/page.tsx
+
+'use client';
+
+import React from 'react';
+import { useLocale } from 'i18n/LocaleProvider';
+import Link from 'next/link';
+
+
+interface TermsDemoPageProps {
+  params: Promise<{ slug: string }>;
+}
+
+export default function TermsDemoPage({ params }: TermsDemoPageProps) {
+  const { t } = useLocale();
+  const { slug } = React.use(params); 
+  const currentDate = '2025. január 29.'; // Or use Date object
+
+  return (
+    <div className="max-w-4xl mx-auto py-12 px-6 text-gray-800">
+      <h1 className="text-3xl font-bold mb-6">
+        {t('termsDemo.title')}
+      </h1>
+      
+      <div className="prose prose-blue max-w-none">
+        {/* Section 1: Demo Features */}
+        <h2 className="text-xl font-semibold mt-6 mb-3">
+          {t('termsDemo.sections.demoFeatures.title')}
+        </h2>
+        <p className="mb-4">
+          {t('termsDemo.sections.demoFeatures.content')}
+        </p>
+
+        {/* Section 2: Liability */}
+        <h2 className="text-xl font-semibold mt-6 mb-3">
+          {t('termsDemo.sections.liability.title')}
+        </h2>
+        <p className="mb-4">
+          {t('termsDemo.sections.liability.content')}
+        </p>
+
+        {/* Section 3: Data Processing */}
+        <h2 className="text-xl font-semibold mt-6 mb-3">
+          {t('termsDemo.sections.dataProcessing.title')}
+        </h2>
+        <p className="mb-4">
+          {t('termsDemo.sections.dataProcessing.content')}{' '}
+          {t('termsDemo.sections.dataProcessing.detailsLink')}{' '}
+          <Link href={`/jobs/${slug}/privacy-demo`} className="text-blue-600 underline hover:text-blue-800">
+            {t('termsDemo.sections.dataProcessing.privacyPolicy')}
+          </Link>
+        </p>
+
+        {/* Section 4: AI Content */}
+        <h2 className="text-xl font-semibold mt-6 mb-3">
+          {t('termsDemo.sections.aiContent.title')}
+        </h2>
+        <p className="mb-4">
+          {t('termsDemo.sections.aiContent.content')}
+        </p>
+
+        {/* Section 5: Termination */}
+        <h2 className="text-xl font-semibold mt-6 mb-3">
+          {t('termsDemo.sections.termination.title')}
+        </h2>
+        <p className="mb-4">
+          {t('termsDemo.sections.termination.content')}
+        </p>
+
+        {/* Section 6: Contact */}
+        <h2 className="text-xl font-semibold mt-6 mb-3">
+          {t('termsDemo.sections.contact.title')}
+        </h2>
+        <p className="mb-4">
+          {t('termsDemo.sections.contact.content')}{' '}
+          <a 
+            href="mailto:privacy@innohr.hu" 
+            className="text-blue-600 underline hover:text-blue-800"
+          >
+            privacy@innohr.hu
+          </a>
+        </p>
+
+        {/* Last Updated */}
+        <p className="text-sm text-gray-500 mt-8 pt-4 border-t">
+          {t('termsDemo.lastUpdated', { date: currentDate })}
+        </p>
+      </div>
+    </div>
+  );
+}
+```
+</details>
+
+---
+
 ## `src/app/jobs/[slug]/happiness-check/page.tsx`
 
 ```
@@ -7989,6 +8082,160 @@ export default function ManageSubscription() {
 
 ---
 
+## `src/app/jobs/[slug]/privacy-demo/page.tsx`
+
+```
+Folder: src/app/jobs/[slug]/privacy-demo
+Type: tsx | Lines:      130
+Top definitions:
+--- Exports ---
+export default PrivacyDemoPage;
+
+--- Key Functions/Components ---
+const PrivacyDemoPage: React.FC = () => {
+const ThirdPartyServices = () => {
+const DataControllerInfo = () => {
+```
+
+<details>
+<summary>📄 Full content (     130 lines)</summary>
+
+```tsx
+'use client';
+
+import React from 'react';
+import { useLocale } from 'i18n/LocaleProvider';
+
+const PrivacyDemoPage: React.FC = () => {
+  const { t } = useLocale();
+
+  return (
+    <div className="max-w-3xl mx-auto py-12 px-6 text-gray-800">
+      <h1 className="text-3xl font-bold mb-6">{t('privacyDemo.title')}</h1>
+
+      <DataControllerInfo />
+
+      <p className="mb-4">{t('privacyDemo.intro')}</p>
+
+      <h2 className="text-xl font-semibold mt-8 mb-3">
+        {t('privacyDemo.sections.dataCollected.title')}
+      </h2>
+      <ul className="list-disc list-inside space-y-1 mb-4">
+        <li>{t('privacyDemo.sections.dataCollected.items.0')}</li>
+        <li>{t('privacyDemo.sections.dataCollected.items.1')}</li>
+      </ul>
+
+      <h2 className="text-xl font-semibold mt-8 mb-3">
+        {t('privacyDemo.sections.purpose.title')}
+      </h2>
+      <p className="mb-4">{t('privacyDemo.sections.purpose.text')}</p>
+
+      <h2 className="text-xl font-semibold mt-8 mb-3">
+        {t('privacyDemo.sections.storage.title')}
+      </h2>
+      <p className="mb-4">{t('privacyDemo.sections.storage.text')}</p>
+
+      <h2 className="text-xl font-semibold mt-8 mb-3">
+        {t('privacyDemo.sections.aiProcessing.title')}
+      </h2>
+      <p className="mb-4">{t('privacyDemo.sections.aiProcessing.text')}</p>
+
+      <ThirdPartyServices />
+
+      <h2 className="text-xl font-semibold mt-8 mb-3">
+        {t('privacyDemo.sections.userRights.title')}
+      </h2>
+      <p className="mb-4">{t('privacyDemo.sections.userRights.text')}</p>
+
+      <h2 className="text-xl font-semibold mt-8 mb-3">
+        {t('privacyDemo.sections.contact.title')}
+      </h2>
+      <p className="mb-2">{t('privacyDemo.sections.contact.text')}</p>
+
+      <a
+        href="mailto:privacy@innohr.hu"
+        className="text-blue-600 underline hover:text-blue-800"
+      >
+        {t('privacyDemo.sections.contact.email')}
+      </a>
+
+      <p className="text-sm text-gray-500 mt-8">
+        {t('privacyDemo.lastUpdated')}
+      </p>
+    </div>
+  );
+};
+
+const ThirdPartyServices = () => {
+  const { t } = useLocale();
+
+  return (
+    <div className="mt-8">
+      <h2 className="text-xl font-semibold mb-3">
+        {t('privacyDemo.sections.thirdParty.title')}
+      </h2>
+      <div className="space-y-3">
+        {['supabase', 'openai', 'vercel', 'stripe'].map((key) => (
+          <div
+            key={key}
+            className={`border-l-4 pl-4 ${t(
+              `privacyDemo.sections.thirdParty.items.${key}.color`
+            )}`}
+          >
+            <h3 className="font-semibold">
+              {t(`privacyDemo.sections.thirdParty.items.${key}.name`)}
+            </h3>
+            <p className="text-sm text-gray-600">
+              {t(`privacyDemo.sections.thirdParty.items.${key}.desc`)} <br />
+              <a
+                href={t(`privacyDemo.sections.thirdParty.items.${key}.linkHref`)}
+                className="text-blue-600 underline"
+              >
+                {t(`privacyDemo.sections.thirdParty.items.${key}.linkText`)}
+              </a>
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <p className="text-sm text-gray-600 mt-4 bg-yellow-50 p-3 rounded">
+        ⚠️ <strong>{t('privacyDemo.sections.thirdParty.noticeTitle')}</strong>{' '}
+        {t('privacyDemo.sections.thirdParty.noticeText')}
+      </p>
+    </div>
+  );
+};
+
+const DataControllerInfo = () => {
+  const { t } = useLocale();
+
+  return (
+    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+      <h3 className="font-semibold text-blue-900 mb-2">
+        {t('privacyDemo.sections.dataController.title')}
+      </h3>
+      <p className="text-sm text-blue-800">
+        <strong>{t('privacyDemo.sections.dataController.nameLabel')}</strong>{' '}
+        {t('privacyDemo.sections.dataController.name')} <br />
+        <strong>{t('privacyDemo.sections.dataController.emailLabel')}</strong>{' '}
+        {t('privacyDemo.sections.dataController.email')} <br />
+        <strong>{t('privacyDemo.sections.dataController.addressLabel')}</strong>{' '}
+        {t('privacyDemo.sections.dataController.address')} <br />
+        <strong>
+          {t('privacyDemo.sections.dataController.dpoLabel')}
+        </strong>{' '}
+        {t('privacyDemo.sections.dataController.dpo')}
+      </p>
+    </div>
+  );
+};
+
+export default PrivacyDemoPage;
+```
+</details>
+
+---
+
 ## `src/app/jobs/[slug]/cv-analyse/page.tsx`
 
 ```
@@ -8364,6 +8611,61 @@ const HRDashboard = () => {
     } catch (err) {
       setError(err instanceof Error ? err.message : t('dashboard.errors.unknown'));
 ... (truncated,      476 total lines)
+```
+</details>
+
+---
+
+## `src/app/jobs/[slug]/impressum-demo/page.tsx`
+
+```
+Folder: src/app/jobs/[slug]/impressum-demo
+Type: tsx | Lines:       34
+Top definitions:
+--- Exports ---
+export default function ImpressumDemo() {
+
+--- Key Functions/Components ---
+```
+
+<details>
+<summary>📄 Full content (      34 lines)</summary>
+
+```tsx
+'use client';
+
+import React from 'react';
+import { useLocale } from 'i18n/LocaleProvider';
+
+export default function ImpressumDemo() {
+  const { t } = useLocale();
+
+  return (
+    <main className="max-w-3xl mx-auto py-10 px-4 text-gray-800">
+      <h1 className="text-2xl font-bold mb-4">{t('impressumDemo.title')}</h1>
+      <p className="mb-4">{t('impressumDemo.intro')}</p>
+
+      <ul className="space-y-2 mb-6">
+        <li><strong>{t('impressumDemo.fields.operator')}:</strong> Saussez Grégory</li>
+        <li><strong>{t('impressumDemo.fields.address')}:</strong> Budapest, Hungary</li>
+        <li><strong>{t('impressumDemo.fields.email')}:</strong> <a href="mailto:privacy@innohr.hu" className="underline text-blue-600">privacy@innohr.hu</a></li>
+        <li><strong>{t('impressumDemo.fields.website')}:</strong> https://innohr.hu</li>
+      </ul>
+
+      <section className="mb-8">
+        <h2 className="text-xl font-semibold mb-2">{t('impressumDemo.sections.liability.title')}</h2>
+        <p>{t('impressumDemo.sections.liability.text')}</p>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-semibold mb-2">{t('impressumDemo.sections.copyright.title')}</h2>
+        <p>{t('impressumDemo.sections.copyright.text')}</p>
+      </section>
+
+      <p className="text-sm text-gray-500 mt-8">{t('impressumDemo.lastUpdated')}</p>
+    </main>
+  );
+}
 ```
 </details>
 
@@ -9117,60 +9419,6 @@ export default function HomePage() {
       <Home />
     </main>
   )
-}
-```
-</details>
-
----
-
-## `src/app/jobs/[slug]/time-clock/manager/page.tsx`
-
-```
-Folder: src/app/jobs/[slug]/time-clock/manager
-Type: tsx | Lines:       32
-Top definitions:
---- Exports ---
-export default function Page() {
-
---- Key Functions/Components ---
-```
-
-<details>
-<summary>📄 Full content (      32 lines)</summary>
-
-```tsx
-'use client';
-
-import ManagerTimeClockDashboard from '../../../../../../components/timeclock/ManagerTimeClockDashboard';
-import { useSession } from '@supabase/auth-helpers-react';
-import { useLocale } from 'i18n/LocaleProvider';
-
-export default function Page() {
-  const { t } = useLocale();
-  const session = useSession();
-
-  if (session === undefined) {
-    // session is still loading
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>{t('managerTimeClockPage.loading')}</p>
-      </div>
-    );
-  }
-
-  if (!session) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>{t('managerTimeClockPage.loginRequired')}</p>
-      </div>
-    );
-  }
-
-  const managerId = session.user.id;
-  console.log("manager_id:", managerId);
-  const managerName = session.user.user_metadata?.full_name || t('managerTimeClockPage.defaultManagerName');
-
-  return <ManagerTimeClockDashboard managerId={managerId} managerName={managerName} />;
 }
 ```
 </details>
@@ -9969,7 +10217,7 @@ export default function DemoWarningBanner() {
 
 ```
 Folder: components
-Type: tsx | Lines:       36
+Type: tsx | Lines:       54
 Top definitions:
 --- Exports ---
 export default Footer;
@@ -9979,7 +10227,7 @@ const Footer: React.FC = () => {
 ```
 
 <details>
-<summary>📄 Full content (      36 lines)</summary>
+<summary>📄 Full content (      54 lines)</summary>
 
 ```tsx
 'use client';
@@ -9987,33 +10235,51 @@ const Footer: React.FC = () => {
 import React from 'react';
 import Link from 'next/link';
 import { useLocale } from 'i18n/LocaleProvider';
+import { usePathname } from 'next/navigation';
 
 const Footer: React.FC = () => {
-  const { t, locale } = useLocale();
+  const { t } = useLocale();
+  const pathname = usePathname();
+
+  // Extract the job slug if the current path matches /jobs/[slug]/*
+  const match = pathname.match(/^\/jobs\/([^/]+)/);
+  const jobSlug = match ? match[1] : null;
+
+  // Helper to generate the proper path
+  const makePath = (subpath: string) =>
+    jobSlug ? `/jobs/${jobSlug}/${subpath}` : `/${subpath}`;
 
   return (
     <footer className="text-center text-sm text-gray-500 mt-8 py-6 border-t border-gray-200">
-  <p>© 2025 HRinno Demo – {t('footer.operatedBy')}</p>
-  <div className="flex justify-center gap-4 mt-2">
-    <Link href="/privacy-demo" className="underline hover:text-blue-600">
-      {t('footer.privacyLink')}
-    </Link>
-    <Link href="/terms-demo" className="underline hover:text-blue-600">
-      Felhasználási Feltételek
-    </Link>
-    <Link href="/cookies" className="underline hover:text-blue-600">
-      Süti Szabályzat
-    </Link>
-  </div>
-  <p className="mt-2">
-    {t('footer.contact')}{' '}
-    <a href="mailto:privacy@innohr.hu" className="underline hover:text-blue-600">
-      privacy@innohr.hu
-    </a>
-  </p>
-  <p className="mt-2 text-xs">{t('footer.aiDisclaimer')}</p>
-</footer>
+      <p>© 2025 HRinno Demo – {t('footer.operatedBy')}</p>
 
+      <div className="flex justify-center gap-4 mt-2 flex-wrap">
+        <Link href={makePath('privacy-demo')} className="underline hover:text-blue-600">
+          {t('footer.privacyLink')}
+        </Link>
+        <Link href={makePath('terms-demo')} className="underline hover:text-blue-600">
+          {t('footer.termsLink')}
+        </Link>
+        <Link href={makePath('cookies')} className="underline hover:text-blue-600">
+          {t('footer.cookiesLink')}
+        </Link>
+        <Link href={makePath('impressum-demo')} className="underline hover:text-blue-600">
+          {t('footer.impressumLink')}
+        </Link>
+      </div>
+
+      <p className="mt-2">
+        {t('footer.contact')}{' '}
+        <a
+          href="mailto:privacy@innohr.hu"
+          className="underline hover:text-blue-600"
+        >
+          privacy@innohr.hu
+        </a>
+      </p>
+
+      <p className="mt-2 text-xs">{t('footer.aiDisclaimer')}</p>
+    </footer>
   );
 };
 
@@ -10155,7 +10421,7 @@ const HappinessCheckInner: React.FC = () => {
 
 ```
 Folder: components
-Type: tsx | Lines:      715
+Type: tsx | Lines:      747
 Top definitions:
 --- Exports ---
 export default function Header() {
@@ -10164,7 +10430,7 @@ export default function Header() {
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      715)</summary>
+<summary>📄 Preview (first 100 lines of      747)</summary>
 
 ```tsx
 'use client';
@@ -10174,7 +10440,7 @@ import Link from 'next/link';
 import { FiMenu, FiX } from 'react-icons/fi';
 import {
   Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown,
-  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users
+  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users,Users2
 } from 'lucide-react';
 import { useHeaderLogic } from '../hooks/useHeaderLogic';
 import {
@@ -10242,6 +10508,11 @@ export default function Header() {
     [user]
   );
 
+  const isSuperAdmin = useMemo(() => 
+  user && user.is_super_admin === true, 
+  [user]
+);
+
   // Memoized values
   const buttonBaseClasses = useMemo(() =>
     'flex items-center gap-2 px-3 py-2 rounded-xl font-medium text-sm transition-all shadow-sm hover:shadow-md whitespace-nowrap',
@@ -10257,17 +10528,12 @@ export default function Header() {
   const timeclockmanager = useMemo(() => buildLink('/time-clock/manager'), [buildLink]);
   const myperformance = useMemo(() => buildLink('/performance'), [buildLink]);
   const teamperformance = useMemo(() => buildLink('/performance/team'), [buildLink]);
+  const manageContactsLink = useMemo(() => buildLink('/contact-submissions'), [buildLink]);
+
 
   return (
     <>
-      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
-        <DemoTimer
-          isDemoMode={isDemoMode}
-          isDemoExpired={isDemoExpired}
-          demoTimeLeft={demoTimeLeft}
-          formatTime={formatTime}
-        />
-... (truncated,      715 total lines)
+... (truncated,      747 total lines)
 ```
 </details>
 
@@ -14845,9 +15111,9 @@ export async function getUserName(userId: string) {
 ---
 
 # Statistics
-- **Files included:** 122
-- **File size:** 456K
-- **Extraction date:** Fri Oct 31 06:14:35 CET 2025
+- **Files included:** 123
+- **File size:** 452K
+- **Extraction date:** Sat Nov  1 07:08:47 CET 2025
 
 # Technology Stack Detected
 
@@ -14880,6 +15146,7 @@ src/app/api/analyse-massive/route.ts
 src/app/api/candidate-count/route.ts
 src/app/api/close/route.ts
 src/app/api/company-email-settings/route.ts
+src/app/api/contact-submissions/route.ts
 src/app/api/contact/route.ts
 src/app/api/feedback/route.ts
 src/app/api/happiness/chat/route.ts
@@ -14925,11 +15192,14 @@ src/app/ObsoleteHome/page.tsx
 src/app/jobs/[slug]/Home/page.tsx
 src/app/jobs/[slug]/absences/calendar/page.tsx
 src/app/jobs/[slug]/absences/page.tsx
+src/app/jobs/[slug]/contact-submissions/page.tsx
 src/app/jobs/[slug]/contact/page.tsx
+src/app/jobs/[slug]/cookies/page.tsx
 src/app/jobs/[slug]/cv-analyse/page.tsx
 src/app/jobs/[slug]/feedback/page.tsx
 src/app/jobs/[slug]/happiness-check/page.tsx
 src/app/jobs/[slug]/happiness-dashboard/page.tsx
+src/app/jobs/[slug]/impressum-demo/page.tsx
 src/app/jobs/[slug]/medical-certificate/download/page.tsx
 src/app/jobs/[slug]/medical-certificate/list/page.tsx
 src/app/jobs/[slug]/medical-certificate/upload/page.tsx
@@ -14942,8 +15212,10 @@ src/app/jobs/[slug]/performance/goals/new/page.tsx
 src/app/jobs/[slug]/performance/page.tsx
 src/app/jobs/[slug]/performance/pulse/page.tsx
 src/app/jobs/[slug]/performance/team/page.tsx
+src/app/jobs/[slug]/privacy-demo/page.tsx
 src/app/jobs/[slug]/stats/page.tsx
 src/app/jobs/[slug]/subscription/page.tsx
+src/app/jobs/[slug]/terms-demo/page.tsx
 src/app/jobs/[slug]/tickets/[ticketId]/page.tsx
 src/app/jobs/[slug]/tickets/create/page.tsx
 src/app/jobs/[slug]/tickets/page.tsx
@@ -14951,8 +15223,6 @@ src/app/jobs/[slug]/time-clock/manager/page.tsx
 src/app/jobs/[slug]/time-clock/page.tsx
 src/app/jobs/[slug]/users-creation/page.tsx
 src/app/page.tsx
-src/app/privacy-demo/page.tsx
-src/app/terms-demo/page.tsx
 ```
 
 ## Components

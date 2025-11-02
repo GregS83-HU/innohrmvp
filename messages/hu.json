@@ -341,6 +341,7 @@
       "gdprLinkText": "GDPR szabályzatot",
       "gdprPost": "",
       "success": "Az elemzés sikeresen befejeződött! Az önéletrajzát feldolgoztuk és elmentettük.",
+      "aiConsent": "Hozzájárulok ahhoz, hogy az önéletrajzomat egy mesterséges intelligencia modell elemezze, hogy visszajelzéseket és értékelést készítsen róla.",
       "error": {
         "title": "Feltöltési hiba"
       },
@@ -980,6 +981,7 @@
       "title": "Orvosi igazolás (nem kötelező)",
       "selectFile": "Kattintson az igazolás kiválasztásához",
       "fileHelp": "PDF vagy kép • Max. 1 MB",
+      "aiConsent":"🤖 Beleegyezem, hogy az orvosi igazolásomat mesterséges intelligencia segítségével dolgozzák fel az adatok automatikus kinyerése és ellenőrzése céljából.",
       "processButton": "Igazolás feldolgozása",
       "processing": "Feldolgozás...",
       "confirmButton": "Igazolás megerősítése",

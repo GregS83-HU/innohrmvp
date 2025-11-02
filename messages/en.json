@@ -344,6 +344,7 @@
       "gdprLinkText": "GDPR policy",
       "gdprPost": "",
       "success": "Analysis completed successfully! Your CV has been processed and saved.",
+      "aiConsent": "I agree that my CV will be analyzed by an artificial intelligence model to generate insights and feedback.",
       "error": {
         "title": "Upload Error"
       },
@@ -985,6 +986,7 @@
       "title": "Medical Certificate (Optional)",
       "selectFile": "Click to select certificate",
       "fileHelp": "PDF or Image • Max 1MB",
+      "aiConsent":"🤖 I agree that my medical certificate will be processed using AI technology for automated data extraction and validation.",
       "processButton": "Process Certificate",
       "processing": "Processing...",
       "confirmButton": "Confirm Certificate",

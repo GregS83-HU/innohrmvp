@@ -59,6 +59,8 @@ const RequestLeaveModal: React.FC<Props> = ({
   const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
   const [certificateComment, setCertificateComment] = useState('');
   const [certificateId, setCertificateId] = useState<number | null>(null);
+  const [aiConsentAccepted, setAiConsentAccepted] = useState(false);
+
   
   const [manualData, setManualData] = useState({
     employee_name: '',
@@ -88,6 +90,7 @@ const RequestLeaveModal: React.FC<Props> = ({
 
   const handleFileChange = (selectedFile: File | null) => {
     setCertificateError('');
+    setAiConsentAccepted(false); 
     if (!selectedFile) return setCertificateFile(null);
     
     if (selectedFile.size > MAX_SIZE) {
@@ -190,6 +193,7 @@ const RequestLeaveModal: React.FC<Props> = ({
       formData.append('comment', certificateComment || '');
       formData.append('file', certificateFile);
       formData.append('company_id', companyId);
+      formData.append('employee_ai_consent_date',aiConsentAccepted ? new Date().toISOString() : '');
 
       const res = await fetch('/api/medical-certificates/confirm', {
         method: 'POST',
@@ -425,11 +429,25 @@ const RequestLeaveModal: React.FC<Props> = ({
                       </label>
                     </div>
                   </div>
+{certificateFile && !extractedData && (
+  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 flex items-start gap-3">
+    <input
+      id="ai-consent"
+      type="checkbox"
+      checked={aiConsentAccepted}
+      onChange={(e) => setAiConsentAccepted(e.target.checked)}
+      className="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded flex-shrink-0"
+    />
+    <label htmlFor="ai-consent" className="text-sm text-gray-700">
+       {t('requestLeaveModal.certificate.aiConsent')}
+    </label>
+  </div>
+)}
 
                   <button
                     type="button"
                     onClick={handleCertificateUpload}
-                    disabled={!certificateFile || uploadingCertificate}
+                    disabled={!certificateFile || uploadingCertificate || !aiConsentAccepted}
                     className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                   >
                     {uploadingCertificate ? (
