@@ -28,6 +28,19 @@
       "subtitle": "Csatlakozz a humán erőforrás jövőjéhez AI-alapú platformunkkal. Kezdd el optimalizálni a toborzást és az alkalmazottak jóllétét még ma.",
       "getStarted": "Kezdjük El",
       "contactUs": "Kapcsolat"
+    },
+    "demo": {
+      "disclaimer": {
+        "title": "Demo Környezet Figyelmeztetés",
+        "subtitle": "Fontos Információ",
+        "message": "Ön egy demonstrációs környezethez fér hozzá. Ez a rendszer kizárólag tesztelési és értékelési célokat szolgál.",
+        "point1": "Ez egy demo környezet - az adatok rendszeresen visszaállíthatók",
+        "point2": "Az Ön által megadott adatokat mesterséges intelligencia dolgozza fel demonstrációs célból",
+        "point3": "Ne adjon meg valós személyes vagy érzékeny információkat",
+        "consent": "Megértettem, hogy ez egy demo környezet, és az adataimat mesterséges intelligencia technológia dolgozza fel",
+        "accept": "Megértettem és Elfogadom",
+        "footer": "Az elfogadással Ön elismeri, hogy ez egy demonstrációs rendszer"
+      }
     }
   },
   "contactForm": {

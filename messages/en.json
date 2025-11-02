@@ -28,6 +28,19 @@
       "subtitle": "Join the future of human resources with our AI-powered platform. Start optimizing your recruitment and employee wellness today.",
       "getStarted": "Get Started",
       "contactUs": "Contact Us"
+    },
+    "demo": {
+      "disclaimer": {
+        "title": "Demo Environment Notice",
+        "subtitle": "Important Information",
+        "message": "You are accessing a demonstration environment. This system is intended for testing and evaluation purposes only.",
+        "point1": "This is a demo environment - data may be reset periodically",
+        "point2": "Your input data will be processed by AI technology for demonstration purposes",
+        "point3": "Do not enter real personal or sensitive information",
+        "consent": "I understand this is a demo environment and my data will be processed by AI technology",
+        "accept": "I Understand & Accept",
+        "footer": "By accepting, you acknowledge that this is a demonstration system"
+      }
     }
   },
   "contactForm": {
