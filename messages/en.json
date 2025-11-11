@@ -2067,21 +2067,21 @@
     "dataCollected": {
       "title": "Data Collected",
       "items": {
-        "0": "Information you voluntarily provide (e.g. name, email, feedback, or test data).",
-        "1": "Technical data (browser type, approximate geographic region) used for performance analysis."
+        "0": "Information you voluntarily provide (e.g. name, email, feedback, or test data). Please avoid entering any real or sensitive personal information.",
+        "1": "Technical data (such as browser type, IP address, and approximate geographic region) used for performance and security analysis."
       }
     },
     "purpose": {
       "title": "Purpose of Data Processing",
-      "text": "The data is used solely to evaluate the usability of the demo and to improve development."
+      "text": "The data is used solely to evaluate the usability of the demo, ensure system security, and improve future development of InnoHR."
     },
     "storage": {
-      "title": "Data Storage",
-      "text": "Data is securely stored on Supabase (EU-based servers) and may be automatically deleted after up to 90 days."
+      "title": "Data Storage and Retention",
+      "text": "All demo data is automatically deleted every night as part of a scheduled cleanup process. Only minimal technical logs may be stored for up to 90 days for security and debugging purposes."
     },
     "aiProcessing": {
       "title": "AI Processing",
-      "text": "Some demo features use AI-generated responses (OpenAI or similar APIs). These responses are for demonstration purposes only and must not be used for decision-making."
+      "text": "Some demo features use AI-generated responses (via OpenRouter or OpenAI APIs). These responses are for demonstration purposes only and must not be used for decision-making or employment assessments."
     },
     "thirdParty": {
       "title": "Third-Party Services",
@@ -2095,28 +2095,35 @@
         },
         "openai": {
           "name": "OpenRouter / OpenAI (AI Service)",
-          "desc": "Purpose: CV analysis, happiness chat. Headquarters: USA. Data is not stored long-term.",
+          "desc": "Purpose: AI-based analysis and responses. Headquarters: USA. Data is not stored long-term.",
           "linkHref": "https://openai.com/privacy",
           "linkText": "Privacy Policy",
           "color": "border-green-500"
         },
         "vercel": {
           "name": "Vercel (Hosting)",
-          "desc": "Purpose: Web hosting and CDN. Headquarters: USA.",
+          "desc": "Purpose: Web hosting and content delivery. Headquarters: USA (EU region enabled).",
           "linkHref": "https://vercel.com/legal/privacy-policy",
           "linkText": "Privacy Policy",
           "color": "border-purple-500"
         },
         "stripe": {
           "name": "Stripe (Payment Service)",
-          "desc": "Purpose: Subscription management. Headquarters: USA (EU data storage).",
+          "desc": "Purpose: Payment processing. Currently disabled in the demo version. Headquarters: USA (EU data storage).",
           "linkHref": "https://stripe.com/privacy",
           "linkText": "Privacy Policy",
           "color": "border-orange-500"
+        },
+        "resend": {
+          "name": "Resend / Nodemailer (Email Delivery)",
+          "desc": "Purpose: Sending internal notification emails to the developer. No external marketing messages are sent.",
+          "linkHref": "https://resend.com/privacy",
+          "linkText": "Privacy Policy",
+          "color": "border-teal-500"
         }
       },
       "noticeTitle": "Data Transfer:",
-      "noticeText": "Data may be transferred outside the EU. Standard Contractual Clauses (SCC) are used to ensure adequate data protection."
+      "noticeText": "Some data may be transferred outside the European Union. Standard Contractual Clauses (SCCs) are used to ensure adequate protection of personal data."
     },
     "dataController": {
       "title": "Data Controller Contact Information",
@@ -2131,7 +2138,7 @@
     },
     "userRights": {
       "title": "Your Rights",
-      "text": "You may request access to or deletion of your data at any time by contacting privacy@innohr.hu."
+      "text": "You may request access to or deletion of your data at any time by contacting privacy@innohr.hu. You also have the right to lodge a complaint with the Hungarian National Authority for Data Protection and Freedom of Information (NAIH) at www.naih.hu."
     },
     "contact": {
       "title": "Contact",
@@ -2139,8 +2146,9 @@
       "email": "privacy@innohr.hu"
     }
   },
-  "lastUpdated": "Last updated: October 2025"
+  "lastUpdated": "Last updated: November 2025"
 }
+
 ,
   "cookies": {
     "title": "Cookies & Data",
@@ -2211,36 +2219,37 @@
   }
 ,
 "cookiesDemo": {
-  "title": "Cookie Policy (Demo Version)",
-  "intro": "This page explains how cookies are used. The HRinno demo application uses cookies only for technical and analytical purposes.",
+  "title": "Cookie Notice (Demo Version)",
+  "intro": "This demo application uses minimal cookies and similar technologies to ensure its proper functioning and measure technical performance. No advertising or tracking cookies are used.",
   "sections": {
     "whatAreCookies": {
       "title": "What Are Cookies?",
-      "text": "Cookies are small text files stored by your browser on your computer or device. They help a website recognize you and remember your preferences or settings."
+      "text": "Cookies are small text files stored on your device when you visit a website. They help websites function properly, remember your preferences, and gather anonymous usage statistics."
     },
     "howWeUse": {
       "title": "How We Use Cookies",
-      "text": "The HRinno demo uses technical cookies to ensure the site functions properly and anonymous analytics cookies to measure performance."
+      "text": "We only use essential cookies that are necessary for authentication and security (via Supabase) and technical analytics (via Vercel). These cookies do not identify you personally and are deleted automatically after your session ends."
     },
     "types": {
-      "title": "Types of Cookies We Use",
+      "title": "Types of Cookies Used",
       "items": {
-        "necessary": "Necessary cookies – enable basic site functionality (e.g., login, language settings).",
-        "analytics": "Analytics cookies – help us understand how visitors use the site so we can improve user experience.",
-        "functional": "Functional cookies – allow the site to remember user preferences (e.g., theme, language)."
+        "necessary": "Necessary cookies – required for login, session management, and security.",
+        "analytics": "Analytics cookies – used to monitor technical performance through Vercel Analytics. No personal tracking.",
+        "functional": "Functional cookies – used temporarily to remember your demo language and consent preferences."
       }
     },
     "manage": {
       "title": "Managing Cookies",
-      "text": "Most browsers allow you to delete or block cookies. Please note that disabling cookies may affect site functionality."
+      "text": "You can manage or delete cookies through your browser settings. Since this is a demo environment, disabling cookies may prevent some features (e.g., login or language settings) from functioning properly."
     },
     "moreInfo": {
       "title": "More Information",
-      "text": "If you have any questions about our cookie usage, please contact us at:"
+      "text": "If you have any questions about this Cookie Notice, please contact us at"
     }
   },
-  "lastUpdated": "Last updated: October 2025"
+  "lastUpdated": "Last updated: November 2025"
 }
+
 
 }
 
