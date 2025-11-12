@@ -445,13 +445,38 @@ export default function Header() {
                     )}
                   </div>
                 ) : (
-                  <button
-                    onClick={() => setIsLoginOpen(true)}
-                    className={`${buttonBaseClasses} ${isDemoExpired ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
-                    disabled={isDemoExpired}
-                  >
-                    <User className="w-4 h-4" /> {t('header.login')}
-                  </button>
+                  <div className="flex items-center gap-3">
+    {companySlug === 'demo' && (
+      <div
+        className="flex items-center gap-1 text-sm text-gray-600 whitespace-nowrap cursor-pointer hover:text-blue-600 transition-colors"
+        onClick={() => setIsLoginOpen(true)}
+      >
+        <span>{t('header.demoProfilesHint')}</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-4 h-4 text-gray-500"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+      </div>
+    )}
+
+    <button
+      onClick={() => setIsLoginOpen(true)}
+      className={`${buttonBaseClasses} ${
+        isDemoExpired
+          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+          : 'bg-blue-600 hover:bg-blue-700 text-white'
+      }`}
+      disabled={isDemoExpired}
+    >
+      <User className="w-4 h-4" /> {t('header.login')}
+    </button>
+  </div>
                 )}
               </div>
 

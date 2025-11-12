@@ -24,7 +24,7 @@ export default function RootLayout({
       <body>
         <LocaleProvider messages={messages}>
           <ClientProvider>
-            <DemoWarningBanner /> 
+            {/*}<DemoWarningBanner /> {*/}
             <Header />
             <main style={{ padding: "2rem" }}>{children}</main>
             <Footer />
