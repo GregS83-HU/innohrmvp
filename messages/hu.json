@@ -1030,6 +1030,13 @@
       "notificationError": "Hiba történt az értesítés küldésekor:",
       "noManager": "Nem található vezető a felhasználóhoz, értesítés kihagyva",
       "requestNotFound": "A létrehozott szabadságkérelem nem található"
+    },
+    "validation": {
+      "employeeNameRequired": "A munkavállaló neve kötelező",
+      "startDateRequired": "A kezdő dátum kötelező",
+      "endDateRequired": "A befejező dátum kötelező",
+      "endDateBeforeStart": "A befejező dátum nem lehet korábbi a kezdő dátumnál",
+      "fileRequired": "Kérjük, töltsön fel egy orvosi igazolást"
     }
   }
 ,

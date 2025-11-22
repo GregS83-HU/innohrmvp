@@ -28,7 +28,7 @@ import StatusBadge from '../../../../../components/absence/StatusBadge';
 import LeaveBalances from '../../../../../components/absence/LeaveBalances';
 import RecentRequests from '../../../../../components/absence/RecentRequests';
 import PendingApprovals from '../../../../../components/absence/PendingApprovals';
-import RequestLeaveModal from '../../../../../components/absence/RequestLeaveModal';
+import RequestLeaveModal from '../../../../../components/absence/RequestLeaveModal2';
 
 // Type for certificate data (matching what CertificateUploadModal returns)
 interface CertificateData {

@@ -1035,6 +1035,13 @@
       "notificationError": "Error sending leave request notification:",
       "noManager": "No manager found for user, skipping notification",
       "requestNotFound": "Could not find created leave request"
+    },
+    "validation": {
+      "employeeNameRequired": "Employee name is required",
+      "startDateRequired": "Start date is required",
+      "endDateRequired": "End date is required",
+      "endDateBeforeStart": "End date must be on or after start date",
+      "fileRequired": "Please upload a medical certificate file"
     }
   }
 ,
