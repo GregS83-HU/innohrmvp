@@ -184,7 +184,7 @@ export default function Header() {
                             <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">{t('header.hrTools')}</p>
                           </div>
 
-                          {/* Upload Certificate - all logged users */}
+                          {/* Upload Certificate - all logged users }
                           <Link
                             href={uploadCertificateLink}
                             onClick={() => setIsHRToolsMenuOpen(false)}
@@ -192,6 +192,7 @@ export default function Header() {
                           >
                             <Stethoscope className="w-4 h-4" /> {t('header.uploadCertificate')}
                           </Link>
+                          {*/}
 
                           {/* Recruitment Dashboard - admin and super_admin only */}
                           {(isManager || isAdmin) && (
@@ -551,15 +552,17 @@ export default function Header() {
 
                   {isMobileHRToolsOpen && !isDemoExpired && (
                     <div className="mt-2 ml-4 space-y-2 pb-2">
-                      {/* Upload Certificate */}
+                      {/* Upload Certificate }
                       <DemoAwareMenuItem
                         href={uploadCertificateLink}
                         onClick={() => setIsMobileMenuOpen(false)}
                         className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700 w-full justify-start text-sm`}
                         isDemoExpired={isDemoExpired}
+                        
                       >
                         <Stethoscope className="w-4 h-4" /> {t('header.uploadCertificate')}
                       </DemoAwareMenuItem>
+                       {/*/}
 
                       {/* Recruitment Dashboard - admin and super_admin */}
                       {(isManager || isAdmin) && (
