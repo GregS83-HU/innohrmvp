@@ -15,6 +15,7 @@ import {
   Target,
   AlertTriangle,
   TrendingUp,
+  FileText,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'i18n/LocaleProvider';
@@ -37,13 +38,15 @@ interface NotificationData {
     | 'goal_approved'
     | 'goal_red_flag'
     | 'pulse_reminder'
-    | 'one_on_one_scheduled';
+    | 'one_on_one_scheduled'
+    | 'cv_uploaded';
   title: string;
   message: string;
   ticket_id?: string;
   leave_request_id?: string;
   goal_id?: string;
   one_on_one_id?: string;
+  position_id?: string;
   created_at: string;
   read: boolean;
   sender_id?: string | null;
@@ -98,13 +101,6 @@ export default function NotificationComponent({
   useEffect(() => {
     const checkAdminStatus = async () => {
       if (!currentUser) {
-        setIsHrinnoAdmin(false);
-        setAdminStatusChecked(true);
-        return;
-      }
-
-      if (currentUser.is_super_admin !== undefined) {
-        setIsHrinnoAdmin(currentUser.is_super_admin);
         setAdminStatusChecked(true);
         return;
       }
@@ -116,256 +112,139 @@ export default function NotificationComponent({
           .eq('id', currentUser.id)
           .single();
 
-        if (error) {
-          console.error('Error fetching user admin status:', error);
-          setIsHrinnoAdmin(companySlug === 'hrinno' || companySlug === 'innohr');
-        } else {
-          setIsHrinnoAdmin(userData?.is_super_admin || false);
+        if (!error && userData) {
+          setIsHrinnoAdmin(userData.is_super_admin === true);
         }
       } catch (err) {
         console.error('Error checking admin status:', err);
-        setIsHrinnoAdmin(companySlug === 'hrinno' || companySlug === 'innohr');
+      } finally {
+        setAdminStatusChecked(true);
       }
-
-      setAdminStatusChecked(true);
     };
 
     checkAdminStatus();
-  }, [currentUser, companySlug]);
+  }, [currentUser]);
 
-  // --- Helpers ---
-  const addNotification = (notification: NotificationData) => {
-    setNotifications((prev) => [notification, ...prev]);
-    setToasts((prev) => {
-      const newToasts = [notification, ...prev];
-      setTimeout(() => setToasts((current) => current.filter((t) => t.id !== notification.id)), 5000);
-      return newToasts;
-    });
-  };
-
-  const markAsRead = async (id: string) => {
-    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
-
-    try {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ read: true })
-        .eq('id', id);
-
-      if (error) {
-        console.error('Error marking notification as read:', error);
-        setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: false } : n)));
-      }
-    } catch (err) {
-      console.error('Failed to mark notification as read:', err);
-      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: false } : n)));
-    }
-  };
-
-  const markAllAsRead = async () => {
-    const unreadIds = notifications.filter((n) => !n.read).map((n) => n.id);
-
-    if (unreadIds.length === 0) return;
-
-    const snapshot = notifications;
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-
-    try {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ read: true })
-        .in('id', unreadIds);
-
-      if (error) {
-        console.error('Error marking all notifications as read:', error);
-        setNotifications(snapshot);
-        try {
-          const { data } = await supabase.from('notifications').select('*').order('created_at', { ascending: false });
-          if (data) setNotifications(data as NotificationData[]);
-        } catch (e) {
-          console.error('Failed to re-fetch notifications after failing to mark all read:', e);
-        }
-      }
-    } catch (err) {
-      console.error('Failed to mark all notifications as read:', err);
-      setNotifications(snapshot);
-    }
-  };
-
-  const removeNotification = (id: string) => setNotifications((prev) => prev.filter((n) => n.id !== id));
-
-  const handleNotificationClick = (notification: NotificationData) => {
-    markAsRead(notification.id);
-
-    if (notification.ticket_id) {
-      router.push(`/jobs/${companySlug}/tickets/${notification.ticket_id}`);
-    } else if (notification.leave_request_id) {
-      router.push(`/jobs/${companySlug}/absences`);
-    } else if (notification.goal_id) {
-      router.push(`/jobs/${companySlug}/performance/goals/${notification.goal_id}`);
-    } else if (notification.type === 'pulse_reminder') {
-      router.push(`/jobs/${companySlug}/performance/pulse`);
-    }
-
-    setShowNotifications(false);
-  };
-
-  const getNotificationIcon = (type: NotificationData['type']) => {
-    switch (type) {
-      case 'ticket_created':
-        return <Ticket className="w-5 h-5 text-blue-600" />;
-      case 'ticket_message':
-        return <MessageSquare className="w-5 h-5 text-green-600" />;
-      case 'ticket_status_changed':
-        return <Check className="w-5 h-5 text-orange-600" />;
-      case 'leave_request_created':
-        return <Calendar className="w-5 h-5 text-purple-600" />;
-      case 'leave_request_approved':
-        return <CheckCircle className="w-5 h-5 text-green-600" />;
-      case 'leave_request_rejected':
-        return <XCircle className="w-5 h-5 text-red-600" />;
-      case 'goal_created':
-        return <Target className="w-5 h-5 text-blue-600" />;
-      case 'goal_approved':
-        return <CheckCircle className="w-5 h-5 text-green-600" />;
-      case 'goal_red_flag':
-        return <AlertTriangle className="w-5 h-5 text-red-600" />;
-      case 'pulse_reminder':
-        return <Calendar className="w-5 h-5 text-yellow-600" />;
-      case 'one_on_one_scheduled':
-        return <TrendingUp className="w-5 h-5 text-purple-600" />;
-      default:
-        return <Bell className="w-5 h-5 text-gray-600" />;
-    }
-  };
-
-  // --- Load old notifications ---
+  // --- Fetch notifications ---
   useEffect(() => {
     if (!currentUser || !adminStatusChecked) return;
 
-    const fetchOldNotifications = async () => {
+    const fetchNotifications = async () => {
       try {
-        let query = supabase.from('notifications').select('*').order('created_at', { ascending: false });
-
-        if (isHrinnoAdmin) {
-          query = query.or(
-            `and(ticket_id.not.is.null,sender_id.neq.${currentUser.id}),and(leave_request_id.not.is.null,recipient_id.eq.${currentUser.id}),recipient_id.eq.${currentUser.id}`
-          );
-        } else {
-          query = query.eq('recipient_id', currentUser.id);
-
-          const { data: userTickets } = await supabase
-            .from('tickets')
-            .select('id')
-            .eq('user_id', currentUser.id);
-
-          const ticketIds = (userTickets || []).map((t: { id: string }) => t.id);
-
-          if (ticketIds.length > 0) {
-            query = query.or(`recipient_id.eq.${currentUser.id},ticket_id.in.(${ticketIds.join(',')})`);
-          }
-        }
+        let query = supabase
+          .from('notifications')
+          .select('*')
+          .eq('recipient_id', currentUser.id)
+          .order('created_at', { ascending: false })
+          .limit(50);
 
         const { data, error } = await query;
-        if (error) throw error;
+
+        if (error) {
+          console.error('Error fetching notifications:', error);
+          return;
+        }
+
         setNotifications(data || []);
       } catch (err) {
-        console.error('Failed to fetch old notifications:', err);
+        console.error('Error in fetchNotifications:', err);
       }
     };
 
-    fetchOldNotifications();
-  }, [currentUser, isHrinnoAdmin, adminStatusChecked]);
+    fetchNotifications();
+  }, [currentUser, adminStatusChecked]);
 
   // --- Real-time subscriptions ---
   useEffect(() => {
     if (!currentUser || !adminStatusChecked) return;
 
-    subscriptionsRef.current.forEach((sub) => sub.unsubscribe());
-    subscriptionsRef.current = [];
+    // Cleanup function
+    const cleanup = () => {
+      subscriptionsRef.current.forEach((sub) => {
+        supabase.removeChannel(sub);
+      });
+      subscriptionsRef.current = [];
+    };
 
-    const channel = supabase.channel(`notifications_${currentUser.id}_${Date.now()}`);
+    cleanup();
 
+    // Ticket notifications (for super admins)
     if (isHrinnoAdmin) {
-      channel
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'tickets' }, (payload: { new: TicketPayload; old?: Partial<TicketPayload> }) => {
-          const p = payload.new;
-          const notification: NotificationData = {
-            id: p.id,
-            type: 'ticket_created',
-            title: t('notifications.ticket_created.title'),
-            message: t('notifications.ticket_created.message', {
-              user: p.user_name || t('notifications.fallback.user'),
-              title: p.title || '',
-            }),
-            ticket_id: p.id,
-            created_at: p.created_at,
-            read: false,
-            sender_id: p.user_id || null,
-          };
-
-          if (notification.sender_id !== currentUser.id) addNotification(notification);
-        })
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ticket_messages' }, (payload: { new: TicketMessagePayload; old?: Partial<TicketMessagePayload> }) => {
-          const p = payload.new;
-          const notification: NotificationData = {
-            id: p.id,
-            type: 'ticket_message',
-            title: t('notifications.ticket_message.title'),
-            message: t('notifications.ticket_message.message', {
-              sender: p.sender_name || t('notifications.fallback.user'),
-            }),
-            ticket_id: p.ticket_id,
-            created_at: p.created_at,
-            read: false,
-            sender_id: p.sender_id || null,
-          };
-
-          if (notification.sender_id !== currentUser.id) addNotification(notification);
-        })
-        .subscribe();
-    } else {
-      channel
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ticket_messages' }, (payload: { new: TicketMessagePayload; old?: Partial<TicketMessagePayload> }) => {
-          const p = payload.new;
-          const notification: NotificationData = {
-            id: p.id,
-            type: 'ticket_message',
-            title: t('notifications.ticket_message.title'),
-            message: t('notifications.ticket_message.sent_by_admin', {
-              sender: p.sender_name || t('notifications.fallback.admin'),
-            }),
-            ticket_id: p.ticket_id,
-            created_at: p.created_at,
-            read: false,
-            sender_id: p.sender_id || null,
-          };
-          if (notification.sender_id !== currentUser.id) addNotification(notification);
-        })
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'tickets' }, (payload: { new: TicketPayload; old?: Partial<TicketPayload> }) => {
-          const p = payload.new;
-          if (p.user_id !== currentUser.id) return;
-          if (payload.old && p.status !== payload.old.status) {
-            addNotification({
-              id: p.id,
-              type: 'ticket_status_changed',
-              title: t('notifications.ticket_status_changed.title'),
-              message: t('notifications.ticket_status_changed.message', {
-                title: p.title || '',
-                status: p.status || '',
-              }),
-              ticket_id: p.id,
-              created_at: new Date().toISOString(),
+      const ticketChannel = supabase
+        .channel('ticket-notifications')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'tickets',
+          },
+          (payload) => {
+            const newTicket = payload.new as TicketPayload;
+            const notification: NotificationData = {
+              id: `ticket-${newTicket.id}-${Date.now()}`,
+              type: 'ticket_created',
+              title: t('notificationComponent.ticket.newTicket'),
+              message: `${newTicket.user_name || t('notificationComponent.ticket.user')}: ${newTicket.title}`,
+              ticket_id: newTicket.id,
+              created_at: newTicket.created_at,
               read: false,
-              sender_id: p.assigned_to || null,
-            });
+              recipient_id: currentUser.id,
+            };
+
+            setNotifications((prev) => [notification, ...prev]);
+            setToasts((prev) => [notification, ...prev.slice(0, 2)]);
+
+            setTimeout(() => {
+              setToasts((prev) => prev.filter((t) => t.id !== notification.id));
+            }, 5000);
           }
-        })
+        )
         .subscribe();
+
+      subscriptionsRef.current.push(ticketChannel);
+
+      // Ticket messages
+      const messageChannel = supabase
+        .channel('ticket-message-notifications')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'ticket_messages',
+          },
+          (payload) => {
+            const newMessage = payload.new as TicketMessagePayload;
+            if (newMessage.sender_id !== currentUser.id) {
+              const notification: NotificationData = {
+                id: `message-${newMessage.id}-${Date.now()}`,
+                type: 'ticket_message',
+                title: t('notificationComponent.ticket.newMessage'),
+                message: `${newMessage.sender_name || t('notificationComponent.ticket.someone')} ${t('notificationComponent.ticket.replied')}`,
+                ticket_id: newMessage.ticket_id,
+                created_at: newMessage.created_at,
+                read: false,
+                recipient_id: currentUser.id,
+              };
+
+              setNotifications((prev) => [notification, ...prev]);
+              setToasts((prev) => [notification, ...prev.slice(0, 2)]);
+
+              setTimeout(() => {
+                setToasts((prev) => prev.filter((t) => t.id !== notification.id));
+              }, 5000);
+            }
+          }
+        )
+        .subscribe();
+
+      subscriptionsRef.current.push(messageChannel);
     }
 
-    // Performance notifications for all users
-    channel
+    // CV upload notifications (for admins)
+    const cvChannel = supabase
+      .channel('cv-uploads')
       .on(
         'postgres_changes',
         {
@@ -374,152 +253,321 @@ export default function NotificationComponent({
           table: 'notifications',
           filter: `recipient_id=eq.${currentUser.id}`,
         },
-        (payload: { new: NotificationData; old?: Partial<NotificationData> }) => {
-          const notification = payload.new as NotificationData;
-          if (notification.sender_id !== currentUser.id) {
-            // if DB messages contain title/message, use them; otherwise fallback to translations by type
-            if (!notification.title || !notification.message) {
-              const type = notification.type;
-              let title = t('notifications.unknown.title');
-              let message = t('notifications.unknown.message');
-
-              if (type === 'goal_created') {
-                title = t('notifications.goal_created.title');
-                message = t('notifications.goal_created.message', { title: notification.title || '' });
-              } else if (type === 'leave_request_created') {
-                title = t('notifications.leave_request_created.title');
-                message = t('notifications.leave_request_created.message');
-              } else if (type === 'pulse_reminder') {
-                title = t('notifications.pulse_reminder.title');
-                message = t('notifications.pulse_reminder.message');
-              }
-
-              addNotification({
-                ...notification,
-                title,
-                message,
-              });
-            } else {
-              addNotification(notification);
-            }
+        (payload) => {
+          const newNotification = payload.new as NotificationData;
+          if (newNotification.type === 'cv_uploaded') {
+            console.log('📄 New CV uploaded notification received');
+            setNotifications((prev) => [newNotification, ...prev]);
+            setToasts((prev) => [newNotification, ...prev.slice(0, 2)]);
+            setTimeout(() => {
+              setToasts((prev) => prev.filter((t) => t.id !== newNotification.id));
+            }, 5000);
           }
         }
       )
       .subscribe();
 
-    subscriptionsRef.current.push(channel);
+    subscriptionsRef.current.push(cvChannel);
 
-    return () => {
-      subscriptionsRef.current.forEach((sub) => sub.unsubscribe());
-      subscriptionsRef.current = [];
-    };
-  }, [currentUser?.id, isHrinnoAdmin, adminStatusChecked, t, companySlug]);
+    // Generic notifications channel
+    const notificationChannel = supabase
+      .channel('user-notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `recipient_id=eq.${currentUser.id}`,
+        },
+        (payload) => {
+          const newNotification = payload.new as NotificationData;
+          
+          // Skip CV uploads as they're handled above
+          if (newNotification.type === 'cv_uploaded') return;
 
-  // --- Close dropdown on outside click ---
+          console.log('🔔 New notification received:', newNotification.type);
+          setNotifications((prev) => [newNotification, ...prev]);
+          setToasts((prev) => [newNotification, ...prev.slice(0, 2)]);
+
+          setTimeout(() => {
+            setToasts((prev) => prev.filter((t) => t.id !== newNotification.id));
+          }, 5000);
+        }
+      )
+      .subscribe();
+
+    subscriptionsRef.current.push(notificationChannel);
+
+    return cleanup;
+  }, [currentUser, adminStatusChecked, isHrinnoAdmin, t]);
+
+  // --- Click outside to close dropdown ---
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowNotifications(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+
+    if (showNotifications) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showNotifications]);
+
+  // --- Get notification icon ---
+  const getNotificationIcon = (type: NotificationData['type']) => {
+    switch (type) {
+      case 'ticket_created':
+      case 'ticket_status_changed':
+        return <Ticket className="w-4 h-4" />;
+      case 'ticket_message':
+        return <MessageSquare className="w-4 h-4" />;
+      case 'leave_request_created':
+      case 'leave_request_approved':
+      case 'leave_request_rejected':
+        return <Calendar className="w-4 h-4" />;
+      case 'goal_created':
+      case 'goal_approved':
+        return <Target className="w-4 h-4" />;
+      case 'goal_red_flag':
+        return <AlertTriangle className="w-4 h-4" />;
+      case 'pulse_reminder':
+        return <TrendingUp className="w-4 h-4" />;
+      case 'cv_uploaded':
+        return <FileText className="w-4 h-4" />;
+      default:
+        return <Bell className="w-4 h-4" />;
+    }
+  };
+
+  // --- Get notification color ---
+  const getNotificationColor = (type: NotificationData['type']) => {
+    switch (type) {
+      case 'ticket_created':
+        return 'bg-blue-100 text-blue-600 border-blue-200';
+      case 'ticket_status_changed':
+        return 'bg-indigo-100 text-indigo-600 border-indigo-200';
+      case 'ticket_message':
+        return 'bg-cyan-100 text-cyan-600 border-cyan-200';
+      case 'leave_request_created':
+        return 'bg-yellow-100 text-yellow-600 border-yellow-200';
+      case 'leave_request_approved':
+        return 'bg-green-100 text-green-600 border-green-200';
+      case 'leave_request_rejected':
+        return 'bg-red-100 text-red-600 border-red-200';
+      case 'goal_created':
+        return 'bg-emerald-100 text-emerald-600 border-emerald-200';
+      case 'goal_approved':
+        return 'bg-teal-100 text-teal-600 border-teal-200';
+      case 'goal_red_flag':
+        return 'bg-orange-100 text-orange-600 border-orange-200';
+      case 'pulse_reminder':
+        return 'bg-violet-100 text-violet-600 border-violet-200';
+      case 'cv_uploaded':
+        return 'bg-purple-100 text-purple-600 border-purple-200';
+      default:
+        return 'bg-gray-100 text-gray-600 border-gray-200';
+    }
+  };
+
+  // --- Handle notification click ---
+  const handleNotificationClick = async (notification: NotificationData) => {
+    try {
+      // Mark as read
+      await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('id', notification.id);
+
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notification.id ? { ...n, read: true } : n))
+      );
+
+      // Navigate based on type
+      if (notification.type === 'cv_uploaded') {
+        if (notification.position_id) {
+          router.push(`/jobs/${companySlug}/stats?positionId=${notification.position_id}`);
+        }
+      } else if (
+        notification.type === 'ticket_created' ||
+        notification.type === 'ticket_status_changed' ||
+        notification.type === 'ticket_message'
+      ) {
+        if (notification.ticket_id) {
+          router.push(`/jobs/${companySlug}/tickets/${notification.ticket_id}`);
+        }
+      } else if (
+        notification.type === 'leave_request_created' ||
+        notification.type === 'leave_request_approved' ||
+        notification.type === 'leave_request_rejected'
+      ) {
+        router.push(`/jobs/${companySlug}/absences`);
+      } else if (
+        notification.type === 'goal_created' ||
+        notification.type === 'goal_approved' ||
+        notification.type === 'goal_red_flag'
+      ) {
+        if (notification.goal_id) {
+          router.push(`/jobs/${companySlug}/performance/goals/${notification.goal_id}`);
+        } else {
+          router.push(`/jobs/${companySlug}/performance`);
+        }
+      } else if (notification.type === 'pulse_reminder') {
+        router.push(`/jobs/${companySlug}/performance/pulse`);
+      }
+
+      setShowNotifications(false);
+    } catch (error) {
+      console.error('Error handling notification click:', error);
+    }
+  };
+
+  // --- Mark all as read ---
+  const handleMarkAllAsRead = async () => {
+    try {
+      const unreadIds = notifications.filter((n) => !n.read).map((n) => n.id);
+
+      if (unreadIds.length === 0) return;
+
+      await supabase.from('notifications').update({ read: true }).in('id', unreadIds);
+
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+    }
+  };
+
+  // --- Format time ---
+  const formatTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return t('notificationComponent.time.justNow');
+    if (diffMins < 60) return t('notificationComponent.time.minutesAgo', { count: diffMins });
+    if (diffHours < 24) return t('notificationComponent.time.hoursAgo', { count: diffHours });
+    if (diffDays < 7) return t('notificationComponent.time.daysAgo', { count: diffDays });
+    return date.toLocaleDateString();
+  };
+
+  if (!currentUser) return null;
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={() => setShowNotifications(!showNotifications)}
-        className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-      >
-        <Bell className="w-6 h-6" />
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </span>
-        )}
-      </button>
+    <>
+      {/* Notification Bell */}
+      <div className="relative" ref={dropdownRef}>
+        <button
+          onClick={() => setShowNotifications(!showNotifications)}
+          className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
+        >
+          <Bell className="w-5 h-5 text-gray-600" />
+          {unreadCount > 0 && (
+            <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+        </button>
 
-      {showNotifications && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-gray-200 z-50 max-h-96 overflow-hidden">
-          <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 className="font-semibold text-gray-900">{t('notifications.header.title')}</h3>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                markAllAsRead();
-              }}
-              disabled={unreadCount === 0}
-              className={`text-sm font-medium ${unreadCount === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-blue-600 hover:text-blue-700'}`}
-            >
-              {t('notifications.header.markAllRead')}
-            </button>
-          </div>
-          <div className="max-h-80 overflow-y-auto">
-            {notifications.length === 0 ? (
-              <div className="p-8 text-center">
-                <Bell className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">{t('notifications.empty')}</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-gray-100">
-                {notifications.map((n) => (
-                  <div
-                    key={n.id}
-                    className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${!n.read ? 'bg-blue-50' : ''}`}
-                    onClick={() => handleNotificationClick(n)}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 mt-0.5">{getNotificationIcon(n.type)}</div>
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-medium ${!n.read ? 'text-gray-900' : 'text-gray-700'}`}>{n.title}</p>
-                        <p className={`text-sm mt-1 ${!n.read ? 'text-gray-600' : 'text-gray-500'}`}>{n.message}</p>
-                        {(n.ticket_id || n.leave_request_id || n.goal_id) && (
-                          <p className="text-xs text-blue-500 mt-1">{t('notifications.viewDetails')}</p>
-                        )}
-                        <p className="text-xs text-gray-400 mt-2">{new Date(n.created_at).toLocaleString()}</p>
+        {/* Dropdown */}
+        {showNotifications && (
+          <div className="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 max-h-[600px] overflow-hidden flex flex-col">
+            {/* Header */}
+            <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-blue-50 to-purple-50">
+              <h3 className="font-semibold text-gray-900">
+                {t('notificationComponent.title')}
+              </h3>
+              {unreadCount > 0 && (
+                <button
+                  onClick={handleMarkAllAsRead}
+                  className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                >
+                  <Check className="w-3 h-3" />
+                  {t('notificationComponent.markAllRead')}
+                </button>
+              )}
+            </div>
+
+            {/* Notifications List */}
+            <div className="overflow-y-auto flex-1">
+              {notifications.length === 0 ? (
+                <div className="p-8 text-center text-gray-500">
+                  <Bell className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                  <p>{t('notificationComponent.noNotifications')}</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-100">
+                  {notifications.map((notification) => (
+                    <div
+                      key={notification.id}
+                      onClick={() => handleNotificationClick(notification)}
+                      className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
+                        !notification.read ? 'bg-blue-50' : ''
+                      }`}
+                    >
+                      <div className="flex gap-3">
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 border ${getNotificationColor(
+                            notification.type
+                          )}`}
+                        >
+                          {getNotificationIcon(notification.type)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="font-semibold text-sm text-gray-900 truncate">
+                              {notification.title}
+                            </p>
+                            {!notification.read && (
+                              <span className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0 mt-1"></span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-600 line-clamp-2 mt-1">
+                            {notification.message}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {formatTime(notification.created_at)}
+                          </p>
+                        </div>
                       </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeNotification(n.id);
-                        }}
-                        className="p-1 text-gray-400 hover:text-gray-600 transition-colors ml-2"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Toasts */}
-      <div className="fixed top-4 right-4 z-50 space-y-2">
-        {toasts.slice(0, 3).map((n) => (
+      {/* Toast Notifications */}
+      <div className="fixed top-20 right-4 z-50 space-y-2 pointer-events-none">
+        {toasts.map((toast) => (
           <div
-            key={`toast-${n.id}`}
-            className="bg-white rounded-lg shadow-lg border border-gray-200 p-4 max-w-sm cursor-pointer transform transition-all duration-300 hover:scale-105"
-            onClick={() => {
-              handleNotificationClick(n);
-              setToasts((prev) => prev.filter((t) => t.id !== n.id));
-            }}
+            key={toast.id}
+            className="bg-white rounded-lg shadow-2xl border border-gray-200 p-4 w-80 animate-slide-in pointer-events-auto"
           >
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 mt-0.5">{getNotificationIcon(n.type)}</div>
+            <div className="flex gap-3">
+              <div
+                className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 border ${getNotificationColor(
+                  toast.type
+                )}`}
+              >
+                {getNotificationIcon(toast.type)}
+              </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900">{n.title}</p>
-                <p className="text-sm text-gray-700 mt-1">{n.message}</p>
+                <p className="font-semibold text-sm text-gray-900">{toast.title}</p>
+                <p className="text-sm text-gray-600 line-clamp-2">{toast.message}</p>
               </div>
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setToasts((prev) => prev.filter((t) => t.id !== n.id));
-                }}
-                className="p-1 text-gray-400 hover:text-gray-600 transition-colors ml-2"
+                onClick={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}
+                className="text-gray-400 hover:text-gray-600"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -527,6 +575,22 @@ export default function NotificationComponent({
           </div>
         ))}
       </div>
-    </div>
+
+      <style jsx>{`
+        @keyframes slide-in {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+        .animate-slide-in {
+          animation: slide-in 0.3s ease-out;
+        }
+      `}</style>
+    </>
   );
 }

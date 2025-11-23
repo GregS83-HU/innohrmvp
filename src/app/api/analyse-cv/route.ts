@@ -10,6 +10,74 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+/**
+ * Create notifications for all admins in the company when a CV is uploaded
+ */
+async function notifyAdminsOfNewCV(
+  positionId: string,
+  positionName: string,
+  //candidateName: string,
+  companyId: string
+) {
+  try {
+    const { data: companyAdmins, error: adminError } = await supabase
+      .from('company_to_users')
+      .select(`
+        user_id,
+        users!inner(
+          id,
+          is_admin
+        )
+      `)
+      .eq('company_id', companyId);
+
+    if (adminError || !companyAdmins || companyAdmins.length === 0) {
+      console.log('No users found for company:', companyId);
+      return { success: true, message: 'No users to check' };
+    }
+
+    const adminUsers = companyAdmins
+      .filter(cu => {
+        const users = Array.isArray(cu.users) ? cu.users[0] : cu.users;
+        return users?.is_admin === true;
+      })
+      .map(cu => {
+        const users = Array.isArray(cu.users) ? cu.users[0] : cu.users;
+        return users?.id;
+      })
+      .filter(Boolean);
+
+    if (adminUsers.length === 0) {
+      return { success: true, message: 'No admin users to notify' };
+    }
+
+    const notifications = adminUsers.map(adminId => ({
+      type: 'cv_uploaded',
+      title: 'New CV Uploaded',
+      message: `New CV uploaded for ${positionName}`,
+      position_id: positionId,
+      recipient_id: adminId,
+      read: false,
+      created_at: new Date().toISOString()
+    }));
+
+    const { error: notificationError } = await supabase
+      .from('notifications')
+      .insert(notifications);
+
+    if (notificationError) {
+      console.error('Error creating CV upload notifications:', notificationError);
+      return { success: false, error: notificationError };
+    }
+
+    console.log(`✅ Created ${notifications.length} CV upload notifications`);
+    return { success: true, count: notifications.length };
+  } catch (err) {
+    console.error('Failed to notify admins of new CV:', err);
+    return { success: false, error: err };
+  }
+}
+
 // Optimized API call with faster model and timeout
 async function callOpenRouterAPI(prompt: string, context = '', model = 'openai/gpt-3.5-turbo') {
   const controller = new AbortController();
@@ -113,6 +181,12 @@ export async function POST(req: NextRequest) {
     const jobDescription = formData.get('jobDescription') as string;
     const positionId = formData.get('positionId') as string;
     const source = formData.get('source') as string || 'Candidate Upload';
+    // Fetch position details for notifications
+const { data: positionData, error: positionError } = await supabase
+  .from('openedpositions')
+  .select('position_name, company_id')
+  .eq('id', positionId)
+  .single();
 
     if (!file || file.type !== 'application/pdf') {
       return NextResponse.json({ error: 'Fichier PDF requis.' }, { status: 400 });
@@ -309,6 +383,15 @@ Remember: Write EVERYTHING in the same language as the CV!
       console.error('Relation insert error:', relationError);
       return NextResponse.json({ error: 'Échec liaison position/candidat' }, { status: 500 });
     }
+
+    // Notify admins of new CV upload
+if (positionData) {
+  await notifyAdminsOfNewCV(
+    positionId,
+    positionData.position_name,
+    positionData.company_id.toString()
+  );
+}
 
     return NextResponse.json({
       score,
