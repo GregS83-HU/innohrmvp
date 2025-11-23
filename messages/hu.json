@@ -617,7 +617,8 @@
     "card": {
       "id": "Azonosító",
       "viewCV": "Önéletrajz",
-      "notScored": "Nincs értékelve"
+      "notScored": "Nincs értékelve",
+      "new": "Új"
     },
     "modal": {
       "candidateInfo": "Jelölt információk",

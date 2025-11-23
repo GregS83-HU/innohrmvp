@@ -121,18 +121,25 @@ function Card({
       )}
 
       <div className="flex justify-between items-start mb-2">
-        <div>
-          <p className={`font-medium ${isSelected ? 'text-blue-800' : scoreColors.text} text-sm leading-tight`}>
-            {row.candidats?.candidat_firstname ?? '—'} {row.candidats?.candidat_lastname ?? ''}
-          </p>
-          <p className="text-xs text-gray-500">{t('trelloBoard.card.id')}: {row.candidat_id}</p>
-        </div>
-        {row.candidat_score !== null && (
-          <span className={`${getScoreBadgeColor(row.candidat_score)} text-xs px-2 py-1 rounded-full font-medium ${isSelected ? 'ml-6' : ''}`}>
-            {row.candidat_score}
-          </span>
-        )}
-      </div>
+  <div>
+    <p className={`font-medium ${isSelected ? 'text-blue-800' : scoreColors.text} text-sm leading-tight`}>
+      {row.candidats?.candidat_firstname ?? '—'} {row.candidats?.candidat_lastname ?? ''}
+    </p>
+    <p className="text-xs text-gray-500">{t('trelloBoard.card.id')}: {row.candidat_id}</p>
+  </div>
+  <div className="flex flex-col items-end gap-1">
+    {row.candidat_next_step === null && (
+      <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs px-2 py-1 rounded-full font-bold shadow-md animate-pulse">
+        {t('trelloBoard.card.new')}
+      </span>
+    )}
+    {row.candidat_score !== null && (
+      <span className={`${getScoreBadgeColor(row.candidat_score)} text-xs px-2 py-1 rounded-full font-medium ${isSelected ? 'ml-6' : ''}`}>
+        {row.candidat_score}
+      </span>
+    )}
+  </div>
+</div>
 
       <div className="space-y-1 mb-2">
         {row.candidats?.candidat_email && (

@@ -622,7 +622,8 @@
     "card": {
       "id": "ID",
       "viewCV": "CV",
-      "notScored": "Not scored"
+      "notScored": "Not scored",
+      "new": "New"
     },
     "modal": {
       "candidateInfo": "Candidate Information",

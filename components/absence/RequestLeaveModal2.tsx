@@ -1,4 +1,4 @@
-// File: components/absence/RequestLeaveModalManual.tsx
+// File: components/absence/RequestLeaveModalManual2.tsx
 import React, { useState, useEffect } from 'react';
 import { useLocale } from 'i18n/LocaleProvider';
 import { XCircle, Loader2, Upload, FileText, CheckCircle, AlertTriangle, Calendar, User } from 'lucide-react';
