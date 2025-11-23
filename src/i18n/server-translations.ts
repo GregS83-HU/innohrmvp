@@ -1,12 +1,14 @@
 // lib/server-translations.ts
 import en from '../../messages/en.json'
 import hu from '../../messages/hu.json'
+import fr from '../../messages/fr.json'
 
 type Translations = typeof en
 
 const translations: Record<string, Translations> = {
   en,
   hu,
+  fr
 }
 
 interface TranslationObject {

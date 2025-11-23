@@ -1,16 +1,34 @@
 'use client';
 
-import { useLocale } from '../src/i18n/LocaleProvider';
+import React, { useState } from 'react';
 import { Globe } from 'lucide-react';
+import { useLocale } from '../src/i18n/LocaleProvider';
+import { locales } from '../src/i18n/config';
 
-export default function LanguageSwitcher({ compact = false }) {
+type Props = {
+  compact?: boolean; // pour la version mobile
+};
+
+const FLAGS: Record<string, string> = {
+  en: '🇬🇧',
+  hu: '🇭🇺',
+  fr: '🇫🇷',
+};
+
+const LanguageSwitcher: React.FC<Props> = ({ compact = false }) => {
   const { locale, setLocale } = useLocale();
+  const [open, setOpen] = useState(false);
 
-  // Compact mobile icon version
+  // Version mobile : compact = true
   if (compact) {
     return (
       <button
-        onClick={() => setLocale(locale === 'en' ? 'hu' : 'en')}
+        onClick={() => {
+          // cycle entre toutes les langues
+          const index = locales.indexOf(locale);
+          const next = locales[(index + 1) % locales.length];
+          setLocale(next);
+        }}
         className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
         title="Change language"
       >
@@ -19,29 +37,25 @@ export default function LanguageSwitcher({ compact = false }) {
     );
   }
 
-  // Full version (desktop + mobile menu)
+  // Version desktop : full avec drapeaux
   return (
     <div className="flex items-center gap-2">
-      <button
-        onClick={() => setLocale('en')}
-        className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${
-          locale === 'en'
-            ? 'bg-blue-600 text-white'
-            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-        }`}
-      >
-        EN
-      </button>
-      <button
-        onClick={() => setLocale('hu')}
-        className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${
-          locale === 'hu'
-            ? 'bg-blue-600 text-white'
-            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-        }`}
-      >
-        HU
-      </button>
+      {locales.map((code) => (
+        <button
+          key={code}
+          onClick={() => setLocale(code)}
+          className={`flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium transition-all ${
+            locale === code
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          <span className="text-lg">{FLAGS[code]}</span>
+          <span>{code.toUpperCase()}</span>
+        </button>
+      ))}
     </div>
   );
-}
+};
+
+export default LanguageSwitcher;

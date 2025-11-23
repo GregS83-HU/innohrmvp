@@ -1,0 +1,2516 @@
+{
+  "home": {
+    "hero": {
+      "title": "Les RH n'ont jamais été aussi",
+      "titleHighlight": "faciles",
+      "titleEnd": "qu'aujourd'hui !",
+      "subtitle": "Révolutionnez vos ressources humaines avec des outils alimentés par l'IA pour le recrutement, le bien-être des employés et l'évaluation du bonheur au travail."
+    },
+    "features": {
+      "cvAnalysis": {
+        "title": "Analyse IA de CV",
+        "description": "Filtrage intelligent de CV avec notation de compatibilité détaillée et évaluation automatisée des candidats.",
+        "badge": "Matching Intelligent"
+      },
+      "wellness": {
+        "title": "Bien-être au Travail",
+        "description": "Évaluation anonyme du bonheur des employés basée sur le modèle scientifique PERMA-W pour une meilleure culture d'entreprise.",
+        "badge": "Anonyme et Sécurisé"
+      },
+      "teamManagement": {
+        "title": "Équipe RH Optimisée",
+        "description": "Processus de recrutement simplifié avec gestion des postes, suivi des candidats, base de données des candidats avec analyse IA et tableau de bord analytique détaillé.",
+        "badge": "Pipeline Complet"
+      }
+    },
+    "cta": {
+      "title": "Prêt à Transformer vos RH ?",
+      "subtitle": "Rejoignez le futur des ressources humaines avec notre plateforme alimentée par l'IA. Commencez à optimiser votre recrutement et le bien-être de vos employés dès aujourd'hui.",
+      "getStarted": "Commencer",
+      "contactUs": "Nous Contacter"
+    },
+    "demo": {
+      "disclaimer": {
+        "title": "Avis d'Environnement Démo",
+        "subtitle": "Information Importante",
+        "message": "Vous accédez à un environnement de démonstration. Ce système est destiné uniquement à des fins de test et d'évaluation.",
+        "point1": "Ceci est un environnement de démonstration - les données peuvent être réinitialisées périodiquement",
+        "point2": "Vos données seront traitées par la technologie IA à des fins de démonstration",
+        "point3": "Ne saisissez pas d'informations personnelles ou sensibles réelles",
+        "consent": "Je comprends qu'il s'agit d'un environnement de démonstration et que mes données seront traitées par la technologie IA",
+        "accept": "Je Comprends et J'Accepte",
+        "footer": "En acceptant, vous reconnaissez qu'il s'agit d'un système de démonstration"
+      }
+    }
+  },
+  "contactForm": {
+    "header": {
+      "title": "Nous Contacter",
+      "subtitleDemo": "Intéressé par nos solutions de bien-être au travail ?",
+      "subtitleOther": "Nous serions ravis d'avoir de vos nouvelles !"
+    },
+    "success": {
+      "title": "Merci !",
+      "description": "Nous vous recontacterons dans les 24 heures."
+    },
+    "error": {
+      "title": "Échec de l'envoi",
+      "description": "Veuillez réessayer plus tard."
+    },
+    "labels": {
+      "firstName": "Prénom *",
+      "lastName": "Nom *",
+      "email": "Email *",
+      "phone": "Téléphone",
+      "companyName": "Nom de l'Entreprise *",
+      "comment": "Message / Commentaire",
+      "gdprTitle": "Protection des Données et Confidentialité",
+      "gdprText": "Je consens au traitement de mes données personnelles *\nMes données seront utilisées pour répondre à ma demande et peuvent être stockées à des fins commerciales légitimes.",
+      "marketingTitle": "Communications Marketing (Optionnel)",
+      "marketingText": "Je souhaite recevoir des mises à jour sur les produits, services et informations du secteur."
+    },
+    "placeholders": {
+      "phone": "+33 6 12 34 56 78"
+    },
+    "buttons": {
+      "send": "Envoyer le Message",
+      "sending": "Envoi en cours...",
+      "sent": "Message Envoyé !"
+    },
+    "validation": {
+      "firstName": "Le prénom est requis",
+      "lastName": "Le nom est requis",
+      "emailRequired": "L'email est requis",
+      "emailInvalid": "Veuillez saisir une adresse email valide",
+      "phoneInvalid": "Veuillez saisir un numéro de téléphone valide",
+      "companyName": "Le nom de l'entreprise est requis",
+      "gdprConsent": "Le consentement RGPD est requis"
+    }
+  },
+  "feedback": {
+    "header": {
+      "title": "Comment s'est passée votre expérience démo ?",
+      "subtitle": "Vos retours nous aident à améliorer notre plateforme et à mieux servir nos utilisateurs."
+    },
+    "rating": {
+      "label": "Évaluez votre expérience *",
+      "labels": {
+        "poor": "Médiocre",
+        "fair": "Passable",
+        "good": "Bon",
+        "veryGood": "Très Bon",
+        "excellent": "Excellent"
+      }
+    },
+    "comment": {
+      "label": "Commentaires Supplémentaires",
+      "placeholder": "Parlez-nous de votre expérience... (optionnel)",
+      "characters": "caractères"
+    },
+    "submit": {
+      "button": "Soumettre les Retours",
+      "submitting": "Envoi en cours..."
+    },
+    "errors": {
+      "selectRating": "Veuillez sélectionner une évaluation",
+      "submitFailed": "Échec de l'envoi des retours. Veuillez réessayer."
+    },
+    "success": {
+      "title": "Merci !",
+      "subtitle": "Vos retours ont été soumis avec succès. Nous apprécions votre temps et votre contribution !",
+      "contactUs": "Nous Contacter"
+    }
+  },
+  "header": {
+    "yourPositions": "Vos Postes Disponibles",
+    "availablePositions": "Postes Disponibles",
+    "createPosition": "Créer un Poste",
+    "happyCheck": "Happy Check",
+    "hrTools": "Outils RH",
+    "demoExpiredTooltip": "Démo expirée - Contactez-nous pour continuer",
+    "uploadCertificate": "Télécharger un Certificat",
+    "recruitmentDashboard": "Tableau de Bord Recrutement",
+    "happinessDashboard": "Tableau de Bord Bien-être",
+    "listCertificates": "Liste des Certificats",
+    "certificatesDownload": "Téléchargement des Certificats",
+    "myPerformance": "Ma Performance",
+    "teamPerformance": "Performance de l'Équipe",
+    "timeClockCheck": "Pointage",
+    "absences": "Absences",
+    "manageAccount": "Gérer le Compte",
+    "accountManagement": "Gestion du Compte",
+    "manageSubscription": "Gérer l'Abonnement",
+    "manageUsers": "Gérer les Utilisateurs",
+    "supportTickets": "Tickets de Support",
+    "openTimeClock": "Ouvrir le Pointage",
+    "expired": "EXPIRÉ",
+    "contactUs": "Nous Contacter",
+    "connectedAs": "Connecté en tant que",
+    "logout": "Déconnexion",
+    "login": "Connexion",
+    "demoProfilesHint": "Cliquez ici pour différents profils",
+    "manageContacts": "Gérer les Contacts"
+  },
+  "positions": {
+    "availablePositions": "Postes Disponibles",
+    "positionsAvailable": "postes disponibles",
+    "searchPlaceholder": "Rechercher des postes...",
+    "noPositions": "Aucun poste disponible",
+    "checkLater": "Revenez plus tard pour de nouvelles opportunités !",
+    "apply": "Postuler",
+    "treatment": "Traitement",
+    "copyLink": "Copier le Lien",
+    "close": "Fermer",
+    "closing": "Fermeture...",
+    "linkCopied": "Lien copié dans le presse-papiers !",
+    "copyFailed": "Échec de la copie du lien",
+    "confirmClose": "Voulez-vous vraiment fermer ce poste ?",
+    "closedSuccess": "Poste fermé avec succès",
+    "closeError": "Erreur lors de la fermeture du poste",
+    "unknownError": "Erreur inconnue",
+    "loading": "Chargement des postes...",
+    "error": "Erreur",
+    "errorLoading": "Erreur lors du chargement des postes"
+  },
+  "analytics": {
+    "header": {
+      "title": "Analyses du Poste"
+    },
+    "labels": {
+      "selectPosition": "Sélectionner un poste",
+      "choosePosition": "Choisir un poste...",
+      "notSpecified": "Non spécifié",
+      "unknown": "Inconnu",
+      "period": "Période",
+      "loading": "Chargement des données..."
+    },
+    "placeholders": {
+      "selectPositionTitle": "Sélectionner un Poste",
+      "selectPositionDescription": "Choisissez un poste pour voir ses analyses détaillées.",
+      "noDataTitle": "Aucune Donnée Disponible",
+      "noDataDescription": "Ce poste n'a pas encore de candidatures."
+    },
+    "status": {
+      "open": "Ouvert",
+      "closed": "Fermé"
+    },
+    "timeFilters": {
+      "7d": "7 derniers jours",
+      "30d": "30 derniers jours",
+      "90d": "90 derniers jours",
+      "all": "Depuis l'ouverture"
+    },
+    "buttons": {
+      "retry": "Réessayer"
+    },
+    "error": {
+      "title": "Erreur"
+    },
+    "errors": {
+      "notLoggedIn": "Utilisateur non connecté",
+      "noCompany": "Impossible de récupérer l'entreprise de l'utilisateur",
+      "noPositions": "Aucun poste trouvé pour cette entreprise.",
+      "unknownPositionsError": "Erreur inconnue lors du chargement des postes",
+      "generic": "Une erreur s'est produite"
+    },
+    "kpis": {
+      "totalApplications": "Total des Candidatures",
+      "averageScore": "Score Moyen",
+      "medianScore": "Score Médian",
+      "candidatesPerDay": "Candidatures/Jour"
+    },
+    "charts": {
+      "applicationTrends": "Tendances des Candidatures",
+      "scoreDistribution": "Distribution des Scores",
+      "sourceDistribution": "Distribution par Source",
+      "averageScoreOverTime": "Score Moyen dans le Temps",
+      "series": {
+        "applications": "Candidatures",
+        "numberOfCandidates": "Nombre de Candidats",
+        "averageScore": "Score Moyen"
+      }
+    },
+    "tables": {
+      "sourceDetails": "Détails des Sources",
+      "headers": {
+        "source": "Source",
+        "numberOfCandidates": "Nombre de Candidats",
+        "averageScore": "Score Moyen",
+        "percentage": "Pourcentage"
+      }
+    }
+  },
+  "newPosition": {
+    "modal": {
+      "title": "Confirmer l'Analyse",
+      "message": "Vous êtes sur le point d'analyser tous les candidats de votre base de données pour ce poste.",
+      "candidates": "Candidats",
+      "aiCredits": "Crédits IA",
+      "estimatedTime": "Temps estimé :",
+      "seconds": "secondes",
+      "minute": "minute",
+      "willConsume": "Cela consommera",
+      "fromAccount": "de votre compte.",
+      "processing": "Traitement...",
+      "confirmStart": "Confirmer et Démarrer l'Analyse",
+      "createWithoutAnalysis": "Créer le Poste Sans Analyse",
+      "cancel": "Annuler"
+    },
+    "header": {
+      "title": "Créer un Nouveau Poste",
+      "subtitle": "Remplissez le formulaire ci-dessous pour créer un nouveau poste"
+    },
+    "form": {
+      "positionName": "Nom du Poste",
+      "positionNamePlaceholder": "ex. Développeur Senior",
+      "positionDescription": "Description du Poste (pour l'affichage)",
+      "positionDescriptionPlaceholder": "Brève description qui sera montrée aux candidats...",
+      "positionDescriptionDetailed": "Description Détaillée du Poste (Pour l'analyse IA)",
+      "positionDescriptionDetailedPlaceholder": "Exigences détaillées, compétences et qualifications pour le matching IA...",
+      "startingDate": "Date de Début"
+    },
+    "buttons": {
+      "createPosition": "Créer le Poste",
+      "creating": "Création..."
+    },
+    "loading": {
+      "userInfo": "Chargement des informations utilisateur...",
+      "checkingLimits": "Vérification des limites de postes...",
+      "debug": "Debug : Session :",
+      "yes": "Oui",
+      "no": "Non",
+      "none": "Aucun",
+      "access": "Accès :"
+    },
+    "limitReached": {
+      "title": "Limite de Postes Atteinte",
+      "message": "Désolé, vous avez atteint la limite de votre forfait. Pour créer plus de postes, veuillez mettre à niveau votre plan.",
+      "upgradeButton": "Mettre à Niveau Votre Plan"
+    },
+    "messages": {
+      "errorCreating": "Erreur lors de la création du poste",
+      "successCreated": "Nouveau poste créé avec succès",
+      "unexpectedError": "Erreur inattendue :",
+      "errorFetchingCount": "Impossible de récupérer le nombre de candidats. Veuillez réessayer.",
+      "noCandidates": "Aucun candidat trouvé dans votre base de données. Veuillez d'abord ajouter des candidats.",
+      "unexpectedErrorRetry": "Erreur inattendue. Veuillez réessayer.",
+      "analysisComplete": "Analyse terminée :",
+      "candidatesCorresponding": "candidats correspondent",
+      "serverError": "Erreur serveur inattendue lors de l'analyse",
+      "createdRunLater": "Poste créé avec succès. Vous pouvez lancer l'analyse plus tard."
+    },
+    "analysis": {
+      "title": "Analyse des Candidats",
+      "loading": "Chargement...",
+      "running": "Analyse en cours...",
+      "launchButton": "Lancer l'analyse sur la base de données"
+    },
+    "results": {
+      "title": "Résultats de l'Analyse",
+      "matchingCandidates": "Candidats correspondants trouvés",
+      "viewDetails": "Voir les Détails"
+    }
+  },
+  "cvAnalyse": {
+    "header": {
+      "title": "Analyse IA de CV",
+      "positionAt": "chez"
+    },
+    "buttons": {
+      "back": "Retour aux postes",
+      "analyze": "Analyser votre CV",
+      "analyzing": "Analyse en cours...",
+      "completed": "Analyse Terminée"
+    },
+    "sections": {
+      "positionDescription": "Description du Poste",
+      "feedbackTitle": "Retours Personnalisés",
+      "scoreTitle": "Votre Score",
+      "demoTitle": "Téléchargez nos faux CV",
+      "demoSubtitle": "Nous vous conseillons fortement d'utiliser nos faux CV dans la démo. Si vous souhaitez utiliser un vrai CV, veuillez noter que toutes les données de démo, y compris les CV, sont supprimées chaque nuit à 2h du matin.",
+      "demoDownload": {
+        "software": "Faux Ingénieur Logiciel",
+        "marketing": "Faux Expert Marketing"
+      }
+    },
+    "labels": {
+      "clickToChange": "Cliquer pour changer de fichier",
+      "clickToSelect": "Cliquez ici pour sélectionner votre CV",
+      "pdfOnly": "(PDF uniquement)"
+    },
+    "forms": {
+      "uploadForm": "Formulaire de téléchargement de CV"
+    },
+    "messages": {
+      "notice": "Veuillez vous assurer d'avoir votre numéro de téléphone et adresse email dans votre CV",
+      "gdprPre": "Veuillez lire et accepter notre",
+      "gdprLinkText": "politique RGPD",
+      "gdprPost": "",
+      "success": "Analyse terminée avec succès ! Votre CV a été traité et enregistré.",
+      "aiConsent": "J'accepte que mon CV soit analysé par un modèle d'intelligence artificielle pour générer des insights et des retours.",
+      "error": {
+        "title": "Erreur de Téléchargement"
+      },
+      "score": {
+        "low": "Merci pour votre candidature. Malheureusement, votre CV ne correspond pas suffisamment au poste. Explorez nos autres offres.",
+        "medium": "Votre CV correspond partiellement au poste. Notre spécialiste RH va l'analyser.",
+        "high": "Merci pour votre candidature ! Votre CV correspond bien. Un membre des RH vous contactera prochainement."
+      },
+      "unableToRead": "Malheureusement, nous ne pouvons pas lire votre CV. Pouvez-vous essayer de télécharger un nouveau fichier ?",
+      "generic": "Une erreur s'est produite lors du traitement de votre demande."
+    }
+  },
+  "app": {
+    "title": "Évaluation du Bien-être au Travail",
+    "subtitle": "pour {{companyName}}",
+    "description": "Prenez quelques minutes pour évaluer votre bonheur et bien-être professionnel. Cette évaluation est 100% anonyme et confidentielle.",
+    "startButton": "Commencer l'Évaluation",
+    "noPersonalData": "Aucune donnée personnelle n'est collectée • Seuls les résultats agrégés anonymes",
+    "resultsIncluded": "• Les résultats seront inclus dans les insights bien-être de {{companyName}}",
+    "loading": "Chargement de l'évaluation...",
+    "header": "Happy Check 😊",
+    "inputPlaceholder": "Tapez votre réponse...",
+    "confidentiality": "💬 Conversation confidentielle et anonyme • Vos données ne sont pas stockées personnellement",
+    "aggregate": "• Les insights agrégés aident à améliorer le bien-être au travail de {{companyName}}"
+  },
+  "features": {
+    "conversationalTitle": "Conversationnel",
+    "conversationalText": "Discussion naturelle et bienveillante",
+    "scientificTitle": "Scientifique",
+    "scientificText": "Basé sur le modèle PERMA-W",
+    "quickTitle": "Rapide",
+    "quickText": "5-10 minutes maximum",
+    "quickSub": "en seulement 12 questions"
+  },
+  "welcome": {
+    "default": "Bonjour ! 😊 Je suis là pour vous aider à évaluer votre bien-être au travail. Cette évaluation est complètement anonyme et confidentielle. Nous allons discuter de différents aspects de votre vie professionnelle pendant quelques minutes. Êtes-vous prêt(e) à commencer ?",
+    "company": "Bonjour ! 😊 Je suis là pour vous aider à évaluer votre bien-être au travail chez {{companyName}}. Cette évaluation est complètement anonyme et confidentielle. Nous allons discuter de différents aspects de votre vie professionnelle pendant quelques minutes. Êtes-vous prêt(e) à commencer ?"
+  },
+  "progress": {
+    "title": "Progression Happy Check",
+    "step": "Étape {{currentStep}}/12",
+    "permaIntro": "Les scores PERMA apparaîtront au fur et à mesure de votre progression dans l'évaluation"
+  },
+  "perma": {
+    "positive": "Émotions Positives",
+    "engagement": "Engagement",
+    "relationships": "Relations",
+    "meaning": "Sens du Travail",
+    "accomplishment": "Accomplissement",
+    "work_life_balance": "Équilibre Vie-Travail"
+  },
+  "completion": {
+    "thankYou": "Merci pour votre participation ! 🎉",
+    "complete": "Votre évaluation du bien-être au travail est maintenant terminée.",
+    "recordedFor": "Résultats enregistrés pour {{companyName}}",
+    "summaryTitle": "Votre Résumé Bien-être",
+    "excellent": "Fantastique ! Votre bien-être au travail brille positivement. Continuez à cultiver cette belle énergie ! 🌟",
+    "good": "Très bien ! Vous avez de solides fondations pour votre bien-être professionnel. Quelques ajustements peuvent vous faire briller encore plus ! ✨",
+    "improvable": "Votre situation a un bon potentiel d'amélioration. Les conseils ci-dessous vous aideront à atteindre de nouveaux sommets ! 🚀",
+    "poor": "Merci pour votre honnêteté. Vos réponses montrent de vrais défis, mais rappelez-vous que tout peut s'améliorer avec les bonnes stratégies et le bon soutien. 💙",
+    "overallScore": "Score Global",
+    "happinessLevel": "Votre niveau de bonheur au travail",
+    "scoreByDomain": "Score par domaine",
+    "adviceTitle": "Vos Conseils Personnalisés",
+    "adviceIntro": "Basé sur votre profil de bien-être, voici 3 conseils adaptés pour vous aider à vous épanouir :",
+    "aiTips": "✨ Conseils générés par IA adaptés pour vous",
+    "privacyNote": "Confidentialité : Vos réponses sont totalement anonymes et aident à améliorer le bien-être général au travail.",
+    "newAssessment": "Commencer une Nouvelle Évaluation",
+    "backTo": "Retour à {{companyName}}",
+    "backHome": "Retour à l'Accueil"
+  },
+  "dashboard": {
+    "title": "Tableau de Bord RH Bien-être",
+    "subtitle": "Analyses anonymes du bonheur au travail",
+    "loading": "Chargement des données...",
+    "error": "Erreur",
+    "retry": "Réessayer",
+    "refresh": "Actualiser",
+    "auth": {
+      "required": "Authentification Requise",
+      "description": "Vous devez être connecté pour accéder au tableau de bord RH.",
+      "login": "Se Connecter"
+    },
+    "errors": {
+      "notAuthenticated": "Non authentifié - veuillez vous reconnecter",
+      "accessDenied": "Accès refusé - aucune entreprise associée à votre compte",
+      "loadingData": "Erreur lors du chargement des données",
+      "unknown": "Erreur inconnue"
+    },
+    "levels": {
+      "excellent": "Excellent",
+      "good": "Bon",
+      "needsImprovement": "À Améliorer"
+    },
+    "period": {
+      "days": "{{count}} jours"
+    },
+    "metrics": {
+      "avgScore": "Score Moyen",
+      "participations": "Participations",
+      "strongestArea": "Domaine le Plus Fort",
+      "improvementArea": "Domaine à Améliorer"
+    },
+    "perma": {
+      "positive": "Émotions Positives",
+      "engagement": "Engagement",
+      "relationships": "Relations",
+      "meaning": "Sens du Travail",
+      "accomplishment": "Accomplissement",
+      "workLifeBalance": "Équilibre Vie-Travail"
+    },
+    "recommendations": {
+      "positive": "Organiser des événements d'équipe, célébrer les succès, améliorer la reconnaissance",
+      "engagement": "Offrir des projets stimulants, développement des compétences, autonomie accrue",
+      "relationships": "Team building, formation en communication, espaces de collaboration",
+      "meaning": "Clarifier la mission, montrer l'impact, aligner avec les valeurs personnelles",
+      "accomplishment": "Objectifs clairs, retours réguliers, opportunités de croissance",
+      "workLifeBalance": "Horaires flexibles, télétravail, politiques de déconnexion"
+    },
+    "charts": {
+      "permaAnalysis": "Analyse PERMA-W",
+      "distribution": "Distribution par Domaine",
+      "comparison": "Comparaison Détaillée",
+      "score": "Score"
+    },
+    "actions": {
+      "title": "Actions Recommandées"
+    },
+    "footer": {
+      "privacy": "Confidentialité",
+      "privacyText": "Toutes les données sont entièrement anonymisées. Aucune information personnelle n'est stockée ou affichée.",
+      "lastUpdate": "Dernière mise à jour",
+      "filteredFor": "Données filtrées pour",
+      "export": "Exporter",
+      "exportTodo": "Fonctionnalité d'export à implémenter"
+    }
+  },
+  "interviewList": {
+    "loading": "Chargement...",
+    "noInterviews": "Pas encore d'entretiens",
+    "stepUnassigned": "Non assigné",
+    "addInterview": "Ajouter un Entretien",
+    "locationPlaceholder": "Lieu ou lien",
+    "loginRequired": "Vous devez être connecté pour créer un entretien.",
+    "createError": "Échec de la création de l'entretien",
+    "tooltips": {
+      "viewSummary": "Voir le Résumé",
+      "startAssistant": "Démarrer l'Assistant d'Entretien",
+      "cancelInterview": "Annuler l'Entretien"
+    },
+    "cancelModal": {
+      "title": "Annuler l'Entretien ?",
+      "description": "Êtes-vous sûr de vouloir annuler cet entretien ? Le candidat sera notifié par email.",
+      "dateLabel": "Date",
+      "locationLabel": "Lieu",
+      "goBackButton": "Retour",
+      "confirmButton": "Annuler l'Entretien"
+    },
+    "summaryModal": {
+      "title": "Résumé de l'Entretien",
+      "noSummary": "Aucun résumé disponible pour cet entretien.",
+      "summaryLabel": "Résumé",
+      "strengthsLabel": "Points Forts",
+      "weaknessesLabel": "Points Faibles",
+      "culturalFitLabel": "Adéquation Culturelle",
+      "recommendationLabel": "Recommandation",
+      "scoreLabel": "Score",
+      "notesLabel": "Notes d'Entretien",
+      "closeButton": "Fermer"
+    },
+    "assistantModal": {
+      "title": "Assistant IA d'Entretien",
+      "step1Description": "Générez des questions d'entretien intelligentes et spécifiques au poste basées sur le CV du candidat et la description du poste.",
+      "generateQuestionsButton": "Générer des Questions",
+      "generating": "Génération…",
+      "suggestedQuestionsTitle": "Questions Suggérées",
+      "notesPlaceholder": "Écrivez vos notes d'entretien ici...",
+      "generateSummaryButton": "Générer un Résumé",
+      "analyzing": "Analyse…",
+      "summaryTitle": "Résumé de l'Entretien",
+      "summaryLabel": "Résumé",
+      "strengthsLabel": "Points Forts",
+      "weaknessesLabel": "Points Faibles",
+      "culturalFitLabel": "Adéquation Culturelle",
+      "recommendationLabel": "Recommandation",
+      "scoreLabel": "Score",
+      "closeButton": "Fermer",
+      "closeInterviewButton": "Clôturer l'Entretien"
+    }
+  },
+  "interviewAssistant": {
+    "title": "Assistant IA d'Entretien",
+    "step1": {
+      "description": "Générez des questions d'entretien intelligentes et spécifiques au poste basées sur le CV du candidat et la description du poste.",
+      "generateButton": "Générer des Questions",
+      "generating": "Génération…"
+    },
+    "questions": {
+      "title": "Questions Suggérées",
+      "notesPlaceholder": "Écrivez vos notes d'entretien ici...",
+      "generateSummaryButton": "Générer un Résumé",
+      "analyzing": "Analyse…"
+    },
+    "summary": {
+      "title": "Résumé de l'Entretien",
+      "summaryLabel": "Résumé",
+      "strengthsLabel": "Points Forts",
+      "weaknessesLabel": "Points Faibles",
+      "culturalFitLabel": "Adéquation Culturelle",
+      "recommendationLabel": "Recommandation",
+      "scoreLabel": "Score"
+    },
+    "buttons": {
+      "close": "Fermer"
+    }
+  },
+  "trelloBoard": {
+    "header": {
+      "title": "Traitement du Recrutement",
+      "subtitle": "Gérez vos candidats en faisant glisser les cartes entre les étapes. Maintenez Ctrl/Cmd + clic pour sélectionner plusieurs.",
+      "loading": "Chargement du tableau..."
+    },
+    "stats": {
+      "candidates": "candidats",
+      "hidden": "masqués",
+      "selected": "sélectionnés"
+    },
+    "buttons": {
+      "hideRejected": "Masquer les Refusés",
+      "showRejected": "Afficher les Refusés",
+      "selectAll": "Tous",
+      "selectNone": "Aucun",
+      "close": "Fermer",
+      "edit": "Modifier",
+      "save": "Enregistrer",
+      "saving": "Enregistrement...",
+      "cancel": "Annuler"
+    },
+    "column": {
+      "unassigned": "Non assigné",
+      "unknown": "Inconnu",
+      "dropHere": "Déposez les candidats ici",
+      "rejectedHidden": "Candidats refusés masqués"
+    },
+    "card": {
+      "id": "ID",
+      "viewCV": "CV",
+      "notScored": "Non noté",
+      "new": "Nouveau"
+    },
+    "modal": {
+      "candidateInfo": "Informations du Candidat",
+      "candidateId": "ID Candidat",
+      "email": "Email",
+      "phone": "Téléphone",
+      "cvFile": "Fichier CV",
+      "viewCV": "Voir le CV",
+      "source": "Source",
+      "notProvided": "Non fourni",
+      "notSpecified": "Non spécifié",
+      "score": "Score",
+      "comment": "Commentaire",
+      "noComments": "Pas encore de commentaires",
+      "commentPlaceholder": "Ajoutez votre commentaire ici...",
+      "aiAnalysis": "Analyse IA",
+      "noAiAnalysis": "Aucune analyse IA disponible",
+      "nextStep": "Prochaine Étape",
+      "interviews": "Entretiens"
+    },
+    "errors": {
+      "updateStepError": "Erreur lors de la mise à jour de l'étape",
+      "updateCommentError": "Erreur lors de la mise à jour du commentaire",
+      "fetchDataError": "Erreur lors de la récupération des données"
+    }
+  },
+  "medicalCertificates": {
+    "title": "Certificats Médicaux",
+    "loading": "Chargement des certificats...",
+    "stats": {
+      "total": "certificats au total",
+      "pending": "en attente",
+      "treated": "traités"
+    },
+    "search": {
+      "placeholder": "Rechercher par nom d'employé...",
+      "showAll": "Afficher tous les certificats",
+      "hideTreated": "Masquer les traités"
+    },
+    "table": {
+      "headers": {
+        "employeeName": "Nom de l'Employé",
+        "startDate": "Date de Début",
+        "endDate": "Date de Fin",
+        "certificate": "Certificat",
+        "uploadDate": "Date de Téléchargement",
+        "comment": "Commentaire",
+        "status": "Statut",
+        "treatmentDate": "Date de Traitement"
+      },
+      "actions": {
+        "view": "Voir",
+        "viewComment": "Voir le commentaire"
+      },
+      "empty": {
+        "title": "Aucun certificat trouvé",
+        "withSearch": "Essayez d'ajuster vos termes de recherche.",
+        "withoutSearch": "Aucun certificat médical ne correspond à vos filtres actuels."
+      },
+      "noData": "—"
+    },
+    "alerts": {
+      "sessionNotFound": "Session utilisateur non trouvée",
+      "updateError": "Erreur lors de la mise à jour du statut du certificat médical",
+      "leaveRequestError": "Erreur lors de la vérification des demandes de congé associées. Les modifications ont été annulées.",
+      "leaveUpdateError": "Erreur lors de la mise à jour de la demande de congé associée. Les modifications ont été annulées.",
+      "networkError": "Erreur réseau. Veuillez réessayer."
+    },
+    "errors": {
+      "fetchCompanyId": "Erreur lors de la récupération du company_id",
+      "userWithoutCompany": "Utilisateur sans company_id",
+      "loadCertificates": "Erreur lors du chargement des certificats"
+    }
+  },
+  "certificateDownload": {
+    "title": "Télécharger les Certificats Médicaux",
+    "loading": "Chargement des certificats...",
+    "stats": {
+      "total": "certificats au total",
+      "pending": "en attente",
+      "treated": "traités"
+    },
+    "dateSelection": {
+      "startDateLabel": "Date de Début",
+      "endDateLabel": "Date de Fin",
+      "searchButton": "Rechercher",
+      "searching": "Recherche...",
+      "downloadButton": "Télécharger ZIP",
+      "preparing": "Préparation..."
+    },
+    "table": {
+      "headers": {
+        "employeeName": "Nom de l'Employé",
+        "startDate": "Date de Début",
+        "endDate": "Date de Fin",
+        "hrComment": "Commentaire RH",
+        "status": "Statut"
+      },
+      "empty": {
+        "title": "Aucun certificat trouvé",
+        "withSearch": "Essayez d'ajuster votre plage de dates.",
+        "withoutSearch": "Sélectionnez une plage de dates et cliquez sur rechercher pour voir les certificats médicaux."
+      },
+      "noData": "—"
+    },
+    "errors": {
+      "selectDates": "Veuillez sélectionner les dates de début et de fin.",
+      "fetchFailed": "Échec de la récupération des certificats.",
+      "noDownload": "Aucun certificat à télécharger.",
+      "downloadFailed": "Échec de la génération du téléchargement."
+    },
+    "alerts": {
+      "noResults": "Aucun certificat trouvé pour les dates sélectionnées."
+    }
+  },
+  "uploadCertificate": {
+    "loading": "Vérification des permissions...",
+    "error": {
+      "title": "Erreur",
+      "noCompanyId": "Aucun ID d'entreprise fourni. Veuillez accéder à cette page via le lien approprié."
+    },
+    "planLimit": {
+      "title": "Limite du Plan Atteinte",
+      "message": "La limite du plan de votre entreprise a été atteinte. Pour continuer, veuillez contacter l'administrateur de votre entreprise."
+    },
+    "header": {
+      "title": "Télécharger un Certificat Médical",
+      "subtitle": "Téléchargez votre certificat médical pour un traitement automatique"
+    },
+    "demo": {
+      "downloadButton": "Télécharger un faux certificat",
+      "description": "Nous recommandons fortement d'utiliser notre faux certificat médical pendant la démo. Si vous souhaitez utiliser votre propre fichier, veuillez noter que toutes les données seront supprimées de notre système de démo chaque nuit à 1h du matin."
+    },
+    "upload": {
+      "fileLabel": "Sélectionner le Fichier du Certificat",
+      "dropzoneSelected": "Fichier sélectionné",
+      "dropzoneEmpty": "Cliquez ici pour sélectionner votre fichier",
+      "dropzoneHelp": "PDF ou Image • Maximum 1 Mo",
+      "uploadButton": "Télécharger et Traiter",
+      "processing": "Traitement..."
+    },
+    "results": {
+      "titleSuccess": "Détails du Certificat Extraits",
+      "titleManual": "Détails du Certificat - Veuillez Compléter les Informations Manquantes",
+      "employeeName": "Nom de l'Employé",
+      "startDate": "Date de Début",
+      "endDate": "Date de Fin",
+      "doctorName": "Nom du Médecin",
+      "comment": "Commentaire Supplémentaire (Optionnel)",
+      "commentPlaceholder": "Ajoutez toute information ou commentaire supplémentaire...",
+      "employeeNamePlaceholder": "Entrez le nom de l'employé",
+      "noData": "—"
+    },
+    "buttons": {
+      "confirmSave": "Confirmer et Enregistrer",
+      "saving": "Enregistrement...",
+      "cancel": "Annuler",
+      "tryAgain": "Réessayer",
+      "uploadAnother": "Télécharger un autre certificat",
+      "back": "Retour",
+      "home": "Accueil"
+    },
+    "alerts": {
+      "success": "Certificat enregistré avec succès !",
+      "processingFailed": "Échec du Traitement",
+      "processingFailedDesc": "Certaines informations n'ont pas pu être reconnues automatiquement, veuillez remplir le formulaire ci-dessous avec les informations manquantes. Votre document sera automatiquement envoyé au service RH.",
+      "fileTooLarge": "Le fichier est trop volumineux. La taille maximale autorisée est de 1 Mo.",
+      "selectFile": "Veuillez sélectionner un fichier",
+      "cannotSave": "Impossible d'enregistrer : fichier ou données extraites manquants.",
+      "uploadError": "Erreur inconnue survenue",
+      "saveError": "Erreur inconnue lors de l'enregistrement"
+    }
+  },
+  "calendarLeaveModal": {
+    "title": "Demande de Congé Rapide",
+    "fields": {
+      "leaveType": "Type de Congé",
+      "leaveTypePlaceholder": "Sélectionner le type de congé",
+      "startDate": "Date de Début",
+      "endDate": "Date de Fin",
+      "reason": "Raison (optionnel)",
+      "reasonPlaceholder": "Brève description..."
+    },
+    "certificate": {
+      "uploadPrompt": "Pour un congé maladie, vous pouvez télécharger un certificat médical",
+      "uploadButton": "Télécharger le Certificat",
+      "uploaded": "Certificat médical téléchargé"
+    },
+    "buttons": {
+      "cancel": "Annuler",
+      "submit": "Soumettre la Demande",
+      "submitting": "Soumission..."
+    },
+    "alerts": {
+      "selectLeaveType": "Veuillez sélectionner un type de congé",
+      "submitError": "Erreur lors de la soumission de la demande : {{message}}"
+    },
+    "console": {
+      "fetchError": "Erreur lors de la récupération des types de congés :",
+      "notificationSent": "Notification de demande de congé envoyée au responsable",
+      "notificationError": "Erreur lors de l'envoi de la notification de demande de congé :",
+      "noManager": "Aucun responsable trouvé pour l'utilisateur, notification ignorée"
+    }
+  },
+  "calendarLegend": {
+    "title": "Légende",
+    "myView": {
+      "leaveTypes": "Types de Congés :",
+      "status": "Statut :",
+      "statusApproved": "Approuvé",
+      "statusPending": "En attente",
+      "statusOverlapError": "Erreur de Chevauchement",
+      "specialDays": "Jours Spéciaux :",
+      "weekend": "Week-end",
+      "publicHoliday": "Jour Férié"
+    },
+    "managerView": {
+      "teamAbsenceLevels": "Niveaux d'Absence de l'Équipe :",
+      "noAbsences": "0% (Aucune absence)",
+      "lowAbsence": "1-20%",
+      "mediumAbsence": "21-40%",
+      "highAbsence": ">40% (Absence élevée)",
+      "weekend": "Week-end",
+      "hoverHint": "Survolez les jours pour voir les noms des membres de l'équipe"
+    }
+  },
+  "calendarDay": {
+    "holidayIndicator": "F",
+    "tooltip": {
+      "publicHoliday": "🎉 Jour Férié",
+      "overlappingLeaves": "⚠️ Congés Chevauchants !",
+      "statusPending": "⏳ En attente",
+      "statusApproved": "✓ Approuvé"
+    }
+  },
+  "managerHeatmapCell": {
+    "tooltip": {
+      "absent": "{{count}} sur {{total}} absents ({{percentage}}%)",
+      "pending": "(En attente)"
+    }
+  },
+  "yearCalendarGrid": {
+    "months": {
+      "january": "Janvier",
+      "february": "Février",
+      "march": "Mars",
+      "april": "Avril",
+      "may": "Mai",
+      "june": "Juin",
+      "july": "Juillet",
+      "august": "Août",
+      "september": "Septembre",
+      "october": "Octobre",
+      "november": "Novembre",
+      "december": "Décembre"
+    },
+    "weekDays": {
+      "monday": "L",
+      "tuesday": "M",
+      "wednesday": "M",
+      "thursday": "J",
+      "friday": "V",
+      "saturday": "S",
+      "sunday": "D"
+    },
+    "defaults": {
+      "unknownLeaveType": "Inconnu"
+    }
+  },
+  "approvalModal": {
+    "titles": {
+      "approve": "Approuver la Demande",
+      "reject": "Rejeter la Demande"
+    },
+    "fields": {
+      "employee": "Employé",
+      "leaveType": "Type de Congé",
+      "duration": "Durée",
+      "days": "jour(s)",
+      "notesLabel": "Notes (optionnel)",
+      "rejectionReasonLabel": "Raison du rejet (requis)",
+      "notesPlaceholder": "Ajoutez des notes supplémentaires...",
+      "rejectionReasonPlaceholder": "Veuillez expliquer pourquoi cette demande est rejetée...",
+      "rejectionRequired": "La raison du rejet est requise"
+    },
+    "buttons": {
+      "cancel": "Annuler",
+      "approve": "Approuver la Demande",
+      "reject": "Rejeter la Demande"
+    }
+  },
+  "leaveBalances": {
+    "title": "Soldes de Congés ({{year}})",
+    "noBalances": "Aucun solde de congés trouvé",
+    "fields": {
+      "total": "Total :",
+      "used": "Utilisés :",
+      "pending": "En attente :",
+      "remaining": "Restants :",
+      "days": "jours"
+    }
+  },
+  "pendingApprovals": {
+    "title": "Approbations en Attente",
+    "noApprovals": "Aucune approbation en attente",
+    "fields": {
+      "period": "Période :",
+      "duration": "Durée :",
+      "day": "jour",
+      "days": "jours",
+      "reason": "Raison :",
+      "requested": "Demandé :",
+      "certificate": "Certificat",
+      "viewCertificate": "Voir le certificat médical"
+    },
+    "buttons": {
+      "approve": "Approuver",
+      "reject": "Rejeter"
+    },
+    "console": {
+      "reviewCompleted": "Action de révision terminée",
+      "managerNameRetrieved": "Nom du responsable récupéré :",
+      "sendingNotification": "Envoi de la notification avec les données :",
+      "notificationSuccess": "Notification {{status}} envoyée à l'employé (userId: {{userId}})",
+      "notificationFailed": "Échec de la notification :",
+      "reviewError": "Erreur lors de la révision avec notification :"
+    }
+  },
+  "recentRequests": {
+    "title": "Demandes Récentes",
+    "empty": {
+      "noRequests": "Aucune demande de congé encore",
+      "firstLeaveButton": "Demander Votre Premier Congé"
+    },
+    "fields": {
+      "period": "Période :",
+      "duration": "Durée :",
+      "day": "jour",
+      "days": "jours",
+      "reason": "Raison :",
+      "managerNotes": "Notes du Responsable :",
+      "requested": "Demandé :",
+      "reviewed": "Révisé :"
+    },
+    "buttons": {
+      "uploadCertificate": "Télécharger le Certificat"
+    }
+  },
+  "requestLeaveModal": {
+    "title": "Demander un Congé",
+    "fields": {
+      "leaveType": "Type de Congé",
+      "leaveTypePlaceholder": "Sélectionner le type de congé",
+      "startDate": "Date de Début",
+      "endDate": "Date de Fin",
+      "reason": "Raison (optionnel)",
+      "reasonPlaceholder": "Brève description de votre demande de congé...",
+      "dateLocked": "Date verrouillée depuis le certificat"
+    },
+    "certificate": {
+      "title": "Certificat Médical (Optionnel)",
+      "selectFile": "Cliquer pour sélectionner le certificat",
+      "fileHelp": "PDF ou Image • Max 1 Mo",
+      "aiConsent": "🤖 J'accepte que mon certificat médical soit traité par la technologie IA pour l'extraction et la validation automatisées des données.",
+      "processButton": "Traiter le Certificat",
+      "processing": "Traitement...",
+      "confirmButton": "Confirmer le Certificat",
+      "saving": "Enregistrement...",
+      "confirmed": "Certificat Confirmé",
+      "confirmedDescription": "{{fileName}} - Les dates seront utilisées pour la demande de congé",
+      "employeeName": "Nom de l'Employé",
+      "employeeNamePlaceholder": "Entrez le nom de l'employé",
+      "additionalComment": "Commentaire Supplémentaire (Optionnel)",
+      "commentPlaceholder": "Ajoutez toute information supplémentaire..."
+    },
+    "errors": {
+      "fileTooLarge": "Le fichier est trop volumineux. La taille maximale autorisée est de 1 Mo.",
+      "selectFile": "Veuillez sélectionner un fichier",
+      "cannotSave": "Impossible d'enregistrer : fichier ou données extraites manquants.",
+      "confirmBeforeSubmit": "Veuillez confirmer le certificat avant de soumettre la demande de congé.",
+      "ocrIncomplete": "Traitement OCR Incomplet",
+      "ocrIncompleteDesc": "Certaines informations n'ont pas pu être reconnues. Veuillez remplir les champs manquants ci-dessous."
+    },
+    "buttons": {
+      "cancel": "Annuler",
+      "submit": "Soumettre la Demande",
+      "submitting": "Soumission..."
+    },
+    "console": {
+      "managerUpdated": "ID du responsable mis à jour pour la demande de congé :",
+      "managerUpdateFailed": "Échec de la mise à jour du manager_id :",
+      "certificateLinked": "Certificat lié à la demande de congé avec ID :",
+      "certificateLinkFailed": "Échec du lien du certificat :",
+      "managerCertificateAdded": "ID du responsable et certificat (le cas échéant) ajoutés à la demande de congé",
+      "notificationSent": "Notification de demande de congé envoyée au responsable",
+      "notificationError": "Erreur lors de l'envoi de la notification de demande de congé :",
+      "noManager": "Aucun responsable trouvé pour l'utilisateur, notification ignorée",
+      "requestNotFound": "Impossible de trouver la demande de congé créée"
+    },
+    "validation": {
+      "employeeNameRequired": "Le nom de l'employé est requis",
+      "startDateRequired": "La date de début est requise",
+      "endDateRequired": "La date de fin est requise",
+      "endDateBeforeStart": "La date de fin doit être égale ou postérieure à la date de début",
+      "fileRequired": "Veuillez télécharger un fichier de certificat médical"
+    }
+  },
+  "demoTimer": {
+    "expired": "Démo Expirée - Contactez-nous pour continuer",
+    "active": "Mode Démonstration - Temps restant : {{time}}",
+    "autoCloseWarning": "L'application se fermera automatiquement à la fin du chronomètre"
+  },
+  "loginModal": {
+    "title": "Connexion",
+    "subtitle": {
+      "demo": "Choisissez un compte démo",
+      "normal": "Connectez-vous à votre compte"
+    },
+    "demoAccounts": {
+      "user": "Se connecter en tant qu'Utilisateur",
+      "manager": "Se connecter en tant que Responsable",
+      "hrManager": "Se connecter en tant que Responsable RH"
+    },
+    "fields": {
+      "email": "Email",
+      "emailPlaceholder": "votre@email.com",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "••••••••"
+    },
+    "buttons": {
+      "cancel": "Annuler",
+      "connect": "Se Connecter"
+    }
+  },
+  "menuItem": {
+    "tooltips": {
+      "demoExpired": "Démo expirée - Contactez-nous pour continuer",
+      "notAvailable": "Non disponible dans votre forfait"
+    }
+  },
+  "addUserModal": {
+    "header": {
+      "title": "Ajouter un Nouvel Utilisateur"
+    },
+    "success": {
+      "message": "Utilisateur créé avec succès ! Mot de passe temporaire : {{password}}",
+      "email": "Email :",
+      "password": "Mot de passe :",
+      "copyCredentials": "Copier les identifiants",
+      "copied": "✓ Copié !",
+      "autoClose": "Cette fenêtre se fermera automatiquement"
+    },
+    "fields": {
+      "email": {
+        "label": "Email",
+        "placeholder": "utilisateur@exemple.com"
+      },
+      "firstName": {
+        "label": "Prénom",
+        "placeholder": "Jean"
+      },
+      "lastName": {
+        "label": "Nom",
+        "placeholder": "Dupont"
+      },
+      "manager": {
+        "label": "Responsable",
+        "placeholder": "Sélectionner un responsable",
+        "loading": "Chargement...",
+        "search": "Rechercher des responsables...",
+        "noResults": "Aucun responsable trouvé",
+        "isManagerToggle": "Est Responsable",
+        "isManagerInfo": "Cet utilisateur sera marqué comme responsable et pourra être assigné à d'autres membres de l'équipe.",
+        "noManager": "Aucun responsable"
+      },
+      "employmentStartDate": {
+        "label": "Date de Début d'Emploi"
+      },
+      "password": {
+        "label": "Mot de passe Temporaire",
+        "show": "Afficher",
+        "hide": "Masquer",
+        "regenerate": "Régénérer le Mot de passe"
+      },
+      "required": "*"
+    },
+    "buttons": {
+      "create": "Créer l'Utilisateur",
+      "creating": "Création..."
+    },
+    "errors": {
+      "selectManager": "Veuillez sélectionner un responsable",
+      "selectStartDate": "Veuillez sélectionner une date de début d'emploi",
+      "failedToLoadManagers": "Échec du chargement des responsables",
+      "noUsersFound": "Aucun utilisateur existant trouvé. Veuillez vous assurer qu'il y a au moins un utilisateur dans l'entreprise avant d'ajouter de nouveaux utilisateurs.",
+      "failedToCreate": "Échec de la création de l'utilisateur",
+      "unexpectedError": "Une erreur inattendue s'est produite"
+    }
+  },
+  "goalDetailPage": {
+    "loading": {
+      "message": "Chargement des détails de l'objectif..."
+    },
+    "notFound": {
+      "title": "Objectif Non Trouvé",
+      "description": "Cet objectif n'existe pas ou vous n'y avez pas accès.",
+      "backButton": "Retour au Tableau de Bord"
+    },
+    "header": {
+      "backToTeam": "Retour au Tableau de Bord de l'Équipe",
+      "backToMy": "Retour à Mon Tableau de Bord",
+      "employee": "Employé :",
+      "manager": "Responsable :",
+      "separator": "•"
+    },
+    "status": {
+      "pendingApproval": "En Attente d'Approbation",
+      "active": "Actif",
+      "green": "VERT",
+      "yellow": "JAUNE",
+      "red": "ROUGE"
+    },
+    "approval": {
+      "title": "Approbation du Responsable Requise",
+      "description": "{{employeeName}} attend votre approbation pour cet objectif.",
+      "approveButton": "Approuver l'Objectif"
+    },
+    "details": {
+      "descriptionLabel": "Description",
+      "noDescription": "Aucune description fournie",
+      "successCriteriaLabel": "Critères de Réussite",
+      "createdByEmployee": "Créé par l'employé le {{date}}",
+      "createdByManager": "Créé par le responsable le {{date}}",
+      "deleteButton": "Supprimer l'Objectif"
+    },
+    "timeline": {
+      "title": "Chronologie de la Progression ({{count}} mises à jour)",
+      "noUpdates": {
+        "title": "Pas Encore de Mises à Jour",
+        "description": "Les mises à jour hebdomadaires pulse apparaîtront ici"
+      },
+      "weekOf": "Semaine du {{date}}",
+      "progressUpdate": "Mise à Jour de la Progression :",
+      "blockers": "Obstacles :"
+    },
+    "quickActions": {
+      "title": "Actions Rapides",
+      "description": "Gardez votre objectif à jour avec des contrôles pulse hebdomadaires",
+      "submitPulseButton": "Soumettre le Pulse Hebdomadaire"
+    },
+    "messages": {
+      "noSession": "Aucune session trouvée",
+      "approveSuccess": "Objectif approuvé avec succès !",
+      "approveFailed": "Échec de l'approbation de l'objectif",
+      "deleteFailed": "Échec de la suppression de l'objectif",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cet objectif ? Cette action ne peut pas être annulée.",
+      "error": "Erreur : {{message}}"
+    }
+  },
+  "newGoalPage": {
+    "header": {
+      "backButton": "Retour au Tableau de Bord",
+      "title": "Créer un Nouvel Objectif",
+      "subtitle": "Définissez un objectif pour ce trimestre"
+    },
+    "infoBox": {
+      "title": "Conseils pour des objectifs efficaces :",
+      "tips": {
+        "specific": "Soyez spécifique et mesurable",
+        "criteria": "Définissez des critères de réussite clairs",
+        "approval": "Votre responsable examinera et approuvera l'objectif"
+      }
+    },
+    "form": {
+      "goalTitle": {
+        "label": "Titre de l'Objectif",
+        "placeholder": "ex. Améliorer le score de satisfaction client de 15%",
+        "required": "*"
+      },
+      "goalDescription": {
+        "label": "Description de l'Objectif",
+        "placeholder": "Décrivez ce que vous voulez accomplir et pourquoi c'est important..."
+      },
+      "successCriteria": {
+        "label": "Critères de Réussite",
+        "placeholder": "Comment saurez-vous que vous avez atteint cet objectif ? Soyez spécifique..."
+      },
+      "submitButton": {
+        "create": "Créer l'Objectif",
+        "creating": "Création de l'Objectif..."
+      }
+    },
+    "messages": {
+      "createError": "Erreur lors de la création de l'objectif",
+      "createSuccess": "Objectif créé et envoyé pour approbation du responsable !",
+      "error": "Erreur : {{message}}"
+    }
+  },
+  "weeklyPulsePage": {
+    "loading": {
+      "message": "Chargement du contrôle pulse..."
+    },
+    "allCaughtUp": {
+      "title": "Tout est à Jour !",
+      "description": "Vous avez déjà soumis votre pulse hebdomadaire pour tous les objectifs.",
+      "backButton": "Retour au Tableau de Bord"
+    },
+    "header": {
+      "backButton": "Retour au Tableau de Bord",
+      "title": "Contrôle Pulse Hebdomadaire",
+      "weekStarting": "Semaine commençant : {{date}}"
+    },
+    "infoBox": {
+      "title": "Contrôle rapide de 2 minutes sur vos objectifs",
+      "statusLegend": "🟢 Vert = Sur la bonne voie | 🟡 Jaune = Quelques problèmes | 🔴 Rouge = Bloqué/Besoin d'aide"
+    },
+    "form": {
+      "goalLabel": "Objectif {{number}} : {{title}}",
+      "statusQuestion": "Comment cet objectif progresse-t-il ?",
+      "statusButtons": {
+        "onTrack": "🟢 Sur la Bonne Voie",
+        "someIssues": "🟡 Quelques Problèmes",
+        "blocked": "🔴 Bloqué"
+      },
+      "progressUpdate": {
+        "label": "Mise à Jour de la Progression (optionnel)",
+        "placeholder": "Qu'avez-vous accompli cette semaine ?"
+      },
+      "blockers": {
+        "label": "Qu'est-ce qui vous bloque ?",
+        "placeholder": "Décrivez ce qui bloque votre progression pour que votre responsable puisse vous aider",
+        "required": "*"
+      },
+      "submitButton": {
+        "submit": "Soumettre le Pulse Hebdomadaire",
+        "submitting": "Soumission..."
+      }
+    },
+    "messages": {
+      "noSession": "Aucune session trouvée",
+      "submitSuccess": "Pulse hebdomadaire soumis avec succès !",
+      "submitFailed": "Certaines mises à jour ont échoué. Veuillez réessayer.",
+      "error": "Erreur : {{message}}"
+    }
+  },
+  "managerDashboard": {
+    "loading": {
+      "message": "Chargement du tableau de bord de l'équipe..."
+    },
+    "header": {
+      "title": "Performance de l'Équipe",
+      "subtitle": "Surveillez les objectifs et la progression de votre équipe",
+      "myGoalsButton": "Mes Objectifs"
+    },
+    "viewSelector": {
+      "overview": "Aperçu",
+      "redFlags": "Alertes Rouges ({{count}})",
+      "pendingApproval": "En Attente d'Approbation ({{count}})"
+    },
+    "overview": {
+      "noTeamMembers": {
+        "title": "Pas Encore de Membres d'Équipe",
+        "description": "Les objectifs de vos membres d'équipe apparaîtront ici"
+      },
+      "employeeCard": {
+        "activeGoals": "{{count}} objectif actif",
+        "activeGoals_plural": "{{count}} objectifs actifs",
+        "stats": {
+          "active": "Actif",
+          "needsPulse": "Besoin de Pulse",
+          "pending": "En attente"
+        },
+        "viewGoalsButton": "Voir les Objectifs"
+      }
+    },
+    "redFlags": {
+      "title": "Objectifs Nécessitant une Attention",
+      "noRedFlags": {
+        "title": "Aucune Alerte Rouge",
+        "description": "Tous les objectifs de l'équipe sont sur la bonne voie !"
+      },
+      "blockers": "Obstacles :",
+      "updated": "Mis à jour : {{date}}"
+    },
+    "pendingApproval": {
+      "title": "Objectifs en Attente de Votre Approbation",
+      "noPending": {
+        "title": "Aucun Objectif en Attente",
+        "description": "Tous les objectifs ont été examinés"
+      },
+      "successCriteria": "Critères de Réussite :",
+      "approveButton": "Approuver l'Objectif",
+      "viewDetailsButton": "Voir les Détails"
+    }
+  },
+  "performanceDashboard": {
+    "loading": {
+      "message": "Chargement de votre tableau de bord de performance..."
+    },
+    "header": {
+      "title": "Ma Performance",
+      "subtitle": "{{quarter}} - Suivez vos objectifs et votre progression",
+      "newGoalButton": "Nouvel Objectif"
+    },
+    "quickStats": {
+      "activeGoals": "Objectifs Actifs",
+      "needsPulse": "Besoin de Pulse",
+      "redFlags": "Alertes Rouges",
+      "pendingApproval": "En Attente d'Approbation"
+    },
+    "pulseReminder": {
+      "title": "Contrôle Pulse Hebdomadaire Nécessaire",
+      "description": "Vous avez {{count}} objectif qui nécessite une mise à jour hebdomadaire. Cela ne prend que 2 minutes !",
+      "description_plural": "Vous avez {{count}} objectifs qui nécessitent une mise à jour hebdomadaire. Cela ne prend que 2 minutes !",
+      "submitButton": "Soumettre le Pulse Hebdomadaire"
+    },
+    "pendingApproval": {
+      "title": "En Attente d'Approbation du Responsable",
+      "manager": "Responsable : {{name}}",
+      "created": "Créé : {{date}}",
+      "pendingBadge": "En attente",
+      "separator": "•"
+    },
+    "activeGoals": {
+      "title": "Objectifs Actifs ({{count}})",
+      "noGoals": {
+        "title": "Aucun objectif actif encore",
+        "description": "Commencez par créer votre premier objectif pour ce trimestre",
+        "createButton": "Créer le Premier Objectif"
+      },
+      "goalCard": {
+        "manager": "Responsable : {{name}}",
+        "updated": "Mis à jour : {{date}}",
+        "noUpdates": "Pas encore de mises à jour",
+        "needsPulse": "Besoin de pulse cette semaine",
+        "pulseSubmitted": "Pulse soumis",
+        "blockers": "Obstacles :",
+        "separator": "•"
+      }
+    }
+  },
+  "timeClockPage": {
+    "header": {
+      "title": "Pointeuse",
+      "tabs": {
+        "clockInOut": "Pointer Entrée/Sortie",
+        "history": "Historique"
+      }
+    },
+    "clock": {
+      "shift": "Horaire : {{start}} - {{end}}",
+      "clockInButton": "Pointer Entrée",
+      "clockOutButton": "Pointer Sortie",
+      "clockingIn": "Pointage en cours...",
+      "clockingOut": "Sortie en cours...",
+      "activeSession": {
+        "title": "Session Active",
+        "clockedInAt": "Pointé à {{time}}",
+        "timeWorked": "Temps Travaillé"
+      },
+      "weeklySummary": {
+        "title": "Cette Semaine",
+        "hours": "Heures",
+        "onTime": "À l'Heure",
+        "overtime": "Heures Supplémentaires"
+      }
+    },
+    "history": {
+      "title": "Entrées Récentes",
+      "noEntries": {
+        "title": "Aucune entrée de temps encore",
+        "description": "Pointez pour commencer à suivre vos heures"
+      },
+      "entry": {
+        "in": "Entrée : {{time}}",
+        "out": "Sortie : {{time}}",
+        "outPending": "Sortie : —",
+        "hours": "{{hours}}h",
+        "status": {
+          "late": "En retard",
+          "overtime": "Heures Sup",
+          "onTime": "À l'heure"
+        }
+      }
+    },
+    "messages": {
+      "clockInSuccess": "Pointage d'entrée réussi ! ✓",
+      "clockOutSuccess": "Pointage de sortie réussi ! ✓",
+      "clockInFailed": "Échec du pointage d'entrée",
+      "clockOutFailed": "Échec du pointage de sortie",
+      "loadStatusFailed": "Échec du chargement du statut de pointage",
+      "loadHistoryFailed": "Échec du chargement de l'historique",
+      "userNotFound": "Utilisateur non trouvé",
+      "loadUserFailed": "Échec du chargement de l'utilisateur",
+      "unableToLoad": "Impossible de charger les informations de l'utilisateur"
+    },
+    "error": {
+      "title": "Erreur"
+    }
+  },
+  "managerTimeClockPage": {
+    "loading": "Chargement...",
+    "loginRequired": "Veuillez vous connecter pour voir cette page.",
+    "defaultManagerName": "Responsable"
+  },
+  "managerTimeClockDashboard": {
+    "header": {
+      "title": "Pointeuse de l'Équipe",
+      "refreshButton": "Actualiser les données",
+      "pendingApprovals": "{{count}} en attente d'approbation",
+      "pendingApprovals_plural": "{{count}} en attente d'approbation"
+    },
+    "tabs": {
+      "todayStatus": "Statut Aujourd'hui",
+      "pendingApprovals": "Approbations en Attente"
+    },
+    "summary": {
+      "workingNow": "Travaillant Maintenant",
+      "finishedToday": "Terminé Aujourd'hui",
+      "notStarted": "Pas Commencé"
+    },
+    "teamMembers": {
+      "title": "Membres de l'Équipe",
+      "noMembers": {
+        "title": "Aucun membre d'équipe trouvé",
+        "description": "Les employés apparaîtront ici une fois qu'ils vous seront assignés en tant que responsable"
+      },
+      "clockIn": "Entrée : {{time}}",
+      "clockOut": "Sortie : {{time}}",
+      "thisWeek": "Cette Semaine",
+      "hours": "{{hours}}h",
+      "status": {
+        "working": "En train de travailler",
+        "finished": "Terminé",
+        "notStarted": "Pas commencé",
+        "late": "En retard"
+      }
+    },
+    "pendingApprovals": {
+      "title": "Entrées de Temps en Attente d'Approbation",
+      "noPending": {
+        "title": "Tout est à jour !",
+        "description": "Aucune entrée de temps en attente d'approbation"
+      },
+      "employeeNote": "Note de l'Employé :",
+      "overtime": "Heures Sup",
+      "late": "En retard",
+      "rejectButton": "Rejeter",
+      "approveButton": "Approuver"
+    },
+    "messages": {
+      "loadTeamFailed": "Échec du chargement des données de l'équipe",
+      "loadPendingFailed": "Échec du chargement des entrées en attente",
+      "refreshSuccess": "Données actualisées avec succès",
+      "refreshFailed": "Échec de l'actualisation des données",
+      "entryApproved": "Entrée approuvée !",
+      "entryRejected": "Entrée rejetée !",
+      "updateFailed": "Échec de la mise à jour de l'entrée",
+      "unexpectedError": "Une erreur inattendue s'est produite"
+    }
+  },
+  "timeClockModal": {
+    "header": {
+      "title": "Pointeuse"
+    },
+    "clock": {
+      "clockInButton": "Pointer Entrée",
+      "clockOutButton": "Pointer Sortie",
+      "clockingIn": "Pointage en cours...",
+      "clockingOut": "Sortie en cours...",
+      "activeSession": {
+        "title": "Session Active",
+        "since": "Depuis {{time}}",
+        "timeWorked": "Temps Travaillé"
+      },
+      "weeklySummary": {
+        "title": "Cette Semaine",
+        "hours": "Heures",
+        "onTime": "À l'Heure",
+        "overtime": "Heures Sup"
+      }
+    },
+    "actions": {
+      "viewTeamDashboard": "Voir le Tableau de Bord de l'Équipe",
+      "viewFullHistory": "Voir l'Historique Complet →"
+    },
+    "messages": {
+      "clockInSuccess": "Pointage d'entrée réussi !",
+      "clockOutSuccess": "Pointage de sortie réussi !",
+      "clockInFailed": "Échec du pointage d'entrée",
+      "clockOutFailed": "Échec du pointage de sortie"
+    }
+  },
+  "confirmAnalysisModal": {
+    "header": {
+      "title": "Confirmer l'Analyse"
+    },
+    "content": {
+      "description": "Vous êtes sur le point d'analyser tous les candidats de votre base de données pour ce poste.",
+      "stats": {
+        "candidates": "Candidats",
+        "aiCredits": "Crédits IA"
+      },
+      "estimatedTime": "Temps estimé : ~{{time}}",
+      "timeFormat": {
+        "seconds": "{{count}} secondes",
+        "minute": "{{count}} minute",
+        "minutes": "{{count}} minutes"
+      },
+      "warning": "Cela consommera {{count}} crédits IA de votre compte.",
+      "warningBold": "{{count}} crédits IA"
+    },
+    "actions": {
+      "confirm": "Confirmer et Démarrer l'Analyse",
+      "processing": "Traitement...",
+      "createWithout": "Créer le Poste Sans Analyse",
+      "cancel": "Annuler"
+    }
+  },
+  "absenceManagement": {
+    "loading": {
+      "message": "Chargement des données d'absence..."
+    },
+    "error": {
+      "title": "Erreur",
+      "tryAgain": "Réessayer"
+    },
+    "header": {
+      "title": "Gestion des Absences",
+      "subtitle": "Gérez vos congés et temps libre",
+      "requestLeave": "Demander un Congé",
+      "requestShort": "Demander",
+      "withCertificate": "Avec Certificat",
+      "withCertShort": "+ Cert",
+      "calendarView": "Vue Calendrier"
+    },
+    "tabs": {
+      "myLeave": "Mes Congés",
+      "teamApprovals": "Approbations de l'Équipe"
+    },
+    "messages": {
+      "certificateLinked": "Certificat téléchargé et lié au congé maladie !",
+      "certificateLinkFailed": "Certificat téléchargé mais échec du lien à la demande",
+      "unexpectedError": "Une erreur inattendue s'est produite"
+    }
+  },
+  "certificateStatusBadge": {
+    "noCertificate": "Aucun Certificat",
+    "certificateConfirmed": "Certificat Confirmé",
+    "pendingHrReview": "En Attente de Révision RH",
+    "certificateUploaded": "Certificat Téléchargé"
+  },
+  "dateMismatchAlert": {
+    "title": "Problème d'Alignement des Dates",
+    "description": "Les dates du certificat ({{certificateStart}} à {{certificateEnd}}) ne correspondent pas aux dates de la demande de congé ({{leaveStart}} à {{leaveEnd}})."
+  },
+  "emailService": {
+    "cancellation": {
+      "subject": "Entretien Annulé - {{positionTitle}}",
+      "title": "Entretien Annulé",
+      "greeting": "Cher/Chère {{candidateName}},",
+      "body": "Nous regrettons de vous informer que votre entretien pour le poste de <strong>{{positionTitle}}</strong> a été annulé.",
+      "cancelledDate": "📅 Date Annulée :",
+      "cancelledTime": "⏰ Heure Annulée :",
+      "contactInfo": "Si vous avez des questions, n'hésitez pas à contacter {{recruiterName}}.",
+      "closing": "Merci de votre compréhension,",
+      "footer": "Envoyé via HRInno Planificateur d'Entretiens",
+      "icsDescription": "Cet entretien a été annulé.",
+      "icsSummary": "ANNULÉ : Entretien - {{positionTitle}}"
+    },
+    "invitation": {
+      "subjectCandidate": "Invitation à un Entretien - {{positionTitle}}",
+      "subjectRecruiter": "Entretien Planifié - {{candidateName}}",
+      "icsTitle": "Entretien : {{positionTitle}}",
+      "icsDescription": "Entretien pour le poste de {{positionTitle}} avec {{recruiterName}}",
+      "icsFilename": "entretien.ics",
+      "icsFilenameCancelled": "entretien-annule.ics"
+    },
+    "from": {
+      "interviews": "HRInno Entretiens"
+    }
+  },
+  "emailTemplates": {
+    "candidate": {
+      "title": "Invitation à un Entretien",
+      "greeting": "Cher/Chère {{candidateName}},",
+      "body": "Vous avez été invité(e) à un entretien pour le poste de <strong>{{positionTitle}}</strong> avec {{recruiterName}}.",
+      "date": "📅 Date :",
+      "time": "⏰ Heure :",
+      "locationPhysical": "📍 Lieu :",
+      "locationVirtual": "🔗 Lieu :",
+      "calendarInfo": "Une invitation de calendrier a été jointe à cet email. Veuillez l'accepter pour ajouter cet entretien à votre calendrier.",
+      "questions": "Si vous avez des questions ou besoin de reprogrammer, veuillez contacter {{recruiterName}}.",
+      "closing": "Cordialement,",
+      "footer": "Envoyé via HRInno Planificateur d'Entretiens"
+    },
+    "recruiter": {
+      "title": "Entretien Planifié",
+      "greeting": "Bonjour {{recruiterName}},",
+      "body": "Votre entretien avec <strong>{{candidateName}}</strong> pour le poste de <strong>{{positionTitle}}</strong> a été planifié.",
+      "candidateLabel": "👤 Candidat :",
+      "date": "📅 Date :",
+      "time": "⏰ Heure :",
+      "locationPhysical": "📍 Lieu :",
+      "locationVirtual": "🔗 Lieu :",
+      "notification": "Le candidat a été notifié et recevra une invitation de calendrier. Une copie a également été ajoutée à votre calendrier.",
+      "goodLuck": "Bonne chance pour l'entretien !",
+      "footer": "Envoyé via HRInno Planificateur d'Entretiens"
+    }
+  },
+  "notifications": {
+    "header": {
+      "title": "Notifications",
+      "markAllRead": "Tout marquer comme lu"
+    },
+    "empty": "Aucune notification encore",
+    "viewDetails": "Voir les détails",
+    "fallback": {
+      "user": "Utilisateur",
+      "admin": "Administrateur"
+    },
+    "ticket_created": {
+      "title": "Nouveau Ticket",
+      "message": "{{user}} a créé un ticket : \"{{title}}\""
+    },
+    "ticket_message": {
+      "title": "Nouveau Message",
+      "message": "{{sender}} a envoyé un message",
+      "sent_by_admin": "{{sender}} a envoyé un message"
+    },
+    "ticket_status_changed": {
+      "title": "Statut du Ticket Mis à Jour",
+      "message": "Le statut du ticket \"{{title}}\" a changé à : {{status}}"
+    },
+    "leave_request_created": {
+      "title": "Demande de Congé",
+      "message": "Une demande de congé a été soumise"
+    },
+    "goal_created": {
+      "title": "Nouvel Objectif",
+      "message": "Un nouvel objectif a été créé : {{title}}"
+    },
+    "pulse_reminder": {
+      "title": "Rappel Pulse",
+      "message": "Il est temps de compléter votre pulse"
+    },
+    "unknown": {
+      "title": "Notification",
+      "message": "Vous avez une nouvelle notification"
+    }
+  },
+  "statsPage": {
+    "error": {
+      "missingPositionId": "L'identifiant du poste est manquant.",
+      "loadingError": "Erreur lors du chargement des statistiques."
+    },
+    "noCandidates": "Aucun candidat pour ce poste."
+  },
+  "subscription": {
+    "header": {
+      "title": "Gestion de l'Abonnement",
+      "subtitle": "Choisissez le plan parfait pour les besoins de votre entreprise"
+    },
+    "errors": {
+      "fetchCreditPacks": "Échec de la récupération des packs de crédits IA",
+      "unexpectedCreditPacks": "Erreur inattendue lors de la récupération des packs de crédits IA",
+      "companyNotFound": "Entreprise non trouvée",
+      "startPayment": "Impossible de démarrer le paiement",
+      "createCheckout": "Erreur lors de la création du paiement",
+      "fetchCompany": "Échec de la récupération des informations de l'entreprise",
+      "fetchCompanyDetails": "Échec de la récupération des détails de l'entreprise",
+      "unexpectedCompany": "Erreur inattendue lors de la récupération des informations de l'entreprise",
+      "fetchPlanDetails": "Échec de la récupération des détails du plan",
+      "stripePricing": "Échec du chargement des tarifs depuis Stripe. Les plans payants sont temporairement indisponibles.",
+      "invalidPricing": "Données de tarification invalides depuis Stripe. Les plans payants sont temporairement indisponibles.",
+      "somePlansUnavailable": "Certains plans payants sont temporairement indisponibles en raison de problèmes de tarification.",
+      "stripeConnect": "Impossible de se connecter à Stripe. Les plans payants sont temporairement indisponibles.",
+      "fetchPlans": "Échec de la récupération des plans",
+      "companyNotAvailable": "Informations de l'entreprise non disponibles.",
+      "planUnavailable": "Ce plan est temporairement indisponible en raison de problèmes de tarification.",
+      "unableCheckout": "Impossible de démarrer le paiement",
+      "unexpectedCheckout": "Erreur inattendue lors du démarrage du paiement"
+    },
+    "messages": {
+      "freePlan": "Ceci est un plan gratuit. Aucun abonnement nécessaire.",
+      "creditsAdded": "Crédits IA ajoutés avec succès !",
+      "creditsCanceled": "Achat de crédits IA annulé",
+      "paymentSuccess": "Paiement réussi ! Mise à jour de votre abonnement...",
+      "subscriptionUpdated": "Abonnement mis à jour avec succès !",
+      "paymentCanceled": "Paiement annulé"
+    },
+    "processing": {
+      "title": "Traitement de votre paiement...",
+      "message": "Veuillez patienter pendant que nous mettons à jour votre abonnement."
+    },
+    "current": {
+      "title": "Abonnement Actuel",
+      "plan": "Plan",
+      "active": "Actif",
+      "creditsRemaining": "Crédits IA restants"
+    },
+    "noSubscription": {
+      "title": "Aucun Abonnement Actif",
+      "message": "Choisissez un plan pour commencer"
+    },
+    "noPlans": {
+      "title": "Aucun Plan Disponible",
+      "message": "Impossible de charger les informations de tarification. Veuillez réessayer plus tard."
+    },
+    "badges": {
+      "currentPlan": "Plan Actuel"
+    },
+    "plan": {
+      "positions": "{{count}} postes",
+      "certificates": "{{count}} certificats",
+      "happyCheckAccess": "Accès Happy Check",
+      "description": "Parfait pour les entreprises nécessitant {{features}}",
+      "defaultDescription": "Un excellent plan pour les besoins de votre entreprise",
+      "defaultName": "Plan {{id}}"
+    },
+    "features": {
+      "unlimitedPositions": "Postes ouverts illimités",
+      "maxPositions": "Jusqu'à {{count}} postes ouverts",
+      "unlimitedCertificates": "Certificats médicaux illimités",
+      "maxCertificates": "Jusqu'à {{count}} certificats médicaux",
+      "happyCheck": "Fonctionnalité Happy Check incluse",
+      "emailSupport": "Support par email",
+      "analytics": "Analyses de base",
+      "secureStorage": "Stockage de données sécurisé",
+      "aiCreditsIncluded": "{{count}} Crédits IA inclus"
+    },
+    "pricing": {
+      "free": "Gratuit",
+      "perMonth": "HUF/mois"
+    },
+    "buttons": {
+      "freePlan": "Plan Gratuit",
+      "unavailable": "Temporairement Indisponible",
+      "currentPlan": "Plan Actuel",
+      "subscribe": "S'abonner à {{plan}}"
+    },
+    "credits": {
+      "title": "Acheter des Crédits IA",
+      "subtitle": "Besoin de plus de puissance IA ? Choisissez un pack de crédits ci-dessous pour un achat unique.",
+      "packTitle": "{{count}} Crédits IA",
+      "packDescription": "Parfait pour générer des résultats ou insights supplémentaires.",
+      "buyButton": "Acheter {{count}} Crédits"
+    }
+  },
+  "companyUsers": {
+    "header": {
+      "title": "Utilisateurs de l'Entreprise",
+      "teamMembers": "{{count}} membres d'équipe",
+      "addUser": "Ajouter un Utilisateur",
+      "add": "Ajouter"
+    },
+    "roles": {
+      "admin": "Admin",
+      "manager": "Responsable",
+      "user": "Utilisateur"
+    },
+    "common": {
+      "na": "N/A"
+    },
+    "errors": {
+      "companyNotFound": "Entreprise non trouvée",
+      "fetchCompanyId": "Erreur lors de la récupération de l'ID de l'entreprise",
+      "fetchUsers": "Erreur inattendue lors de la récupération des utilisateurs",
+      "updateManager": "Échec de la mise à jour du responsable"
+    },
+    "loading": "Chargement des utilisateurs...",
+    "errorState": {
+      "title": "Oups ! Quelque chose s'est mal passé",
+      "tryAgain": "Réessayer"
+    },
+    "search": {
+      "placeholder": "Rechercher par nom ou email..."
+    },
+    "filter": {
+      "allRoles": "Tous les Rôles",
+      "admins": "Admins",
+      "users": "Utilisateurs"
+    },
+    "empty": {
+      "noUsersFound": "Aucun utilisateur trouvé",
+      "noUsersYet": "Aucun utilisateur encore",
+      "tryAdjusting": "Essayez d'ajuster vos critères de recherche ou de filtre.",
+      "getStarted": "Commencez par ajouter votre premier membre d'équipe.",
+      "addFirstUser": "Ajouter le Premier Utilisateur"
+    },
+    "table": {
+      "name": "Nom",
+      "email": "Email",
+      "manager": "Responsable",
+      "startDate": "Date de Début",
+      "role": "Rôle",
+      "addManager": "+ Ajouter un responsable"
+    },
+    "mobile": {
+      "manager": "Responsable :",
+      "startDate": "Date de Début :",
+      "addManager": "+ Ajouter un responsable"
+    },
+    "managerDropdown": {
+      "searchPlaceholder": "Rechercher des responsables...",
+      "updating": "Mise à jour...",
+      "noManagers": "Aucun responsable trouvé"
+    }
+  },
+  "ticketDetail": {
+    "loading": "Chargement du ticket...",
+    "errors": {
+      "userCompanyNotFound": "Association entreprise-utilisateur non trouvée",
+      "noCompanyAssociation": "L'utilisateur n'est associé à aucune entreprise",
+      "userProfileNotFound": "Profil utilisateur non trouvé",
+      "loadUserData": "Échec du chargement des données utilisateur",
+      "ticketNotFound": "Ticket non trouvé",
+      "loadTicket": "Échec du chargement du ticket",
+      "sendMessage": "Échec de l'envoi du message",
+  "updateStatus": "Échec de la mise à jour du statut du ticket",
+  "downloadFile": "Échec du téléchargement du fichier"
+},
+"common": {
+  "unknownUser": "Utilisateur inconnu",
+  "user": "Utilisateur"
+},
+"notifications": {
+  "newMessage": "Nouveau message",
+  "messageSent": "{{user}} a envoyé un message",
+  "statusUpdated": "Statut du ticket mis à jour",
+  "statusChanged": "Le statut du ticket \"{{title}}\" a été changé en : {{status}}"
+},
+"errorState": {
+  "title": "Oups ! Une erreur s'est produite",
+  "goBack": "Retourner en arrière"
+},
+"header": {
+  "backToTickets": "Retour aux tickets",
+  "created": "Créé",
+  "updateStatus": "Mettre à jour le statut"
+},
+"status": {
+  "open": "Ouvert",
+  "in_progress": "En cours",
+  "resolved": "Résolu",
+  "closed": "Fermé"
+},
+"priority": {
+  "low": "Priorité faible",
+  "medium": "Priorité moyenne",
+  "high": "Priorité élevée",
+  "urgent": "Priorité urgente"
+},
+"time": {
+  "justNow": "À l'instant",
+  "minutesAgo": "Il y a {{count}} minutes",
+  "hoursAgo": "Il y a {{count}} heures"
+},
+"messages": {
+  "title": "Conversation",
+  "count": "{{count}} messages",
+  "empty": "Pas encore de messages. Commencez la conversation !",
+  "placeholder": "Tapez votre message..."
+},
+"attachments": {
+  "title": "Pièces jointes",
+  "empty": "Aucune pièce jointe"
+},
+"statusModal": {
+  "title": "Mettre à jour le statut du ticket",
+  "updating": "Mise à jour...",
+  "cancel": "Annuler"
+}
+,
+
+"createTicket": {
+  "common": {
+    "user": "Utilisateur"
+  },
+  "errors": {
+    "userNotFound": "Utilisateur non trouvé",
+    "companyNotFound": "Entreprise non trouvée",
+    "loadInitialData": "Échec du chargement des données initiales",
+    "fileTooLarge": "Le fichier \"{{fileName}}\" est trop volumineux. La taille maximale est de 5 Mo.",
+    "userNotLoaded": "Utilisateur non chargé",
+    "createTicket": "Échec de la création du ticket"
+  },
+  "notifications": {
+    "newTicket": "Nouveau ticket",
+    "ticketCreated": "{{user}} a créé un ticket : \"{{title}}\""
+  },
+  "success": {
+    "title": "Ticket créé avec succès !",
+    "message": "Votre ticket d'assistance a été soumis et notre équipe y répondra bientôt.",
+    "redirecting": "Redirection..."
+  },
+  "header": {
+    "back": "Retour",
+    "title": "Créer un ticket d'assistance",
+    "subtitle": "Décrivez votre problème et nous vous aiderons à le résoudre"
+  },
+  "form": {
+    "errorTitle": "Erreur",
+    "titleLabel": "Titre",
+    "titlePlaceholder": "Brève description de votre problème",
+    "priorityLabel": "Priorité",
+    "categoryLabel": "Catégorie",
+    "categoryPlaceholder": "Sélectionnez une catégorie",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Veuillez fournir des informations détaillées sur votre problème...",
+    "attachmentsLabel": "Pièces jointes",
+    "maxFileSize": "Max 5 Mo par fichier",
+    "clickToUpload": "Cliquez pour télécharger",
+    "dragAndDrop": "ou glissez-déposez les fichiers ici",
+    "cancelButton": "Annuler",
+    "createButton": "Créer le ticket",
+    "creatingButton": "Création en cours..."
+  },
+  "priority": {
+    "low": "Faible",
+    "medium": "Moyenne",
+    "high": "Élevée",
+    "urgent": "Urgente"
+  }
+}
+,
+"ticketsPage": {
+  "loading": "Chargement des tickets...",
+  "errors": {
+    "userNotFound": "Utilisateur non trouvé",
+    "loadUserData": "Échec du chargement des données utilisateur",
+    "fetchTickets": "Échec de récupération des tickets"
+  },
+  "errorState": {
+    "title": "Oups ! Une erreur s'est produite",
+    "tryAgain": "Réessayer"
+  },
+  "header": {
+    "title": "Tickets d'assistance",
+    "titleAdmin": "Tous les tickets d'assistance",
+    "count": "{{count}} ticket",
+    "acrossCompanies": "dans toutes les entreprises",
+    "newTicket": "Nouveau ticket",
+    "new": "Nouveau"
+  },
+  "search": {
+    "placeholder": "Rechercher des tickets..."
+  },
+  "filters": {
+    "allStatus": "Tous les statuts",
+    "allPriority": "Toutes les priorités"
+  },
+  "status": {
+    "open": "Ouvert",
+    "in_progress": "En cours",
+    "resolved": "Résolu",
+    "closed": "Fermé"
+  },
+  "priority": {
+    "low": "Faible",
+    "medium": "Moyenne",
+    "high": "Élevée",
+    "urgent": "Urgente"
+  },
+  "time": {
+    "minutesAgo": "il y a {{count}} min",
+    "hoursAgo": "il y a {{count}} h"
+  },
+  "common": {
+    "unknown": "Inconnu",
+    "unknownCompany": "Entreprise inconnue"
+  },
+  "empty": {
+    "noTicketsFound": "Aucun ticket trouvé",
+    "noTicketsYet": "Pas encore de tickets",
+    "tryAdjusting": "Essayez d'ajuster vos critères de recherche ou de filtre.",
+    "createFirst": "Créez votre premier ticket d'assistance pour commencer.",
+    "createFirstButton": "Créer le premier ticket"
+  },
+  "table": {
+    "ticket": "Ticket",
+    "status": "Statut",
+    "priority": "Priorité",
+    "company": "Entreprise",
+    "user": "Utilisateur",
+    "created": "Créé",
+    "activity": "Activité"
+  },
+  "mobile": {
+    "messages": "{{count}} message",
+    "files": "{{count}} fichier"
+  }
+},
+"footer": {
+  "operatedBy": "Exploité par Saussez Grégory, Budapest, Hongrie",
+  "privacyLink": "Politique de confidentialité",
+  "termsLink": "Conditions d'utilisation",
+  "cookiesLink": "Politique relative aux cookies",
+  "impressumLink": "Impressum",
+  "contact": "Pour toute question relative à la confidentialité, contactez",
+  "aiDisclaimer": "Les fonctionnalités d'IA sont uniquement à des fins de démonstration et ne doivent pas être utilisées pour de réelles décisions RH."
+},
+"privacyDemo": {
+  "title": "Avis de confidentialité (Version Démo)",
+  "intro": "Cette application de démonstration est exploitée par Saussez Grégory (Budapest, Hongrie). Le but de la démo est de tester les fonctionnalités d'InnoHR et de collecter des retours. Aucune activité commerciale n'est réalisée et le service est gratuit.",
+  "sections": {
+    "dataCollected": {
+      "title": "Données collectées",
+      "items": {
+        "0": "Informations que vous fournissez volontairement (ex. nom, e-mail, retours ou données de test). Veuillez éviter de saisir des informations personnelles réelles ou sensibles.",
+        "1": "Données techniques (comme le type de navigateur, l'adresse IP et la région géographique approximative) utilisées pour l'analyse des performances et la sécurité."
+      }
+    },
+    "purpose": {
+      "title": "Finalité du traitement des données",
+      "text": "Les données sont utilisées uniquement pour évaluer la convivialité de la démo, assurer la sécurité du système et améliorer le développement futur d'InnoHR."
+    },
+    "storage": {
+      "title": "Stockage et conservation des données",
+      "text": "Toutes les données de la démo sont automatiquement supprimées chaque nuit dans le cadre d'un processus de nettoyage programmé. Seuls des journaux techniques minimaux peuvent être conservés jusqu'à 90 jours à des fins de sécurité et de débogage."
+    },
+    "aiProcessing": {
+      "title": "Traitement par IA",
+      "text": "Certaines fonctionnalités de la démo utilisent des réponses générées par l'IA (via OpenRouter ou les API OpenAI). Ces réponses sont uniquement à des fins de démonstration et ne doivent pas être utilisées pour la prise de décision ou l'évaluation des employés."
+    },
+    "thirdParty": {
+      "title": "Services tiers",
+      "items": {
+        "supabase": {
+          "name": "Supabase (Plateforme BaaS)",
+          "desc": "Finalité : Hébergement de base de données et authentification. Siège : USA (serveurs basés dans l'UE).",
+          "linkHref": "https://supabase.com/privacy",
+          "linkText": "Politique de confidentialité",
+          "color": "border-blue-500"
+        },
+        "openai": {
+          "name": "OpenRouter / OpenAI (Service IA)",
+          "desc": "Finalité : Analyse et réponses basées sur l'IA. Siège : USA. Les données ne sont pas stockées à long terme.",
+          "linkHref": "https://openai.com/privacy",
+          "linkText": "Politique de confidentialité",
+          "color": "border-green-500"
+        },
+        "vercel": {
+          "name": "Vercel (Hébergement)",
+          "desc": "Finalité : Hébergement web et distribution de contenu. Siège : USA (région UE activée).",
+          "linkHref": "https://vercel.com/legal/privacy-policy",
+          "linkText": "Politique de confidentialité",
+          "color": "border-purple-500"
+        },
+        "stripe": {
+          "name": "Stripe (Service de paiement)",
+          "desc": "Finalité : Traitement des paiements. Actuellement désactivé dans la version démo. Siège : USA (stockage des données dans l'UE).",
+          "linkHref": "https://stripe.com/privacy",
+          "linkText": "Politique de confidentialité",
+          "color": "border-orange-500"
+        },
+        "resend": {
+          "name": "Resend / Nodemailer (Envoi d'e-mails)",
+          "desc": "Finalité : Envoi d'e-mails de notification interne au développeur. Aucun message marketing externe n'est envoyé.",
+          "linkHref": "https://resend.com/privacy",
+          "linkText": "Politique de confidentialité",
+          "color": "border-teal-500"
+        }
+      },
+      "noticeTitle": "Transfert de données :",
+      "noticeText": "Certaines données peuvent être transférées en dehors de l'Union européenne. Des clauses contractuelles standard (SCC) sont utilisées pour assurer une protection adéquate des données personnelles."
+    },
+    "dataController": {
+      "title": "Informations du responsable du traitement",
+      "nameLabel": "Nom :",
+      "emailLabel": "E-mail :",
+      "addressLabel": "Adresse :",
+      "dpoLabel": "Délégué à la protection des données :",
+      "name": "Saussez Grégory",
+      "email": "privacy@innohr.hu",
+      "address": "Budapest, Hongrie",
+      "dpo": "privacy@innohr.hu"
+    },
+    "userRights": {
+      "title": "Vos droits",
+      "text": "Vous pouvez demander l'accès à vos données ou leur suppression à tout moment en contactant privacy@innohr.hu. Vous avez également le droit de déposer une plainte auprès de l'Autorité nationale hongroise de protection des données et de la liberté d'information (NAIH) sur www.naih.hu."
+    },
+    "contact": {
+      "title": "Contact",
+      "text": "Exploitant : Saussez Grégory, Budapest, Hongrie",
+      "email": "privacy@innohr.hu"
+    }
+  },
+  "lastUpdated": "Dernière mise à jour : novembre 2025"
+},
+"cookies": {
+  "title": "Cookies et Données",
+  "text": "Nous utilisons des cookies pour améliorer l'expérience de la démo. Aucun cookie de suivi ou de marketing tiers n'est utilisé.",
+  "accept": "Accepter",
+  "reject": "Refuser"
+},
+
+"termsDemo": {
+  "title": "Conditions d'utilisation de la Démo",
+  "lastUpdated": "Dernière mise à jour : {date}",
+  "sections": {
+    "demoFeatures": {
+      "title": "1. Caractéristiques de la version démo",
+      "content": "Il s'agit d'une version démo gratuite à des fins de test. Les fonctionnalités du système sont limitées et les données seront automatiquement supprimées après 30 jours."
+    },
+    "liability": {
+      "title": "2. Clause de non-responsabilité",
+      "content": "La version démo est fournie « telle quelle » sans aucune garantie. N'utilisez pas de données personnelles réelles ou d'informations sensibles."
+    },
+    "dataProcessing": {
+      "title": "3. Traitement des données",
+      "content": "Les données fournies lors de l'utilisation de la démo sont utilisées uniquement pour les tests du système.",
+      "detailsLink": "Détails :",
+      "privacyPolicy": "Politique de confidentialité"
+    },
+    "aiContent": {
+      "title": "4. Contenu généré par IA",
+      "content": "Le contenu généré par l'IA ne constitue pas un conseil professionnel. Des inexactitudes peuvent survenir."
+    },
+    "termination": {
+      "title": "5. Résiliation de l'accès",
+      "content": "Nous nous réservons le droit de mettre fin immédiatement à l'accès à la démo sans préavis."
+    },
+    "contact": {
+      "title": "6. Contact",
+      "content": "Pour toute question :"
+    }
+  }
+}
+,
+"demoBanner": {
+  "title": "Version démo :",
+  "text": "N'utilisez pas de données personnelles réelles. Toutes les données de la démo sont automatiquement supprimées chaque nuit."
+},
+
+"impressumDemo": {
+  "title": "Impressum",
+  "intro": "Conformément au droit européen, les informations légales suivantes s’appliquent à ce site web et à cette version démo.",
+  "fields": {
+    "operator": "Opérateur",
+    "address": "Adresse",
+    "email": "E-mail",
+    "website": "Site web"
+  },
+  "sections": {
+    "liability": {
+      "title": "Clause de non-responsabilité",
+      "text": "Malgré un contrôle soigneux du contenu, nous n'assumons aucune responsabilité pour le contenu des liens externes. Les opérateurs des pages liées sont seuls responsables de leur contenu."
+    },
+    "copyright": {
+      "title": "Avis de droit d'auteur",
+      "text": "Tous les textes, images et codes sources sont protégés par le droit d'auteur. Toute reproduction ou utilisation en dehors des limites du droit d'auteur nécessite une autorisation écrite préalable."
+    }
+  },
+  "lastUpdated": "Dernière mise à jour : octobre 2025"
+},
+
+"cookiesDemo": {
+  "title": "Avis relatif aux cookies (Version Démo)",
+  "intro": "Cette application de démonstration utilise un minimum de cookies et de technologies similaires afin d’assurer son bon fonctionnement et de mesurer les performances techniques. Aucun cookie publicitaire ou de suivi n’est utilisé.",
+  "sections": {
+    "whatAreCookies": {
+      "title": "Que sont les cookies ?",
+      "text": "Les cookies sont de petits fichiers texte stockés sur votre appareil lorsque vous visitez un site web. Ils permettent aux sites de fonctionner correctement, de mémoriser vos préférences et de collecter des statistiques d'utilisation anonymes."
+    },
+    "howWeUse": {
+      "title": "Comment nous utilisons les cookies",
+      "text": "Nous utilisons uniquement des cookies essentiels nécessaires à l'authentification et à la sécurité (via Supabase), ainsi qu’à l'analyse technique (via Vercel). Ces cookies ne vous identifient pas personnellement et sont automatiquement supprimés à la fin de votre session."
+    },
+    "types": {
+      "title": "Types de cookies utilisés",
+      "items": {
+        "necessary": "Cookies nécessaires – requis pour la connexion, la gestion de session et la sécurité.",
+        "analytics": "Cookies d'analyse – utilisés pour surveiller les performances techniques via Vercel Analytics. Aucun suivi personnel.",
+        "functional": "Cookies fonctionnels – utilisés temporairement pour mémoriser votre langue de démo et vos préférences de consentement."
+      }
+    },
+    "manage": {
+      "title": "Gestion des cookies",
+      "text": "Vous pouvez gérer ou supprimer les cookies via les paramètres de votre navigateur. Comme il s'agit d'un environnement de démonstration, la désactivation des cookies peut empêcher certaines fonctionnalités (ex. connexion ou paramètres de langue) de fonctionner correctement."
+    },
+    "moreInfo": {
+      "title": "Plus d'informations",
+      "text": "Si vous avez des questions concernant cet avis relatif aux cookies, veuillez nous contacter à"
+    }
+  },
+  "lastUpdated": "Dernière mise à jour : novembre 2025"
+}
+    }
+,
+
+
+"createTicket": {
+  "common": {
+    "user": "Utilisateur"
+  },
+  "errors": {
+    "userNotFound": "Utilisateur non trouvé",
+    "companyNotFound": "Entreprise non trouvée",
+    "loadInitialData": "Échec du chargement des données initiales",
+    "fileTooLarge": "Le fichier \"{{fileName}}\" est trop volumineux. La taille maximale est de 5 Mo.",
+    "userNotLoaded": "Utilisateur non chargé",
+    "createTicket": "Échec de la création du ticket"
+  },
+  "notifications": {
+    "newTicket": "Nouveau ticket",
+    "ticketCreated": "{{user}} a créé un ticket : \"{{title}}\""
+  },
+  "success": {
+    "title": "Ticket créé avec succès !",
+    "message": "Votre ticket d'assistance a été soumis et notre équipe y répondra bientôt.",
+    "redirecting": "Redirection..."
+  },
+  "header": {
+    "back": "Retour",
+    "title": "Créer un ticket d'assistance",
+    "subtitle": "Décrivez votre problème et nous vous aiderons à le résoudre"
+  },
+  "form": {
+    "errorTitle": "Erreur",
+    "titleLabel": "Titre",
+    "titlePlaceholder": "Brève description de votre problème",
+    "priorityLabel": "Priorité",
+    "categoryLabel": "Catégorie",
+    "categoryPlaceholder": "Sélectionnez une catégorie",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Veuillez fournir des informations détaillées sur votre problème...",
+    "attachmentsLabel": "Pièces jointes",
+    "maxFileSize": "Max 5 Mo par fichier",
+    "clickToUpload": "Cliquez pour télécharger",
+    "dragAndDrop": "ou glissez-déposez les fichiers ici",
+    "cancelButton": "Annuler",
+    "createButton": "Créer le ticket",
+    "creatingButton": "Création en cours..."
+  },
+  "priority": {
+    "low": "Faible",
+    "medium": "Moyenne",
+    "high": "Élevée",
+    "urgent": "Urgente"
+  }
+},
+
+"ticketsPage": {
+  "loading": "Chargement des tickets...",
+  "errors": {
+    "userNotFound": "Utilisateur non trouvé",
+    "loadUserData": "Échec du chargement des données utilisateur",
+    "fetchTickets": "Échec de récupération des tickets"
+  },
+  "errorState": {
+    "title": "Oups ! Une erreur s'est produite",
+    "tryAgain": "Réessayer"
+  },
+  "header": {
+    "title": "Tickets d'assistance",
+    "titleAdmin": "Tous les tickets d'assistance",
+    "count": "{{count}} ticket",
+    "acrossCompanies": "dans toutes les entreprises",
+    "newTicket": "Nouveau ticket",
+    "new": "Nouveau"
+  },
+  "search": {
+    "placeholder": "Rechercher des tickets..."
+  },
+  "filters": {
+    "allStatus": "Tous les statuts",
+    "allPriority": "Toutes les priorités"
+  },
+  "status": {
+    "open": "Ouvert",
+    "in_progress": "En cours",
+    "resolved": "Résolu",
+    "closed": "Fermé"
+  },
+  "priority": {
+    "low": "Faible",
+    "medium": "Moyenne",
+    "high": "Élevée",
+    "urgent": "Urgente"
+  },
+  "time": {
+    "minutesAgo": "il y a {{count}} min",
+    "hoursAgo": "il y a {{count}} h"
+  },
+  "common": {
+    "unknown": "Inconnu",
+    "unknownCompany": "Entreprise inconnue"
+  },
+  "empty": {
+    "noTicketsFound": "Aucun ticket trouvé",
+    "noTicketsYet": "Pas encore de tickets",
+    "tryAdjusting": "Essayez d'ajuster vos critères de recherche ou de filtre.",
+    "createFirst": "Créez votre premier ticket d'assistance pour commencer.",
+    "createFirstButton": "Créer le premier ticket"
+  },
+  "table": {
+    "ticket": "Ticket",
+    "status": "Statut",
+    "priority": "Priorité",
+    "company": "Entreprise",
+    "user": "Utilisateur",
+    "created": "Créé",
+    "activity": "Activité"
+  },
+  "mobile": {
+    "messages": "{{count}} message",
+    "files": "{{count}} fichier"
+  }
+},
+
+"footer": {
+  "operatedBy": "Exploité par Saussez Grégory, Budapest, Hongrie",
+  "privacyLink": "Politique de confidentialité",
+  "termsLink": "Conditions d'utilisation",
+  "cookiesLink": "Politique relative aux cookies",
+  "impressumLink": "Impressum",
+  "contact": "Pour toute question relative à la confidentialité, contactez",
+  "aiDisclaimer": "Les fonctionnalités d'IA sont uniquement à des fins de démonstration et ne doivent pas être utilisées pour de réelles décisions RH."
+},
+
+"privacyDemo": {
+  "title": "Avis de confidentialité (Version Démo)",
+  "intro": "Cette application de démonstration est exploitée par Saussez Grégory (Budapest, Hongrie). Le but de la démo est de tester les fonctionnalités d'InnoHR et de collecter des retours. Aucune activité commerciale n'est réalisée et le service est gratuit.",
+  "sections": {
+    "dataCollected": {
+      "title": "Données collectées",
+      "items": {
+        "0": "Informations que vous fournissez volontairement (ex. nom, e-mail, retours ou données de test). Veuillez éviter de saisir des informations personnelles réelles ou sensibles.",
+        "1": "Données techniques (comme le type de navigateur, l'adresse IP et la région géographique approximative) utilisées pour l'analyse des performances et la sécurité."
+      }
+    },
+    "purpose": {
+      "title": "Finalité du traitement des données",
+      "text": "Les données sont utilisées uniquement pour évaluer la convivialité de la démo, assurer la sécurité du système et améliorer le développement futur d'InnoHR."
+    },
+    "storage": {
+      "title": "Stockage et conservation des données",
+      "text": "Toutes les données de la démo sont automatiquement supprimées chaque nuit dans le cadre d'un processus de nettoyage programmé. Seuls des journaux techniques minimaux peuvent être conservés jusqu'à 90 jours à des fins de sécurité et de débogage."
+    },
+    "aiProcessing": {
+      "title": "Traitement par IA",
+      "text": "Certaines fonctionnalités de la démo utilisent des réponses générées par l'IA (via OpenRouter ou les API OpenAI). Ces réponses sont uniquement à des fins de démonstration et ne doivent pas être utilisées pour la prise de décision ou l'évaluation des employés."
+    },
+    "thirdParty": {
+      "title": "Services tiers",
+      "items": {
+        "supabase": {
+          "name": "Supabase (Plateforme BaaS)",
+          "desc": "Finalité : Hébergement de base de données et authentification. Siège : USA (serveurs basés dans l'UE).",
+          "linkHref": "https://supabase.com/privacy",
+          "linkText": "Politique de confidentialité",
+          "color": "border-blue-500"
+        },
+        "openai": {
+          "name": "OpenRouter / OpenAI (Service IA)",
+          "desc": "Finalité : Analyse et réponses basées sur l'IA. Siège : USA. Les données ne sont pas stockées à long terme.",
+          "linkHref": "https://openai.com/privacy",
+          "linkText": "Politique de confidentialité",
+          "color": "border-green-500"
+        },
+        "vercel": {
+          "name": "Vercel (Hébergement)",
+          "desc": "Finalité : Hébergement web et distribution de contenu. Siège : USA (région UE activée).",
+          "linkHref": "https://vercel.com/legal/privacy-policy",
+          "linkText": "Politique de confidentialité",
+          "color": "border-purple-500"
+        },
+        "stripe": {
+          "name": "Stripe (Service de paiement)",
+          "desc": "Finalité : Traitement des paiements. Actuellement désactivé dans la version démo. Siège : USA (stockage des données dans l'UE).",
+          "linkHref": "https://stripe.com/privacy",
+          "linkText": "Politique de confidentialité",
+          "color": "border-orange-500"
+        },
+        "resend": {
+          "name": "Resend / Nodemailer (Envoi d'e-mails)",
+          "desc": "Finalité : Envoi d'e-mails de notification interne au développeur. Aucun message marketing externe n'est envoyé.",
+          "linkHref": "https://resend.com/privacy",
+          "linkText": "Politique de confidentialité",
+          "color": "border-teal-500"
+        }
+      },
+      "noticeTitle": "Transfert de données :",
+      "noticeText": "Certaines données peuvent être transférées en dehors de l'Union européenne. Des clauses contractuelles standard (SCC) sont utilisées pour assurer une protection adéquate des données personnelles."
+    },
+    "dataController": {
+      "title": "Informations du responsable du traitement",
+      "nameLabel": "Nom :",
+      "emailLabel": "E-mail :",
+      "addressLabel": "Adresse :",
+      "dpoLabel": "Délégué à la protection des données :",
+      "name": "Saussez Grégory",
+      "email": "privacy@innohr.hu",
+      "address": "Budapest, Hongrie",
+      "dpo": "privacy@innohr.hu"
+    },
+    "userRights": {
+      "title": "Vos droits",
+      "text": "Vous pouvez demander l'accès à vos données ou leur suppression à tout moment en contactant privacy@innohr.hu. Vous avez également le droit de déposer une plainte auprès de l'Autorité nationale hongroise de protection des données et de la liberté d'information (NAIH) sur www.naih.hu."
+    },
+    "contact": {
+      "title": "Contact",
+      "text": "Exploitant : Saussez Grégory, Budapest, Hongrie",
+      "email": "privacy@innohr.hu"
+    }
+  },
+  "lastUpdated": "Dernière mise à jour : novembre 2025"
+},
+
+"cookies": {
+  "title": "Cookies et Données",
+  "text": "Nous utilisons des cookies pour améliorer l'expérience de la démo. Aucun cookie de suivi ou de marketing tiers n'est utilisé.",
+  "accept": "Accepter",
+  "reject": "Refuser"
+},
+
+"termsDemo": {
+  "title": "Conditions d'utilisation de la Démo",
+  "lastUpdated": "Dernière mise à jour : {date}",
+  "sections": {
+    "demoFeatures": {
+      "title": "1. Caractéristiques de la version démo",
+      "content": "Il s'agit d'une version démo gratuite à des fins de test. Les fonctionnalités du système sont limitées et les données seront automatiquement supprimées après 30 jours."
+    },
+    "liability": {
+      "title": "2. Clause de non-responsabilité",
+      "content": "La version démo est fournie « telle quelle » sans aucune garantie. N'utilisez pas de données personnelles réelles ou d'informations sensibles."
+    },
+    "dataProcessing": {
+      "title": "3. Traitement des données",
+      "content": "Les données fournies lors de l'utilisation de la démo sont utilisées uniquement pour les tests du système.",
+      "detailsLink": "Détails :",
+      "privacyPolicy": "Politique de confidentialité"
+    },
+    "aiContent": {
+      "title": "4. Contenu généré par IA",
+      "content": "Le contenu généré par l'IA ne constitue pas un conseil professionnel. Des inexactitudes peuvent survenir."
+    },
+    "termination": {
+      "title": "5. Résiliation de l'accès",
+      "content": "Nous nous réservons le droit de mettre fin immédiatement à l'accès à la démo sans préavis."
+    },
+    "contact": {
+      "title": "6. Contact",
+      "content": "Pour toute question :"
+    }
+  }
+},
+
+"demoBanner": {
+  "title": "Version démo :",
+  "text": "N'utilisez pas de données personnelles réelles. Toutes les données de la démo sont automatiquement supprimées chaque nuit."
+},
+
+"impressumDemo": {
+  "title": "Impressum",
+  "intro": "Conformément au droit européen, les informations légales suivantes s'appliquent à ce site web et à cette version démo.",
+  "fields": {
+    "operator": "Opérateur",
+    "address": "Adresse",
+    "email": "E-mail",
+    "website": "Site web"
+  },
+  "sections": {
+    "liability": {
+      "title": "Clause de non-responsabilité",
+      "text": "Malgré un contrôle soigneux du contenu, nous n'assumons aucune responsabilité pour le contenu des liens externes. Les opérateurs des pages liées sont seuls responsables de leur contenu."
+    },
+    "copyright": {
+      "title": "Avis de droit d'auteur",
+      "text": "Tous les textes, images et codes sources sont protégés par le droit d'auteur. Toute reproduction ou utilisation en dehors des limites du droit d'auteur nécessite une autorisation écrite préalable."
+    }
+  },
+  "lastUpdated": "Dernière mise à jour : octobre 2025"
+},
+
+"cookiesDemo": {
+  "title": "Avis relatif aux cookies (Version Démo)",
+  "intro": "Cette application de démonstration utilise un minimum de cookies et de technologies similaires afin d'assurer son bon fonctionnement et de mesurer les performances techniques. Aucun cookie publicitaire ou de suivi n'est utilisé.",
+  "sections": {
+    "whatAreCookies": {
+      "title": "Que sont les cookies ?",
+      "text": "Les cookies sont de petits fichiers texte stockés sur votre appareil lorsque vous visitez un site web. Ils permettent aux sites de fonctionner correctement, de mémoriser vos préférences et de collecter des statistiques d'utilisation anonymes."
+    },
+    "howWeUse": {
+      "title": "Comment nous utilisons les cookies",
+      "text": "Nous utilisons uniquement des cookies essentiels nécessaires à l'authentification et à la sécurité (via Supabase), ainsi qu'à l'analyse technique (via Vercel). Ces cookies ne vous identifient pas personnellement et sont automatiquement supprimés à la fin de votre session."
+    },
+    "types": {
+      "title": "Types de cookies utilisés",
+      "items": {
+        "necessary": "Cookies nécessaires — requis pour la connexion, la gestion de session et la sécurité.",
+        "analytics": "Cookies d'analyse — utilisés pour surveiller les performances techniques via Vercel Analytics. Aucun suivi personnel.",
+        "functional": "Cookies fonctionnels — utilisés temporairement pour mémoriser votre langue de démo et vos préférences de consentement."
+      }
+    },
+    "manage": {
+      "title": "Gestion des cookies",
+      "text": "Vous pouvez gérer ou supprimer les cookies via les paramètres de votre navigateur. Comme il s'agit d'un environnement de démonstration, la désactivation des cookies peut empêcher certaines fonctionnalités (ex. connexion ou paramètres de langue) de fonctionner correctement."
+    },
+    "moreInfo": {
+      "title": "Plus d'informations",
+      "text": "Si vous avez des questions concernant cet avis relatif aux cookies, veuillez nous contacter à "
+    }
+  },
+  "lastUpdated": "Dernière mise à jour : novembre 2025"
+}
+
+  }
+
+
+
+
+
+
+      
