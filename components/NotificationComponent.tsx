@@ -131,7 +131,7 @@ export default function NotificationComponent({
 
     const fetchNotifications = async () => {
       try {
-        let query = supabase
+        const query = supabase
           .from('notifications')
           .select('*')
           .eq('recipient_id', currentUser.id)
