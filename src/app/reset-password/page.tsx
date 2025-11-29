@@ -76,10 +76,6 @@ export default function ResetPasswordPage() {
       setError(error.message);
     } else {
       setSuccess(true);
-      // Optionally redirect after a delay
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 2000);
     }
   };
 
@@ -139,9 +135,6 @@ export default function ResetPasswordPage() {
         <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
           <p className="text-green-700 text-sm">
             {t('resetPage.messages.passwordUpdated')}
-          </p>
-          <p className="text-green-600 text-xs mt-1">
-            {t('resetPage.messages.redirecting') || 'Redirecting...'}
           </p>
         </div>
       )}
