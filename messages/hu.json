@@ -2271,7 +2271,8 @@
   },
   "buttons": {
     "save": "Új jelszó mentése",
-    "backToHome": "Vissza a főoldalra"
+    "backToHome": "Vissza a főoldalra",
+    "backToApp": "Vissza az alkalmazáshoz"
   },
   "messages": {
     "passwordUpdated": "A jelszavad frissítve lett!",

@@ -1,7 +1,7 @@
 // components/Header/LoginModal.tsx
 import React from 'react';
 import { useLocale } from 'i18n/LocaleProvider';
-import { supabase } from '../../lib/supabaseClient'; // ensure correct path
+import { supabase } from '../../lib/supabaseClient';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -57,6 +57,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({
     }
 
     setIsSending(true);
+
+    // Store the slug in localStorage so we can redirect back to it
+    if (slug && slug !== 'demo') {
+      localStorage.setItem('reset_password_slug', slug);
+    }
 
     const { error } = await supabase.auth.resetPasswordForEmail(login, {
       redirectTo: `${window.location.origin}/reset-password`

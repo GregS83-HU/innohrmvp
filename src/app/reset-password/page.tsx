@@ -79,6 +79,21 @@ export default function ResetPasswordPage() {
     }
   };
 
+  const handleBackToApp = () => {
+    // Get the stored slug from localStorage
+    const storedSlug = localStorage.getItem('reset_password_slug');
+    
+    if (storedSlug) {
+      // Clean up the stored slug
+      localStorage.removeItem('reset_password_slug');
+      // Redirect to the company-specific URL
+      window.location.href = `/jobs/${storedSlug}`;
+    } else {
+      // Fallback to home
+      window.location.href = '/';
+    }
+  };
+
   if (loading) {
     return (
       <div className="p-6 max-w-md mx-auto">
@@ -99,7 +114,7 @@ export default function ResetPasswordPage() {
           </h2>
           <p className="text-red-700 mb-4">{error}</p>
           <button
-            onClick={() => window.location.href = '/'}
+            onClick={handleBackToApp}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors"
           >
             {t('resetPage.buttons.backToHome') || 'Back to Home'}
@@ -139,13 +154,24 @@ export default function ResetPasswordPage() {
         </div>
       )}
 
-      <button
-        onClick={handleUpdate}
-        disabled={success}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {t('resetPage.buttons.save')}
-      </button>
+      <div className="space-y-3">
+        <button
+          onClick={handleUpdate}
+          disabled={success}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {t('resetPage.buttons.save')}
+        </button>
+
+        {success && (
+          <button
+            onClick={handleBackToApp}
+            className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg transition-colors"
+          >
+            {t('resetPage.buttons.backToApp') || 'Back to Application'}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

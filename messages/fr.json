@@ -2528,7 +2528,8 @@
   },
   "buttons": {
     "save": "Enregistrer le nouveau mot de passe",
-    "backToHome": "Retour à l'accueil"
+    "backToHome": "Retour à l'accueil",
+    "backToApp": "Retour à l'application"
   },
   "messages": {
     "passwordUpdated": "Votre mot de passe a été mis à jour !",

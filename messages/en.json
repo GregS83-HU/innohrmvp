@@ -2281,7 +2281,8 @@
   },
   "buttons": {
     "save": "Save new password",
-    "backToHome": "Back to Home"
+    "backToHome": "Back to Home",
+    "backToApp": "Back to Application"
   },
   "messages": {
     "passwordUpdated": "Your password has been updated!",
