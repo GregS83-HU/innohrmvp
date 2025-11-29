@@ -1009,6 +1009,7 @@
     "active": "Mode Démonstration - Temps restant : {{time}}",
     "autoCloseWarning": "L'application se fermera automatiquement à la fin du chronomètre"
   },
+ 
   "loginModal": {
     "title": "Connexion",
     "subtitle": {
@@ -1016,9 +1017,9 @@
       "normal": "Connectez-vous à votre compte"
     },
     "demoAccounts": {
-      "user": "Se connecter en tant qu'Utilisateur",
-      "manager": "Se connecter en tant que Responsable",
-      "hrManager": "Se connecter en tant que Responsable RH"
+      "user": "Connexion en tant qu’utilisateur",
+      "manager": "Connexion en tant que manager",
+      "hrManager": "Connexion en tant que responsable RH"
     },
     "fields": {
       "email": "Email",
@@ -1028,9 +1029,21 @@
     },
     "buttons": {
       "cancel": "Annuler",
-      "connect": "Se Connecter"
-    }
-  },
+      "connect": "Se connecter",
+      "forgotPassword": "Mot de passe oublié ?",
+      "resetPassword": "Envoyer le lien de réinitialisation",
+      "backToLogin": "Retour à la connexion",
+      "sending": "Envoi en cours..."
+    },
+    "messages": {
+      "missingEmail": "Veuillez saisir votre adresse email.",
+      "resetEmailSent": "Un email de réinitialisation du mot de passe a été envoyé."
+    },
+    "resetTitle": "Réinitialiser le mot de passe",
+    "resetDescription": "Entrez votre adresse email et nous vous enverrons un lien de réinitialisation."
+  }
+,
+
   "menuItem": {
     "tooltips": {
       "demoExpired": "Démo expirée - Contactez-nous pour continuer",
@@ -2505,6 +2518,25 @@
   },
   "lastUpdated": "Dernière mise à jour : novembre 2025"
 }
+
+,
+  "resetPage": {
+    "title": "Réinitialiser le mot de passe",
+    "fields": {
+      "newPasswordPlaceholder": "Nouveau mot de passe"
+    },
+    "buttons": {
+      "save": "Enregistrer le nouveau mot de passe"
+    },
+    "messages": {
+      "passwordUpdated": "Votre mot de passe a été mis à jour !"
+    },
+    "errors": {
+      "missingPassword": "Veuillez saisir un nouveau mot de passe."
+    }
+  }
+
+
 
   }
 

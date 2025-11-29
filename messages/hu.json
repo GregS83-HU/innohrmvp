@@ -1047,11 +1047,12 @@
     "autoCloseWarning": "Az alkalmazás automatikusan bezárul az időzítő lejártakor"
   }
 ,
+ 
   "loginModal": {
     "title": "Bejelentkezés",
     "subtitle": {
-      "demo": "Válasszon egy demó fiókot",
-      "normal": "Jelentkezzen be a fiókjába"
+      "demo": "Válassz egy demo fiókot",
+      "normal": "Jelentkezz be a fiókodba"
     },
     "demoAccounts": {
       "user": "Bejelentkezés felhasználóként",
@@ -1059,16 +1060,28 @@
       "hrManager": "Bejelentkezés HR vezetőként"
     },
     "fields": {
-      "email": "E-mail",
-      "emailPlaceholder": "onk@example.com",
+      "email": "Email",
+      "emailPlaceholder": "sajat@email.com",
       "password": "Jelszó",
       "passwordPlaceholder": "••••••••"
     },
     "buttons": {
       "cancel": "Mégse",
-      "connect": "Bejelentkezés"
-    }
+      "connect": "Bejelentkezés",
+      "forgotPassword": "Elfelejtetted a jelszavad?",
+      "resetPassword": "Visszaállító link küldése",
+      "backToLogin": "Vissza a bejelentkezéshez",
+      "sending": "Küldés..."
+    },
+    "messages": {
+      "missingEmail": "Kérjük, add meg az email címed.",
+      "resetEmailSent": "A jelszó-visszaállító emailt elküldtük."
+    },
+    "resetTitle": "Jelszó visszaállítása",
+    "resetDescription": "Add meg az email címed, és elküldjük a jelszó-visszaállító linket."
   }
+
+
 ,
   "menuItem": {
     "tooltips": {
@@ -2248,6 +2261,24 @@
   },
   "lastUpdated": "Utolsó frissítés: 2025. november"
 }
+
+,
+  "resetPage": {
+    "title": "Jelszó visszaállítása",
+    "fields": {
+      "newPasswordPlaceholder": "Új jelszó"
+    },
+    "buttons": {
+      "save": "Új jelszó mentése"
+    },
+    "messages": {
+      "passwordUpdated": "A jelszavad frissítve lett!"
+    },
+    "errors": {
+      "missingPassword": "Kérjük, adj meg egy új jelszót."
+    }
+  }
+
 
 
 }

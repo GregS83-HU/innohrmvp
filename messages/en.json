@@ -1052,6 +1052,7 @@
     "autoCloseWarning": "The application will close automatically at the end of the timer"
   }
 ,
+ 
   "loginModal": {
     "title": "Login",
     "subtitle": {
@@ -1071,9 +1072,21 @@
     },
     "buttons": {
       "cancel": "Cancel",
-      "connect": "Connect"
-    }
+      "connect": "Connect",
+      "forgotPassword": "Forgot password?",
+      "resetPassword": "Send reset link",
+      "backToLogin": "Back to login",
+      "sending": "Sending..."
+    },
+    "messages": {
+      "missingEmail": "Please enter your email.",
+      "resetEmailSent": "A password reset email has been sent."
+    },
+    "resetTitle": "Reset password",
+    "resetDescription": "Enter your email and we’ll send you a password reset link."
   }
+
+
 ,
   "menuItem": {
     "tooltips": {
@@ -2258,6 +2271,24 @@
   },
   "lastUpdated": "Last updated: November 2025"
 }
+,
+
+  "resetPage": {
+    "title": "Reset Password",
+    "fields": {
+      "newPasswordPlaceholder": "New password"
+    },
+    "buttons": {
+      "save": "Save new password"
+    },
+    "messages": {
+      "passwordUpdated": "Your password has been updated!"
+    },
+    "errors": {
+      "missingPassword": "Please enter a new password."
+    }
+  }
+
 
 
 }
