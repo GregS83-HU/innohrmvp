@@ -2273,22 +2273,27 @@
 }
 ,
 
-  "resetPage": {
-    "title": "Reset Password",
-    "fields": {
-      "newPasswordPlaceholder": "New password"
-    },
-    "buttons": {
-      "save": "Save new password"
-    },
-    "messages": {
-      "passwordUpdated": "Your password has been updated!"
-    },
-    "errors": {
-      "missingPassword": "Please enter a new password."
-    }
+ "resetPage": {
+  "title": "Reset Password",
+  "loading": "Loading...",
+  "fields": {
+    "newPasswordPlaceholder": "New password"
+  },
+  "buttons": {
+    "save": "Save new password",
+    "backToHome": "Back to Home"
+  },
+  "messages": {
+    "passwordUpdated": "Your password has been updated!",
+    "redirecting": "Redirecting..."
+  },
+  "errors": {
+    "missingPassword": "Please enter a new password.",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "noSession": "No valid session found. Please request a new password reset link.",
+    "sessionError": "Session Error"
   }
-
+}
 
 
 }

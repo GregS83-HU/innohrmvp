@@ -2264,20 +2264,26 @@
 
 ,
   "resetPage": {
-    "title": "Jelszó visszaállítása",
-    "fields": {
-      "newPasswordPlaceholder": "Új jelszó"
-    },
-    "buttons": {
-      "save": "Új jelszó mentése"
-    },
-    "messages": {
-      "passwordUpdated": "A jelszavad frissítve lett!"
-    },
-    "errors": {
-      "missingPassword": "Kérjük, adj meg egy új jelszót."
-    }
+  "title": "Jelszó visszaállítása",
+  "loading": "Betöltés...",
+  "fields": {
+    "newPasswordPlaceholder": "Új jelszó"
+  },
+  "buttons": {
+    "save": "Új jelszó mentése",
+    "backToHome": "Vissza a főoldalra"
+  },
+  "messages": {
+    "passwordUpdated": "A jelszavad frissítve lett!",
+    "redirecting": "Átirányítás..."
+  },
+  "errors": {
+    "missingPassword": "Kérlek add meg az új jelszót.",
+    "passwordTooShort": "A jelszónak legalább 6 karakternek kell lennie",
+    "noSession": "Nincs érvényes munkamenet. Kérj új jelszó-visszaállítási linket.",
+    "sessionError": "Munkamenet hiba"
   }
+}
 
 
 

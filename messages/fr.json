@@ -2520,22 +2520,27 @@
 }
 
 ,
-  "resetPage": {
-    "title": "Réinitialiser le mot de passe",
-    "fields": {
-      "newPasswordPlaceholder": "Nouveau mot de passe"
-    },
-    "buttons": {
-      "save": "Enregistrer le nouveau mot de passe"
-    },
-    "messages": {
-      "passwordUpdated": "Votre mot de passe a été mis à jour !"
-    },
-    "errors": {
-      "missingPassword": "Veuillez saisir un nouveau mot de passe."
-    }
+"resetPage": {
+  "title": "Réinitialiser le mot de passe",
+  "loading": "Chargement...",
+  "fields": {
+    "newPasswordPlaceholder": "Nouveau mot de passe"
+  },
+  "buttons": {
+    "save": "Enregistrer le nouveau mot de passe",
+    "backToHome": "Retour à l'accueil"
+  },
+  "messages": {
+    "passwordUpdated": "Votre mot de passe a été mis à jour !",
+    "redirecting": "Redirection..."
+  },
+  "errors": {
+    "missingPassword": "Veuillez entrer un nouveau mot de passe.",
+    "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères",
+    "noSession": "Aucune session valide trouvée. Veuillez demander un nouveau lien de réinitialisation.",
+    "sessionError": "Erreur de session"
   }
-
+}
 
 
   }
