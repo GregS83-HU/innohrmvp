@@ -1,6 +1,6 @@
 # Codebase - innohrmvp
 **Mode:** full-feature-extract  
-**Generated:** Sun Nov 23 09:07:07 CET 2025
+**Generated:** Sun Dec  7 07:30:03 CET 2025
 **Purpose:** Complete AI analysis including all APIs, components & features
 
 ---
@@ -92,14 +92,14 @@ Top definitions:
     "framer-motion": "^12.23.12",
     "jszip": "^3.10.1",
     "lucide-react": "^0.539.0",
-    "next": "^15.5.2",
+    "next": "^15.5.7",
     "next-intl": "^4.3.12",
     "nodemailer": "^7.0.10",
     "openai": "^5.11.0",
     "patch-package": "^8.0.0",
     "pdf-parse": "^1.1.1",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
     "react-icons": "^5.5.0",
     "recharts": "^3.1.2",
     "resend": "^6.1.2",
@@ -259,7 +259,7 @@ export interface MessageData {
 
 ```
 Folder: src/app/api/analyse-cv
-Type: ts | Lines:      323
+Type: ts | Lines:      406
 Top definitions:
 --- Exports ---
 export const runtime = "nodejs";
@@ -268,10 +268,11 @@ export const runtime = "nodejs";
 const supabase = createClient(
 function extractAndParseJSON(rawResponse: string, context = '') {
 function sanitizeFileName(filename: string) {
+const { data: positionData, error: positionError } = await supabase
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      323)</summary>
+<summary>📄 Preview (first 100 lines of      406)</summary>
 
 ```ts
 // src/app/api/analyse-cv/route.ts
@@ -285,6 +286,74 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
+
+/**
+ * Create notifications for all admins in the company when a CV is uploaded
+ */
+async function notifyAdminsOfNewCV(
+  positionId: string,
+  positionName: string,
+  //candidateName: string,
+  companyId: string
+) {
+  try {
+    const { data: companyAdmins, error: adminError } = await supabase
+      .from('company_to_users')
+      .select(`
+        user_id,
+        users!inner(
+          id,
+          is_admin
+        )
+      `)
+      .eq('company_id', companyId);
+
+    if (adminError || !companyAdmins || companyAdmins.length === 0) {
+      console.log('No users found for company:', companyId);
+      return { success: true, message: 'No users to check' };
+    }
+
+    const adminUsers = companyAdmins
+      .filter(cu => {
+        const users = Array.isArray(cu.users) ? cu.users[0] : cu.users;
+        return users?.is_admin === true;
+      })
+      .map(cu => {
+        const users = Array.isArray(cu.users) ? cu.users[0] : cu.users;
+        return users?.id;
+      })
+      .filter(Boolean);
+
+    if (adminUsers.length === 0) {
+      return { success: true, message: 'No admin users to notify' };
+    }
+
+    const notifications = adminUsers.map(adminId => ({
+      type: 'cv_uploaded',
+      title: 'New CV Uploaded',
+      message: `New CV uploaded for ${positionName}`,
+      position_id: positionId,
+      recipient_id: adminId,
+      read: false,
+      created_at: new Date().toISOString()
+    }));
+
+    const { error: notificationError } = await supabase
+      .from('notifications')
+      .insert(notifications);
+
+    if (notificationError) {
+      console.error('Error creating CV upload notifications:', notificationError);
+      return { success: false, error: notificationError };
+    }
+
+    console.log(`✅ Created ${notifications.length} CV upload notifications`);
+    return { success: true, count: notifications.length };
+  } catch (err) {
+    console.error('Failed to notify admins of new CV:', err);
+    return { success: false, error: err };
+  }
+}
 
 // Optimized API call with faster model and timeout
 async function callOpenRouterAPI(prompt: string, context = '', model = 'openai/gpt-3.5-turbo') {
@@ -306,75 +375,7 @@ async function callOpenRouterAPI(prompt: string, context = '', model = 'openai/g
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.1,
         max_tokens: 3000, // Increased for combined analysis
-      }),
-    });
-
-    clearTimeout(timeoutId);
-
-    const responseText = await response.text();
-
-    if (!response.ok) {
-      if (responseText.includes('<!DOCTYPE') || responseText.includes('<html>')) {
-        throw new Error(`API returned HTML error page for ${context}. Check API key and endpoint status.`);
-      }
-      throw new Error(`API call failed for ${context}: ${response.status} ${response.statusText}`);
-    }
-
-    let completion;
-    try {
-      completion = JSON.parse(responseText);
-    } catch {
-      throw new Error(`API returned invalid JSON for ${context}`);
-    }
-
-    if (!completion.choices || !completion.choices[0] || !completion.choices[0].message) {
-      throw new Error(`Invalid API response structure for ${context}`);
-    }
-
-    return completion.choices[0].message.content;
-  } catch (error) {
-    clearTimeout(timeoutId);
-    console.error(`Error in callOpenRouterAPI for ${context}:`, error);
-    throw error;
-  }
-}
-
-// Fallback API call with different model
-async function callFallbackAPI(prompt: string, context = '') {
-  try {
-    // Try Claude Haiku first (fast and reliable)
-    return await callOpenRouterAPI(prompt, context, 'anthropic/claude-3-haiku');
-  } catch {
-    // Then try Mistral Small (faster than 7b-instruct)
-    return await callOpenRouterAPI(prompt, context, 'mistralai/mistral-small');
-  }
-}
-
-// Robust JSON extraction
-function extractAndParseJSON(rawResponse: string, context = '') {
-  const trimmed = rawResponse.trim();
-  
-  try {
-    return JSON.parse(trimmed);
-  } catch {}
-
-  // Extract first complete JSON object
-  const match = trimmed.match(/\{(?:[^{}]|(?:\{[^{}]*\}))*\}/);
-  if (!match) {
-    console.error(`No JSON found in ${context} response:`, rawResponse);
-    throw new Error(`No valid JSON found in ${context} response`);
-  }
-
-  try {
-    return JSON.parse(match[0]);
-  } catch (parseError) {
-    console.error(`Invalid JSON in ${context} response:`, match[0]);
-    throw new Error(`Invalid JSON structure in ${context} response`);
-  }
-}
-
-// Sanitize filenames
-... (truncated,      323 total lines)
+... (truncated,      406 total lines)
 ```
 </details>
 
@@ -6143,6 +6144,204 @@ export default function RootLayout({
 
 ---
 
+## `src/app/reset-password/page.tsx`
+
+```
+Folder: src/app/reset-password
+Type: tsx | Lines:      176
+Top definitions:
+--- Exports ---
+export default function ResetPasswordPage() {
+
+--- Key Functions/Components ---
+```
+
+<details>
+<summary>📄 Full content (     176 lines)</summary>
+
+```tsx
+'use client'
+
+// pages/reset-password.tsx
+import { useState, useEffect } from 'react';
+import { supabase } from '../../../lib/supabaseClient';
+import { useLocale } from 'i18n/LocaleProvider';
+
+export default function ResetPasswordPage() {
+  const { t } = useLocale();
+
+  const [password, setPassword] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [sessionReady, setSessionReady] = useState(false);
+
+  // Handle the auth callback and establish session
+  useEffect(() => {
+    const handleAuthCallback = async () => {
+      try {
+        // Check if we have a hash fragment with token info
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+        const type = hashParams.get('type');
+
+        if (type === 'recovery' && accessToken) {
+          // Set the session using the tokens from the URL
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken || ''
+          });
+
+          if (error) {
+            setError(error.message);
+          } else {
+            setSessionReady(true);
+          }
+        } else {
+          // Check if there's already an active session
+          const { data: { session } } = await supabase.auth.getSession();
+          
+          if (session) {
+            setSessionReady(true);
+          } else {
+            setError(t('resetPage.errors.noSession') || 'No valid session found. Please request a new password reset link.');
+          }
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    handleAuthCallback();
+  }, [t]);
+
+  const handleUpdate = async () => {
+    setError('');
+    setSuccess(false);
+
+    if (!password) {
+      setError(t('resetPage.errors.missingPassword'));
+      return;
+    }
+
+    if (password.length < 6) {
+      setError(t('resetPage.errors.passwordTooShort') || 'Password must be at least 6 characters');
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({ password });
+
+    if (error) {
+      setError(error.message);
+    } else {
+      setSuccess(true);
+    }
+  };
+
+  const handleBackToApp = () => {
+    // Get the stored slug from localStorage
+    const storedSlug = localStorage.getItem('reset_password_slug');
+    
+    if (storedSlug) {
+      // Clean up the stored slug
+      localStorage.removeItem('reset_password_slug');
+      // Redirect to the company-specific URL
+      window.location.href = `/jobs/${storedSlug}`;
+    } else {
+      // Fallback to home
+      window.location.href = '/';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="p-6 max-w-md mx-auto">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <p className="mt-2 text-gray-600">{t('resetPage.loading') || 'Loading...'}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!sessionReady) {
+    return (
+      <div className="p-6 max-w-md mx-auto">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <h2 className="text-xl font-bold text-red-900 mb-2">
+            {t('resetPage.errors.sessionError') || 'Session Error'}
+          </h2>
+          <p className="text-red-700 mb-4">{error}</p>
+          <button
+            onClick={handleBackToApp}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors"
+          >
+            {t('resetPage.buttons.backToHome') || 'Back to Home'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 max-w-md mx-auto">
+      <h1 className="text-2xl font-bold mb-4">
+        {t('resetPage.title')}
+      </h1>
+
+      <input
+        type="password"
+        placeholder={t('resetPage.fields.newPasswordPlaceholder')}
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        onKeyPress={(e) => e.key === 'Enter' && handleUpdate()}
+        className="w-full px-4 py-3 border rounded-lg mb-3"
+        disabled={success}
+      />
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-3">
+          <p className="text-red-700 text-sm">{error}</p>
+        </div>
+      )}
+
+      {success && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
+          <p className="text-green-700 text-sm">
+            {t('resetPage.messages.passwordUpdated')}
+          </p>
+        </div>
+      )}
+
+      <div className="space-y-3">
+        <button
+          onClick={handleUpdate}
+          disabled={success}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {t('resetPage.buttons.save')}
+        </button>
+
+        {success && (
+          <button
+            onClick={handleBackToApp}
+            className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg transition-colors"
+          >
+            {t('resetPage.buttons.backToApp') || 'Back to Application'}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+```
+</details>
+
+---
+
 ## `src/app/jobs/[slug]/openedpositions/new/page.tsx`
 
 ```
@@ -9515,36 +9714,6 @@ export default function PerformanceDashboard() {
 
 ---
 
-## `src/app/jobs/[slug]/page.tsx`
-
-```
-Folder: src/app/jobs/[slug]
-Type: tsx | Lines:        8
-Top definitions:
---- Exports ---
-export default function HomePage() {
-
---- Key Functions/Components ---
-```
-
-<details>
-<summary>📄 Full content (       8 lines)</summary>
-
-```tsx
-import Home from './Home/page'
-
-export default function HomePage() {
-  return (
-    <main style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
-      <Home />
-    </main>
-  )
-}
-```
-</details>
-
----
-
 ## `components/AddUserModal.tsx`
 
 ```
@@ -10971,31 +11140,63 @@ export default function InterviewList({
 
 ```
 Folder: components
-Type: tsx | Lines:       47
+Type: tsx | Lines:       88
 Top definitions:
 --- Exports ---
-export default function LanguageSwitcher({ compact = false }) {
+export default LanguageSwitcher;
 
 --- Key Functions/Components ---
+type Props = {
+const FLAGS: Record<string, string> = {
+const LanguageSwitcher: React.FC<Props> = ({ compact = false }) => {
 ```
 
 <details>
-<summary>📄 Full content (      47 lines)</summary>
+<summary>📄 Full content (      88 lines)</summary>
 
 ```tsx
 'use client';
 
+import React, { useState, useRef, useEffect } from 'react';
+import { Globe, ChevronDown } from 'lucide-react';
 import { useLocale } from '../src/i18n/LocaleProvider';
-import { Globe } from 'lucide-react';
+import { locales } from '../src/i18n/config';
 
-export default function LanguageSwitcher({ compact = false }) {
+type Props = {
+  compact?: boolean; // mobile version
+};
+
+const FLAGS: Record<string, string> = {
+  en: '🇬🇧',
+  hu: '🇭🇺',
+  fr: '🇫🇷',
+};
+
+const LanguageSwitcher: React.FC<Props> = ({ compact = false }) => {
   const { locale, setLocale } = useLocale();
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Compact mobile icon version
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Mobile/compact version: cycle languages
   if (compact) {
     return (
       <button
-        onClick={() => setLocale(locale === 'en' ? 'hu' : 'en')}
+        onClick={() => {
+          const index = locales.indexOf(locale);
+          const next = locales[(index + 1) % locales.length];
+          setLocale(next);
+        }}
         className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
         title="Change language"
       >
@@ -11004,32 +11205,44 @@ export default function LanguageSwitcher({ compact = false }) {
     );
   }
 
-  // Full version (desktop + mobile menu)
+  // Desktop/full version: dropdown
   return (
-    <div className="flex items-center gap-2">
+    <div className="relative" ref={dropdownRef}>
       <button
-        onClick={() => setLocale('en')}
-        className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${
-          locale === 'en'
-            ? 'bg-blue-600 text-white'
-            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-        }`}
+        onClick={() => setOpen((prev) => !prev)}
+        className="flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
       >
-        EN
+        <span className="text-lg">{FLAGS[locale]}</span>
+        <span>{locale.toUpperCase()}</span>
+        <ChevronDown className="w-4 h-4" />
       </button>
-      <button
-        onClick={() => setLocale('hu')}
-        className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${
-          locale === 'hu'
-            ? 'bg-blue-600 text-white'
-            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-        }`}
-      >
-        HU
-      </button>
+
+      {open && (
+        <div className="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg z-50">
+          {locales.map((code) => (
+            <button
+              key={code}
+              onClick={() => {
+                setLocale(code);
+                setOpen(false);
+              }}
+              className={`w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors ${
+                locale === code
+                  ? 'bg-blue-600 text-white'
+                  : 'hover:bg-gray-100 text-gray-600'
+              }`}
+            >
+              <span className="text-lg">{FLAGS[code]}</span>
+              <span>{code.toUpperCase()}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
-}
+};
+
+export default LanguageSwitcher;
 ```
 </details>
 
@@ -11193,7 +11406,7 @@ export default function ConfirmAnalysisModal({
 
 ```
 Folder: components
-Type: tsx | Lines:      531
+Type: tsx | Lines:      595
 Top definitions:
 --- Exports ---
 export default function NotificationComponent({
@@ -11208,7 +11421,7 @@ interface PostgresChangePayload<T = Record<string, unknown>> {
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      531)</summary>
+<summary>📄 Preview (first 100 lines of      595)</summary>
 
 ```tsx
 // components/NotificationComponent.tsx
@@ -11228,6 +11441,7 @@ import {
   Target,
   AlertTriangle,
   TrendingUp,
+  FileText,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'i18n/LocaleProvider';
@@ -11250,13 +11464,15 @@ interface NotificationData {
     | 'goal_approved'
     | 'goal_red_flag'
     | 'pulse_reminder'
-    | 'one_on_one_scheduled';
+    | 'one_on_one_scheduled'
+    | 'cv_uploaded';
   title: string;
   message: string;
   ticket_id?: string;
   leave_request_id?: string;
   goal_id?: string;
   one_on_one_id?: string;
+  position_id?: string;
   created_at: string;
   read: boolean;
   sender_id?: string | null;
@@ -11308,10 +11524,7 @@ export default function NotificationComponent({
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   // --- Check admin status ---
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      if (!currentUser) {
-... (truncated,      531 total lines)
+... (truncated,      595 total lines)
 ```
 </details>
 
@@ -13100,7 +13313,7 @@ const RequestLeaveModalManual: React.FC<Props> = ({
 <summary>📄 Preview (first 100 lines of      580)</summary>
 
 ```tsx
-// File: components/absence/RequestLeaveModalManual.tsx
+// File: components/absence/RequestLeaveModalManual2.tsx
 import React, { useState, useEffect } from 'react';
 import { useLocale } from 'i18n/LocaleProvider';
 import { XCircle, Loader2, Upload, FileText, CheckCircle, AlertTriangle, Calendar, User } from 'lucide-react';
@@ -13389,7 +13602,7 @@ export const ForfaitBadge: React.FC<ForfaitBadgeProps> = ({ companyForfait }) =>
 
 ```
 Folder: components/header
-Type: tsx | Lines:      130
+Type: tsx | Lines:      261
 Top definitions:
 --- Exports ---
 export const LoginModal: React.FC<LoginModalProps> = ({
@@ -13399,12 +13612,13 @@ interface LoginModalProps {
 ```
 
 <details>
-<summary>📄 Full content (     130 lines)</summary>
+<summary>📄 Full content (     261 lines)</summary>
 
 ```tsx
 // components/Header/LoginModal.tsx
 import React from 'react';
 import { useLocale } from 'i18n/LocaleProvider';
+import { supabase } from '../../lib/supabaseClient';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -13431,32 +13645,72 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 }) => {
   const { t } = useLocale();
 
+  const [isResetMode, setIsResetMode] = React.useState(false);
+  const [resetError, setResetError] = React.useState('');
+  const [resetSuccess, setResetSuccess] = React.useState(false);
+  const [isSending, setIsSending] = React.useState(false);
+
   if (!isOpen || isDemoExpired) return null;
 
   // Extract slug from URL (format: app/jobs/slug)
   const pathSegments = window.location.pathname.split('/').filter(Boolean);
-  const slug = pathSegments[1] || ''; // Get the third segment (index 2)
+  const slug = pathSegments[1] || '';
   const isDemoMode = slug === 'demo';
 
   const handleDemoLogin = (email: string, pwd: string) => {
     return () => {
-      // Call onLogin directly with the credentials
       onLogin(email, pwd);
     };
+  };
+
+  // --- RESET PASSWORD HANDLER ---
+  const handleResetPassword = async () => {
+    setResetError('');
+    setResetSuccess(false);
+
+    if (!login) {
+      setResetError(t('loginModal.messages.missingEmail'));
+      return;
+    }
+
+    setIsSending(true);
+
+    // Store the slug in localStorage so we can redirect back to it
+    if (slug && slug !== 'demo') {
+      localStorage.setItem('reset_password_slug', slug);
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(login, {
+      redirectTo: `${window.location.origin}/reset-password`
+    });
+
+    setIsSending(false);
+
+    if (error) {
+      setResetError(error.message);
+    } else {
+      setResetSuccess(true);
+    }
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">{t('loginModal.title')}</h2>
-          <p className="text-gray-600 mt-1">
-            {isDemoMode ? t('loginModal.subtitle.demo') : t('loginModal.subtitle.normal')}
-          </p>
-        </div>
         
-        {isDemoMode ? (
-          // Demo mode: Show 3 role options
+        {/* HEADER */}
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-2xl font-bold text-gray-900">
+            {isResetMode ? t('loginModal.resetTitle') : t('loginModal.title')}
+          </h2>
+          {!isResetMode && (
+            <p className="text-gray-600 mt-1">
+              {isDemoMode ? t('loginModal.subtitle.demo') : t('loginModal.subtitle.normal')}
+            </p>
+          )}
+        </div>
+
+        {/* DEMO MODE -------------------------------------------------------- */}
+        {!isResetMode && isDemoMode && (
           <div className="p-6 space-y-3">
             <button
               onClick={handleDemoLogin('user@hrinno.hu', 'password')}
@@ -13465,7 +13719,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               <div className="font-semibold text-blue-900">{t('loginModal.demoAccounts.user')}</div>
               <div className="text-sm text-blue-700 mt-1">user@hrinno.hu</div>
             </button>
-            
+
             <button
               onClick={handleDemoLogin('demo@hrinno.hu', 'demo')}
               className="w-full px-4 py-4 bg-green-50 hover:bg-green-100 border-2 border-green-200 rounded-lg transition-colors text-left"
@@ -13473,7 +13727,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               <div className="font-semibold text-green-900">{t('loginModal.demoAccounts.manager')}</div>
               <div className="text-sm text-green-700 mt-1">manager@hrinno.hu</div>
             </button>
-            
+
             <button
               onClick={handleDemoLogin('hrmanager@hrinno.hu', 'password')}
               className="w-full px-4 py-4 bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 rounded-lg transition-colors text-left"
@@ -13482,51 +13736,141 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               <div className="text-sm text-purple-700 mt-1">hrmanager@hrinno.hu</div>
             </button>
           </div>
-        ) : (
-          // Normal mode: Show login form
+        )}
+
+        {/* NORMAL LOGIN ----------------------------------------------------- */}
+        {!isResetMode && !isDemoMode && (
           <div className="p-6 space-y-4">
+
+            {/* EMAIL */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">{t('loginModal.fields.email')}</label>
-              <input 
-                type="email" 
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('loginModal.fields.email')}
+              </label>
+              <input
+                type="email"
                 placeholder={t('loginModal.fields.emailPlaceholder')}
-                value={login} 
-                onChange={(e) => setLogin(e.target.value)} 
+                value={login}
+                onChange={(e) => setLogin(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               />
             </div>
+
+            {/* PASSWORD */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">{t('loginModal.fields.password')}</label>
-              <input 
-                type="password" 
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('loginModal.fields.password')}
+              </label>
+              <input
+                type="password"
                 placeholder={t('loginModal.fields.passwordPlaceholder')}
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               />
             </div>
+
+            {/* ERROR */}
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                 <p className="text-red-700 text-sm">{error}</p>
               </div>
             )}
+
+            {/* FORGOT PASSWORD */}
+            <div className="text-right">
+              <button
+                onClick={() => setIsResetMode(true)}
+                className="text-sm text-blue-600 hover:underline"
+              >
+                {t('loginModal.buttons.forgotPassword')}
+              </button>
+            </div>
           </div>
         )}
-        
+
+        {/* RESET PASSWORD MODE -------------------------------------------- */}
+        {isResetMode && (
+          <div className="p-6 space-y-4">
+            <p className="text-sm text-gray-600">
+              {t('loginModal.resetDescription')}
+            </p>
+
+            {/* EMAIL */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('loginModal.fields.email')}
+              </label>
+              <input
+                type="email"
+                value={login}
+                onChange={(e) => setLogin(e.target.value)}
+                placeholder={t('loginModal.fields.emailPlaceholder')}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+              />
+            </div>
+
+            {/* ERROR */}
+            {resetError && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-red-700 text-sm">{resetError}</p>
+              </div>
+            )}
+
+            {/* SUCCESS */}
+            {resetSuccess && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <p className="text-green-700 text-sm">
+                  {t('loginModal.messages.resetEmailSent')}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* FOOTER ----------------------------------------------------------- */}
         <div className="p-6 border-t border-gray-200 flex gap-3">
-          <button 
-            onClick={onClose} 
+
+          {/* CANCEL OR BACK */}
+          <button
+            onClick={() => {
+              if (isResetMode) {
+                setIsResetMode(false);
+                setResetError('');
+                setResetSuccess(false);
+              } else {
+                onClose();
+              }
+            }}
             className="flex-1 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors"
           >
-            {t('loginModal.buttons.cancel')}
+            {isResetMode
+              ? t('loginModal.buttons.backToLogin')
+              : t('loginModal.buttons.cancel')}
           </button>
+
+          {/* MAIN ACTION BUTTON */}
           {!isDemoMode && (
-            <button 
-              onClick={() => onLogin()} 
-              className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
-            >
-              {t('loginModal.buttons.connect')}
-            </button>
+            <>
+              {!isResetMode ? (
+                <button
+                  onClick={() => onLogin()}
+                  className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                >
+                  {t('loginModal.buttons.connect')}
+                </button>
+              ) : (
+                <button
+                  onClick={handleResetPassword}
+                  className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
+                  disabled={isSending}
+                >
+                  {isSending
+                    ? t('loginModal.buttons.sending')
+                    : t('loginModal.buttons.resetPassword')}
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -15360,14 +15704,14 @@ export async function getUserName(userId: string) {
 
 # Statistics
 - **Files included:** 124
-- **File size:** 452K
-- **Extraction date:** Sun Nov 23 09:07:13 CET 2025
+- **File size:** 516K
+- **Extraction date:** Sun Dec  7 07:30:07 CET 2025
 
 # Technology Stack Detected
 
 ## Frontend/Framework
-    next: ^15.5.2
-    react: 19.1.0
+    next: ^15.5.7
+    react: ^19.2.1
 
 ## Backend/API
 
@@ -15471,6 +15815,7 @@ src/app/jobs/[slug]/time-clock/manager/page.tsx
 src/app/jobs/[slug]/time-clock/page.tsx
 src/app/jobs/[slug]/users-creation/page.tsx
 src/app/page.tsx
+src/app/reset-password/page.tsx
 ```
 
 ## Components
