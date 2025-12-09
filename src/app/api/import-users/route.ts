@@ -7,6 +7,26 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+// Define types for CSV row data
+interface CSVRow {
+  email?: string
+  company_id?: number | string
+  is_admin?: boolean | string
+  first_name?: string
+  firstname?: string
+  FirstName?: string
+  last_name?: string
+  lastname?: string
+  LastName?: string
+}
+
+// Define result type
+interface ImportResult {
+  email?: string
+  success?: boolean
+  error?: string
+}
+
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData()
@@ -19,16 +39,16 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer())
     const workbook = XLSX.read(buffer, { type: "buffer" })
     const sheetName = workbook.SheetNames[0]
-    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName])
+    const rows = XLSX.utils.sheet_to_json<CSVRow>(workbook.Sheets[sheetName])
 
-    const results: any[] = []
+    const results: ImportResult[] = []
 
-    for (const row of rows as any[]) {
+    for (const row of rows) {
       const email = row.email?.toLowerCase()
       const company_id = Number(row.company_id)
       const is_admin = row.is_admin === true || row.is_admin === "true"
 
-      // NEW: read first & last name from CSV
+      // Read first & last name from CSV
       const first_name = row.first_name || row.firstname || row.FirstName || null
       const last_name = row.last_name || row.lastname || row.LastName || null
 

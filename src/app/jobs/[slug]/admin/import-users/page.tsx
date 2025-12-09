@@ -2,9 +2,16 @@
 
 import { useState } from 'react'
 
+// Define the result type to match what the API returns
+interface ImportResult {
+  email?: string
+  success?: boolean
+  error?: string
+}
+
 export default function AdminImportUsersPage() {
   const [file, setFile] = useState<File | null>(null)
-  const [results, setResults] = useState<any[] | null>(null)
+  const [results, setResults] = useState<ImportResult[] | null>(null)
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
