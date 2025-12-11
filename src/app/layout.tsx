@@ -6,7 +6,7 @@ import ClientProvider from "./ClientProvider";
 import { LocaleProvider } from "../i18n/LocaleProvider";
 import { messages } from "../i18n/messages";
 import CookieConsent from "../../components/CookieConsent";
-import DemoWarningBanner from "../../components/DemoWarningBanner";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 
 export const metadata: Metadata = {
