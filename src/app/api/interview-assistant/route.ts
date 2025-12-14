@@ -94,7 +94,7 @@ ${position.position_description_detailed}
 
 Current recruitment step: ${recruitmentStep.step_name}
 
-Generate 6–8 precise, role-specific questions tailored for the "${recruitmentStep.step_name}" stage.
+Generate 6–8 precise, role-specific questions tailored for the "${recruitmentStep.step_name}" stage for the job and the CV I've sent you.
 Return ONLY valid JSON in this exact format (with all text in ${languageName}):
 {
   "questions": [
@@ -124,6 +124,7 @@ Recruiter notes:
 ${notes}
 
 Generate a structured interview summary for the "${recruitmentStep.step_name}" stage and recommend the next step.
+The summary should strict but fair and only taking in account the job, the CV, the current step and the notes from the recruiter.
 Return ONLY valid JSON in this exact format (with all text in ${languageName} including the category titles):
 {
   "summary": "detailed summary in ${languageName}",
@@ -147,7 +148,7 @@ Return ONLY valid JSON in this exact format (with all text in ${languageName} in
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'openai/gpt-4o-mini',
+        model: 'openai/gpt-3.5-turbo',
         messages: [{ role: 'user', content: prompt }],
       }),
     })
