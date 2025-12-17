@@ -26,11 +26,16 @@ interface CompanyUser {
   employment_start_date: string | null
 }
 
+// Define the translation function type
+interface TranslationFunction {
+  (key: string): string
+}
+
 interface ManagerDropdownProps {
   selectedManager: CompanyUser | null
   onSelect: (manager: CompanyUser | null) => void
   companyId: string
-  t: any
+  t: TranslationFunction
 }
 
 function ManagerDropdown({ selectedManager, onSelect, companyId, t }: ManagerDropdownProps) {
@@ -52,13 +57,13 @@ function ManagerDropdown({ selectedManager, onSelect, companyId, t }: ManagerDro
         
         if (error) {
           console.error('Error fetching company users:', error)
-          setError('Error loading users. Please contact your admin.')
+          setError(t('managerDropdown.errorLoading'))
           setManagers([])
           return
         }
         
         if (!data || data.length === 0) {
-          setError('No users found. Please contact your admin.')
+          setError(t('managerDropdown.noUsers'))
           setManagers([])
           return
         }
@@ -66,7 +71,7 @@ function ManagerDropdown({ selectedManager, onSelect, companyId, t }: ManagerDro
         setManagers(data)
       } catch (err) {
         console.error('Unexpected error:', err)
-        setError('Error loading users. Please contact your admin.')
+        setError(t('managerDropdown.errorLoading'))
         setManagers([])
       } finally {
         setLoading(false)
@@ -76,7 +81,7 @@ function ManagerDropdown({ selectedManager, onSelect, companyId, t }: ManagerDro
     if (companyId) {
       fetchManagers()
     }
-  }, [companyId])
+  }, [companyId, t])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -115,7 +120,7 @@ function ManagerDropdown({ selectedManager, onSelect, companyId, t }: ManagerDro
         <span className={selectedManager ? 'text-gray-900' : 'text-gray-400'}>
           {selectedManager 
             ? `${selectedManager.first_name} ${selectedManager.last_name}`
-            : 'Select a manager...'
+            : t('managerDropdown.selectManager')
           }
         </span>
         <div className="flex items-center gap-2">
@@ -138,7 +143,7 @@ function ManagerDropdown({ selectedManager, onSelect, companyId, t }: ManagerDro
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by name..."
+                placeholder={t('managerDropdown.searchPlaceholder')}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 onClick={(e) => e.stopPropagation()}
               />
@@ -149,7 +154,7 @@ function ManagerDropdown({ selectedManager, onSelect, companyId, t }: ManagerDro
             {loading ? (
               <div className="p-4 text-center text-gray-500">
                 <div className="animate-spin w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
-                Loading...
+                {t('managerDropdown.loading')}
               </div>
             ) : error ? (
               <div className="p-4 text-center text-red-600 text-sm">
@@ -157,7 +162,7 @@ function ManagerDropdown({ selectedManager, onSelect, companyId, t }: ManagerDro
               </div>
             ) : filteredManagers.length === 0 ? (
               <div className="p-4 text-center text-gray-500 text-sm">
-                No users found
+                {t('managerDropdown.noUsersFound')}
               </div>
             ) : (
               filteredManagers.map((manager) => (
@@ -410,7 +415,7 @@ export default function NewOpenedPositionPage() {
 
     if (!selectedManager) {
       setMessage({ 
-        text: 'Please select a manager for this position', 
+        text: t('newPosition.messages.selectManager'), 
         type: 'error' 
       })
       return
@@ -605,7 +610,7 @@ export default function NewOpenedPositionPage() {
                   <div>
                     <label htmlFor="manager" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
                       <User className="w-4 h-4" />
-                      Manager <span className="text-red-500">*</span>
+                      {t('newPosition.form.manager')} <span className="text-red-500">*</span>
                     </label>
                     {companyId ? (
                       <ManagerDropdown 
@@ -616,7 +621,7 @@ export default function NewOpenedPositionPage() {
                       />
                     ) : (
                       <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-400">
-                        Loading managers...
+                        {t('managerDropdown.loadingManagers')}
                       </div>
                     )}
                   </div>

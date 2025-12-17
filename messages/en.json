@@ -319,7 +319,16 @@
       "title": "Analysis Results",
       "matchingCandidates": "Matching candidates found",
       "viewDetails": "View Details"
-    }
+    }, 
+    "managerDropdown": {
+    "selectManager": "Select a manager...",
+    "searchPlaceholder": "Search by name...",
+    "loading": "Loading...",
+    "loadingManagers": "Loading managers...",
+    "errorLoading": "Error loading users. Please contact your admin.",
+    "noUsers": "No users found. Please contact your admin.",
+    "noUsersFound": "No users found"
+  }
   }
 ,
   "cvAnalyse": {

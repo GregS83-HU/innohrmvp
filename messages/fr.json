@@ -309,7 +309,16 @@
       "title": "Résultats de l'Analyse",
       "matchingCandidates": "Candidats correspondants trouvés",
       "viewDetails": "Voir les Détails"
-    }
+    },
+    "managerDropdown": {
+    "selectManager": "Choisissez un manager",
+    "searchPlaceholder": "Recherche par nom...",
+    "loading": "Chargement...",
+    "loadingManagers": "Chargement des managers...",
+    "errorLoading": "Une erreur est survenue lors du chargement des utilisateurs. Veuillez contacter votre administrateur.",
+    "noUsers": "Aucun utilisateur trouvé. Veuillez contacter votre administrateur.",
+    "noUsersFound": "Aucun utilisateur trouvé"
+  }
   },
   "cvAnalyse": {
     "header": {

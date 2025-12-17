@@ -316,7 +316,16 @@
       "title": "Elemzési eredmények",
       "matchingCandidates": "Megfelelő jelöltek találva",
       "viewDetails": "Részletek megtekintése"
-    }
+    },
+"managerDropdown": {
+      "selectManager": "Válassz vezetőt...",
+      "searchPlaceholder": "Keresés név alapján...",
+      "loading": "Betöltés...",
+      "loadingManagers": "Vezetők betöltése...",
+      "errorLoading": "Hiba a felhasználók betöltésekor. Kérlek, lépj kapcsolatba az adminisztrátorral.",
+      "noUsers": "Nem található felhasználó. Kérlek, lépj kapcsolatba az adminisztrátorral.",
+      "noUsersFound": "Nem található felhasználó"
+}
   }
 ,
   "cvAnalyse": {
