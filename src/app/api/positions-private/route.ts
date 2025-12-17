@@ -46,7 +46,7 @@ export async function GET(request: Request) {
   }
 
   // Build the query - IMPORTANT: Inclure manager_id dans le select
-  let query = supabase
+  const query = supabase
     .from('openedpositions')
     .select(`
       *,
