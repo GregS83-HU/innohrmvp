@@ -617,7 +617,7 @@ export default function NewOpenedPositionPage() {
                         selectedManager={selectedManager}
                         onSelect={setSelectedManager}
                         companyId={companyId}
-                        t={t}
+                        t={(key) => t(`newPosition.${key}`)}
                       />
                     ) : (
                       <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-400">

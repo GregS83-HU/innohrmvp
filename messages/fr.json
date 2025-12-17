@@ -240,9 +240,10 @@
       }
     }
   },
+  
   "newPosition": {
     "modal": {
-      "title": "Confirmer l'Analyse",
+      "title": "Confirmer l'analyse",
       "message": "Vous êtes sur le point d'analyser tous les candidats de votre base de données pour ce poste.",
       "candidates": "Candidats",
       "aiCredits": "Crédits IA",
@@ -251,43 +252,40 @@
       "minute": "minute",
       "willConsume": "Cela consommera",
       "fromAccount": "de votre compte.",
-      "processing": "Traitement...",
-      "confirmStart": "Confirmer et Démarrer l'Analyse",
-      "createWithoutAnalysis": "Créer le Poste Sans Analyse",
+      "processing": "Traitement en cours...",
+      "confirmStart": "Confirmer et démarrer l'analyse",
+      "createWithoutAnalysis": "Créer le poste sans analyse",
       "cancel": "Annuler"
     },
     "header": {
-      "title": "Créer un Nouveau Poste",
+      "title": "Créer un nouveau poste",
       "subtitle": "Remplissez le formulaire ci-dessous pour créer un nouveau poste"
     },
     "form": {
-      "positionName": "Nom du Poste",
-      "positionNamePlaceholder": "ex. Développeur Senior",
-      "positionDescription": "Description du Poste (pour l'affichage)",
-      "positionDescriptionPlaceholder": "Brève description qui sera montrée aux candidats...",
-      "positionDescriptionDetailed": "Description Détaillée du Poste (Pour l'analyse IA)",
-      "positionDescriptionDetailedPlaceholder": "Exigences détaillées, compétences et qualifications pour le matching IA...",
-      "startingDate": "Date de Début"
+      "positionName": "Nom du poste",
+      "positionNamePlaceholder": "ex. Développeur logiciel senior",
+      "manager": "Responsable",
+      "positionDescription": "Description du poste (pour l'affichage)",
+      "positionDescriptionPlaceholder": "Brève description qui sera présentée aux candidats...",
+      "positionDescriptionDetailed": "Description détaillée du poste (pour l'analyse IA)",
+      "positionDescriptionDetailedPlaceholder": "Exigences détaillées, compétences et qualifications pour la correspondance IA...",
+      "startingDate": "Date de début"
     },
     "buttons": {
-      "createPosition": "Créer le Poste",
-      "creating": "Création..."
+      "createPosition": "Créer le poste",
+      "creating": "Création en cours..."
     },
     "loading": {
       "userInfo": "Chargement des informations utilisateur...",
-      "checkingLimits": "Vérification des limites de postes...",
-      "debug": "Debug : Session :",
-      "yes": "Oui",
-      "no": "Non",
-      "none": "Aucun",
-      "access": "Accès :"
+      "checkingLimits": "Vérification des limites de postes..."
     },
     "limitReached": {
-      "title": "Limite de Postes Atteinte",
+      "title": "Limite de postes atteinte",
       "message": "Désolé, vous avez atteint la limite de votre forfait. Pour créer plus de postes, veuillez mettre à niveau votre plan.",
-      "upgradeButton": "Mettre à Niveau Votre Plan"
+      "upgradeButton": "Mettre à niveau votre plan"
     },
     "messages": {
+      "selectManager": "Veuillez sélectionner un responsable avant de créer le poste.",
       "errorCreating": "Erreur lors de la création du poste",
       "successCreated": "Nouveau poste créé avec succès",
       "unexpectedError": "Erreur inattendue :",
@@ -296,30 +294,31 @@
       "unexpectedErrorRetry": "Erreur inattendue. Veuillez réessayer.",
       "analysisComplete": "Analyse terminée :",
       "candidatesCorresponding": "candidats correspondent",
-      "serverError": "Erreur serveur inattendue lors de l'analyse",
+      "serverError": "Erreur serveur inattendue pendant l'analyse",
       "createdRunLater": "Poste créé avec succès. Vous pouvez lancer l'analyse plus tard."
     },
     "analysis": {
-      "title": "Analyse des Candidats",
+      "title": "Analyse des candidats",
       "loading": "Chargement...",
       "running": "Analyse en cours...",
       "launchButton": "Lancer l'analyse sur la base de données"
     },
     "results": {
-      "title": "Résultats de l'Analyse",
+      "title": "Résultats de l'analyse",
       "matchingCandidates": "Candidats correspondants trouvés",
-      "viewDetails": "Voir les Détails"
+      "viewDetails": "Voir les détails"
     },
     "managerDropdown": {
-    "selectManager": "Choisissez un manager",
-    "searchPlaceholder": "Recherche par nom...",
-    "loading": "Chargement...",
-    "loadingManagers": "Chargement des managers...",
-    "errorLoading": "Une erreur est survenue lors du chargement des utilisateurs. Veuillez contacter votre administrateur.",
-    "noUsers": "Aucun utilisateur trouvé. Veuillez contacter votre administrateur.",
-    "noUsersFound": "Aucun utilisateur trouvé"
+      "selectManager": "Sélectionner un responsable...",
+      "searchPlaceholder": "Rechercher par nom...",
+      "loading": "Chargement...",
+      "loadingManagers": "Chargement des responsables...",
+      "errorLoading": "Erreur lors du chargement des utilisateurs. Veuillez contacter votre administrateur.",
+      "noUsers": "Aucun utilisateur trouvé. Veuillez contacter votre administrateur.",
+      "noUsersFound": "Aucun utilisateur trouvé"
+    }
   }
-  },
+,
   "cvAnalyse": {
     "header": {
       "title": "Analyse IA de CV",

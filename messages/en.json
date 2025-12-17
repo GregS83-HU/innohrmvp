@@ -250,7 +250,8 @@
     }
   }
 
-,  "newPosition": {
+, 
+  "newPosition": {
     "modal": {
       "title": "Confirm Analysis",
       "message": "You are about to analyze all candidates in your database against this position.",
@@ -273,6 +274,7 @@
     "form": {
       "positionName": "Position Name",
       "positionNamePlaceholder": "e.g. Senior Software Developer",
+      "manager": "Manager",
       "positionDescription": "Position Description (for display)",
       "positionDescriptionPlaceholder": "Brief description that will be shown to candidates...",
       "positionDescriptionDetailed": "Position Description Detailed (For AI analyse)",
@@ -285,12 +287,7 @@
     },
     "loading": {
       "userInfo": "Loading user info...",
-      "checkingLimits": "Checking position limits...",
-      "debug": "Debug: Session:",
-      "yes": "Yes",
-      "no": "No",
-      "none": "None",
-      "access": "Access:"
+      "checkingLimits": "Checking position limits..."
     },
     "limitReached": {
       "title": "Position Limit Reached",
@@ -298,13 +295,14 @@
       "upgradeButton": "Upgrade Your Plan"
     },
     "messages": {
+      "selectManager": "Please select a manager before creating the position.",
       "errorCreating": "Error creating position",
       "successCreated": "New position successfully created",
       "unexpectedError": "Unexpected error:",
       "errorFetchingCount": "Could not fetch candidate count. Please try again.",
       "noCandidates": "No candidates found in your database. Please add candidates first.",
       "unexpectedErrorRetry": "Unexpected error. Please try again.",
-      "analysisComplete": "Analyse completed:",
+      "analysisComplete": "Analysis completed:",
       "candidatesCorresponding": "candidates are corresponding",
       "serverError": "Unexpected server error during analysis",
       "createdRunLater": "Position created successfully. You can run the analysis later."
@@ -312,24 +310,25 @@
     "analysis": {
       "title": "Candidate Analysis",
       "loading": "Loading...",
-      "running": "Analyse running...",
-      "launchButton": "Launch analyse on the database"
+      "running": "Analysis running...",
+      "launchButton": "Launch analysis on the database"
     },
     "results": {
       "title": "Analysis Results",
       "matchingCandidates": "Matching candidates found",
       "viewDetails": "View Details"
-    }, 
+    },
     "managerDropdown": {
-    "selectManager": "Select a manager...",
-    "searchPlaceholder": "Search by name...",
-    "loading": "Loading...",
-    "loadingManagers": "Loading managers...",
-    "errorLoading": "Error loading users. Please contact your admin.",
-    "noUsers": "No users found. Please contact your admin.",
-    "noUsersFound": "No users found"
+      "selectManager": "Select a manager...",
+      "searchPlaceholder": "Search by name...",
+      "loading": "Loading...",
+      "loadingManagers": "Loading managers...",
+      "errorLoading": "Error loading users. Please contact your admin.",
+      "noUsers": "No users found. Please contact your admin.",
+      "noUsersFound": "No users found"
+    }
   }
-  }
+
 ,
   "cvAnalyse": {
     "header": {
