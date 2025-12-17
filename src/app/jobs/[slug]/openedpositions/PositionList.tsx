@@ -12,6 +12,7 @@ type Position = {
   position_name: string
   position_description: string
   position_description_detailed: string
+  manager_id?: string // ⬅️ AJOUT DU MANAGER_ID
   company?: {
     company_logo?: string
     company_name?: string
@@ -77,11 +78,6 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
     fetchUserRole()
   }, [isLoggedIn, userId])
 
-  // Determine if user should see admin features
-  const canManagePositions = useMemo(() => {
-    return isLoggedIn && (isManager || isAdmin)
-  }, [isLoggedIn, isManager, isAdmin])
-
   useEffect(() => {
     if (!companySlug) {
       router.replace('/404')
@@ -89,7 +85,6 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
   }, [companySlug, router])
 
   const filteredPositions = useMemo(() => {
-
     return positions.filter(
       (p) =>
         (!companySlug || p.company?.slug === companySlug) &&
@@ -109,10 +104,11 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
       try {
         let url = ""
 
-        if (companySlug) {
-          url = `/api/positions-public?slug=${encodeURIComponent(companySlug)}`
-        } else if (isLoggedIn && userId) {
+        if (companySlug && isLoggedIn && userId) {
+          // Si connecté, utiliser l'API privée pour avoir accès au manager_id
           url = `/api/positions-private?userId=${encodeURIComponent(userId)}`
+        } else if (companySlug) {
+          url = `/api/positions-public?slug=${encodeURIComponent(companySlug)}`
         } else {
           url = `/api/positions-public`
         }
@@ -120,8 +116,6 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
         const res = await fetch(url)
         if (!res.ok) throw new Error(t('positions.errorLoading'))
         const data = await res.json()
-
-
 
         setPositions(data.positions || [])
       } catch (e) {
@@ -183,6 +177,27 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
       setSnackbarMessage(`${t('positions.copyFailed')}: ${(err as Error).message}`)
     }
   }, [getPublicLink, t])
+
+  // ⬇️ NOUVELLE LOGIQUE : Déterminer quel type de boutons afficher
+  const getButtonsType = useCallback((position: Position) => {
+    // Admin : tous les boutons de gestion
+    if (isAdmin) {
+      return 'admin'
+    }
+    
+    // Manager assigné à cette position : uniquement bouton "Traitement"
+    if (isManager && position.manager_id === userId) {
+      return 'assigned-manager'
+    }
+    
+    // Manager NON assigné à cette position : bouton "Apply"
+    if (isManager && position.manager_id !== userId) {
+      return 'apply'
+    }
+    
+    // Utilisateur non connecté ou utilisateur régulier : bouton "Apply"
+    return 'apply'
+  }, [isAdmin, isManager, userId])
 
   useEffect(() => {
     if (snackbarMessage) {
@@ -261,97 +276,116 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
 
         {/* Positions List */}
         <div className="space-y-4 sm:space-y-6">
-          {filteredPositions.map((position) => (
-            <div
-              key={position.id}
-              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:scale-[1.01] sm:hover:scale-[1.02]"
-            >
-              <div className="p-4 sm:p-6">
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-4">
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 break-words">
-                      {position.position_name}
-                    </h2>
-                    {position.company?.company_name && (
-                      <div className="flex items-center gap-2 text-gray-600 mb-3">
-                        <Building2 className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-                        <span className="text-sm sm:text-base truncate">{position.company.company_name}</span>
+          {filteredPositions.map((position) => {
+            const buttonsType = getButtonsType(position)
+
+            const isManagerOfPosition =
+            isManager && position.manager_id === userId
+
+          const showApply =
+            !isAdmin && !isManagerOfPosition
+
+          const showTreatment =
+            isAdmin || isManagerOfPosition
+
+          const showAdminActions =
+            isAdmin
+
+            
+            return (
+              <div
+                key={position.id}
+                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:scale-[1.01] sm:hover:scale-[1.02]"
+              >
+                
+                <div className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-4">
+                    <div className="flex-1 min-w-0">
+                      <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 break-words">
+                        {position.position_name}
+                      </h2>
+                      {position.company?.company_name && (
+                        <div className="flex items-center gap-2 text-gray-600 mb-3">
+                          <Building2 className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                          <span className="text-sm sm:text-base truncate">{position.company.company_name}</span>
+                        </div>
+                      )}
+                    </div>
+                    {position.company?.company_logo && (
+                      <div className="flex-shrink-0 self-start sm:ml-6">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-50 rounded-lg p-2 sm:p-3 border">
+                          <img
+                            src={position.company.company_logo}
+                            alt="Company logo"
+                            className="w-full h-full object-contain"
+                            loading="lazy"
+                          />
+                        </div>
                       </div>
                     )}
                   </div>
-                  {position.company?.company_logo && (
-                    <div className="flex-shrink-0 self-start sm:ml-6">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-50 rounded-lg p-2 sm:p-3 border">
-                        <img
-                          src={position.company.company_logo}
-                          alt="Company logo"
-                          className="w-full h-full object-contain"
-                          loading="lazy"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
 
-                <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 leading-relaxed">
-                  {position.position_description}
-                </p>
+                  <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 leading-relaxed">
+                    {position.position_description}
+                  </p>
 
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                  {/* Show "Apply" button for non-logged users OR regular users (non-manager and non-admin) */}
-                  {!canManagePositions && companySlug && (
-                    <Link
-                      href={getApplyLink(position)!}
-                      className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base"
-                    >
-                      <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
-                      {t('positions.apply')}
-                    </Link>
-                  )}
+  {showApply && companySlug && (
+    <Link
+      href={getApplyLink(position)!}
+      className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base"
+    >
+      <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
+      {t('positions.apply')}
+    </Link>
+  )}
 
-                  {/* Show management buttons only for managers and admins */}
-                  {canManagePositions && companySlug && (
-                    <>
-                      <Link
-                        href={getStatsLink(position)!}
-                        className="flex items-center justify-center gap-2 bg-green-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-green-600 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base"
-                      >
-                        <Workflow className="w-4 h-4 sm:w-5 sm:h-5" />
-                        {t('positions.treatment')}
-                      </Link>
+  {showTreatment && companySlug && (
+    <Link
+      href={getStatsLink(position)!}
+      className="flex items-center justify-center gap-2 bg-green-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-green-600 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base"
+    >
+      <Workflow className="w-4 h-4 sm:w-5 sm:h-5" />
+      {t('positions.treatment')}
+    </Link>
+  )}
 
-                      <button
-                        onClick={() => handleCopyLink(position)}
-                        className="flex items-center justify-center gap-2 bg-blue-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base"
-                      >
-                        <Copy className="w-4 h-4 sm:w-5 sm:h-5" />
-                        {t('positions.copyLink')}
-                      </button>
+  {showAdminActions && (
+    <>
+      <button
+        onClick={() => handleCopyLink(position)}
+        className="flex items-center justify-center gap-2 bg-blue-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base"
+      >
+        <Copy className="w-4 h-4 sm:w-5 sm:h-5" />
+        {t('positions.copyLink')}
+      </button>
 
-                      <button
-                        onClick={() => handleClose(position.id)}
-                        disabled={loadingClose === position.id}
-                        className="flex items-center justify-center gap-2 bg-red-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-red-600 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm sm:text-base"
-                      >
-                        {loadingClose === position.id ? (
-                          <>
-                            <div className="animate-spin w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                            <span className="hidden sm:inline">{t('positions.closing')}</span>
-                            <span className="sm:hidden">...</span>
-                          </>
-                        ) : (
-                          <>
-                            <X className="w-4 h-4 sm:w-5 sm:h-5" />
-                            {t('positions.close')}
-                          </>
-                        )}
-                      </button>
-                    </>
-                  )}
+      <button
+        onClick={() => handleClose(position.id)}
+        disabled={loadingClose === position.id}
+        className="flex items-center justify-center gap-2 bg-red-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-red-600 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm sm:text-base"
+      >
+        {loadingClose === position.id ? (
+          <>
+            <div className="animate-spin w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full"></div>
+            <span className="hidden sm:inline">{t('positions.closing')}</span>
+            <span className="sm:hidden">...</span>
+          </>
+        ) : (
+          <>
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
+            {t('positions.close')}
+          </>
+        )}
+      </button>
+    </>
+  )}
+</div>
+
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 
