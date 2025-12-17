@@ -106,9 +106,9 @@ Return ONLY valid JSON in this exact format (with all text in ${languageName}):
     } else if (mode === 'summary') {
       aiMode = 'summary'
       prompt = `
-You are an HR assistant.
+You are an HR assistant. Please be strict and fair especially when you will give the final score. The goal is to give a clear advice to the recruiter without being too kind.
 
-IMPORTANT: Generate all content in ${languageName}. The entire summary, strengths, weaknesses, cultural fit assessment, and recommendations must be in ${languageName}.
+IMPORTANT: Generate all content in ${languageName}. The entire summary, strengths, weaknesses and recommendations must be in ${languageName}.
 
 Candidate: ${candidat.candidat_firstname} ${candidat.candidat_lastname}
 
@@ -125,15 +125,21 @@ ${notes}
 
 Generate a structured interview summary for the "${recruitmentStep.step_name}" stage and recommend the next step.
 The summary should strict but fair and only taking in account the job, the CV, the current step and the notes from the recruiter.
+The score should reflect if the candidate, based on the CV, the position and the interview summmary notes is fitting or not. 
+SCORING RULES (be strict and critical):
+- 9-10: Perfect match, all requirements met excellently
+- 7-8: Strong fit, most requirements met well
+- 5-6: Marginal fit, some key gaps
+- <5: Unsuitable, missing core requirements
+
 Return ONLY valid JSON in this exact format (with all text in ${languageName} including the category titles):
 {
   "summary": "detailed summary in ${languageName}",
   "strengths": ["strength 1 in ${languageName}", "strength 2 in ${languageName}"],
   "weaknesses": ["weakness 1 in ${languageName}", "weakness 2 in ${languageName}"],
-  "cultural_fit": "cultural fit assessment in ${languageName}",
   "recommendation": "recommendation in ${languageName}",
   "next_step_recommendation": "next step recommendation in ${languageName}",
-  "score": number
+  "score after interview": number
 }
 `
     } else {
