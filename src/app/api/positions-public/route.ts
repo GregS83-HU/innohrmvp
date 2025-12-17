@@ -7,6 +7,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url)
     const slug = searchParams.get("slug")
     console.log("slug", slug)
+    console.log('Supabase URL used by API:', process.env.NEXT_PUBLIC_SUPABASE_URL)
 
     let query = supabase
       .from("openedpositions")
@@ -22,8 +23,7 @@ export async function GET(req: Request) {
         )
       `
       )
-      
-
+  
     // ⚡ Filtre par slug si fourni
     if (slug) {
       query = query.eq("company.slug", slug)

@@ -3,7 +3,7 @@
 import { useSession } from '@supabase/auth-helpers-react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { Plus, Calendar, FileText, Briefcase, BarChart3, CheckCircle, AlertCircle, Activity, Lock, X, Clock, Users } from 'lucide-react'
+import { Plus, Calendar, FileText, Briefcase, BarChart3, CheckCircle, AlertCircle, Activity, Lock, X, Clock, Users, ChevronDown, Search, User } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { useLocale } from 'i18n/LocaleProvider'
 
@@ -12,7 +12,175 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-// Confirmation Modal Component
+interface CompanyUser {
+  user_id: string
+  first_name: string
+  last_name: string
+  email: string
+  is_admin: boolean
+  is_super_admin: boolean
+  is_manager: boolean
+  manager_id: string | null
+  manager_first_name: string | null
+  manager_last_name: string | null
+  employment_start_date: string | null
+}
+
+interface ManagerDropdownProps {
+  selectedManager: CompanyUser | null
+  onSelect: (manager: CompanyUser | null) => void
+  companyId: string
+  t: any
+}
+
+function ManagerDropdown({ selectedManager, onSelect, companyId, t }: ManagerDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [managers, setManagers] = useState<CompanyUser[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const fetchManagers = async () => {
+      setLoading(true)
+      setError(null)
+      
+      try {
+        const { data, error } = await supabase
+          .rpc('get_company_users', { company_id_input: companyId })
+        
+        if (error) {
+          console.error('Error fetching company users:', error)
+          setError('Error loading users. Please contact your admin.')
+          setManagers([])
+          return
+        }
+        
+        if (!data || data.length === 0) {
+          setError('No users found. Please contact your admin.')
+          setManagers([])
+          return
+        }
+        
+        setManagers(data)
+      } catch (err) {
+        console.error('Unexpected error:', err)
+        setError('Error loading users. Please contact your admin.')
+        setManagers([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (companyId) {
+      fetchManagers()
+    }
+  }, [companyId])
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const filteredManagers = managers.filter(manager => {
+    const fullName = `${manager.first_name} ${manager.last_name}`.toLowerCase()
+    return fullName.includes(searchTerm.toLowerCase())
+  })
+
+  const handleSelect = (manager: CompanyUser) => {
+    onSelect(manager)
+    setIsOpen(false)
+    setSearchTerm('')
+  }
+
+  const handleClear = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onSelect(null)
+  }
+
+  return (
+    <div ref={dropdownRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all flex items-center justify-between bg-white"
+      >
+        <span className={selectedManager ? 'text-gray-900' : 'text-gray-400'}>
+          {selectedManager 
+            ? `${selectedManager.first_name} ${selectedManager.last_name}`
+            : 'Select a manager...'
+          }
+        </span>
+        <div className="flex items-center gap-2">
+          {selectedManager && (
+            <X 
+              className="w-4 h-4 text-gray-400 hover:text-gray-600 transition-colors" 
+              onClick={handleClear}
+            />
+          )}
+          <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        </div>
+      </button>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-hidden">
+          <div className="p-3 border-b border-gray-200">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by name..."
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          </div>
+
+          <div className="overflow-y-auto max-h-48">
+            {loading ? (
+              <div className="p-4 text-center text-gray-500">
+                <div className="animate-spin w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                Loading...
+              </div>
+            ) : error ? (
+              <div className="p-4 text-center text-red-600 text-sm">
+                {error}
+              </div>
+            ) : filteredManagers.length === 0 ? (
+              <div className="p-4 text-center text-gray-500 text-sm">
+                No users found
+              </div>
+            ) : (
+              filteredManagers.map((manager) => (
+                <button
+                  key={manager.user_id}
+                  type="button"
+                  onClick={() => handleSelect(manager)}
+                  className="w-full px-4 py-3 text-left hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0"
+                >
+                  <div className="font-medium text-gray-900">
+                    {manager.first_name} {manager.last_name}
+                  </div>
+                  <div className="text-sm text-gray-500">{manager.email}</div>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 interface ConfirmAnalysisModalProps {
   isOpen: boolean
   onClose: () => void
@@ -42,7 +210,6 @@ function ConfirmAnalysisModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all">
-        {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 relative">
           <button
             onClick={onClose}
@@ -57,13 +224,11 @@ function ConfirmAnalysisModal({
           </h2>
         </div>
 
-        {/* Content */}
         <div className="p-6 space-y-4">
           <p className="text-gray-600 text-center">
             {t('newPosition.modal.message')}
           </p>
 
-          {/* Stats Cards */}
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 text-center border border-blue-100">
               <Users className="w-6 h-6 text-blue-600 mx-auto mb-2" />
@@ -77,7 +242,6 @@ function ConfirmAnalysisModal({
             </div>
           </div>
 
-          {/* Estimated Time */}
           <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-4 border border-amber-200">
             <div className="flex items-center gap-2 justify-center text-amber-800">
               <Clock className="w-4 h-4" />
@@ -87,7 +251,6 @@ function ConfirmAnalysisModal({
             </div>
           </div>
 
-          {/* Warning Text */}
           <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
             <p className="text-xs text-gray-600 text-center">
               {t('newPosition.modal.willConsume')} <span className="font-semibold text-gray-800">{candidateCount} {t('newPosition.modal.aiCredits')}</span> {t('newPosition.modal.fromAccount')}
@@ -95,7 +258,6 @@ function ConfirmAnalysisModal({
           </div>
         </div>
 
-        {/* Actions */}
         <div className="p-6 pt-0 space-y-3">
           <button
             onClick={onConfirm}
@@ -133,13 +295,13 @@ function ConfirmAnalysisModal({
   )
 }
 
-// Main Component
 export default function NewOpenedPositionPage() {
   const { t } = useLocale()
   const router = useRouter()
   const session = useSession()
 
   const [positionName, setPositionName] = useState('')
+  const [selectedManager, setSelectedManager] = useState<CompanyUser | null>(null)
   const [positionDescription, setPositionDescription] = useState('')
   const [positionDescriptionDetailed, setPositionDescriptionDetailed] = useState('')
   const [positionStartDate, setPositionStartDate] = useState('')
@@ -154,7 +316,6 @@ export default function NewOpenedPositionPage() {
   const positionAccessChecked = useRef(false)
   const pathname = usePathname()
 
-  // Modal states
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [candidateCount, setCandidateCount] = useState(0)
   const [fetchingCount, setFetchingCount] = useState(false)
@@ -165,10 +326,7 @@ export default function NewOpenedPositionPage() {
     }
   }, [session, router])
 
-  // Fetch user's company_id
   const fetchUserCompanyId = useCallback(async (userId: string) => {
-    console.log('👤 Starting to fetch company_id for userId:', userId);
-    
     try {
       const { data, error } = await supabase
         .from('company_to_users')
@@ -176,131 +334,61 @@ export default function NewOpenedPositionPage() {
         .eq('user_id', userId)
         .single();
       
-      console.log('📊 Fetch company_id response:', { data, error });
-      
       if (error) {
-        console.error('❌ Error fetching company_id:', error);
+        console.error('Error fetching company_id:', error);
         return;
       }
       
       if (data?.company_id) {
-        console.log('✅ Company ID found:', data.company_id);
         setCompanyId(data.company_id);
-      } else {
-        console.log('⚠️ No company_id found in user data:', data);
       }
     } catch (error) {
-      console.error('💥 Catch block error in fetchUserCompanyId:', error);
+      console.error('Error in fetchUserCompanyId:', error);
     }
   }, []);
 
-  // Check if user can create new position
   const checkPositionCreationAccess = useCallback(async () => {
-    console.log('🎯 checkPositionCreationAccess called with:', {
-      companyId,
-      alreadyChecked: positionAccessChecked.current
-    });
+    if (!companyId || positionAccessChecked.current) return;
     
-    if (!companyId) {
-      console.log('❌ No companyId available, cannot check access');
-      return;
-    }
-    
-    if (positionAccessChecked.current) {
-      console.log('❌ Access already checked, skipping');
-      return;
-    }
-    
-    console.log('🔍 Checking position creation access for company_id:', companyId);
     positionAccessChecked.current = true;
     
     try {
-      console.log('📞 Calling supabase.rpc with params:', { p_company_id: companyId });
-      
       const { data, error } = await supabase.rpc('can_open_new_position', { p_company_id: companyId })
       
-      console.log('📨 RPC Response:', { data, error, dataType: typeof data });
-      
       if (error) {
-        console.log('❌ RPC Error:', error);
-        setCanCreatePosition(false);
-        return;
-      }
-      
-      if (data === null || data === undefined) {
-        console.log('❌ Data is null/undefined, setting access to false');
         setCanCreatePosition(false);
         return;
       }
       
       let hasAccess = false;
-      
       if (typeof data === 'boolean') {
-        console.log('🔧 Data is boolean:', data);
         hasAccess = data;
       } else if (typeof data === 'string') {
-        console.log('🔧 Data is string:', data);
         hasAccess = data === 'true' || data === 'True' || data === 'TRUE';
       } else if (typeof data === 'number') {
-        console.log('🔧 Data is number:', data);
         hasAccess = data === 1;
-      } else if (typeof data === 'object' && data !== null) {
-        console.log('🔧 Data is object:', data);
-        hasAccess = data.result === true || data.result === 'true' || 
-                   data.can_access === true || data.can_access === 'true' ||
-                   data[0] === true || data[0] === 'true' ||
-                   data === true;
       }
       
-      console.log('✅ Final access decision:', hasAccess);
       setCanCreatePosition(hasAccess);
-      
     } catch (error) {
-      console.error('💥 Catch block error:', error);
+      console.error('Error checking position access:', error);
       setCanCreatePosition(false);
     }
   }, [companyId]);
 
-  // Initialize user data and check access
   useEffect(() => {
-    console.log('🚀 useEffect for session triggered:', {
-      hasSession: !!session,
-      userId: session?.user?.id,
-      userEmail: session?.user?.email
-    });
-    
     if (session?.user?.id) {
-      console.log('✅ Valid session found, fetching company ID...');
       fetchUserCompanyId(session.user.id);
-    } else {
-      console.log('❌ No valid session or user ID');
     }
   }, [session?.user?.id, fetchUserCompanyId]);
 
-  // Check access when companyId is available
   useEffect(() => {
-    console.log('🎯 useEffect for companyId triggered:', {
-      companyId,
-      canCreatePosition,
-      accessChecked: positionAccessChecked.current
-    });
-    
     if (companyId) {
-      console.log('✅ Company ID available, checking access...');
       checkPositionCreationAccess();
-    } else {
-      console.log('❌ No company ID yet');
     }
   }, [companyId, checkPositionCreationAccess]);
 
   if (!session || canCreatePosition === null) {
-    console.log('🔄 Loading state:', {
-      hasSession: !!session,
-      canCreatePosition,
-      companyId,
-      accessChecked: positionAccessChecked.current
-    });
-    
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-lg p-8 text-center">
@@ -308,9 +396,6 @@ export default function NewOpenedPositionPage() {
           <p className="text-gray-600">
             {!session ? t('newPosition.loading.userInfo') : t('newPosition.loading.checkingLimits')}
           </p>
-          <div className="mt-4 text-xs text-gray-400">
-            Debug: Session: {!!session ? 'Yes' : 'No'} | CompanyID: {companyId || 'None'} | Access: {String(canCreatePosition)}
-          </div>
         </div>
       </div>
     )
@@ -318,11 +403,18 @@ export default function NewOpenedPositionPage() {
 
   const userId = session.user.id
 
-  // Création de la position
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setMessage(null)
     setAnalysisResult(null)
+
+    if (!selectedManager) {
+      setMessage({ 
+        text: 'Please select a manager for this position', 
+        type: 'error' 
+      })
+      return
+    }
 
     setLoading(true)
 
@@ -334,6 +426,7 @@ export default function NewOpenedPositionPage() {
           user_id: userId,
           id: positionId,
           position_name: positionName,
+          manager_id: selectedManager.user_id,
           position_description: positionDescription,
           position_description_detailed: positionDescriptionDetailed,
           position_start_date: positionStartDate,
@@ -348,6 +441,7 @@ export default function NewOpenedPositionPage() {
         setMessage({ text: t('newPosition.messages.successCreated'), type: 'success' })
         setPositionId(data.id)
         setPositionName('')
+        setSelectedManager(null)
         setPositionDescription('')
         setPositionDescriptionDetailed('')
         setPositionStartDate('')
@@ -359,13 +453,7 @@ export default function NewOpenedPositionPage() {
     setLoading(false)
   }
 
-  // Open modal and fetch candidate count
   const handleAnalyseClick = async () => {
-   // await fetchCandidateCount();
-    
-    // Check if we fetched the count and if there are candidates
-    // We need to wait a bit for state to update, or we can use a different approach
-    // Let's refactor to handle this properly
     setFetchingCount(true);
     
     try {
@@ -405,7 +493,6 @@ export default function NewOpenedPositionPage() {
     }
   }
 
-  // Lancement de l'analyse massive avec progression
   const handleAnalyseMassive = async () => {
     if (!positionId) return
 
@@ -449,7 +536,6 @@ export default function NewOpenedPositionPage() {
     }
   }
 
-  // Handle "Create Without Analysis" option
   const handleCreateWithoutAnalysis = () => {
     setShowConfirmModal(false);
     setMessage({ 
@@ -462,7 +548,6 @@ export default function NewOpenedPositionPage() {
     <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="space-y-6">
         
-        {/* Header */}
         <div className="text-center">
           <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
             <Plus className="w-12 h-12 text-green-600 mx-auto mb-4" />
@@ -473,7 +558,6 @@ export default function NewOpenedPositionPage() {
           </div>
         </div>
 
-        {/* Position Limit Reached Message */}
         {canCreatePosition === false && (
           <div className="bg-gradient-to-br from-red-50 to-rose-100 border border-red-200 rounded-2xl shadow-sm overflow-hidden">
             <div className="p-4 sm:p-6 lg:p-8 text-center">
@@ -488,9 +572,7 @@ export default function NewOpenedPositionPage() {
               </p>
               <button 
                 className="bg-gradient-to-r from-red-600 to-rose-600 text-white py-3 px-8 rounded-lg font-medium hover:from-red-700 hover:to-rose-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
-                onClick={() => {
-                  console.log('Redirect to upgrade page')
-                }}
+                onClick={() => console.log('Redirect to upgrade page')}
               >
                 {t('newPosition.limitReached.upgradeButton')}
               </button>
@@ -498,14 +580,12 @@ export default function NewOpenedPositionPage() {
           </div>
         )}
 
-        {/* Main Form - Only show if user can create position */}
         {canCreatePosition === true && (
           <>
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="p-4 sm:p-6 lg:p-8">
                 <form onSubmit={handleSubmit} className="space-y-6">
                   
-                  {/* Position Name */}
                   <div>
                     <label htmlFor="positionName" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
                       <Briefcase className="w-4 h-4" />
@@ -522,7 +602,25 @@ export default function NewOpenedPositionPage() {
                     />
                   </div>
 
-                  {/* Position Description */}
+                  <div>
+                    <label htmlFor="manager" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                      <User className="w-4 h-4" />
+                      Manager <span className="text-red-500">*</span>
+                    </label>
+                    {companyId ? (
+                      <ManagerDropdown 
+                        selectedManager={selectedManager}
+                        onSelect={setSelectedManager}
+                        companyId={companyId}
+                        t={t}
+                      />
+                    ) : (
+                      <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-400">
+                        Loading managers...
+                      </div>
+                    )}
+                  </div>
+
                   <div>
                     <label htmlFor="positionDescription" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
                       <FileText className="w-4 h-4" />
@@ -539,7 +637,6 @@ export default function NewOpenedPositionPage() {
                     />
                   </div>
 
-                  {/* Position Description Detailed */}
                   <div>
                     <label htmlFor="positionDescriptionDetailed" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
                       <Activity className="w-4 h-4" />
@@ -556,7 +653,6 @@ export default function NewOpenedPositionPage() {
                     />
                   </div>
 
-                  {/* Starting Date */}
                   <div>
                     <label htmlFor="positionStartDate" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
                       <Calendar className="w-4 h-4" />
@@ -572,7 +668,6 @@ export default function NewOpenedPositionPage() {
                     />
                   </div>
 
-                  {/* Submit Button */}
                   <button
                     type="submit"
                     disabled={loading}
@@ -594,7 +689,6 @@ export default function NewOpenedPositionPage() {
               </div>
             </div>
 
-            {/* Messages */}
             {message && (
               <div className={`rounded-2xl p-4 sm:p-6 ${
                 message.type === 'success' 
@@ -616,7 +710,6 @@ export default function NewOpenedPositionPage() {
               </div>
             )}
 
-            {/* Analysis Section */}
             {positionId && (
               <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
                 <div className="p-4 sm:p-6 lg:p-8">
@@ -648,7 +741,6 @@ export default function NewOpenedPositionPage() {
                     )}
                   </button>
 
-                  {/* Progress Bar */}
                   {analysisLoading && (
                     <div className="bg-gray-200 rounded-full h-3 overflow-hidden mb-4">
                       <div
@@ -661,7 +753,6 @@ export default function NewOpenedPositionPage() {
               </div>
             )}
 
-            {/* Analysis Results & Action */}
             {analysisResult && (
               <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
                 <div className="p-4 sm:p-6 lg:p-8">
@@ -696,7 +787,6 @@ export default function NewOpenedPositionPage() {
         )}
       </div>
 
-      {/* Confirmation Modal */}
       <ConfirmAnalysisModal
         isOpen={showConfirmModal}
         onClose={() => setShowConfirmModal(false)}

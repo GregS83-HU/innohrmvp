@@ -89,6 +89,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
   }, [companySlug, router])
 
   const filteredPositions = useMemo(() => {
+
     return positions.filter(
       (p) =>
         (!companySlug || p.company?.slug === companySlug) &&
@@ -119,6 +120,9 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
         const res = await fetch(url)
         if (!res.ok) throw new Error(t('positions.errorLoading'))
         const data = await res.json()
+
+
+
         setPositions(data.positions || [])
       } catch (e) {
         setError((e as Error).message)
