@@ -247,17 +247,18 @@
     }
   }
 
-,  "newPosition": {
+,  
+  "newPosition": {
     "modal": {
       "title": "Elemzés megerősítése",
-      "message": "Minden jelöltet elemezni fog az adatbázisában ehhez a pozícióhoz.",
+      "message": "Az adatbázisában lévő összes jelöltet elemezni fogja ehhez a pozícióhoz.",
       "candidates": "Jelöltek",
-      "aiCredits": "AI Kreditek",
+      "aiCredits": "AI kreditek",
       "estimatedTime": "Becsült idő:",
       "seconds": "másodperc",
       "minute": "perc",
       "willConsume": "Ez felhasznál",
-      "fromAccount": "a fiókjából.",
+      "fromAccount": "kreditet a fiókjából.",
       "processing": "Feldolgozás...",
       "confirmStart": "Megerősítés és elemzés indítása",
       "createWithoutAnalysis": "Pozíció létrehozása elemzés nélkül",
@@ -265,16 +266,17 @@
     },
     "header": {
       "title": "Új pozíció létrehozása",
-      "subtitle": "Töltse ki az űrlapot egy új álláslehetőség létrehozásához"
+      "subtitle": "Töltse ki az alábbi űrlapot új munkakör létrehozásához"
     },
     "form": {
       "positionName": "Pozíció neve",
       "positionNamePlaceholder": "pl. Senior szoftverfejlesztő",
+      "manager": "Menedzser",
       "positionDescription": "Pozíció leírása (megjelenítéshez)",
-      "positionDescriptionPlaceholder": "Rövid leírás, amelyet a jelöltek látni fognak...",
+      "positionDescriptionPlaceholder": "Rövid leírás, amely megjelenik a jelöltek számára...",
       "positionDescriptionDetailed": "Részletes pozícióleírás (AI elemzéshez)",
       "positionDescriptionDetailedPlaceholder": "Részletes követelmények, készségek és képesítések az AI párosításhoz...",
-      "startingDate": "Kezdési dátum"
+      "startingDate": "Kezdés dátuma"
     },
     "buttons": {
       "createPosition": "Pozíció létrehozása",
@@ -282,29 +284,25 @@
     },
     "loading": {
       "userInfo": "Felhasználói adatok betöltése...",
-      "checkingLimits": "Pozíció korlátok ellenőrzése...",
-      "debug": "Hibakeresés: Munkamenet:",
-      "yes": "Igen",
-      "no": "Nem",
-      "none": "Nincs",
-      "access": "Hozzáférés:"
+      "checkingLimits": "Pozíció korlátok ellenőrzése..."
     },
     "limitReached": {
       "title": "Pozíció limit elérve",
-      "message": "Sajnáljuk, elérte a csomagja korlátját. További pozíciók létrehozásához kérjük, frissítse csomagját.",
+      "message": "Sajnáljuk, elérte a csomagja korlátját. További pozíciók létrehozásához kérjük, frissítse előfizetését.",
       "upgradeButton": "Csomag frissítése"
     },
     "messages": {
+      "selectManager": "Kérjük, válasszon menedzsert a pozíció létrehozása előtt.",
       "errorCreating": "Hiba a pozíció létrehozása során",
       "successCreated": "Új pozíció sikeresen létrehozva",
       "unexpectedError": "Váratlan hiba:",
-      "errorFetchingCount": "A jelöltek számának lekérése sikertelen. Kérjük, próbálja újra.",
-      "noCandidates": "Nincs jelölt az adatbázisában. Kérjük, először adjon hozzá jelölteket.",
+      "errorFetchingCount": "Nem sikerült lekérni a jelöltek számát. Kérjük, próbálja újra.",
+      "noCandidates": "Nem található jelölt az adatbázisban. Kérjük, először adjon hozzá jelölteket.",
       "unexpectedErrorRetry": "Váratlan hiba. Kérjük, próbálja újra.",
       "analysisComplete": "Elemzés befejezve:",
-      "candidatesCorresponding": "megfelelő jelölt",
+      "candidatesCorresponding": "jelölt felel meg",
       "serverError": "Váratlan szerverhiba az elemzés során",
-      "createdRunLater": "Pozíció sikeresen létrehozva. Az elemzést később futtathatja."
+      "createdRunLater": "Pozíció sikeresen létrehozva. Az elemzést később is futtathatja."
     },
     "analysis": {
       "title": "Jelöltek elemzése",
@@ -317,16 +315,17 @@
       "matchingCandidates": "Megfelelő jelöltek találva",
       "viewDetails": "Részletek megtekintése"
     },
-"managerDropdown": {
-      "selectManager": "Válassz vezetőt...",
+    "managerDropdown": {
+      "selectManager": "Válasszon menedzsert...",
       "searchPlaceholder": "Keresés név alapján...",
       "loading": "Betöltés...",
-      "loadingManagers": "Vezetők betöltése...",
-      "errorLoading": "Hiba a felhasználók betöltésekor. Kérlek, lépj kapcsolatba az adminisztrátorral.",
-      "noUsers": "Nem található felhasználó. Kérlek, lépj kapcsolatba az adminisztrátorral.",
+      "loadingManagers": "Menedzserek betöltése...",
+      "errorLoading": "Hiba a felhasználók betöltése során. Kérjük, lépjen kapcsolatba az adminisztrátorral.",
+      "noUsers": "Nem található felhasználó. Kérjük, lépjen kapcsolatba az adminisztrátorral.",
       "noUsersFound": "Nem található felhasználó"
-}
+    }
   }
+
 ,
   "cvAnalyse": {
     "header": {
@@ -2294,6 +2293,58 @@
     "sessionError": "Munkamenet hiba"
   }
 }
+
+,
+
+  "notificationComponent": {
+    "title": "Értesítések",
+    "markAllRead": "Összes megjelölése olvasottként",
+    "noNotifications": "Nincs új értesítés",
+
+    "ticket": {
+      "newTicket": "Új jegy",
+      "user": "Felhasználó",
+      "newMessage": "Új üzenet",
+      "someone": "Valaki",
+      "replied": "válaszolt a jegyre"
+    },
+
+    "leave": {
+      "created": "Szabadság igénylés",
+      "approved": "Szabadság jóváhagyva",
+      "rejected": "Szabadság elutasítva"
+    },
+
+    "goal": {
+      "created": "Új cél",
+      "approved": "Cél jóváhagyva",
+      "redFlag": "A cél figyelmet igényel"
+    },
+
+    "pulse": {
+      "reminder": "Pulse emlékeztető"
+    },
+
+    "oneOnOne": {
+      "scheduled": "1-on-1 megbeszélés ütemezve"
+    },
+
+    "cvUploaded": {
+      "title": "Új önéletrajz feltöltve",
+      "message": "Új önéletrajz érkezett a(z) {{role}} pozícióra"
+    },
+
+    "time": {
+      "justNow": "Épp most",
+      "minutesAgo": "{{count}} perce",
+      "minutesAgo_plural": "{{count}} perce",
+      "hoursAgo": "{{count}} órája",
+      "hoursAgo_plural": "{{count}} órája",
+      "daysAgo": "{{count}} napja",
+      "daysAgo_plural": "{{count}} napja"
+    }
+  }
+
 }
 
 
