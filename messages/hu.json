@@ -2293,6 +2293,58 @@
     "sessionError": "Munkamenet hiba"
   }
 }
+
+,
+
+  "notificationComponent": {
+    "title": "Értesítések",
+    "markAllRead": "Összes megjelölése olvasottként",
+    "noNotifications": "Nincs új értesítés",
+
+    "ticket": {
+      "newTicket": "Új jegy",
+      "user": "Felhasználó",
+      "newMessage": "Új üzenet",
+      "someone": "Valaki",
+      "replied": "válaszolt a jegyre"
+    },
+
+    "leave": {
+      "created": "Szabadság igénylés",
+      "approved": "Szabadság jóváhagyva",
+      "rejected": "Szabadság elutasítva"
+    },
+
+    "goal": {
+      "created": "Új cél",
+      "approved": "Cél jóváhagyva",
+      "redFlag": "A cél figyelmet igényel"
+    },
+
+    "pulse": {
+      "reminder": "Pulse emlékeztető"
+    },
+
+    "oneOnOne": {
+      "scheduled": "1-on-1 megbeszélés ütemezve"
+    },
+
+    "cvUploaded": {
+      "title": "Új önéletrajz feltöltve",
+      "message": "Új önéletrajz érkezett a(z) {{role}} pozícióra"
+    },
+
+    "time": {
+      "justNow": "Épp most",
+      "minutesAgo": "{{count}} perce",
+      "minutesAgo_plural": "{{count}} perce",
+      "hoursAgo": "{{count}} órája",
+      "hoursAgo_plural": "{{count}} órája",
+      "daysAgo": "{{count}} napja",
+      "daysAgo_plural": "{{count}} napja"
+    }
+  }
+
 }
 
 

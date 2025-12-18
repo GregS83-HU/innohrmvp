@@ -16,7 +16,6 @@ const supabase = createClient(
 async function notifyAdminsOfNewCV(
   positionId: string,
   positionName: string,
-  //candidateName: string,
   companyId: string
 ) {
   try {
@@ -74,6 +73,47 @@ async function notifyAdminsOfNewCV(
     return { success: true, count: notifications.length };
   } catch (err) {
     console.error('Failed to notify admins of new CV:', err);
+    return { success: false, error: err };
+  }
+}
+
+/**
+ * Create notification for the position manager when a CV is uploaded
+ */
+async function notifyManagerOfNewCV(
+  positionId: string,
+  positionName: string,
+  managerId: string | null
+) {
+  try {
+    if (!managerId) {
+      console.log('No manager assigned to position:', positionId);
+      return { success: true, message: 'No manager to notify' };
+    }
+
+    const notification = {
+      type: 'cv_uploaded',
+      title: 'New CV for Your Position',
+      message: `A new CV has been uploaded for ${positionName}`,
+      position_id: positionId,
+      recipient_id: managerId,
+      read: false,
+      created_at: new Date().toISOString()
+    };
+
+    const { error: notificationError } = await supabase
+      .from('notifications')
+      .insert(notification);
+
+    if (notificationError) {
+      console.error('Error creating manager CV notification:', notificationError);
+      return { success: false, error: notificationError };
+    }
+
+    console.log(`✅ Created manager notification for user ${managerId}`);
+    return { success: true };
+  } catch (err) {
+    console.error('Failed to notify manager of new CV:', err);
     return { success: false, error: err };
   }
 }
@@ -181,12 +221,13 @@ export async function POST(req: NextRequest) {
     const jobDescription = formData.get('jobDescription') as string;
     const positionId = formData.get('positionId') as string;
     const source = formData.get('source') as string || 'Candidate Upload';
+    
     // Fetch position details for notifications
-const { data: positionData, error: positionError } = await supabase
-  .from('openedpositions')
-  .select('position_name, company_id')
-  .eq('id', positionId)
-  .single();
+    const { data: positionData, error: positionError } = await supabase
+      .from('openedpositions')
+      .select('position_name, company_id, manager_id')
+      .eq('id', positionId)
+      .single();
 
     if (!file || file.type !== 'application/pdf') {
       return NextResponse.json({ error: 'Fichier PDF requis.' }, { status: 400 });
@@ -276,21 +317,19 @@ Remember: Write EVERYTHING in the same language as the CV!
     console.log('FormData keys:', Array.from(formData.keys()));
 
     // === Fetch company_id from Supabase ===
-      const { data: company, error: companyError } = await supabase
-        .from('company')
-        .select('id')
-        .eq('slug', companySlug)
-        .single();
+    const { data: company, error: companyError } = await supabase
+      .from('company')
+      .select('id')
+      .eq('slug', companySlug)
+      .single();
 
-      if (companyError) {
-        console.error('Error fetching company_id:', companyError);
-        return new Response(JSON.stringify({ error: 'Could not find company.' }), { status: 400 });
-}
+    if (companyError) {
+      console.error('Error fetching company_id:', companyError);
+      return new Response(JSON.stringify({ error: 'Could not find company.' }), { status: 400 });
+    }
 
-      const companyId = company.id;
-      console.log('Resolved company_id:', companyId);
-
-
+    const companyId = company.id;
+    console.log('Resolved company_id:', companyId);
 
     if (!companyId) {
       return NextResponse.json({ error: 'Missing company ID (needed to check AI credits).' }, { status: 400 });
@@ -300,7 +339,6 @@ Remember: Write EVERYTHING in the same language as the CV!
     if (!ok) {
       return NextResponse.json({ error: 'You have no remaining AI credits this month.' }, { status: 402 });
     }
-
 
     // === SINGLE AI CALL ===
     console.log('Starting combined AI analysis...');
@@ -384,14 +422,22 @@ Remember: Write EVERYTHING in the same language as the CV!
       return NextResponse.json({ error: 'Échec liaison position/candidat' }, { status: 500 });
     }
 
-    // Notify admins of new CV upload
-if (positionData) {
-  await notifyAdminsOfNewCV(
-    positionId,
-    positionData.position_name,
-    positionData.company_id.toString()
-  );
-}
+    // Notify admins and manager of new CV upload
+    if (positionData) {
+      // Notify all admins
+      await notifyAdminsOfNewCV(
+        positionId,
+        positionData.position_name,
+        positionData.company_id.toString()
+      );
+
+      // Notify the position manager
+      await notifyManagerOfNewCV(
+        positionId,
+        positionData.position_name,
+        positionData.manager_id
+      );
+    }
 
     return NextResponse.json({
       score,

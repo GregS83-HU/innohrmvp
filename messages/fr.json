@@ -2550,8 +2550,60 @@
     "sessionError": "Erreur de session"
   }
 }
+,
 
+  "notificationComponent": {
+    "title": "Notifications",
+    "markAllRead": "Tout marquer comme lu",
+    "noNotifications": "Aucune notification",
+
+    "ticket": {
+      "newTicket": "Nouveau ticket",
+      "user": "Utilisateur",
+      "newMessage": "Nouveau message",
+      "someone": "Quelqu’un",
+      "replied": "a répondu au ticket"
+    },
+
+    "leave": {
+      "created": "Demande de congé",
+      "approved": "Congé approuvé",
+      "rejected": "Congé refusé"
+    },
+
+    "goal": {
+      "created": "Nouvel objectif",
+      "approved": "Objectif approuvé",
+      "redFlag": "Objectif nécessitant une attention"
+    },
+
+    "pulse": {
+      "reminder": "Rappel Pulse"
+    },
+
+    "oneOnOne": {
+      "scheduled": "Entretien individuel planifié"
+    },
+
+    "cvUploaded": {
+      "title": "Nouveau CV reçu",
+      "message": "Un nouveau CV a été reçu pour le poste de {{role}}"
+    },
+
+    "time": {
+      "justNow": "À l’instant",
+      "minutesAgo": "Il y a {{count}} minute",
+      "minutesAgo_plural": "Il y a {{count}} minutes",
+      "hoursAgo": "Il y a {{count}} heure",
+      "hoursAgo_plural": "Il y a {{count}} heures",
+      "daysAgo": "Il y a {{count}} jour",
+      "daysAgo_plural": "Il y a {{count}} jours"
+    }
+  }
 }
+
+
+
 
   
 
