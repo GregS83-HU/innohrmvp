@@ -263,11 +263,51 @@ CV: ${cvText}
 
 Job Requirements: ${jobDescription}
 
-IMPORTANT:
-- Respond in the SAME LANGUAGE as the CV (detect the language from the CV text).
-- Evaluate the candidate as a REAL recruiter would: fairly, pragmatically, and based on overall employability.
-- Consider transferable skills, comparable experience, and growth potential — not only exact keyword matches.
+IMPORTANT GENERAL RULES:
+- Respond in the SAME LANGUAGE as the CV (detect automatically).
+- Evaluate candidates as a REAL recruiter would: fairly, pragmatically, and with hiring realism.
+- Consider transferable skills and growth potential, but NEVER let them fully compensate for missing core role experience.
 
+----------------------------------------
+CORE REQUIREMENTS IDENTIFICATION (CRITICAL STEP)
+----------------------------------------
+First, extract from the job description:
+- The 3 to 5 CORE REQUIREMENTS of the role.
+Core requirements are responsibilities or skills that are essential to perform the job independently.
+
+Then, evaluate whether the candidate has:
+- DIRECT EXPERIENCE (owned, led, or was accountable for)
+- PARTIAL EXPERIENCE (contributed but did not own)
+- NO EXPERIENCE
+
+This evaluation MUST directly influence the final score.
+
+----------------------------------------
+SCORING GUIDELINES (MANDATORY)
+----------------------------------------
+- 9–10: Excellent match  
+  → Direct experience in ALL core requirements + strong supporting skills
+
+- 7–8: Strong match  
+  → Direct experience in MOST core requirements, remaining gaps are minor or trainable
+
+- 6–7: Moderate match with potential  
+  → Direct experience in SOME core requirements, others only partially covered
+
+- 5–6: Weak match  
+  → Mostly transferable skills, limited direct experience in core requirements
+
+- <5: Poor match  
+  → Lacks direct experience in most core requirements
+
+IMPORTANT SCORING RULES:
+- If the candidate lacks direct experience in MORE THAN HALF of the core requirements, the score MUST NOT exceed 6.
+- Seniority, leadership, or prestige titles MUST NOT override missing core experience.
+- Different candidates with different coverage of core requirements SHOULD NOT receive identical scores.
+
+----------------------------------------
+OUTPUT FORMAT (STRICT)
+----------------------------------------
 Provide your response as JSON with this EXACT structure:
 {
   "score": number,
@@ -279,49 +319,39 @@ Provide your response as JSON with this EXACT structure:
   "candidat_phone": "string"
 }
 
-SCORING GUIDELINES (realistic recruiter calibration):
-- 9–10: Excellent match – ready to perform immediately with minimal gaps (rare but possible)
-- 7–8: Strong match – meets most key requirements, minor gaps are acceptable
-- 6–7: Good potential – solid foundation with some gaps that can be trained
-- 5–6: Partial match – relevant background but notable gaps for this role
-- <5: Weak match – lacks several core requirements
+----------------------------------------
+FOR "analysis" FIELD (Recruiter perspective – objective and decision-focused):
+Write a professional analysis covering:
 
-IMPORTANT SCORING RULES:
-- Do NOT penalize missing information that can reasonably be inferred.
-- Do NOT expect 100% requirement coverage for scores ≥7.
-- If the candidate could realistically be shortlisted, the score should be ≥6.5.
-- Avoid extreme harshness unless the profile is clearly unsuitable.
+1. Alignment with core job requirements (explicitly reference them)\\n\\n
+2. Key strengths that support performance in the role\\n\\n
+3. Gaps or risks that could impact success\\n\\n
+4. Overall hiring assessment (hire / consider / reject logic)\\n\\n
+5. THREE KEY INTERVIEW QUESTIONS targeting the identified gaps\\n\\n
 
-FOR "analysis" FIELD (Recruiter perspective – professional and honest tone):
-Write a concise, structured analysis for the recruiter covering:
+Tone: factual, realistic, and decision-oriented. Avoid exaggeration.
 
-1. Key strengths relevant to the role (specific and evidence-based)\\n\\n
-2. Gaps or concerns that may affect performance (prioritize the most important ones)\\n\\n
-3. Overall fit assessment (balanced and realistic hiring perspective)\\n\\n
-4. THREE KEY INTERVIEW QUESTIONS to validate suitability or clarify risks\\n\\n
+----------------------------------------
+FOR "candidateFeedback" FIELD (Candidate perspective – supportive and constructive):
+Write an encouraging message including:
 
-Be factual, objective, and focused on hiring decisions.
-Critical where needed, but not dismissive.
+1. Personal greeting using first and last name\\n\\n
+2. Clear summary of strengths relevant to the role\\n\\n
+3. Development areas with concrete improvement actions\\n\\n
+4. Career guidance, including adjacent or alternative roles if relevant\\n\\n
+5. Practical next steps (skills, experience, CV improvements)\\n\\n
 
-FOR "candidateFeedback" FIELD (Candidate perspective – encouraging and constructive tone):
-Write a supportive message for the candidate including:
-
-1. Personal greeting using their first and last name\\n\\n
-2. Strengths highlighting relevant experience, skills, and achievements\\n\\n
-3. Development areas with specific, actionable improvement suggestions\\n\\n
-4. Career advice, including adjacent or alternative roles if appropriate\\n\\n
-5. Clear next steps (CV improvements, skills to develop, or job targeting advice)\\n\\n
-
-Finish only with:
+Finish ONLY with:
 "Best regards."
 
-Be motivating, practical, and growth-oriented.
+Tone: professional, motivating, and actionable.
 
+----------------------------------------
 CANDIDATE DATA EXTRACTION:
 Extract the candidate's first name, last name, email, and phone number from the CV.
-If any field is not found, use an empty string "".
+If not found, use empty string "".
 
-REMINDER:
+FINAL REMINDER:
 Write EVERYTHING in the same language as the CV.
 `;
    
