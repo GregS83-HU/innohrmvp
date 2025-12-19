@@ -379,7 +379,10 @@ const HRDashboard = () => {
                   <PolarAngleAxis dataKey="dimension" tick={{ fontSize:11 }}/>
                   <PolarRadiusAxis angle={90} domain={[0,10]} tick={{ fontSize:10 }} tickCount={6}/>
                   <Radar name={t('dashboard.charts.score')} dataKey="score" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.1} strokeWidth={2} dot={{ fill:'#3B82F6', strokeWidth:2, r:4 }}/>
-                  <Tooltip formatter={(value:number)=>[value?.toFixed(1), t('dashboard.charts.score')]} contentStyle={{backgroundColor:'#fff',border:'1px solid #e5e7eb',borderRadius:'8px'}}/>
+                  <Tooltip 
+  formatter={(value?: number) => [(value ?? 0).toFixed(1), t('dashboard.charts.score')]} 
+  contentStyle={{backgroundColor:'#fff', border:'1px solid #e5e7eb', borderRadius:'8px'}}
+/>
                 </RadarChart>
               </ResponsiveContainer>
             </div>
@@ -405,7 +408,7 @@ const HRDashboard = () => {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value: number) => [value?.toFixed(1), t('dashboard.charts.score')]} />
+                <Tooltip formatter={(value?: number) => [(value ?? 0).toFixed(1), t('dashboard.charts.score')]} />
               </PieChart>
               </ResponsiveContainer>  
             </div>
@@ -423,7 +426,11 @@ const HRDashboard = () => {
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
                   <XAxis dataKey="dimension" stroke="#6b7280" fontSize={11} angle={-45} textAnchor="end" height={80}/>
                   <YAxis domain={[0,10]} stroke="#6b7280" fontSize={12}/>
-                  <Tooltip formatter={(value:number)=>[value?.toFixed(1), t('dashboard.charts.score')]} contentStyle={{backgroundColor:'#fff',border:'1px solid #e5e7eb',borderRadius:'8px'}}/>
+                  <Tooltip 
+  formatter={(value?: number) => [(value ?? 0).toFixed(1), t('dashboard.charts.score')]} 
+  contentStyle={{backgroundColor:'#fff', border:'1px solid #e5e7eb', borderRadius:'8px'}}
+/>
+
                   <Bar dataKey="score" radius={[4,4,0,0]}>
                     {permaData.map((entry,index)=><Cell key={`cell-${index}`} fill={colors[index]}/>)}
                   </Bar>
