@@ -257,13 +257,16 @@ export async function POST(req: NextRequest) {
 
     // ===  SINGLE COMBINED AI PROMPT ===
     const combinedPrompt = `
-You are an expert recruiter and career consultant. Analyze this CV against the job requirements and provide BOTH a recruiter analysis AND candidate feedback.
+You are an experienced recruiter and career consultant. Analyze this CV against the job requirements and provide BOTH a recruiter analysis AND candidate feedback.
 
 CV: ${cvText}
 
 Job Requirements: ${jobDescription}
 
-IMPORTANT: Respond in the SAME LANGUAGE as the CV (detect the language from the CV text).
+IMPORTANT:
+- Respond in the SAME LANGUAGE as the CV (detect the language from the CV text).
+- Evaluate the candidate as a REAL recruiter would: fairly, pragmatically, and based on overall employability.
+- Consider transferable skills, comparable experience, and growth potential — not only exact keyword matches.
 
 Provide your response as JSON with this EXACT structure:
 {
@@ -276,39 +279,50 @@ Provide your response as JSON with this EXACT structure:
   "candidat_phone": "string"
 }
 
-SCORING RULES (be strict and critical):
-- 9-10: Perfect match, all requirements met excellently
-- 7-8: Strong fit, most requirements met well
-- 5-6: Marginal fit, some key gaps
-- <5: Unsuitable, missing core requirements
+SCORING GUIDELINES (realistic recruiter calibration):
+- 9–10: Excellent match – ready to perform immediately with minimal gaps (rare but possible)
+- 7–8: Strong match – meets most key requirements, minor gaps are acceptable
+- 6–7: Good potential – solid foundation with some gaps that can be trained
+- 5–6: Partial match – relevant background but notable gaps for this role
+- <5: Weak match – lacks several core requirements
 
-FOR "analysis" FIELD (Recruiter perspective - STRICT and CRITICAL tone):
-Write a professional analysis for the recruiter covering:
-1. Key strengths relevant to the position (be specific)\\n\\n
-2. Critical gaps or concerns (be honest about weaknesses)\\n\\n
-3. Overall fit assessment (realistic evaluation)\\n\\n
-4. THREE KEY INTERVIEW QUESTIONS the recruiter should ask to validate the match\\n\\n
+IMPORTANT SCORING RULES:
+- Do NOT penalize missing information that can reasonably be inferred.
+- Do NOT expect 100% requirement coverage for scores ≥7.
+- If the candidate could realistically be shortlisted, the score should be ≥6.5.
+- Avoid extreme harshness unless the profile is clearly unsuitable.
 
-Use \\n\\n to separate paragraphs for readability.
-Be direct, critical, and focus on job fit. Don't sugarcoat weaknesses.
+FOR "analysis" FIELD (Recruiter perspective – professional and honest tone):
+Write a concise, structured analysis for the recruiter covering:
 
-FOR "candidateFeedback" FIELD (Candidate perspective - ENCOURAGING and CONSTRUCTIVE tone):
-Write a supportive message for the candidate with:
+1. Key strengths relevant to the role (specific and evidence-based)\\n\\n
+2. Gaps or concerns that may affect performance (prioritize the most important ones)\\n\\n
+3. Overall fit assessment (balanced and realistic hiring perspective)\\n\\n
+4. THREE KEY INTERVIEW QUESTIONS to validate suitability or clarify risks\\n\\n
+
+Be factual, objective, and focused on hiring decisions.
+Critical where needed, but not dismissive.
+
+FOR "candidateFeedback" FIELD (Candidate perspective – encouraging and constructive tone):
+Write a supportive message for the candidate including:
+
 1. Personal greeting using their first and last name\\n\\n
-2. Strengths paragraph highlighting their relevant experience and skills\\n\\n
+2. Strengths highlighting relevant experience, skills, and achievements\\n\\n
 3. Development areas with specific, actionable improvement suggestions\\n\\n
-4. Career advice mentioning alternative suitable roles if relevant\\n\\n
-5. Next steps with concrete recommendations\\n\\n
-Finish only with "Best regards." 
+4. Career advice, including adjacent or alternative roles if appropriate\\n\\n
+5. Clear next steps (CV improvements, skills to develop, or job targeting advice)\\n\\n
 
-Use \\n\\n to separate paragraphs for readability.
-Be kind, professional, encouraging, and actionable. Focus on growth and opportunity.
+Finish only with:
+"Best regards."
+
+Be motivating, practical, and growth-oriented.
 
 CANDIDATE DATA EXTRACTION:
 Extract the candidate's first name, last name, email, and phone number from the CV.
-If any field is not found, use empty string "".
+If any field is not found, use an empty string "".
 
-Remember: Write EVERYTHING in the same language as the CV!
+REMINDER:
+Write EVERYTHING in the same language as the CV.
 `;
    
 
