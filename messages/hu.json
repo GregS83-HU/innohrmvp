@@ -985,7 +985,15 @@
       "reviewed": "Ellenőrizve:"
     },
     "buttons": {
-      "uploadCertificate": "Igazolás feltöltése"
+      "uploadCertificate": "Igazolás feltöltése",
+      "cancel": "Kérelem törlése",
+      "confirmCancel": "Biztos benne?",
+      "confirmYes": "Igen, törlés",
+      "confirmNo": "Nem, megtartás",
+      "cancelling": "Törlés folyamatban..."
+    },
+    "messages": {
+      "cancelFailed": "A kérelem törlése sikertelen. Kérjük, próbálja újra."
     }
   }
 ,

@@ -99,6 +99,9 @@ const AbsenceManagement: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+
+      console.log('Fetched user object:', user);
+      console.log('User ID:', user.id);
       setCurrentUser(user);
 
       // Fetch company_id from company_to_users
@@ -120,7 +123,7 @@ const AbsenceManagement: React.FC = () => {
         .eq('manager_id', user.id)
         .limit(1);
 
-      console.log("DirectReport from DB:", directReports?.length);
+      //console.log("DirectReport from DB:", directReports?.length);
 
       setIsManager((directReports?.length || 0) > 0);
     } catch (err) {
@@ -313,10 +316,10 @@ const AbsenceManagement: React.FC = () => {
   // Approve/reject leave request
   const handleRequestReview = async (requestId: string, status: 'approved' | 'rejected', notes?: string) => {
     try {
-      console.log("user_id before update", currentUser?.id);
+      /*console.log("user_id before update", currentUser?.id);
       console.log("status before update", status);
       console.log("notes before update", notes);
-      console.log("requestI before update", requestId);
+      console.log("requestI before update", requestId);*/
 
       const { error } = await supabase
         .from('leave_requests')
@@ -486,6 +489,7 @@ const AbsenceManagement: React.FC = () => {
               onUploadCertificateForRequest={handleUploadCertificateForRequest}
               isSickLeaveType={isSickLeaveType}
               formatDate={formatDate}
+              currentUserId={currentUser.id}  // <-- ADD THIS LINE
             />
           </div>
         ) : (

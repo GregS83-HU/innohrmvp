@@ -990,7 +990,15 @@
       "reviewed": "Reviewed:"
     },
     "buttons": {
-      "uploadCertificate": "Upload Certificate"
+      "uploadCertificate": "Upload Certificate",
+      "cancel": "Cancel Request",
+      "confirmCancel": "Are you sure?",
+      "confirmYes": "Yes, cancel",
+      "confirmNo": "No, keep",
+      "cancelling": "Cancelling..."
+    },
+    "messages": {
+      "cancelFailed": "Failed to cancel request. Please try again."
     }
   }
 ,

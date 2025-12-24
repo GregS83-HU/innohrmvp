@@ -950,8 +950,17 @@
       "reviewed": "Révisé :"
     },
     "buttons": {
-      "uploadCertificate": "Télécharger le Certificat"
+      "uploadCertificate": "Télécharger le Certificat",
+       "cancel": "Annuler votre demandde",
+      "confirmCancel": "Etes-vous sûr de vouloir annuler cette demande de congé ?",
+      "confirmYes": "Oui, annuler",
+      "confirmNo": "Non, garder",
+      "cancelling": "Annulation en cours..."
+    },
+    "messages": {
+      "cancelFailed": "Erreur lors de l'annulation de la demande. Veuillez réessayer."
     }
+    
   },
   "requestLeaveModal": {
     "title": "Demander un Congé",

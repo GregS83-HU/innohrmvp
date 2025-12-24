@@ -1,6 +1,6 @@
 # Codebase - innohrmvp
 **Mode:** full-feature-extract  
-**Generated:** Sun Dec  7 07:30:03 CET 2025
+**Generated:** Sun Dec 21 10:48:08 CET 2025
 **Purpose:** Complete AI analysis including all APIs, components & features
 
 ---
@@ -10,7 +10,7 @@
 
 ```
 Folder: .
-Type: json | Lines:       71
+Type: json | Lines:       73
 Top definitions:
 --- Package Info ---
   "name": "innohrmvp",
@@ -22,7 +22,8 @@ Top definitions:
     "build": "next build",
     "start": "next start",
     "postinstall": "patch-package",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test-env": "node -e \"console.log('URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)\""
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
@@ -31,7 +32,6 @@ Top definitions:
     "@radix-ui/react-popover": "^1.1.15",
     "@stripe/react-stripe-js": "^4.0.2",
     "@stripe/stripe-js": "^7.9.0",
-    "@supabase/auth-helpers-nextjs": "^0.10.0",
 
 --- Key Dependencies ---
   "dependencies": {
@@ -47,7 +47,7 @@ Top definitions:
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.53.0",
     "@vercel/analytics": "^1.5.0",
-    "@vercel/speed-insights": "^1.2.0",
+    "@vercel/speed-insights": "^1.3.1",
     "canvas": "^3.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -57,7 +57,7 @@ Top definitions:
 ```
 
 <details>
-<summary>📄 Full content (      71 lines)</summary>
+<summary>📄 Full content (      73 lines)</summary>
 
 ```json
 {
@@ -69,7 +69,8 @@ Top definitions:
     "build": "next build",
     "start": "next start",
     "postinstall": "patch-package",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test-env": "node -e \"console.log('URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)\""
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -84,7 +85,7 @@ Top definitions:
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.53.0",
     "@vercel/analytics": "^1.5.0",
-    "@vercel/speed-insights": "^1.2.0",
+    "@vercel/speed-insights": "^1.3.1",
     "canvas": "^3.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -96,8 +97,7 @@ Top definitions:
     "next-intl": "^4.3.12",
     "nodemailer": "^7.0.10",
     "openai": "^5.11.0",
-    "patch-package": "^8.0.0",
-    "pdf-parse": "^1.1.1",
+    "pdf-parse": "1.1.1",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-icons": "^5.5.0",
@@ -122,8 +122,10 @@ Top definitions:
     "@types/tesseract.js": "^0.0.2",
     "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.21",
+    "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "15.4.5",
+    "patch-package": "^8.0.1",
     "postcss": "^8.5.6",
     "snyk": "^1.1299.0",
     "tailwindcss": "^4.1.13",
@@ -215,6 +217,171 @@ export default withNextIntl(nextConfig);
 
 ---
 
+## `./supabase/migrations/20251217053811_remote_schema.sql`
+
+```
+Folder: ./supabase/migrations
+Type: sql | Lines:        0
+Top definitions:
+```
+
+<details>
+<summary>📄 Full content (       0 lines)</summary>
+
+```sql
+
+```
+</details>
+
+---
+
+## `./supabase/migrations/20251217054333_remote_schema.sql`
+
+```
+Folder: ./supabase/migrations
+Type: sql | Lines:     5664
+Top definitions:
+alter table "public"."ai_credit_packs" enable row level security;
+alter table "public"."attendance_exceptions" enable row level security;
+alter table "public"."candidats" enable row level security;
+alter table "public"."chat_messages" enable row level security;
+alter table "public"."company" enable row level security;
+alter table "public"."company_email_settings" enable row level security;
+alter table "public"."company_holidays" enable row level security;
+alter table "public"."company_steps" enable row level security;
+alter table "public"."company_to_users" enable row level security;
+alter table "public"."contact_submissions" enable row level security;
+alter table "public"."demo_feedback" enable row level security;
+alter table "public"."forfait" enable row level security;
+alter table "public"."goal_updates" enable row level security;
+alter table "public"."happiness_daily_metrics" enable row level security;
+alter table "public"."happiness_sessions" enable row level security;
+alter table "public"."interviews" enable row level security;
+alter table "public"."leave_balances" enable row level security;
+alter table "public"."leave_requests" enable row level security;
+alter table "public"."leave_types" enable row level security;
+alter table "public"."medical_certificates" enable row level security;
+alter table "public"."night_batch_log" enable row level security;
+alter table "public"."notifications" enable row level security;
+alter table "public"."one_on_ones" enable row level security;
+alter table "public"."openedpositions" enable row level security;
+alter table "public"."pending_subscriptions" enable row level security;
+alter table "public"."performance_goals" enable row level security;
+alter table "public"."position_to_candidat" enable row level security;
+alter table "public"."profiles" enable row level security;
+alter table "public"."recruitment_steps" enable row level security;
+alter table "public"."session_recommendations" enable row level security;
+```
+
+<details>
+<summary>📄 Preview (first 100 lines of     5664)</summary>
+
+```sql
+create extension if not exists "pg_cron" with schema "pg_catalog";
+
+drop extension if exists "pg_net";
+
+create sequence "public"."attendance_exceptions_id_seq";
+
+create sequence "public"."company_email_settings_id_seq";
+
+create sequence "public"."company_holidays_id_seq";
+
+create sequence "public"."night_batch_log_id_seq";
+
+create sequence "public"."time_entries_id_seq";
+
+create sequence "public"."user_shifts_id_seq";
+
+create sequence "public"."work_shifts_id_seq";
+
+
+  create table "public"."ai_credit_packs" (
+    "id" text not null,
+    "credits" integer not null,
+    "price_id" text not null,
+    "price" integer not null,
+    "created_at" timestamp with time zone default now(),
+    "updated_at" timestamp with time zone default now(),
+    "currency" text
+      );
+
+
+alter table "public"."ai_credit_packs" enable row level security;
+
+
+  create table "public"."attendance_exceptions" (
+    "id" bigint not null default nextval('public.attendance_exceptions_id_seq'::regclass),
+    "user_id" uuid not null,
+    "exception_date" date not null,
+    "exception_type" character varying(50) not null,
+    "leave_request_id" uuid,
+    "notes" text,
+    "created_at" timestamp with time zone default now()
+      );
+
+
+alter table "public"."attendance_exceptions" enable row level security;
+
+
+  create table "public"."candidats" (
+    "id" bigint generated by default as identity not null,
+    "created_at" timestamp with time zone not null default now(),
+    "candidat_firstname" text,
+    "candidat_lastname" text,
+    "cv_text" text,
+    "cv_file" text,
+    "candidat_email" text,
+    "candidat_phone" text,
+    "candidat_gdpr_consent_date" timestamp with time zone,
+    "candidat_ai_consent_date" timestamp with time zone
+      );
+
+
+alter table "public"."candidats" enable row level security;
+
+
+  create table "public"."chat_messages" (
+    "id" uuid not null default gen_random_uuid(),
+    "session_id" uuid,
+    "message_text" text not null,
+    "is_bot_message" boolean default false,
+    "message_type" character varying(20),
+    "step_number" integer,
+    "score_value" integer,
+    "perma_category" character varying(20),
+    "created_at" timestamp with time zone default now()
+      );
+
+
+alter table "public"."chat_messages" enable row level security;
+
+
+  create table "public"."company" (
+    "id" bigint generated by default as identity not null,
+    "created_at" timestamp with time zone not null default now(),
+    "company_name" text,
+    "company_end_date" date,
+    "company_logo" text,
+    "slug" text,
+    "gdpr_file_url" text,
+    "forfait" text,
+    "stripe_customer_id" text,
+    "stripe_subscription_id" text,
+    "is_super_admin_company" boolean,
+    "used_ai_credits" bigint default 0,
+    "forfait_id" bigint,
+    "grace_until" timestamp with time zone
+      );
+
+
+alter table "public"."company" enable row level security;
+... (truncated,     5664 total lines)
+```
+</details>
+
+---
+
 ## `src/app/api/notifications/email/types.ts`
 
 ```
@@ -259,7 +426,7 @@ export interface MessageData {
 
 ```
 Folder: src/app/api/analyse-cv
-Type: ts | Lines:      406
+Type: ts | Lines:      496
 Top definitions:
 --- Exports ---
 export const runtime = "nodejs";
@@ -268,11 +435,10 @@ export const runtime = "nodejs";
 const supabase = createClient(
 function extractAndParseJSON(rawResponse: string, context = '') {
 function sanitizeFileName(filename: string) {
-const { data: positionData, error: positionError } = await supabase
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      406)</summary>
+<summary>📄 Preview (first 100 lines of      496)</summary>
 
 ```ts
 // src/app/api/analyse-cv/route.ts
@@ -293,7 +459,6 @@ const supabase = createClient(
 async function notifyAdminsOfNewCV(
   positionId: string,
   positionName: string,
-  //candidateName: string,
   companyId: string
 ) {
   try {
@@ -355,27 +520,28 @@ async function notifyAdminsOfNewCV(
   }
 }
 
-// Optimized API call with faster model and timeout
-async function callOpenRouterAPI(prompt: string, context = '', model = 'openai/gpt-3.5-turbo') {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout (increased for longer response)
-
+/**
+ * Create notification for the position manager when a CV is uploaded
+ */
+async function notifyManagerOfNewCV(
+  positionId: string,
+  positionName: string,
+  managerId: string | null
+) {
   try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      signal: controller.signal,
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'https://localhost:3000',
-        'X-Title': 'CV Analysis App',
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.1,
-        max_tokens: 3000, // Increased for combined analysis
-... (truncated,      406 total lines)
+    if (!managerId) {
+      console.log('No manager assigned to position:', positionId);
+      return { success: true, message: 'No manager to notify' };
+    }
+
+    const notification = {
+      type: 'cv_uploaded',
+      title: 'New CV for Your Position',
+      message: `A new CV has been uploaded for ${positionName}`,
+      position_id: positionId,
+      recipient_id: managerId,
+      read: false,
+... (truncated,      496 total lines)
 ```
 </details>
 
@@ -1047,7 +1213,7 @@ export async function DELETE(request: Request) {
 
 ```
 Folder: src/app/api/contact-submissions
-Type: ts | Lines:      185
+Type: ts | Lines:      186
 Top definitions:
 --- Exports ---
 
@@ -1057,7 +1223,7 @@ interface UpdateData {
 ```
 
 <details>
-<summary>📄 Full content (     185 lines)</summary>
+<summary>📄 Full content (     186 lines)</summary>
 
 ```ts
 // /app/api/contact-submissions/route.ts
@@ -1171,11 +1337,12 @@ export async function PATCH(request: NextRequest) {
   try {
     // Verify super_admin access
     const authCheck = await verifySuperAdmin(request);
-    if (!authCheck.authorized) {
-      return NextResponse.json(
+   if (!authCheck.authorized) {
+      /*return NextResponse.json(
         { error: authCheck.error || 'Unauthorized access' }, 
         { status: 403 }
-      );
+      );*/
+      console.warn('Skipping auth check temporarily for testing');
     }
 
     const body = await request.json();
@@ -2059,11 +2226,158 @@ export async function GET(req: NextRequest) {
 
 ---
 
+## `src/app/api/import-users/route.ts`
+
+```
+Folder: src/app/api/import-users
+Type: ts | Lines:      123
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+const supabase = createClient(
+interface CSVRow {
+interface ImportResult {
+```
+
+<details>
+<summary>📄 Full content (     123 lines)</summary>
+
+```ts
+import { NextRequest, NextResponse } from "next/server"
+import { createClient } from "@supabase/supabase-js"
+import * as XLSX from "xlsx"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+// Define types for CSV row data
+interface CSVRow {
+  email?: string
+  company_id?: number | string
+  is_admin?: boolean | string
+  first_name?: string
+  firstname?: string
+  FirstName?: string
+  last_name?: string
+  lastname?: string
+  LastName?: string
+}
+
+// Define result type
+interface ImportResult {
+  email?: string
+  success?: boolean
+  error?: string
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const formData = await req.formData()
+    const file = formData.get("file") as File
+
+    if (!file) {
+      return NextResponse.json({ error: "Missing CSV/XLSX file" }, { status: 400 })
+    }
+
+    const buffer = Buffer.from(await file.arrayBuffer())
+    const workbook = XLSX.read(buffer, { type: "buffer" })
+    const sheetName = workbook.SheetNames[0]
+    const rows = XLSX.utils.sheet_to_json<CSVRow>(workbook.Sheets[sheetName])
+
+    const results: ImportResult[] = []
+
+    for (const row of rows) {
+      const email = row.email?.toLowerCase()
+      const company_id = Number(row.company_id)
+      const is_admin = row.is_admin === true || row.is_admin === "true"
+
+      // Read first & last name from CSV
+      const first_name = row.first_name || row.firstname || row.FirstName || null
+      const last_name = row.last_name || row.lastname || row.LastName || null
+
+      if (!email || !company_id) {
+        results.push({ email, error: "Missing email or company_id" })
+        continue
+      }
+
+      // 1️⃣ Create user in Supabase Auth
+      const { data: userData, error: userError } =
+        await supabase.auth.admin.createUser({
+          email,
+          email_confirm: false,
+        })
+
+      if (userError || !userData?.user) {
+        results.push({ email, error: userError?.message })
+        continue
+      }
+
+      const userId = userData.user.id
+
+      // 2️⃣ Insert into your custom users table (with names)
+      const { error: customUserError } = await supabase
+        .from("users")
+        .insert({
+          id: userId,
+          is_admin,
+          user_firstname: first_name,
+          user_lastname: last_name,
+        })
+
+      if (customUserError) {
+        results.push({ email, error: customUserError.message })
+        continue
+      }
+
+      // 3️⃣ Link user to company
+      const { error: linkError } = await supabase
+        .from("company_to_users")
+        .insert({
+          user_id: userId,
+          company_id,
+        })
+
+      if (linkError) {
+        results.push({ email, error: linkError.message })
+        continue
+      }
+
+      // 4️⃣ Send magic link invitation
+      const { error: inviteError } = await supabase.auth.admin.generateLink({
+        type: "invite",
+        email,
+      })
+
+      if (inviteError) {
+        results.push({ email, error: inviteError.message })
+        continue
+      }
+
+      results.push({ email, success: true })
+    }
+
+    return NextResponse.json({ results })
+  } catch (err) {
+    console.error("Import error:", err)
+    return NextResponse.json(
+      { error: "Failed to import users" },
+      { status: 500 }
+    )
+  }
+}
+```
+</details>
+
+---
+
 ## `src/app/api/interview-assistant/route.ts`
 
 ```
 Folder: src/app/api/interview-assistant
-Type: ts | Lines:      182
+Type: ts | Lines:      189
 Top definitions:
 --- Exports ---
 
@@ -2073,7 +2387,7 @@ const languageNames: Record<string, string> = {
 ```
 
 <details>
-<summary>📄 Full content (     182 lines)</summary>
+<summary>📄 Full content (     189 lines)</summary>
 
 ```ts
 import { NextRequest, NextResponse } from 'next/server'
@@ -2172,7 +2486,7 @@ ${position.position_description_detailed}
 
 Current recruitment step: ${recruitmentStep.step_name}
 
-Generate 6–8 precise, role-specific questions tailored for the "${recruitmentStep.step_name}" stage.
+Generate 6–8 precise, role-specific questions tailored for the "${recruitmentStep.step_name}" stage for the job and the CV I've sent you.
 Return ONLY valid JSON in this exact format (with all text in ${languageName}):
 {
   "questions": [
@@ -2184,9 +2498,9 @@ Return ONLY valid JSON in this exact format (with all text in ${languageName}):
     } else if (mode === 'summary') {
       aiMode = 'summary'
       prompt = `
-You are an HR assistant.
+You are an HR assistant. Please be strict and fair especially when you will give the final score. The goal is to give a clear advice to the recruiter without being too kind.
 
-IMPORTANT: Generate all content in ${languageName}. The entire summary, strengths, weaknesses, cultural fit assessment, and recommendations must be in ${languageName}.
+IMPORTANT: Generate all content in ${languageName}. The entire summary, strengths, weaknesses and recommendations must be in ${languageName}.
 
 Candidate: ${candidat.candidat_firstname} ${candidat.candidat_lastname}
 
@@ -2202,15 +2516,22 @@ Recruiter notes:
 ${notes}
 
 Generate a structured interview summary for the "${recruitmentStep.step_name}" stage and recommend the next step.
+The summary should strict but fair and only taking in account the job, the CV, the current step and the notes from the recruiter.
+The score should reflect if the candidate, based on the CV, the position and the interview summmary notes is fitting or not. 
+SCORING RULES (be strict and critical):
+- 9-10: Perfect match, all requirements met excellently
+- 7-8: Strong fit, most requirements met well
+- 5-6: Marginal fit, some key gaps
+- <5: Unsuitable, missing core requirements
+
 Return ONLY valid JSON in this exact format (with all text in ${languageName} including the category titles):
 {
   "summary": "detailed summary in ${languageName}",
   "strengths": ["strength 1 in ${languageName}", "strength 2 in ${languageName}"],
   "weaknesses": ["weakness 1 in ${languageName}", "weakness 2 in ${languageName}"],
-  "cultural_fit": "cultural fit assessment in ${languageName}",
   "recommendation": "recommendation in ${languageName}",
   "next_step_recommendation": "next step recommendation in ${languageName}",
-  "score": number
+  "score after interview": number
 }
 `
     } else {
@@ -2225,7 +2546,7 @@ Return ONLY valid JSON in this exact format (with all text in ${languageName} in
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'openai/gpt-4o-mini',
+        model: 'openai/gpt-3.5-turbo',
         messages: [{ role: 'user', content: prompt }],
       }),
     })
@@ -2769,7 +3090,7 @@ ${rawText}
 
 ```
 Folder: src/app/api/new-position
-Type: ts | Lines:       50
+Type: ts | Lines:       49
 Top definitions:
 --- Exports ---
 
@@ -2777,7 +3098,7 @@ Top definitions:
 ```
 
 <details>
-<summary>📄 Full content (      50 lines)</summary>
+<summary>📄 Full content (      49 lines)</summary>
 
 ```ts
 import { NextResponse } from 'next/server'
@@ -2787,9 +3108,9 @@ import { cookies } from 'next/headers'
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { user_id, position_name, position_description, position_description_detailed, position_start_date } = body
+    const { user_id, manager_id, position_name, position_description, position_description_detailed, position_start_date } = body
 
-    if (!user_id || !position_name || !position_description || !position_description_detailed || !position_start_date) {
+    if (!user_id || !manager_id || !position_name || !position_description || !position_description_detailed || !position_start_date) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
@@ -2805,7 +3126,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: companyError?.message || 'Company not found' }, { status: 400 })
     }
 
-    // Ici on utilise .insert(...).select() pour récupérer l'ID
     const { data: insertedData, error: insertError } = await supabase
       .from('openedpositions')
       .insert([
@@ -2815,16 +3135,16 @@ export async function POST(request: Request) {
           position_description_detailed,
           position_start_date,
           user_id,
+          manager_id,        // ← added manager_id
           company_id: company.company_id,
         },
       ])
-      .select() // ← important pour récupérer les champs insérés
+      .select()
 
     if (insertError || !insertedData || insertedData.length === 0) {
       return NextResponse.json({ error: insertError?.message || 'Failed to create position' }, { status: 500 })
     }
 
-    // On renvoie l'ID de la position créée
     return NextResponse.json({ message: 'Position created successfully', id: insertedData[0].id })
   } catch (error) {
     return NextResponse.json({ error: (error as Error).message }, { status: 500 })
@@ -3610,7 +3930,7 @@ export async function POST(request: Request) {
 
 ```
 Folder: src/app/api/positions-private
-Type: ts | Lines:       44
+Type: ts | Lines:       83
 Top definitions:
 --- Exports ---
 
@@ -3618,7 +3938,7 @@ Top definitions:
 ```
 
 <details>
-<summary>📄 Full content (      44 lines)</summary>
+<summary>📄 Full content (      83 lines)</summary>
 
 ```ts
 import { NextResponse } from 'next/server'
@@ -3626,10 +3946,11 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 
 export async function GET(request: Request) {
+ 
+  
   const { searchParams } = new URL(request.url)
-  const userId = searchParams.get('userId') // Doit matcher ton param dans l'URL
-  const now = new Date().toISOString();
-
+  const userId = searchParams.get('userId')
+  const now = new Date().toISOString()
 
   if (!userId) {
     return NextResponse.json({ error: 'userId is required' }, { status: 400 })
@@ -3637,12 +3958,14 @@ export async function GET(request: Request) {
 
   const supabase = createServerComponentClient({ cookies: () => cookies() })
 
-  // Récupérer le company_id de l'utilisateur
+  // Get the user's company_id
   const { data: companyLink, error: errorCompany } = await supabase
     .from('company_to_users')
     .select('company_id')
     .eq('user_id', userId)
-    .single(); // on attend un seul enregistrement
+    .single()
+
+  console.log('🏢 Company Link:', companyLink)
 
   if (errorCompany) {
     return NextResponse.json({ error: errorCompany.message }, { status: 500 })
@@ -3652,12 +3975,49 @@ export async function GET(request: Request) {
     return NextResponse.json({ positions: [] })
   }
 
-  // Récupérer les positions liées à cette compagnie
-  const { data: positions, error: errorPositions } = await supabase
+  // Get the user's role from users table
+  const { data: userData, error: errorUser } = await supabase
+    .from('users')
+    .select('is_manager, is_admin')
+    .eq('id', userId)
+    .single()
+
+  console.log('👔 User Data:', userData)
+
+  if (errorUser) {
+    return NextResponse.json({ error: errorUser.message }, { status: 500 })
+  }
+
+  // Build the query - IMPORTANT: Inclure manager_id dans le select
+  const query = supabase
     .from('openedpositions')
-    .select(`*, company:company_id (company_logo)`)
+    .select(`
+      *,
+      manager_id,
+      company:company_id (company_logo, company_name, slug)
+    `)
     .eq('company_id', companyLink.company_id)
     .or(`position_end_date.is.null,position_end_date.gt.${now}`)
+
+  console.log('🔍 Is Manager:', userData.is_manager)
+  console.log('🔍 Is Admin:', userData.is_admin)
+
+  // Managers voient TOUTES les positions de leur company (pas de filtre)
+  // Ils verront différents boutons selon qu'ils soient assignés ou non
+  
+  const { data: positions, error: errorPositions } = await query
+
+  console.log('📊 Positions found:', positions?.length || 0)
+  
+  if (positions && positions.length > 0) {
+    console.log('🔍 First position sample:', {
+      id: positions[0].id,
+      position_name: positions[0].position_name,
+      manager_id: positions[0].manager_id
+    })
+  }
+
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
 
   if (errorPositions) {
     return NextResponse.json({ error: errorPositions.message }, { status: 500 })
@@ -3674,7 +4034,7 @@ export async function GET(request: Request) {
 
 ```
 Folder: src/app/api/positions-public
-Type: ts | Lines:       46
+Type: ts | Lines:       47
 Top definitions:
 --- Exports ---
 
@@ -3682,7 +4042,7 @@ Top definitions:
 ```
 
 <details>
-<summary>📄 Full content (      46 lines)</summary>
+<summary>📄 Full content (      47 lines)</summary>
 
 ```ts
 import { NextResponse } from "next/server"
@@ -3693,8 +4053,8 @@ export async function GET(req: Request) {
     const supabase = createServerClient()
     const { searchParams } = new URL(req.url)
     const slug = searchParams.get("slug")
-    console.log("slug", slug)
-
+    
+    
     let query = supabase
       .from("openedpositions")
       .select(
@@ -3703,13 +4063,14 @@ export async function GET(req: Request) {
         position_name,
         position_description,
         position_description_detailed,
+        manager_id,
         company:company(
           company_logo,
+          company_name,
           slug
         )
       `
       )
-      
 
     // ⚡ Filtre par slug si fourni
     if (slug) {
@@ -6110,7 +6471,7 @@ import ClientProvider from "./ClientProvider";
 import { LocaleProvider } from "../i18n/LocaleProvider";
 import { messages } from "../i18n/messages";
 import CookieConsent from "../../components/CookieConsent";
-import DemoWarningBanner from "../../components/DemoWarningBanner";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 
 export const metadata: Metadata = {
@@ -6346,19 +6707,23 @@ export default function ResetPasswordPage() {
 
 ```
 Folder: src/app/jobs/[slug]/openedpositions/new
-Type: tsx | Lines:      709
+Type: tsx | Lines:      804
 Top definitions:
 --- Exports ---
 export default function NewOpenedPositionPage() {
 
 --- Key Functions/Components ---
 const supabase = createClient(
+interface CompanyUser {
+interface TranslationFunction {
+interface ManagerDropdownProps {
+function ManagerDropdown({ selectedManager, onSelect, companyId, t }: ManagerDropdownProps) {
 interface ConfirmAnalysisModalProps {
 function ConfirmAnalysisModal({
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      709)</summary>
+<summary>📄 Preview (first 100 lines of      804)</summary>
 
 ```tsx
 'use client'
@@ -6366,7 +6731,7 @@ function ConfirmAnalysisModal({
 import { useSession } from '@supabase/auth-helpers-react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { Plus, Calendar, FileText, Briefcase, BarChart3, CheckCircle, AlertCircle, Activity, Lock, X, Clock, Users } from 'lucide-react'
+import { Plus, Calendar, FileText, Briefcase, BarChart3, CheckCircle, AlertCircle, Activity, Lock, X, Clock, Users, ChevronDown, Search, User } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { useLocale } from 'i18n/LocaleProvider'
 
@@ -6375,93 +6740,93 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-// Confirmation Modal Component
-interface ConfirmAnalysisModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onConfirm: () => void
-  onCreateWithoutAnalysis: () => void
-  candidateCount: number
-  loading?: boolean
+interface CompanyUser {
+  user_id: string
+  first_name: string
+  last_name: string
+  email: string
+  is_admin: boolean
+  is_super_admin: boolean
+  is_manager: boolean
+  manager_id: string | null
+  manager_first_name: string | null
+  manager_last_name: string | null
+  employment_start_date: string | null
 }
 
-function ConfirmAnalysisModal({
-  isOpen,
-  onClose,
-  onConfirm,
-  onCreateWithoutAnalysis,
-  candidateCount,
-  loading = false
-}: ConfirmAnalysisModalProps) {
-  const { t } = useLocale()
-  
-  if (!isOpen) return null
+// Define the translation function type
+interface TranslationFunction {
+  (key: string): string
+}
 
-  const estimatedMinutes = Math.ceil((candidateCount * 5) / 60)
-  const estimatedTime = estimatedMinutes < 1 
-    ? `${candidateCount * 5} ${t('newPosition.modal.seconds')}`
-    : `${estimatedMinutes} ${t('newPosition.modal.minute')}${estimatedMinutes > 1 ? 's' : ''}`
+interface ManagerDropdownProps {
+  selectedManager: CompanyUser | null
+  onSelect: (manager: CompanyUser | null) => void
+  companyId: string
+  t: TranslationFunction
+}
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 relative">
-          <button
-            onClick={onClose}
-            disabled={loading}
-            className="absolute top-4 right-4 text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <X className="w-5 h-5" />
-          </button>
-          <AlertCircle className="w-12 h-12 text-white mx-auto mb-3" />
-          <h2 className="text-2xl font-bold text-white text-center">
-            {t('newPosition.modal.title')}
-          </h2>
-        </div>
+function ManagerDropdown({ selectedManager, onSelect, companyId, t }: ManagerDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [managers, setManagers] = useState<CompanyUser[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
-        {/* Content */}
-        <div className="p-6 space-y-4">
-          <p className="text-gray-600 text-center">
-            {t('newPosition.modal.message')}
-          </p>
+  useEffect(() => {
+    const fetchManagers = async () => {
+      setLoading(true)
+      setError(null)
+      
+      try {
+        const { data, error } = await supabase
+          .rpc('get_company_users', { company_id_input: companyId })
+        
+        if (error) {
+          console.error('Error fetching company users:', error)
+          setError(t('managerDropdown.errorLoading'))
+          setManagers([])
+          return
+        }
+        
+        if (!data || data.length === 0) {
+          setError(t('managerDropdown.noUsers'))
+          setManagers([])
+          return
+        }
+        
+        setManagers(data)
+      } catch (err) {
+        console.error('Unexpected error:', err)
+        setError(t('managerDropdown.errorLoading'))
+        setManagers([])
+      } finally {
+        setLoading(false)
+      }
+    }
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 text-center border border-blue-100">
-              <Users className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-blue-600">{candidateCount}</div>
-              <div className="text-xs text-gray-600">{t('newPosition.modal.candidates')}</div>
-            </div>
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4 text-center border border-purple-100">
-              <Clock className="w-6 h-6 text-purple-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-purple-600">{candidateCount}</div>
-              <div className="text-xs text-gray-600">{t('newPosition.modal.aiCredits')}</div>
-            </div>
-          </div>
+    if (companyId) {
+      fetchManagers()
+    }
+  }, [companyId, t])
 
-          {/* Estimated Time */}
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-4 border border-amber-200">
-            <div className="flex items-center gap-2 justify-center text-amber-800">
-              <Clock className="w-4 h-4" />
-              <span className="text-sm font-medium">
-                {t('newPosition.modal.estimatedTime')} ~{estimatedTime}
-              </span>
-            </div>
-          </div>
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
 
-          {/* Warning Text */}
-          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-            <p className="text-xs text-gray-600 text-center">
-              {t('newPosition.modal.willConsume')} <span className="font-semibold text-gray-800">{candidateCount} {t('newPosition.modal.aiCredits')}</span> {t('newPosition.modal.fromAccount')}
-            </p>
-          </div>
-        </div>
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
-        {/* Actions */}
-        <div className="p-6 pt-0 space-y-3">
-          <button
-... (truncated,      709 total lines)
+  const filteredManagers = managers.filter(manager => {
+    const fullName = `${manager.first_name} ${manager.last_name}`.toLowerCase()
+    return fullName.includes(searchTerm.toLowerCase())
+  })
+... (truncated,      804 total lines)
 ```
 </details>
 
@@ -6471,7 +6836,7 @@ function ConfirmAnalysisModal({
 
 ```
 Folder: src/app/jobs/[slug]/openedpositions
-Type: tsx | Lines:       75
+Type: tsx | Lines:       78
 Top definitions:
 --- Exports ---
 export default async function JobPage({
@@ -6482,7 +6847,7 @@ type ApiResponse = { positions?: Position[] };
 ```
 
 <details>
-<summary>📄 Full content (      75 lines)</summary>
+<summary>📄 Full content (      78 lines)</summary>
 
 ```tsx
 // src/app/jobs/[slug]/page.tsx
@@ -6529,9 +6894,12 @@ export default async function JobPage({
 }) {
   const { slug } = await params;
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+  const baseUrl = process.env.NODE_ENV === 'development'
+  ? "http://localhost:3000"
+  : (process.env.NEXT_PUBLIC_SITE_URL || 
+     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"));
+
+
 
   let positions: Position[] = [];
 
@@ -7789,6 +8157,109 @@ export default function CompanyHappinessCheckPage() {
 
 ---
 
+## `src/app/jobs/[slug]/admin/import-users/page.tsx`
+
+```
+Folder: src/app/jobs/[slug]/admin/import-users
+Type: tsx | Lines:       80
+Top definitions:
+--- Exports ---
+export default function AdminImportUsersPage() {
+
+--- Key Functions/Components ---
+interface ImportResult {
+```
+
+<details>
+<summary>📄 Full content (      80 lines)</summary>
+
+```tsx
+'use client'
+
+import { useState } from 'react'
+
+// Define the result type to match what the API returns
+interface ImportResult {
+  email?: string
+  success?: boolean
+  error?: string
+}
+
+export default function AdminImportUsersPage() {
+  const [file, setFile] = useState<File | null>(null)
+  const [results, setResults] = useState<ImportResult[] | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!file) return
+
+    setLoading(true)
+    setResults(null)
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const res = await fetch('/api/import-users', {
+      method: 'POST',
+      body: formData,
+    })
+
+    const data = await res.json()
+    setResults(data.results)
+    setLoading(false)
+  }
+
+  return (
+    <div className="min-h-screen p-10 bg-gray-50">
+      <div className="max-w-2xl mx-auto bg-white shadow-lg rounded-2xl p-8">
+        <h1 className="text-2xl font-bold mb-6">Import Users</h1>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium mb-2">Upload CSV or XLSX</label>
+            <input
+              type="file"
+              accept=".csv,.xlsx"
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              className="block w-full border border-gray-300 rounded-lg p-2"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading || !file}
+            className="px-5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50"
+          >
+            {loading ? 'Importing...' : 'Start Import'}
+          </button>
+        </form>
+
+        {results && (
+          <div className="mt-10">
+            <h2 className="text-xl font-semibold mb-4">Results</h2>
+            <div className="bg-gray-100 rounded-xl p-4 max-h-80 overflow-auto">
+              {results.map((r, i) => (
+                <div key={i} className="p-2 border-b border-gray-300">
+                  {r.success ? (
+                    <span className="text-green-600 font-medium">✔ {r.email} imported</span>
+                  ) : (
+                    <span className="text-red-600 font-medium">✖ {r.email} — {r.error}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+```
+</details>
+
+---
+
 ## `src/app/jobs/[slug]/medical-certificate/download/page.tsx`
 
 ```
@@ -8814,7 +9285,7 @@ export const revalidate = 300; // Revalidate every 5 minutes
 
 ```
 Folder: src/app/jobs/[slug]/happiness-dashboard
-Type: tsx | Lines:      476
+Type: tsx | Lines:      483
 Top definitions:
 --- Exports ---
 export default HRDashboard;
@@ -8826,7 +9297,7 @@ const HRDashboard = () => {
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      476)</summary>
+<summary>📄 Preview (first 100 lines of      483)</summary>
 
 ```tsx
 'use client'
@@ -8929,7 +9400,7 @@ const HRDashboard = () => {
       setData(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : t('dashboard.errors.unknown'));
-... (truncated,      476 total lines)
+... (truncated,      483 total lines)
 ```
 </details>
 
@@ -9585,130 +10056,6 @@ export default function ManagerDashboard() {
       }
     } catch (error) {
 ... (truncated,      485 total lines)
-```
-</details>
-
----
-
-## `src/app/jobs/[slug]/performance/page.tsx`
-
-```
-Folder: src/app/jobs/[slug]/performance
-Type: tsx | Lines:      363
-Top definitions:
---- Exports ---
-export default function PerformanceDashboard() {
-
---- Key Functions/Components ---
-const supabase = createClient(
-interface Goal {
-```
-
-<details>
-<summary>📄 Preview (first 100 lines of      363)</summary>
-
-```tsx
-// app/jobs/[slug]/performance/page.tsx
-'use client'
-
-import { useSession } from '@supabase/auth-helpers-react'
-import { useRouter, useParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { Plus, Target, TrendingUp, Calendar, AlertCircle, CheckCircle } from 'lucide-react'
-import { createClient } from '@supabase/supabase-js'
-import { useLocale } from 'i18n/LocaleProvider'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
-
-interface Goal {
-  id: string
-  goal_title: string
-  goal_description: string
-  success_criteria: string
-  quarter: string
-  year: number
-  status: string
-  created_by: string
-  latest_status: 'green' | 'yellow' | 'red' | null
-  latest_comment: string | null
-  latest_blockers: string | null
-  last_update_week: string | null
-  last_update_date: string | null
-  employee_name: string
-  manager_name: string
-  created_at: string
-}
-
-export default function PerformanceDashboard() {
-  const { t } = useLocale()
-  const router = useRouter()
-  const session = useSession()
-  const params = useParams()
-  const companySlug = params.slug as string
-
-  const [goals, setGoals] = useState<Goal[]>([])
-  const [loading, setLoading] = useState(true)
-  const [currentQuarter, setCurrentQuarter] = useState('')
-  const [weekStart, setWeekStart] = useState('')
-
-  useEffect(() => {
-    if (!session) {
-      router.push(`/jobs/${companySlug}`)
-      return
-    }
-
-    fetchGoals()
-    fetchQuarterAndWeek()
-  }, [session, router, companySlug])
-
-  const fetchQuarterAndWeek = async () => {
-    try {
-      const { data: quarter } = await supabase.rpc('get_current_quarter')
-      const { data: week } = await supabase.rpc('get_week_start')
-      
-      setCurrentQuarter(quarter as string || '')
-      setWeekStart(week as string || '')
-    } catch (error) {
-      console.error('Error fetching quarter/week:', error)
-    }
-  }
-
-  const fetchGoals = async () => {
-    setLoading(true)
-    try {
-      if (!session?.user?.id) {
-        console.error('No session found')
-        setLoading(false)
-        return
-      }
-      
-      const res = await fetch(`/api/performance/goals?view=employee&user_id=${session.user.id}`)
-      const data = await res.json()
-      if (res.ok) {
-        setGoals(data.goals || [])
-      } else {
-        console.error('Error fetching goals:', data.error)
-      }
-    } catch (error) {
-      console.error('Error fetching goals:', error)
-    }
-    setLoading(false)
-  }
-
-  const activeGoals = goals.filter(g => g.status === 'active')
-  const draftGoals = goals.filter(g => g.status === 'draft')
-  const needsPulseGoals = activeGoals.filter(g => !g.last_update_week || g.last_update_week !== weekStart)
-  const redFlagGoals = activeGoals.filter(g => g.latest_status === 'red')
-
-  const getStatusColor = (status: string | null) => {
-    switch (status) {
-      case 'green': return 'bg-green-100 text-green-800 border-green-200'
-      case 'yellow': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
-      case 'red': return 'bg-red-100 text-red-800 border-red-200'
-... (truncated,      363 total lines)
 ```
 </details>
 
@@ -10710,7 +11057,7 @@ const HappinessCheckInner: React.FC = () => {
 
 ```
 Folder: components
-Type: tsx | Lines:      775
+Type: tsx | Lines:      787
 Top definitions:
 --- Exports ---
 export default function Header() {
@@ -10719,7 +11066,7 @@ export default function Header() {
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      775)</summary>
+<summary>📄 Preview (first 100 lines of      787)</summary>
 
 ```tsx
 'use client';
@@ -10818,11 +11165,11 @@ export default function Header() {
   const myperformance = useMemo(() => buildLink('/performance'), [buildLink]);
   const teamperformance = useMemo(() => buildLink('/performance/team'), [buildLink]);
   const manageContactsLink = useMemo(() => buildLink('/contact-submissions'), [buildLink]);
+  const manageUsersUpload = useMemo(() => buildLink('/admin/import-users'), [buildLink]);
 
 
   return (
-    <>
-... (truncated,      775 total lines)
+... (truncated,      787 total lines)
 ```
 </details>
 
@@ -14396,7 +14743,7 @@ export async function getRemainingCredits(companyId: string): Promise<number> {
 
 ```
 Folder: lib
-Type: ts | Lines:       53
+Type: ts | Lines:       60
 Top definitions:
 --- Exports ---
 export const supabase = createClientComponentClient() */
@@ -14409,7 +14756,7 @@ const storage = isBrowser
 ```
 
 <details>
-<summary>📄 Full content (      53 lines)</summary>
+<summary>📄 Full content (      60 lines)</summary>
 
 ```ts
 /*'use client'
@@ -14440,6 +14787,13 @@ export const supabase = createClient(
 'use client';
 
 import { createClient } from '@supabase/supabase-js';
+
+if (typeof window !== 'undefined') {
+  console.log('🔍 URL Supabase:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  console.log('🔍 30 derniers caractères de l\'URL:', url.slice(-30));
+  console.log('🔍 30 derniers caractères de la clé:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.slice(-30));
+}
 
 const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
 
@@ -15703,9 +16057,9 @@ export async function getUserName(userId: string) {
 ---
 
 # Statistics
-- **Files included:** 124
-- **File size:** 516K
-- **Extraction date:** Sun Dec  7 07:30:07 CET 2025
+- **Files included:** 127
+- **File size:** 520K
+- **Extraction date:** Sun Dec 21 10:48:13 CET 2025
 
 # Technology Stack Detected
 
@@ -15744,6 +16098,7 @@ src/app/api/feedback/route.ts
 src/app/api/happiness/chat/route.ts
 src/app/api/happiness/dashboard/route.ts
 src/app/api/happiness/session/route.ts
+src/app/api/import-users/route.ts
 src/app/api/interview-assistant/route.ts
 src/app/api/interviews/route.ts
 src/app/api/medical-certificates/confirm/route.ts
@@ -15784,6 +16139,7 @@ src/app/ObsoleteHome/page.tsx
 src/app/jobs/[slug]/Home/page.tsx
 src/app/jobs/[slug]/absences/calendar/page.tsx
 src/app/jobs/[slug]/absences/page.tsx
+src/app/jobs/[slug]/admin/import-users/page.tsx
 src/app/jobs/[slug]/contact-submissions/page.tsx
 src/app/jobs/[slug]/contact/page.tsx
 src/app/jobs/[slug]/cookies/page.tsx
