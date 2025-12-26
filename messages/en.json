@@ -250,8 +250,7 @@
     }
   }
 
-, 
-  "newPosition": {
+,  "newPosition": {
     "modal": {
       "title": "Confirm Analysis",
       "message": "You are about to analyze all candidates in your database against this position.",
@@ -274,7 +273,6 @@
     "form": {
       "positionName": "Position Name",
       "positionNamePlaceholder": "e.g. Senior Software Developer",
-      "manager": "Manager",
       "positionDescription": "Position Description (for display)",
       "positionDescriptionPlaceholder": "Brief description that will be shown to candidates...",
       "positionDescriptionDetailed": "Position Description Detailed (For AI analyse)",
@@ -287,7 +285,12 @@
     },
     "loading": {
       "userInfo": "Loading user info...",
-      "checkingLimits": "Checking position limits..."
+      "checkingLimits": "Checking position limits...",
+      "debug": "Debug: Session:",
+      "yes": "Yes",
+      "no": "No",
+      "none": "None",
+      "access": "Access:"
     },
     "limitReached": {
       "title": "Position Limit Reached",
@@ -295,14 +298,13 @@
       "upgradeButton": "Upgrade Your Plan"
     },
     "messages": {
-      "selectManager": "Please select a manager before creating the position.",
       "errorCreating": "Error creating position",
       "successCreated": "New position successfully created",
       "unexpectedError": "Unexpected error:",
       "errorFetchingCount": "Could not fetch candidate count. Please try again.",
       "noCandidates": "No candidates found in your database. Please add candidates first.",
       "unexpectedErrorRetry": "Unexpected error. Please try again.",
-      "analysisComplete": "Analysis completed:",
+      "analysisComplete": "Analyse completed:",
       "candidatesCorresponding": "candidates are corresponding",
       "serverError": "Unexpected server error during analysis",
       "createdRunLater": "Position created successfully. You can run the analysis later."
@@ -310,25 +312,24 @@
     "analysis": {
       "title": "Candidate Analysis",
       "loading": "Loading...",
-      "running": "Analysis running...",
-      "launchButton": "Launch analysis on the database"
+      "running": "Analyse running...",
+      "launchButton": "Launch analyse on the database"
     },
     "results": {
       "title": "Analysis Results",
       "matchingCandidates": "Matching candidates found",
       "viewDetails": "View Details"
-    },
+    }, 
     "managerDropdown": {
-      "selectManager": "Select a manager...",
-      "searchPlaceholder": "Search by name...",
-      "loading": "Loading...",
-      "loadingManagers": "Loading managers...",
-      "errorLoading": "Error loading users. Please contact your admin.",
-      "noUsers": "No users found. Please contact your admin.",
-      "noUsersFound": "No users found"
-    }
+    "selectManager": "Select a manager...",
+    "searchPlaceholder": "Search by name...",
+    "loading": "Loading...",
+    "loadingManagers": "Loading managers...",
+    "errorLoading": "Error loading users. Please contact your admin.",
+    "noUsers": "No users found. Please contact your admin.",
+    "noUsersFound": "No users found"
   }
-
+  }
 ,
   "cvAnalyse": {
     "header": {
@@ -990,15 +991,7 @@
       "reviewed": "Reviewed:"
     },
     "buttons": {
-      "uploadCertificate": "Upload Certificate",
-      "cancel": "Cancel Request",
-      "confirmCancel": "Are you sure?",
-      "confirmYes": "Yes, cancel",
-      "confirmNo": "No, keep",
-      "cancelling": "Cancelling..."
-    },
-    "messages": {
-      "cancelFailed": "Failed to cancel request. Please try again."
+      "uploadCertificate": "Upload Certificate"
     }
   }
 ,
@@ -2309,58 +2302,9 @@
     "passwordTooShort": "Password must be at least 6 characters",
     "noSession": "No valid session found. Please request a new password reset link.",
     "sessionError": "Session Error"
-  }}
-,
-  "notificationComponent": {
-    "title": "Notifications",
-    "markAllRead": "Mark all as read",
-    "noNotifications": "No notifications yet",
-
-    "ticket": {
-      "newTicket": "New Ticket",
-      "user": "User",
-      "newMessage": "New Message",
-      "someone": "Someone",
-      "replied": "replied to a ticket"
-    },
-
-    "leave": {
-      "created": "Leave Request",
-      "approved": "Leave Approved",
-      "rejected": "Leave Rejected"
-    },
-
-    "goal": {
-      "created": "New Goal",
-      "approved": "Goal Approved",
-      "redFlag": "Goal Needs Attention"
-    },
-
-    "pulse": {
-      "reminder": "Pulse Reminder"
-    },
-
-    "oneOnOne": {
-      "scheduled": "1-on-1 Scheduled"
-    },
-
-    "cvUploaded": {
-      "title": "New CV Uploaded",
-      "message": "New CV uploaded for {{role}}"
-    },
-
-    "time": {
-      "justNow": "Just now",
-      "minutesAgo": "{{count}} minute ago",
-      "minutesAgo_plural": "{{count}} minutes ago",
-      "hoursAgo": "{{count}} hour ago",
-      "hoursAgo_plural": "{{count}} hours ago",
-      "daysAgo": "{{count}} day ago",
-      "daysAgo_plural": "{{count}} days ago"
-    }
   }
 }
-
+}
 
 
 

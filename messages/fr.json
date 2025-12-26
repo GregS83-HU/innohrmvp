@@ -240,10 +240,9 @@
       }
     }
   },
-  
   "newPosition": {
     "modal": {
-      "title": "Confirmer l'analyse",
+      "title": "Confirmer l'Analyse",
       "message": "Vous êtes sur le point d'analyser tous les candidats de votre base de données pour ce poste.",
       "candidates": "Candidats",
       "aiCredits": "Crédits IA",
@@ -252,40 +251,43 @@
       "minute": "minute",
       "willConsume": "Cela consommera",
       "fromAccount": "de votre compte.",
-      "processing": "Traitement en cours...",
-      "confirmStart": "Confirmer et démarrer l'analyse",
-      "createWithoutAnalysis": "Créer le poste sans analyse",
+      "processing": "Traitement...",
+      "confirmStart": "Confirmer et Démarrer l'Analyse",
+      "createWithoutAnalysis": "Créer le Poste Sans Analyse",
       "cancel": "Annuler"
     },
     "header": {
-      "title": "Créer un nouveau poste",
+      "title": "Créer un Nouveau Poste",
       "subtitle": "Remplissez le formulaire ci-dessous pour créer un nouveau poste"
     },
     "form": {
-      "positionName": "Nom du poste",
-      "positionNamePlaceholder": "ex. Développeur logiciel senior",
-      "manager": "Responsable",
-      "positionDescription": "Description du poste (pour l'affichage)",
-      "positionDescriptionPlaceholder": "Brève description qui sera présentée aux candidats...",
-      "positionDescriptionDetailed": "Description détaillée du poste (pour l'analyse IA)",
-      "positionDescriptionDetailedPlaceholder": "Exigences détaillées, compétences et qualifications pour la correspondance IA...",
-      "startingDate": "Date de début"
+      "positionName": "Nom du Poste",
+      "positionNamePlaceholder": "ex. Développeur Senior",
+      "positionDescription": "Description du Poste (pour l'affichage)",
+      "positionDescriptionPlaceholder": "Brève description qui sera montrée aux candidats...",
+      "positionDescriptionDetailed": "Description Détaillée du Poste (Pour l'analyse IA)",
+      "positionDescriptionDetailedPlaceholder": "Exigences détaillées, compétences et qualifications pour le matching IA...",
+      "startingDate": "Date de Début"
     },
     "buttons": {
-      "createPosition": "Créer le poste",
-      "creating": "Création en cours..."
+      "createPosition": "Créer le Poste",
+      "creating": "Création..."
     },
     "loading": {
       "userInfo": "Chargement des informations utilisateur...",
-      "checkingLimits": "Vérification des limites de postes..."
+      "checkingLimits": "Vérification des limites de postes...",
+      "debug": "Debug : Session :",
+      "yes": "Oui",
+      "no": "Non",
+      "none": "Aucun",
+      "access": "Accès :"
     },
     "limitReached": {
-      "title": "Limite de postes atteinte",
+      "title": "Limite de Postes Atteinte",
       "message": "Désolé, vous avez atteint la limite de votre forfait. Pour créer plus de postes, veuillez mettre à niveau votre plan.",
-      "upgradeButton": "Mettre à niveau votre plan"
+      "upgradeButton": "Mettre à Niveau Votre Plan"
     },
     "messages": {
-      "selectManager": "Veuillez sélectionner un responsable avant de créer le poste.",
       "errorCreating": "Erreur lors de la création du poste",
       "successCreated": "Nouveau poste créé avec succès",
       "unexpectedError": "Erreur inattendue :",
@@ -294,31 +296,30 @@
       "unexpectedErrorRetry": "Erreur inattendue. Veuillez réessayer.",
       "analysisComplete": "Analyse terminée :",
       "candidatesCorresponding": "candidats correspondent",
-      "serverError": "Erreur serveur inattendue pendant l'analyse",
+      "serverError": "Erreur serveur inattendue lors de l'analyse",
       "createdRunLater": "Poste créé avec succès. Vous pouvez lancer l'analyse plus tard."
     },
     "analysis": {
-      "title": "Analyse des candidats",
+      "title": "Analyse des Candidats",
       "loading": "Chargement...",
       "running": "Analyse en cours...",
       "launchButton": "Lancer l'analyse sur la base de données"
     },
     "results": {
-      "title": "Résultats de l'analyse",
+      "title": "Résultats de l'Analyse",
       "matchingCandidates": "Candidats correspondants trouvés",
-      "viewDetails": "Voir les détails"
+      "viewDetails": "Voir les Détails"
     },
     "managerDropdown": {
-      "selectManager": "Sélectionner un responsable...",
-      "searchPlaceholder": "Rechercher par nom...",
-      "loading": "Chargement...",
-      "loadingManagers": "Chargement des responsables...",
-      "errorLoading": "Erreur lors du chargement des utilisateurs. Veuillez contacter votre administrateur.",
-      "noUsers": "Aucun utilisateur trouvé. Veuillez contacter votre administrateur.",
-      "noUsersFound": "Aucun utilisateur trouvé"
-    }
+    "selectManager": "Choisissez un manager",
+    "searchPlaceholder": "Recherche par nom...",
+    "loading": "Chargement...",
+    "loadingManagers": "Chargement des managers...",
+    "errorLoading": "Une erreur est survenue lors du chargement des utilisateurs. Veuillez contacter votre administrateur.",
+    "noUsers": "Aucun utilisateur trouvé. Veuillez contacter votre administrateur.",
+    "noUsersFound": "Aucun utilisateur trouvé"
   }
-,
+  },
   "cvAnalyse": {
     "header": {
       "title": "Analyse IA de CV",
@@ -950,17 +951,8 @@
       "reviewed": "Révisé :"
     },
     "buttons": {
-      "uploadCertificate": "Télécharger le Certificat",
-       "cancel": "Annuler votre demandde",
-      "confirmCancel": "Etes-vous sûr de vouloir annuler cette demande de congé ?",
-      "confirmYes": "Oui, annuler",
-      "confirmNo": "Non, garder",
-      "cancelling": "Annulation en cours..."
-    },
-    "messages": {
-      "cancelFailed": "Erreur lors de l'annulation de la demande. Veuillez réessayer."
+      "uploadCertificate": "Télécharger le Certificat"
     }
-    
   },
   "requestLeaveModal": {
     "title": "Demander un Congé",
@@ -2559,60 +2551,8 @@
     "sessionError": "Erreur de session"
   }
 }
-,
 
-  "notificationComponent": {
-    "title": "Notifications",
-    "markAllRead": "Tout marquer comme lu",
-    "noNotifications": "Aucune notification",
-
-    "ticket": {
-      "newTicket": "Nouveau ticket",
-      "user": "Utilisateur",
-      "newMessage": "Nouveau message",
-      "someone": "Quelqu’un",
-      "replied": "a répondu au ticket"
-    },
-
-    "leave": {
-      "created": "Demande de congé",
-      "approved": "Congé approuvé",
-      "rejected": "Congé refusé"
-    },
-
-    "goal": {
-      "created": "Nouvel objectif",
-      "approved": "Objectif approuvé",
-      "redFlag": "Objectif nécessitant une attention"
-    },
-
-    "pulse": {
-      "reminder": "Rappel Pulse"
-    },
-
-    "oneOnOne": {
-      "scheduled": "Entretien individuel planifié"
-    },
-
-    "cvUploaded": {
-      "title": "Nouveau CV reçu",
-      "message": "Un nouveau CV a été reçu pour le poste de {{role}}"
-    },
-
-    "time": {
-      "justNow": "À l’instant",
-      "minutesAgo": "Il y a {{count}} minute",
-      "minutesAgo_plural": "Il y a {{count}} minutes",
-      "hoursAgo": "Il y a {{count}} heure",
-      "hoursAgo_plural": "Il y a {{count}} heures",
-      "daysAgo": "Il y a {{count}} jour",
-      "daysAgo_plural": "Il y a {{count}} jours"
-    }
-  }
 }
-
-
-
 
   
 
