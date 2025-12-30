@@ -283,8 +283,8 @@ export default function CompanyUsersPage() {
   const [updateSuccess, setUpdateSuccess] = useState<string | null>(null);
   const anchorRef = useRef<HTMLElement | null>(null);
 
-  // NEW: Current authenticated user state
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  // Current authenticated user state with proper type
+  const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null);
 
   // Payroll modal states
   const [payrollModalOpen, setPayrollModalOpen] = useState(false);
@@ -307,12 +307,12 @@ export default function CompanyUsersPage() {
   });
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
-  // NEW: Fetch current authenticated user
+  // Fetch current authenticated user
   const fetchCurrentUser = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      setCurrentUser(user);
+      setCurrentUser({ id: user.id });
     } catch (err) {
       console.error('Error fetching current user:', err);
     }

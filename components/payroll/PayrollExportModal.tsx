@@ -20,6 +20,12 @@ interface PayrollExportModalProps {
   userId: string;
 }
 
+interface PayrollValidationIssue {
+  message: string;
+  suggested_fix?: string;
+}
+
+
 export default function PayrollExportModal({
   isOpen,
   onClose,
@@ -33,8 +39,7 @@ export default function PayrollExportModal({
   const [error, setError] = useState<string | null>(null);
 
   const [isBlocked, setIsBlocked] = useState(false);
-  const [validationIssues, setValidationIssues] = useState<any[] | null>(null);
-
+const [validationIssues, setValidationIssues] = useState<PayrollValidationIssue[] | null>(null);
   const [exportDone, setExportDone] = useState(false);
   const [lastExportId, setLastExportId] = useState<string | undefined>();
 

@@ -14,7 +14,7 @@ export default function EmployeePayrollDetailPage() {
   const slug = params.slug as string;
   const employeeId = params.employeeId as string;
 
-  const [payroll, setPayroll] = useState<any>(null);
+  const [payroll, setPayroll] = useState<EmployeePayroll | null>(null);
   const [history, setHistory] = useState<PayrollHistory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +25,7 @@ export default function EmployeePayrollDetailPage() {
   const [currentUser, setCurrentUser] = useState<User | undefined>();
 
   // Form state for editing
-  const [formData, setFormData] = useState<any>(null);
+  const [formData, setFormData] = useState<EmployeePayroll | null>(null);
 
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -69,7 +69,7 @@ export default function EmployeePayrollDetailPage() {
 
       const result = await response.json();
       if (result.data && result.data.length > 0) {
-        const payrollData = result.data[0];
+        const payrollData = result.data[0] as EmployeePayroll;
         setPayroll(payrollData);
         setFormData(payrollData);
 
@@ -119,13 +119,15 @@ export default function EmployeePayrollDetailPage() {
     setEditMode(false);
   };
 
-  const updateCountryData = (field: string, value: any) => {
+  const updateCountryData = (field: string, value: string | number) => {
+    if (!formData) return;
+    
     setFormData({
       ...formData,
       country_specific_data: {
         ...formData.country_specific_data,
         [field]: value,
-      },
+      } as HungarianPayrollData,
     });
   };
 
@@ -255,7 +257,7 @@ export default function EmployeePayrollDetailPage() {
                 {editMode ? (
                   <select
                     value={formData.employment_type}
-                    onChange={(e) => setFormData({ ...formData, employment_type: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, employment_type: e.target.value as EmployeePayroll['employment_type'] })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="full_time">Full Time</option>
@@ -276,7 +278,7 @@ export default function EmployeePayrollDetailPage() {
                 {editMode ? (
                   <select
                     value={formData.contract_type}
-                    onChange={(e) => setFormData({ ...formData, contract_type: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, contract_type: e.target.value as EmployeePayroll['contract_type'] })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="permanent">Permanent</option>
@@ -417,7 +419,7 @@ export default function EmployeePayrollDetailPage() {
                 {editMode ? (
                   <select
                     value={formData.salary_period}
-                    onChange={(e) => setFormData({ ...formData, salary_period: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, salary_period: e.target.value as EmployeePayroll['salary_period'] })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="monthly">Monthly</option>

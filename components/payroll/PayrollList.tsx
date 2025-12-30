@@ -3,7 +3,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, User } from '@supabase/supabase-js';
+
 import { 
   Loader2, 
   AlertCircle, 
@@ -34,7 +35,7 @@ export default function PayrollList({ onEdit, onExport }: PayrollListProps) {
   const [payrolls, setPayrolls] = useState<EmployeePayroll[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [filter, setFilter] = useState({
     country_code: '',
     is_active: 'true',
@@ -43,7 +44,7 @@ export default function PayrollList({ onEdit, onExport }: PayrollListProps) {
 
   // Modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedPayroll, setSelectedPayroll] = useState<any>(null);
+  const [selectedPayroll, setSelectedPayroll] = useState<EmployeePayroll | null>(null);
 
   // Initialize Supabase client
   const supabase = createClient(
@@ -274,7 +275,7 @@ export default function PayrollList({ onEdit, onExport }: PayrollListProps) {
                   </td>
                 </tr>
               ) : (
-                payrolls.map((payroll: any) => (
+                payrolls.map((payroll) => (
                   <tr key={payroll.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">

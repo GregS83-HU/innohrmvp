@@ -37,6 +37,13 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+interface CompanyUser {
+  user_id: string;
+  first_name: string;
+  last_name: string;
+}
+
+
 export default function PayrollForm({ payroll, onClose, onSuccess }: PayrollFormProps) {
   const { t } = useLocale();
 
@@ -55,7 +62,7 @@ export default function PayrollForm({ payroll, onClose, onSuccess }: PayrollForm
   const [error, setError] = useState<string | null>(null);
   const [companyId, setCompanyId] = useState<number | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<CompanyUser[]>([]);
   const [existingPayroll, setExistingPayroll] = useState<EmployeePayroll | null>(null);
   const [isEditMode, setIsEditMode] = useState(!!payroll);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -333,15 +340,21 @@ export default function PayrollForm({ payroll, onClose, onSuccess }: PayrollForm
     }
   };
 
-  const updateCountryData = (field: string, value: any) => {
-    setFormData({
-      ...formData,
-      country_specific_data: {
-        ...formData.country_specific_data,
-        [field]: value,
-      },
-    });
-  };
+  const updateCountryData = <
+  K extends keyof HungarianPayrollData
+>(
+  field: K,
+  value: HungarianPayrollData[K]
+) => {
+  setFormData({
+    ...formData,
+    country_specific_data: {
+      ...(formData.country_specific_data as HungarianPayrollData),
+      [field]: value,
+    },
+  });
+};
+
 
   /* ------------------------------------------------------------------ */
   /* Get selected user name for display                                  */
@@ -403,7 +416,7 @@ export default function PayrollForm({ payroll, onClose, onSuccess }: PayrollForm
           <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
           <div>
             <p className="font-medium">Existing payroll data loaded</p>
-            <p className="text-sm text-blue-600">You're now editing this employee's payroll information</p>
+            <p className="text-sm text-blue-600">You&apos;re now editing this employee&apos;s payroll information</p>
           </div>
         </div>
       )}
@@ -482,7 +495,7 @@ export default function PayrollForm({ payroll, onClose, onSuccess }: PayrollForm
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    employment_type: e.target.value as any,
+                    employment_type: e.target.value as CreatePayrollRequest['employment_type'],
                   })
                 }
                 required
@@ -528,7 +541,7 @@ export default function PayrollForm({ payroll, onClose, onSuccess }: PayrollForm
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    contract_type: e.target.value as any,
+                    contract_type: e.target.value as CreatePayrollRequest['contract_type'],
                   })
                 }
                 required
