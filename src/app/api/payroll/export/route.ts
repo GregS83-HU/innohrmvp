@@ -5,6 +5,8 @@ import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import type { ExportPayrollRequest, ExportFormat, EmploymentType } from '../../../../../types/payroll';
 import { runPayrollValidation } from '../../../../../lib/runPayrollValidation';
+import type { PostgrestError } from '@supabase/supabase-js';
+
 
 export type PayrollData = {
   id: string;
@@ -81,17 +83,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Call stored function to get payroll data for the period
-    const { data: payrollData, error: dataError } = await supabase
-      .rpc('get_payroll_for_period', {
-        p_country_code: body.country_code,
-        p_year: body.export_year,
-        p_month: body.export_month
-      }) as { data: PayrollData[] | null; error: any };
+   const { data: payrollData, error: dataError }: { data: PayrollData[] | null; error: PostgrestError | null } = await supabase
+  .rpc('get_payroll_for_period', {
+    p_country_code: body.country_code,
+    p_year: body.export_year,
+    p_month: body.export_month
+  });
 
-    if (dataError) {
-      console.error('Error fetching payroll data:', dataError);
-      return NextResponse.json({ error: dataError.message }, { status: 500 });
-    }
+if (dataError) {
+  console.error('Error fetching payroll data:', dataError);
+  return NextResponse.json({ error: dataError.message }, { status: 500 });
+}
 
     let filteredData: PayrollData[] = payrollData ?? [];
 

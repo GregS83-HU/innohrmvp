@@ -121,7 +121,7 @@ export default function PayrollList({ onEdit, onExport }: PayrollListProps) {
     }
   };
 
-  const handleQuickEdit = (payroll: any) => {
+  const handleQuickEdit = (payroll: EmployeePayroll) => {
     setSelectedPayroll(payroll);
     setIsEditModalOpen(true);
   };

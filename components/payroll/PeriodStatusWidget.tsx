@@ -172,7 +172,7 @@ export default function PeriodStatusWidget({
               {status.closed_reason && (
                 <div className="pt-2 border-t border-gray-200">
                   <p className="text-xs text-gray-500 italic">
-                    '&quot;'{status.closed_reason}'&quot;'
+                    &quot;{status.closed_reason}&quot;
                   </p>
                 </div>
               )}
@@ -206,7 +206,7 @@ export default function PeriodStatusWidget({
               {status.reopen_reason && (
                 <div className="pt-2 border-t border-yellow-200">
                   <p className="text-xs text-yellow-700 italic">
-                    '&quot;'{status.reopen_reason}'&quot;'
+                    &quot;{status.reopen_reason}&quot;
                   </p>
                 </div>
               )}
