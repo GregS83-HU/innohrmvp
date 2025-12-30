@@ -2303,8 +2303,372 @@
     "noSession": "No valid session found. Please request a new password reset link.",
     "sessionError": "Session Error"
   }
+},
+
+  "payroll": {
+    "title": "Payroll Management",
+    "subtitle": "Manage employee payroll data and generate exports",
+    "addEmployeePayroll": "Add Employee Payroll",
+    "loading": "Loading...",
+    "noUser": "No authenticated user found",
+    "fetchError": "Error fetching current user:",
+    "verifySession": "Please wait while we verify your session..."
+  },
+  
+  "payrollModal": {
+    "title": {
+      "add": "Add Payroll Information",
+      "edit": "Edit Payroll Information"
+    },
+    "loading": "Loading payroll data...",
+    "errorTitle": "Error",
+    "errors": {
+      "fetchError": "Failed to fetch payroll data",
+      "loadError": "Failed to load payroll information",
+      "saveError": "Failed to save payroll data"
+    },
+    "validation": {
+      "positionRequired": "Position title is required",
+      "salaryRequired": "Valid salary amount is required",
+      "tajInvalid": "TAJ number must be exactly 9 digits",
+      "taxIdInvalid": "Tax ID must be exactly 10 characters"
+    },
+    "sections": {
+      "employment": {
+        "title": "Employment Details",
+        "fields": {
+          "employmentType": "Employment Type",
+          "contractType": "Contract Type",
+          "positionTitle": "Position Title",
+          "department": "Department",
+          "workLocation": "Work Location",
+          "contractStartDate": "Contract Start Date",
+          "weeklyHours": "Weekly Hours"
+        },
+        "options": {
+          "fullTime": "Full-time",
+          "partTime": "Part-time",
+          "contract": "Contract",
+          "intern": "Intern",
+          "permanent": "Permanent",
+          "fixedTerm": "Fixed-term",
+          "temporary": "Temporary"
+        },
+        "placeholders": {
+          "positionTitle": "e.g., Software Engineer",
+          "department": "e.g., Engineering",
+          "workLocation": "e.g., Budapest Office"
+        }
+      },
+      "compensation": {
+        "title": "Compensation",
+        "fields": {
+          "salaryAmount": "Salary Amount",
+          "currency": "Currency",
+          "salaryPeriod": "Salary Period",
+          "paymentMethod": "Payment Method"
+        },
+        "options": {
+          "hourly": "Hourly",
+          "monthly": "Monthly",
+          "annually": "Annually",
+          "bankTransfer": "Bank Transfer",
+          "check": "Check",
+          "cash": "Cash"
+        },
+        "placeholders": {
+          "salaryAmount": "e.g., 500000"
+        }
+      },
+      "banking": {
+        "title": "Banking Information",
+        "fields": {
+          "iban": "Bank Account (IBAN)",
+          "bankName": "Bank Name"
+        },
+        "placeholders": {
+          "iban": "e.g., HU42123456789012345678901234",
+          "bankName": "e.g., OTP Bank"
+        }
+      },
+      "hungarianTax": {
+        "title": "Hungarian Tax Information",
+        "fields": {
+          "tajNumber": "TAJ Number",
+          "taxId": "Tax ID (Adóazonosító jel)",
+          "taxBracket": "Tax Bracket",
+          "familyTaxAllowance": "Family Tax Allowance",
+          "pensionFund": "Pension Fund"
+        },
+        "options": {
+          "taxBracket1": "Bracket 1 (Standard)",
+          "taxBracket2": "Bracket 2 (Multiple Jobs)",
+          "government": "Government",
+          "private": "Private"
+        },
+        "placeholders": {
+          "tajNumber": "9 digits",
+          "taxId": "10 characters"
+        },
+        "hints": {
+          "tajNumber": "Social security number (9 digits)",
+          "taxId": "Personal tax identification (10 characters)",
+          "familyTaxAllowance": "Number of dependents"
+        },
+        "rates": {
+          "title": "Tax Rates (2024)",
+          "personalIncomeTax": "Personal Income Tax",
+          "employeeSocialContribution": "Employee Social Contribution",
+          "employerSocialContribution": "Employer Social Contribution"
+        }
+      }
+    },
+    "footer": {
+      "requiredFields": "* Required fields",
+      "buttons": {
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "create": "Create Payroll",
+        "saveChanges": "Save Changes"
+      }
+    }
+  },
+  
+  "payrollExportModal": {
+    "title": "Export Payroll Data",
+    "advancedOptions": "Advanced Options",
+    "locale": "en-US",
+    "errors": {
+      "exportFailed": "Failed to export payroll data",
+      "genericError": "An error occurred"
+    },
+    "validation": {
+      "blockedTitle": "Payroll cannot be exported"
+    },
+    "sections": {
+      "period": {
+        "title": "Export Period",
+        "fields": {
+          "month": "Month",
+          "year": "Year"
+        }
+      },
+      "format": {
+        "title": "Export Format",
+        "options": {
+          "generic": {
+            "label": "Generic Format",
+            "description": "Human-readable format"
+          },
+          "kulcsSoft": {
+            "label": "Kulcs-Soft",
+            "description": "Kulcs payroll system"
+          },
+          "nexon": {
+            "label": "Nexon",
+            "description": "Nexon payroll system"
+          },
+          "sap": {
+            "label": "SAP HCM",
+            "description": "SAP SuccessFactors"
+          }
+        }
+      },
+      "filters": {
+        "title": "Filters (Optional)",
+        "fields": {
+          "department": "Department",
+          "includeTerminated": "Include terminated employees"
+        },
+        "placeholders": {
+          "department": "e.g., Engineering"
+        }
+      }
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "checking": "Checking payroll…",
+      "fixData": "Fix payroll data",
+      "exportPeriod": "Export your Payroll"
+    },
+    "summary": {
+      "exporting": "Payroll Exporting Month"
+    }
+  },
+  
+  "payrollForm": {
+    "title": {
+      "add": "Add New Payroll Data",
+      "edit": "Edit Payroll Data"
+    },
+    "errors": {
+      "saveFailed": "Failed to save payroll data",
+      "genericError": "An error occurred"
+    },
+    "sections": {
+      "employee": {
+        "fields": {
+          "selectEmployee": "Employee"
+        },
+        "placeholders": {
+          "selectEmployee": "Select an employee"
+        }
+      },
+      "employment": {
+        "title": "Employment Details",
+        "fields": {
+          "employmentType": "Employment Type",
+          "contractType": "Contract Type",
+          "contractStartDate": "Contract Start Date",
+          "contractEndDate": "Contract End Date",
+          "positionTitle": "Position Title",
+          "department": "Department",
+          "workLocation": "Work Location",
+          "weeklyHours": "Weekly Hours"
+        },
+        "options": {
+          "fullTime": "Full Time",
+          "partTime": "Part Time",
+          "contractor": "Contractor",
+          "intern": "Intern",
+          "temporary": "Temporary",
+          "permanent": "Permanent",
+          "fixedTerm": "Fixed Term",
+          "probation": "Probation"
+        },
+        "placeholders": {
+          "positionTitle": "e.g., Software Engineer",
+          "department": "e.g., Engineering",
+          "workLocation": "e.g., Budapest Office"
+        }
+      },
+      "compensation": {
+        "title": "Compensation",
+        "fields": {
+          "grossSalary": "Gross Salary",
+          "currency": "Currency",
+          "bankAccount": "Bank Account (IBAN)",
+          "bankName": "Bank Name"
+        },
+        "options": {
+          "huf": "HUF (Hungarian Forint)",
+          "eur": "EUR (Euro)",
+          "usd": "USD (US Dollar)"
+        },
+        "placeholders": {
+          "grossSalary": "e.g., 500000",
+          "bankAccount": "HU42XXXXXXXXXXXXXXXXXXXX",
+          "bankName": "e.g., OTP Bank"
+        }
+      },
+      "hungarianData": {
+        "title": "Hungarian Payroll Data",
+        "fields": {
+          "tajNumber": "TAJ Number (Social Security)",
+          "taxId": "Tax ID (Adóazonosító jel)",
+          "taxBracket": "Tax Bracket",
+          "familyTaxAllowance": "Family Tax Allowance (Children)",
+          "pensionFund": "Pension Fund",
+          "healthInsuranceNumber": "Health Insurance Number"
+        },
+        "options": {
+          "bracket1": "Bracket 1",
+          "bracket2": "Bracket 2",
+          "government": "Government",
+          "private": "Private"
+        },
+        "placeholders": {
+          "tajNumber": "123456789",
+          "taxId": "8012345678",
+          "familyTaxAllowance": "0",
+          "healthInsuranceNumber": "Enter insurance number"
+        },
+        "hints": {
+          "tajNumber": "9 digits",
+          "taxId": "10 digits",
+          "familyTaxAllowance": "Number of dependent children"
+        }
+      }
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "update": "Update",
+      "create": "Create"
+    }
+  },
+  
+  "payrollList": {
+    "title": "Payroll Management",
+    "locale": "hu-HU",
+    "loading": "Loading payroll data...",
+    "errorTitle": "Error",
+    "errors": {
+      "fetchFailed": "Failed to fetch payroll data",
+      "genericError": "An error occurred",
+      "deleteFailed": "Failed to delete payroll record",
+      "deleteError": "Error deleting payroll record",
+      "unknown": "Unknown error"
+    },
+    "confirmations": {
+      "deactivate": "Are you sure you want to deactivate this payroll record?"
+    },
+    "buttons": {
+      "export": "Export to Excel"
+    },
+    "filters": {
+      "title": "Filters",
+      "country": "Country",
+      "allCountries": "All Countries",
+      "hungary": "Hungary",
+      "status": "Status",
+      "all": "All",
+      "active": "Active",
+      "inactive": "Inactive",
+      "department": "Department",
+      "departmentPlaceholder": "Filter by department"
+    },
+    "employmentTypes": {
+      "fullTime": "Full Time",
+      "partTime": "Part Time",
+      "contractor": "Contractor",
+      "intern": "Intern",
+      "temporary": "Temporary"
+    },
+    "table": {
+      "headers": {
+        "employee": "Employee",
+        "position": "Position",
+        "department": "Department",
+        "employmentType": "Employment Type",
+        "salary": "Salary",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "statusLabels": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "actions": {
+        "viewDetails": "View Details",
+        "quickEdit": "Quick Edit",
+        "deactivate": "Deactivate"
+      },
+      "noRecords": "No payroll records found"
+    },
+    "stats": {
+      "totalEmployees": "Total Employees",
+      "activeEmployees": "Active Employees",
+      "totalMonthlyPayroll": "Total Monthly Payroll"
+    }
+  }
+
+
 }
-}
+
+
+
+
 
 
 

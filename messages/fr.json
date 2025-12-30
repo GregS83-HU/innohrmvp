@@ -2550,9 +2550,368 @@
     "noSession": "Aucune session valide trouvée. Veuillez demander un nouveau lien de réinitialisation.",
     "sessionError": "Erreur de session"
   }
+},
+
+  "payroll": {
+    "title": "Gestion de la paie",
+    "subtitle": "Gérez les données de paie des employés et générez des exports",
+    "addEmployeePayroll": "Ajouter une paie d'employé",
+    "loading": "Chargement...",
+    "noUser": "Aucun utilisateur authentifié trouvé",
+    "fetchError": "Erreur lors de la récupération de l'utilisateur actuel :",
+    "verifySession": "Veuillez patienter pendant la vérification de votre session..."
+  },
+
+  "payrollModal": {
+    "title": {
+      "add": "Ajouter des informations de paie",
+      "edit": "Modifier les informations de paie"
+    },
+    "loading": "Chargement des données de paie...",
+    "errorTitle": "Erreur",
+    "errors": {
+      "fetchError": "Échec de la récupération des données de paie",
+      "loadError": "Échec du chargement des informations de paie",
+      "saveError": "Échec de l'enregistrement des données de paie"
+    },
+    "validation": {
+      "positionRequired": "Le poste est requis",
+      "salaryRequired": "Un montant de salaire valide est requis",
+      "tajInvalid": "Le numéro TAJ doit comporter exactement 9 chiffres",
+      "taxIdInvalid": "L'identifiant fiscal doit comporter exactement 10 caractères"
+    },
+    "sections": {
+      "employment": {
+        "title": "Détails de l'emploi",
+        "fields": {
+          "employmentType": "Type d'emploi",
+          "contractType": "Type de contrat",
+          "positionTitle": "Intitulé du poste",
+          "department": "Département",
+          "workLocation": "Lieu de travail",
+          "contractStartDate": "Date de début du contrat",
+          "weeklyHours": "Heures hebdomadaires"
+        },
+        "options": {
+          "fullTime": "Temps plein",
+          "partTime": "Temps partiel",
+          "contract": "Contrat",
+          "intern": "Stagiaire",
+          "permanent": "Permanent",
+          "fixedTerm": "Durée déterminée",
+          "temporary": "Temporaire"
+        },
+        "placeholders": {
+          "positionTitle": "ex. Ingénieur logiciel",
+          "department": "ex. Ingénierie",
+          "workLocation": "ex. Bureau de Budapest"
+        }
+      },
+      "compensation": {
+        "title": "Rémunération",
+        "fields": {
+          "salaryAmount": "Montant du salaire",
+          "currency": "Devise",
+          "salaryPeriod": "Période de salaire",
+          "paymentMethod": "Mode de paiement"
+        },
+        "options": {
+          "hourly": "Horaire",
+          "monthly": "Mensuel",
+          "annually": "Annuel",
+          "bankTransfer": "Virement bancaire",
+          "check": "Chèque",
+          "cash": "Espèces"
+        },
+        "placeholders": {
+          "salaryAmount": "ex. 500000"
+        }
+      },
+      "banking": {
+        "title": "Informations bancaires",
+        "fields": {
+          "iban": "Compte bancaire (IBAN)",
+          "bankName": "Nom de la banque"
+        },
+        "placeholders": {
+          "iban": "ex. HU42123456789012345678901234",
+          "bankName": "ex. OTP Bank"
+        }
+      },
+      "hungarianTax": {
+        "title": "Informations fiscales hongroises",
+        "fields": {
+          "tajNumber": "Numéro TAJ",
+          "taxId": "Identifiant fiscal (Adóazonosító jel)",
+          "taxBracket": "Tranche d'imposition",
+          "familyTaxAllowance": "Allocation fiscale familiale",
+          "pensionFund": "Fonds de pension"
+        },
+        "options": {
+          "taxBracket1": "Tranche 1 (Standard)",
+          "taxBracket2": "Tranche 2 (Emplois multiples)",
+          "government": "Public",
+          "private": "Privé"
+        },
+        "placeholders": {
+          "tajNumber": "9 chiffres",
+          "taxId": "10 caractères"
+        },
+        "hints": {
+          "tajNumber": "Numéro de sécurité sociale (9 chiffres)",
+          "taxId": "Identifiant fiscal personnel (10 caractères)",
+          "familyTaxAllowance": "Nombre de personnes à charge"
+        },
+        "rates": {
+          "title": "Taux d'imposition (2024)",
+          "personalIncomeTax": "Impôt sur le revenu",
+          "employeeSocialContribution": "Cotisation sociale employé",
+          "employerSocialContribution": "Cotisation sociale employeur"
+        }
+      }
+    },
+    "footer": {
+      "requiredFields": "* Champs obligatoires",
+      "buttons": {
+        "cancel": "Annuler",
+        "saving": "Enregistrement...",
+        "create": "Créer la paie",
+        "saveChanges": "Enregistrer les modifications"
+      }
+    }
+  },
+
+  "payrollExportModal": {
+  "title": "Exporter les données de paie",
+  "advancedOptions": "Options avancées",
+  "locale": "fr-FR",
+  "errors": {
+    "exportFailed": "Échec de l’exportation des données de paie",
+    "genericError": "Une erreur est survenue"
+  },
+  "validation": {
+    "blockedTitle": "La paie ne peut pas être exportée"
+  },
+  "sections": {
+    "period": {
+      "title": "Période d’exportation",
+      "fields": {
+        "month": "Mois",
+        "year": "Année"
+      }
+    },
+    "format": {
+      "title": "Format d’exportation",
+      "options": {
+        "generic": {
+          "label": "Format générique",
+          "description": "Format lisible par l’humain"
+        },
+        "kulcsSoft": {
+          "label": "Kulcs-Soft",
+          "description": "Système de paie Kulcs"
+        },
+        "nexon": {
+          "label": "Nexon",
+          "description": "Système de paie Nexon"
+        },
+        "sap": {
+          "label": "SAP HCM",
+          "description": "SAP SuccessFactors"
+        }
+      }
+    },
+    "filters": {
+      "title": "Filtres (optionnels)",
+      "fields": {
+        "department": "Département",
+        "includeTerminated": "Inclure les employés sortis"
+      },
+      "placeholders": {
+        "department": "ex. : Ingénierie"
+      }
+    }
+  },
+  "buttons": {
+    "cancel": "Annuler",
+    "checking": "Vérification de la paie…",
+    "fixData": "Corriger les données de paie",
+    "exportPeriod": "Exporter la paie"
+  },
+  "summary": {
+    "exporting": "Export de la paie pour le mois"
+  }
+}
+,
+
+  "payrollForm": {
+    "title": {
+      "add": "Ajouter de nouvelles données de paie",
+      "edit": "Modifier les données de paie"
+    },
+    "errors": {
+      "saveFailed": "Échec de l'enregistrement des données de paie",
+      "genericError": "Une erreur est survenue"
+    },
+    "sections": {
+      "employee": {
+        "fields": {
+          "selectEmployee": "Employé"
+        },
+        "placeholders": {
+          "selectEmployee": "Sélectionnez un employé"
+        }
+      },
+      "employment": {
+        "title": "Détails de l'emploi",
+        "fields": {
+          "employmentType": "Type d'emploi",
+          "contractType": "Type de contrat",
+          "contractStartDate": "Date de début du contrat",
+          "contractEndDate": "Date de fin du contrat",
+          "positionTitle": "Intitulé du poste",
+          "department": "Département",
+          "workLocation": "Lieu de travail",
+          "weeklyHours": "Heures hebdomadaires"
+        },
+        "options": {
+          "fullTime": "Temps plein",
+          "partTime": "Temps partiel",
+          "contractor": "Prestataire",
+          "intern": "Stagiaire",
+          "temporary": "Temporaire",
+          "permanent": "Permanent",
+          "fixedTerm": "Durée déterminée",
+          "probation": "Période d'essai"
+        },
+        "placeholders": {
+          "positionTitle": "ex. Ingénieur logiciel",
+          "department": "ex. Ingénierie",
+          "workLocation": "ex. Bureau de Budapest"
+        }
+      },
+      "compensation": {
+        "title": "Rémunération",
+        "fields": {
+          "grossSalary": "Salaire brut",
+          "currency": "Devise",
+          "bankAccount": "Compte bancaire (IBAN)",
+          "bankName": "Nom de la banque"
+        },
+        "options": {
+          "huf": "HUF (Forint hongrois)",
+          "eur": "EUR (Euro)",
+          "usd": "USD (Dollar US)"
+        },
+        "placeholders": {
+          "grossSalary": "ex. 500000",
+          "bankAccount": "HU42XXXXXXXXXXXXXXXXXXXX",
+          "bankName": "ex. OTP Bank"
+        }
+      },
+      "hungarianData": {
+        "title": "Données de paie hongroises",
+        "fields": {
+          "tajNumber": "Numéro TAJ (Sécurité sociale)",
+          "taxId": "Identifiant fiscal (Adóazonosító jel)",
+          "taxBracket": "Tranche d'imposition",
+          "familyTaxAllowance": "Allocation familiale (Enfants)",
+          "pensionFund": "Fonds de pension",
+          "healthInsuranceNumber": "Numéro d'assurance maladie"
+        },
+        "options": {
+          "bracket1": "Tranche 1",
+          "bracket2": "Tranche 2",
+          "government": "Public",
+          "private": "Privé"
+        },
+        "placeholders": {
+          "tajNumber": "123456789",
+          "taxId": "8012345678",
+          "familyTaxAllowance": "0",
+          "healthInsuranceNumber": "Entrez le numéro d'assurance"
+        },
+        "hints": {
+          "tajNumber": "9 chiffres",
+          "taxId": "10 chiffres",
+          "familyTaxAllowance": "Nombre d'enfants à charge"
+        }
+      }
+    },
+    "buttons": {
+      "cancel": "Annuler",
+      "saving": "Enregistrement...",
+      "update": "Mettre à jour",
+      "create": "Créer"
+    }
+  },
+
+  "payrollList": {
+    "title": "Gestion de la paie",
+    "locale": "fr-FR",
+    "loading": "Chargement des données de paie...",
+    "errorTitle": "Erreur",
+    "errors": {
+      "fetchFailed": "Échec de la récupération des données de paie",
+      "genericError": "Une erreur est survenue",
+      "deleteFailed": "Échec de la suppression de la paie",
+      "deleteError": "Erreur lors de la suppression de la paie",
+      "unknown": "Erreur inconnue"
+    },
+    "confirmations": {
+      "deactivate": "Êtes-vous sûr de vouloir désactiver cette paie ?"
+    },
+    "buttons": {
+      "export": "Exporter vers Excel"
+    },
+    "filters": {
+      "title": "Filtres",
+      "country": "Pays",
+      "allCountries": "Tous les pays",
+      "hungary": "Hongrie",
+      "status": "Statut",
+      "all": "Tous",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "department": "Département",
+      "departmentPlaceholder": "Filtrer par département"
+    },
+    "employmentTypes": {
+      "fullTime": "Temps plein",
+      "partTime": "Temps partiel",
+      "contractor": "Prestataire",
+      "intern": "Stagiaire",
+      "temporary": "Temporaire"
+    },
+    "table": {
+      "headers": {
+        "employee": "Employé",
+        "position": "Poste",
+        "department": "Département",
+        "employmentType": "Type d'emploi",
+        "salary": "Salaire",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "statusLabels": {
+        "active": "Actif",
+        "inactive": "Inactif"
+      },
+      "actions": {
+        "viewDetails": "Voir les détails",
+        "quickEdit": "Édition rapide",
+        "deactivate": "Désactiver"
+      },
+      "noRecords": "Aucun enregistrement de paie trouvé"
+    },
+    "stats": {
+      "totalEmployees": "Nombre total d'employés",
+      "activeEmployees": "Employés actifs",
+      "totalMonthlyPayroll": "Total mensuel de la paie"
+    }
+  }
 }
 
-}
 
   
 

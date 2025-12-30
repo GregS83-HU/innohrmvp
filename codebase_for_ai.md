@@ -1,6 +1,6 @@
 # Codebase - innohrmvp
 **Mode:** full-feature-extract  
-**Generated:** Sun Dec 21 10:48:08 CET 2025
+**Generated:** Tue Dec 30 15:15:20 CET 2025
 **Purpose:** Complete AI analysis including all APIs, components & features
 
 ---
@@ -3369,6 +3369,1178 @@ export interface MessageData {
 
 ---
 
+## `src/app/api/payroll/[id]/route.ts`
+
+```
+Folder: src/app/api/payroll/[id]
+Type: ts | Lines:      254
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+```
+
+<details>
+<summary>📄 Full content (     254 lines)</summary>
+
+```ts
+// src/app/api/payroll/[id]/route.ts
+// GET: Get specific payroll record
+// PUT: Update payroll record
+// DELETE: Soft delete payroll record
+
+import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
+import type { UpdatePayrollRequest } from '../../../../../types/payroll';
+
+/**
+ * GET /api/payroll/[id]
+ * Get specific payroll record with history (admin only)
+ */
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    
+    // Get current_user_id from query parameters
+    const { searchParams } = new URL(request.url);
+    const currentUserId = searchParams.get('current_user_id');
+
+    if (!currentUserId) {
+      return NextResponse.json({ error: 'current_user_id is required' }, { status: 400 });
+    }
+
+    // Check if user is admin
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('is_admin')
+      .eq('id', currentUserId)
+      .single();
+
+    if (userError || !userData?.is_admin) {
+      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
+    }
+
+    const payrollId = params.id;
+
+    // Get payroll record
+    const { data: payroll, error: payrollError } = await supabase
+      .from('employee_payroll')
+      .select(`
+        *,
+        users!employee_payroll_user_id_fkey (
+          id,
+          user_firstname,
+          user_lastname,
+          is_manager
+        )
+      `)
+      .eq('id', payrollId)
+      .single();
+
+    if (payrollError) {
+      console.error('Error fetching payroll:', payrollError);
+      return NextResponse.json({ error: 'Payroll record not found' }, { status: 404 });
+    }
+
+    // Get history
+    const { data: history, error: historyError } = await supabase
+      .from('employee_payroll_history')
+      .select('*')
+      .eq('payroll_id', payrollId)
+      .order('change_date', { ascending: false });
+
+    if (historyError) {
+      console.error('Error fetching history:', historyError);
+      // Continue even if history fetch fails
+    }
+
+    return NextResponse.json({ 
+      data: payroll, 
+      history: history || [] 
+    }, { status: 200 });
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+/**
+ * PUT /api/payroll/[id]
+ * Update payroll record (admin only)
+ */
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    
+    // Get current_user_id from query parameters
+    const { searchParams } = new URL(request.url);
+    const currentUserId = searchParams.get('current_user_id');
+
+    if (!currentUserId) {
+      return NextResponse.json({ error: 'current_user_id is required' }, { status: 400 });
+    }
+
+    // Check if user is admin
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('is_admin')
+      .eq('id', currentUserId)
+      .single();
+
+    if (userError || !userData?.is_admin) {
+      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
+    }
+
+    const payrollId = params.id;
+    const body: UpdatePayrollRequest = await request.json();
+
+    // Verify payroll record exists
+    const { data: existingPayroll, error: checkError } = await supabase
+      .from('employee_payroll')
+      .select('*')
+      .eq('id', payrollId)
+      .single();
+
+    if (checkError || !existingPayroll) {
+      return NextResponse.json({ error: 'Payroll record not found' }, { status: 404 });
+    }
+
+    // Build update object (only update provided fields)
+    const updateData: any = {
+      updated_by: currentUserId,
+    };
+
+    // Map allowed fields
+    const allowedFields = [
+      'employment_type', 'contract_type', 'contract_start_date', 'contract_end_date',
+      'position_title', 'department', 'work_location', 'weekly_hours',
+      'salary_amount', 'salary_currency', 'salary_period', 'payment_method',
+      'bank_account_iban', 'bank_name', 'country_specific_data', 'benefits',
+      'is_active', 'termination_date', 'termination_reason'
+    ];
+
+    allowedFields.forEach(field => {
+      if (body[field as keyof UpdatePayrollRequest] !== undefined) {
+        updateData[field] = body[field as keyof UpdatePayrollRequest];
+      }
+    });
+
+    // Validate termination logic
+    if (body.is_active === false && !body.termination_date) {
+      return NextResponse.json(
+        { error: 'Termination date is required when setting is_active to false' },
+        { status: 400 }
+      );
+    }
+
+    // Update payroll record
+    const { data, error } = await supabase
+      .from('employee_payroll')
+      .update(updateData)
+      .eq('id', payrollId)
+      .select(`
+        *,
+        users!employee_payroll_user_id_fkey (
+          id,
+          user_firstname,
+          user_lastname
+        )
+      `)
+      .single();
+
+    if (error) {
+      console.error('Error updating payroll:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ 
+      data, 
+      message: 'Payroll record updated successfully' 
+    }, { status: 200 });
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+/**
+ * DELETE /api/payroll/[id]
+ * Soft delete payroll record (sets is_active to false) (admin only)
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    
+    // Get current_user_id from query parameters
+    const { searchParams } = new URL(request.url);
+    const currentUserId = searchParams.get('current_user_id');
+
+    if (!currentUserId) {
+      return NextResponse.json({ error: 'current_user_id is required' }, { status: 400 });
+    }
+
+    // Check if user is admin
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('is_admin')
+      .eq('id', currentUserId)
+      .single();
+
+    if (userError || !userData?.is_admin) {
+      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
+    }
+
+    const payrollId = params.id;
+
+    // Soft delete by setting is_active to false
+    const { data, error } = await supabase
+      .from('employee_payroll')
+      .update({ 
+        is_active: false,
+        termination_date: new Date().toISOString().split('T')[0],
+        updated_by: currentUserId
+      })
+      .eq('id', payrollId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error deleting payroll:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    if (!data) {
+      return NextResponse.json({ error: 'Payroll record not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ 
+      message: 'Payroll record deactivated successfully' 
+    }, { status: 200 });
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+```
+</details>
+
+---
+
+## `src/app/api/payroll/by-user/[userId]/route.ts`
+
+```
+Folder: src/app/api/payroll/by-user/[userId]
+Type: ts | Lines:       77
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+```
+
+<details>
+<summary>📄 Full content (      77 lines)</summary>
+
+```ts
+// src/app/api/payroll/by-user/[userId]/route.ts
+// GET: Get payroll record by user_id
+
+import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
+
+/**
+ * GET /api/payroll/by-user/[userId]
+ * Get payroll record for a specific user (admin only)
+ */
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { userId: string } }
+) {
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    
+    // Get current_user_id from query parameters
+    const { searchParams } = new URL(request.url);
+    const currentUserId = searchParams.get('current_user_id');
+
+    if (!currentUserId) {
+      return NextResponse.json({ error: 'current_user_id is required' }, { status: 400 });
+    }
+
+    // Check if user is admin
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('is_admin')
+      .eq('id', currentUserId)
+      .single();
+
+    if (userError || !userData?.is_admin) {
+      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
+    }
+
+    const userId = params.userId;
+
+    // Get payroll record for this user
+    const { data: payroll, error: payrollError } = await supabase
+      .from('employee_payroll')
+      .select(`
+        *,
+        users!employee_payroll_user_id_fkey (
+          id,
+          user_firstname,
+          user_lastname,
+          is_manager
+        )
+      `)
+      .eq('user_id', userId)
+      .eq('is_active', true) // Only get active payroll records
+      .single();
+
+    if (payrollError) {
+      // If no payroll found, return 404
+      if (payrollError.code === 'PGRST116') {
+        return NextResponse.json({ 
+          data: null,
+          message: 'No payroll record found for this user'
+        }, { status: 404 });
+      }
+      
+      console.error('Error fetching payroll:', payrollError);
+      return NextResponse.json({ error: payrollError.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ 
+      data: payroll
+    }, { status: 200 });
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+```
+</details>
+
+---
+
+## `src/app/api/payroll/export/route.ts`
+
+```
+Folder: src/app/api/payroll/export
+Type: ts | Lines:      164
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+```
+
+<details>
+<summary>📄 Full content (     164 lines)</summary>
+
+```ts
+// src/app/api/payroll/export/route.ts
+    // POST: Export payroll data to Excel in various Hungarian formats
+
+    import { createClient } from '@supabase/supabase-js';
+    import { NextRequest, NextResponse } from 'next/server';
+    import type { ExportPayrollRequest, ExportFormat } from '../../../../../types/payroll';
+    import { runPayrollValidation } from '../../../../../lib/runPayrollValidation';
+
+    /**
+     * POST /api/payroll/export
+     * Export payroll data to Excel (admin only)
+     */
+    export async function POST(request: NextRequest) {
+    try {
+        const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+        );
+
+        // Parse request body
+        const body: ExportPayrollRequest & { validated_by?: string } = await request.json();
+
+        // Validate required fields
+        if (!body.country_code || !body.export_month || !body.export_year || !body.export_format) {
+        return NextResponse.json(
+            { error: 'Missing required fields: country_code, export_month, export_year, export_format' },
+            { status: 400 }
+        );
+        }
+
+        if (!body.validated_by) {
+        return NextResponse.json(
+            { error: 'validated_by is required' },
+            { status: 400 }
+        );
+        }
+
+        // Validate month and year
+        if (body.export_month < 1 || body.export_month > 12) {
+        return NextResponse.json(
+            { error: 'Invalid month. Must be between 1 and 12' },
+            { status: 400 }
+        );
+        }
+
+        if (body.export_year < 2000 || body.export_year > 2100) {
+        return NextResponse.json(
+            { error: 'Invalid year' },
+            { status: 400 }
+        );
+        }
+
+        // -------------------------------
+        // RUN PAYROLL VALIDATION
+        // -------------------------------
+        const validationResult = await runPayrollValidation({
+        countryCode: body.country_code,
+        year: body.export_year,
+        month: body.export_month,
+        exportFormat: body.export_format,
+        validatedBy: body.validated_by
+        });
+
+        if (validationResult.hasCriticalErrors) {
+        return NextResponse.json(
+            {
+            success: false,
+            status: 'blocked',
+            reason: 'Payroll validation failed',
+            issues: validationResult.issues
+            },
+            { status: 400 }
+        );
+        }
+
+        // Call stored function to get payroll data for the period
+        const { data: payrollData, error: dataError } = await supabase
+        .rpc('get_payroll_for_period', {
+            p_country_code: body.country_code,
+            p_year: body.export_year,
+            p_month: body.export_month
+        });
+
+        if (dataError) {
+        console.error('Error fetching payroll data:', dataError);
+        return NextResponse.json({ error: dataError.message }, { status: 500 });
+        }
+
+        // Filter by employment type if specified
+        let filteredData = payrollData || [];
+        if (body.employment_types && body.employment_types.length > 0) {
+        filteredData = filteredData.filter((emp: any) =>
+            body.employment_types!.includes(emp.employment_type)
+        );
+        }
+
+        // Filter by department if specified
+        if (body.department) {
+        filteredData = filteredData.filter((emp: any) =>
+            emp.department === body.department
+        );
+        }
+
+        // Filter terminated employees if requested
+        if (!body.include_terminated) {
+        filteredData = filteredData.filter((emp: any) =>
+            !emp.termination_date || new Date(emp.termination_date) > new Date()
+        );
+        }
+
+        if (filteredData.length === 0) {
+        return NextResponse.json(
+            { error: 'No employees found matching the criteria' },
+            { status: 404 }
+        );
+        }
+
+        // Generate filename
+        const monthName = new Date(body.export_year, body.export_month - 1).toLocaleString('en-US', { month: 'long' });
+        const fileName = `Payroll_${body.country_code}_${monthName}_${body.export_year}_${body.export_format}.xlsx`;
+
+        // Log export
+        const { data: exportLog, error: logError } = await supabase
+        .from('payroll_exports')
+        .insert({
+            exported_by: body.validated_by,
+            country_code: body.country_code,
+            export_month: body.export_month,
+            export_year: body.export_year,
+            export_format: body.export_format,
+            export_name: body.export_name || null, // NEW: Optional user-provided name
+            employee_count: filteredData.length,
+            file_name: fileName,
+            export_options: {
+            include_terminated: body.include_terminated,
+            department: body.department,
+            employment_types: body.employment_types
+            }
+        })
+        .select()
+        .single();
+
+        if (logError) {
+        console.error('Error logging export:', logError);
+        // Continue anyway
+        }
+
+        // Return data for client-side Excel generation
+        return NextResponse.json({
+        success: true,
+        export_id: exportLog?.id,
+        file_name: fileName,
+        employee_count: filteredData.length,
+        export_date: new Date().toISOString(),
+        data: filteredData,
+        format: body.export_format,
+        month: body.export_month,
+        year: body.export_year
+        }, { status: 200 });
+
+    } catch (error) {
+        console.error('Unexpected error:', error);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+    }
+```
+</details>
+
+---
+
+## `src/app/api/payroll/periods/close/route.ts`
+
+```
+Folder: src/app/api/payroll/periods/close
+Type: ts | Lines:      220
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+const supabase = createClient(
+function getMonthName(month: number): string {
+```
+
+<details>
+<summary>📄 Full content (     220 lines)</summary>
+
+```ts
+// src/app/api/payroll/periods/close/route.ts
+// POST: Close a payroll period
+// PUT: Reopen a closed period
+
+import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+/**
+ * POST /api/payroll/periods/close
+ * Close a payroll period (admin only)
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { country_code, year, month, closed_by, closed_reason, last_export_id } = body;
+
+    // Validate required fields
+    if (!country_code || !year || !month || !closed_by) {
+      return NextResponse.json(
+        { error: 'Missing required fields: country_code, year, month, closed_by' },
+        { status: 400 }
+      );
+    }
+
+    // Validate month
+    if (month < 1 || month > 12) {
+      return NextResponse.json(
+        { error: 'Invalid month. Must be between 1 and 12' },
+        { status: 400 }
+      );
+    }
+
+    // Check if user is admin
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('is_admin')
+      .eq('id', closed_by)
+      .single();
+
+    if (userError || !userData?.is_admin) {
+      return NextResponse.json(
+        { error: 'Forbidden - Admin access required' },
+        { status: 403 }
+      );
+    }
+
+    // Check if period is already closed
+    const { data: existingClosure } = await supabase
+      .from('payroll_period_closures')
+      .select('*')
+      .eq('country_code', country_code)
+      .eq('year', year)
+      .eq('month', month)
+      .single();
+
+    if (existingClosure && existingClosure.status === 'closed') {
+      return NextResponse.json(
+        { error: 'This period is already closed' },
+        { status: 400 }
+      );
+    }
+
+    // Close the period
+    const closureData = {
+      country_code,
+      year,
+      month,
+      status: 'closed',
+      closed_at: new Date().toISOString(),
+      closed_by,
+      closed_reason: closed_reason || `${getMonthName(month)} ${year} payroll finalized`,
+      last_export_id: last_export_id || null,
+    };
+
+    let result;
+    if (existingClosure) {
+      // Update existing record
+      const { data, error } = await supabase
+        .from('payroll_period_closures')
+        .update(closureData)
+        .eq('id', existingClosure.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating period closure:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+      result = data;
+    } else {
+      // Create new record
+      const { data, error } = await supabase
+        .from('payroll_period_closures')
+        .insert(closureData)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating period closure:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+      result = data;
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Period ${getMonthName(month)} ${year} has been closed`,
+      data: result,
+    }, { status: 200 });
+
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+/**
+ * PUT /api/payroll/periods/close
+ * Reopen a closed payroll period (admin only)
+ */
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { country_code, year, month, reopened_by, reopen_reason } = body;
+
+    // Validate required fields
+    if (!country_code || !year || !month || !reopened_by || !reopen_reason) {
+      return NextResponse.json(
+        { error: 'Missing required fields: country_code, year, month, reopened_by, reopen_reason' },
+        { status: 400 }
+      );
+    }
+
+    // Validate reopen reason
+    if (reopen_reason.trim().length < 10) {
+      return NextResponse.json(
+        { error: 'Reopen reason must be at least 10 characters' },
+        { status: 400 }
+      );
+    }
+
+    // Check if user is admin
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('is_admin')
+      .eq('id', reopened_by)
+      .single();
+
+    if (userError || !userData?.is_admin) {
+      return NextResponse.json(
+        { error: 'Forbidden - Admin access required' },
+        { status: 403 }
+      );
+    }
+
+    // Check if period exists and is closed
+    const { data: existingClosure, error: fetchError } = await supabase
+      .from('payroll_period_closures')
+      .select('*')
+      .eq('country_code', country_code)
+      .eq('year', year)
+      .eq('month', month)
+      .single();
+
+    if (fetchError || !existingClosure) {
+      return NextResponse.json(
+        { error: 'No closure record found for this period' },
+        { status: 404 }
+      );
+    }
+
+    if (existingClosure.status !== 'closed') {
+      return NextResponse.json(
+        { error: 'This period is not closed' },
+        { status: 400 }
+      );
+    }
+
+    // Reopen the period
+    const { data, error } = await supabase
+      .from('payroll_period_closures')
+      .update({
+        status: 'reopened',
+        reopened_at: new Date().toISOString(),
+        reopened_by,
+        reopen_reason,
+      })
+      .eq('id', existingClosure.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error reopening period:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Period ${getMonthName(month)} ${year} has been reopened`,
+      data,
+    }, { status: 200 });
+
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+// Helper function to get month name
+function getMonthName(month: number): string {
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  return months[month - 1] || 'Unknown';
+}
+```
+</details>
+
+---
+
+## `src/app/api/payroll/periods/status/route.ts`
+
+```
+Folder: src/app/api/payroll/periods/status
+Type: ts | Lines:      115
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+const supabase = createClient(
+```
+
+<details>
+<summary>📄 Full content (     115 lines)</summary>
+
+```ts
+// src/app/api/payroll/periods/status/route.ts
+// GET: Get status of payroll periods
+
+import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+/**
+ * GET /api/payroll/periods/status
+ * Get status of one or multiple payroll periods (admin only)
+ * 
+ * Query params:
+ * - current_user_id: UUID (required)
+ * - country_code: string (optional, filter by country)
+ * - year: number (optional, filter by year)
+ * - month: number (optional, filter by month - requires year)
+ */
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const currentUserId = searchParams.get('current_user_id');
+    const countryCode = searchParams.get('country_code');
+    const year = searchParams.get('year');
+    const month = searchParams.get('month');
+
+    if (!currentUserId) {
+      return NextResponse.json(
+        { error: 'current_user_id is required' },
+        { status: 400 }
+      );
+    }
+
+    // Check if user is admin
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('is_admin')
+      .eq('id', currentUserId)
+      .single();
+
+    if (userError || !userData?.is_admin) {
+      return NextResponse.json(
+        { error: 'Forbidden - Admin access required' },
+        { status: 403 }
+      );
+    }
+
+    // If specific period requested, use the helper function
+    if (countryCode && year && month) {
+      const { data, error } = await supabase
+        .rpc('get_period_status', {
+          p_country_code: countryCode,
+          p_year: parseInt(year),
+          p_month: parseInt(month)
+        });
+
+      if (error) {
+        console.error('Error fetching period status:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        country_code: countryCode,
+        year: parseInt(year),
+        month: parseInt(month),
+        status: data[0] || { status: 'open' },
+      }, { status: 200 });
+    }
+
+    // Otherwise, get all periods matching filters
+    let query = supabase
+      .from('payroll_period_closures')
+      .select(`
+        *,
+        closed_by_user:users!payroll_period_closures_closed_by_fkey(
+          id,
+          user_firstname,
+          user_lastname
+        ),
+        reopened_by_user:users!payroll_period_closures_reopened_by_fkey(
+          id,
+          user_firstname,
+          user_lastname
+        )
+      `)
+      .order('year', { ascending: false })
+      .order('month', { ascending: false });
+
+    if (countryCode) {
+      query = query.eq('country_code', countryCode);
+    }
+
+    if (year) {
+      query = query.eq('year', parseInt(year));
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Error fetching period closures:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      periods: data || [],
+      count: data?.length || 0,
+    }, { status: 200 });
+
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+```
+</details>
+
+---
+
+## `src/app/api/payroll/route.ts`
+
+```
+Folder: src/app/api/payroll
+Type: ts | Lines:      213
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+```
+
+<details>
+<summary>📄 Full content (     213 lines)</summary>
+
+```ts
+// src/app/api/payroll/route.ts
+// GET: List all payroll records
+// POST: Create new payroll record
+
+import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
+import type { CreatePayrollRequest, EmployeePayroll } from '../../../../types/payroll';
+
+/**
+ * GET /api/payroll
+ * List all payroll records (admin only)
+ * Query params:
+ * - country_code: Filter by country
+ * - is_active: Filter by active status
+ * - department: Filter by department
+ */
+export async function GET(request: NextRequest) {
+  try {
+   const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+    // Check if user is admin
+  /*  const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single();
+
+    if (userError || !userData?.is_admin) {
+      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
+    }*/
+
+    // Parse query parameters
+    const searchParams = request.nextUrl.searchParams;
+    const countryCode = searchParams.get('country_code');
+    const isActive = searchParams.get('is_active');
+   // const department = searchParams.get('department');
+    const userId = searchParams.get('user_id');
+
+    // Build query
+    let query = supabase
+      .from('employee_payroll')
+      .select(`
+        *,
+        users!employee_payroll_user_id_fkey (
+          id,
+          user_firstname,
+          user_lastname,
+          is_manager
+        )
+      `)
+      .order('created_at', { ascending: false });
+
+    // Apply filters
+    if (countryCode) {
+      query = query.eq('country_code', countryCode);
+    }
+    if (isActive !== null) {
+      query = query.eq('is_active', isActive === 'true');
+    }
+   /* if (department) {
+      query = query.eq('department', department);
+    }*/
+    if (userId) {
+      query = query.eq('user_id', userId);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Error fetching payroll records:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ data, count: data.length }, { status: 200 });
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+/**
+ * POST /api/payroll
+ * Create new payroll record (admin only)
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+    
+    // Check if user is admin
+  /*  const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single();
+
+    if (userError || !userData?.is_admin) {
+      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
+    } */
+
+    // Parse request body
+    const body: CreatePayrollRequest = await request.json();
+
+    // Validate required fields
+    if (!body.user_id || !body.country_code || !body.employment_type || 
+        !body.contract_type || !body.salary_amount) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    // Check if user already has active payroll record
+    const { data: existingPayroll, error: checkError } = await supabase
+      .from('employee_payroll')
+      .select('id')
+      .eq('user_id', body.user_id)
+      .eq('is_active', true)
+      .maybeSingle();
+
+    if (checkError) {
+      console.error('Error checking existing payroll:', checkError);
+      return NextResponse.json({ error: checkError.message }, { status: 500 });
+    }
+
+    if (existingPayroll) {
+      return NextResponse.json(
+        { error: 'User already has an active payroll record' },
+        { status: 400 }
+      );
+    }
+
+    // Verify country exists
+    const { data: country, error: countryError } = await supabase
+      .from('payroll_countries')
+      .select('country_code')
+      .eq('country_code', body.country_code)
+      .eq('is_active', true)
+      .single();
+
+    if (countryError || !country) {
+      return NextResponse.json(
+        { error: 'Invalid or inactive country code' },
+        { status: 400 }
+      );
+    }
+
+    // Prepare payroll data
+    const payrollData = {
+      user_id: body.user_id,
+      country_code: body.country_code,
+      employment_type: body.employment_type,
+      contract_type: body.contract_type,
+      contract_start_date: body.contract_start_date,
+      contract_end_date: body.contract_end_date || null,
+      position_title: body.position_title,
+      department: body.department || null,
+      work_location: body.work_location || null,
+      weekly_hours: body.weekly_hours,
+      salary_amount: body.salary_amount,
+      salary_currency: body.salary_currency || 'HUF',
+      salary_period: body.salary_period || 'monthly',
+      payment_method: body.payment_method || 'bank_transfer',
+      bank_account_iban: body.bank_account_iban || null,
+      bank_name: body.bank_name || null,
+      country_specific_data: body.country_specific_data || {},
+      benefits: body.benefits || [],
+      is_active: true,
+      created_by: body.user_id,
+      updated_by: body.user_id,
+    };
+
+    // Insert payroll record
+    const { data, error } = await supabase
+      .from('employee_payroll')
+      .insert(payrollData)
+      .select(`
+        *,
+        users!employee_payroll_user_id_fkey (
+          id,
+          user_firstname,
+          user_lastname
+        )
+      `)
+      .single();
+
+    if (error) {
+      console.error('Error creating payroll record:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ 
+      data, 
+      message: 'Payroll record created successfully' 
+    }, { status: 201 });
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+```
+</details>
+
+---
+
 ## `src/app/api/performance/goals/create/route.ts`
 
 ```
@@ -5999,6 +7171,89 @@ export async function PATCH(req: NextRequest) {
 
 ---
 
+## `src/app/api/users/update-status/route.ts`
+
+```
+Folder: src/app/api/users/update-status
+Type: ts | Lines:       61
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+const supabase = createClient(
+```
+
+<details>
+<summary>📄 Full content (      61 lines)</summary>
+
+```ts
+// app/api/users/update-status/route.ts
+import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { userId,companyId, isActive } = body;
+
+    console.log('Update status request:', { userId, isActive });
+
+    if (!userId || typeof isActive !== 'boolean') {
+      return NextResponse.json(
+        { error: 'User ID and active status are required' },
+        { status: 400 }
+      );
+    }
+
+    // Update the user's active status in company_to_users table
+    const { data, error } = await supabase
+      .from('company_to_users')
+      .update({ is_active: isActive })
+      .eq('user_id', userId)
+      .eq('company_id', companyId)
+      .select();
+
+    if (error) {
+      console.error('Supabase error:', error);
+      return NextResponse.json(
+        { 
+          error: 'Failed to update user status',
+          details: error.message,
+          hint: error.hint,
+          code: error.code
+        },
+        { status: 500 }
+      );
+    }
+
+    console.log('Update successful:', data);
+
+    return NextResponse.json({ 
+      success: true, 
+      data,
+      message: `User ${isActive ? 'activated' : 'deactivated'} successfully` 
+    });
+  } catch (error) {
+    console.error('Error updating user status:', error);
+    return NextResponse.json(
+      { 
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
+  }
+}
+```
+</details>
+
+---
+
 ## `src/app/api/users/users-creation/route.ts`
 
 ```
@@ -7895,7 +9150,7 @@ const CalendarPage: React.FC = () => {
 
 ```
 Folder: src/app/jobs/[slug]/absences
-Type: tsx | Lines:      535
+Type: tsx | Lines:      539
 Top definitions:
 --- Exports ---
 export default AbsenceManagement;
@@ -7908,7 +9163,7 @@ const AbsenceManagement: React.FC = () => {
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      535)</summary>
+<summary>📄 Preview (first 100 lines of      539)</summary>
 
 ```tsx
 // File: app/absence-management/page.tsx
@@ -8011,7 +9266,7 @@ const AbsenceManagement: React.FC = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-... (truncated,      535 total lines)
+... (truncated,      539 total lines)
 ```
 </details>
 
@@ -9461,6 +10716,276 @@ export default function ImpressumDemo() {
 
 ---
 
+## `src/app/jobs/[slug]/payroll/employee/[employeeId]/page.tsx`
+
+```
+Folder: src/app/jobs/[slug]/payroll/employee/[employeeId]
+Type: tsx | Lines:      645
+Top definitions:
+--- Exports ---
+export default function EmployeePayrollDetailPage() {
+
+--- Key Functions/Components ---
+```
+
+<details>
+<summary>📄 Preview (first 100 lines of      645)</summary>
+
+```tsx
+// src/app/jobs/[slug]/payroll/employee/[employeeId]/page.tsx
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import type { EmployeePayroll, PayrollHistory, HungarianPayrollData } from '../../../../../../../types/payroll';
+import { useLocale } from 'i18n/LocaleProvider';
+import { createClient, User } from '@supabase/supabase-js';
+
+
+export default function EmployeePayrollDetailPage() {
+  const params = useParams();
+  const router = useRouter();
+  const slug = params.slug as string;
+  const employeeId = params.employeeId as string;
+
+  const [payroll, setPayroll] = useState<any>(null);
+  const [history, setHistory] = useState<PayrollHistory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [editMode, setEditMode] = useState(false);
+  const [saving, setSaving] = useState(false);
+  
+  const { t } = useLocale();
+  const [currentUser, setCurrentUser] = useState<User | undefined>();
+
+  // Form state for editing
+  const [formData, setFormData] = useState<any>(null);
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+ const fetchCurrentUser = useCallback(async () => {
+     try {
+       const { data: { user } } = await supabase.auth.getUser();
+       if (!user) return;
+       setCurrentUser(user);
+ 
+     } catch (err) {
+       console.error('Error fetching current user:', err);
+     }
+   }, []);
+
+  useEffect(() => {
+    fetchCurrentUser();
+  }, [fetchCurrentUser]);
+
+  useEffect(() => {
+    if (currentUser && employeeId) {
+      fetchPayrollData();
+    }
+  }, [employeeId, currentUser]);
+
+  const fetchPayrollData = async () => {
+    if (!currentUser) return;
+
+    try {
+      setLoading(true);
+      
+      // Pass current_user_id as query parameter
+      console.log('current user:', currentUser.id);
+      const response = await fetch(`/api/payroll?user_id=${employeeId}&current_user_id=${currentUser.id}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch payroll data');
+      }
+
+      const result = await response.json();
+      if (result.data && result.data.length > 0) {
+        const payrollData = result.data[0];
+        setPayroll(payrollData);
+        setFormData(payrollData);
+
+        // Fetch history with current_user_id
+        const historyResponse = await fetch(`/api/payroll/${payrollData.id}?current_user_id=${currentUser.id}`);
+        if (historyResponse.ok) {
+          const historyResult = await historyResponse.json();
+          setHistory(historyResult.history || []);
+        }
+      } else {
+        setError('No payroll data found for this employee');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!payroll || !currentUser) return;
+
+    try {
+      setSaving(true);
+      const response = await fetch(`/api/payroll/${payroll.id}?current_user_id=${currentUser.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+... (truncated,      645 total lines)
+```
+</details>
+
+---
+
+## `src/app/jobs/[slug]/payroll/page.tsx`
+
+```
+Folder: src/app/jobs/[slug]/payroll
+Type: tsx | Lines:      126
+Top definitions:
+--- Exports ---
+export default function PayrollPage() {
+
+--- Key Functions/Components ---
+const supabase = createClient(
+```
+
+<details>
+<summary>📄 Full content (     126 lines)</summary>
+
+```tsx
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import { useParams } from 'next/navigation';
+import { createClient, User } from '@supabase/supabase-js';
+import PayrollList from '../../../../../components/payroll/PayrollList';
+import PayrollForm from '../../../../../components/payroll/PayrollForm';
+import PayrollExportModal from '../../../../../components/payroll/PayrollExportModal';
+import type { EmployeePayroll } from '../../../../../types/payroll';
+import { useLocale } from 'i18n/LocaleProvider';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+export default function PayrollPage() {
+  const { t } = useLocale();
+  const params = useParams();
+  const slug = params.slug as string;
+
+  const [showForm, setShowForm] = useState(false);
+  const [showExport, setShowExport] = useState(false);
+  const [selectedPayroll, setSelectedPayroll] = useState<EmployeePayroll | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [currentUser, setCurrentUser] = useState<User | undefined>();
+  const [loading, setLoading] = useState(true);
+
+  const fetchCurrentUser = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.warn(t('payroll.noUser'));
+        return;
+      }
+      setCurrentUser(user);
+      console.log('User ID fetched:', user.id);
+    } catch (err) {
+      console.error(t('payroll.fetchError'), err);
+    } finally {
+      setLoading(false);
+    }
+  }, [t]);
+
+  useEffect(() => {
+    fetchCurrentUser();
+  }, [fetchCurrentUser]);
+
+  const handleEdit = (payroll: EmployeePayroll) => {
+    setSelectedPayroll(payroll);
+    setShowForm(true);
+  };
+
+  const handleNew = () => {
+    setSelectedPayroll(null);
+    setShowForm(true);
+  };
+
+  const handleCloseForm = () => {
+    setShowForm(false);
+    setSelectedPayroll(null);
+    setRefreshKey(prev => prev + 1);
+  };
+
+  const handleExport = () => {
+    if (!currentUser) {
+      alert(t('payroll.verifySession'));
+      return;
+    }
+    setShowExport(true);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-2xl shadow-lg">
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-600 text-center">{t('payroll.loading')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">{t('payroll.title')}</h1>
+            <p className="text-gray-600 mt-1">{t('payroll.subtitle')}</p>
+          </div>
+          <button
+            onClick={handleNew}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            {t('payroll.addEmployeePayroll')}
+          </button>
+        </div>
+      </div>
+
+      {showForm ? (
+        <PayrollForm
+          payroll={selectedPayroll}
+          onClose={handleCloseForm}
+        />
+      ) : (
+        <PayrollList
+          key={refreshKey}
+          onEdit={handleEdit}
+          onExport={handleExport}
+        />
+      )}
+
+      {showExport && currentUser && (
+        <PayrollExportModal
+          isOpen={showExport}
+          onClose={() => setShowExport(false)}
+          userId={currentUser.id}
+        />
+      )}
+    </div>
+  );
+}
+```
+</details>
+
+---
+
 ## `src/app/jobs/[slug]/performance/goals/[goalId]/page.tsx`
 
 ```
@@ -9805,257 +11330,6 @@ export default function NewGoalPage() {
     </main>
   )
 }
-```
-</details>
-
----
-
-## `src/app/jobs/[slug]/performance/pulse/page.tsx`
-
-```
-Folder: src/app/jobs/[slug]/performance/pulse
-Type: tsx | Lines:      351
-Top definitions:
---- Exports ---
-export default function WeeklyPulsePage() {
-
---- Key Functions/Components ---
-const supabase = createClient(
-interface Goal {
-interface ApiGoalsResponse {
-interface PulseData {
-```
-
-<details>
-<summary>📄 Preview (first 100 lines of      351)</summary>
-
-```tsx
-'use client'
-
-import { useSession } from '@supabase/auth-helpers-react'
-import { useRouter, useParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { Calendar, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react'
-import { createClient } from '@supabase/supabase-js'
-import { useLocale } from 'i18n/LocaleProvider'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
-
-interface Goal {
-  id: string
-  goal_title: string
-  last_update_week: string | null
-  status: 'active' | 'inactive'
-}
-
-interface ApiGoalsResponse {
-  goals: Goal[]
-}
-
-interface PulseData {
-  [goalId: string]: {
-    status: 'green' | 'yellow' | 'red'
-    progress_comment: string
-    blockers: string
-  }
-}
-
-export default function WeeklyPulsePage() {
-  const { t } = useLocale()
-  const router = useRouter()
-  const session = useSession()
-  const params = useParams()
-  const companySlug = params.slug as string
-
-  const [goals, setGoals] = useState<Goal[]>([])
-  const [pulseData, setPulseData] = useState<PulseData>({})
-  const [loading, setLoading] = useState(true)
-  const [submitting, setSubmitting] = useState(false)
-  const [weekStart, setWeekStart] = useState('')
-  const [message, setMessage] = useState<{ text: string; type: 'error' | 'success' } | null>(null)
-
-  useEffect(() => {
-    if (!session) {
-      router.push('/')
-      return
-    }
-
-    fetchGoalsNeedingPulse(session.user.id)
-  }, [session, router])
-
-  const fetchGoalsNeedingPulse = async (userId: string) => {
-    setLoading(true)
-    try {
-      const { data: week } = await supabase.rpc('get_week_start')
-      setWeekStart((week as string) || '')
-
-      const res = await fetch(`/api/performance/goals?view=employee&user_id=${userId}`)
-      const data: ApiGoalsResponse = await res.json()
-      
-      if (res.ok) {
-        const activeGoals = data.goals.filter(g => g.status === 'active')
-        const needsPulse = activeGoals.filter(g => !g.last_update_week || g.last_update_week !== (week as string))
-        
-        setGoals(needsPulse)
-        
-        const initialData: PulseData = {}
-        needsPulse.forEach(goal => {
-          initialData[goal.id] = {
-            status: 'green',
-            progress_comment: '',
-            blockers: ''
-          }
-        })
-        setPulseData(initialData)
-      }
-    } catch (error) {
-      console.error('Error fetching goals:', error)
-    }
-    setLoading(false)
-  }
-
-  const updatePulse = (goalId: string, field: keyof PulseData[string], value: string) => {
-    setPulseData(prev => ({
-      ...prev,
-      [goalId]: {
-        ...prev[goalId],
-        [field]: value
-      }
-    }))
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSubmitting(true)
-... (truncated,      351 total lines)
-```
-</details>
-
----
-
-## `src/app/jobs/[slug]/performance/team/page.tsx`
-
-```
-Folder: src/app/jobs/[slug]/performance/team
-Type: tsx | Lines:      485
-Top definitions:
---- Exports ---
-export default function ManagerDashboard() {
-
---- Key Functions/Components ---
-const supabase = createClient(
-interface Goal {
-interface EmployeeStats {
-```
-
-<details>
-<summary>📄 Preview (first 100 lines of      485)</summary>
-
-```tsx
-// app/jobs/[slug]/performance/team/page.tsx
-'use client'
-
-import { useSession } from '@supabase/auth-helpers-react'
-import { useRouter, useParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { Users, AlertTriangle, Target, TrendingUp } from 'lucide-react'
-import { createClient } from '@supabase/supabase-js'
-import { useLocale } from 'i18n/LocaleProvider'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
-
-interface Goal {
-  id: string
-  employee_id: string
-  goal_title: string
-  goal_description: string
-  success_criteria: string
-  quarter: string
-  year: number
-  status: string
-  created_by: string
-  latest_status: 'green' | 'yellow' | 'red' | null
-  latest_comment: string | null
-  latest_blockers: string | null
-  last_update_week: string | null
-  last_update_date: string | null
-  employee_name: string
-  manager_name: string
-  created_at: string
-}
-
-interface EmployeeStats {
-  employee_id: string
-  employee_name: string
-  total_goals: number
-  active_goals: number
-  red_flags: number
-  yellow_flags: number
-  green_flags: number
-  needs_pulse: number
-  pending_approval: number
-}
-
-export default function ManagerDashboard() {
-  const { t } = useLocale()
-  const router = useRouter()
-  const session = useSession()
-  const params = useParams()
-  const companySlug = params.slug as string
-
-  const [goals, setGoals] = useState<Goal[]>([])
-  const [employeeStats, setEmployeeStats] = useState<EmployeeStats[]>([])
-  const [loading, setLoading] = useState(true)
-  const [weekStart, setWeekStart] = useState('')
-  const [selectedView, setSelectedView] = useState<'overview' | 'red-flags' | 'pending'>('overview')
-  const [expandedEmployee, setExpandedEmployee] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (!session) {
-      router.push('/')
-      return
-    }
-
-    fetchTeamGoals()
-    fetchWeekStart()
-  }, [session, router])
-
-  const fetchWeekStart = async () => {
-    try {
-      const { data: week } = await supabase.rpc('get_week_start')
-      setWeekStart(week as string || '')
-    } catch (error) {
-      console.error('Error fetching week:', error)
-    }
-  }
-
-  const fetchTeamGoals = async () => {
-    setLoading(true)
-    try {
-      if (!session?.user?.id) {
-        console.error('No session found')
-        setLoading(false)
-        return
-      }
-      
-      const res = await fetch(`/api/performance/goals?view=manager&user_id=${session.user.id}`)
-      const data = await res.json()
-      if (res.ok) {
-        const teamGoals = data.goals || []
-        console.log('Team goals fetched:', teamGoals.length)
-        setGoals(teamGoals)
-        calculateEmployeeStats(teamGoals)
-      } else {
-        console.error('Error fetching team goals:', data.error)
-      }
-    } catch (error) {
-... (truncated,      485 total lines)
 ```
 </details>
 
@@ -11057,7 +12331,7 @@ const HappinessCheckInner: React.FC = () => {
 
 ```
 Folder: components
-Type: tsx | Lines:      787
+Type: tsx | Lines:      801
 Top definitions:
 --- Exports ---
 export default function Header() {
@@ -11066,7 +12340,7 @@ export default function Header() {
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      787)</summary>
+<summary>📄 Preview (first 100 lines of      801)</summary>
 
 ```tsx
 'use client';
@@ -11076,7 +12350,7 @@ import Link from 'next/link';
 import { FiMenu, FiX } from 'react-icons/fi';
 import {
   Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown,
-  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users,Users2
+  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users,Users2,BanknoteArrowDown
 } from 'lucide-react';
 import { useHeaderLogic } from '../hooks/useHeaderLogic';
 import {
@@ -11166,10 +12440,8 @@ export default function Header() {
   const teamperformance = useMemo(() => buildLink('/performance/team'), [buildLink]);
   const manageContactsLink = useMemo(() => buildLink('/contact-submissions'), [buildLink]);
   const manageUsersUpload = useMemo(() => buildLink('/admin/import-users'), [buildLink]);
-
-
-  return (
-... (truncated,      787 total lines)
+  const payRoll = useMemo(() => buildLink('/payroll'), [buildLink]);
+... (truncated,      801 total lines)
 ```
 </details>
 
@@ -11753,7 +13025,7 @@ export default function ConfirmAnalysisModal({
 
 ```
 Folder: components
-Type: tsx | Lines:      595
+Type: tsx | Lines:      601
 Top definitions:
 --- Exports ---
 export default function NotificationComponent({
@@ -11768,7 +13040,7 @@ interface PostgresChangePayload<T = Record<string, unknown>> {
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      595)</summary>
+<summary>📄 Preview (first 100 lines of      601)</summary>
 
 ```tsx
 // components/NotificationComponent.tsx
@@ -11807,6 +13079,7 @@ interface NotificationData {
     | 'leave_request_created'
     | 'leave_request_approved'
     | 'leave_request_rejected'
+    | 'leave_request_cancelled'
     | 'goal_created'
     | 'goal_approved'
     | 'goal_red_flag'
@@ -11869,9 +13142,7 @@ export default function NotificationComponent({
   const subscriptionsRef = useRef<ReturnType<(typeof supabase)['channel']>[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const unreadCount = notifications.filter((n) => !n.read).length;
-
-  // --- Check admin status ---
-... (truncated,      595 total lines)
+... (truncated,      601 total lines)
 ```
 </details>
 
@@ -13351,36 +14622,45 @@ export default PendingApprovals;
 
 ```
 Folder: components/absence
-Type: tsx | Lines:      141
+Type: tsx | Lines:      323
 Top definitions:
 --- Exports ---
 export default RecentRequests;
 
 --- Key Functions/Components ---
+const supabase = createClient(
 type Props = {
 const RecentRequests: React.FC<Props> = ({
 ```
 
 <details>
-<summary>📄 Full content (     141 lines)</summary>
+<summary>📄 Preview (first 100 lines of      323)</summary>
 
 ```tsx
 // File: components/absence/RecentRequests.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocale } from 'i18n/LocaleProvider';
-import { RefreshCw, Calendar, FileText } from 'lucide-react';
+import { RefreshCw, Calendar, FileText, XCircle, Loader2, AlertTriangle } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import { LeaveRequest } from '../../types/absence';
 import { CertificateStatusBadge } from './../CertificateStatusBadge';
 import { formatDate as defaultFormatDate } from '../../utils/formatDate';
+import { createClient } from '@supabase/supabase-js';
+import { getUserManager, getUserName } from '../../utils/absenceNotifications';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 type Props = {
   requests: LeaveRequest[];
-  onRefresh: () => void;
+  onRefresh: () => void | Promise<void>; // Update to allow both sync and async
   onOpenRequestModal: () => void;
   onUploadCertificateForRequest: (id: string) => void;
   isSickLeaveType: (leaveTypeId: string) => boolean;
   formatDate?: (d: string) => string;
+  currentUserId: string; // Add this prop
 };
 
 const RecentRequests: React.FC<Props> = ({
@@ -13389,124 +14669,74 @@ const RecentRequests: React.FC<Props> = ({
   onOpenRequestModal,
   onUploadCertificateForRequest,
   isSickLeaveType,
-  formatDate = defaultFormatDate
+  formatDate = defaultFormatDate,
+  currentUserId // Add this
 }) => {
   const { t } = useLocale();
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [showCancelConfirm, setShowCancelConfirm] = useState<string | null>(null);
 
-  return (
-    <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <FileText className="w-5 h-5 text-blue-600" />
-          {t('recentRequests.title')}
-        </h2>
-        <button
-          onClick={onRefresh}
-          className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-        >
-          <RefreshCw className="w-4 h-4" />
-        </button>
-      </div>
+  // Debug log
+  console.log('RecentRequests - currentUserId received:', currentUserId, typeof currentUserId);
 
-      {requests.length === 0 ? (
-        <div className="text-center py-8">
-          <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 mb-4">{t('recentRequests.empty.noRequests')}</p>
-          <button
-            onClick={onOpenRequestModal}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors"
-          >
-            {t('recentRequests.empty.firstLeaveButton')}
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {requests.map((request) => (
-            <div
-              key={request.id}
-              className="border rounded-xl p-4 hover:shadow-md transition-shadow"
-            >
-              <div className="flex flex-col gap-3">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: request.leave_type_color }}
-                      />
-                      <h3 className="font-semibold text-gray-900">
-                        {request.leave_type_name_hu}
-                      </h3>
-                      <div className="ml-2">
-                        <StatusBadge status={request.status} />
-                      </div>
-                    </div>
+  // Check if request can be cancelled
+  const canCancelRequest = (request: LeaveRequest): boolean => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const startDate = new Date(request.start_date);
+    startDate.setHours(0, 0, 0, 0);
 
-                    <div className="text-sm text-gray-600 space-y-1">
-                      <p>
-                        <span className="font-medium">{t('recentRequests.fields.period')}</span>{' '}
-                        {formatDate(request.start_date)} - {formatDate(request.end_date)}
-                      </p>
-                      <p>
-                        <span className="font-medium">{t('recentRequests.fields.duration')}</span>{' '}
-                        {request.total_days} {request.total_days !== 1 
-                          ? t('recentRequests.fields.days') 
-                          : t('recentRequests.fields.day')}
-                      </p>
-                      {request.reason && (
-                        <p>
-                          <span className="font-medium">{t('recentRequests.fields.reason')}</span> {request.reason}
-                        </p>
-                      )}
-                      {request.review_notes && (
-                        <p>
-                          <span className="font-medium">{t('recentRequests.fields.managerNotes')}</span> {request.review_notes}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+    // Can cancel if: (pending OR approved) AND start date is in the future
+    const isNotStarted = startDate > today;
+    const isCancellableStatus = request.status === 'pending' || request.status === 'approved';
+    
+    return isNotStarted && isCancellableStatus;
+  };
 
-                  <div className="text-xs text-gray-500">
-                    {t('recentRequests.fields.requested')} {formatDate(request.created_at)}
-                    {request.reviewed_at && (
-                      <>
-                        <br />
-                        {t('recentRequests.fields.reviewed')} {formatDate(request.reviewed_at)}
-                      </>
-                    )}
-                  </div>
-                </div>
+  // Handle cancel request
+  const handleCancelRequest = async (request: LeaveRequest, currentUserId: string) => {
+    setCancellingId(request.id);
+    
+    try {
+      // Validate currentUserId
+      if (!currentUserId || currentUserId === 'undefined') {
+        console.error('Invalid currentUserId:', currentUserId);
+        alert('Unable to cancel: User ID not found. Please refresh the page.');
+        setCancellingId(null);
+        return;
+      }
 
-                {/* Certificate Status Badge & Upload button */}
-                <div className="flex items-center gap-2 flex-wrap">
-                  <CertificateStatusBadge
-                    hasCertificate={!!request.medical_certificate_id}
-                    certificateTreated={false}
-                    isHrValidated={request.hr_validated}
-                    isMedicalConfirmed={request.is_medical_confirmed}
-                  />
+      console.log('Cancelling request for user:', currentUserId);
 
-                  {isSickLeaveType(request.leave_type_id) &&
-                    !request.medical_certificate_id &&
-                    request.status === 'pending' && (
-                      <button
-                        onClick={() => onUploadCertificateForRequest(request.id)}
-                        className="text-xs px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg font-medium transition-colors"
-                      >
-                        {t('recentRequests.buttons.uploadCertificate')}
-                      </button>
-                    )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
+      // Get manager info for notification
+      const { managerId } = await getUserManager(currentUserId);
+      
+      if (!managerId) {
+        console.warn('No manager found for user');
+      }
 
-export default RecentRequests;
+      // Get user name
+      const { name: userName } = await getUserName(currentUserId);
+
+      // Calculate total days
+      const startDate = new Date(request.start_date);
+      const endDate = new Date(request.end_date);
+      const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+      // Format dates for notification
+      const formattedStartDate = formatDate(request.start_date);
+      const formattedEndDate = formatDate(request.end_date);
+
+      console.log('Attempting to delete request with ID:', request.id);
+
+      // First, delete any notifications related to this leave request
+      console.log('Deleting related notifications...');
+      const { error: notificationDeleteError } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('leave_request_id', request.id);
+... (truncated,      323 total lines)
 ```
 </details>
 
@@ -14372,6 +15602,1119 @@ export { ForfaitBadge } from './ForfaitBadge';
 
 ---
 
+## `components/payroll/PayrollEditModal.tsx`
+
+```
+Folder: components/payroll
+Type: tsx | Lines:      621
+Top definitions:
+--- Exports ---
+export default function PayrollEditModal({
+
+--- Key Functions/Components ---
+interface PayrollEditModalProps {
+const EMPTY_COUNTRY_DATA: HungarianPayrollData = {
+const createBaseFormData = (userId: string): CreatePayrollRequest => ({
+const normalizePayroll = (
+```
+
+<details>
+<summary>📄 Preview (first 100 lines of      621)</summary>
+
+```tsx
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import {
+  X,
+  Loader2,
+  Save,
+  Edit3,
+  Briefcase,
+  CreditCard,
+  Building2,
+  Shield,
+  AlertCircle,
+} from 'lucide-react';
+import type {
+  EmployeePayroll,
+  HungarianPayrollData,
+  CreatePayrollRequest,
+} from '../../types/payroll';
+import { useLocale } from 'i18n/LocaleProvider';
+
+interface PayrollEditModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  userId: string;
+  userName: string;
+  currentUserId: string;
+  onSuccess?: () => void;
+}
+
+/* =========================================================
+   Helpers
+========================================================= */
+
+const EMPTY_COUNTRY_DATA: HungarianPayrollData = {
+  taj_number: '',
+  tax_id: '',
+  tax_bracket: '1',
+  personal_income_tax_rate: 15,
+  employee_social_contribution: 18.5,
+  employer_social_contribution: 13,
+  family_tax_allowance: 0,
+  pension_fund: 'government',
+};
+
+const createBaseFormData = (userId: string): CreatePayrollRequest => ({
+  user_id: userId,
+  country_code: 'HU',
+  employment_type: 'full_time',
+  contract_type: 'permanent',
+  contract_start_date: new Date().toISOString().split('T')[0],
+  position_title: '',
+  department: '',
+  work_location: '',
+  weekly_hours: 40,
+  salary_amount: 0,
+  salary_currency: 'HUF',
+  salary_period: 'monthly',
+  payment_method: 'bank_transfer',
+  bank_account_iban: '',
+  bank_name: '',
+  country_specific_data: EMPTY_COUNTRY_DATA,
+  benefits: [],
+});
+
+const normalizePayroll = (
+  base: CreatePayrollRequest,
+  incoming: any
+): CreatePayrollRequest => ({
+  ...base,
+  ...incoming,
+
+  position_title: incoming?.position_title ?? '',
+  department: incoming?.department ?? '',
+  work_location: incoming?.work_location ?? '',
+  bank_account_iban: incoming?.bank_account_iban ?? '',
+  bank_name: incoming?.bank_name ?? '',
+
+  weekly_hours: incoming?.weekly_hours ?? 40,
+  salary_amount: incoming?.salary_amount ?? 0,
+
+  contract_start_date:
+    incoming?.contract_start_date ??
+    new Date().toISOString().split('T')[0],
+
+  country_specific_data: {
+    ...EMPTY_COUNTRY_DATA,
+    ...(incoming?.country_specific_data ?? {}),
+    taj_number: incoming?.country_specific_data?.taj_number ?? '',
+    tax_id: incoming?.country_specific_data?.tax_id ?? '',
+    family_tax_allowance:
+      incoming?.country_specific_data?.family_tax_allowance ?? 0,
+  },
+});
+
+/* =========================================================
+   Component
+========================================================= */
+... (truncated,      621 total lines)
+```
+</details>
+
+---
+
+## `components/payroll/PayrollExportModal.tsx`
+
+```
+Folder: components/payroll
+Type: tsx | Lines:      373
+Top definitions:
+--- Exports ---
+export default function PayrollExportModal({
+
+--- Key Functions/Components ---
+interface PayrollExportModalProps {
+```
+
+<details>
+<summary>📄 Preview (first 100 lines of      373)</summary>
+
+```tsx
+// components/payroll/PayrollExportModal.tsx
+'use client';
+
+import { useState } from 'react';
+import {
+  X,
+  Download,
+  AlertCircle,
+  FileSpreadsheet,
+  CheckCircle,
+} from 'lucide-react';
+import { exportAndDownloadPayroll } from '../../lib/payrollExportUtils';
+import type { ExportFormat, EmploymentType } from '../../types/payroll';
+import { useLocale } from 'i18n/LocaleProvider';
+import PeriodStatusWidget from './PeriodStatusWidget';
+
+interface PayrollExportModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  userId: string;
+}
+
+export default function PayrollExportModal({
+  isOpen,
+  onClose,
+  userId,
+}: PayrollExportModalProps) {
+  const { t } = useLocale();
+
+  const currentDate = new Date();
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [validationIssues, setValidationIssues] = useState<any[] | null>(null);
+
+  const [exportDone, setExportDone] = useState(false);
+  const [lastExportId, setLastExportId] = useState<string | undefined>();
+
+  const [formData, setFormData] = useState({
+    country_code: 'HU',
+    export_month: currentDate.getMonth() + 1,
+    export_year: currentDate.getFullYear(),
+    export_format: 'nexon' as ExportFormat,
+    include_terminated: false,
+    department: '',
+    employment_types: [] as EmploymentType[],
+  });
+
+  const getMonthName = (monthNumber: number) =>
+    new Date(2024, monthNumber - 1).toLocaleString(
+      t('payrollExportModal.locale'),
+      { month: 'long' }
+    );
+
+  const handleExport = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      setIsBlocked(false);
+      setValidationIssues(null);
+
+      const response = await fetch('/api/payroll/export', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          validated_by: userId,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok && result.status === 'blocked') {
+        setIsBlocked(true);
+        setValidationIssues(result.issues || []);
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          result.error || t('payrollExportModal.errors.exportFailed')
+        );
+      }
+
+      await exportAndDownloadPayroll({
+        format: formData.export_format,
+        month: formData.export_month,
+        year: formData.export_year,
+        data: result.data,
+      });
+
+      // Save the export ID for period closure
+      setLastExportId(result.export_id);
+      setExportDone(true);
+    } catch (err) {
+      setError(
+        err instanceof Error
+... (truncated,      373 total lines)
+```
+</details>
+
+---
+
+## `components/payroll/PayrollForm.tsx`
+
+```
+Folder: components/payroll
+Type: tsx | Lines:      770
+Top definitions:
+--- Exports ---
+export default function PayrollForm({ payroll, onClose, onSuccess }: PayrollFormProps) {
+
+--- Key Functions/Components ---
+interface PayrollFormProps {
+const supabase = createClient(
+```
+
+<details>
+<summary>📄 Preview (first 100 lines of      770)</summary>
+
+```tsx
+// components/payroll/PayrollForm.tsx
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
+import {
+  X,
+  Loader2,
+  Save,
+  UserPlus,
+  Briefcase,
+  DollarSign,
+  FileText,
+  AlertCircle,
+  CheckCircle,
+  Edit,
+} from 'lucide-react';
+
+import type {
+  EmployeePayroll,
+  CreatePayrollRequest,
+  HungarianPayrollData,
+} from '../../types/payroll';
+
+import { useLocale } from 'i18n/LocaleProvider';
+import { createClient } from '@supabase/supabase-js';
+
+interface PayrollFormProps {
+  payroll?: EmployeePayroll | null;
+  onClose: () => void;
+  onSuccess?: () => void;
+}
+
+// CREATE SUPABASE CLIENT OUTSIDE COMPONENT TO PREVENT RE-CREATION
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+export default function PayrollForm({ payroll, onClose, onSuccess }: PayrollFormProps) {
+  const { t } = useLocale();
+
+  /* ------------------------------------------------------------------ */
+  /* Route params                                                        */
+  /* ------------------------------------------------------------------ */
+  const params = useParams<{ slug: string }>();
+  const companySlug = params.slug;
+
+  /* ------------------------------------------------------------------ */
+  /* State                                                               */
+  /* ------------------------------------------------------------------ */
+  const [loading, setLoading] = useState(false);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [checkingExisting, setCheckingExisting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [companyId, setCompanyId] = useState<number | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [users, setUsers] = useState<any[]>([]);
+  const [existingPayroll, setExistingPayroll] = useState<EmployeePayroll | null>(null);
+  const [isEditMode, setIsEditMode] = useState(!!payroll);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
+  const [formData, setFormData] = useState<CreatePayrollRequest>({
+    user_id: payroll?.user_id || '',
+    country_code: payroll?.country_code || 'HU',
+    employment_type: payroll?.employment_type || 'full_time',
+    contract_type: payroll?.contract_type || 'permanent',
+    contract_start_date:
+      payroll?.contract_start_date || new Date().toISOString().split('T')[0],
+    contract_end_date: payroll?.contract_end_date || undefined,
+    position_title: payroll?.position_title || '',
+    department: payroll?.department || '',
+    work_location: payroll?.work_location || '',
+    weekly_hours: payroll?.weekly_hours || 40,
+    salary_amount: payroll?.salary_amount || 0,
+    salary_currency: payroll?.salary_currency || 'HUF',
+    salary_period: payroll?.salary_period || 'monthly',
+    payment_method: payroll?.payment_method || 'bank_transfer',
+    bank_account_iban: payroll?.bank_account_iban || '',
+    bank_name: payroll?.bank_name || '',
+    country_specific_data: payroll?.country_specific_data || ({
+      taj_number: '',
+      tax_id: '',
+      tax_bracket: '1',
+      personal_income_tax_rate: 15,
+      employee_social_contribution: 18.5,
+      employer_social_contribution: 13,
+      family_tax_allowance: 0,
+      pension_fund: 'government',
+    } as HungarianPayrollData),
+    benefits: payroll?.benefits || [],
+  });
+
+  /* ------------------------------------------------------------------ */
+  /* Get current user ID                                                 */
+  /* ------------------------------------------------------------------ */
+  useEffect(() => {
+    async function getCurrentUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+... (truncated,      770 total lines)
+```
+</details>
+
+---
+
+## `components/payroll/PayrollList.tsx`
+
+```
+Folder: components/payroll
+Type: tsx | Lines:      416
+Top definitions:
+--- Exports ---
+export default function PayrollList({ onEdit, onExport }: PayrollListProps) {
+
+--- Key Functions/Components ---
+interface PayrollListProps {
+```
+
+<details>
+<summary>📄 Preview (first 100 lines of      416)</summary>
+
+```tsx
+// components/payroll/PayrollList.tsx
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { createClient } from '@supabase/supabase-js';
+import { 
+  Loader2, 
+  AlertCircle, 
+  Download, 
+  Eye, 
+  Edit, 
+  XCircle,
+  Users,
+  UserCheck,
+  DollarSign,
+  Filter
+} from 'lucide-react';
+import type { EmployeePayroll, UserWithPayroll } from '../../types/payroll';
+import { useLocale } from 'i18n/LocaleProvider';
+import PayrollEditModal from './PayrollEditModal';
+
+interface PayrollListProps {
+  onEdit?: (payroll: EmployeePayroll) => void;
+  onExport?: () => void;
+}
+
+export default function PayrollList({ onEdit, onExport }: PayrollListProps) {
+  const { t } = useLocale();
+  const params = useParams();
+  const router = useRouter();
+  const slug = params?.slug as string || '';
+  
+  const [payrolls, setPayrolls] = useState<EmployeePayroll[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [filter, setFilter] = useState({
+    country_code: '',
+    is_active: 'true',
+    department: ''
+  });
+
+  // Modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedPayroll, setSelectedPayroll] = useState<any>(null);
+
+  // Initialize Supabase client
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  // Fetch current user
+  const fetchCurrentUser = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      setCurrentUser(user);
+    } catch (err) {
+      console.error('Error fetching current user:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCurrentUser();
+  }, [fetchCurrentUser]);
+
+  useEffect(() => {
+    fetchPayrolls();
+  }, [filter]);
+
+  const fetchPayrolls = async () => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      if (filter.country_code) params.append('country_code', filter.country_code);
+      if (filter.is_active) params.append('is_active', filter.is_active);
+      if (filter.department) params.append('department', filter.department);
+
+      const response = await fetch(`/api/payroll?${params.toString()}`);
+      if (!response.ok) {
+        throw new Error(t('payrollList.errors.fetchFailed'));
+      }
+
+      const result = await response.json();
+      setPayrolls(result.data || []);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('payrollList.errors.genericError'));
+      console.error('Error fetching payrolls:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm(t('payrollList.confirmations.deactivate'))) {
+      return;
+    }
+... (truncated,      416 total lines)
+```
+</details>
+
+---
+
+## `components/payroll/PeriodClosureModal.tsx`
+
+```
+Folder: components/payroll
+Type: tsx | Lines:      295
+Top definitions:
+--- Exports ---
+export default function PeriodClosureModal({
+
+--- Key Functions/Components ---
+interface PeriodClosureModalProps {
+```
+
+<details>
+<summary>📄 Full content (     295 lines)</summary>
+
+```tsx
+// components/payroll/PeriodClosureModal.tsx
+'use client';
+
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
+import {
+  X,
+  Lock,
+  Unlock,
+  AlertCircle,
+  CheckCircle,
+  Loader2,
+  Calendar,
+  User,
+  FileText,
+} from 'lucide-react';
+
+interface PeriodClosureModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+  countryCode: string;
+  year: number;
+  month: number;
+  currentStatus: 'open' | 'closed' | 'reopened';
+  currentUserId: string;
+  lastExportId?: string;
+}
+
+export default function PeriodClosureModal({
+  isOpen,
+  onClose,
+  onSuccess,
+  countryCode,
+  year,
+  month,
+  currentStatus,
+  currentUserId,
+  lastExportId,
+}: PeriodClosureModalProps) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reason, setReason] = useState('');
+
+  const isClosing = currentStatus !== 'closed';
+  const isReopening = currentStatus === 'closed';
+
+  const monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  const monthName = monthNames[month - 1];
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      if (isReopening) {
+        // Validate reopen reason
+        if (reason.trim().length < 10) {
+          setError('Reopen reason must be at least 10 characters');
+          setLoading(false);
+          return;
+        }
+
+        // Reopen the period
+        const response = await fetch('/api/payroll/periods/close', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            country_code: countryCode,
+            year,
+            month,
+            reopened_by: currentUserId,
+            reopen_reason: reason,
+          }),
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || 'Failed to reopen period');
+        }
+      } else {
+        // Close the period
+        const response = await fetch('/api/payroll/periods/close', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            country_code: countryCode,
+            year,
+            month,
+            closed_by: currentUserId,
+            closed_reason: reason || `${monthName} ${year} payroll finalized`,
+            last_export_id: lastExportId,
+          }),
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || 'Failed to close period');
+        }
+      }
+
+      onSuccess();
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isOpen) return null;
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full animate-in fade-in zoom-in duration-200">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+              isReopening 
+                ? 'bg-gradient-to-br from-yellow-500 to-orange-500'
+                : 'bg-gradient-to-br from-red-500 to-pink-500'
+            }`}>
+              {isReopening ? (
+                <Unlock className="w-6 h-6 text-white" />
+              ) : (
+                <Lock className="w-6 h-6 text-white" />
+              )}
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">
+                {isReopening ? 'Reopen Period' : 'Close Period'}
+              </h2>
+              <p className="text-sm text-gray-600">
+                {monthName} {year} - {countryCode}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+            disabled={loading}
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Warning/Info Box */}
+          <div className={`rounded-lg border p-4 ${
+            isReopening
+              ? 'bg-yellow-50 border-yellow-200'
+              : 'bg-red-50 border-red-200'
+          }`}>
+            <div className="flex gap-3">
+              <AlertCircle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
+                isReopening ? 'text-yellow-600' : 'text-red-600'
+              }`} />
+              <div>
+                <h3 className={`font-semibold mb-1 ${
+                  isReopening ? 'text-yellow-900' : 'text-red-900'
+                }`}>
+                  {isReopening ? 'Reopening a Closed Period' : 'Closing This Period'}
+                </h3>
+                <p className={`text-sm ${
+                  isReopening ? 'text-yellow-800' : 'text-red-800'
+                }`}>
+                  {isReopening ? (
+                    <>
+                      This will allow editing payroll data and creating new exports for this period. 
+                      <strong className="block mt-1">You must provide a reason for reopening.</strong>
+                    </>
+                  ) : (
+                    <>
+                      This will prevent further edits to payroll data and exports for this period.
+                      You can reopen it later if corrections are needed.
+                    </>
+                  )}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Period Info */}
+          <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+            <div className="flex items-center gap-2 text-sm">
+              <Calendar className="w-4 h-4 text-gray-500" />
+              <span className="font-medium text-gray-700">Period:</span>
+              <span className="text-gray-900">{monthName} {year}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <FileText className="w-4 h-4 text-gray-500" />
+              <span className="font-medium text-gray-700">Country:</span>
+              <span className="text-gray-900">{countryCode}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                currentStatus === 'closed' 
+                  ? 'bg-red-100 text-red-800'
+                  : currentStatus === 'reopened'
+                  ? 'bg-yellow-100 text-yellow-800'
+                  : 'bg-green-100 text-green-800'
+              }`}>
+                Current Status: {currentStatus.toUpperCase()}
+              </span>
+            </div>
+          </div>
+
+          {/* Reason Input */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Reason {isReopening && <span className="text-red-500">*</span>}
+              {isReopening && (
+                <span className="text-gray-500 font-normal ml-1">(min. 10 characters)</span>
+              )}
+            </label>
+            <textarea
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              required={isReopening}
+              rows={3}
+              placeholder={
+                isReopening
+                  ? 'e.g., Salary correction needed for employee John Doe'
+                  : 'e.g., Monthly payroll completed and verified (optional)'
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+            />
+            {isReopening && reason.length > 0 && reason.length < 10 && (
+              <p className="text-sm text-red-600 mt-1">
+                {10 - reason.length} more characters required
+              </p>
+            )}
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start gap-2">
+              <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
+              <span className="text-sm">{error}</span>
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={loading}
+              className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading || (isReopening && reason.trim().length < 10)}
+              className={`px-6 py-2 text-white rounded-lg font-medium transition-all disabled:opacity-50 flex items-center gap-2 ${
+                isReopening
+                  ? 'bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700'
+                  : 'bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700'
+              }`}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  {isReopening ? 'Reopening...' : 'Closing...'}
+                </>
+              ) : (
+                <>
+                  {isReopening ? (
+                    <>
+                      <Unlock className="w-4 h-4" />
+                      Reopen Period
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-4 h-4" />
+                      Close Period
+                    </>
+                  )}
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>,
+    document.body
+  );
+}
+```
+</details>
+
+---
+
+## `components/payroll/PeriodStatusWidget.tsx`
+
+```
+Folder: components/payroll
+Type: tsx | Lines:      276
+Top definitions:
+--- Exports ---
+export default function PeriodStatusWidget({
+
+--- Key Functions/Components ---
+interface PeriodStatusWidgetProps {
+interface PeriodStatus {
+```
+
+<details>
+<summary>📄 Full content (     276 lines)</summary>
+
+```tsx
+// components/payroll/PeriodStatusWidget.tsx
+'use client';
+
+import { useState, useEffect } from 'react';
+import {
+  Lock,
+  Unlock,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  Loader2,
+  Calendar,
+} from 'lucide-react';
+import PeriodClosureModal from './PeriodClosureModal';
+
+interface PeriodStatusWidgetProps {
+  countryCode: string;
+  year: number;
+  month: number;
+  currentUserId: string;
+  lastExportId?: string;
+  onStatusChange?: () => void;
+}
+
+interface PeriodStatus {
+  status: 'open' | 'closed' | 'reopened';
+  closed_at?: string;
+  closed_by?: string;
+  closed_by_name?: string;
+  closed_reason?: string;
+  reopened_at?: string;
+  reopened_by?: string;
+  reopened_by_name?: string;
+  reopen_reason?: string;
+}
+
+export default function PeriodStatusWidget({
+  countryCode,
+  year,
+  month,
+  currentUserId,
+  lastExportId,
+  onStatusChange,
+}: PeriodStatusWidgetProps) {
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState<PeriodStatus | null>(null);
+  const [showModal, setShowModal] = useState(false);
+
+  const monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  const monthName = monthNames[month - 1];
+
+  const fetchStatus = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `/api/payroll/periods/status?current_user_id=${currentUserId}&country_code=${countryCode}&year=${year}&month=${month}`
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setStatus(data.status);
+      }
+    } catch (error) {
+      console.error('Error fetching period status:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStatus();
+  }, [countryCode, year, month, currentUserId]);
+
+  const handleSuccess = () => {
+    fetchStatus();
+    if (onStatusChange) {
+      onStatusChange();
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+        </div>
+      </div>
+    );
+  }
+
+  const currentStatus = status?.status || 'open';
+  const isClosed = currentStatus === 'closed';
+  const isReopened = currentStatus === 'reopened';
+
+  return (
+    <>
+      <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+        {/* Header */}
+        <div className={`p-4 ${
+          isClosed 
+            ? 'bg-gradient-to-r from-red-50 to-pink-50 border-b border-red-100'
+            : isReopened
+            ? 'bg-gradient-to-r from-yellow-50 to-orange-50 border-b border-yellow-100'
+            : 'bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100'
+        }`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                isClosed
+                  ? 'bg-gradient-to-br from-red-500 to-pink-500'
+                  : isReopened
+                  ? 'bg-gradient-to-br from-yellow-500 to-orange-500'
+                  : 'bg-gradient-to-br from-green-500 to-emerald-500'
+              }`}>
+                {isClosed ? (
+                  <Lock className="w-5 h-5 text-white" />
+                ) : isReopened ? (
+                  <Unlock className="w-5 h-5 text-white" />
+                ) : (
+                  <CheckCircle className="w-5 h-5 text-white" />
+                )}
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">
+                  {monthName} {year}
+                </h3>
+                <p className="text-sm text-gray-600">Period Status</p>
+              </div>
+            </div>
+            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+              isClosed
+                ? 'bg-red-100 text-red-800 border border-red-200'
+                : isReopened
+                ? 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                : 'bg-green-100 text-green-800 border border-green-200'
+            }`}>
+              {isClosed ? '🔒 CLOSED' : isReopened ? '🔓 REOPENED' : '✓ OPEN'}
+            </span>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="p-6 space-y-4">
+          {/* Status Information */}
+          {isClosed && status?.closed_at && (
+            <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+              <div className="flex items-start gap-2">
+                <Clock className="w-4 h-4 text-gray-500 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-700">Closed</p>
+                  <p className="text-xs text-gray-600">
+                    {new Date(status.closed_at).toLocaleString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </p>
+                </div>
+              </div>
+              {status.closed_by_name && (
+                <div className="flex items-start gap-2">
+                  <span className="text-sm text-gray-600">
+                    by <strong className="text-gray-900">{status.closed_by_name}</strong>
+                  </span>
+                </div>
+              )}
+              {status.closed_reason && (
+                <div className="pt-2 border-t border-gray-200">
+                  <p className="text-xs text-gray-500 italic">
+                    "{status.closed_reason}"
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {isReopened && status?.reopened_at && (
+            <div className="bg-yellow-50 rounded-lg p-4 space-y-2 border border-yellow-200">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-yellow-900">Reopened for Corrections</p>
+                  <p className="text-xs text-yellow-700">
+                    {new Date(status.reopened_at).toLocaleString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </p>
+                </div>
+              </div>
+              {status.reopened_by_name && (
+                <div className="flex items-start gap-2">
+                  <span className="text-sm text-yellow-800">
+                    by <strong className="text-yellow-900">{status.reopened_by_name}</strong>
+                  </span>
+                </div>
+              )}
+              {status.reopen_reason && (
+                <div className="pt-2 border-t border-yellow-200">
+                  <p className="text-xs text-yellow-700 italic">
+                    "{status.reopen_reason}"
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Action Message */}
+          <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
+            <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-blue-800">
+              {isClosed ? (
+                <>
+                  This period is locked. No payroll changes or exports allowed.
+                  You can reopen it if corrections are needed.
+                </>
+              ) : isReopened ? (
+                <>
+                  This period was reopened for corrections. Remember to close it again
+                  after making changes.
+                </>
+              ) : (
+                <>
+                  This period is open. You can edit payroll data and create exports.
+                  Close it when the month is finalized.
+                </>
+              )}
+            </p>
+          </div>
+
+          {/* Action Button */}
+          <button
+            onClick={() => setShowModal(true)}
+            className={`w-full py-3 px-4 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${
+              isClosed
+                ? 'bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white'
+                : 'bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white'
+            }`}
+          >
+            {isClosed ? (
+              <>
+                <Unlock className="w-4 h-4" />
+                Reopen This Period
+              </>
+            ) : (
+              <>
+                <Lock className="w-4 h-4" />
+                Close This Period
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Modal */}
+      <PeriodClosureModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onSuccess={handleSuccess}
+        countryCode={countryCode}
+        year={year}
+        month={month}
+        currentStatus={currentStatus}
+        currentUserId={currentUserId}
+        lastExportId={lastExportId}
+      />
+    </>
+  );
+}
+```
+</details>
+
+---
+
 ## `components/timeclock/ManagerTimeClockDashboard.tsx`
 
 ```
@@ -15001,6 +17344,342 @@ export async function sendInterviewCancellation(params: SendInterviewCancellatio
 
   // Generate CANCELLED ICS file (with STATUS:CANCELLED)
 ... (truncated,      421 total lines)
+```
+</details>
+
+---
+
+## `lib/runPayrollValidation.ts`
+
+```
+Folder: lib
+Type: ts | Lines:      183
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+const supabase = createClient(
+type PayrollValidationContext = {
+type ValidationIssue = {
+```
+
+<details>
+<summary>📄 Full content (     183 lines)</summary>
+
+```ts
+/* =====================================================
+   Payroll Validation Runner
+   Purpose: Validate payroll data before export
+   ===================================================== */
+
+import { createClient } from "@supabase/supabase-js"
+
+/* -----------------------------------------------------
+   Supabase client (SERVICE ROLE REQUIRED)
+----------------------------------------------------- */
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+/* -----------------------------------------------------
+   Types
+----------------------------------------------------- */
+
+type PayrollValidationContext = {
+  countryCode: string
+  year: number
+  month: number
+  exportFormat: string
+  validatedBy: string // user_id
+  validationName?: string // OPTIONAL: user-provided name
+}
+
+type ValidationIssue = {
+  severity: "CRITICAL" | "WARNING" | "INFO"
+  code: string
+  user_id?: string
+  field_name?: string
+  message: string
+  suggested_fix?: string
+}
+
+/* -----------------------------------------------------
+   MAIN ENTRY POINT
+----------------------------------------------------- */
+
+export async function runPayrollValidation(
+  ctx: PayrollValidationContext
+): Promise<{
+  validationRunId: string
+  hasCriticalErrors: boolean
+  issues: ValidationIssue[]
+}> {
+  /* -----------------------------------------------
+     1. Load country configuration
+  ----------------------------------------------- */
+  const { data: country, error: countryError } = await supabase
+    .from("payroll_countries")
+    .select("country_code, field_config")
+    .eq("country_code", ctx.countryCode)
+    .single()
+
+  if (countryError || !country) {
+    throw new Error("Payroll country configuration not found")
+  }
+
+  /* -----------------------------------------------
+     2. Load payroll data for period (export boundary)
+  ----------------------------------------------- */
+  console.log('Running payroll validation for', ctx)
+  console.log({ countryCode: ctx.countryCode, year: ctx.year, month: ctx.month })
+
+
+  const { data: employees, error: payrollError } = await supabase.rpc(
+    "get_payroll_for_period",
+    {
+      p_country_code: ctx.countryCode,
+      p_year: ctx.year,
+      p_month: ctx.month
+    }
+  )
+
+  if (payrollError) {
+      console.error("RPC get_payroll_for_period failed:", payrollError)
+
+    throw new Error("Failed to load payroll data for validation")
+  }
+
+  /* -----------------------------------------------
+     3. Run validation rules
+  ----------------------------------------------- */
+  const issues: ValidationIssue[] = []
+
+  const requiredFields =
+    country.field_config?.required_fields ?? []
+
+  for (const employee of employees ?? []) {
+    const countryData = employee.country_specific_data || {}
+
+    for (const field of requiredFields) {
+      const value = countryData[field.field_name]
+
+      // Missing required field
+      if (value === undefined || value === null || value === "") {
+        issues.push({
+          severity: "CRITICAL",
+          code: "MISSING_REQUIRED_FIELD",
+          user_id: employee.user_id,
+          field_name: field.field_name,
+          message: `${employee.user_firstname} ${employee.user_lastname} is missing required field: ${field.field_label}`,
+          suggested_fix: `Fill "${field.field_label}" in employee payroll profile`
+        })
+        continue
+      }
+
+      // Regex validation
+      if (field.validation) {
+        try {
+          const regex = new RegExp(field.validation)
+          if (!regex.test(String(value))) {
+            issues.push({
+              severity: "CRITICAL",
+              code: "INVALID_FIELD_FORMAT",
+              user_id: employee.user_id,
+              field_name: field.field_name,
+              message: `${employee.user_firstname} ${employee.user_lastname} has invalid format for ${field.field_label}`,
+              suggested_fix: field.description
+            })
+          }
+        } catch {
+          // Ignore invalid regex definitions
+        }
+      }
+    }
+  }
+
+  /* -----------------------------------------------
+     4. Persist validation run
+  ----------------------------------------------- */
+  const hasCriticalErrors = issues.some(
+    issue => issue.severity === "CRITICAL"
+  )
+
+  // CHANGED: Use INSERT instead of UPSERT to allow multiple runs per month
+  const { data: run, error: runError } = await supabase
+    .from("payroll_validation_runs")
+    .insert({
+      country_code: ctx.countryCode,
+      year: ctx.year,
+      month: ctx.month,
+      export_format: ctx.exportFormat,
+      has_critical_errors: hasCriticalErrors,
+      validated_by: ctx.validatedBy,
+      validation_name: ctx.validationName || null, // NEW: Optional name
+      issue_count: issues.length, // NEW: Track issue count
+      validation_status: 'completed' // NEW: Mark as completed
+    })
+    .select()
+    .single()
+
+  if (runError || !run) {
+    console.error('Failed to persist payroll_validation_run:', runError)
+    throw new Error("Failed to persist payroll validation run")
+  }
+
+  /* -----------------------------------------------
+     5. Persist validation issues
+  ----------------------------------------------- */
+  if (issues.length > 0) {
+    const records = issues.map(issue => ({
+      validation_run_id: run.id,
+      ...issue
+    }))
+
+    await supabase
+      .from("payroll_validation_issues")
+      .insert(records)
+  }
+
+  /* -----------------------------------------------
+     6. Return result
+  ----------------------------------------------- */
+  return {
+    validationRunId: run.id,
+    hasCriticalErrors,
+    issues
+  }
+}
+```
+</details>
+
+---
+
+## `lib/payrollExportUtils.ts`
+
+```
+Folder: lib
+Type: ts | Lines:      315
+Top definitions:
+--- Exports ---
+export function generatePayrollExcel(options: ExportOptions): Blob {
+export function downloadPayrollExcel(blob: Blob, fileName: string) {
+
+--- Key Functions/Components ---
+interface ExportOptions {
+function addGenericSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], month: number, year: number) {
+function addKulcsSoftSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], month: number, year: number) {
+function addNexonSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], month: number, year: number) {
+function addSAPSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], month: number, year: number) {
+function hashCode(str: string): number {
+```
+
+<details>
+<summary>📄 Preview (first 100 lines of      315)</summary>
+
+```ts
+// lib/payrollExportUtils.ts
+// Client-side utilities for generating payroll Excel exports
+
+import * as XLSX from 'xlsx';
+import type { PayrollExportData, ExportFormat } from '../types/payroll';
+
+interface ExportOptions {
+  format: ExportFormat;
+  month: number;
+  year: number;
+  data: PayrollExportData[];
+}
+
+/**
+ * Generate Excel file for payroll export
+ */
+export function generatePayrollExcel(options: ExportOptions): Blob {
+  const { format, month, year, data } = options;
+  
+  const workbook = XLSX.utils.book_new();
+  
+  switch (format) {
+    case 'generic':
+      addGenericSheet(workbook, data, month, year);
+      break;
+    case 'kulcs_soft':
+      addKulcsSoftSheet(workbook, data, month, year);
+      break;
+    case 'nexon':
+      addNexonSheet(workbook, data, month, year);
+      break;
+    case 'sap':
+      addSAPSheet(workbook, data, month, year);
+      break;
+    default:
+      // Add all formats
+      addGenericSheet(workbook, data, month, year);
+      addKulcsSoftSheet(workbook, data, month, year);
+      addNexonSheet(workbook, data, month, year);
+      addSAPSheet(workbook, data, month, year);
+  }
+  
+  // Generate Excel file
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  return new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+}
+
+/**
+ * Generic format - human-readable
+ */
+function addGenericSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], month: number, year: number) {
+  const monthName = new Date(year, month - 1).toLocaleString('en-US', { month: 'long' });
+  
+  // Prepare data for sheet
+  const sheetData = [
+    [`Payroll Export - ${monthName} ${year}`],
+    [],
+    [
+      'Employee ID', 'Last Name', 'First Name', 'TAJ Number', 'Tax ID',
+      'Position', 'Department', 'Employment Type', 'Contract Type',
+      'Gross Salary (HUF)', 'Currency', 'Bank IBAN', 'Bank Name',
+      'Worked Days', 'Leave Days', 'Actual Worked Days', 'Weekly Hours'
+    ]
+  ];
+  
+  data.forEach(emp => {
+    const countryData = emp.country_specific_data || {};
+    sheetData.push([
+      emp.user_id,
+      emp.user_lastname,
+      emp.user_firstname,
+      countryData.taj_number || '',
+      countryData.tax_id || '',
+      emp.position_title,
+      emp.department || '',
+      emp.employment_type,
+      emp.contract_type,
+      emp.salary_amount,
+      emp.salary_currency,
+      emp.bank_account_iban || '',
+      emp.bank_name || '',
+      emp.worked_days,
+      emp.leave_days,
+      emp.actual_worked_days,
+      emp.weekly_hours
+    ]);
+  });
+  
+  const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+  
+  // Set column widths
+  worksheet['!cols'] = [
+    { wch: 36 }, // Employee ID
+    { wch: 20 }, // Last Name
+    { wch: 20 }, // First Name
+    { wch: 12 }, // TAJ
+    { wch: 12 }, // Tax ID
+    { wch: 25 }, // Position
+    { wch: 15 }, // Department
+    { wch: 15 }, // Employment Type
+... (truncated,      315 total lines)
 ```
 </details>
 
@@ -15840,7 +18519,7 @@ export const formatDate = (dateString: string) => {
 
 ```
 Folder: utils
-Type: ts | Lines:      194
+Type: ts | Lines:      251
 Top definitions:
 --- Exports ---
 
@@ -15848,10 +18527,11 @@ Top definitions:
 const supabase = createClient(
 interface LeaveRequestNotificationData {
 interface LeaveReviewNotificationData {
+interface LeaveCancellationNotificationData {
 ```
 
 <details>
-<summary>📄 Full content (     194 lines)</summary>
+<summary>📄 Full content (     251 lines)</summary>
 
 ```ts
 // File: utils/absenceNotifications.ts
@@ -15881,6 +18561,17 @@ interface LeaveReviewNotificationData {
   leaveTypeName: string;
   status: 'approved' | 'rejected';
   reviewNotes?: string;
+}
+
+interface LeaveCancellationNotificationData {
+  leaveRequestId: string;
+  userId: string;
+  userName: string;
+  managerId: string;
+  leaveTypeName: string;
+  startDate: string;
+  endDate: string;
+  totalDays: number;
 }
 
 /**
@@ -16007,6 +18698,52 @@ export async function createLeaveReviewNotification(data: LeaveReviewNotificatio
 }
 
 /**
+ * Create notification when a user cancels their leave request
+ */
+export async function createLeaveCancellationNotification(data: LeaveCancellationNotificationData) {
+  try {
+    // Verify both sender and recipient exist
+    const [senderExists, recipientExists] = await Promise.all([
+      verifyUserExists(data.userId),
+      verifyUserExists(data.managerId)
+    ]);
+
+    if (!senderExists) {
+      console.error(`Cannot create notification: sender ${data.userId} does not exist`);
+      return { success: false, error: 'Sender user not found' };
+    }
+
+    if (!recipientExists) {
+      console.error(`Cannot create notification: recipient ${data.managerId} does not exist`);
+      return { success: false, error: 'Recipient user not found' };
+    }
+
+    const { error } = await supabase
+      .from('notifications')
+      .insert({
+        type: 'leave_request_cancelled',
+        title: 'Leave Request Cancelled',
+        message: `${data.userName} has cancelled their ${data.leaveTypeName} request from ${data.startDate} to ${data.endDate} (${data.totalDays} day${data.totalDays !== 1 ? 's' : ''})`,
+        leave_request_id: data.leaveRequestId,
+        sender_id: data.userId,
+        recipient_id: data.managerId,
+        read: false,
+        created_at: new Date().toISOString()
+      });
+
+    if (error) {
+      console.error('Error creating cancellation notification:', error);
+      throw error;
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error('Failed to create cancellation notification:', err);
+    return { success: false, error: err };
+  }
+}
+
+/**
  * Get manager info for a user
  */
 export async function getUserManager(userId: string) {
@@ -16057,9 +18794,9 @@ export async function getUserName(userId: string) {
 ---
 
 # Statistics
-- **Files included:** 127
-- **File size:** 520K
-- **Extraction date:** Sun Dec 21 10:48:13 CET 2025
+- **Files included:** 142
+- **File size:** 584K
+- **Extraction date:** Tue Dec 30 15:15:27 CET 2025
 
 # Technology Stack Detected
 
@@ -16106,6 +18843,12 @@ src/app/api/medical-certificates/upload/route.ts
 src/app/api/new-position/route.ts
 src/app/api/notifications/email/route.ts
 src/app/api/notifications/email/types.ts
+src/app/api/payroll/[id]/route.ts
+src/app/api/payroll/by-user/[userId]/route.ts
+src/app/api/payroll/export/route.ts
+src/app/api/payroll/periods/close/route.ts
+src/app/api/payroll/periods/status/route.ts
+src/app/api/payroll/route.ts
 src/app/api/performance/goals/create/route.ts
 src/app/api/performance/goals/route.ts
 src/app/api/performance/goals/update/route.ts
@@ -16130,6 +18873,7 @@ src/app/api/update-comment/route.ts
 src/app/api/update-next-step/route.ts
 src/app/api/user-role/route.ts
 src/app/api/users/update-manager/route.ts
+src/app/api/users/update-status/route.ts
 src/app/api/users/users-creation/route.ts
 ```
 
@@ -16155,6 +18899,8 @@ src/app/jobs/[slug]/openedpositions/analytics/page.tsx
 src/app/jobs/[slug]/openedpositions/new/page.tsx
 src/app/jobs/[slug]/openedpositions/page.tsx
 src/app/jobs/[slug]/page.tsx
+src/app/jobs/[slug]/payroll/employee/[employeeId]/page.tsx
+src/app/jobs/[slug]/payroll/page.tsx
 src/app/jobs/[slug]/performance/goals/[goalId]/page.tsx
 src/app/jobs/[slug]/performance/goals/new/page.tsx
 src/app/jobs/[slug]/performance/page.tsx
@@ -16180,6 +18926,7 @@ components
 components/absence
 components/absence/Calendar
 components/header
+components/payroll
 components/timeclock
 ```
 
