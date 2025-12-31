@@ -1,4 +1,3 @@
-// src/app/api/payroll/allowances/[id]/route.ts
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import type { UpdateAllowanceRequest } from '../../../../../../types/payroll';
@@ -8,7 +7,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Helper to check admin
 async function isAdmin(userId: string) {
   const { data, error } = await supabase
     .from('users')
@@ -18,12 +16,9 @@ async function isAdmin(userId: string) {
   return !error && data?.is_admin;
 }
 
-/**
- * PUT /api/payroll/allowances/[id]
- */
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Record<string, string> } // <-- fix here
 ) {
   try {
     const url = new URL(req.url);
@@ -36,7 +31,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
     }
 
-    const allowanceId = params.id;
+    const allowanceId = context.params.id as string; // <-- cast to string
     const body: UpdateAllowanceRequest = await req.json();
 
     const { data, error } = await supabase
@@ -57,12 +52,9 @@ export async function PUT(
   }
 }
 
-/**
- * DELETE /api/payroll/allowances/[id]
- */
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Record<string, string> } // <-- fix here too
 ) {
   try {
     const url = new URL(req.url);
@@ -75,7 +67,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
     }
 
-    const allowanceId = params.id;
+    const allowanceId = context.params.id as string;
 
     const { error } = await supabase
       .from('employee_allowances')
