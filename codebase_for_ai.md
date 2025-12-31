@@ -1,6 +1,6 @@
 # Codebase - innohrmvp
 **Mode:** full-feature-extract  
-**Generated:** Tue Dec 30 15:15:20 CET 2025
+**Generated:** Tue Dec 30 16:59:33 CET 2025
 **Purpose:** Complete AI analysis including all APIs, components & features
 
 ---
@@ -3373,15 +3373,18 @@ export interface MessageData {
 
 ```
 Folder: src/app/api/payroll/[id]
-Type: ts | Lines:      254
+Type: ts | Lines:      241
 Top definitions:
 --- Exports ---
 
 --- Key Functions/Components ---
+const getSupabaseClient = () =>
+const extractParams = (request: NextRequest) => {
+const checkAdmin = async (supabase: ReturnType<typeof getSupabaseClient>, userId: string) => {
 ```
 
 <details>
-<summary>📄 Full content (     254 lines)</summary>
+<summary>📄 Full content (     241 lines)</summary>
 
 ```ts
 // src/app/api/payroll/[id]/route.ts
@@ -3394,41 +3397,58 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { UpdatePayrollRequest } from '../../../../../types/payroll';
 
 /**
+ * Utility: Get Supabase client with service role
+ */
+const getSupabaseClient = () =>
+  createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+/**
+ * Utility: Extract payroll ID and current_user_id from request
+ */
+const extractParams = (request: NextRequest) => {
+  const url = new URL(request.url);
+  const segments = url.pathname.split('/');
+  const payrollId = segments[segments.length - 1];
+  const currentUserId = url.searchParams.get('current_user_id');
+  return { payrollId, currentUserId };
+};
+
+/**
+ * Utility: Check if user is admin
+ */
+const checkAdmin = async (supabase: ReturnType<typeof getSupabaseClient>, userId: string) => {
+  const { data: userData, error } = await supabase
+    .from('users')
+    .select('is_admin')
+    .eq('id', userId)
+    .single();
+  return !error && userData?.is_admin;
+};
+
+/**
  * GET /api/payroll/[id]
  * Get specific payroll record with history (admin only)
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-    
-    // Get current_user_id from query parameters
-    const { searchParams } = new URL(request.url);
-    const currentUserId = searchParams.get('current_user_id');
+    const supabase = getSupabaseClient();
+    const { payrollId, currentUserId } = extractParams(request);
 
+    if (!payrollId) {
+      return NextResponse.json({ error: 'Payroll ID is required' }, { status: 400 });
+    }
     if (!currentUserId) {
       return NextResponse.json({ error: 'current_user_id is required' }, { status: 400 });
     }
 
-    // Check if user is admin
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('is_admin')
-      .eq('id', currentUserId)
-      .single();
-
-    if (userError || !userData?.is_admin) {
+    const isAdmin = await checkAdmin(supabase, currentUserId);
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
     }
 
-    const payrollId = params.id;
-
-    // Get payroll record
     const { data: payroll, error: payrollError } = await supabase
       .from('employee_payroll')
       .select(`
@@ -3444,11 +3464,9 @@ export async function GET(
       .single();
 
     if (payrollError) {
-      console.error('Error fetching payroll:', payrollError);
       return NextResponse.json({ error: 'Payroll record not found' }, { status: 404 });
     }
 
-    // Get history
     const { data: history, error: historyError } = await supabase
       .from('employee_payroll_history')
       .select('*')
@@ -3457,13 +3475,9 @@ export async function GET(
 
     if (historyError) {
       console.error('Error fetching history:', historyError);
-      // Continue even if history fetch fails
     }
 
-    return NextResponse.json({ 
-      data: payroll, 
-      history: history || [] 
-    }, { status: 200 });
+    return NextResponse.json({ data: payroll, history: history || [] }, { status: 200 });
   } catch (error) {
     console.error('Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -3474,39 +3488,26 @@ export async function GET(
  * PUT /api/payroll/[id]
  * Update payroll record (admin only)
  */
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-    
-    // Get current_user_id from query parameters
-    const { searchParams } = new URL(request.url);
-    const currentUserId = searchParams.get('current_user_id');
+    const supabase = getSupabaseClient();
+    const { payrollId, currentUserId } = extractParams(request);
 
+    if (!payrollId) {
+      return NextResponse.json({ error: 'Payroll ID is required' }, { status: 400 });
+    }
     if (!currentUserId) {
       return NextResponse.json({ error: 'current_user_id is required' }, { status: 400 });
     }
 
-    // Check if user is admin
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('is_admin')
-      .eq('id', currentUserId)
-      .single();
-
-    if (userError || !userData?.is_admin) {
+    const isAdmin = await checkAdmin(supabase, currentUserId);
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
     }
 
-    const payrollId = params.id;
     const body: UpdatePayrollRequest = await request.json();
 
-    // Verify payroll record exists
+    // Verify payroll exists
     const { data: existingPayroll, error: checkError } = await supabase
       .from('employee_payroll')
       .select('*')
@@ -3517,23 +3518,35 @@ export async function PUT(
       return NextResponse.json({ error: 'Payroll record not found' }, { status: 404 });
     }
 
-    // Build update object (only update provided fields)
-    const updateData: any = {
-      updated_by: currentUserId,
-    };
+    type PayrollUpdateData = { updated_by: string } & Partial<UpdatePayrollRequest>;
+    const updateData: PayrollUpdateData = { updated_by: currentUserId };
 
-    // Map allowed fields
-    const allowedFields = [
-      'employment_type', 'contract_type', 'contract_start_date', 'contract_end_date',
-      'position_title', 'department', 'work_location', 'weekly_hours',
-      'salary_amount', 'salary_currency', 'salary_period', 'payment_method',
-      'bank_account_iban', 'bank_name', 'country_specific_data', 'benefits',
-      'is_active', 'termination_date', 'termination_reason'
+    const allowedFields: (keyof UpdatePayrollRequest)[] = [
+      'employment_type',
+      'contract_type',
+      'contract_start_date',
+      'contract_end_date',
+      'position_title',
+      'department',
+      'work_location',
+      'weekly_hours',
+      'salary_amount',
+      'salary_currency',
+      'salary_period',
+      'payment_method',
+      'bank_account_iban',
+      'bank_name',
+      'country_specific_data',
+      'benefits',
+      'is_active',
+      'termination_date',
+      'termination_reason',
     ];
 
     allowedFields.forEach(field => {
-      if (body[field as keyof UpdatePayrollRequest] !== undefined) {
-        updateData[field] = body[field as keyof UpdatePayrollRequest];
+      const value = body[field];
+      if (value !== undefined) {
+        (updateData[field] as UpdatePayrollRequest[keyof UpdatePayrollRequest]) = value;
       }
     });
 
@@ -3545,7 +3558,6 @@ export async function PUT(
       );
     }
 
-    // Update payroll record
     const { data, error } = await supabase
       .from('employee_payroll')
       .update(updateData)
@@ -3561,14 +3573,10 @@ export async function PUT(
       .single();
 
     if (error) {
-      console.error('Error updating payroll:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ 
-      data, 
-      message: 'Payroll record updated successfully' 
-    }, { status: 200 });
+    return NextResponse.json({ data, message: 'Payroll record updated successfully' }, { status: 200 });
   } catch (error) {
     console.error('Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -3577,43 +3585,28 @@ export async function PUT(
 
 /**
  * DELETE /api/payroll/[id]
- * Soft delete payroll record (sets is_active to false) (admin only)
+ * Soft delete payroll record (admin only)
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-    
-    // Get current_user_id from query parameters
-    const { searchParams } = new URL(request.url);
-    const currentUserId = searchParams.get('current_user_id');
+    const supabase = getSupabaseClient();
+    const { payrollId, currentUserId } = extractParams(request);
 
+    if (!payrollId) {
+      return NextResponse.json({ error: 'Payroll ID is required' }, { status: 400 });
+    }
     if (!currentUserId) {
       return NextResponse.json({ error: 'current_user_id is required' }, { status: 400 });
     }
 
-    // Check if user is admin
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('is_admin')
-      .eq('id', currentUserId)
-      .single();
-
-    if (userError || !userData?.is_admin) {
+    const isAdmin = await checkAdmin(supabase, currentUserId);
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
     }
 
-    const payrollId = params.id;
-
-    // Soft delete by setting is_active to false
     const { data, error } = await supabase
       .from('employee_payroll')
-      .update({ 
+      .update({
         is_active: false,
         termination_date: new Date().toISOString().split('T')[0],
         updated_by: currentUserId
@@ -3623,17 +3616,13 @@ export async function DELETE(
       .single();
 
     if (error) {
-      console.error('Error deleting payroll:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-
     if (!data) {
       return NextResponse.json({ error: 'Payroll record not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ 
-      message: 'Payroll record deactivated successfully' 
-    }, { status: 200 });
+    return NextResponse.json({ message: 'Payroll record deactivated successfully' }, { status: 200 });
   } catch (error) {
     console.error('Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -3648,15 +3637,18 @@ export async function DELETE(
 
 ```
 Folder: src/app/api/payroll/by-user/[userId]
-Type: ts | Lines:       77
+Type: ts | Lines:       88
 Top definitions:
 --- Exports ---
 
 --- Key Functions/Components ---
+const getSupabaseClient = () =>
+const extractParams = (request: NextRequest) => {
+const checkAdmin = async (supabase: ReturnType<typeof getSupabaseClient>, userId: string) => {
 ```
 
 <details>
-<summary>📄 Full content (      77 lines)</summary>
+<summary>📄 Full content (      88 lines)</summary>
 
 ```ts
 // src/app/api/payroll/by-user/[userId]/route.ts
@@ -3666,41 +3658,58 @@ import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
+ * Utility: Get Supabase client with service role
+ */
+const getSupabaseClient = () =>
+  createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+/**
+ * Utility: Extract userId and current_user_id from request
+ */
+const extractParams = (request: NextRequest) => {
+  const url = new URL(request.url);
+  const segments = url.pathname.split('/');
+  const userId = segments[segments.length - 1];
+  const currentUserId = url.searchParams.get('current_user_id');
+  return { userId, currentUserId };
+};
+
+/**
+ * Utility: Check if user is admin
+ */
+const checkAdmin = async (supabase: ReturnType<typeof getSupabaseClient>, userId: string) => {
+  const { data: userData, error } = await supabase
+    .from('users')
+    .select('is_admin')
+    .eq('id', userId)
+    .single();
+  return !error && userData?.is_admin;
+};
+
+/**
  * GET /api/payroll/by-user/[userId]
  * Get payroll record for a specific user (admin only)
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { userId: string } }
-) {
+export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-    
-    // Get current_user_id from query parameters
-    const { searchParams } = new URL(request.url);
-    const currentUserId = searchParams.get('current_user_id');
+    const supabase = getSupabaseClient();
+    const { userId, currentUserId } = extractParams(request);
 
+    if (!userId) {
+      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    }
     if (!currentUserId) {
       return NextResponse.json({ error: 'current_user_id is required' }, { status: 400 });
     }
 
-    // Check if user is admin
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('is_admin')
-      .eq('id', currentUserId)
-      .single();
-
-    if (userError || !userData?.is_admin) {
+    const isAdmin = await checkAdmin(supabase, currentUserId);
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
     }
 
-    const userId = params.userId;
-
-    // Get payroll record for this user
     const { data: payroll, error: payrollError } = await supabase
       .from('employee_payroll')
       .select(`
@@ -3713,25 +3722,18 @@ export async function GET(
         )
       `)
       .eq('user_id', userId)
-      .eq('is_active', true) // Only get active payroll records
+      .eq('is_active', true)
       .single();
 
     if (payrollError) {
       // If no payroll found, return 404
-      if (payrollError.code === 'PGRST116') {
-        return NextResponse.json({ 
-          data: null,
-          message: 'No payroll record found for this user'
-        }, { status: 404 });
-      }
-      
-      console.error('Error fetching payroll:', payrollError);
-      return NextResponse.json({ error: payrollError.message }, { status: 500 });
+      return NextResponse.json({
+        data: null,
+        message: 'No payroll record found for this user'
+      }, { status: 404 });
     }
 
-    return NextResponse.json({ 
-      data: payroll
-    }, { status: 200 });
+    return NextResponse.json({ data: payroll }, { status: 200 });
   } catch (error) {
     console.error('Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -3746,182 +3748,191 @@ export async function GET(
 
 ```
 Folder: src/app/api/payroll/export
-Type: ts | Lines:      164
+Type: ts | Lines:      172
 Top definitions:
 --- Exports ---
+export type PayrollData = {
 
 --- Key Functions/Components ---
 ```
 
 <details>
-<summary>📄 Full content (     164 lines)</summary>
+<summary>📄 Full content (     172 lines)</summary>
 
 ```ts
 // src/app/api/payroll/export/route.ts
-    // POST: Export payroll data to Excel in various Hungarian formats
+// POST: Export payroll data to Excel in various Hungarian formats
 
-    import { createClient } from '@supabase/supabase-js';
-    import { NextRequest, NextResponse } from 'next/server';
-    import type { ExportPayrollRequest, ExportFormat } from '../../../../../types/payroll';
-    import { runPayrollValidation } from '../../../../../lib/runPayrollValidation';
+import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
+import type { ExportPayrollRequest, ExportFormat, EmploymentType } from '../../../../../types/payroll';
+import { runPayrollValidation } from '../../../../../lib/runPayrollValidation';
+import type { PostgrestError } from '@supabase/supabase-js';
 
-    /**
-     * POST /api/payroll/export
-     * Export payroll data to Excel (admin only)
-     */
-    export async function POST(request: NextRequest) {
-    try {
-        const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
-        );
 
-        // Parse request body
-        const body: ExportPayrollRequest & { validated_by?: string } = await request.json();
+export type PayrollData = {
+  id: string;
+  user_id: string;
+  user_firstname: string;
+  user_lastname: string;
+  employment_type: EmploymentType;
+  department?: string | null;
+  termination_date?: string | null;
+  [key: string]: unknown;
+};
 
-        // Validate required fields
-        if (!body.country_code || !body.export_month || !body.export_year || !body.export_format) {
-        return NextResponse.json(
-            { error: 'Missing required fields: country_code, export_month, export_year, export_format' },
-            { status: 400 }
-        );
-        }
+export async function POST(request: NextRequest) {
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
-        if (!body.validated_by) {
-        return NextResponse.json(
-            { error: 'validated_by is required' },
-            { status: 400 }
-        );
-        }
+    // Parse request body
+    const body: ExportPayrollRequest & { validated_by?: string } = await request.json();
 
-        // Validate month and year
-        if (body.export_month < 1 || body.export_month > 12) {
-        return NextResponse.json(
-            { error: 'Invalid month. Must be between 1 and 12' },
-            { status: 400 }
-        );
-        }
+    // Validate required fields
+    if (!body.country_code || !body.export_month || !body.export_year || !body.export_format) {
+      return NextResponse.json(
+        { error: 'Missing required fields: country_code, export_month, export_year, export_format' },
+        { status: 400 }
+      );
+    }
 
-        if (body.export_year < 2000 || body.export_year > 2100) {
-        return NextResponse.json(
-            { error: 'Invalid year' },
-            { status: 400 }
-        );
-        }
+    if (!body.validated_by) {
+      return NextResponse.json(
+        { error: 'validated_by is required' },
+        { status: 400 }
+      );
+    }
 
-        // -------------------------------
-        // RUN PAYROLL VALIDATION
-        // -------------------------------
-        const validationResult = await runPayrollValidation({
-        countryCode: body.country_code,
-        year: body.export_year,
-        month: body.export_month,
-        exportFormat: body.export_format,
-        validatedBy: body.validated_by
-        });
+    // Validate month and year
+    if (body.export_month < 1 || body.export_month > 12) {
+      return NextResponse.json(
+        { error: 'Invalid month. Must be between 1 and 12' },
+        { status: 400 }
+      );
+    }
 
-        if (validationResult.hasCriticalErrors) {
-        return NextResponse.json(
-            {
-            success: false,
-            status: 'blocked',
-            reason: 'Payroll validation failed',
-            issues: validationResult.issues
-            },
-            { status: 400 }
-        );
-        }
+    if (body.export_year < 2000 || body.export_year > 2100) {
+      return NextResponse.json(
+        { error: 'Invalid year' },
+        { status: 400 }
+      );
+    }
 
-        // Call stored function to get payroll data for the period
-        const { data: payrollData, error: dataError } = await supabase
-        .rpc('get_payroll_for_period', {
-            p_country_code: body.country_code,
-            p_year: body.export_year,
-            p_month: body.export_month
-        });
+    // -------------------------------
+    // RUN PAYROLL VALIDATION
+    // -------------------------------
+    const validationResult = await runPayrollValidation({
+      countryCode: body.country_code,
+      year: body.export_year,
+      month: body.export_month,
+      exportFormat: body.export_format,
+      validatedBy: body.validated_by
+    });
 
-        if (dataError) {
-        console.error('Error fetching payroll data:', dataError);
-        return NextResponse.json({ error: dataError.message }, { status: 500 });
-        }
+    if (validationResult.hasCriticalErrors) {
+      return NextResponse.json(
+        {
+          success: false,
+          status: 'blocked',
+          reason: 'Payroll validation failed',
+          issues: validationResult.issues
+        },
+        { status: 400 }
+      );
+    }
 
-        // Filter by employment type if specified
-        let filteredData = payrollData || [];
-        if (body.employment_types && body.employment_types.length > 0) {
-        filteredData = filteredData.filter((emp: any) =>
-            body.employment_types!.includes(emp.employment_type)
-        );
-        }
+    // Call stored function to get payroll data for the period
+   const { data: payrollData, error: dataError }: { data: PayrollData[] | null; error: PostgrestError | null } = await supabase
+  .rpc('get_payroll_for_period', {
+    p_country_code: body.country_code,
+    p_year: body.export_year,
+    p_month: body.export_month
+  });
 
-        // Filter by department if specified
-        if (body.department) {
-        filteredData = filteredData.filter((emp: any) =>
-            emp.department === body.department
-        );
-        }
+if (dataError) {
+  console.error('Error fetching payroll data:', dataError);
+  return NextResponse.json({ error: dataError.message }, { status: 500 });
+}
 
-        // Filter terminated employees if requested
-        if (!body.include_terminated) {
-        filteredData = filteredData.filter((emp: any) =>
-            !emp.termination_date || new Date(emp.termination_date) > new Date()
-        );
-        }
+    let filteredData: PayrollData[] = payrollData ?? [];
 
-        if (filteredData.length === 0) {
-        return NextResponse.json(
-            { error: 'No employees found matching the criteria' },
-            { status: 404 }
-        );
-        }
+    // Filter by employment type if specified
+    const employmentTypes: EmploymentType[] = Array.isArray(body.employment_types)
+      ? body.employment_types
+      : [];
 
-        // Generate filename
-        const monthName = new Date(body.export_year, body.export_month - 1).toLocaleString('en-US', { month: 'long' });
-        const fileName = `Payroll_${body.country_code}_${monthName}_${body.export_year}_${body.export_format}.xlsx`;
+    if (employmentTypes.length > 0) {
+      filteredData = filteredData.filter(emp => employmentTypes.includes(emp.employment_type));
+    }
 
-        // Log export
-        const { data: exportLog, error: logError } = await supabase
-        .from('payroll_exports')
-        .insert({
-            exported_by: body.validated_by,
-            country_code: body.country_code,
-            export_month: body.export_month,
-            export_year: body.export_year,
-            export_format: body.export_format,
-            export_name: body.export_name || null, // NEW: Optional user-provided name
-            employee_count: filteredData.length,
-            file_name: fileName,
-            export_options: {
-            include_terminated: body.include_terminated,
-            department: body.department,
-            employment_types: body.employment_types
-            }
-        })
-        .select()
-        .single();
+    // Filter by department if specified
+    if (body.department) {
+      filteredData = filteredData.filter(emp => emp.department === body.department);
+    }
 
-        if (logError) {
-        console.error('Error logging export:', logError);
-        // Continue anyway
-        }
+    // Filter terminated employees if requested
+    if (!body.include_terminated) {
+      const now = new Date();
+      filteredData = filteredData.filter(emp => !emp.termination_date || new Date(emp.termination_date) > now);
+    }
 
-        // Return data for client-side Excel generation
-        return NextResponse.json({
-        success: true,
-        export_id: exportLog?.id,
-        file_name: fileName,
+    if (filteredData.length === 0) {
+      return NextResponse.json(
+        { error: 'No employees found matching the criteria' },
+        { status: 404 }
+      );
+    }
+
+    // Generate filename
+    const monthName = new Date(body.export_year, body.export_month - 1).toLocaleString('en-US', { month: 'long' });
+    const fileName = `Payroll_${body.country_code}_${monthName}_${body.export_year}_${body.export_format}.xlsx`;
+
+    // Log export
+    const { data: exportLog, error: logError } = await supabase
+      .from('payroll_exports')
+      .insert({
+        exported_by: body.validated_by,
+        country_code: body.country_code,
+        export_month: body.export_month,
+        export_year: body.export_year,
+        export_format: body.export_format,
+        export_name: body.export_name ?? null,
         employee_count: filteredData.length,
-        export_date: new Date().toISOString(),
-        data: filteredData,
-        format: body.export_format,
-        month: body.export_month,
-        year: body.export_year
-        }, { status: 200 });
+        file_name: fileName,
+        export_options: {
+          include_terminated: body.include_terminated ?? false,
+          department: body.department ?? null,
+          employment_types: employmentTypes
+        }
+      })
+      .select()
+      .single();
 
-    } catch (error) {
-        console.error('Unexpected error:', error);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    if (logError) {
+      console.error('Error logging export:', logError);
     }
-    }
+
+    // Return data for client-side Excel generation
+    return NextResponse.json({
+      success: true,
+      export_id: exportLog?.id,
+      file_name: fileName,
+      employee_count: filteredData.length,
+      export_date: new Date().toISOString(),
+      data: filteredData,
+      format: body.export_format,
+      month: body.export_month,
+      year: body.export_year
+    }, { status: 200 });
+
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
 ```
 </details>
 
@@ -10720,7 +10731,7 @@ export default function ImpressumDemo() {
 
 ```
 Folder: src/app/jobs/[slug]/payroll/employee/[employeeId]
-Type: tsx | Lines:      645
+Type: tsx | Lines:      647
 Top definitions:
 --- Exports ---
 export default function EmployeePayrollDetailPage() {
@@ -10729,7 +10740,7 @@ export default function EmployeePayrollDetailPage() {
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      645)</summary>
+<summary>📄 Preview (first 100 lines of      647)</summary>
 
 ```tsx
 // src/app/jobs/[slug]/payroll/employee/[employeeId]/page.tsx
@@ -10748,7 +10759,7 @@ export default function EmployeePayrollDetailPage() {
   const slug = params.slug as string;
   const employeeId = params.employeeId as string;
 
-  const [payroll, setPayroll] = useState<any>(null);
+  const [payroll, setPayroll] = useState<EmployeePayroll | null>(null);
   const [history, setHistory] = useState<PayrollHistory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -10759,7 +10770,7 @@ export default function EmployeePayrollDetailPage() {
   const [currentUser, setCurrentUser] = useState<User | undefined>();
 
   // Form state for editing
-  const [formData, setFormData] = useState<any>(null);
+  const [formData, setFormData] = useState<EmployeePayroll | null>(null);
 
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10803,7 +10814,7 @@ export default function EmployeePayrollDetailPage() {
 
       const result = await response.json();
       if (result.data && result.data.length > 0) {
-        const payrollData = result.data[0];
+        const payrollData = result.data[0] as EmployeePayroll;
         setPayroll(payrollData);
         setFormData(payrollData);
 
@@ -10832,7 +10843,7 @@ export default function EmployeePayrollDetailPage() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
-... (truncated,      645 total lines)
+... (truncated,      647 total lines)
 ```
 </details>
 
@@ -15606,7 +15617,7 @@ export { ForfaitBadge } from './ForfaitBadge';
 
 ```
 Folder: components/payroll
-Type: tsx | Lines:      621
+Type: tsx | Lines:      643
 Top definitions:
 --- Exports ---
 export default function PayrollEditModal({
@@ -15619,7 +15630,7 @@ const normalizePayroll = (
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      621)</summary>
+<summary>📄 Preview (first 100 lines of      643)</summary>
 
 ```tsx
 'use client';
@@ -15627,30 +15638,30 @@ const normalizePayroll = (
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  X,
-  Loader2,
-  Save,
-  Edit3,
-  Briefcase,
-  CreditCard,
-  Building2,
-  Shield,
-  AlertCircle,
+    X,
+    Loader2,
+    Save,
+    Edit3,
+    Briefcase,
+    CreditCard,
+    Building2,
+    Shield,
+    AlertCircle,
 } from 'lucide-react';
 import type {
-  EmployeePayroll,
-  HungarianPayrollData,
-  CreatePayrollRequest,
+    EmployeePayroll,
+    HungarianPayrollData,
+    CreatePayrollRequest,
 } from '../../types/payroll';
 import { useLocale } from 'i18n/LocaleProvider';
 
 interface PayrollEditModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  userId: string;
-  userName: string;
-  currentUserId: string;
-  onSuccess?: () => void;
+    isOpen: boolean;
+    onClose: () => void;
+    userId: string;
+    userName: string;
+    currentUserId: string;
+    onSuccess?: () => void;
 }
 
 /* =========================================================
@@ -15658,70 +15669,70 @@ interface PayrollEditModalProps {
 ========================================================= */
 
 const EMPTY_COUNTRY_DATA: HungarianPayrollData = {
-  taj_number: '',
-  tax_id: '',
-  tax_bracket: '1',
-  personal_income_tax_rate: 15,
-  employee_social_contribution: 18.5,
-  employer_social_contribution: 13,
-  family_tax_allowance: 0,
-  pension_fund: 'government',
+    taj_number: '',
+    tax_id: '',
+    tax_bracket: '1',
+    personal_income_tax_rate: 15,
+    employee_social_contribution: 18.5,
+    employer_social_contribution: 13,
+    family_tax_allowance: 0,
+    pension_fund: 'government',
 };
 
 const createBaseFormData = (userId: string): CreatePayrollRequest => ({
-  user_id: userId,
-  country_code: 'HU',
-  employment_type: 'full_time',
-  contract_type: 'permanent',
-  contract_start_date: new Date().toISOString().split('T')[0],
-  position_title: '',
-  department: '',
-  work_location: '',
-  weekly_hours: 40,
-  salary_amount: 0,
-  salary_currency: 'HUF',
-  salary_period: 'monthly',
-  payment_method: 'bank_transfer',
-  bank_account_iban: '',
-  bank_name: '',
-  country_specific_data: EMPTY_COUNTRY_DATA,
-  benefits: [],
+    user_id: userId,
+    country_code: 'HU',
+    employment_type: 'full_time',
+    contract_type: 'permanent',
+    contract_start_date: new Date().toISOString().split('T')[0],
+    position_title: '',
+    department: '',
+    work_location: '',
+    weekly_hours: 40,
+    salary_amount: 0,
+    salary_currency: 'HUF',
+    salary_period: 'monthly',
+    payment_method: 'bank_transfer',
+    bank_account_iban: '',
+    bank_name: '',
+    country_specific_data: EMPTY_COUNTRY_DATA,
+    benefits: [],
 });
 
 const normalizePayroll = (
-  base: CreatePayrollRequest,
-  incoming: any
+    base: CreatePayrollRequest,
+    incoming: Partial<CreatePayrollRequest>
 ): CreatePayrollRequest => ({
-  ...base,
-  ...incoming,
+    ...base,
+    ...incoming,
 
-  position_title: incoming?.position_title ?? '',
-  department: incoming?.department ?? '',
-  work_location: incoming?.work_location ?? '',
-  bank_account_iban: incoming?.bank_account_iban ?? '',
-  bank_name: incoming?.bank_name ?? '',
+    position_title: incoming?.position_title ?? '',
+    department: incoming?.department ?? '',
+    work_location: incoming?.work_location ?? '',
+    bank_account_iban: incoming?.bank_account_iban ?? '',
+    bank_name: incoming?.bank_name ?? '',
 
-  weekly_hours: incoming?.weekly_hours ?? 40,
-  salary_amount: incoming?.salary_amount ?? 0,
+    weekly_hours: incoming?.weekly_hours ?? 40,
+    salary_amount: incoming?.salary_amount ?? 0,
 
-  contract_start_date:
-    incoming?.contract_start_date ??
-    new Date().toISOString().split('T')[0],
+    contract_start_date:
+        incoming?.contract_start_date ??
+        new Date().toISOString().split('T')[0],
 
-  country_specific_data: {
-    ...EMPTY_COUNTRY_DATA,
-    ...(incoming?.country_specific_data ?? {}),
-    taj_number: incoming?.country_specific_data?.taj_number ?? '',
-    tax_id: incoming?.country_specific_data?.tax_id ?? '',
-    family_tax_allowance:
-      incoming?.country_specific_data?.family_tax_allowance ?? 0,
-  },
+    country_specific_data: {
+        ...EMPTY_COUNTRY_DATA,
+        ...(incoming?.country_specific_data ?? {}),
+        taj_number: incoming?.country_specific_data?.taj_number ?? '',
+        tax_id: incoming?.country_specific_data?.tax_id ?? '',
+        family_tax_allowance:
+            incoming?.country_specific_data?.family_tax_allowance ?? 0,
+    },
 });
 
 /* =========================================================
    Component
 ========================================================= */
-... (truncated,      621 total lines)
+... (truncated,      643 total lines)
 ```
 </details>
 
@@ -15731,17 +15742,19 @@ const normalizePayroll = (
 
 ```
 Folder: components/payroll
-Type: tsx | Lines:      373
+Type: tsx | Lines:      378
 Top definitions:
 --- Exports ---
 export default function PayrollExportModal({
 
 --- Key Functions/Components ---
 interface PayrollExportModalProps {
+interface PayrollValidationIssue {
+const [validationIssues, setValidationIssues] = useState<PayrollValidationIssue[] | null>(null);
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      373)</summary>
+<summary>📄 Preview (first 100 lines of      378)</summary>
 
 ```tsx
 // components/payroll/PayrollExportModal.tsx
@@ -15766,6 +15779,12 @@ interface PayrollExportModalProps {
   userId: string;
 }
 
+interface PayrollValidationIssue {
+  message: string;
+  suggested_fix?: string;
+}
+
+
 export default function PayrollExportModal({
   isOpen,
   onClose,
@@ -15779,8 +15798,7 @@ export default function PayrollExportModal({
   const [error, setError] = useState<string | null>(null);
 
   const [isBlocked, setIsBlocked] = useState(false);
-  const [validationIssues, setValidationIssues] = useState<any[] | null>(null);
-
+const [validationIssues, setValidationIssues] = useState<PayrollValidationIssue[] | null>(null);
   const [exportDone, setExportDone] = useState(false);
   const [lastExportId, setLastExportId] = useState<string | undefined>();
 
@@ -15839,12 +15857,7 @@ export default function PayrollExportModal({
       });
 
       // Save the export ID for period closure
-      setLastExportId(result.export_id);
-      setExportDone(true);
-    } catch (err) {
-      setError(
-        err instanceof Error
-... (truncated,      373 total lines)
+... (truncated,      378 total lines)
 ```
 </details>
 
@@ -15854,7 +15867,7 @@ export default function PayrollExportModal({
 
 ```
 Folder: components/payroll
-Type: tsx | Lines:      770
+Type: tsx | Lines:      783
 Top definitions:
 --- Exports ---
 export default function PayrollForm({ payroll, onClose, onSuccess }: PayrollFormProps) {
@@ -15862,10 +15875,11 @@ export default function PayrollForm({ payroll, onClose, onSuccess }: PayrollForm
 --- Key Functions/Components ---
 interface PayrollFormProps {
 const supabase = createClient(
+interface CompanyUser {
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      770)</summary>
+<summary>📄 Preview (first 100 lines of      783)</summary>
 
 ```tsx
 // components/payroll/PayrollForm.tsx
@@ -15907,6 +15921,13 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+interface CompanyUser {
+  user_id: string;
+  first_name: string;
+  last_name: string;
+}
+
+
 export default function PayrollForm({ payroll, onClose, onSuccess }: PayrollFormProps) {
   const { t } = useLocale();
 
@@ -15925,7 +15946,7 @@ export default function PayrollForm({ payroll, onClose, onSuccess }: PayrollForm
   const [error, setError] = useState<string | null>(null);
   const [companyId, setCompanyId] = useState<number | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<CompanyUser[]>([]);
   const [existingPayroll, setExistingPayroll] = useState<EmployeePayroll | null>(null);
   const [isEditMode, setIsEditMode] = useState(!!payroll);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -15960,15 +15981,7 @@ export default function PayrollForm({ payroll, onClose, onSuccess }: PayrollForm
     } as HungarianPayrollData),
     benefits: payroll?.benefits || [],
   });
-
-  /* ------------------------------------------------------------------ */
-  /* Get current user ID                                                 */
-  /* ------------------------------------------------------------------ */
-  useEffect(() => {
-    async function getCurrentUser() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-... (truncated,      770 total lines)
+... (truncated,      783 total lines)
 ```
 </details>
 
@@ -15978,7 +15991,7 @@ export default function PayrollForm({ payroll, onClose, onSuccess }: PayrollForm
 
 ```
 Folder: components/payroll
-Type: tsx | Lines:      416
+Type: tsx | Lines:      417
 Top definitions:
 --- Exports ---
 export default function PayrollList({ onEdit, onExport }: PayrollListProps) {
@@ -15988,7 +16001,7 @@ interface PayrollListProps {
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      416)</summary>
+<summary>📄 Preview (first 100 lines of      417)</summary>
 
 ```tsx
 // components/payroll/PayrollList.tsx
@@ -15996,7 +16009,8 @@ interface PayrollListProps {
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, User } from '@supabase/supabase-js';
+
 import { 
   Loader2, 
   AlertCircle, 
@@ -16027,7 +16041,7 @@ export default function PayrollList({ onEdit, onExport }: PayrollListProps) {
   const [payrolls, setPayrolls] = useState<EmployeePayroll[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [filter, setFilter] = useState({
     country_code: '',
     is_active: 'true',
@@ -16036,7 +16050,7 @@ export default function PayrollList({ onEdit, onExport }: PayrollListProps) {
 
   // Modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedPayroll, setSelectedPayroll] = useState<any>(null);
+  const [selectedPayroll, setSelectedPayroll] = useState<EmployeePayroll | null>(null);
 
   // Initialize Supabase client
   const supabase = createClient(
@@ -16090,8 +16104,7 @@ export default function PayrollList({ onEdit, onExport }: PayrollListProps) {
   const handleDelete = async (id: string) => {
     if (!confirm(t('payrollList.confirmations.deactivate'))) {
       return;
-    }
-... (truncated,      416 total lines)
+... (truncated,      417 total lines)
 ```
 </details>
 
@@ -16607,7 +16620,7 @@ export default function PeriodStatusWidget({
               {status.closed_reason && (
                 <div className="pt-2 border-t border-gray-200">
                   <p className="text-xs text-gray-500 italic">
-                    "{status.closed_reason}"
+                    &quot;{status.closed_reason}&quot;
                   </p>
                 </div>
               )}
@@ -16641,7 +16654,7 @@ export default function PeriodStatusWidget({
               {status.reopen_reason && (
                 <div className="pt-2 border-t border-yellow-200">
                   <p className="text-xs text-yellow-700 italic">
-                    "{status.reopen_reason}"
+                    &quot;{status.reopen_reason}&quot;
                   </p>
                 </div>
               )}
@@ -18796,7 +18809,7 @@ export async function getUserName(userId: string) {
 # Statistics
 - **Files included:** 142
 - **File size:** 584K
-- **Extraction date:** Tue Dec 30 15:15:27 CET 2025
+- **Extraction date:** Tue Dec 30 16:59:43 CET 2025
 
 # Technology Stack Detected
 

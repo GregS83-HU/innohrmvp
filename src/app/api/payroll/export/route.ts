@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
 
     // Call stored function to get payroll data for the period
    const { data: payrollData, error: dataError }: { data: PayrollData[] | null; error: PostgrestError | null } = await supabase
-  .rpc('get_payroll_for_period', {
+  .rpc('get_payroll_for_period_with_compensation', {
     p_country_code: body.country_code,
     p_year: body.export_year,
     p_month: body.export_month

@@ -46,19 +46,21 @@ export function generatePayrollExcel(options: ExportOptions): Blob {
 }
 
 /**
- * Generic format - human-readable
+ * Generic format - human-readable with compensation details
  */
 function addGenericSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], month: number, year: number) {
   const monthName = new Date(year, month - 1).toLocaleString('en-US', { month: 'long' });
   
   // Prepare data for sheet
-  const sheetData = [
+  const sheetData : (string | number)[][] = [
     [`Payroll Export - ${monthName} ${year}`],
     [],
     [
       'Employee ID', 'Last Name', 'First Name', 'TAJ Number', 'Tax ID',
       'Position', 'Department', 'Employment Type', 'Contract Type',
-      'Gross Salary (HUF)', 'Currency', 'Bank IBAN', 'Bank Name',
+      'Base Salary (HUF)', 'Total Allowances', 'Taxable Allowances', 'Non-Taxable Allowances',
+      'Total Deductions', 'Gross Total', 'Net Before Tax',
+      'Currency', 'Bank IBAN', 'Bank Name',
       'Worked Days', 'Leave Days', 'Actual Worked Days', 'Weekly Hours'
     ]
   ];
@@ -75,14 +77,20 @@ function addGenericSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], mon
       emp.department || '',
       emp.employment_type,
       emp.contract_type,
-      emp.salary_amount,
+      Number(emp.salary_amount) || 0,
+      Number(emp.total_allowances) || 0,
+      Number(emp.taxable_allowances) || 0,
+      Number(emp.non_taxable_allowances) || 0,
+      Number(emp.total_deductions) || 0,
+      Number(emp.gross_total) || Number(emp.salary_amount) || 0,
+      Number(emp.net_before_tax) || Number(emp.salary_amount) || 0,
       emp.salary_currency,
       emp.bank_account_iban || '',
       emp.bank_name || '',
-      emp.worked_days,
-      emp.leave_days,
-      emp.actual_worked_days,
-      emp.weekly_hours
+      Number(emp.worked_days) || 0,
+      Number(emp.leave_days) || 0,
+      Number(emp.actual_worked_days) || 0,
+      Number(emp.weekly_hours) || 0
     ]);
   });
   
@@ -99,7 +107,13 @@ function addGenericSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], mon
     { wch: 15 }, // Department
     { wch: 15 }, // Employment Type
     { wch: 15 }, // Contract Type
-    { wch: 15 }, // Salary
+    { wch: 15 }, // Base Salary
+    { wch: 15 }, // Total Allowances
+    { wch: 15 }, // Taxable Allowances
+    { wch: 18 }, // Non-Taxable Allowances
+    { wch: 15 }, // Total Deductions
+    { wch: 15 }, // Gross Total
+    { wch: 15 }, // Net Before Tax
     { wch: 8 },  // Currency
     { wch: 30 }, // IBAN
     { wch: 20 }, // Bank
@@ -110,17 +124,117 @@ function addGenericSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], mon
   ];
   
   XLSX.utils.book_append_sheet(workbook, worksheet, `Payroll ${month}-${year}`);
+  
+  // Add detailed allowances sheet if any employee has allowances
+  const hasAllowances = data.some(emp => 
+    emp.allowances_detail && Array.isArray(emp.allowances_detail) && emp.allowances_detail.length > 0
+  );
+  
+  if (hasAllowances) {
+    addAllowancesDetailSheet(workbook, data, month, year);
+  }
+  
+  // Add detailed deductions sheet if any employee has deductions
+  const hasDeductions = data.some(emp => 
+    emp.deductions_detail && Array.isArray(emp.deductions_detail) && emp.deductions_detail.length > 0
+  );
+  
+  if (hasDeductions) {
+    addDeductionsDetailSheet(workbook, data, month, year);
+  }
 }
 
 /**
- * Kulcs-Soft Bérkalkulátor format
+ * Allowances detail sheet
+ */
+function addAllowancesDetailSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], month: number, year: number) {
+  const sheetData : (string | number)[][]= [
+    ['Allowances & Benefits Detail'],
+    [],
+    ['Employee Name', 'Employee ID', 'Type', 'Amount', 'Tax Treatment', 'Frequency', 'Description']
+  ];
+  
+  data.forEach(emp => {
+    if (emp.allowances_detail && Array.isArray(emp.allowances_detail) && emp.allowances_detail.length > 0) {
+      emp.allowances_detail.forEach(allowance => {
+        sheetData.push([
+          `${emp.user_firstname} ${emp.user_lastname}`,
+          emp.user_id,
+          formatAllowanceType(allowance.type),
+          Number(allowance.amount) || 0,
+          formatTaxTreatment(allowance.tax_treatment),
+          allowance.is_recurring ? 'Monthly' : 'One-Time',
+          allowance.description || ''
+        ]);
+      });
+    }
+  });
+  
+  const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+  worksheet['!cols'] = [
+    { wch: 25 }, // Name
+    { wch: 36 }, // ID
+    { wch: 20 }, // Type
+    { wch: 15 }, // Amount
+    { wch: 20 }, // Tax Treatment
+    { wch: 15 }, // Frequency
+    { wch: 40 }  // Description
+  ];
+  
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Allowances Detail');
+}
+
+/**
+ * Deductions detail sheet
+ */
+function addDeductionsDetailSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], month: number, year: number) {
+  const sheetData : (string | number)[][] = [
+    ['Deductions Detail'],
+    [],
+    ['Employee Name', 'Employee ID', 'Type', 'Amount', 'Remaining', 'Installments Left', 'Description']
+  ];
+  
+  data.forEach(emp => {
+    if (emp.deductions_detail && Array.isArray(emp.deductions_detail) && emp.deductions_detail.length > 0) {
+      emp.deductions_detail.forEach(deduction => {
+        sheetData.push([
+          `${emp.user_firstname} ${emp.user_lastname}`,
+          emp.user_id,
+          formatDeductionType(deduction.type),
+          Number(deduction.amount) || 0,
+          Number(deduction.remaining_amount) || 0,
+          Number(deduction.installments_remaining) || 0,
+          deduction.description || ''
+        ]);
+      });
+    }
+  });
+  
+  const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+  worksheet['!cols'] = [
+    { wch: 25 }, // Name
+    { wch: 36 }, // ID
+    { wch: 20 }, // Type
+    { wch: 15 }, // Amount
+    { wch: 15 }, // Remaining
+    { wch: 18 }, // Installments
+    { wch: 40 }  // Description
+  ];
+  
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Deductions Detail');
+}
+
+/**
+ * Kulcs-Soft Bérkalkulátor format with compensation
  */
 function addKulcsSoftSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], month: number, year: number) {
   const sheetData = [
     [
       'Dolgozói azonosító', 'Vezetéknév', 'Keresztnév', 'TAJ szám', 'Adóazonosító jel',
       'Munkakör', 'Szervezeti egység', 'Foglalkoztatás típusa', 'Szerződés típusa',
-      'Bruttó fizetés', 'Fizetési időszak', 'Bankszámlaszám', 'Bank neve',
+      'Alapbér', 'Pótlékok összesen', 'Adóköteles pótlékok', 'Adómentes pótlékok',
+      'Levonások összesen', 'Bruttó összesen', 'Nettó (adózás előtt)',
+      'Fizetési időszak', 'Bankszámlaszám', 'Bank neve',
       'Ledolgozott napok', 'Szabadság napok', 'Tényleges munkanapok',
       'Adókulcs', 'Családi kedvezmény (gyerekek száma)',
       'Nyugdíjpénztár típusa', 'Egészségbiztosítási szám'
@@ -153,36 +267,45 @@ function addKulcsSoftSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], m
       emp.department || '',
       employmentTypeMap[emp.employment_type] || emp.employment_type,
       contractTypeMap[emp.contract_type] || emp.contract_type,
-      emp.salary_amount,
+      Number(emp.salary_amount) || 0,
+      Number(emp.total_allowances) || 0,
+      Number(emp.taxable_allowances) || 0,
+      Number(emp.non_taxable_allowances) || 0,
+      Number(emp.total_deductions) || 0,
+      Number(emp.gross_total) || Number(emp.salary_amount) || 0,
+      Number(emp.net_before_tax) || Number(emp.salary_amount) || 0,
       'Havi',
       emp.bank_account_iban || '',
       emp.bank_name || '',
-      emp.worked_days,
-      emp.leave_days,
-      emp.actual_worked_days,
+      Number(emp.worked_days) || 0,
+      Number(emp.leave_days) || 0,
+      Number(emp.actual_worked_days) || 0,
       countryData.tax_bracket || '1',
-      countryData.family_tax_allowance || 0,
+      Number(countryData.family_tax_allowance) || 0,
       countryData.pension_fund === 'private' ? 'Magán' : 'Állami',
       countryData.health_insurance_number || ''
     ]);
   });
   
   const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-  worksheet['!cols'] = Array(20).fill({ wch: 15 });
+  worksheet['!cols'] = Array(26).fill({ wch: 15 });
   
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Kulcs-Soft Import');
 }
 
 /**
- * Nexon format
+ * Nexon format with compensation
  */
 function addNexonSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], month: number, year: number) {
   const sheetData = [
     [
       'EmpID', 'Surname', 'FirstName', 'SSN', 'TaxID',
-      'JobTitle', 'OrgUnit', 'EmpType', 'GrossSalary', 'Currency',
-      'IBAN', 'WorkedDays', 'AbsenceDays', 'TaxClass',
-      'FamilyAllowance', 'PensionType'
+      'JobTitle', 'OrgUnit', 'EmpType', 
+      'BaseSalary', 'Allowances', 'TaxableAllow', 'NonTaxAllow',
+      'Deductions', 'GrossTotal', 'NetBeforeTax',
+      'Currency', 'IBAN', 
+      'WorkedDays', 'AbsenceDays', 
+      'TaxClass', 'FamilyAllowance', 'PensionType'
     ]
   ];
   
@@ -197,32 +320,40 @@ function addNexonSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], month
       emp.position_title,
       emp.department || '',
       emp.employment_type.toUpperCase(),
-      emp.salary_amount,
+      Number(emp.salary_amount) || 0,
+      Number(emp.total_allowances) || 0,
+      Number(emp.taxable_allowances) || 0,
+      Number(emp.non_taxable_allowances) || 0,
+      Number(emp.total_deductions) || 0,
+      Number(emp.gross_total) || Number(emp.salary_amount) || 0,
+      Number(emp.net_before_tax) || Number(emp.salary_amount) || 0,
       'HUF',
       emp.bank_account_iban || '',
-      emp.worked_days,
-      emp.leave_days,
+      Number(emp.worked_days) || 0,
+      Number(emp.leave_days) || 0,
       countryData.tax_bracket || '1',
-      countryData.family_tax_allowance || 0,
+      Number(countryData.family_tax_allowance) || 0,
       (countryData.pension_fund || 'government').toUpperCase().charAt(0)
     ]);
   });
   
   const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-  worksheet['!cols'] = Array(16).fill({ wch: 12 });
+  worksheet['!cols'] = Array(22).fill({ wch: 12 });
   
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Nexon Import');
 }
 
 /**
- * SAP HCM format
+ * SAP HCM format with compensation
  */
 function addSAPSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], month: number, year: number) {
   const sheetData = [
     [
       'Personnel Number', 'Last Name', 'First Name', 'National ID', 'Tax Number',
       'Position', 'Cost Center', 'Employee Group', 'Employee Subgroup',
-      'Basic Pay', 'Pay Scale Group', 'Bank Account', 'Bank Key',
+      'Basic Pay', 'Total Allowances', 'Taxable Allowances', 'Non-Taxable Allowances',
+      'Total Deductions', 'Gross Pay', 'Net Pay Before Tax',
+      'Pay Scale Group', 'Bank Account', 'Bank Key',
       'Calendar Days', 'Absence Days', 'Payroll Days',
       'Tax Class', 'Number of Children', 'Health Insurance Fund'
     ]
@@ -258,23 +389,69 @@ function addSAPSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], month: 
       emp.department || '',
       employmentGroupMap[emp.employment_type] || '1',
       contractSubgroupMap[emp.contract_type] || 'A1',
-      emp.salary_amount,
+      Number(emp.salary_amount) || 0,
+      Number(emp.total_allowances) || 0,
+      Number(emp.taxable_allowances) || 0,
+      Number(emp.non_taxable_allowances) || 0,
+      Number(emp.total_deductions) || 0,
+      Number(emp.gross_total) || Number(emp.salary_amount) || 0,
+      Number(emp.net_before_tax) || Number(emp.salary_amount) || 0,
       'M1',
       emp.bank_account_iban || '',
       emp.bank_name || '',
-      emp.worked_days,
-      emp.leave_days,
-      emp.actual_worked_days,
+      Number(emp.worked_days) || 0,
+      Number(emp.leave_days) || 0,
+      Number(emp.actual_worked_days) || 0,
       countryData.tax_bracket || '1',
-      countryData.family_tax_allowance || 0,
+      Number(countryData.family_tax_allowance) || 0,
       countryData.health_insurance_number || ''
     ]);
   });
   
   const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-  worksheet['!cols'] = Array(19).fill({ wch: 14 });
+  worksheet['!cols'] = Array(25).fill({ wch: 14 });
   
   XLSX.utils.book_append_sheet(workbook, worksheet, 'SAP Import');
+}
+
+/**
+ * Helper: Format allowance type for display
+ */
+function formatAllowanceType(type: string): string {
+  const typeMap: Record<string, string> = {
+    'bonus': 'Bonus',
+    'remboursement': 'Reimbursement',
+    'cafeteria': 'Cafétéria',
+    'sport': 'Sport Allowance',
+    'cadeau': 'Gift/Cadeau',
+    'other': 'Other'
+  };
+  return typeMap[type] || type;
+}
+
+/**
+ * Helper: Format deduction type for display
+ */
+function formatDeductionType(type: string): string {
+  const typeMap: Record<string, string> = {
+    'advance_on_salary': 'Salary Advance',
+    'loan_repayment': 'Loan Repayment',
+    'other': 'Other Deduction'
+  };
+  return typeMap[type] || type;
+}
+
+/**
+ * Helper: Format tax treatment for display
+ */
+function formatTaxTreatment(treatment: string): string {
+  const treatmentMap: Record<string, string> = {
+    'fully_taxable': 'Fully Taxable',
+    'non_taxable': 'Non-Taxable',
+    'partially_taxable': 'Partially Taxable',
+    'tax_free_under_limit': 'Tax-Free (Under Limit)'
+  };
+  return treatmentMap[treatment] || treatment;
 }
 
 /**

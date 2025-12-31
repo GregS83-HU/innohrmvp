@@ -12,6 +12,7 @@ import {
     Building2,
     Shield,
     AlertCircle,
+    DollarSign
 } from 'lucide-react';
 import type {
     EmployeePayroll,
@@ -19,6 +20,8 @@ import type {
     CreatePayrollRequest,
 } from '../../types/payroll';
 import { useLocale } from 'i18n/LocaleProvider';
+import CompensationManager from './CompensationManager';
+
 
 interface PayrollEditModalProps {
     isOpen: boolean;
@@ -64,6 +67,7 @@ const createBaseFormData = (userId: string): CreatePayrollRequest => ({
     benefits: [],
 });
 
+
 const normalizePayroll = (
     base: CreatePayrollRequest,
     incoming: Partial<CreatePayrollRequest>
@@ -107,7 +111,7 @@ export default function PayrollEditModal({
     onSuccess,
 }: PayrollEditModalProps) {
     const { t } = useLocale();
-
+    const [payrollId, setPayrollId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -150,6 +154,7 @@ export default function PayrollEditModal({
                 if (result.data && result.data.length > 0) {
                     const existingPayroll = result.data[0];
                     setPayroll(existingPayroll);
+                    setPayrollId(existingPayroll.id); // NEW: Save ID
                     setIsNew(false);
                     setFormData(
                         normalizePayroll(createBaseFormData(userId), existingPayroll)
@@ -601,6 +606,29 @@ export default function PayrollEditModal({
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Additional Compensation Section */}
+                            {payrollId && !isNew && (
+                                <div className="border-t pt-6">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <DollarSign className="w-5 h-5 text-purple-600" />
+                                        <h3 className="text-lg font-semibold text-gray-900">
+                                            Additional Compensation
+                                        </h3>
+                                    </div>
+
+                                    <CompensationManager
+                                        payrollId={payrollId}
+                                        baseSalary={formData.salary_amount}
+                                        currency={formData.salary_currency}
+                                        currentUserId={currentUserId}
+                                        onUpdate={() => {
+                                            // Optional: Refresh data
+                                            console.log('Compensation updated');
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
