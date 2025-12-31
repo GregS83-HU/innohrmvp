@@ -16,10 +16,10 @@ async function isAdmin(userId: string) {
   return !error && data?.is_admin;
 }
 
-export async function PUT(
-  req: Request,
-  context: { params: Record<string, string> } // <-- fix here
-) {
+/**
+ * PUT /api/payroll/allowances/[id]
+ */
+export async function PUT(req: Request) {
   try {
     const url = new URL(req.url);
     const currentUserId = url.searchParams.get('current_user_id');
@@ -31,7 +31,9 @@ export async function PUT(
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
     }
 
-    const allowanceId = context.params.id as string; // <-- cast to string
+    const pathSegments = url.pathname.split('/');
+    const allowanceId = pathSegments[pathSegments.length - 1];
+
     const body: UpdateAllowanceRequest = await req.json();
 
     const { data, error } = await supabase
@@ -52,10 +54,10 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: Request,
-  context: { params: Record<string, string> } // <-- fix here too
-) {
+/**
+ * DELETE /api/payroll/allowances/[id]
+ */
+export async function DELETE(req: Request) {
   try {
     const url = new URL(req.url);
     const currentUserId = url.searchParams.get('current_user_id');
@@ -67,7 +69,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
     }
 
-    const allowanceId = context.params.id as string;
+    const pathSegments = url.pathname.split('/');
+    const allowanceId = pathSegments[pathSegments.length - 1];
 
     const { error } = await supabase
       .from('employee_allowances')
