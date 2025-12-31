@@ -86,8 +86,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculate remaining amount if installments
-    let remaining_amount = body.total_amount || body.amount;
-    let installments_remaining = body.installment_count;
+    const remaining_amount = body.total_amount || body.amount;
+    const installments_remaining = body.installment_count;
 
     // Create deduction
     const { data, error } = await supabase

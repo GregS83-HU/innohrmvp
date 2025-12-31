@@ -206,7 +206,7 @@ export default function CompensationManager({
         {allowances.length === 0 ? (
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
             <p className="text-gray-600">No allowances configured</p>
-            <p className="text-sm text-gray-500 mt-1">Click "Add Allowance" to get started</p>
+            <p className="text-sm text-gray-500 mt-1">Click &quot;Add Allowance&quot; to get started</p>
           </div>
         ) : (
           <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
@@ -304,7 +304,7 @@ export default function CompensationManager({
         {deductions.length === 0 ? (
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
             <p className="text-gray-600">No deductions configured</p>
-            <p className="text-sm text-gray-500 mt-1">Click "Add Deduction" to get started</p>
+            <p className="text-sm text-gray-500 mt-1">Click &quot;Add Deduction&quot; to get started</p>
           </div>
         ) : (
           <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
