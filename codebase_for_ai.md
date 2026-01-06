@@ -1,6 +1,6 @@
 # Codebase - innohrmvp
 **Mode:** full-feature-extract  
-**Generated:** Tue Dec 30 16:59:33 CET 2025
+**Generated:** Thu Jan  1 06:10:00 CET 2026
 **Purpose:** Complete AI analysis including all APIs, components & features
 
 ---
@@ -3633,6 +3633,574 @@ export async function DELETE(request: NextRequest) {
 
 ---
 
+## `src/app/api/payroll/allowances/[id]/route.ts`
+
+```
+Folder: src/app/api/payroll/allowances/[id]
+Type: ts | Lines:       89
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+const supabase = createClient(
+```
+
+<details>
+<summary>📄 Full content (      89 lines)</summary>
+
+```ts
+import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from 'next/server';
+import type { UpdateAllowanceRequest } from '../../../../../../types/payroll';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+async function isAdmin(userId: string) {
+  const { data, error } = await supabase
+    .from('users')
+    .select('is_admin')
+    .eq('id', userId)
+    .single();
+  return !error && data?.is_admin;
+}
+
+/**
+ * PUT /api/payroll/allowances/[id]
+ */
+export async function PUT(req: Request) {
+  try {
+    const url = new URL(req.url);
+    const currentUserId = url.searchParams.get('current_user_id');
+    if (!currentUserId) {
+      return NextResponse.json({ error: 'current_user_id is required' }, { status: 400 });
+    }
+
+    if (!(await isAdmin(currentUserId))) {
+      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
+    }
+
+    const pathSegments = url.pathname.split('/');
+    const allowanceId = pathSegments[pathSegments.length - 1];
+
+    const body: UpdateAllowanceRequest = await req.json();
+
+    const { data, error } = await supabase
+      .from('employee_allowances')
+      .update(body)
+      .eq('id', allowanceId)
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, data, message: 'Allowance updated successfully' });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+/**
+ * DELETE /api/payroll/allowances/[id]
+ */
+export async function DELETE(req: Request) {
+  try {
+    const url = new URL(req.url);
+    const currentUserId = url.searchParams.get('current_user_id');
+    if (!currentUserId) {
+      return NextResponse.json({ error: 'current_user_id is required' }, { status: 400 });
+    }
+
+    if (!(await isAdmin(currentUserId))) {
+      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
+    }
+
+    const pathSegments = url.pathname.split('/');
+    const allowanceId = pathSegments[pathSegments.length - 1];
+
+    const { error } = await supabase
+      .from('employee_allowances')
+      .delete()
+      .eq('id', allowanceId);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, message: 'Allowance deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+```
+</details>
+
+---
+
+## `src/app/api/payroll/allowances/route.ts`
+
+```
+Folder: src/app/api/payroll/allowances
+Type: ts | Lines:      133
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+const supabase = createClient(
+```
+
+<details>
+<summary>📄 Full content (     133 lines)</summary>
+
+```ts
+// src/app/api/payroll/allowances/route.ts
+// GET: Get allowances for a payroll record
+// POST: Create new allowance
+
+import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
+import type { CreateAllowanceRequest } from '../../../../../types/payroll';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+/**
+ * GET /api/payroll/allowances?payroll_id=xxx
+ * Get allowances for a payroll record
+ */
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const payrollId = searchParams.get('payroll_id');
+    const year = searchParams.get('year');
+    const month = searchParams.get('month');
+
+    if (!payrollId) {
+      return NextResponse.json(
+        { error: 'payroll_id is required' },
+        { status: 400 }
+      );
+    }
+
+    let query = supabase
+      .from('employee_allowances')
+      .select('*')
+      .eq('payroll_id', payrollId)
+      .order('created_at', { ascending: false });
+
+    // Filter by period if specified
+    if (year && month) {
+      query = query.or(
+        `is_recurring.eq.true,and(effective_year.eq.${year},effective_month.eq.${month})`
+      );
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Error fetching allowances:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ data }, { status: 200 });
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+/**
+ * POST /api/payroll/allowances
+ * Create new allowance
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const currentUserId = searchParams.get('current_user_id');
+
+    if (!currentUserId) {
+      return NextResponse.json(
+        { error: 'current_user_id is required' },
+        { status: 400 }
+      );
+    }
+
+    // Check if user is admin
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('is_admin')
+      .eq('id', currentUserId)
+      .single();
+
+    if (userError || !userData?.is_admin) {
+      return NextResponse.json(
+        { error: 'Forbidden - Admin access required' },
+        { status: 403 }
+      );
+    }
+
+    const body: CreateAllowanceRequest = await request.json();
+
+    // Validate required fields
+    if (!body.payroll_id || !body.allowance_type || !body.amount) {
+      return NextResponse.json(
+        { error: 'Missing required fields: payroll_id, allowance_type, amount' },
+        { status: 400 }
+      );
+    }
+
+    // Validate amount
+    if (body.amount < 0) {
+      return NextResponse.json(
+        { error: 'Amount must be positive' },
+        { status: 400 }
+      );
+    }
+
+    // Create allowance
+    const { data, error } = await supabase
+      .from('employee_allowances')
+      .insert({
+        ...body,
+        currency: body.currency || 'HUF',
+        tax_treatment: body.tax_treatment || 'fully_taxable',
+        is_recurring: body.is_recurring || false,
+        created_by: currentUserId,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating allowance:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      data,
+      message: 'Allowance created successfully',
+    }, { status: 201 });
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+```
+</details>
+
+---
+
+## `src/app/api/payroll/bulk/route.ts`
+
+```
+Folder: src/app/api/payroll/bulk
+Type: ts | Lines:      279
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+const supabase = createClient(
+type BulkOperation = 
+interface BulkOperationRequest {
+```
+
+<details>
+<summary>📄 Full content (     279 lines)</summary>
+
+```ts
+// src/app/api/payroll/bulk/route.ts
+// POST: Perform bulk operations on multiple employees
+
+import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
+import type { AllowanceType, DeductionType, TaxTreatment } from '../../../../../types/payroll';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+type BulkOperation = 
+  | 'salary_increase'
+  | 'add_allowance'
+  | 'add_deduction'
+  | 'change_department'
+  | 'update_field';
+
+interface BulkOperationRequest {
+  operation: BulkOperation;
+  payroll_ids: string[];
+  current_user_id: string;
+  
+  // For salary increase
+  salary_change?: {
+    type: 'percentage' | 'fixed';
+    value: number;
+  };
+  
+  // For add allowance
+  allowance?: {
+    allowance_type: AllowanceType;
+    amount: number;
+    currency?: string;
+    tax_treatment?: TaxTreatment;
+    is_recurring?: boolean;
+    effective_month?: number;
+    effective_year?: number;
+    description?: string;
+  };
+  
+  // For add deduction
+  deduction?: {
+    deduction_type: DeductionType;
+    amount: number;
+    currency?: string;
+    total_amount?: number;
+    installment_count?: number;
+    start_month?: number;
+    start_year?: number;
+    description?: string;
+  };
+  
+  // For change department
+  new_department?: string;
+  
+  // For generic field update
+  field_updates?: Record<string, string | number | boolean>;
+}
+
+/**
+ * POST /api/payroll/bulk
+ * Perform bulk operations on selected employees
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const body: BulkOperationRequest = await request.json();
+
+    // Validate required fields
+    if (!body.operation || !body.payroll_ids || body.payroll_ids.length === 0 || !body.current_user_id) {
+      return NextResponse.json(
+        { error: 'Missing required fields: operation, payroll_ids, current_user_id' },
+        { status: 400 }
+      );
+    }
+
+    // Check if user is admin
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('is_admin')
+      .eq('id', body.current_user_id)
+      .single();
+
+    if (userError || !userData?.is_admin) {
+      return NextResponse.json(
+        { error: 'Forbidden - Admin access required' },
+        { status: 403 }
+      );
+    }
+
+    let successCount = 0;
+    let errorCount = 0;
+    const errors: Array<{ payroll_id: string; error: string }> = [];
+
+    // Execute operation based on type
+    switch (body.operation) {
+      case 'salary_increase':
+        if (!body.salary_change) {
+          return NextResponse.json({ error: 'salary_change is required' }, { status: 400 });
+        }
+
+        for (const payrollId of body.payroll_ids) {
+          try {
+            // Get current salary
+            const { data: payroll } = await supabase
+              .from('employee_payroll')
+              .select('salary_amount')
+              .eq('id', payrollId)
+              .single();
+
+            if (!payroll) {
+              errorCount++;
+              errors.push({ payroll_id: payrollId, error: 'Payroll not found' });
+              continue;
+            }
+
+            const currentSalary = Number(payroll.salary_amount) || 0;
+            let newSalary = currentSalary;
+
+            if (body.salary_change.type === 'percentage') {
+              newSalary = currentSalary * (1 + body.salary_change.value / 100);
+            } else {
+              newSalary = currentSalary + body.salary_change.value;
+            }
+
+            // Update salary
+            const { error } = await supabase
+              .from('employee_payroll')
+              .update({
+                salary_amount: Math.round(newSalary),
+                updated_by: body.current_user_id,
+              })
+              .eq('id', payrollId);
+
+            if (error) {
+              errorCount++;
+              errors.push({ payroll_id: payrollId, error: error.message });
+            } else {
+              successCount++;
+            }
+          } catch (err) {
+            errorCount++;
+            errors.push({ payroll_id: payrollId, error: String(err) });
+          }
+        }
+        break;
+
+      case 'add_allowance':
+        if (!body.allowance) {
+          return NextResponse.json({ error: 'allowance is required' }, { status: 400 });
+        }
+
+        for (const payrollId of body.payroll_ids) {
+          try {
+            const { error } = await supabase
+              .from('employee_allowances')
+              .insert({
+                payroll_id: payrollId,
+                allowance_type: body.allowance.allowance_type,
+                amount: body.allowance.amount,
+                currency: body.allowance.currency || 'HUF',
+                tax_treatment: body.allowance.tax_treatment || 'fully_taxable',
+                is_recurring: body.allowance.is_recurring || false,
+                effective_month: body.allowance.effective_month,
+                effective_year: body.allowance.effective_year,
+                description: body.allowance.description,
+                created_by: body.current_user_id,
+              });
+
+            if (error) {
+              errorCount++;
+              errors.push({ payroll_id: payrollId, error: error.message });
+            } else {
+              successCount++;
+            }
+          } catch (err) {
+            errorCount++;
+            errors.push({ payroll_id: payrollId, error: String(err) });
+          }
+        }
+        break;
+
+      case 'add_deduction':
+        if (!body.deduction) {
+          return NextResponse.json({ error: 'deduction is required' }, { status: 400 });
+        }
+
+        for (const payrollId of body.payroll_ids) {
+          try {
+            const { error } = await supabase
+              .from('employee_deductions')
+              .insert({
+                payroll_id: payrollId,
+                deduction_type: body.deduction.deduction_type,
+                amount: body.deduction.amount,
+                currency: body.deduction.currency || 'HUF',
+                total_amount: body.deduction.total_amount,
+                installment_count: body.deduction.installment_count,
+                remaining_amount: body.deduction.total_amount || body.deduction.amount,
+                installments_remaining: body.deduction.installment_count,
+                start_month: body.deduction.start_month,
+                start_year: body.deduction.start_year,
+                description: body.deduction.description,
+                is_active: true,
+                is_completed: false,
+                created_by: body.current_user_id,
+              });
+
+            if (error) {
+              errorCount++;
+              errors.push({ payroll_id: payrollId, error: error.message });
+            } else {
+              successCount++;
+            }
+          } catch (err) {
+            errorCount++;
+            errors.push({ payroll_id: payrollId, error: String(err) });
+          }
+        }
+        break;
+
+      case 'change_department':
+        if (!body.new_department) {
+          return NextResponse.json({ error: 'new_department is required' }, { status: 400 });
+        }
+
+        const { error: deptError, count: deptCount } = await supabase
+          .from('employee_payroll')
+          .update({
+            department: body.new_department,
+            updated_by: body.current_user_id,
+          })
+          .in('id', body.payroll_ids);
+
+        if (deptError) {
+          return NextResponse.json({ error: deptError.message }, { status: 500 });
+        }
+
+        successCount = deptCount || 0;
+        break;
+
+      case 'update_field':
+        if (!body.field_updates) {
+          return NextResponse.json({ error: 'field_updates is required' }, { status: 400 });
+        }
+
+        const { error: updateError, count: updateCount } = await supabase
+          .from('employee_payroll')
+          .update({
+            ...body.field_updates,
+            updated_by: body.current_user_id,
+          })
+          .in('id', body.payroll_ids);
+
+        if (updateError) {
+          return NextResponse.json({ error: updateError.message }, { status: 500 });
+        }
+
+        successCount = updateCount || 0;
+        break;
+
+      default:
+        return NextResponse.json({ error: 'Invalid operation' }, { status: 400 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      total_processed: body.payroll_ids.length,
+      success_count: successCount,
+      error_count: errorCount,
+      errors: errors.length > 0 ? errors : undefined,
+      message: `Bulk operation completed: ${successCount} succeeded, ${errorCount} failed`,
+    }, { status: 200 });
+
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+```
+</details>
+
+---
+
 ## `src/app/api/payroll/by-user/[userId]/route.ts`
 
 ```
@@ -3734,6 +4302,148 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({ data: payroll }, { status: 200 });
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+```
+</details>
+
+---
+
+## `src/app/api/payroll/deductions/route.ts`
+
+```
+Folder: src/app/api/payroll/deductions
+Type: ts | Lines:      120
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+const supabase = createClient(
+```
+
+<details>
+<summary>📄 Full content (     120 lines)</summary>
+
+```ts
+// src/app/api/payroll/deductions/route.ts
+// GET: Get deductions for a payroll record
+// POST: Create new deduction
+
+import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
+import type { CreateDeductionRequest } from '../../../../../types/payroll';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+/**
+ * GET /api/payroll/deductions?payroll_id=xxx
+ * Get deductions for a payroll record
+ */
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const payrollId = searchParams.get('payroll_id');
+
+    if (!payrollId) {
+      return NextResponse.json(
+        { error: 'payroll_id is required' },
+        { status: 400 }
+      );
+    }
+
+    const { data, error } = await supabase
+      .from('employee_deductions')
+      .select('*')
+      .eq('payroll_id', payrollId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching deductions:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ data }, { status: 200 });
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+/**
+ * POST /api/payroll/deductions
+ * Create new deduction
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const currentUserId = searchParams.get('current_user_id');
+
+    if (!currentUserId) {
+      return NextResponse.json(
+        { error: 'current_user_id is required' },
+        { status: 400 }
+      );
+    }
+
+    // Check if user is admin
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('is_admin')
+      .eq('id', currentUserId)
+      .single();
+
+    if (userError || !userData?.is_admin) {
+      return NextResponse.json(
+        { error: 'Forbidden - Admin access required' },
+        { status: 403 }
+      );
+    }
+
+    const body: CreateDeductionRequest = await request.json();
+
+    // Validate required fields
+    if (!body.payroll_id || !body.deduction_type || !body.amount) {
+      return NextResponse.json(
+        { error: 'Missing required fields: payroll_id, deduction_type, amount' },
+        { status: 400 }
+      );
+    }
+
+    // Calculate remaining amount if installments
+    const remaining_amount = body.total_amount || body.amount;
+    const installments_remaining = body.installment_count;
+
+    // Create deduction
+    const { data, error } = await supabase
+      .from('employee_deductions')
+      .insert({
+        ...body,
+        currency: body.currency || 'HUF',
+        remaining_amount,
+        installments_remaining,
+        is_active: true,
+        is_completed: false,
+        created_by: currentUserId,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating deduction:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      data,
+      message: 'Deduction created successfully',
+    }, { status: 201 });
   } catch (error) {
     console.error('Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -3846,7 +4556,7 @@ export async function POST(request: NextRequest) {
 
     // Call stored function to get payroll data for the period
    const { data: payrollData, error: dataError }: { data: PayrollData[] | null; error: PostgrestError | null } = await supabase
-  .rpc('get_payroll_for_period', {
+  .rpc('get_payroll_for_period_with_compensation', {
     p_country_code: body.country_code,
     p_year: body.export_year,
     p_month: body.export_month
@@ -3926,6 +4636,215 @@ if (dataError) {
       format: body.export_format,
       month: body.export_month,
       year: body.export_year
+    }, { status: 200 });
+
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+```
+</details>
+
+---
+
+## `src/app/api/payroll/grid/route.ts`
+
+```
+Folder: src/app/api/payroll/grid
+Type: ts | Lines:      187
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+const supabase = createClient(
+interface GridParams {
+```
+
+<details>
+<summary>📄 Full content (     187 lines)</summary>
+
+```ts
+// src/app/api/payroll/grid/route.ts
+import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
+import type { EmploymentType } from '../../../../../types/payroll';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+interface GridParams {
+  country_code: string;
+  page?: number;
+  page_size?: number;
+  search?: string;
+  department?: string;
+  employment_type?: EmploymentType;
+  status?: 'active' | 'inactive' | 'all';
+  sort_by?: 'name' | 'salary' | 'department' | 'position';
+  sort_order?: 'asc' | 'desc';
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+
+    const params: GridParams = {
+      country_code: searchParams.get('country_code') || 'HU',
+      page: parseInt(searchParams.get('page') || '1'),
+      page_size: parseInt(searchParams.get('page_size') || '50'),
+      search: searchParams.get('search') || undefined,
+      department: searchParams.get('department') || undefined,
+      employment_type: (searchParams.get('employment_type') as EmploymentType) || undefined,
+      status: (searchParams.get('status') as 'active' | 'inactive' | 'all') || 'active',
+      sort_by: (searchParams.get('sort_by') as 'name' | 'salary' | 'department' | 'position') || 'name',
+      sort_order: (searchParams.get('sort_order') as 'asc' | 'desc') || 'asc',
+    };
+
+    // Build base query
+    let query = supabase
+      .from('employee_payroll')
+      .select(`
+        id,
+        user_id,
+        country_code,
+        employment_type,
+        contract_type,
+        contract_start_date,
+        contract_end_date,
+        position_title,
+        department,
+        salary_amount,
+        salary_currency,
+        weekly_hours,
+        is_active,
+        termination_date,
+        country_specific_data,
+        users!employee_payroll_user_id_fkey(
+          id,
+          user_firstname,
+          user_lastname
+        )
+      `, { count: 'exact' })
+      .eq('country_code', params.country_code);
+
+    // Apply status filter
+    if (params.status === 'active') query = query.eq('is_active', true);
+    else if (params.status === 'inactive') query = query.eq('is_active', false);
+
+    // Apply search filter
+    if (params.search?.trim()) {
+      const searchTerm = `%${params.search.trim()}%`;
+      query = query.or(`
+        users.user_firstname.ilike.${searchTerm},
+        users.user_lastname.ilike.${searchTerm},
+        position_title.ilike.${searchTerm},
+        department.ilike.${searchTerm}
+      `);
+    }
+
+    // Apply department filter
+    if (params.department) query = query.eq('department', params.department);
+
+    // Apply employment type filter
+    if (params.employment_type) query = query.eq('employment_type', params.employment_type);
+
+    // Apply sorting (except name)
+    if (params.sort_by === 'salary') {
+      query = query.order('salary_amount', { ascending: params.sort_order === 'asc' });
+    } else if (params.sort_by === 'department') {
+      query = query.order('department', { ascending: params.sort_order === 'asc', nullsFirst: false });
+    } else if (params.sort_by === 'position') {
+      query = query.order('position_title', { ascending: params.sort_order === 'asc' });
+    }
+
+    // Apply pagination
+    const page = params.page || 1;
+    const pageSize = params.page_size || 50;
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+    query = query.range(from, to);
+
+    // Execute query
+    const { data: payrollData, error: dataError, count } = await query;
+
+    if (dataError) {
+      console.error('Error fetching grid data:', dataError);
+      return NextResponse.json({ error: dataError.message }, { status: 500 });
+    }
+
+    let enrichedData = payrollData || [];
+
+    
+    // Fetch allowances, deductions, validation issues (same as before)
+    const payrollIds = enrichedData.map(p => p.id);
+    let allowancesData: Record<string, unknown>[] = [];
+    let deductionsData: Record<string, unknown>[] = [];
+    if (payrollIds.length) {
+      const { data: allowances } = await supabase.from('employee_allowances').select('*').in('payroll_id', payrollIds);
+      allowancesData = allowances || [];
+      const { data: deductions } = await supabase.from('employee_deductions').select('*').in('payroll_id', payrollIds).eq('is_active', true);
+      deductionsData = deductions || [];
+    }
+
+    const userIds = enrichedData.map(p => p.user_id);
+    let validationIssues: Record<string, unknown>[] = [];
+    if (userIds.length) {
+      const { data: issues } = await supabase.from('payroll_validation_issues').select('user_id, severity').in('user_id', userIds);
+      validationIssues = issues || [];
+    }
+
+    // Enrich data
+    enrichedData = enrichedData.map(payroll => {
+      const empAllowances = (allowancesData as Array<{ payroll_id: string; amount: number }>).filter(a => a.payroll_id === payroll.id);
+      const totalAllowances = empAllowances.reduce((sum, a) => sum + (Number(a.amount) || 0), 0);
+      const empDeductions = (deductionsData as Array<{ payroll_id: string; amount: number }>).filter(d => d.payroll_id === payroll.id);
+      const totalDeductions = empDeductions.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
+      const empIssues = (validationIssues as Array<{ user_id: string; severity: string }>).filter(i => i.user_id === payroll.user_id);
+      const hasCritical = empIssues.some(i => i.severity === 'CRITICAL');
+      const hasWarning = empIssues.some(i => i.severity === 'WARNING');
+      let validationStatus: 'valid' | 'warning' | 'error' = 'valid';
+      if (hasCritical) validationStatus = 'error';
+      else if (hasWarning) validationStatus = 'warning';
+
+      return {
+        ...payroll,
+        total_allowances: totalAllowances,
+        total_deductions: totalDeductions,
+        allowances_count: empAllowances.length,
+        deductions_count: empDeductions.length,
+        allowances: empAllowances,
+        deductions: empDeductions,
+        validation_status: validationStatus,
+        validation_issues_count: empIssues.length,
+      };
+    });
+
+    // Unique departments
+    const { data: departments } = await supabase
+      .from('employee_payroll')
+      .select('department')
+      .eq('country_code', params.country_code)
+      .not('department', 'is', null)
+      .order('department');
+
+    const uniqueDepartments = [...new Set(departments?.map(d => d.department).filter(Boolean) || [])];
+
+    return NextResponse.json({
+      data: enrichedData,
+      pagination: {
+        page,
+        page_size: pageSize,
+        total_count: count || 0,
+        total_pages: Math.ceil((count || 0) / pageSize),
+        has_next: (count || 0) > to + 1,
+        has_previous: page > 1,
+      },
+      filters: {
+        departments: uniqueDepartments,
+      },
     }, { status: 200 });
 
   } catch (error) {
@@ -10853,7 +11772,7 @@ export default function EmployeePayrollDetailPage() {
 
 ```
 Folder: src/app/jobs/[slug]/payroll
-Type: tsx | Lines:      126
+Type: tsx | Lines:      188
 Top definitions:
 --- Exports ---
 export default function PayrollPage() {
@@ -10863,7 +11782,7 @@ const supabase = createClient(
 ```
 
 <details>
-<summary>📄 Full content (     126 lines)</summary>
+<summary>📄 Full content (     188 lines)</summary>
 
 ```tsx
 'use client';
@@ -10871,9 +11790,11 @@ const supabase = createClient(
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { createClient, User } from '@supabase/supabase-js';
+import { List, Grid } from 'lucide-react';
 import PayrollList from '../../../../../components/payroll/PayrollList';
 import PayrollForm from '../../../../../components/payroll/PayrollForm';
 import PayrollExportModal from '../../../../../components/payroll/PayrollExportModal';
+import PayrollGridView from '../../../../../components/payroll/PayrollGridView';
 import type { EmployeePayroll } from '../../../../../types/payroll';
 import { useLocale } from 'i18n/LocaleProvider';
 
@@ -10887,12 +11808,23 @@ export default function PayrollPage() {
   const params = useParams();
   const slug = params.slug as string;
 
+  // View mode state
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  
+  // Existing states
   const [showForm, setShowForm] = useState(false);
   const [showExport, setShowExport] = useState(false);
-  const [selectedPayroll, setSelectedPayroll] = useState<EmployeePayroll | null>(null);
+  const [selectedPayroll, setSelectedPayroll] = useState<any>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [currentUser, setCurrentUser] = useState<User | undefined>();
   const [loading, setLoading] = useState(true);
+  
+  // Grid view edit state
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+
 
   const fetchCurrentUser = useCallback(async () => {
     try {
@@ -10927,6 +11859,7 @@ export default function PayrollPage() {
   const handleCloseForm = () => {
     setShowForm(false);
     setSelectedPayroll(null);
+     setIsEditModalOpen(false); 
     setRefreshKey(prev => prev + 1);
   };
 
@@ -10936,6 +11869,12 @@ export default function PayrollPage() {
       return;
     }
     setShowExport(true);
+  };
+
+  // Grid view edit handler
+  const handleEditEmployee = (userId: string) => {
+    setEditingUserId(userId);
+    setShowEditModal(true);
   };
 
   if (loading) {
@@ -10957,31 +11896,74 @@ export default function PayrollPage() {
             <h1 className="text-3xl font-bold text-gray-900">{t('payroll.title')}</h1>
             <p className="text-gray-600 mt-1">{t('payroll.subtitle')}</p>
           </div>
-          <button
-            onClick={handleNew}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            {t('payroll.addEmployeePayroll')}
-          </button>
+          
+          <div className="flex items-center gap-3">
+            {/* View Mode Toggle */}
+            <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-1">
+              <button
+                onClick={() => setViewMode('list')}
+                className={`px-4 py-2 rounded-md flex items-center gap-2 text-sm font-medium transition-colors ${
+                  viewMode === 'list'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <List className="w-4 h-4" />
+                {t('payroll.listView') || 'List View'}
+              </button>
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`px-4 py-2 rounded-md flex items-center gap-2 text-sm font-medium transition-colors ${
+                  viewMode === 'grid'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <Grid className="w-4 h-4" />
+                {t('payroll.gridView') || 'Grid View'}
+              </button>
+            </div>
+
+            {/* Add Employee Button */}
+            <button
+              onClick={handleNew}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              {t('payroll.addEmployeePayroll')}
+            </button>
+          </div>
         </div>
       </div>
 
-      {showForm ? (
+      {/* Conditional Rendering based on view mode and form state */}
+      {showForm || isEditModalOpen ? (
         <PayrollForm
           payroll={selectedPayroll}
           onClose={handleCloseForm}
         />
-      ) : (
+      ) : viewMode === 'list' ? (
         <PayrollList
           key={refreshKey}
           onEdit={handleEdit}
           onExport={handleExport}
         />
+      ) : (
+        <PayrollGridView
+          key={refreshKey}
+          countryCode="HU"
+          currentUserId={currentUser?.id || ''}
+          periodClosed={false}
+          onEditEmployee={(employee) => {
+    setSelectedPayroll(employee);
+    setIsEditModalOpen(true);
+  }}
+        />
       )}
 
+      {/* Export Modal */}
       {showExport && currentUser && (
         <PayrollExportModal
           isOpen={showExport}
@@ -15613,11 +16595,261 @@ export { ForfaitBadge } from './ForfaitBadge';
 
 ---
 
+## `components/payroll/BulkOperationsModal.tsx`
+
+```
+Folder: components/payroll
+Type: tsx | Lines:      556
+Top definitions:
+--- Exports ---
+export default function BulkOperationsModal({
+
+--- Key Functions/Components ---
+interface BulkOperationsModalProps {
+type OperationType = 'salary_increase' | 'add_allowance' | 'add_deduction' | 'change_department';
+```
+
+<details>
+<summary>📄 Preview (first 100 lines of      556)</summary>
+
+```tsx
+// components/payroll/BulkOperationsModal.tsx
+'use client';
+
+import { useState } from 'react';
+import { X, TrendingUp, DollarSign, Users, Building2, Loader2 } from 'lucide-react';
+import type { AllowanceType, DeductionType, TaxTreatment } from '../../types/payroll';
+import { HUNGARIAN_ALLOWANCE_CONFIG, getAllowanceTypeLabel, getDeductionTypeLabel } from '../../types/payroll';
+
+interface BulkOperationsModalProps {
+  selectedPayrollIds: string[];
+  currentUserId: string;
+  onClose: () => void;
+  onComplete: () => void;
+}
+
+type OperationType = 'salary_increase' | 'add_allowance' | 'add_deduction' | 'change_department';
+
+export default function BulkOperationsModal({
+  selectedPayrollIds,
+  currentUserId,
+  onClose,
+  onComplete,
+}: BulkOperationsModalProps) {
+  const [operation, setOperation] = useState<OperationType>('salary_increase');
+  const [processing, setProcessing] = useState(false);
+  const [result, setResult] = useState<{ success: number; failed: number } | null>(null);
+
+  // Salary increase state
+  const [salaryChangeType, setSalaryChangeType] = useState<'percentage' | 'fixed'>('percentage');
+  const [salaryValue, setSalaryValue] = useState<string>('');
+
+  // Allowance state
+  const [allowanceType, setAllowanceType] = useState<AllowanceType>('bonus');
+  const [allowanceAmount, setAllowanceAmount] = useState<string>('');
+  const [allowanceTaxTreatment, setAllowanceTaxTreatment] = useState<TaxTreatment>('fully_taxable');
+  const [allowanceRecurring, setAllowanceRecurring] = useState(false);
+  const [allowanceMonth, setAllowanceMonth] = useState<number>(new Date().getMonth() + 1);
+  const [allowanceYear, setAllowanceYear] = useState<number>(new Date().getFullYear());
+  const [allowanceDescription, setAllowanceDescription] = useState<string>('');
+
+  // Deduction state
+  const [deductionType, setDeductionType] = useState<DeductionType>('advance_on_salary');
+  const [deductionAmount, setDeductionAmount] = useState<string>('');
+  const [deductionTotalAmount, setDeductionTotalAmount] = useState<string>('');
+  const [deductionInstallments, setDeductionInstallments] = useState<string>('');
+  const [deductionStartMonth, setDeductionStartMonth] = useState<number>(new Date().getMonth() + 1);
+  const [deductionStartYear, setDeductionStartYear] = useState<number>(new Date().getFullYear());
+  const [deductionDescription, setDeductionDescription] = useState<string>('');
+
+  // Department state
+  const [newDepartment, setNewDepartment] = useState<string>('');
+
+  // Handle allowance type change - auto-set tax treatment
+  const handleAllowanceTypeChange = (type: AllowanceType) => {
+    setAllowanceType(type);
+    const config = HUNGARIAN_ALLOWANCE_CONFIG[type];
+    setAllowanceTaxTreatment(config.defaultTaxTreatment);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      setProcessing(true);
+      setResult(null);
+
+      let requestBody: Record<string, unknown> = {
+        operation,
+        payroll_ids: selectedPayrollIds,
+        current_user_id: currentUserId,
+      };
+
+      // Build request based on operation type
+      switch (operation) {
+        case 'salary_increase':
+          if (!salaryValue || parseFloat(salaryValue) <= 0) {
+            alert('Please enter a valid value');
+            return;
+          }
+          requestBody.salary_change = {
+            type: salaryChangeType,
+            value: parseFloat(salaryValue),
+          };
+          break;
+
+        case 'add_allowance':
+          if (!allowanceAmount || parseFloat(allowanceAmount) <= 0) {
+            alert('Please enter a valid amount');
+            return;
+          }
+          requestBody.allowance = {
+            allowance_type: allowanceType,
+            amount: parseFloat(allowanceAmount),
+            currency: 'HUF',
+            tax_treatment: allowanceTaxTreatment,
+            is_recurring: allowanceRecurring,
+            effective_month: allowanceRecurring ? undefined : allowanceMonth,
+            effective_year: allowanceRecurring ? undefined : allowanceYear,
+            description: allowanceDescription || undefined,
+          };
+          break;
+... (truncated,      556 total lines)
+```
+</details>
+
+---
+
+## `components/payroll/CompensationManager.tsx`
+
+```
+Folder: components/payroll
+Type: tsx | Lines:      838
+Top definitions:
+--- Exports ---
+export default function CompensationManager({
+
+--- Key Functions/Components ---
+interface CompensationManagerProps {
+interface AllowanceModalProps {
+function AllowanceModal({ payrollId, allowance, currentUserId, onClose, onSuccess }: AllowanceModalProps) {
+interface DeductionModalProps {
+function DeductionModal({ payrollId, deduction, currentUserId, onClose, onSuccess }: DeductionModalProps) {
+```
+
+<details>
+<summary>📄 Preview (first 100 lines of      838)</summary>
+
+```tsx
+// components/payroll/CompensationManager.tsx
+'use client';
+
+import { useState, useEffect } from 'react';
+import {
+  Plus,
+  Trash2,
+  Edit2,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  AlertCircle,
+  Save,
+  X,
+} from 'lucide-react';
+import type {
+  EmployeeAllowance,
+  EmployeeDeduction,
+  AllowanceType,
+  DeductionType,
+  TaxTreatment,
+  CreateAllowanceRequest,
+  CreateDeductionRequest,
+} from '../../types/payroll';
+import {
+  getAllowanceTypeLabel,
+  getDeductionTypeLabel,
+  getTaxTreatmentLabel,
+  formatCompensation,
+  HUNGARIAN_ALLOWANCE_CONFIG,
+} from '../../types/payroll';
+
+interface CompensationManagerProps {
+  payrollId: string;
+  baseSalary: number;
+  currency: string | undefined;
+  currentUserId: string;
+  onUpdate?: () => void;
+}
+
+export default function CompensationManager({
+  payrollId,
+  baseSalary,
+  currency,
+  currentUserId,
+  onUpdate,
+}: CompensationManagerProps) {
+  const [allowances, setAllowances] = useState<EmployeeAllowance[]>([]);
+  const [deductions, setDeductions] = useState<EmployeeDeduction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Modal states
+  const [showAllowanceModal, setShowAllowanceModal] = useState(false);
+  const [showDeductionModal, setShowDeductionModal] = useState(false);
+  const [editingAllowance, setEditingAllowance] = useState<EmployeeAllowance | null>(null);
+  const [editingDeduction, setEditingDeduction] = useState<EmployeeDeduction | null>(null);
+
+  // Fetch data
+  useEffect(() => {
+    if (payrollId) {
+      fetchCompensation();
+    }
+  }, [payrollId]);
+
+  const fetchCompensation = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch allowances
+      const allowancesRes = await fetch(`/api/payroll/allowances?payroll_id=${payrollId}`);
+      if (allowancesRes.ok) {
+        const allowancesData: { data: EmployeeAllowance[] } = await allowancesRes.json();
+        setAllowances(allowancesData.data || []);
+      }
+      
+      // Fetch deductions
+      const deductionsRes = await fetch(`/api/payroll/deductions?payroll_id=${payrollId}`);
+      if (deductionsRes.ok) {
+        const deductionsData: { data: EmployeeDeduction[] } = await deductionsRes.json();
+        setDeductions(deductionsData.data || []);
+      }
+    } catch (err) {
+      console.error('Error fetching compensation:', err);
+      setError('Failed to load compensation data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteAllowance = async (id: string) => {
+    if (!confirm('Delete this allowance?')) return;
+    
+    try {
+      const res = await fetch(`/api/payroll/allowances/${id}?current_user_id=${currentUserId}`, {
+        method: 'DELETE',
+      });
+      
+      if (res.ok) {
+        setAllowances(allowances.filter(a => a.id !== id));
+... (truncated,      838 total lines)
+```
+</details>
+
+---
+
 ## `components/payroll/PayrollEditModal.tsx`
 
 ```
 Folder: components/payroll
-Type: tsx | Lines:      643
+Type: tsx | Lines:      671
 Top definitions:
 --- Exports ---
 export default function PayrollEditModal({
@@ -15630,7 +16862,7 @@ const normalizePayroll = (
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      643)</summary>
+<summary>📄 Preview (first 100 lines of      671)</summary>
 
 ```tsx
 'use client';
@@ -15647,6 +16879,7 @@ import {
     Building2,
     Shield,
     AlertCircle,
+    DollarSign
 } from 'lucide-react';
 import type {
     EmployeePayroll,
@@ -15654,6 +16887,8 @@ import type {
     CreatePayrollRequest,
 } from '../../types/payroll';
 import { useLocale } from 'i18n/LocaleProvider';
+import CompensationManager from './CompensationManager';
+
 
 interface PayrollEditModalProps {
     isOpen: boolean;
@@ -15699,6 +16934,7 @@ const createBaseFormData = (userId: string): CreatePayrollRequest => ({
     benefits: [],
 });
 
+
 const normalizePayroll = (
     base: CreatePayrollRequest,
     incoming: Partial<CreatePayrollRequest>
@@ -15728,11 +16964,7 @@ const normalizePayroll = (
             incoming?.country_specific_data?.family_tax_allowance ?? 0,
     },
 });
-
-/* =========================================================
-   Component
-========================================================= */
-... (truncated,      643 total lines)
+... (truncated,      671 total lines)
 ```
 </details>
 
@@ -15982,6 +17214,130 @@ export default function PayrollForm({ payroll, onClose, onSuccess }: PayrollForm
     benefits: payroll?.benefits || [],
   });
 ... (truncated,      783 total lines)
+```
+</details>
+
+---
+
+## `components/payroll/PayrollGridView.tsx`
+
+```
+Folder: components/payroll
+Type: tsx | Lines:      753
+Top definitions:
+--- Exports ---
+export default function PayrollGridView({
+
+--- Key Functions/Components ---
+interface GridEmployee {
+interface PayrollGridViewProps {
+```
+
+<details>
+<summary>📄 Preview (first 100 lines of      753)</summary>
+
+```tsx
+// components/payroll/PayrollGridView.tsx
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import {
+  Search,
+  Filter,
+  Download,
+  ChevronDown,
+  ChevronRight,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  Lock,
+  Edit2,
+  TrendingUp,
+  Users,
+  Building2,
+  DollarSign,
+  ChevronLeft,
+  ChevronRight as ChevronRightIcon,
+} from 'lucide-react';
+import type { EmploymentType } from '../../types/payroll';
+import { formatHUF, getAllowanceTypeLabel, getDeductionTypeLabel } from '../../types/payroll';
+import BulkOperationsModal from './BulkOperationsModal';
+import React from 'react';
+
+
+interface GridEmployee {
+  id: string;
+  user_id: string;
+  users: {
+    user_firstname: string;
+    user_lastname: string;
+  };
+  position_title: string;
+  department?: string;
+  employment_type: EmploymentType;
+  salary_amount: number;
+  salary_currency: string;
+  weekly_hours: number;
+  is_active: boolean;
+  total_allowances: number;
+  total_deductions: number;
+  allowances_count: number;
+  deductions_count: number;
+  allowances: Array<{
+    id: string;
+    allowance_type: string;
+    amount: number;
+    description?: string;
+    is_recurring: boolean;
+  }>;
+  deductions: Array<{
+    id: string;
+    deduction_type: string;
+    amount: number;
+    description?: string;
+    remaining_amount?: number;
+    installments_remaining?: number;
+  }>;
+  validation_status: 'valid' | 'warning' | 'error';
+  validation_issues_count: number;
+}
+
+interface PayrollGridViewProps {
+  countryCode: string;
+  currentUserId: string;
+  periodClosed?: boolean;
+  onEditEmployee?: (employee: GridEmployee) => void;
+}
+
+export default function PayrollGridView({
+  countryCode,
+  currentUserId,
+  periodClosed = false,
+  onEditEmployee,
+}: PayrollGridViewProps) {
+  const [employees, setEmployees] = useState<GridEmployee[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(50);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
+  // Filters
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDepartment, setSelectedDepartment] = useState<string>('');
+  const [selectedEmploymentType, setSelectedEmploymentType] = useState<string>('');
+  const [selectedStatus, setSelectedStatus] = useState<'active' | 'inactive' | 'all'>('active');
+  const [sortBy, setSortBy] = useState<'name' | 'salary' | 'department' | 'position'>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  // Available filters
+  const [departments, setDepartments] = useState<string[]>([]);
+
+  // Expanded rows
+... (truncated,      753 total lines)
 ```
 </details>
 
@@ -17573,7 +18929,7 @@ export async function runPayrollValidation(
 
 ```
 Folder: lib
-Type: ts | Lines:      315
+Type: ts | Lines:      492
 Top definitions:
 --- Exports ---
 export function generatePayrollExcel(options: ExportOptions): Blob {
@@ -17582,14 +18938,19 @@ export function downloadPayrollExcel(blob: Blob, fileName: string) {
 --- Key Functions/Components ---
 interface ExportOptions {
 function addGenericSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], month: number, year: number) {
+function addAllowancesDetailSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], month: number, year: number) {
+function addDeductionsDetailSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], month: number, year: number) {
 function addKulcsSoftSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], month: number, year: number) {
 function addNexonSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], month: number, year: number) {
 function addSAPSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], month: number, year: number) {
+function formatAllowanceType(type: string): string {
+function formatDeductionType(type: string): string {
+function formatTaxTreatment(treatment: string): string {
 function hashCode(str: string): number {
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      315)</summary>
+<summary>📄 Preview (first 100 lines of      492)</summary>
 
 ```ts
 // lib/payrollExportUtils.ts
@@ -17640,19 +19001,21 @@ export function generatePayrollExcel(options: ExportOptions): Blob {
 }
 
 /**
- * Generic format - human-readable
+ * Generic format - human-readable with compensation details
  */
 function addGenericSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], month: number, year: number) {
   const monthName = new Date(year, month - 1).toLocaleString('en-US', { month: 'long' });
   
   // Prepare data for sheet
-  const sheetData = [
+  const sheetData : (string | number)[][] = [
     [`Payroll Export - ${monthName} ${year}`],
     [],
     [
       'Employee ID', 'Last Name', 'First Name', 'TAJ Number', 'Tax ID',
       'Position', 'Department', 'Employment Type', 'Contract Type',
-      'Gross Salary (HUF)', 'Currency', 'Bank IBAN', 'Bank Name',
+      'Base Salary (HUF)', 'Total Allowances', 'Taxable Allowances', 'Non-Taxable Allowances',
+      'Total Deductions', 'Gross Total', 'Net Before Tax',
+      'Currency', 'Bank IBAN', 'Bank Name',
       'Worked Days', 'Leave Days', 'Actual Worked Days', 'Weekly Hours'
     ]
   ];
@@ -17669,14 +19032,20 @@ function addGenericSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], mon
       emp.department || '',
       emp.employment_type,
       emp.contract_type,
-      emp.salary_amount,
+      Number(emp.salary_amount) || 0,
+      Number(emp.total_allowances) || 0,
+      Number(emp.taxable_allowances) || 0,
+      Number(emp.non_taxable_allowances) || 0,
+      Number(emp.total_deductions) || 0,
+      Number(emp.gross_total) || Number(emp.salary_amount) || 0,
+      Number(emp.net_before_tax) || Number(emp.salary_amount) || 0,
       emp.salary_currency,
       emp.bank_account_iban || '',
       emp.bank_name || '',
-      emp.worked_days,
-      emp.leave_days,
-      emp.actual_worked_days,
-      emp.weekly_hours
+      Number(emp.worked_days) || 0,
+      Number(emp.leave_days) || 0,
+      Number(emp.actual_worked_days) || 0,
+      Number(emp.weekly_hours) || 0
     ]);
   });
   
@@ -17684,15 +19053,7 @@ function addGenericSheet(workbook: XLSX.WorkBook, data: PayrollExportData[], mon
   
   // Set column widths
   worksheet['!cols'] = [
-    { wch: 36 }, // Employee ID
-    { wch: 20 }, // Last Name
-    { wch: 20 }, // First Name
-    { wch: 12 }, // TAJ
-    { wch: 12 }, // Tax ID
-    { wch: 25 }, // Position
-    { wch: 15 }, // Department
-    { wch: 15 }, // Employment Type
-... (truncated,      315 total lines)
+... (truncated,      492 total lines)
 ```
 </details>
 
@@ -18807,9 +20168,9 @@ export async function getUserName(userId: string) {
 ---
 
 # Statistics
-- **Files included:** 142
+- **Files included:** 150
 - **File size:** 584K
-- **Extraction date:** Tue Dec 30 16:59:43 CET 2025
+- **Extraction date:** Thu Jan  1 06:10:13 CET 2026
 
 # Technology Stack Detected
 
@@ -18857,8 +20218,13 @@ src/app/api/new-position/route.ts
 src/app/api/notifications/email/route.ts
 src/app/api/notifications/email/types.ts
 src/app/api/payroll/[id]/route.ts
+src/app/api/payroll/allowances/[id]/route.ts
+src/app/api/payroll/allowances/route.ts
+src/app/api/payroll/bulk/route.ts
 src/app/api/payroll/by-user/[userId]/route.ts
+src/app/api/payroll/deductions/route.ts
 src/app/api/payroll/export/route.ts
+src/app/api/payroll/grid/route.ts
 src/app/api/payroll/periods/close/route.ts
 src/app/api/payroll/periods/status/route.ts
 src/app/api/payroll/route.ts

@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Analytics } from "@vercel/analytics/next"
+import { getPrompt, fillPromptVariables, PromptNotFoundError, PromptDatabaseError } from "../../../../../lib/prompts";
 
 export const dynamic = "force-dynamic"; // évite le cache
 export const maxDuration = 60; // Vercel: laisse le temps à l'OCR
@@ -65,7 +66,7 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
-    const companyId = formData.get("company_id") as string | null; // AJOUT: récupération du company_id
+    const companyId = formData.get("company_id") as string | null;
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
@@ -88,7 +89,7 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     const safeName = sanitizeFileName(file.name);
-    const filePath = `uploads/${companyId}/${Date.now()}_${safeName}`; // MODIFICATION: inclure company_id dans le chemin
+    const filePath = `uploads/${companyId}/${Date.now()}_${safeName}`;
 
     const { error: uploadError } = await supabase.storage
       .from("medical-certificates")
@@ -149,28 +150,23 @@ export async function POST(req: NextRequest) {
         .join("\n")
         .trim() || "";
 
-//console.log("Raw PDF:", rawText)
-
-    // 3) Extraction JSON via OpenRouter
-    const extractPrompt = `
-You will receive raw OCR text from a Hungarian medical certificate. Be Careful, the language of the certificate may vary.
-I would like to return from this raw text: 
-The name (in the file it will first name and last name together), the starting date of sickness, the end date of sickness
-Extract the following fields and return STRICT JSON, nothing else:
-{
-  "employee_name": string | null,
-  "sickness_start_date": "YYYY-MM-DD" | null,
-  "sickness_end_date": "YYYY-MM-DD" | null
-}
-Rules:
-- If a field is missing, set it to "not recognised".
-- Try to normalize dates to YYYY-MM-DD if possible.
-- Do not include any explanation. Only output JSON.
-
-OCR TEXT:
----
-${rawText}
----`;
+    // 3) Extraction JSON via OpenRouter using database prompt
+    let extractPrompt: string;
+    
+    try {
+      const promptTemplate = await getPrompt('medical_certificate_extraction');
+      extractPrompt = fillPromptVariables(promptTemplate, {
+        rawText
+      });
+    } catch (error) {
+      if (error instanceof PromptNotFoundError || error instanceof PromptDatabaseError) {
+        console.error('Failed to load prompt:', error.message);
+        return NextResponse.json({ 
+          error: 'AI tool is currently unavailable. Please try again later.' 
+        }, { status: 503 });
+      }
+      throw error;
+    }
 
     const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -201,9 +197,8 @@ ${rawText}
 
     return NextResponse.json({
       success: true,
-      company_id: companyId, // AJOUT: retourner le company_id dans la réponse
+      company_id: companyId,
       storage_path: filePath,
-      //signed_url: signed.signedUrl,
       public_url: publicUrl,
       raw_text: rawText,
       extracted_data: structured,

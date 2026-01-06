@@ -179,7 +179,7 @@ export default function CVAnalyseClient({
             <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" aria-hidden />
             <h2 className="text-lg sm:text-xl font-semibold text-gray-800">{t('cvAnalyse.sections.positionDescription')}</h2>
           </div>
-          <p className="text-gray-600 leading-relaxed text-sm sm:text-base">{jobDescriptionDetailed}</p>
+          <p className="text-gray-600 leading-relaxed text-sm sm:text-base">{jobDescription}</p>
         </div>
 
         {/* Demo CVs Download Block */}

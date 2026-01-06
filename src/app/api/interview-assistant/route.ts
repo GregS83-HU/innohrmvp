@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getPrompts, fillPromptVariables, PromptNotFoundError, PromptDatabaseError } from '../../../../lib/prompts'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -76,75 +77,54 @@ export async function POST(req: NextRequest) {
 
     let prompt = ''
     let aiMode = ''
+    let promptName = ''
 
+    // Determine which prompt to use
     if (mode === 'questions') {
       aiMode = 'questions'
-      prompt = `
-You are an HR expert preparing a job interview.
-
-IMPORTANT: Generate all content in ${languageName}. All questions must be in ${languageName}.
-
-Candidate: ${candidat.candidat_firstname} ${candidat.candidat_lastname}
-
-CV:
-${candidat.cv_text}
-
-Job:
-${position.position_description_detailed}
-
-Current recruitment step: ${recruitmentStep.step_name}
-
-Generate 6–8 precise, role-specific questions tailored for the "${recruitmentStep.step_name}" stage for the job and the CV I've sent you.
-Return ONLY valid JSON in this exact format (with all text in ${languageName}):
-{
-  "questions": [
-    { "category": "technical", "text": "..." },
-    { "category": "behavioral", "text": "..." }
-  ]
-}
-`
+      promptName = 'interview_questions_generation'
     } else if (mode === 'summary') {
       aiMode = 'summary'
-      prompt = `
-You are an HR assistant. Please be strict and fair especially when you will give the final score. The goal is to give a clear advice to the recruiter without being too kind.
-
-IMPORTANT: Generate all content in ${languageName}. The entire summary, strengths, weaknesses and recommendations must be in ${languageName}.
-
-Candidate: ${candidat.candidat_firstname} ${candidat.candidat_lastname}
-
-CV:
-${candidat.cv_text}
-
-Job:
-${position.position_description_detailed}
-
-Current recruitment step: ${recruitmentStep.step_name}
-
-Recruiter notes:
-${notes}
-
-Generate a structured interview summary for the "${recruitmentStep.step_name}" stage and recommend the next step.
-The summary should strict but fair and only taking in account the job, the CV, the current step and the notes from the recruiter.
-The score should reflect if the candidate, based on the CV, the position and the interview summmary notes is fitting or not. 
-SCORING RULES (be strict and critical):
-- 9-10: Perfect match, all requirements met excellently
-- 7-8: Strong fit, most requirements met well
-- 5-6: Marginal fit, some key gaps
-- <5: Unsuitable, missing core requirements
-
-Return ONLY valid JSON in this exact format (with all text in ${languageName} including the category titles):
-{
-  "summary": "detailed summary in ${languageName}",
-  "strengths": ["strength 1 in ${languageName}", "strength 2 in ${languageName}"],
-  "weaknesses": ["weakness 1 in ${languageName}", "weakness 2 in ${languageName}"],
-  "recommendation": "recommendation in ${languageName}",
-  "next_step_recommendation": "next step recommendation in ${languageName}",
-  "score after interview": number
-}
-`
+      promptName = 'interview_summary_generation'
     } else {
       console.error('[Interview Assistant] Invalid mode:', mode)
       return NextResponse.json({ error: 'Invalid mode' }, { status: 400 })
+    }
+
+    // Fetch prompt from database
+    try {
+      const promptTemplate = await getPrompts([promptName]);
+      const template = promptTemplate[promptName];
+      
+      const candidateName = `${candidat.candidat_firstname} ${candidat.candidat_lastname}`;
+      const jobDescription = position.position_description_detailed || position.position_description;
+      
+      if (mode === 'questions') {
+        prompt = fillPromptVariables(template, {
+          languageName,
+          candidateName,
+          cvText: candidat.cv_text,
+          jobDescription,
+          stepName: recruitmentStep.step_name
+        });
+      } else if (mode === 'summary') {
+        prompt = fillPromptVariables(template, {
+          languageName,
+          candidateName,
+          cvText: candidat.cv_text,
+          jobDescription,
+          stepName: recruitmentStep.step_name,
+          notes: notes || ''
+        });
+      }
+    } catch (error) {
+      if (error instanceof PromptNotFoundError || error instanceof PromptDatabaseError) {
+        console.error('[Interview Assistant] Failed to load prompt:', error.message);
+        return NextResponse.json({ 
+          error: 'AI tool is currently unavailable. Please try again later.' 
+        }, { status: 503 });
+      }
+      throw error;
     }
 
     const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {

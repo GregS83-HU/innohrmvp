@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import parsePdfBuffer from '../../../../lib/parsePdfSafe';
 import { createClient } from '@supabase/supabase-js';
 import { consumeCredit } from '../../../../lib/credit';
+import { getPrompt, fillPromptVariables, PromptNotFoundError, PromptDatabaseError } from '../../../../lib/prompts';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -255,107 +256,6 @@ export async function POST(req: NextRequest) {
       .from('cvs')
       .upload(filePath, buffer, { contentType: 'application/pdf' });
 
-    // ===  SINGLE COMBINED AI PROMPT ===
-    const combinedPrompt = `
-You are an experienced recruiter and career consultant. Analyze this CV against the job requirements and provide BOTH a recruiter analysis AND candidate feedback.
-
-CV: ${cvText}
-
-Job Requirements: ${jobDescription}
-
-IMPORTANT GENERAL RULES:
-- Respond in the SAME LANGUAGE as the CV (detect automatically).
-- Evaluate candidates as a REAL recruiter would: fairly, pragmatically, and with hiring realism.
-- Consider transferable skills and growth potential, but NEVER let them fully compensate for missing core role experience.
-
-----------------------------------------
-CORE REQUIREMENTS IDENTIFICATION (CRITICAL STEP)
-----------------------------------------
-First, extract from the job description:
-- The 3 to 5 CORE REQUIREMENTS of the role.
-Core requirements are responsibilities or skills that are essential to perform the job independently.
-
-Then, evaluate whether the candidate has:
-- DIRECT EXPERIENCE (owned, led, or was accountable for)
-- PARTIAL EXPERIENCE (contributed but did not own)
-- NO EXPERIENCE
-
-This evaluation MUST directly influence the final score.
-
-----------------------------------------
-SCORING GUIDELINES (MANDATORY)
-----------------------------------------
-- 9–10: Excellent match  
-  → Direct experience in ALL core requirements + strong supporting skills
-
-- 7–8: Strong match  
-  → Direct experience in MOST core requirements, remaining gaps are minor or trainable
-
-- 6–7: Moderate match with potential  
-  → Direct experience in SOME core requirements, others only partially covered
-
-- 5–6: Weak match  
-  → Mostly transferable skills, limited direct experience in core requirements
-
-- <5: Poor match  
-  → Lacks direct experience in most core requirements
-
-IMPORTANT SCORING RULES:
-- If the candidate lacks direct experience in MORE THAN HALF of the core requirements, the score MUST NOT exceed 6.
-- Seniority, leadership, or prestige titles MUST NOT override missing core experience.
-- Different candidates with different coverage of core requirements SHOULD NOT receive identical scores.
-
-----------------------------------------
-OUTPUT FORMAT (STRICT)
-----------------------------------------
-Provide your response as JSON with this EXACT structure:
-{
-  "score": number,
-  "analysis": "string",
-  "candidateFeedback": "string",
-  "candidat_firstname": "string",
-  "candidat_lastname": "string",
-  "candidat_email": "string",
-  "candidat_phone": "string"
-}
-
-----------------------------------------
-FOR "analysis" FIELD (Recruiter perspective – objective and decision-focused):
-Write a professional analysis covering:
-
-1. Alignment with core job requirements (explicitly reference them)\\n\\n
-2. Key strengths that support performance in the role\\n\\n
-3. Gaps or risks that could impact success\\n\\n
-4. Overall hiring assessment (hire / consider / reject logic)\\n\\n
-5. THREE KEY INTERVIEW QUESTIONS targeting the identified gaps\\n\\n
-
-Tone: factual, realistic, and decision-oriented. Avoid exaggeration.
-
-----------------------------------------
-FOR "candidateFeedback" FIELD (Candidate perspective – supportive and constructive):
-Write an encouraging message including:
-
-1. Personal greeting using first and last name\\n\\n
-2. Clear summary of strengths relevant to the role\\n\\n
-3. Development areas with concrete improvement actions\\n\\n
-4. Career guidance, including adjacent or alternative roles if relevant\\n\\n
-5. Practical next steps (skills, experience, CV improvements)\\n\\n
-
-Finish ONLY with:
-"Best regards."
-
-Tone: professional, motivating, and actionable.
-
-----------------------------------------
-CANDIDATE DATA EXTRACTION:
-Extract the candidate's first name, last name, email, and phone number from the CV.
-If not found, use empty string "".
-
-FINAL REMINDER:
-Write EVERYTHING in the same language as the CV.
-`;
-   
-
     // === CHECK AI CREDITS BEFORE ANALYSIS ===
     const companySlug = formData.get('companySlug')?.toString();
     console.log('FormData keys:', Array.from(formData.keys()));
@@ -383,6 +283,28 @@ Write EVERYTHING in the same language as the CV.
     if (!ok) {
       return NextResponse.json({ error: 'You have no remaining AI credits this month.' }, { status: 402 });
     }
+
+    // === FETCH PROMPT FROM DATABASE ===
+    console.log('Fetching CV analysis prompt from database...');
+    
+    let promptTemplate: string;
+    try {
+      promptTemplate = await getPrompt('cv_analysis_combined');
+    } catch (error) {
+      if (error instanceof PromptNotFoundError || error instanceof PromptDatabaseError) {
+        console.error('Failed to load prompt:', error.message);
+        return NextResponse.json({ 
+          error: 'AI tool is currently unavailable. Please try again later.' 
+        }, { status: 503 });
+      }
+      throw error;
+    }
+
+    // Fill in the variables
+    const combinedPrompt = fillPromptVariables(promptTemplate, {
+      cvText,
+      jobDescription
+    });
 
     // === SINGLE AI CALL ===
     console.log('Starting combined AI analysis...');

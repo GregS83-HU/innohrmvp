@@ -12,9 +12,10 @@ type InterviewSummary = {
   summary: string
   strengths?: string[]
   weaknesses?: string[]
-  cultural_fit: string
+  cultural_fit?: string
   recommendation: string
-  score: number
+  score: number 
+  next_step_recommendation: string
 }
 
 export default function InterviewAssistantModal({
@@ -137,9 +138,15 @@ export default function InterviewAssistantModal({
             <p><strong>{t('interviewAssistant.summary.summaryLabel')}:</strong> {interviewSummary.summary}</p>
             <p><strong>{t('interviewAssistant.summary.strengthsLabel')}:</strong> {interviewSummary.strengths?.join(', ')}</p>
             <p><strong>{t('interviewAssistant.summary.weaknessesLabel')}:</strong> {interviewSummary.weaknesses?.join(', ')}</p>
-            <p><strong>{t('interviewAssistant.summary.culturalFitLabel')}:</strong> {interviewSummary.cultural_fit}</p>
+            {interviewSummary.cultural_fit && (
+              <p><strong>{t('interviewAssistant.summary.culturalFitLabel')}:</strong> {interviewSummary.cultural_fit}</p>
+            )}
             <p><strong>{t('interviewAssistant.summary.recommendationLabel')}:</strong> {interviewSummary.recommendation}</p>
+            {/* ✅ Fixed: Use the correct field name with spaces */}
             <p><strong>{t('interviewAssistant.summary.scoreLabel')}:</strong> {interviewSummary.score}/10</p>
+            {interviewSummary.next_step_recommendation && (
+              <p><strong>{t('interviewAssistant.summary.nextStepsLabel')}:</strong> {interviewSummary.next_step_recommendation}</p>
+            )}
           </div>
         )}
 
