@@ -62,7 +62,7 @@ export default function BulkOperationsModal({
       setProcessing(true);
       setResult(null);
 
-      let requestBody: Record<string, unknown> = {
+      const requestBody: Record<string, unknown> = {
         operation,
         payroll_ids: selectedPayrollIds,
         current_user_id: currentUserId,

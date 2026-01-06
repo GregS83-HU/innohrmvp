@@ -20,13 +20,20 @@ import {
   ChevronLeft,
   ChevronRight as ChevronRightIcon,
 } from 'lucide-react';
-import type { EmploymentType } from '../../types/payroll';
+//import type { EmploymentType } from '../../types/payroll';
 import { formatHUF, getAllowanceTypeLabel, getDeductionTypeLabel } from '../../types/payroll';
 import BulkOperationsModal from './BulkOperationsModal';
 import React from 'react';
+import type {
+  EmploymentType,
+  AllowanceType,
+  DeductionType,
+} from '../../types/payroll';
 
 
-interface GridEmployee {
+
+
+export interface GridEmployee {
   id: string;
   user_id: string;
   users: {
@@ -45,20 +52,22 @@ interface GridEmployee {
   allowances_count: number;
   deductions_count: number;
   allowances: Array<{
-    id: string;
-    allowance_type: string;
-    amount: number;
-    description?: string;
-    is_recurring: boolean;
-  }>;
-  deductions: Array<{
-    id: string;
-    deduction_type: string;
-    amount: number;
-    description?: string;
-    remaining_amount?: number;
-    installments_remaining?: number;
-  }>;
+  id: string;
+  allowance_type: AllowanceType;
+  amount: number;
+  description?: string;
+  is_recurring: boolean;
+}>;
+
+deductions: Array<{
+  id: string;
+  deduction_type: DeductionType;
+  amount: number;
+  description?: string;
+  remaining_amount?: number;
+  installments_remaining?: number;
+}>;
+
   validation_status: 'valid' | 'warning' | 'error';
   validation_issues_count: number;
 }
@@ -618,7 +627,7 @@ export default function PayrollGridView({
                                       <div className="flex justify-between items-start">
                                         <div>
                                           <div className="font-medium text-gray-900">
-                                            {getAllowanceTypeLabel(allowance.allowance_type as any)}
+                                            {getAllowanceTypeLabel(allowance.allowance_type)}
                                           </div>
                                           {allowance.description && (
                                             <div className="text-xs text-gray-600 mt-1">{allowance.description}</div>
@@ -650,7 +659,7 @@ export default function PayrollGridView({
                                       <div className="flex justify-between items-start">
                                         <div>
                                           <div className="font-medium text-gray-900">
-                                            {getDeductionTypeLabel(deduction.deduction_type as any)}
+                                            {getDeductionTypeLabel(deduction.deduction_type)}
                                           </div>
                                           {deduction.description && (
                                             <div className="text-xs text-gray-600 mt-1">{deduction.description}</div>
