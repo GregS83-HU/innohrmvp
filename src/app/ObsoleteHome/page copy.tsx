@@ -14,7 +14,7 @@ export default function HomePage() {
           <div className="text-center">
             <img
               src="/HRInnoLogo.jpeg"
-              alt="InnoHR"
+              alt="HRInno"
               width="450"
               height="450"
               className="rounded-full shadow-lg mx-auto mb-4"

@@ -10,7 +10,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 
 
 export const metadata: Metadata = {
-  title: "InnoHR",
+  title: "HRInno",
   description: "HR was never as easy as NOW",
 };
 

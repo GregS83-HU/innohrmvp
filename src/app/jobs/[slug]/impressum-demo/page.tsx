@@ -14,8 +14,8 @@ export default function ImpressumDemo() {
       <ul className="space-y-2 mb-6">
         <li><strong>{t('impressumDemo.fields.operator')}:</strong> Saussez Grégory</li>
         <li><strong>{t('impressumDemo.fields.address')}:</strong> Budapest, Hungary</li>
-        <li><strong>{t('impressumDemo.fields.email')}:</strong> <a href="mailto:privacy@innohr.hu" className="underline text-blue-600">privacy@innohr.hu</a></li>
-        <li><strong>{t('impressumDemo.fields.website')}:</strong> https://innohr.hu</li>
+        <li><strong>{t('impressumDemo.fields.email')}:</strong> <a href="mailto:privacy@hrinno.hu" className="underline text-blue-600">privacy@innohr.hu</a></li>
+        <li><strong>{t('impressumDemo.fields.website')}:</strong> https://www.hrinno.hu</li>
       </ul>
 
       <section className="mb-8">
