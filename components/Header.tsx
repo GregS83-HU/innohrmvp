@@ -352,7 +352,7 @@ export default function Header() {
               
               
             )}
-             {isSuperAdmin && (
+             {isAdmin && (
               <Link
                 href={payRoll}
                 onClick={() => setIsAccountMenuOpen(false)}
