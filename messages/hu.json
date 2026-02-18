@@ -274,7 +274,8 @@
       "positionDescriptionPlaceholder": "Rövid leírás, amelyet a jelöltek látni fognak...",
       "positionDescriptionDetailed": "Részletes pozícióleírás (AI elemzéshez)",
       "positionDescriptionDetailedPlaceholder": "Részletes követelmények, készségek és képesítések az AI párosításhoz...",
-      "startingDate": "Kezdési dátum"
+      "startingDate": "Kezdési dátum",
+      "manager": "Ki lesz a vezetője?"
     },
     "buttons": {
       "createPosition": "Pozíció létrehozása",
@@ -304,7 +305,13 @@
       "analysisComplete": "Elemzés befejezve:",
       "candidatesCorresponding": "megfelelő jelölt",
       "serverError": "Váratlan szerverhiba az elemzés során",
-      "createdRunLater": "Pozíció sikeresen létrehozva. Az elemzést később futtathatja."
+      "createdRunLater": "Pozíció sikeresen létrehozva. Az elemzést később futtathatja.",
+      "errorCompanyId": "Cégazonosító nem található. Kérjük, frissítse az oldalt.",
+      "noCredits": "Nincs több AI kreditje ebben a hónapban. Kérjük, frissítse csomagját.",
+      "aiGenerationFailed": "A leírások generálása sikertelen. Kérjük, próbálja újra.",
+      "aiGenerationSuccess": "✨ Leírások sikeresen generálva! Ellenőrizze őket alább, és végezze el a szükséges módosításokat.",
+            "positionNameRequired": "Kérjük, adjon meg egy pozíciónevet a leírások generálása előtt."
+
     },
     "analysis": {
       "title": "Jelöltek elemzése",
@@ -325,7 +332,29 @@
       "errorLoading": "Hiba a felhasználók betöltésekor. Kérlek, lépj kapcsolatba az adminisztrátorral.",
       "noUsers": "Nem található felhasználó. Kérlek, lépj kapcsolatba az adminisztrátorral.",
       "noUsersFound": "Nem található felhasználó"
-}
+},
+"aiSection": {
+      "title": "AI-Alapú Pozícióleírás Generátor",
+      "description": "Hagyja, hogy az AI professzionális állásleírásokat készítsen Önnek. Adjon meg egy vázlatot, és kapjon egy marketing verziót a hirdetésekhez és egy részletes verziót a jelölt elemzéshez.",
+      "generateButton": "Generálás AI-val ✨"
+    },
+    
+    "aiModal": {
+      "title": "Pozícióleírások Generálása AI-val",
+      "instructions": "Hogyan működik:",
+      "instruction1": "Írja le a pozíciót saját szavaival (kulcsfontosságú feladatok, követelmények, csapat)",
+      "instruction2": "Az AI létrehoz egy marketing verziót (álláshirdetésekhez) és egy részletes verziót (önéletrajz-elemzéshez)",
+      "instruction3": "Ellenőrizze és szerkessze a generált leírásokat mentés előtt",
+      "generatingFor": "Generálás ehhez:",
+      "roughDraftLabel": "Az Ön Vázlata",
+      "roughDraftPlaceholder": "Példa: Keresünk egy senior frontend fejlesztőt, aki ismeri a React-et és a TypeScript-et. A fő termékünkön fog dolgozni, együttműködik a tervezőkkel és mentorál junior fejlesztőket. Olyan valakit keresünk, aki 5+ év tapasztalattal rendelkezik és képes technikai döntéseket hozni...",
+      "characters": "karakter",
+      "minLengthError": "Kérjük, írjon legalább 20 karaktert",
+      "creditWarning": "Ez 1 AI kreditet fog felhasználni a fiókjából",
+      "generating": "Generálás folyamatban...",
+      "generateButton": "Leírások Generálása",
+      "cancel": "Mégse"
+    }
   }
 ,
   "cvAnalyse": {

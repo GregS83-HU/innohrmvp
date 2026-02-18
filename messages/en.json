@@ -277,7 +277,8 @@
       "positionDescriptionPlaceholder": "Brief description that will be shown to candidates...",
       "positionDescriptionDetailed": "Position Description Detailed (For AI analyse)",
       "positionDescriptionDetailedPlaceholder": "Detailed requirements, skills, and qualifications for AI matching...",
-      "startingDate": "Starting Date"
+      "startingDate": "Starting Date",
+      "manager": "Who will be the manager?"
     },
     "buttons": {
       "createPosition": "Create Position",
@@ -307,7 +308,13 @@
       "analysisComplete": "Analyse completed:",
       "candidatesCorresponding": "candidates are corresponding",
       "serverError": "Unexpected server error during analysis",
-      "createdRunLater": "Position created successfully. You can run the analysis later."
+      "createdRunLater": "Position created successfully. You can run the analysis later.",
+      "errorCompanyId": "Company ID not found. Please refresh the page.",
+      "noCredits": "You have no remaining AI credits this month. Please upgrade your plan.",
+      "aiGenerationFailed": "Failed to generate descriptions. Please try again.",
+      "aiGenerationSuccess": "✨ Descriptions generated successfully! Review them below and make any adjustments.",
+      "positionNameRequired": "Please enter a position name before generating descriptions."
+
     },
     "analysis": {
       "title": "Candidate Analysis",
@@ -328,7 +335,30 @@
     "errorLoading": "Error loading users. Please contact your admin.",
     "noUsers": "No users found. Please contact your admin.",
     "noUsersFound": "No users found"
-  }
+  }, 
+  
+    "aiSection": {
+      "title": "AI-Powered Description Generator",
+      "description": "Let AI create professional job descriptions for you. Provide a rough draft and get both a marketing version for ads and a detailed version for candidate analysis.",
+      "generateButton": "Generate with AI ✨"
+    },
+    
+    "aiModal": {
+      "title": "Generate Position Descriptions with AI",
+      "instructions": "How it works:",
+      "instruction1": "Describe the position in your own words (key responsibilities, requirements, team)",
+      "instruction2": "AI will create a marketing version (for job ads) and a detailed version (for CV analysis)",
+      "instruction3": "Review and edit the generated descriptions before saving",
+      "generatingFor": "Generating for:",
+      "roughDraftLabel": "Your Draft Description",
+      "roughDraftPlaceholder": "Example: We need a senior frontend developer who knows React and TypeScript. They'll work on our main product, collaborate with designers, and mentor junior devs. Looking for someone with 5+ years experience who can lead technical decisions...",
+      "characters": "characters",
+      "minLengthError": "Please write at least 20 characters",
+      "creditWarning": "This will consume 1 AI credit from your account",
+      "generating": "Generating...",
+      "generateButton": "Generate Descriptions",
+      "cancel": "Cancel"
+    }
   }
 ,
   "cvAnalyse": {

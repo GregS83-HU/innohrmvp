@@ -267,7 +267,8 @@
       "positionDescriptionPlaceholder": "Brève description qui sera montrée aux candidats...",
       "positionDescriptionDetailed": "Description Détaillée du Poste (Pour l'analyse IA)",
       "positionDescriptionDetailedPlaceholder": "Exigences détaillées, compétences et qualifications pour le matching IA...",
-      "startingDate": "Date de Début"
+      "startingDate": "Date de Début",
+      "manager": "Qui sera le manager ?"
     },
     "buttons": {
       "createPosition": "Créer le Poste",
@@ -297,7 +298,13 @@
       "analysisComplete": "Analyse terminée :",
       "candidatesCorresponding": "candidats correspondent",
       "serverError": "Erreur serveur inattendue lors de l'analyse",
-      "createdRunLater": "Poste créé avec succès. Vous pouvez lancer l'analyse plus tard."
+      "createdRunLater": "Poste créé avec succès. Vous pouvez lancer l'analyse plus tard.",
+       "errorCompanyId": "ID de l'entreprise introuvable. Veuillez actualiser la page.",
+      "noCredits": "Vous n'avez plus de crédits IA ce mois-ci. Veuillez mettre à niveau votre forfait.",
+      "aiGenerationFailed": "Échec de la génération des descriptions. Veuillez réessayer.",
+      "aiGenerationSuccess": "✨ Descriptions générées avec succès ! Relisez-les ci-dessous et apportez les ajustements nécessaires.",
+            "positionNameRequired": "Veuillez entrer un nom de poste avant de générer les descriptions."
+
     },
     "analysis": {
       "title": "Analyse des Candidats",
@@ -318,7 +325,29 @@
     "errorLoading": "Une erreur est survenue lors du chargement des utilisateurs. Veuillez contacter votre administrateur.",
     "noUsers": "Aucun utilisateur trouvé. Veuillez contacter votre administrateur.",
     "noUsersFound": "Aucun utilisateur trouvé"
-  }
+  },
+  "aiSection": {
+      "title": "Générateur de Description IA",
+      "description": "Laissez l'IA créer des descriptions de poste professionnelles pour vous. Fournissez un brouillon et obtenez une version marketing pour les annonces et une version détaillée pour l'analyse des candidats.",
+      "generateButton": "Générer avec l'IA ✨"
+    },
+    
+    "aiModal": {
+      "title": "Générer les Descriptions avec l'IA",
+      "instructions": "Comment ça marche :",
+      "instruction1": "Décrivez le poste dans vos propres mots (responsabilités clés, exigences, équipe)",
+      "instruction2": "L'IA créera une version marketing (pour les annonces) et une version détaillée (pour l'analyse des CV)",
+      "instruction3": "Relisez et modifiez les descriptions générées avant de sauvegarder",
+      "generatingFor": "Génération pour :",
+      "roughDraftLabel": "Votre Description Brouillon",
+      "roughDraftPlaceholder": "Exemple : Nous recherchons un développeur frontend senior qui connaît React et TypeScript. Il travaillera sur notre produit principal, collaborera avec les designers et encadrera les développeurs juniors. Nous recherchons quelqu'un avec 5+ ans d'expérience qui peut prendre des décisions techniques...",
+      "characters": "caractères",
+      "minLengthError": "Veuillez écrire au moins 20 caractères",
+      "creditWarning": "Cela consommera 1 crédit IA de votre compte",
+      "generating": "Génération en cours...",
+      "generateButton": "Générer les Descriptions",
+      "cancel": "Annuler"
+    }
   },
   "cvAnalyse": {
     "header": {
