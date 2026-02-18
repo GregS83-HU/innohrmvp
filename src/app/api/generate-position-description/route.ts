@@ -92,7 +92,7 @@ function extractAndParseJSON(rawResponse: string) {
     throw new Error('No valid JSON found in response');
   }
 
-  let jsonString = trimmed.substring(firstBrace, lastBrace + 1);
+  const jsonString = trimmed.substring(firstBrace, lastBrace + 1);
   
   // Try multiple sanitization strategies
   const strategies = [
