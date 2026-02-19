@@ -3,623 +3,140 @@
 import { useSession } from '@supabase/auth-helpers-react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { Plus, Calendar, FileText, Briefcase, BarChart3, CheckCircle, AlertCircle, Activity, Lock, X, Clock, Users, ChevronDown, Search, User, Sparkles, Wand2, MapPin } from 'lucide-react'
+import { Plus, BarChart3, CheckCircle, AlertCircle, Activity, Lock } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { useLocale } from 'i18n/LocaleProvider'
+
+import { PositionForm, PositionFormData } from '../../../../../../components/newposition/PositionForm'
+import { AIGenerateModal } from '../../../../../../components/newposition/AIGenerateModal'
+import { ConfirmAnalysisModal } from '../../../../../../components/newposition//ConfirmAnalysisModal'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-interface CompanyUser {
-  user_id: string
-  first_name: string
-  last_name: string
-  email: string
-  is_admin: boolean
-  is_super_admin: boolean
-  is_manager: boolean
-  manager_id: string | null
-  manager_first_name: string | null
-  manager_last_name: string | null
-  employment_start_date: string | null
-}
-
-interface TranslationFunction {
-  (key: string): string
-}
-
-interface ManagerDropdownProps {
-  selectedManager: CompanyUser | null
-  onSelect: (manager: CompanyUser | null) => void
-  companyId: string
-  t: TranslationFunction
-}
-
-function ManagerDropdown({ selectedManager, onSelect, companyId, t }: ManagerDropdownProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [managers, setManagers] = useState<CompanyUser[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const dropdownRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const fetchManagers = async () => {
-      setLoading(true)
-      setError(null)
-      
-      try {
-        const { data, error } = await supabase
-          .rpc('get_company_users', { company_id_input: companyId })
-        
-        if (error) {
-          console.error('Error fetching company users:', error)
-          setError(t('managerDropdown.errorLoading'))
-          setManagers([])
-          return
-        }
-        
-        if (!data || data.length === 0) {
-          setError(t('managerDropdown.noUsers'))
-          setManagers([])
-          return
-        }
-        
-        setManagers(data)
-      } catch (err) {
-        console.error('Unexpected error:', err)
-        setError(t('managerDropdown.errorLoading'))
-        setManagers([])
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    if (companyId) {
-      fetchManagers()
-    }
-  }, [companyId, t])
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
-  const filteredManagers = managers.filter(manager => {
-    const fullName = `${manager.first_name} ${manager.last_name}`.toLowerCase()
-    return fullName.includes(searchTerm.toLowerCase())
-  })
-
-  const handleSelect = (manager: CompanyUser) => {
-    onSelect(manager)
-    setIsOpen(false)
-    setSearchTerm('')
-  }
-
-  const handleClear = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    onSelect(null)
-  }
-
-  return (
-    <div ref={dropdownRef} className="relative">
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all flex items-center justify-between bg-white"
-      >
-        <span className={selectedManager ? 'text-gray-900' : 'text-gray-400'}>
-          {selectedManager 
-            ? `${selectedManager.first_name} ${selectedManager.last_name}`
-            : t('managerDropdown.selectManager')
-          }
-        </span>
-        <div className="flex items-center gap-2">
-          {selectedManager && (
-            <X 
-              className="w-4 h-4 text-gray-400 hover:text-gray-600 transition-colors" 
-              onClick={handleClear}
-            />
-          )}
-          <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-        </div>
-      </button>
-
-      {isOpen && (
-        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-hidden">
-          <div className="p-3 border-b border-gray-200">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder={t('managerDropdown.searchPlaceholder')}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                onClick={(e) => e.stopPropagation()}
-              />
-            </div>
-          </div>
-
-          <div className="overflow-y-auto max-h-48">
-            {loading ? (
-              <div className="p-4 text-center text-gray-500">
-                <div className="animate-spin w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
-                {t('managerDropdown.loading')}
-              </div>
-            ) : error ? (
-              <div className="p-4 text-center text-red-600 text-sm">
-                {error}
-              </div>
-            ) : filteredManagers.length === 0 ? (
-              <div className="p-4 text-center text-gray-500 text-sm">
-                {t('managerDropdown.noUsersFound')}
-              </div>
-            ) : (
-              filteredManagers.map((manager) => (
-                <button
-                  key={manager.user_id}
-                  type="button"
-                  onClick={() => handleSelect(manager)}
-                  className="w-full px-4 py-3 text-left hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0"
-                >
-                  <div className="font-medium text-gray-900">
-                    {manager.first_name} {manager.last_name}
-                  </div>
-                  <div className="text-sm text-gray-500">{manager.email}</div>
-                </button>
-              ))
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-interface AIGenerateModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onGenerate: (roughDraft: string) => void
-  positionName: string
-  loading?: boolean
-}
-
-function AIGenerateModal({
-  isOpen,
-  onClose,
-  onGenerate,
-  positionName,
-  loading = false
-}: AIGenerateModalProps) {
-  const { t } = useLocale()
-  const [roughDraft, setRoughDraft] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  
-  if (!isOpen) return null
-
-  const handleGenerate = () => {
-    if (roughDraft.trim().length < 20) {
-      setError(t('newPosition.aiModal.minLengthError'))
-      return
-    }
-    setError(null)
-    onGenerate(roughDraft)
-  }
-
-  const handleClose = () => {
-    if (!loading) {
-      setRoughDraft('')
-      setError(null)
-      onClose()
-    }
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 backdrop-blur-sm overflow-y-auto">
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full my-8 transform transition-all">
-          <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 relative">
-            <button
-              onClick={handleClose}
-              disabled={loading}
-              className="absolute top-4 right-4 text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            <Sparkles className="w-12 h-12 text-white mx-auto mb-3" />
-            <h2 className="text-2xl font-bold text-white text-center">
-              {t('newPosition.aiModal.title')}
-            </h2>
-          </div>
-
-          <div className="p-6 space-y-4">
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-100">
-              <div className="flex items-start gap-3">
-                <Wand2 className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
-                <div className="text-sm text-purple-900">
-                  <p className="font-medium mb-1">{t('newPosition.aiModal.instructions')}</p>
-                  <ul className="list-disc list-inside space-y-1 text-purple-800">
-                    <li>{t('newPosition.aiModal.instruction1')}</li>
-                    <li>{t('newPosition.aiModal.instruction2')}</li>
-                    <li>{t('newPosition.aiModal.instruction3')}</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {positionName && (
-              <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                <p className="text-sm text-gray-600">
-                  <span className="font-semibold">{t('newPosition.aiModal.generatingFor')}</span> {positionName}
-                </p>
-              </div>
-            )}
-
-            <div>
-              <label htmlFor="roughDraft" className="block text-sm font-semibold text-gray-700 mb-2">
-                {t('newPosition.aiModal.roughDraftLabel')}
-              </label>
-              <textarea
-                id="roughDraft"
-                value={roughDraft}
-                onChange={(e) => setRoughDraft(e.target.value)}
-                disabled={loading}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none disabled:bg-gray-50 disabled:cursor-not-allowed"
-                rows={8}
-                placeholder={t('newPosition.aiModal.roughDraftPlaceholder')}
-              />
-              <div className="flex justify-between items-center mt-2">
-                <p className="text-xs text-gray-500">
-                  {roughDraft.length} {t('newPosition.aiModal.characters')} (min. 20)
-                </p>
-                {error && (
-                  <p className="text-xs text-red-600">{error}</p>
-                )}
-              </div>
-            </div>
-
-            <div className="bg-amber-50 rounded-lg p-3 border border-amber-200">
-              <div className="flex items-center gap-2 text-amber-800 text-sm">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span>{t('newPosition.aiModal.creditWarning')}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-6 pt-0 space-y-3">
-            <button
-              onClick={handleGenerate}
-              disabled={loading || roughDraft.trim().length < 20}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                  {t('newPosition.aiModal.generating')}
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5" />
-                  {t('newPosition.aiModal.generateButton')}
-                </>
-              )}
-            </button>
-
-            <button
-              onClick={handleClose}
-              disabled={loading}
-              className="w-full text-gray-500 py-2 px-6 rounded-lg font-medium hover:text-gray-700 hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {t('newPosition.aiModal.cancel')}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-interface ConfirmAnalysisModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onConfirm: () => void
-  onCreateWithoutAnalysis: () => void
-  candidateCount: number
-  loading?: boolean
-}
-
-function ConfirmAnalysisModal({
-  isOpen,
-  onClose,
-  onConfirm,
-  onCreateWithoutAnalysis,
-  candidateCount,
-  loading = false
-}: ConfirmAnalysisModalProps) {
-  const { t } = useLocale()
-  
-  if (!isOpen) return null
-
-  const estimatedMinutes = Math.ceil((candidateCount * 5) / 60)
-  const estimatedTime = estimatedMinutes < 1 
-    ? `${candidateCount * 5} ${t('newPosition.modal.seconds')}`
-    : `${estimatedMinutes} ${t('newPosition.modal.minute')}${estimatedMinutes > 1 ? 's' : ''}`
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 relative">
-          <button
-            onClick={onClose}
-            disabled={loading}
-            className="absolute top-4 right-4 text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <X className="w-5 h-5" />
-          </button>
-          <AlertCircle className="w-12 h-12 text-white mx-auto mb-3" />
-          <h2 className="text-2xl font-bold text-white text-center">
-            {t('newPosition.modal.title')}
-          </h2>
-        </div>
-
-        <div className="p-6 space-y-4">
-          <p className="text-gray-600 text-center">
-            {t('newPosition.modal.message')}
-          </p>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 text-center border border-blue-100">
-              <Users className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-blue-600">{candidateCount}</div>
-              <div className="text-xs text-gray-600">{t('newPosition.modal.candidates')}</div>
-            </div>
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4 text-center border border-purple-100">
-              <Clock className="w-6 h-6 text-purple-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-purple-600">{candidateCount}</div>
-              <div className="text-xs text-gray-600">{t('newPosition.modal.aiCredits')}</div>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-4 border border-amber-200">
-            <div className="flex items-center gap-2 justify-center text-amber-800">
-              <Clock className="w-4 h-4" />
-              <span className="text-sm font-medium">
-                {t('newPosition.modal.estimatedTime')} ~{estimatedTime}
-              </span>
-            </div>
-          </div>
-
-          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-            <p className="text-xs text-gray-600 text-center">
-              {t('newPosition.modal.willConsume')} <span className="font-semibold text-gray-800">{candidateCount} {t('newPosition.modal.aiCredits')}</span> {t('newPosition.modal.fromAccount')}
-            </p>
-          </div>
-        </div>
-
-        <div className="p-6 pt-0 space-y-3">
-          <button
-            onClick={onConfirm}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-          >
-            {loading ? (
-              <>
-                <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                {t('newPosition.modal.processing')}
-              </>
-            ) : (
-              t('newPosition.modal.confirmStart')
-            )}
-          </button>
-          
-          <button
-            onClick={onCreateWithoutAnalysis}
-            disabled={loading}
-            className="w-full bg-white text-gray-700 py-3 px-6 rounded-lg font-medium border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {t('newPosition.modal.createWithoutAnalysis')}
-          </button>
-
-          <button
-            onClick={onClose}
-            disabled={loading}
-            className="w-full text-gray-500 py-2 px-6 rounded-lg font-medium hover:text-gray-700 hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {t('newPosition.modal.cancel')}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
+const DEFAULT_FORM: PositionFormData = {
+  positionName: '',
+  selectedManager: null,
+  positionDescription: '',
+  positionDescriptionDetailed: '',
+  positionStartDate: '',
+  location: '',
+  locationType: '',
+  employmentType: '',
+  salaryMin: '',
+  salaryMax: '',
+  salaryCurrency: 'HUF',
+  salaryPublic: false,
+  applicationDeadline: '',
 }
 
 export default function NewOpenedPositionPage() {
   const { t } = useLocale()
   const router = useRouter()
+  const pathname = usePathname()
   const session = useSession()
 
-  const [positionName, setPositionName] = useState('')
-  const [selectedManager, setSelectedManager] = useState<CompanyUser | null>(null)
-  const [positionDescription, setPositionDescription] = useState('')
-  const [positionDescriptionDetailed, setPositionDescriptionDetailed] = useState('')
-  const [positionStartDate, setPositionStartDate] = useState('')
-  
-  // NEW ENRICHMENT FIELDS
-  const [location, setLocation] = useState('')
-  const [locationType, setLocationType] = useState<'onsite' | 'hybrid' | 'remote' | ''>('')
-  const [employmentType, setEmploymentType] = useState<'full-time' | 'part-time' | 'contract' | 'internship' | 'temporary' | ''>('')
-  const [salaryMin, setSalaryMin] = useState('')
-  const [salaryMax, setSalaryMax] = useState('')
-  const [salaryCurrency, setSalaryCurrency] = useState('HUF')
-  const [salaryPublic, setSalaryPublic] = useState(false)
-  const [applicationDeadline, setApplicationDeadline] = useState('')
-  
+  // Form state (single object, easy to reset)
+  const [form, setForm] = useState<PositionFormData>(DEFAULT_FORM)
+  const setField = <K extends keyof PositionFormData>(field: K, value: PositionFormData[K]) => {
+    setForm((prev) => ({ ...prev, [field]: value }))
+  }
+
+  // UI / async state
   const [message, setMessage] = useState<{ text: string; type: 'error' | 'success' } | null>(null)
   const [loading, setLoading] = useState(false)
   const [positionId, setPositionId] = useState<string | null>(null)
   const [analysisLoading, setAnalysisLoading] = useState(false)
   const [analysisResult, setAnalysisResult] = useState<{ matched: number; total: number } | null>(null)
-  const [progress, setProgress] = useState<number>(0)
+  const [progress, setProgress] = useState(0)
   const [companyId, setCompanyId] = useState<string | null>(null)
   const [canCreatePosition, setCanCreatePosition] = useState<boolean | null>(null)
   const positionAccessChecked = useRef(false)
-  const pathname = usePathname()
 
+  // Modal state
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [candidateCount, setCandidateCount] = useState(0)
   const [fetchingCount, setFetchingCount] = useState(false)
-
   const [showAIModal, setShowAIModal] = useState(false)
   const [aiGenerating, setAiGenerating] = useState(false)
 
+  // Auth guard
   useEffect(() => {
-    if (!session) {
-      router.push('/')
-    }
+    if (!session) router.push('/')
   }, [session, router])
 
+  // Fetch company id
   const fetchUserCompanyId = useCallback(async (userId: string) => {
     try {
       const { data, error } = await supabase
         .from('company_to_users')
         .select('company_id')
         .eq('user_id', userId)
-        .single();
-      
-      if (error) {
-        console.error('Error fetching company_id:', error);
-        return;
-      }
-      
-      if (data?.company_id) {
-        setCompanyId(data.company_id);
-      }
-    } catch (error) {
-      console.error('Error in fetchUserCompanyId:', error);
+        .single()
+      if (!error && data?.company_id) setCompanyId(data.company_id)
+    } catch (e) {
+      console.error('Error in fetchUserCompanyId:', e)
     }
-  }, []);
+  }, [])
 
+  // Check position creation quota
   const checkPositionCreationAccess = useCallback(async () => {
-    if (!companyId || positionAccessChecked.current) return;
-    
-    positionAccessChecked.current = true;
-    
+    if (!companyId || positionAccessChecked.current) return
+    positionAccessChecked.current = true
     try {
       const { data, error } = await supabase.rpc('can_open_new_position', { p_company_id: companyId })
-      
-      if (error) {
-        setCanCreatePosition(false);
-        return;
-      }
-      
-      let hasAccess = false;
-      if (typeof data === 'boolean') {
-        hasAccess = data;
-      } else if (typeof data === 'string') {
-        hasAccess = data === 'true' || data === 'True' || data === 'TRUE';
-      } else if (typeof data === 'number') {
-        hasAccess = data === 1;
-      }
-      
-      setCanCreatePosition(hasAccess);
-    } catch (error) {
-      console.error('Error checking position access:', error);
-      setCanCreatePosition(false);
+      if (error) { setCanCreatePosition(false); return }
+      let hasAccess = false
+      if (typeof data === 'boolean') hasAccess = data
+      else if (typeof data === 'string') hasAccess = ['true', 'True', 'TRUE'].includes(data)
+      else if (typeof data === 'number') hasAccess = data === 1
+      setCanCreatePosition(hasAccess)
+    } catch {
+      setCanCreatePosition(false)
     }
-  }, [companyId]);
+  }, [companyId])
 
   useEffect(() => {
-    if (session?.user?.id) {
-      fetchUserCompanyId(session.user.id);
-    }
-  }, [session?.user?.id, fetchUserCompanyId]);
+    if (session?.user?.id) fetchUserCompanyId(session.user.id)
+  }, [session?.user?.id, fetchUserCompanyId])
 
   useEffect(() => {
-    if (companyId) {
-      checkPositionCreationAccess();
-    }
-  }, [companyId, checkPositionCreationAccess]);
+    if (companyId) checkPositionCreationAccess()
+  }, [companyId, checkPositionCreationAccess])
 
-  if (!session || canCreatePosition === null) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">
-            {!session ? t('newPosition.loading.userInfo') : t('newPosition.loading.checkingLimits')}
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  const userId = session.user.id
+  // --- Handlers ---
 
   const handleAIGenerate = async (roughDraft: string) => {
     if (!companyId) {
-      setMessage({ 
-        text: t('newPosition.messages.errorCompanyId'), 
-        type: 'error' 
-      })
+      setMessage({ text: t('newPosition.messages.errorCompanyId'), type: 'error' })
       return
     }
-
     setAiGenerating(true)
     setMessage(null)
-
     try {
       const res = await fetch('/api/generate-position-description', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          roughDraft: roughDraft,
-          positionName: positionName,
-          companyId: companyId
-        }),
+        body: JSON.stringify({ roughDraft, positionName: form.positionName, companyId }),
       })
-
       const data = await res.json()
-
       if (!res.ok) {
-        if (res.status === 402) {
-          setMessage({ 
-            text: t('newPosition.messages.noCredits'), 
-            type: 'error' 
-          })
-        } else {
-          setMessage({ 
-            text: data.error || t('newPosition.messages.aiGenerationFailed'), 
-            type: 'error' 
-          })
-        }
-        setAiGenerating(false)
+        setMessage({
+          text: res.status === 402
+            ? t('newPosition.messages.noCredits')
+            : data.error || t('newPosition.messages.aiGenerationFailed'),
+          type: 'error',
+        })
+      } else {
+        setField('positionDescription', data.position_description)
+        setField('positionDescriptionDetailed', data.position_description_detailed)
+        setMessage({ text: t('newPosition.messages.aiGenerationSuccess'), type: 'success' })
         setShowAIModal(false)
-        return
       }
-
-      setPositionDescription(data.position_description)
-      setPositionDescriptionDetailed(data.position_description_detailed)
-      
-      setMessage({ 
-        text: t('newPosition.messages.aiGenerationSuccess'), 
-        type: 'success' 
-      })
-      setShowAIModal(false)
     } catch (error) {
-      console.error('AI generation error:', error)
-      setMessage({ 
-        text: `${t('newPosition.messages.unexpectedError')} ${(error as Error).message}`, 
-        type: 'error' 
-      })
+      setMessage({ text: `${t('newPosition.messages.unexpectedError')} ${(error as Error).message}`, type: 'error' })
     } finally {
       setAiGenerating(false)
     }
@@ -630,129 +147,87 @@ export default function NewOpenedPositionPage() {
     setMessage(null)
     setAnalysisResult(null)
 
-    if (!selectedManager) {
-      setMessage({ 
-        text: t('newPosition.messages.selectManager'), 
-        type: 'error' 
-      })
+    if (!form.selectedManager) {
+      setMessage({ text: t('newPosition.messages.selectManager'), type: 'error' })
       return
     }
-
-    if (!employmentType) {
-      setMessage({
-        text: t('newPosition.messages.selectEmploymentType'),
-        type: 'error'
-      })
+    if (!form.employmentType) {
+      setMessage({ text: t('newPosition.messages.selectEmploymentType'), type: 'error' })
       return
     }
 
     setLoading(true)
-
     try {
       const res = await fetch('/api/new-position', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          user_id: userId,
+          user_id: session!.user.id,
           id: positionId,
-          position_name: positionName,
-          manager_id: selectedManager.user_id,
-          position_description: positionDescription,
-          position_description_detailed: positionDescriptionDetailed,
-          position_start_date: positionStartDate,
-          // NEW FIELDS
-          location: location || null,
-          location_type: locationType || null,
-          employment_type: employmentType || null,
-          salary_min: salaryMin ? parseFloat(salaryMin) : null,
-          salary_max: salaryMax ? parseFloat(salaryMax) : null,
-          salary_currency: salaryCurrency,
-          salary_public: salaryPublic,
-          application_deadline: applicationDeadline || null,
+          position_name: form.positionName,
+          manager_id: form.selectedManager.user_id,
+          position_description: form.positionDescription,
+          position_description_detailed: form.positionDescriptionDetailed,
+          position_start_date: form.positionStartDate,
+          location: form.location || null,
+          location_type: form.locationType || null,
+          employment_type: form.employmentType || null,
+          salary_min: form.salaryMin ? parseFloat(form.salaryMin) : null,
+          salary_max: form.salaryMax ? parseFloat(form.salaryMax) : null,
+          salary_currency: form.salaryCurrency,
+          salary_public: form.salaryPublic,
+          application_deadline: form.applicationDeadline || null,
         }),
       })
-
       const data = await res.json()
-
       if (!res.ok) {
-        setMessage({ text: `${data.error || t('newPosition.messages.errorCreating')}`, type: 'error' })
+        setMessage({ text: data.error || t('newPosition.messages.errorCreating'), type: 'error' })
       } else {
         setMessage({ text: t('newPosition.messages.successCreated'), type: 'success' })
         setPositionId(data.id)
-        setPositionName('')
-        setSelectedManager(null)
-        setPositionDescription('')
-        setPositionDescriptionDetailed('')
-        setPositionStartDate('')
-        // RESET NEW FIELDS
-        setLocation('')
-        setLocationType('')
-        setEmploymentType('')
-        setSalaryMin('')
-        setSalaryMax('')
-        setSalaryCurrency('HUF')
-        setSalaryPublic(false)
-        setApplicationDeadline('')
+        setForm(DEFAULT_FORM)
       }
     } catch (error) {
       setMessage({ text: `${t('newPosition.messages.unexpectedError')} ${(error as Error).message}`, type: 'error' })
+    } finally {
+      setLoading(false)
     }
-
-    setLoading(false)
   }
 
   const handleAnalyseClick = async () => {
-    setFetchingCount(true);
-    
+    setFetchingCount(true)
     try {
-      const res = await fetch(`/api/candidate-count?user_id=${userId}`);
-      const data = await res.json();
-      
+      const res = await fetch(`/api/candidate-count?user_id=${session!.user.id}`)
+      const data = await res.json()
       if (!res.ok) {
-        setMessage({ 
-          text: t('newPosition.messages.errorFetchingCount'), 
-          type: 'error' 
-        });
-        setFetchingCount(false);
-        return;
+        setMessage({ text: t('newPosition.messages.errorFetchingCount'), type: 'error' })
+        return
       }
-      
-      const count = data.count || 0;
-      setCandidateCount(count);
-      
+      const count = data.count || 0
       if (count === 0) {
-        setMessage({ 
-          text: t('newPosition.messages.noCandidates'), 
-          type: 'error' 
-        });
-        setFetchingCount(false);
-        return;
+        setMessage({ text: t('newPosition.messages.noCandidates'), type: 'error' })
+        return
       }
-      
-      setFetchingCount(false);
-      setShowConfirmModal(true);
-    } catch (error) {
-      console.error('Error fetching candidate count:', error);
-      setMessage({ 
-        text: t('newPosition.messages.unexpectedErrorRetry'), 
-        type: 'error' 
-      });
-      setFetchingCount(false);
+      setCandidateCount(count)
+      setShowConfirmModal(true)
+    } catch {
+      setMessage({ text: t('newPosition.messages.unexpectedErrorRetry'), type: 'error' })
+    } finally {
+      setFetchingCount(false)
     }
   }
 
   const handleAnalyseMassive = async () => {
     if (!positionId) return
-
-    setShowConfirmModal(false);
+    setShowConfirmModal(false)
     setAnalysisLoading(true)
     setAnalysisResult(null)
     setMessage(null)
     setProgress(0)
-
     try {
-      const es = new EventSource(`/api/analyse-massive?position_id=${positionId}&user_id=${userId}&company_id=${companyId}`)
-
+      const es = new EventSource(
+        `/api/analyse-massive?position_id=${positionId}&user_id=${session!.user.id}&company_id=${companyId}`
+      )
       es.onmessage = (event) => {
         const data = JSON.parse(event.data)
         if (data.type === 'progress') {
@@ -766,14 +241,12 @@ export default function NewOpenedPositionPage() {
           setAnalysisLoading(false)
           es.close()
         } else if (data.type === 'error') {
-          setMessage({ text: `${data.error}`, type: 'error' })
+          setMessage({ text: data.error, type: 'error' })
           setAnalysisLoading(false)
           es.close()
         }
       }
-
-      es.onerror = (err) => {
-        console.error('SSE error:', err)
+      es.onerror = () => {
         setMessage({ text: t('newPosition.messages.serverError'), type: 'error' })
         setAnalysisLoading(false)
         es.close()
@@ -785,17 +258,29 @@ export default function NewOpenedPositionPage() {
   }
 
   const handleCreateWithoutAnalysis = () => {
-    setShowConfirmModal(false);
-    setMessage({ 
-      text: t('newPosition.messages.createdRunLater'), 
-      type: 'success' 
-    });
+    setShowConfirmModal(false)
+    setMessage({ text: t('newPosition.messages.createdRunLater'), type: 'success' })
+  }
+
+  // --- Loading / access gate ---
+  if (!session || canCreatePosition === null) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-600">
+            {!session ? t('newPosition.loading.userInfo') : t('newPosition.loading.checkingLimits')}
+          </p>
+        </div>
+      </div>
+    )
   }
 
   return (
     <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="space-y-6">
-        
+
+        {/* Header */}
         <div className="text-center">
           <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
             <Plus className="w-12 h-12 text-green-600 mx-auto mb-4" />
@@ -806,19 +291,16 @@ export default function NewOpenedPositionPage() {
           </div>
         </div>
 
+        {/* Limit reached banner */}
         {canCreatePosition === false && (
           <div className="bg-gradient-to-br from-red-50 to-rose-100 border border-red-200 rounded-2xl shadow-sm overflow-hidden">
             <div className="p-4 sm:p-6 lg:p-8 text-center">
               <div className="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Lock className="w-8 h-8 text-red-600" />
               </div>
-              <h3 className="text-xl font-bold text-red-800 mb-2">
-                {t('newPosition.limitReached.title')}
-              </h3>
-              <p className="text-red-700 mb-6">
-                {t('newPosition.limitReached.message')}
-              </p>
-              <button 
+              <h3 className="text-xl font-bold text-red-800 mb-2">{t('newPosition.limitReached.title')}</h3>
+              <p className="text-red-700 mb-6">{t('newPosition.limitReached.message')}</p>
+              <button
                 className="bg-gradient-to-r from-red-600 to-rose-600 text-white py-3 px-8 rounded-lg font-medium hover:from-red-700 hover:to-rose-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
                 onClick={() => console.log('Redirect to upgrade page')}
               >
@@ -830,297 +312,22 @@ export default function NewOpenedPositionPage() {
 
         {canCreatePosition === true && (
           <>
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-              <div className="p-4 sm:p-6 lg:p-8">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  
-                  <div>
-                    <label htmlFor="positionName" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-                      <Briefcase className="w-4 h-4" />
-                      {t('newPosition.form.positionName')}
-                    </label>
-                    <input
-                      id="positionName"
-                      type="text"
-                      value={positionName}
-                      onChange={(e) => setPositionName(e.target.value)}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder={t('newPosition.form.positionNamePlaceholder')}
-                    />
-                  </div>
+            {/* Main Form */}
+            <PositionForm
+              data={form}
+              onChange={setField}
+              onSubmit={handleSubmit}
+              onOpenAIModal={() => setShowAIModal(true)}
+              companyId={companyId}
+              loading={loading}
+              aiGenerating={aiGenerating}
+              setMessage={setMessage}
+            />
 
-                  <div>
-                    <label htmlFor="manager" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-                      <User className="w-4 h-4" />
-                      {t('newPosition.form.manager')} <span className="text-red-500">*</span>
-                    </label>
-                    {companyId ? (
-                      <ManagerDropdown 
-                        selectedManager={selectedManager}
-                        onSelect={setSelectedManager}
-                        companyId={companyId}
-                        t={(key) => t(`newPosition.${key}`)}
-                      />
-                    ) : (
-                      <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-400">
-                        {t('managerDropdown.loadingManagers')}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* NEW ENRICHMENT SECTION */}
-                  <div className="border-t border-gray-200 pt-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                      <MapPin className="w-5 h-5 text-blue-600" />
-                      {t('newPosition.form.locationTitle')}
-                    </h3>
-                    
-                    <div className="space-y-4">
-                      {/* Location Input */}
-                      <div>
-                        <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
-                          {t('newPosition.form.location')}
-                        </label>
-                        <input
-                          id="location"
-                          type="text"
-                          value={location}
-                          onChange={(e) => setLocation(e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                          placeholder={t('newPosition.form.locationPlaceholder')}
-                        />
-                      </div>
-
-                      {/* Location Type */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          {t('newPosition.form.locationType')}
-                        </label>
-                        <div className="grid grid-cols-3 gap-3">
-                          {(['onsite', 'hybrid', 'remote'] as const).map((type) => (
-                            <button
-                              key={type}
-                              type="button"
-                              onClick={() => setLocationType(type)}
-                              className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${
-                                locationType === type
-                                  ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                  : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
-                              }`}
-                            >
-                              {t(`newPosition.form.locationTypes.${type}`)}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Employment Type */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('newPosition.form.employmentType')} <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      value={employmentType}
-                      onChange={(e) => setEmploymentType(e.target.value as typeof employmentType)}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    >
-                      <option value="">{t('newPosition.form.selectEmploymentType')}</option>
-                      <option value="full-time">{t('newPosition.form.employmentTypes.fullTime')}</option>
-                      <option value="part-time">{t('newPosition.form.employmentTypes.partTime')}</option>
-                      <option value="contract">{t('newPosition.form.employmentTypes.contract')}</option>
-                      <option value="internship">{t('newPosition.form.employmentTypes.internship')}</option>
-                      <option value="temporary">{t('newPosition.form.employmentTypes.temporary')}</option>
-                    </select>
-                  </div>
-
-                  {/* Salary Range */}
-                  <div className="border-2 border-dashed border-gray-200 rounded-xl p-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t('newPosition.form.salaryRange')} <span className="text-gray-400 text-xs">({t('newPosition.form.optional')})</span>
-                      </label>
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={salaryPublic}
-                          onChange={(e) => setSalaryPublic(e.target.checked)}
-                          className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                        />
-                        <span className="text-sm text-gray-600">{t('newPosition.form.showPublicly')}</span>
-                      </label>
-                    </div>
-                    
-                    <div className="grid grid-cols-3 gap-3">
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1">{t('newPosition.form.min')}</label>
-                        <input
-                          type="number"
-                          value={salaryMin}
-                          onChange={(e) => setSalaryMin(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="0"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1">{t('newPosition.form.max')}</label>
-                        <input
-                          type="number"
-                          value={salaryMax}
-                          onChange={(e) => setSalaryMax(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="0"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1">{t('newPosition.form.currency')}</label>
-                        <select
-                          value={salaryCurrency}
-                          onChange={(e) => setSalaryCurrency(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="HUF">HUF</option>
-                          <option value="EUR">EUR</option>
-                          <option value="USD">USD</option>
-                          <option value="CZK">CZK</option>
-                          <option value="PLN">PLN</option>
-                          <option value="RON">RON</option>
-                          <option value="GBP">GBP</option>
-                          <option value="CHF">CHF</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Application Deadline */}
-                  <div>
-                    <label htmlFor="applicationDeadline" className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('newPosition.form.applicationDeadline')} <span className="text-gray-400 text-xs">({t('newPosition.form.optional')})</span>
-                    </label>
-                    <input
-                      id="applicationDeadline"
-                      type="date"
-                      value={applicationDeadline}
-                      onChange={(e) => setApplicationDeadline(e.target.value)}
-                      min={new Date().toISOString().split('T')[0]}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    />
-                  </div>
-
-                  {/* AI Generation Section */}
-                  <div className="border-2 border-dashed border-purple-200 rounded-xl p-6 bg-gradient-to-br from-purple-50 to-pink-50">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="w-5 h-5 text-purple-600" />
-                        <h3 className="text-lg font-semibold text-gray-800">
-                          {t('newPosition.aiSection.title')}
-                        </h3>
-                      </div>
-                      <span className="px-3 py-1 bg-purple-600 text-white text-xs font-medium rounded-full">
-                        AI
-                      </span>
-                    </div>
-                    
-                    <p className="text-sm text-gray-600 mb-4">
-                      {t('newPosition.aiSection.description')}
-                    </p>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (!positionName.trim()) {
-                          setMessage({ 
-                            text: t('newPosition.messages.positionNameRequired'), 
-                            type: 'error' 
-                          })
-                          return
-                        }
-                        setShowAIModal(true)
-                      }}
-                      disabled={aiGenerating}
-                      className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                    >
-                      <Sparkles className="w-5 h-5" />
-                      {t('newPosition.aiSection.generateButton')}
-                    </button>
-                  </div>
-
-                  <div>
-                    <label htmlFor="positionDescription" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-                      <FileText className="w-4 h-4" />
-                      {t('newPosition.form.positionDescription')}
-                    </label>
-                    <textarea
-                      id="positionDescription"
-                      value={positionDescription}
-                      onChange={(e) => setPositionDescription(e.target.value)}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
-                      rows={4}
-                      placeholder={t('newPosition.form.positionDescriptionPlaceholder')}
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="positionDescriptionDetailed" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-                      <Activity className="w-4 h-4" />
-                      {t('newPosition.form.positionDescriptionDetailed')}
-                    </label>
-                    <textarea
-                      id="positionDescriptionDetailed"
-                      value={positionDescriptionDetailed}
-                      onChange={(e) => setPositionDescriptionDetailed(e.target.value)}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
-                      rows={4}
-                      placeholder={t('newPosition.form.positionDescriptionDetailedPlaceholder')}
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="positionStartDate" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-                      <Calendar className="w-4 h-4" />
-                      {t('newPosition.form.startingDate')}
-                    </label>
-                    <input
-                      id="positionStartDate"
-                      type="date"
-                      value={positionStartDate}
-                      onChange={(e) => setPositionStartDate(e.target.value)}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                  >
-                    {loading ? (
-                      <>
-                        <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                        {t('newPosition.buttons.creating')}
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="w-5 h-5" />
-                        {t('newPosition.buttons.createPosition')}
-                      </>
-                    )}
-                  </button>
-                </form>
-              </div>
-            </div>
-
+            {/* Message banner */}
             {message && (
               <div className={`rounded-2xl p-4 sm:p-6 ${
-                message.type === 'success' 
-                  ? 'bg-green-50 border border-green-200' 
-                  : 'bg-red-50 border border-red-200'
+                message.type === 'success' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
               }`}>
                 <div className="flex items-center gap-2">
                   {message.type === 'success' ? (
@@ -1128,15 +335,14 @@ export default function NewOpenedPositionPage() {
                   ) : (
                     <AlertCircle className="w-5 h-5 text-red-600" />
                   )}
-                  <p className={`font-medium ${
-                    message.type === 'success' ? 'text-green-800' : 'text-red-800'
-                  }`}>
+                  <p className={`font-medium ${message.type === 'success' ? 'text-green-800' : 'text-red-800'}`}>
                     {message.text}
                   </p>
                 </div>
               </div>
             )}
 
+            {/* Analysis launcher */}
             {positionId && (
               <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
                 <div className="p-4 sm:p-6 lg:p-8">
@@ -1144,7 +350,6 @@ export default function NewOpenedPositionPage() {
                     <Activity className="w-5 h-5" />
                     {t('newPosition.analysis.title')}
                   </h3>
-                  
                   <button
                     onClick={handleAnalyseClick}
                     disabled={analysisLoading || fetchingCount}
@@ -1167,19 +372,19 @@ export default function NewOpenedPositionPage() {
                       </>
                     )}
                   </button>
-
                   {analysisLoading && (
                     <div className="bg-gray-200 rounded-full h-3 overflow-hidden mb-4">
                       <div
                         className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 transition-all duration-300 rounded-full"
                         style={{ width: `${progress}%` }}
-                      ></div>
+                      />
                     </div>
                   )}
                 </div>
               </div>
             )}
 
+            {/* Analysis results */}
             {analysisResult && (
               <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
                 <div className="p-4 sm:p-6 lg:p-8">
@@ -1187,7 +392,6 @@ export default function NewOpenedPositionPage() {
                     <BarChart3 className="w-5 h-5" />
                     {t('newPosition.results.title')}
                   </h3>
-                  
                   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-4">
                     <div className="text-center">
                       <div className="text-3xl font-bold text-blue-600 mb-1">
@@ -1196,7 +400,6 @@ export default function NewOpenedPositionPage() {
                       <p className="text-gray-600">{t('newPosition.results.matchingCandidates')}</p>
                     </div>
                   </div>
-
                   <button
                     onClick={() => {
                       const basePath = pathname.split('/openedpositions')[0]
@@ -1214,14 +417,14 @@ export default function NewOpenedPositionPage() {
         )}
       </div>
 
+      {/* Modals */}
       <AIGenerateModal
         isOpen={showAIModal}
         onClose={() => setShowAIModal(false)}
         onGenerate={handleAIGenerate}
-        positionName={positionName}
+        positionName={form.positionName}
         loading={aiGenerating}
       />
-
       <ConfirmAnalysisModal
         isOpen={showConfirmModal}
         onClose={() => setShowConfirmModal(false)}
