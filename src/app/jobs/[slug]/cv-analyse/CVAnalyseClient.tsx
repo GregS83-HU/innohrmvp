@@ -13,6 +13,10 @@ import {
   MessageSquare,
   Download,
   ArrowLeft,
+  MapPin,
+  Briefcase,
+  DollarSign,
+  Calendar,
 } from 'lucide-react'
 import { useLocale } from 'i18n/LocaleProvider'
 import Link from 'next/link'
@@ -24,6 +28,14 @@ export default function CVAnalyseClient({
   positionId,
   gdpr_file_url,
   companyName,
+  location,
+  locationType,
+  employmentType,
+  salaryMin,
+  salaryMax,
+  salaryCurrency,
+  salaryPublic,
+  applicationDeadline,
 }: {
   positionName: string
   jobDescription: string
@@ -31,6 +43,14 @@ export default function CVAnalyseClient({
   positionId: string
   gdpr_file_url: string
   companyName: string
+  location?: string | null
+  locationType?: string | null
+  employmentType?: string | null
+  salaryMin?: number | null
+  salaryMax?: number | null
+  salaryCurrency?: string | null
+  salaryPublic?: boolean | null
+  applicationDeadline?: string | null
 }) {
   const { t } = useLocale()
   const pathname = usePathname()
@@ -51,6 +71,40 @@ export default function CVAnalyseClient({
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
   const [aiConsentAccepted, setAiConsentAccepted] = useState(false)
 
+  // Format salary range for display
+  const formatSalary = () => {
+    if (!salaryPublic || (!salaryMin && !salaryMax)) return null
+    
+    const currency = salaryCurrency || 'HUF'
+    const formatter = new Intl.NumberFormat('en-US', {
+      style: 'decimal',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    })
+    
+    if (salaryMin && salaryMax) {
+      return `${formatter.format(salaryMin)} - ${formatter.format(salaryMax)} ${currency}`
+    } else if (salaryMin) {
+      return `From ${formatter.format(salaryMin)} ${currency}`
+    } else if (salaryMax) {
+      return `Up to ${formatter.format(salaryMax)} ${currency}`
+    }
+    return null
+  }
+
+  // Calculate days until deadline
+  const getDaysUntilDeadline = () => {
+    if (!applicationDeadline) return null
+    
+    const deadline = new Date(applicationDeadline)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    deadline.setHours(0, 0, 0, 0)
+    const diffTime = deadline.getTime() - today.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    
+    return diffDays
+  }
 
   // Handle back navigation - simulate browser back button
   const handleBackToPositions = useCallback(() => {
@@ -84,7 +138,6 @@ export default function CVAnalyseClient({
       const data = await res.json()
 
       if (!res.ok) {
-        // If server returned a structured error message, show it; otherwise use generic localized message
         throw new Error(data?.error || t('cvAnalyse.messages.error.generic'))
       }
 
@@ -93,18 +146,15 @@ export default function CVAnalyseClient({
       setScore(typeof data.score === 'number' ? data.score : null)
       setAnalysisCompleted(true)
 
-      // Show success message with small delay for animation
       setTimeout(() => {
         setShowSuccessMessage(true)
       }, 100)
     } catch (err: unknown) {
       console.error('CV Analysis Error:', err)
 
-      // Clear file selection to force re-upload
       setFile(null)
       setGdprAccepted(false)
 
-      // Use structured localized message when possible
       const message =
         err instanceof Error && err.message && err.message !== ''
           ? err.message
@@ -162,14 +212,71 @@ export default function CVAnalyseClient({
           <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
             <Brain className="w-10 h-10 sm:w-12 sm:h-12 text-blue-600 mx-auto mb-4" aria-hidden />
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-4">{t('cvAnalyse.header.title')}</h1>
+            
             <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg inline-block mb-2">
               <span className="font-semibold text-sm sm:text-base">{positionName}</span>
             </div>
-            {companyName ? (
-              <p className="text-gray-600 text-sm sm:text-base">
+            
+            {companyName && (
+              <p className="text-gray-600 text-sm sm:text-base mb-4">
                 {t('cvAnalyse.header.positionAt')} {companyName}
               </p>
-            ) : null}
+            )}
+
+            {/* Position Meta Information Badges */}
+            <div className="flex flex-wrap justify-center gap-2 mt-4">
+              {/* Location Badge */}
+              {location && (
+                <div className="flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium border border-blue-200">
+                  <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span>{location}</span>
+                </div>
+              )}
+
+              {/* Location Type Badge */}
+              {locationType && (
+                <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium border ${
+                  locationType === 'remote' 
+                    ? 'bg-green-50 text-green-700 border-green-200'
+                    : locationType === 'hybrid'
+                    ? 'bg-purple-50 text-purple-700 border-purple-200'
+                    : 'bg-gray-50 text-gray-700 border-gray-200'
+                }`}>
+                  <span>{t(`cvAnalyse.badges.${locationType}`)}</span>
+                </div>
+              )}
+
+              {/* Employment Type Badge */}
+              {employmentType && (
+                <div className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium border border-indigo-200">
+                  <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span>{t(`cvAnalyse.badges.${employmentType.replace('-', '')}`)}</span>
+                </div>
+              )}
+
+              {/* Salary Badge (only if public) */}
+              {formatSalary() && (
+                <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium border border-emerald-200">
+                  <span>{formatSalary()}</span>
+                </div>
+              )}
+
+              {/* Application Deadline Badge */}
+              {applicationDeadline && getDaysUntilDeadline() !== null && getDaysUntilDeadline()! >= 0 && (
+                <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium border ${
+                  getDaysUntilDeadline()! <= 7
+                    ? 'bg-red-50 text-red-700 border-red-200'
+                    : 'bg-amber-50 text-amber-700 border-amber-200'
+                }`}>
+                  <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span>
+                    {getDaysUntilDeadline()! > 0
+                      ? `${t('cvAnalyse.badges.deadline')} ${getDaysUntilDeadline()} ${getDaysUntilDeadline() === 1 ? 'day' : 'days'}`
+                      : t('cvAnalyse.badges.deadlineToday')}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -179,7 +286,7 @@ export default function CVAnalyseClient({
             <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" aria-hidden />
             <h2 className="text-lg sm:text-xl font-semibold text-gray-800">{t('cvAnalyse.sections.positionDescription')}</h2>
           </div>
-          <p className="text-gray-600 leading-relaxed text-sm sm:text-base">{jobDescription}</p>
+          <p className="text-gray-600 leading-relaxed text-sm sm:text-base whitespace-pre-wrap">{jobDescription}</p>
         </div>
 
         {/* Demo CVs Download Block */}
@@ -242,9 +349,9 @@ export default function CVAnalyseClient({
                   type="file"
                   accept=".pdf"
                   onChange={(e) => {
-  setFile(e.target.files?.[0] ?? null)
-  setAiConsentAccepted(false)
-}}
+                    setFile(e.target.files?.[0] ?? null)
+                    setAiConsentAccepted(false)
+                  }}
                   className="hidden"
                   id="cv-upload"
                   disabled={analysisCompleted}
@@ -297,38 +404,36 @@ export default function CVAnalyseClient({
                 </div>
               </div>
             )}
-            {/* AI Consent Checkbox */}
-{file && !analysisCompleted && (
-  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 sm:p-4">
-    <div className="flex items-start gap-3">
-      <input
-        id="ai-consent"
-        type="checkbox"
-        checked={aiConsentAccepted}
-        onChange={(e) => setAiConsentAccepted(e.target.checked)}
-        className="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded flex-shrink-0"
-        disabled={analysisCompleted}
-      />
-      <label htmlFor="ai-consent" className="text-xs sm:text-sm text-gray-700 flex-1">
-        🤖 {t('cvAnalyse.messages.aiConsent')}
-      </label>
-    </div>
-  </div>
-)}
 
+            {/* AI Consent Checkbox */}
+            {file && !analysisCompleted && (
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 sm:p-4">
+                <div className="flex items-start gap-3">
+                  <input
+                    id="ai-consent"
+                    type="checkbox"
+                    checked={aiConsentAccepted}
+                    onChange={(e) => setAiConsentAccepted(e.target.checked)}
+                    className="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded flex-shrink-0"
+                    disabled={analysisCompleted}
+                  />
+                  <label htmlFor="ai-consent" className="text-xs sm:text-sm text-gray-700 flex-1">
+                    🤖 {t('cvAnalyse.messages.aiConsent')}
+                  </label>
+                </div>
+              </div>
+            )}
 
             {/* Submit Button */}
             <button
               type="submit"
               disabled={!file || (gdpr_file_url && !gdprAccepted) || !aiConsentAccepted || loading || analysisCompleted}
-
               className={`w-full py-3 sm:py-4 px-4 sm:px-6 rounded-lg font-semibold text-white text-base sm:text-lg transition-all shadow-md hover:shadow-lg transform ${
-                loading || !file || (gdpr_file_url && !gdprAccepted) || analysisCompleted
+                loading || !file || (gdpr_file_url && !gdprAccepted) || !aiConsentAccepted || analysisCompleted
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:scale-105'
               }`}
               aria-disabled={!file || (gdpr_file_url && !gdprAccepted) || !aiConsentAccepted || loading || analysisCompleted}
-
             >
               {analysisCompleted ? (
                 <div className="flex items-center justify-center gap-2">
@@ -348,7 +453,7 @@ export default function CVAnalyseClient({
               )}
             </button>
 
-            {/* Success Message - Now positioned below the button */}
+            {/* Success Message */}
             {showSuccessMessage && analysisCompleted && (
               <div
                 className={`transition-all duration-500 ease-out transform ${showSuccessMessage ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}

@@ -268,7 +268,33 @@
       "positionDescriptionDetailed": "Description Détaillée du Poste (Pour l'analyse IA)",
       "positionDescriptionDetailedPlaceholder": "Exigences détaillées, compétences et qualifications pour le matching IA...",
       "startingDate": "Date de Début",
-      "manager": "Qui sera le manager ?"
+      "manager": "Qui sera le manager ?",
+      "locationTitle": "Localisation & Type de travail",
+        "location": "Localisation",
+        "locationPlaceholder": "ex: Budapest, Hongrie",
+        "locationType": "Type de lieu de travail",
+        "locationTypes": {
+          "onsite": "Sur site",
+          "hybrid": "Hybride",
+          "remote": "Télétravail"
+        },
+        "employmentType": "Type d'emploi",
+        "selectEmploymentType": "Sélectionner le type...",
+        "employmentTypes": {
+          "fullTime": "Temps plein",
+          "partTime": "Temps partiel",
+          "contract": "Contrat",
+          "internship": "Stage",
+          "temporary": "Temporaire"
+        },
+        "salaryRange": "Fourchette salariale",
+        "optional": "optionnel",
+        "showPublicly": "Afficher publiquement",
+        "min": "Min",
+        "max": "Max",
+        "currency": "Devise",
+        "applicationDeadline": "Date limite de candidature"
+      
     },
     "buttons": {
       "createPosition": "Créer le Poste",
@@ -350,6 +376,22 @@
     }
   },
   "cvAnalyse": {
+
+    "badges": {
+        "location": "Localisation",
+        "remote": "Télétravail",
+        "hybrid": "Hybride",
+        "onsite": "Sur site",
+        "fulltime": "Temps plein",
+        "parttime": "Temps partiel",
+        "contract": "Contrat",
+        "internship": "Stage",
+        "temporary": "Temporaire",
+        "salary": "Salaire",
+        "deadline": "Postuler avant",
+        "deadlineToday": "Dernier jour pour postuler!"
+      },
+
     "header": {
       "title": "Analyse IA de CV",
       "positionAt": "chez"
@@ -396,6 +438,7 @@
       },
       "unableToRead": "Malheureusement, nous ne pouvons pas lire votre CV. Pouvez-vous essayer de télécharger un nouveau fichier ?",
       "generic": "Une erreur s'est produite lors du traitement de votre demande."
+      
     }
   },
   "app": {

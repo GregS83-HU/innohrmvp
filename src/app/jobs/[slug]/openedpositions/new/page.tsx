@@ -3,7 +3,7 @@
 import { useSession } from '@supabase/auth-helpers-react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { Plus, Calendar, FileText, Briefcase, BarChart3, CheckCircle, AlertCircle, Activity, Lock, X, Clock, Users, ChevronDown, Search, User, Sparkles, Wand2 } from 'lucide-react'
+import { Plus, Calendar, FileText, Briefcase, BarChart3, CheckCircle, AlertCircle, Activity, Lock, X, Clock, Users, ChevronDown, Search, User, Sparkles, Wand2, MapPin } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { useLocale } from 'i18n/LocaleProvider'
 
@@ -26,7 +26,6 @@ interface CompanyUser {
   employment_start_date: string | null
 }
 
-// Define the translation function type
 interface TranslationFunction {
   (key: string): string
 }
@@ -453,6 +452,17 @@ export default function NewOpenedPositionPage() {
   const [positionDescription, setPositionDescription] = useState('')
   const [positionDescriptionDetailed, setPositionDescriptionDetailed] = useState('')
   const [positionStartDate, setPositionStartDate] = useState('')
+  
+  // NEW ENRICHMENT FIELDS
+  const [location, setLocation] = useState('')
+  const [locationType, setLocationType] = useState<'onsite' | 'hybrid' | 'remote' | ''>('')
+  const [employmentType, setEmploymentType] = useState<'full-time' | 'part-time' | 'contract' | 'internship' | 'temporary' | ''>('')
+  const [salaryMin, setSalaryMin] = useState('')
+  const [salaryMax, setSalaryMax] = useState('')
+  const [salaryCurrency, setSalaryCurrency] = useState('HUF')
+  const [salaryPublic, setSalaryPublic] = useState(false)
+  const [applicationDeadline, setApplicationDeadline] = useState('')
+  
   const [message, setMessage] = useState<{ text: string; type: 'error' | 'success' } | null>(null)
   const [loading, setLoading] = useState(false)
   const [positionId, setPositionId] = useState<string | null>(null)
@@ -468,7 +478,6 @@ export default function NewOpenedPositionPage() {
   const [candidateCount, setCandidateCount] = useState(0)
   const [fetchingCount, setFetchingCount] = useState(false)
 
-  // AI Generation states
   const [showAIModal, setShowAIModal] = useState(false)
   const [aiGenerating, setAiGenerating] = useState(false)
 
@@ -597,7 +606,6 @@ export default function NewOpenedPositionPage() {
         return
       }
 
-      // Set the generated descriptions
       setPositionDescription(data.position_description)
       setPositionDescriptionDetailed(data.position_description_detailed)
       
@@ -630,6 +638,14 @@ export default function NewOpenedPositionPage() {
       return
     }
 
+    if (!employmentType) {
+      setMessage({
+        text: t('newPosition.messages.selectEmploymentType'),
+        type: 'error'
+      })
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -644,6 +660,15 @@ export default function NewOpenedPositionPage() {
           position_description: positionDescription,
           position_description_detailed: positionDescriptionDetailed,
           position_start_date: positionStartDate,
+          // NEW FIELDS
+          location: location || null,
+          location_type: locationType || null,
+          employment_type: employmentType || null,
+          salary_min: salaryMin ? parseFloat(salaryMin) : null,
+          salary_max: salaryMax ? parseFloat(salaryMax) : null,
+          salary_currency: salaryCurrency,
+          salary_public: salaryPublic,
+          application_deadline: applicationDeadline || null,
         }),
       })
 
@@ -659,6 +684,15 @@ export default function NewOpenedPositionPage() {
         setPositionDescription('')
         setPositionDescriptionDetailed('')
         setPositionStartDate('')
+        // RESET NEW FIELDS
+        setLocation('')
+        setLocationType('')
+        setEmploymentType('')
+        setSalaryMin('')
+        setSalaryMax('')
+        setSalaryCurrency('HUF')
+        setSalaryPublic(false)
+        setApplicationDeadline('')
       }
     } catch (error) {
       setMessage({ text: `${t('newPosition.messages.unexpectedError')} ${(error as Error).message}`, type: 'error' })
@@ -833,6 +867,147 @@ export default function NewOpenedPositionPage() {
                         {t('managerDropdown.loadingManagers')}
                       </div>
                     )}
+                  </div>
+
+                  {/* NEW ENRICHMENT SECTION */}
+                  <div className="border-t border-gray-200 pt-6">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                      <MapPin className="w-5 h-5 text-blue-600" />
+                      {t('newPosition.form.locationTitle')}
+                    </h3>
+                    
+                    <div className="space-y-4">
+                      {/* Location Input */}
+                      <div>
+                        <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+                          {t('newPosition.form.location')}
+                        </label>
+                        <input
+                          id="location"
+                          type="text"
+                          value={location}
+                          onChange={(e) => setLocation(e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                          placeholder={t('newPosition.form.locationPlaceholder')}
+                        />
+                      </div>
+
+                      {/* Location Type */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          {t('newPosition.form.locationType')}
+                        </label>
+                        <div className="grid grid-cols-3 gap-3">
+                          {(['onsite', 'hybrid', 'remote'] as const).map((type) => (
+                            <button
+                              key={type}
+                              type="button"
+                              onClick={() => setLocationType(type)}
+                              className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${
+                                locationType === type
+                                  ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                  : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                              }`}
+                            >
+                              {t(`newPosition.form.locationTypes.${type}`)}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Employment Type */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('newPosition.form.employmentType')} <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={employmentType}
+                      onChange={(e) => setEmploymentType(e.target.value as typeof employmentType)}
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    >
+                      <option value="">{t('newPosition.form.selectEmploymentType')}</option>
+                      <option value="full-time">{t('newPosition.form.employmentTypes.fullTime')}</option>
+                      <option value="part-time">{t('newPosition.form.employmentTypes.partTime')}</option>
+                      <option value="contract">{t('newPosition.form.employmentTypes.contract')}</option>
+                      <option value="internship">{t('newPosition.form.employmentTypes.internship')}</option>
+                      <option value="temporary">{t('newPosition.form.employmentTypes.temporary')}</option>
+                    </select>
+                  </div>
+
+                  {/* Salary Range */}
+                  <div className="border-2 border-dashed border-gray-200 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {t('newPosition.form.salaryRange')} <span className="text-gray-400 text-xs">({t('newPosition.form.optional')})</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={salaryPublic}
+                          onChange={(e) => setSalaryPublic(e.target.checked)}
+                          className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <span className="text-sm text-gray-600">{t('newPosition.form.showPublicly')}</span>
+                      </label>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-1">{t('newPosition.form.min')}</label>
+                        <input
+                          type="number"
+                          value={salaryMin}
+                          onChange={(e) => setSalaryMin(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="0"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-1">{t('newPosition.form.max')}</label>
+                        <input
+                          type="number"
+                          value={salaryMax}
+                          onChange={(e) => setSalaryMax(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="0"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-1">{t('newPosition.form.currency')}</label>
+                        <select
+                          value={salaryCurrency}
+                          onChange={(e) => setSalaryCurrency(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="HUF">HUF</option>
+                          <option value="EUR">EUR</option>
+                          <option value="USD">USD</option>
+                          <option value="CZK">CZK</option>
+                          <option value="PLN">PLN</option>
+                          <option value="RON">RON</option>
+                          <option value="GBP">GBP</option>
+                          <option value="CHF">CHF</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Application Deadline */}
+                  <div>
+                    <label htmlFor="applicationDeadline" className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('newPosition.form.applicationDeadline')} <span className="text-gray-400 text-xs">({t('newPosition.form.optional')})</span>
+                    </label>
+                    <input
+                      id="applicationDeadline"
+                      type="date"
+                      value={applicationDeadline}
+                      onChange={(e) => setApplicationDeadline(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    />
                   </div>
 
                   {/* AI Generation Section */}
@@ -1039,7 +1214,6 @@ export default function NewOpenedPositionPage() {
         )}
       </div>
 
-      {/* AI Generation Modal */}
       <AIGenerateModal
         isOpen={showAIModal}
         onClose={() => setShowAIModal(false)}
@@ -1048,7 +1222,6 @@ export default function NewOpenedPositionPage() {
         loading={aiGenerating}
       />
 
-      {/* Analysis Confirmation Modal */}
       <ConfirmAnalysisModal
         isOpen={showConfirmModal}
         onClose={() => setShowConfirmModal(false)}

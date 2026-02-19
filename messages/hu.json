@@ -275,7 +275,33 @@
       "positionDescriptionDetailed": "Részletes pozícióleírás (AI elemzéshez)",
       "positionDescriptionDetailedPlaceholder": "Részletes követelmények, készségek és képesítések az AI párosításhoz...",
       "startingDate": "Kezdési dátum",
-      "manager": "Ki lesz a vezetője?"
+      "manager": "Ki lesz a vezetője?",
+        "locationTitle": "Helyszín és munkavégzés típusa",
+        "location": "Helyszín",
+        "locationPlaceholder": "pl: Budapest, Magyarország",
+        "locationType": "Munkavégzés helyszíne",
+        "locationTypes": {
+          "onsite": "Irodában",
+          "hybrid": "Hibrid",
+          "remote": "Távmunka"
+        },
+        "employmentType": "Foglalkoztatás típusa",
+        "selectEmploymentType": "Válasszon típust...",
+        "employmentTypes": {
+          "fullTime": "Teljes munkaidő",
+          "partTime": "Részmunkaidő",
+          "contract": "Szerződéses",
+          "internship": "Gyakornok",
+          "temporary": "Ideiglenes"
+        },
+        "salaryRange": "Fizetési sáv",
+        "optional": "opcionális",
+        "showPublicly": "Nyilvánosan megjelenítés",
+        "min": "Min",
+        "max": "Max",
+        "currency": "Pénznem",
+        "applicationDeadline": "Jelentkezési határidő"
+      
     },
     "buttons": {
       "createPosition": "Pozíció létrehozása",
@@ -358,6 +384,20 @@
   }
 ,
   "cvAnalyse": {
+    "badges": {
+        "location": "Helyszín",
+        "remote": "Távmunka",
+        "hybrid": "Hibrid",
+        "onsite": "Irodában",
+        "fulltime": "Teljes munkaidő",
+        "parttime": "Részmunkaidő",
+        "contract": "Szerződéses",
+        "internship": "Gyakornok",
+        "temporary": "Ideiglenes",
+        "salary": "Fizetés",
+        "deadline": "Jelentkezz",
+        "deadlineToday": "Utolsó nap a jelentkezésre!"
+      },
     "header": {
       "title": "AI Önéletrajz-analízis",
       "positionAt": "helyen"
@@ -404,6 +444,7 @@
         "medium": "Az önéletrajza részben megfelel a pozíciónak. HR szakértőnk további elemzést végez.",
         "high": "Köszönjük jelentkezését! Az önéletrajza jól illik a pozícióhoz. HR munkatárs hamarosan felveszi Önnel a kapcsolatot."
       }
+      
     }
   }
 ,

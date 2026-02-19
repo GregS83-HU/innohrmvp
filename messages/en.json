@@ -278,7 +278,34 @@
       "positionDescriptionDetailed": "Position Description Detailed (For AI analyse)",
       "positionDescriptionDetailedPlaceholder": "Detailed requirements, skills, and qualifications for AI matching...",
       "startingDate": "Starting Date",
-      "manager": "Who will be the manager?"
+      "manager": "Who will be the Manager?",
+      
+        "locationTitle": "Location & Work Type",
+        "location": "Location",
+        "locationPlaceholder": "e.g., Budapest, Hungary",
+        "locationType": "Work Location Type",
+        "locationTypes": {
+          "onsite": "On-site",
+          "hybrid": "Hybrid",
+          "remote": "Remote"
+        },
+        "employmentType": "Employment Type",
+        "selectEmploymentType": "Select type...",
+        "employmentTypes": {
+          "fullTime": "Full-time",
+          "partTime": "Part-time",
+          "contract": "Contract",
+          "internship": "Internship",
+          "temporary": "Temporary"
+        },
+        "salaryRange": "Salary Range",
+        "optional": "optional",
+        "showPublicly": "Show publicly",
+        "min": "Min",
+        "max": "Max",
+        "currency": "Currency",
+        "applicationDeadline": "Application Deadline"
+      
     },
     "buttons": {
       "createPosition": "Create Position",
@@ -309,10 +336,8 @@
       "candidatesCorresponding": "candidates are corresponding",
       "serverError": "Unexpected server error during analysis",
       "createdRunLater": "Position created successfully. You can run the analysis later.",
-      "errorCompanyId": "Company ID not found. Please refresh the page.",
-      "noCredits": "You have no remaining AI credits this month. Please upgrade your plan.",
       "aiGenerationFailed": "Failed to generate descriptions. Please try again.",
-      "aiGenerationSuccess": "✨ Descriptions generated successfully! Review them below and make any adjustments.",
+      "aiGenerationSuccess": "✨ Descriptions generated successfully! Review them below and make any necessary adjustments.",
       "positionNameRequired": "Please enter a position name before generating descriptions."
 
     },
@@ -336,13 +361,13 @@
     "noUsers": "No users found. Please contact your admin.",
     "noUsersFound": "No users found"
   }, 
-  
+ 
     "aiSection": {
       "title": "AI-Powered Description Generator",
       "description": "Let AI create professional job descriptions for you. Provide a rough draft and get both a marketing version for ads and a detailed version for candidate analysis.",
       "generateButton": "Generate with AI ✨"
     },
-    
+   
     "aiModal": {
       "title": "Generate Position Descriptions with AI",
       "instructions": "How it works:",
@@ -362,6 +387,22 @@
   }
 ,
   "cvAnalyse": {
+
+     "badges": {
+        "location": "Location",
+        "remote": "Remote",
+        "hybrid": "Hybrid",
+        "onsite": "On-site",
+        "fulltime": "Full-time",
+        "parttime": "Part-time",
+        "contract": "Contract",
+        "internship": "Internship",
+        "temporary": "Temporary",
+        "salary": "Salary",
+        "deadline": "Apply within",
+        "deadlineToday": "Last day to apply!"
+      },
+
     "header": {
       "title": "AI CV Analysis",
       "positionAt": "at"
@@ -406,6 +447,9 @@
         "medium": "Your CV partially matches the position. Our HR specialist will analyse it.",
         "high": "Thank you for your application! Your resume is a good match. A member of HR will contact you shortly."
       },
+
+    
+
       "unableToRead": "Unfortunately, we are not able to read your CV. Can you try to upload a new one?",
       "generic": "An error occurred while processing your request."
 
