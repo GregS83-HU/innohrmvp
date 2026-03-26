@@ -297,7 +297,7 @@ function Column({
   )
 }
 
-export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
+export default function TrelloBoard({ rows: initialRows, positionName }: { rows: Row[], positionName: string | null }) {
   const { t } = useLocale()
   const session = useSession()
   const [steps, setSteps] = useState<RecruitmentStep[]>([])
@@ -713,7 +713,10 @@ export default function TrelloBoard({ rows: initialRows }: { rows: Row[] }) {
               <div className="flex items-center gap-4">
                 <Workflow className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600 flex-shrink-0" />
                 <div className="text-center">
-                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">{t('trelloBoard.header.title')}</h1>
+                  <h1 className="text-xl sm:text-xl lg:text-2xl font-bold text-gray-800">{t('trelloBoard.header.title')}</h1>
+                   {positionName && (
+    <p className="text-4xl sm:text-3xl lg:text-4xl font-bold text-blue-700 mt-1">{positionName}</p>
+  )}
                   <p className="text-xs sm:text-sm text-gray-600 mt-1">{t('trelloBoard.header.subtitle')}</p>
                 </div>
               </div>

@@ -73,6 +73,7 @@ export default async function StatsPage({
       error: unknown
     }
 
+ 
   if (error) {
     console.error(error)
     return (
@@ -83,6 +84,14 @@ export default async function StatsPage({
       </div>
     )
   }
+  const { data: positionData, error: positionError } = await supabase
+  .from('openedpositions')
+  .select('position_name')
+  .eq('id', Number(positionId))
+  .single()
+
+console.log('positionData:', positionData)
+console.log('positionError:', positionError)
 
   if (!data || data.length === 0) {
     return (
@@ -93,10 +102,9 @@ export default async function StatsPage({
       </div>
     )
   }
-
   return (
     <main className="w-full max-w-7xl mx-auto px-0 sm:px-4 lg:px-6">
-      <StatsTable rows={data} />
+      <StatsTable rows={data} positionName={positionData?.position_name ?? null} />
       <Analytics />
     </main>
   )
