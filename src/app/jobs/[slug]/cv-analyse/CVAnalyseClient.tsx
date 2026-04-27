@@ -15,11 +15,10 @@ import {
   ArrowLeft,
   MapPin,
   Briefcase,
-  DollarSign,
   Calendar,
 } from 'lucide-react'
 import { useLocale } from 'i18n/LocaleProvider'
-import Link from 'next/link'
+import InterviewChat from './InterviewChat'
 
 export default function CVAnalyseClient({
   positionName,
@@ -52,7 +51,9 @@ export default function CVAnalyseClient({
   salaryPublic?: boolean | null
   applicationDeadline?: string | null
 }) {
-  const { t } = useLocale()
+  const { t, locale } = useLocale()
+  // Safely resolve locale to a plain string for the interview API
+  const resolvedLocale: string = typeof locale === 'string' ? locale : 'en'
   const pathname = usePathname()
   const router = useRouter()
   const isDemo = pathname.includes('/demo/')
@@ -71,17 +72,22 @@ export default function CVAnalyseClient({
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
   const [aiConsentAccepted, setAiConsentAccepted] = useState(false)
 
+  // Interview-related state
+  const [candidateId, setCandidateId] = useState<number | null>(null)
+  const [cvText, setCvText] = useState<string>('')
+  const [candidateFirstName, setCandidateFirstName] = useState<string>('')
+
   // Format salary range for display
   const formatSalary = () => {
     if (!salaryPublic || (!salaryMin && !salaryMax)) return null
-    
+
     const currency = salaryCurrency || 'HUF'
     const formatter = new Intl.NumberFormat('en-US', {
       style: 'decimal',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     })
-    
+
     if (salaryMin && salaryMax) {
       return `${formatter.format(salaryMin)} - ${formatter.format(salaryMax)} ${currency}`
     } else if (salaryMin) {
@@ -95,18 +101,18 @@ export default function CVAnalyseClient({
   // Calculate days until deadline
   const getDaysUntilDeadline = () => {
     if (!applicationDeadline) return null
-    
+
     const deadline = new Date(applicationDeadline)
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     deadline.setHours(0, 0, 0, 0)
     const diffTime = deadline.getTime() - today.getTime()
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    
+
     return diffDays
   }
 
-  // Handle back navigation - simulate browser back button
+  // Handle back navigation
   const handleBackToPositions = useCallback(() => {
     router.back()
   }, [router])
@@ -128,7 +134,6 @@ export default function CVAnalyseClient({
     setCandidateFeedback('')
     setScore(null)
     setShowSuccessMessage(false)
-
     try {
       const res = await fetch('/api/analyse-cv', {
         method: 'POST',
@@ -145,6 +150,11 @@ export default function CVAnalyseClient({
       setCandidateFeedback(data.candidateFeedback ?? '')
       setScore(typeof data.score === 'number' ? data.score : null)
       setAnalysisCompleted(true)
+
+      // Store interview-related data returned from the API
+      if (data.candidateId) setCandidateId(data.candidateId)
+      if (data.cvText) setCvText(data.cvText)
+      if (data.candidateFirstName) setCandidateFirstName(data.candidateFirstName)
 
       setTimeout(() => {
         setShowSuccessMessage(true)
@@ -174,22 +184,16 @@ export default function CVAnalyseClient({
 
   const getScoreMessage = (s: number) => {
     if (s < 5) {
-      return {
-        text: t('cvAnalyse.messages.score.low'),
-        color: 'text-red-600',
-      }
+      return { text: t('cvAnalyse.messages.score.low'), color: 'text-red-600' }
     } else if (s >= 5 && s < 8) {
-      return {
-        text: t('cvAnalyse.messages.score.medium'),
-        color: 'text-orange-600',
-      }
+      return { text: t('cvAnalyse.messages.score.medium'), color: 'text-orange-600' }
     } else {
-      return {
-        text: t('cvAnalyse.messages.score.high'),
-        color: 'text-green-600',
-      }
+      return { text: t('cvAnalyse.messages.score.high'), color: 'text-green-600' }
     }
   }
+
+  // Whether the candidate qualifies for an interview
+  const qualifiesForInterview = score !== null && score >= 7
 
   return (
     <main className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
@@ -212,11 +216,11 @@ export default function CVAnalyseClient({
           <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
             <Brain className="w-10 h-10 sm:w-12 sm:h-12 text-blue-600 mx-auto mb-4" aria-hidden />
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-4">{t('cvAnalyse.header.title')}</h1>
-            
+
             <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg inline-block mb-2">
               <span className="font-semibold text-sm sm:text-base">{positionName}</span>
             </div>
-            
+
             {companyName && (
               <p className="text-gray-600 text-sm sm:text-base mb-4">
                 {t('cvAnalyse.header.positionAt')} {companyName}
@@ -225,7 +229,6 @@ export default function CVAnalyseClient({
 
             {/* Position Meta Information Badges */}
             <div className="flex flex-wrap justify-center gap-2 mt-4">
-              {/* Location Badge */}
               {location && (
                 <div className="flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium border border-blue-200">
                   <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -233,10 +236,9 @@ export default function CVAnalyseClient({
                 </div>
               )}
 
-              {/* Location Type Badge */}
               {locationType && (
                 <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium border ${
-                  locationType === 'remote' 
+                  locationType === 'remote'
                     ? 'bg-green-50 text-green-700 border-green-200'
                     : locationType === 'hybrid'
                     ? 'bg-purple-50 text-purple-700 border-purple-200'
@@ -246,7 +248,6 @@ export default function CVAnalyseClient({
                 </div>
               )}
 
-              {/* Employment Type Badge */}
               {employmentType && (
                 <div className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium border border-indigo-200">
                   <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -254,14 +255,12 @@ export default function CVAnalyseClient({
                 </div>
               )}
 
-              {/* Salary Badge (only if public) */}
               {formatSalary() && (
                 <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium border border-emerald-200">
                   <span>{formatSalary()}</span>
                 </div>
               )}
 
-              {/* Application Deadline Badge */}
               {applicationDeadline && getDaysUntilDeadline() !== null && getDaysUntilDeadline()! >= 0 && (
                 <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium border ${
                   getDaysUntilDeadline()! <= 7
@@ -301,7 +300,6 @@ export default function CVAnalyseClient({
                 href="https://drive.google.com/uc?export=download&id=1-pMKT5dp-8PjJI2RbaVbUNuxt_rxXLFG"
                 download
                 className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
-                title={t('cvAnalyse.sections.demoDownload.software')}
               >
                 <Download className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden />
                 <span className="text-sm sm:text-base">{t('cvAnalyse.sections.demoDownload.software')}</span>
@@ -311,16 +309,13 @@ export default function CVAnalyseClient({
                 href="https://drive.google.com/uc?export=download&id=15kzhUQFvizgx1Zhx9MG-CJAhTvHc3gJS"
                 download
                 className="flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-4 rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
-                title={t('cvAnalyse.sections.demoDownload.marketing')}
               >
                 <Download className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden />
                 <span className="text-sm sm:text-base">{t('cvAnalyse.sections.demoDownload.marketing')}</span>
               </a>
             </div>
 
-            <p className="text-sm text-gray-700 text-center">
-              {t('cvAnalyse.sections.demoSubtitle')}
-            </p>
+            <p className="text-sm text-gray-700 text-center">{t('cvAnalyse.sections.demoSubtitle')}</p>
           </div>
         )}
 
@@ -512,6 +507,21 @@ export default function CVAnalyseClient({
                 <div className="whitespace-pre-wrap text-xs sm:text-sm text-gray-700 leading-relaxed">{candidateFeedback}</div>
               </div>
             </div>
+
+            {/* ── INTERVIEW SECTION ─────────────────────────────────────────── */}
+            {qualifiesForInterview && (
+              <div className="animate-fade-in">
+                <InterviewChat
+                  cvText={cvText}
+                  jobDescription={jobDescription}
+                  positionName={positionName}
+                  candidateId={candidateId ?? 0}
+                  positionId={positionId}
+                  language={resolvedLocale}
+                  candidateFirstName={candidateFirstName}
+                />
+              </div>
+            )}
           </div>
         )}
       </div>

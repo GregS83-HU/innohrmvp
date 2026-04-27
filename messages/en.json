@@ -694,7 +694,8 @@
       "edit": "Edit",
       "save": "Save",
       "saving": "Saving...",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "clearSelection": "Clear selection"
     },
     "column": {
       "unassigned": "Unassigned",
@@ -706,7 +707,11 @@
       "id": "ID",
       "viewCV": "CV",
       "notScored": "Not scored",
-      "new": "New"
+      "new": "New",
+      "viewInterviewSummary": "View interview summary",
+      "interviewSummary": "Interview Summary",
+      "cvScore": "CV Score",
+      "aiInterview": "AI Interview"
     },
     "modal": {
       "candidateInfo": "Candidate Information",
@@ -725,7 +730,9 @@
       "aiAnalysis": "AI Analysis",
       "noAiAnalysis": "No AI analysis available",
       "nextStep": "Next Step",
-      "interviews": "Interviews"
+      "interviews": "Interviews",
+      "aiInterview": "AI Interview",
+      "interviewSummary": "Interview Summary"
     },
     "errors": {
       "updateStepError": "Error updating step",
@@ -2737,8 +2744,33 @@
     }
   }
 
+,
+  "interview": {
+  "closing": "Thank you for this virtual interview! Our HR recruiter will carefully review your responses and contact you about potential next steps. We truly appreciate the time you've taken to share your experience with us. 🙏",
+  "cta": {
+    "title": "Virtual Interview Available",
+    "subtitle": "10 personalised questions • ~10 minutes",
+    "description": "Your profile looks great! You're invited to complete a short virtual interview tailored specifically to your background and this position. This is entirely optional, but gives you an extra opportunity to stand out.",
+    "feature1": "Personalised",
+    "feature2": "AI-powered",
+    "feature3": "Instant results",
+    "startButton": "Start Virtual Interview",
+    "optional": "Optional — you can skip this step"
+  },
+  "chat": {
+    "title": "Virtual Interview",
+    "completed": "Completed",
+    "welcome": "Hello{name}! Welcome to your virtual interview. I'll ask you 10 questions tailored to your profile and this position. Take your time with each answer — there are no right or wrong answers, just be yourself.",
+    "questionLabel": "Question",
+    "evaluating": "Evaluating your answers...",
+    "waitingQuestion": "Waiting for next question...",
+    "inputPlaceholder": "Type your answer... (Enter to send, Shift+Enter for new line)",
+    "hint": "Press Enter to send • Shift+Enter for new line"
+  }
+}
 
 }
+
 
 
 

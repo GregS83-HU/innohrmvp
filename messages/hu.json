@@ -685,7 +685,8 @@
       "edit": "Szerkesztés",
       "save": "Mentés",
       "saving": "Mentés folyamatban...",
-      "cancel": "Mégse"
+      "cancel": "Mégse",
+      "clearSelection": "Kijelölés törlése"
     },
     "column": {
       "unassigned": "Nincs hozzárendelve",
@@ -697,7 +698,11 @@
       "id": "Azonosító",
       "viewCV": "Önéletrajz",
       "notScored": "Nincs értékelve",
-      "new": "Új"
+      "new": "Új",
+      "viewInterviewSummary": "Interjú összefoglaló megtekintése",
+      "interviewSummary": "Interjú összefoglaló",
+      "cvScore": "Önéletrajz pontszám",
+"aiInterview": "AI Interjú"
     },
     "modal": {
       "candidateInfo": "Jelölt információk",
@@ -716,7 +721,9 @@
       "aiAnalysis": "AI elemzés",
       "noAiAnalysis": "Nincs elérhető AI elemzés",
       "nextStep": "Következő lépés",
-      "interviews": "Interjúk"
+      "interviews": "Interjúk",
+      "aiInterview": "MI interjú",
+      "interviewSummary": "Interjú összefoglaló"
     },
     "errors": {
       "updateStepError": "Hiba a lépés frissítésekor",
@@ -2724,6 +2731,30 @@
       "totalMonthlyPayroll": "Összes havi bér"
     }
   }
+  ,
+  "interview": {
+  "closing": "Köszönjük ezt a virtuális interjút! HR toborzónk gondosan átnézi válaszait, és értesíti Önt a lehetséges következő lépésekről. Nagyra értékeljük az időt, amelyet megosztott velünk tapasztalatairól. 🙏",
+  "cta": {
+    "title": "Virtuális Interjú Elérhető",
+    "subtitle": "10 személyre szabott kérdés • ~10 perc",
+    "description": "Profilja nagyon ígéretes! Meghívjuk, hogy töltse ki ezt a rövid virtuális interjút, amely kifejezetten az Ön háttere és az adott pozíció alapján készült. Ez teljesen opcionális, de extra lehetőséget ad a kiemelkedésre.",
+    "feature1": "Személyre szabott",
+    "feature2": "MI-alapú",
+    "feature3": "Azonnali eredmény",
+    "startButton": "Virtuális Interjú Indítása",
+    "optional": "Opcionális — ezt a lépést kihagyhatja"
+  },
+  "chat": {
+    "title": "Virtuális Interjú",
+    "completed": "Befejezve",
+    "welcome": "Üdvözlöm{name}! Üdvözöljük a virtuális interjún. 10 kérdést fogok feltenni, amelyek az Ön profiljához és ehhez a pozícióhoz igazodnak. Szánjon időt minden válaszra — nincsenek jó vagy rossz válaszok, csak legyen önmaga.",
+    "questionLabel": "Kérdés",
+    "evaluating": "Válaszok értékelése...",
+    "waitingQuestion": "Következő kérdésre várva...",
+    "inputPlaceholder": "Írja be válaszát... (Enter a küldéshez, Shift+Enter új sorhoz)",
+    "hint": "Enter a küldéshez • Shift+Enter új sorhoz"
+  }
+}
 }
 
 

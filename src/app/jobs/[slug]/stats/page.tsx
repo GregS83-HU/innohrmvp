@@ -23,6 +23,8 @@ type PositionToCandidatRow = {
   candidat_next_step: string | null
   source: string | null
   candidats: Candidat | null
+  interview_score: number | null
+  interview_summary: string | null
 }
 
 export default async function StatsPage({
@@ -66,7 +68,9 @@ export default async function StatsPage({
         created_at,
         candidat_email,
         candidat_phone
-      )
+      ),
+      interview_score,
+      interview_summary
     `)
     .eq('position_id', Number(positionId)) as {
       data: PositionToCandidatRow[] | null

@@ -665,7 +665,8 @@
       "edit": "Modifier",
       "save": "Enregistrer",
       "saving": "Enregistrement...",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "clearSelection": "Effacer la sélection"
     },
     "column": {
       "unassigned": "Non assigné",
@@ -677,7 +678,11 @@
       "id": "ID",
       "viewCV": "CV",
       "notScored": "Non noté",
-      "new": "Nouveau"
+      "new": "Nouveau",
+      "viewInterviewSummary": "Voir le résumé de l'entretien",
+      "interviewSummary": "Résumé de l'entretien",
+      "cvScore": "Score CV",
+"aiInterview": "Entretien IA"
     },
     "modal": {
       "candidateInfo": "Informations du Candidat",
@@ -696,7 +701,9 @@
       "aiAnalysis": "Analyse IA",
       "noAiAnalysis": "Aucune analyse IA disponible",
       "nextStep": "Prochaine Étape",
-      "interviews": "Entretiens"
+      "interviews": "Entretiens",
+      "aiInterview": "Entretien IA",
+      "interviewSummary": "Résumé de l'entretien"
     },
     "errors": {
       "updateStepError": "Erreur lors de la mise à jour de l'étape",
@@ -2982,6 +2989,30 @@
       "totalMonthlyPayroll": "Total mensuel de la paie"
     }
   }
+  ,
+  "interview": {
+  "closing": "Merci pour cet entretien virtuel ! Notre recruteur RH examinera attentivement vos réponses et vous contactera pour les éventuelles prochaines étapes. Nous apprécions vraiment le temps que vous avez pris pour partager votre expérience avec nous. 🙏",
+  "cta": {
+    "title": "Entretien Virtuel Disponible",
+    "subtitle": "10 questions personnalisées • ~10 minutes",
+    "description": "Votre profil est très intéressant ! Vous êtes invité(e) à réaliser un court entretien virtuel adapté à votre parcours et à ce poste. C'est entièrement facultatif, mais cela vous donne une opportunité supplémentaire de vous démarquer.",
+    "feature1": "Personnalisé",
+    "feature2": "Propulsé par IA",
+    "feature3": "Résultats instantanés",
+    "startButton": "Démarrer l'Entretien Virtuel",
+    "optional": "Facultatif — vous pouvez ignorer cette étape"
+  },
+  "chat": {
+    "title": "Entretien Virtuel",
+    "completed": "Terminé",
+    "welcome": "Bonjour{name} ! Bienvenue dans votre entretien virtuel. Je vais vous poser 10 questions adaptées à votre profil et à ce poste. Prenez le temps qu'il vous faut pour chaque réponse — il n'y a pas de bonnes ou mauvaises réponses, soyez simplement vous-même.",
+    "questionLabel": "Question",
+    "evaluating": "Évaluation de vos réponses...",
+    "waitingQuestion": "En attente de la prochaine question...",
+    "inputPlaceholder": "Tapez votre réponse... (Entrée pour envoyer, Maj+Entrée pour une nouvelle ligne)",
+    "hint": "Appuyez sur Entrée pour envoyer • Maj+Entrée pour une nouvelle ligne"
+  }
+}
 }
 
 
