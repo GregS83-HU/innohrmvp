@@ -86,10 +86,8 @@
       "companyName": "Company name is required",
       "gdprConsent": "GDPR consent is required"
     }
-  }
-
-
-  ,"feedback": {
+  },
+  "feedback": {
     "header": {
       "title": "How was your demo experience?",
       "subtitle": "Your feedback helps us improve our platform and better serve our users."
@@ -122,10 +120,8 @@
       "subtitle": "Your feedback has been submitted successfully. We appreciate your time and input!",
       "contactUs": "Contact Us"
     }
-  }
-
- 
- , "header": {
+  },
+  "header": {
     "yourPositions": "Your Available Positions",
     "availablePositions": "Available Positions",
     "createPosition": "Create Position",
@@ -153,12 +149,9 @@
     "logout": "Logout",
     "login": "Login",
     "demoProfilesHint": "Click here for different profiles",
-     "manageContacts": "Manage Contacts"
-  }
-
-
-
-  ,"positions": {
+    "manageContacts": "Manage Contacts"
+  },
+  "positions": {
     "availablePositions": "Available Positions",
     "positionsAvailable": "positions available",
     "searchPlaceholder": "Search positions...",
@@ -178,10 +171,8 @@
     "loading": "Loading positions...",
     "error": "Error",
     "errorLoading": "Error loading positions"
-  }
-
-
-,  "analytics": {
+  },
+  "analytics": {
     "header": {
       "title": "Position Analytics"
     },
@@ -248,9 +239,8 @@
         "percentage": "Percentage"
       }
     }
-  }
-
-,  "newPosition": {
+  },
+  "newPosition": {
     "modal": {
       "title": "Confirm Analysis",
       "message": "You are about to analyze all candidates in your database against this position.",
@@ -279,33 +269,31 @@
       "positionDescriptionDetailedPlaceholder": "Detailed requirements, skills, and qualifications for AI matching...",
       "startingDate": "Starting Date",
       "manager": "Who will be the Manager?",
-      
-        "locationTitle": "Location & Work Type",
-        "location": "Location",
-        "locationPlaceholder": "e.g., Budapest, Hungary",
-        "locationType": "Work Location Type",
-        "locationTypes": {
-          "onsite": "On-site",
-          "hybrid": "Hybrid",
-          "remote": "Remote"
-        },
-        "employmentType": "Employment Type",
-        "selectEmploymentType": "Select type...",
-        "employmentTypes": {
-          "fullTime": "Full-time",
-          "partTime": "Part-time",
-          "contract": "Contract",
-          "internship": "Internship",
-          "temporary": "Temporary"
-        },
-        "salaryRange": "Salary Range",
-        "optional": "optional",
-        "showPublicly": "Show publicly",
-        "min": "Min",
-        "max": "Max",
-        "currency": "Currency",
-        "applicationDeadline": "Application Deadline"
-      
+      "locationTitle": "Location & Work Type",
+      "location": "Location",
+      "locationPlaceholder": "e.g., Budapest, Hungary",
+      "locationType": "Work Location Type",
+      "locationTypes": {
+        "onsite": "On-site",
+        "hybrid": "Hybrid",
+        "remote": "Remote"
+      },
+      "employmentType": "Employment Type",
+      "selectEmploymentType": "Select type...",
+      "employmentTypes": {
+        "fullTime": "Full-time",
+        "partTime": "Part-time",
+        "contract": "Contract",
+        "internship": "Internship",
+        "temporary": "Temporary"
+      },
+      "salaryRange": "Salary Range",
+      "optional": "optional",
+      "showPublicly": "Show publicly",
+      "min": "Min",
+      "max": "Max",
+      "currency": "Currency",
+      "applicationDeadline": "Application Deadline"
     },
     "buttons": {
       "createPosition": "Create Position",
@@ -339,7 +327,6 @@
       "aiGenerationFailed": "Failed to generate descriptions. Please try again.",
       "aiGenerationSuccess": "✨ Descriptions generated successfully! Review them below and make any necessary adjustments.",
       "positionNameRequired": "Please enter a position name before generating descriptions."
-
     },
     "analysis": {
       "title": "Candidate Analysis",
@@ -351,23 +338,21 @@
       "title": "Analysis Results",
       "matchingCandidates": "Matching candidates found",
       "viewDetails": "View Details"
-    }, 
+    },
     "managerDropdown": {
-    "selectManager": "Select a manager...",
-    "searchPlaceholder": "Search by name...",
-    "loading": "Loading...",
-    "loadingManagers": "Loading managers...",
-    "errorLoading": "Error loading users. Please contact your admin.",
-    "noUsers": "No users found. Please contact your admin.",
-    "noUsersFound": "No users found"
-  }, 
- 
+      "selectManager": "Select a manager...",
+      "searchPlaceholder": "Search by name...",
+      "loading": "Loading...",
+      "loadingManagers": "Loading managers...",
+      "errorLoading": "Error loading users. Please contact your admin.",
+      "noUsers": "No users found. Please contact your admin.",
+      "noUsersFound": "No users found"
+    },
     "aiSection": {
       "title": "AI-Powered Description Generator",
       "description": "Let AI create professional job descriptions for you. Provide a rough draft and get both a marketing version for ads and a detailed version for candidate analysis.",
       "generateButton": "Generate with AI ✨"
     },
-   
     "aiModal": {
       "title": "Generate Position Descriptions with AI",
       "instructions": "How it works:",
@@ -384,25 +369,22 @@
       "generateButton": "Generate Descriptions",
       "cancel": "Cancel"
     }
-  }
-,
+  },
   "cvAnalyse": {
-
-     "badges": {
-        "location": "Location",
-        "remote": "Remote",
-        "hybrid": "Hybrid",
-        "onsite": "On-site",
-        "fulltime": "Full-time",
-        "parttime": "Part-time",
-        "contract": "Contract",
-        "internship": "Internship",
-        "temporary": "Temporary",
-        "salary": "Salary",
-        "deadline": "Apply within",
-        "deadlineToday": "Last day to apply!"
-      },
-
+    "badges": {
+      "location": "Location",
+      "remote": "Remote",
+      "hybrid": "Hybrid",
+      "onsite": "On-site",
+      "fulltime": "Full-time",
+      "parttime": "Part-time",
+      "contract": "Contract",
+      "internship": "Internship",
+      "temporary": "Temporary",
+      "salary": "Salary",
+      "deadline": "Apply within",
+      "deadlineToday": "Last day to apply!"
+    },
     "header": {
       "title": "AI CV Analysis",
       "positionAt": "at"
@@ -447,16 +429,10 @@
         "medium": "Your CV partially matches the position. Our HR specialist will analyse it.",
         "high": "Thank you for your application! Your resume is a good match. A member of HR will contact you shortly."
       },
-
-    
-
       "unableToRead": "Unfortunately, we are not able to read your CV. Can you try to upload a new one?",
       "generic": "An error occurred while processing your request."
-
-   
     }
-  }
-,
+  },
   "app": {
     "title": "Workplace Well-Being Assessment",
     "subtitle": "for {{companyName}}",
@@ -515,8 +491,7 @@
     "newAssessment": "Start a New Assessment",
     "backTo": "Back to {{companyName}}",
     "backHome": "Back to Home"
-  }
-,
+  },
   "dashboard": {
     "title": "HR Wellbeing Dashboard",
     "subtitle": "Anonymous workplace happiness analytics",
@@ -524,37 +499,31 @@
     "error": "Error",
     "retry": "Retry",
     "refresh": "Refresh",
-    
     "auth": {
       "required": "Authentication Required",
       "description": "You must be logged in to access the HR dashboard.",
       "login": "Log In"
     },
-    
     "errors": {
       "notAuthenticated": "Not authenticated - please log in again",
       "accessDenied": "Access denied - no company associated with your account",
       "loadingData": "Error loading data",
       "unknown": "Unknown error"
     },
-    
     "levels": {
       "excellent": "Excellent",
       "good": "Good",
       "needsImprovement": "Needs Improvement"
     },
-    
     "period": {
       "days": "{{count}} days"
     },
-    
     "metrics": {
       "avgScore": "Average Score",
       "participations": "Participations",
       "strongestArea": "Strongest Area",
       "improvementArea": "Area for Improvement"
     },
-    
     "perma": {
       "positive": "Positive Emotions",
       "engagement": "Engagement",
@@ -563,7 +532,6 @@
       "accomplishment": "Accomplishment",
       "workLifeBalance": "Work-Life Balance"
     },
-    
     "recommendations": {
       "positive": "Organize team events, celebrate successes, improve recognition",
       "engagement": "Offer challenging projects, skill development, increased autonomy",
@@ -572,18 +540,15 @@
       "accomplishment": "Clear goals, regular feedback, growth opportunities",
       "workLifeBalance": "Flexible hours, remote work, disconnection policies"
     },
-    
     "charts": {
       "permaAnalysis": "PERMA-W Analysis",
       "distribution": "Domain Distribution",
       "comparison": "Detailed Comparison",
       "score": "Score"
     },
-    
     "actions": {
       "title": "Recommended Actions"
     },
-    
     "footer": {
       "privacy": "Privacy",
       "privacyText": "All data is fully anonymized. No personal information is stored or displayed.",
@@ -592,9 +557,7 @@
       "export": "Export",
       "exportTodo": "Export functionality to be implemented"
     }
-  }
-,
-
+  },
   "interviewList": {
     "loading": "Loading...",
     "noInterviews": "No interviews yet",
@@ -739,8 +702,7 @@
       "updateCommentError": "Error updating comment",
       "fetchDataError": "Error fetching data"
     }
-  }
-,
+  },
   "medicalCertificates": {
     "title": "Medical Certificates",
     "loading": "Loading certificates...",
@@ -788,8 +750,7 @@
       "userWithoutCompany": "User without company_id",
       "loadCertificates": "Error loading certificates"
     }
-  }
-,
+  },
   "certificateDownload": {
     "title": "Download Medical Certificates",
     "loading": "Loading certificates...",
@@ -830,8 +791,7 @@
     "alerts": {
       "noResults": "No certificate found for the selected dates."
     }
-  }
-,
+  },
   "uploadCertificate": {
     "loading": "Checking permissions...",
     "error": {
@@ -842,7 +802,6 @@
       "title": "Plan Limit Reached",
       "message": "Your company's plan limit has been reached. To continue, please reach out to your company administrator."
     },
-    
     "header": {
       "title": "Upload Medical Certificate",
       "subtitle": "Upload your medical certificate for automatic processing"
@@ -890,8 +849,7 @@
       "uploadError": "Unknown error occurred",
       "saveError": "Unknown error occurred while saving"
     }
-  }
-,
+  },
   "calendarLeaveModal": {
     "title": "Quick Leave Request",
     "fields": {
@@ -922,8 +880,7 @@
       "notificationError": "Error sending leave request notification:",
       "noManager": "No manager found for user, skipping notification"
     }
-  }
-,
+  },
   "calendarLegend": {
     "title": "Legend",
     "myView": {
@@ -945,8 +902,7 @@
       "weekend": "Weekend",
       "hoverHint": "Hover over days to see team member names"
     }
-  }
-,
+  },
   "calendarDay": {
     "holidayIndicator": "H",
     "tooltip": {
@@ -955,15 +911,13 @@
       "statusPending": "⏳ Pending",
       "statusApproved": "✓ Approved"
     }
-  }
-,
+  },
   "managerHeatmapCell": {
     "tooltip": {
       "absent": "{{count}} of {{total}} absent ({{percentage}}%)",
       "pending": "(Pending)"
     }
-  }
-,
+  },
   "yearCalendarGrid": {
     "months": {
       "january": "January",
@@ -991,8 +945,7 @@
     "defaults": {
       "unknownLeaveType": "Unknown"
     }
-  }
-,
+  },
   "approvalModal": {
     "titles": {
       "approve": "Approve Request",
@@ -1014,8 +967,7 @@
       "approve": "Approve Request",
       "reject": "Reject Request"
     }
-  }
-,
+  },
   "leaveBalances": {
     "title": "Leave Balances ({{year}})",
     "noBalances": "No leave balances found",
@@ -1026,8 +978,7 @@
       "remaining": "Remaining:",
       "days": "days"
     }
-  }
-,
+  },
   "pendingApprovals": {
     "title": "Pending Approvals",
     "noApprovals": "No pending approvals",
@@ -1053,8 +1004,7 @@
       "notificationFailed": "Notification failed:",
       "reviewError": "Error in review with notification:"
     }
-  }
-,
+  },
   "recentRequests": {
     "title": "Recent Requests",
     "empty": {
@@ -1074,8 +1024,7 @@
     "buttons": {
       "uploadCertificate": "Upload Certificate"
     }
-  }
-,
+  },
   "requestLeaveModal": {
     "title": "Request Leave",
     "fields": {
@@ -1091,7 +1040,7 @@
       "title": "Medical Certificate (Optional)",
       "selectFile": "Click to select certificate",
       "fileHelp": "PDF or Image • Max 1MB",
-      "aiConsent":"🤖 I agree that my medical certificate will be processed using AI technology for automated data extraction and validation.",
+      "aiConsent": "🤖 I agree that my medical certificate will be processed using AI technology for automated data extraction and validation.",
       "processButton": "Process Certificate",
       "processing": "Processing...",
       "confirmButton": "Confirm Certificate",
@@ -1134,15 +1083,12 @@
       "endDateBeforeStart": "End date must be on or after start date",
       "fileRequired": "Please upload a medical certificate file"
     }
-  }
-,
+  },
   "demoTimer": {
     "expired": "Demo Expired - Contact us to continue",
     "active": "Demonstration Mode - Remaining time: {{time}}",
     "autoCloseWarning": "The application will close automatically at the end of the timer"
-  }
-,
- 
+  },
   "loginModal": {
     "title": "Login",
     "subtitle": {
@@ -1174,17 +1120,13 @@
     },
     "resetTitle": "Reset password",
     "resetDescription": "Enter your email and we’ll send you a password reset link."
-  }
-
-
-,
+  },
   "menuItem": {
     "tooltips": {
       "demoExpired": "Demo expired - Contact us to continue",
       "notAvailable": "Not available in your forfait"
     }
-  }
-,
+  },
   "addUserModal": {
     "header": {
       "title": "Add New User"
@@ -1243,8 +1185,7 @@
       "failedToCreate": "Failed to create user",
       "unexpectedError": "An unexpected error occurred"
     }
-  }
-,
+  },
   "goalDetailPage": {
     "loading": {
       "message": "Loading goal details..."
@@ -1304,8 +1245,7 @@
       "deleteConfirm": "Are you sure you want to delete this goal? This action cannot be undone.",
       "error": "Error: {{message}}"
     }
-  }
-,
+  },
   "newGoalPage": {
     "header": {
       "backButton": "Back to Dashboard",
@@ -1344,8 +1284,7 @@
       "createSuccess": "Goal created and sent for manager approval!",
       "error": "Error: {{message}}"
     }
-  }
-,
+  },
   "weeklyPulsePage": {
     "loading": {
       "message": "Loading pulse check..."
@@ -1392,8 +1331,7 @@
       "submitFailed": "Some updates failed. Please try again.",
       "error": "Error: {{message}}"
     }
-  }
-,
+  },
   "managerDashboard": {
     "loading": {
       "message": "Loading team dashboard..."
@@ -1443,8 +1381,7 @@
       "approveButton": "Approve Goal",
       "viewDetailsButton": "View Details"
     }
-  }
-,
+  },
   "performanceDashboard": {
     "loading": {
       "message": "Loading your performance dashboard..."
@@ -1490,8 +1427,7 @@
         "separator": "•"
       }
     }
-  }
-,
+  },
   "timeClockPage": {
     "header": {
       "title": "Time Clock",
@@ -1550,14 +1486,12 @@
     "error": {
       "title": "Error"
     }
-  }
-,
+  },
   "managerTimeClockPage": {
     "loading": "Loading...",
     "loginRequired": "Please log in to view this page.",
     "defaultManagerName": "Manager"
-  }
-,
+  },
   "managerTimeClockDashboard": {
     "header": {
       "title": "Team Time Clock",
@@ -1613,8 +1547,7 @@
       "updateFailed": "Failed to update entry",
       "unexpectedError": "An unexpected error occurred"
     }
-  }
-,
+  },
   "timeClockModal": {
     "header": {
       "title": "Time Clock"
@@ -1646,8 +1579,7 @@
       "clockInFailed": "Failed to clock in",
       "clockOutFailed": "Failed to clock out"
     }
-  }
-,
+  },
   "confirmAnalysisModal": {
     "header": {
       "title": "Confirm Analysis"
@@ -1673,8 +1605,7 @@
       "createWithout": "Create Position Without Analysis",
       "cancel": "Cancel"
     }
-  }
-,
+  },
   "absenceManagement": {
     "loading": {
       "message": "Loading absence data..."
@@ -1701,8 +1632,7 @@
       "certificateLinkFailed": "Certificate uploaded but failed to link to request",
       "unexpectedError": "An unexpected error occurred"
     }
-  }
-,
+  },
   "certificateStatusBadge": {
     "noCertificate": "No Certificate",
     "certificateConfirmed": "Certificate Confirmed",
@@ -1712,8 +1642,7 @@
   "dateMismatchAlert": {
     "title": "Date Alignment Issue",
     "description": "Certificate dates ({{certificateStart}} to {{certificateEnd}}) don't match leave request dates ({{leaveStart}} to {{leaveEnd}})."
-  }
-,
+  },
   "emailService": {
     "cancellation": {
       "subject": "Interview Cancelled - {{positionTitle}}",
@@ -1739,9 +1668,8 @@
     "from": {
       "interviews": "HRInno Interviews"
     }
-  }
-,
-"emailTemplates": {
+  },
+  "emailTemplates": {
     "candidate": {
       "title": "Interview Invitation",
       "greeting": "Dear {{candidateName}},",
@@ -1768,8 +1696,7 @@
       "goodLuck": "Good luck with the interview!",
       "footer": "Sent via HRInno Interview Scheduler"
     }
-  }
-,
+  },
   "notifications": {
     "header": {
       "title": "Notifications",
@@ -1810,16 +1737,14 @@
       "title": "Notification",
       "message": "You have a new notification"
     }
-  }
-,
+  },
   "statsPage": {
     "error": {
       "missingPositionId": "Position identifier is missing.",
       "loadingError": "Error loading the statistics."
     },
     "noCandidates": "No candidates for this position."
-  }
-,
+  },
   "subscription": {
     "header": {
       "title": "Subscription Management",
@@ -1843,7 +1768,8 @@
       "companyNotAvailable": "Company information not available.",
       "planUnavailable": "This plan is temporarily unavailable due to pricing issues.",
       "unableCheckout": "Unable to start checkout",
-      "unexpectedCheckout": "Unexpected error starting checkout"},
+      "unexpectedCheckout": "Unexpected error starting checkout"
+    },
     "messages": {
       "freePlan": "This is a free plan. No subscription needed.",
       "creditsAdded": "AI credits added successfully!",
@@ -1909,8 +1835,7 @@
       "packDescription": "Perfect for generating extra results or insights.",
       "buyButton": "Buy {{count}} Credits"
     }
-  }
-,
+  },
   "companyUsers": {
     "header": {
       "title": "Company Users",
@@ -1970,9 +1895,7 @@
       "updating": "Updating...",
       "noManagers": "No managers found"
     }
-  }
-  ,
- 
+  },
   "ticketDetail": {
     "loading": "Loading ticket...",
     "errors": {
@@ -2037,10 +1960,7 @@
       "updating": "Updating...",
       "cancel": "Cancel"
     }
-  }
-
-,
-
+  },
   "createTicket": {
     "common": {
       "user": "User"
@@ -2090,8 +2010,7 @@
       "high": "High",
       "urgent": "Urgent"
     }
-  }
-,
+  },
   "ticketsPage": {
     "loading": "Loading tickets...",
     "errors": {
@@ -2158,157 +2077,147 @@
       "messages": "{{count}} message",
       "files": "{{count}} file"
     }
-  }
-
-,
-"footer": {
-  "operatedBy": "Operated by Saussez Grégory, Budapest, Hungary",
-  "privacyLink": "Privacy Policy",
-  "termsLink": "Terms of Use",
-  "cookiesLink": "Cookie Policy",
-  "impressumLink": "Impressum",
-  "contact": "For any privacy inquiries, contact",
-  "aiDisclaimer": "AI features are for demonstration purposes only and should not be used for real HR decisions."
-},
-
-
-"privacyDemo": {
-  "title": "Privacy Notice (Demo Version)",
-  "intro": "This demo application is operated by Saussez Grégory (Budapest, Hungary). The purpose of the demo is to test InnoHR’s features and collect feedback. No commercial activity is conducted, and the service is free of charge.",
-  "sections": {
-    "dataCollected": {
-      "title": "Data Collected",
-      "items": {
-        "0": "Information you voluntarily provide (e.g. name, email, feedback, or test data). Please avoid entering any real or sensitive personal information.",
-        "1": "Technical data (such as browser type, IP address, and approximate geographic region) used for performance and security analysis."
-      }
-    },
-    "purpose": {
-      "title": "Purpose of Data Processing",
-      "text": "The data is used solely to evaluate the usability of the demo, ensure system security, and improve future development of InnoHR."
-    },
-    "storage": {
-      "title": "Data Storage and Retention",
-      "text": "All demo data is automatically deleted every night as part of a scheduled cleanup process. Only minimal technical logs may be stored for up to 90 days for security and debugging purposes."
-    },
-    "aiProcessing": {
-      "title": "AI Processing",
-      "text": "Some demo features use AI-generated responses (via OpenRouter or OpenAI APIs). These responses are for demonstration purposes only and must not be used for decision-making or employment assessments."
-    },
-    "thirdParty": {
-      "title": "Third-Party Services",
-      "items": {
-        "supabase": {
-          "name": "Supabase (BaaS Platform)",
-          "desc": "Purpose: Database hosting and authentication. Headquarters: USA (using EU-based servers).",
-          "linkHref": "https://supabase.com/privacy",
-          "linkText": "Privacy Policy",
-          "color": "border-blue-500"
-        },
-        "openai": {
-          "name": "OpenRouter / OpenAI (AI Service)",
-          "desc": "Purpose: AI-based analysis and responses. Headquarters: USA. Data is not stored long-term.",
-          "linkHref": "https://openai.com/privacy",
-          "linkText": "Privacy Policy",
-          "color": "border-green-500"
-        },
-        "vercel": {
-          "name": "Vercel (Hosting)",
-          "desc": "Purpose: Web hosting and content delivery. Headquarters: USA (EU region enabled).",
-          "linkHref": "https://vercel.com/legal/privacy-policy",
-          "linkText": "Privacy Policy",
-          "color": "border-purple-500"
-        },
-        "stripe": {
-          "name": "Stripe (Payment Service)",
-          "desc": "Purpose: Payment processing. Currently disabled in the demo version. Headquarters: USA (EU data storage).",
-          "linkHref": "https://stripe.com/privacy",
-          "linkText": "Privacy Policy",
-          "color": "border-orange-500"
-        },
-        "resend": {
-          "name": "Resend / Nodemailer (Email Delivery)",
-          "desc": "Purpose: Sending internal notification emails to the developer. No external marketing messages are sent.",
-          "linkHref": "https://resend.com/privacy",
-          "linkText": "Privacy Policy",
-          "color": "border-teal-500"
+  },
+  "footer": {
+    "operatedBy": "Operated by Saussez Grégory, Budapest, Hungary",
+    "privacyLink": "Privacy Policy",
+    "termsLink": "Terms of Use",
+    "cookiesLink": "Cookie Policy",
+    "impressumLink": "Impressum",
+    "contact": "For any privacy inquiries, contact",
+    "aiDisclaimer": "AI features are for demonstration purposes only and should not be used for real HR decisions."
+  },
+  "privacyDemo": {
+    "title": "Privacy Notice (Demo Version)",
+    "intro": "This demo application is operated by Saussez Grégory (Budapest, Hungary). The purpose of the demo is to test InnoHR’s features and collect feedback. No commercial activity is conducted, and the service is free of charge.",
+    "sections": {
+      "dataCollected": {
+        "title": "Data Collected",
+        "items": {
+          "0": "Information you voluntarily provide (e.g. name, email, feedback, or test data). Please avoid entering any real or sensitive personal information.",
+          "1": "Technical data (such as browser type, IP address, and approximate geographic region) used for performance and security analysis."
         }
       },
-      "noticeTitle": "Data Transfer:",
-      "noticeText": "Some data may be transferred outside the European Union. Standard Contractual Clauses (SCCs) are used to ensure adequate protection of personal data."
+      "purpose": {
+        "title": "Purpose of Data Processing",
+        "text": "The data is used solely to evaluate the usability of the demo, ensure system security, and improve future development of InnoHR."
+      },
+      "storage": {
+        "title": "Data Storage and Retention",
+        "text": "All demo data is automatically deleted every night as part of a scheduled cleanup process. Only minimal technical logs may be stored for up to 90 days for security and debugging purposes."
+      },
+      "aiProcessing": {
+        "title": "AI Processing",
+        "text": "Some demo features use AI-generated responses (via OpenRouter or OpenAI APIs). These responses are for demonstration purposes only and must not be used for decision-making or employment assessments."
+      },
+      "thirdParty": {
+        "title": "Third-Party Services",
+        "items": {
+          "supabase": {
+            "name": "Supabase (BaaS Platform)",
+            "desc": "Purpose: Database hosting and authentication. Headquarters: USA (using EU-based servers).",
+            "linkHref": "https://supabase.com/privacy",
+            "linkText": "Privacy Policy",
+            "color": "border-blue-500"
+          },
+          "openai": {
+            "name": "OpenRouter / OpenAI (AI Service)",
+            "desc": "Purpose: AI-based analysis and responses. Headquarters: USA. Data is not stored long-term.",
+            "linkHref": "https://openai.com/privacy",
+            "linkText": "Privacy Policy",
+            "color": "border-green-500"
+          },
+          "vercel": {
+            "name": "Vercel (Hosting)",
+            "desc": "Purpose: Web hosting and content delivery. Headquarters: USA (EU region enabled).",
+            "linkHref": "https://vercel.com/legal/privacy-policy",
+            "linkText": "Privacy Policy",
+            "color": "border-purple-500"
+          },
+          "stripe": {
+            "name": "Stripe (Payment Service)",
+            "desc": "Purpose: Payment processing. Currently disabled in the demo version. Headquarters: USA (EU data storage).",
+            "linkHref": "https://stripe.com/privacy",
+            "linkText": "Privacy Policy",
+            "color": "border-orange-500"
+          },
+          "resend": {
+            "name": "Resend / Nodemailer (Email Delivery)",
+            "desc": "Purpose: Sending internal notification emails to the developer. No external marketing messages are sent.",
+            "linkHref": "https://resend.com/privacy",
+            "linkText": "Privacy Policy",
+            "color": "border-teal-500"
+          }
+        },
+        "noticeTitle": "Data Transfer:",
+        "noticeText": "Some data may be transferred outside the European Union. Standard Contractual Clauses (SCCs) are used to ensure adequate protection of personal data."
+      },
+      "dataController": {
+        "title": "Data Controller Contact Information",
+        "nameLabel": "Name:",
+        "emailLabel": "Email:",
+        "addressLabel": "Address:",
+        "dpoLabel": "Data Protection Officer:",
+        "name": "Saussez Grégory",
+        "email": "privacy@innohr.hu",
+        "address": "Budapest, Hungary",
+        "dpo": "privacy@innohr.hu"
+      },
+      "userRights": {
+        "title": "Your Rights",
+        "text": "You may request access to or deletion of your data at any time by contacting privacy@innohr.hu. You also have the right to lodge a complaint with the Hungarian National Authority for Data Protection and Freedom of Information (NAIH) at www.naih.hu."
+      },
+      "contact": {
+        "title": "Contact",
+        "text": "Operator: Saussez Grégory, Budapest, Hungary",
+        "email": "privacy@innohr.hu"
+      }
     },
-    "dataController": {
-      "title": "Data Controller Contact Information",
-      "nameLabel": "Name:",
-      "emailLabel": "Email:",
-      "addressLabel": "Address:",
-      "dpoLabel": "Data Protection Officer:",
-      "name": "Saussez Grégory",
-      "email": "privacy@innohr.hu",
-      "address": "Budapest, Hungary",
-      "dpo": "privacy@innohr.hu"
-    },
-    "userRights": {
-      "title": "Your Rights",
-      "text": "You may request access to or deletion of your data at any time by contacting privacy@innohr.hu. You also have the right to lodge a complaint with the Hungarian National Authority for Data Protection and Freedom of Information (NAIH) at www.naih.hu."
-    },
-    "contact": {
-      "title": "Contact",
-      "text": "Operator: Saussez Grégory, Budapest, Hungary",
-      "email": "privacy@innohr.hu"
-    }
+    "lastUpdated": "Last updated: November 2025"
   },
-  "lastUpdated": "Last updated: November 2025"
-}
-
-,
   "cookies": {
     "title": "Cookies & Data",
     "text": "We use cookies to improve the demo experience. No tracking or third-party marketing cookies are used.",
     "accept": "Accept",
     "reject": "Reject"
-  }
-  ,
-  
+  },
   "termsDemo": {
-  "title": "Demo Terms of Service",
-  "lastUpdated": "Last updated: {date}",
-  "sections": {
-    "demoFeatures": {
-      "title": "1. Demo Version Characteristics",
-      "content": "This is a free demo version for testing purposes. System features are limited, and data will be automatically deleted after 30 days."
-    },
-    "liability": {
-      "title": "2. Disclaimer of Liability",
-      "content": "The demo version is provided \"as is\" without any warranties. Do not use real personal data or sensitive information."
-    },
-    "dataProcessing": {
-      "title": "3. Data Processing",
-      "content": "Data provided during demo usage is used solely for system testing purposes.",
-      "detailsLink": "Details:",
-      "privacyPolicy": "Privacy Policy"
-    },
-    "aiContent": {
-      "title": "4. AI Content",
-      "content": "Content generated by AI does not constitute professional advice. Inaccuracies may occur."
-    },
-    "termination": {
-      "title": "5. Access Termination",
-      "content": "We reserve the right to immediately terminate demo access without notice."
-    },
-    "contact": {
-      "title": "6. Contact",
-      "content": "For questions:"
+    "title": "Demo Terms of Service",
+    "lastUpdated": "Last updated: {date}",
+    "sections": {
+      "demoFeatures": {
+        "title": "1. Demo Version Characteristics",
+        "content": "This is a free demo version for testing purposes. System features are limited, and data will be automatically deleted after 30 days."
+      },
+      "liability": {
+        "title": "2. Disclaimer of Liability",
+        "content": "The demo version is provided \"as is\" without any warranties. Do not use real personal data or sensitive information."
+      },
+      "dataProcessing": {
+        "title": "3. Data Processing",
+        "content": "Data provided during demo usage is used solely for system testing purposes.",
+        "detailsLink": "Details:",
+        "privacyPolicy": "Privacy Policy"
+      },
+      "aiContent": {
+        "title": "4. AI Content",
+        "content": "Content generated by AI does not constitute professional advice. Inaccuracies may occur."
+      },
+      "termination": {
+        "title": "5. Access Termination",
+        "content": "We reserve the right to immediately terminate demo access without notice."
+      },
+      "contact": {
+        "title": "6. Contact",
+        "content": "For questions:"
+      }
     }
-  }
-}
-,
+  },
   "demoBanner": {
-  "title": "Demo version:",
-  "text": "Do not use real personal data. All demo data is automatically deleted every night."
-}
-,
-"impressumDemo": {
+    "title": "Demo version:",
+    "text": "Do not use real personal data. All demo data is automatically deleted every night."
+  },
+  "impressumDemo": {
     "title": "Impressum",
     "intro": "In accordance with EU law, the following legal information applies to this website and demo.",
     "fields": {
@@ -2328,64 +2237,60 @@
       }
     },
     "lastUpdated": "Last updated: October 2025"
-  }
-,
-"cookiesDemo": {
-  "title": "Cookie Notice (Demo Version)",
-  "intro": "This demo application uses minimal cookies and similar technologies to ensure its proper functioning and measure technical performance. No advertising or tracking cookies are used.",
-  "sections": {
-    "whatAreCookies": {
-      "title": "What Are Cookies?",
-      "text": "Cookies are small text files stored on your device when you visit a website. They help websites function properly, remember your preferences, and gather anonymous usage statistics."
-    },
-    "howWeUse": {
-      "title": "How We Use Cookies",
-      "text": "We only use essential cookies that are necessary for authentication and security (via Supabase) and technical analytics (via Vercel). These cookies do not identify you personally and are deleted automatically after your session ends."
-    },
-    "types": {
-      "title": "Types of Cookies Used",
-      "items": {
-        "necessary": "Necessary cookies – required for login, session management, and security.",
-        "analytics": "Analytics cookies – used to monitor technical performance through Vercel Analytics. No personal tracking.",
-        "functional": "Functional cookies – used temporarily to remember your demo language and consent preferences."
+  },
+  "cookiesDemo": {
+    "title": "Cookie Notice (Demo Version)",
+    "intro": "This demo application uses minimal cookies and similar technologies to ensure its proper functioning and measure technical performance. No advertising or tracking cookies are used.",
+    "sections": {
+      "whatAreCookies": {
+        "title": "What Are Cookies?",
+        "text": "Cookies are small text files stored on your device when you visit a website. They help websites function properly, remember your preferences, and gather anonymous usage statistics."
+      },
+      "howWeUse": {
+        "title": "How We Use Cookies",
+        "text": "We only use essential cookies that are necessary for authentication and security (via Supabase) and technical analytics (via Vercel). These cookies do not identify you personally and are deleted automatically after your session ends."
+      },
+      "types": {
+        "title": "Types of Cookies Used",
+        "items": {
+          "necessary": "Necessary cookies – required for login, session management, and security.",
+          "analytics": "Analytics cookies – used to monitor technical performance through Vercel Analytics. No personal tracking.",
+          "functional": "Functional cookies – used temporarily to remember your demo language and consent preferences."
+        }
+      },
+      "manage": {
+        "title": "Managing Cookies",
+        "text": "You can manage or delete cookies through your browser settings. Since this is a demo environment, disabling cookies may prevent some features (e.g., login or language settings) from functioning properly."
+      },
+      "moreInfo": {
+        "title": "More Information",
+        "text": "If you have any questions about this Cookie Notice, please contact us at"
       }
     },
-    "manage": {
-      "title": "Managing Cookies",
-      "text": "You can manage or delete cookies through your browser settings. Since this is a demo environment, disabling cookies may prevent some features (e.g., login or language settings) from functioning properly."
+    "lastUpdated": "Last updated: November 2025"
+  },
+  "resetPage": {
+    "title": "Reset Password",
+    "loading": "Loading...",
+    "fields": {
+      "newPasswordPlaceholder": "New password"
     },
-    "moreInfo": {
-      "title": "More Information",
-      "text": "If you have any questions about this Cookie Notice, please contact us at"
+    "buttons": {
+      "save": "Save new password",
+      "backToHome": "Back to Home",
+      "backToApp": "Back to Application"
+    },
+    "messages": {
+      "passwordUpdated": "Your password has been updated!",
+      "redirecting": "Redirecting..."
+    },
+    "errors": {
+      "missingPassword": "Please enter a new password.",
+      "passwordTooShort": "Password must be at least 6 characters",
+      "noSession": "No valid session found. Please request a new password reset link.",
+      "sessionError": "Session Error"
     }
   },
-  "lastUpdated": "Last updated: November 2025"
-}
-,
-
- "resetPage": {
-  "title": "Reset Password",
-  "loading": "Loading...",
-  "fields": {
-    "newPasswordPlaceholder": "New password"
-  },
-  "buttons": {
-    "save": "Save new password",
-    "backToHome": "Back to Home",
-    "backToApp": "Back to Application"
-  },
-  "messages": {
-    "passwordUpdated": "Your password has been updated!",
-    "redirecting": "Redirecting..."
-  },
-  "errors": {
-    "missingPassword": "Please enter a new password.",
-    "passwordTooShort": "Password must be at least 6 characters",
-    "noSession": "No valid session found. Please request a new password reset link.",
-    "sessionError": "Session Error"
-  }
-},
-
   "payroll": {
     "title": "Payroll Management",
     "subtitle": "Manage employee payroll data and generate exports",
@@ -2395,7 +2300,6 @@
     "fetchError": "Error fetching current user:",
     "verifySession": "Please wait while we verify your session..."
   },
-  
   "payrollModal": {
     "title": {
       "add": "Add Payroll Information",
@@ -2514,7 +2418,6 @@
       }
     }
   },
-  
   "payrollExportModal": {
     "title": "Export Payroll Data",
     "advancedOptions": "Advanced Options",
@@ -2576,7 +2479,6 @@
       "exporting": "Payroll Exporting Month"
     }
   },
-  
   "payrollForm": {
     "title": {
       "add": "Add New Payroll Data",
@@ -2678,7 +2580,6 @@
       "create": "Create"
     }
   },
-  
   "payrollList": {
     "title": "Payroll Management",
     "locale": "hu-HU",
@@ -2742,41 +2643,33 @@
       "activeEmployees": "Active Employees",
       "totalMonthlyPayroll": "Total Monthly Payroll"
     }
-  }
-
-,
-  "interview": {
-  "closing": "Thank you for this virtual interview! Our HR recruiter will carefully review your responses and contact you about potential next steps. We truly appreciate the time you've taken to share your experience with us. 🙏",
-  "cta": {
-    "title": "Virtual Interview Available",
-    "subtitle": "10 personalised questions • ~10 minutes",
-    "description": "Your profile looks great! You're invited to complete a short virtual interview tailored specifically to your background and this position. This is entirely optional, but gives you an extra opportunity to stand out.",
-    "feature1": "Personalised",
-    "feature2": "AI-powered",
-    "feature3": "Instant results",
-    "startButton": "Start Virtual Interview",
-    "optional": "Optional — you can skip this step"
   },
-  "chat": {
-    "title": "Virtual Interview",
-    "completed": "Completed",
-    "welcome": "Hello{name}! Welcome to your virtual interview. I'll ask you 10 questions tailored to your profile and this position. Take your time with each answer — there are no right or wrong answers, just be yourself.",
-    "questionLabel": "Question",
-    "evaluating": "Evaluating your answers...",
-    "waitingQuestion": "Waiting for next question...",
-    "inputPlaceholder": "Type your answer... (Enter to send, Shift+Enter for new line)",
-    "hint": "Press Enter to send • Shift+Enter for new line"
+  "interview": {
+    "closing": "Thank you for this virtual interview! Our HR recruiter will carefully review your responses and contact you about potential next steps. We truly appreciate the time you've taken to share your experience with us. 🙏",
+    "cta": {
+      "title": "Virtual Interview Available",
+      "subtitle": "10 personalised questions • ~10 minutes",
+      "description": "Your profile looks great! You're invited to complete a short virtual interview tailored specifically to your background and this position. This is entirely optional, but gives you an extra opportunity to stand out.",
+      "feature1": "Personalised",
+      "feature2": "AI-powered",
+      "feature3": "Instant results",
+      "startButton": "Start Virtual Interview",
+      "optional": "Optional — you can skip this step"
+    },
+    "chat": {
+      "title": "Virtual Interview",
+      "completed": "Completed",
+      "welcome": "Hello{name}! Welcome to your virtual interview. I'll ask you 10 questions tailored to your profile and this position. Take your time with each answer — there are no right or wrong answers, just be yourself.",
+      "questionLabel": "Question",
+      "evaluating": "Evaluating your answers...",
+      "waitingQuestion": "Waiting for next question...",
+      "inputPlaceholder": "Type your answer... (Enter to send, Shift+Enter for new line)",
+      "hint": "Press Enter to send • Shift+Enter for new line",
+      "suggestionsLabel": "Choose an answer or write your own",
+      "writeOwnAnswer": "Write my own answer",
+      "backToSuggestions": "Back to suggestions",
+      "yourAnswer": "Your answer",
+      "sending": "Sending..."
+    }
   }
 }
-
-}
-
-
-
-
-
-
-
-
-
-

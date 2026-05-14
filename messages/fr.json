@@ -270,31 +270,30 @@
       "startingDate": "Date de Début",
       "manager": "Qui sera le manager ?",
       "locationTitle": "Localisation & Type de travail",
-        "location": "Localisation",
-        "locationPlaceholder": "ex: Budapest, Hongrie",
-        "locationType": "Type de lieu de travail",
-        "locationTypes": {
-          "onsite": "Sur site",
-          "hybrid": "Hybride",
-          "remote": "Télétravail"
-        },
-        "employmentType": "Type d'emploi",
-        "selectEmploymentType": "Sélectionner le type...",
-        "employmentTypes": {
-          "fullTime": "Temps plein",
-          "partTime": "Temps partiel",
-          "contract": "Contrat",
-          "internship": "Stage",
-          "temporary": "Temporaire"
-        },
-        "salaryRange": "Fourchette salariale",
-        "optional": "optionnel",
-        "showPublicly": "Afficher publiquement",
-        "min": "Min",
-        "max": "Max",
-        "currency": "Devise",
-        "applicationDeadline": "Date limite de candidature"
-      
+      "location": "Localisation",
+      "locationPlaceholder": "ex: Budapest, Hongrie",
+      "locationType": "Type de lieu de travail",
+      "locationTypes": {
+        "onsite": "Sur site",
+        "hybrid": "Hybride",
+        "remote": "Télétravail"
+      },
+      "employmentType": "Type d'emploi",
+      "selectEmploymentType": "Sélectionner le type...",
+      "employmentTypes": {
+        "fullTime": "Temps plein",
+        "partTime": "Temps partiel",
+        "contract": "Contrat",
+        "internship": "Stage",
+        "temporary": "Temporaire"
+      },
+      "salaryRange": "Fourchette salariale",
+      "optional": "optionnel",
+      "showPublicly": "Afficher publiquement",
+      "min": "Min",
+      "max": "Max",
+      "currency": "Devise",
+      "applicationDeadline": "Date limite de candidature"
     },
     "buttons": {
       "createPosition": "Créer le Poste",
@@ -325,12 +324,11 @@
       "candidatesCorresponding": "candidats correspondent",
       "serverError": "Erreur serveur inattendue lors de l'analyse",
       "createdRunLater": "Poste créé avec succès. Vous pouvez lancer l'analyse plus tard.",
-       "errorCompanyId": "ID de l'entreprise introuvable. Veuillez actualiser la page.",
+      "errorCompanyId": "ID de l'entreprise introuvable. Veuillez actualiser la page.",
       "noCredits": "Vous n'avez plus de crédits IA ce mois-ci. Veuillez mettre à niveau votre forfait.",
       "aiGenerationFailed": "Échec de la génération des descriptions. Veuillez réessayer.",
       "aiGenerationSuccess": "✨ Descriptions générées avec succès ! Relisez-les ci-dessous et apportez les ajustements nécessaires.",
-            "positionNameRequired": "Veuillez entrer un nom de poste avant de générer les descriptions."
-
+      "positionNameRequired": "Veuillez entrer un nom de poste avant de générer les descriptions."
     },
     "analysis": {
       "title": "Analyse des Candidats",
@@ -344,20 +342,19 @@
       "viewDetails": "Voir les Détails"
     },
     "managerDropdown": {
-    "selectManager": "Choisissez un manager",
-    "searchPlaceholder": "Recherche par nom...",
-    "loading": "Chargement...",
-    "loadingManagers": "Chargement des managers...",
-    "errorLoading": "Une erreur est survenue lors du chargement des utilisateurs. Veuillez contacter votre administrateur.",
-    "noUsers": "Aucun utilisateur trouvé. Veuillez contacter votre administrateur.",
-    "noUsersFound": "Aucun utilisateur trouvé"
-  },
-  "aiSection": {
+      "selectManager": "Choisissez un manager",
+      "searchPlaceholder": "Recherche par nom...",
+      "loading": "Chargement...",
+      "loadingManagers": "Chargement des managers...",
+      "errorLoading": "Une erreur est survenue lors du chargement des utilisateurs. Veuillez contacter votre administrateur.",
+      "noUsers": "Aucun utilisateur trouvé. Veuillez contacter votre administrateur.",
+      "noUsersFound": "Aucun utilisateur trouvé"
+    },
+    "aiSection": {
       "title": "Générateur de Description IA",
       "description": "Laissez l'IA créer des descriptions de poste professionnelles pour vous. Fournissez un brouillon et obtenez une version marketing pour les annonces et une version détaillée pour l'analyse des candidats.",
       "generateButton": "Générer avec l'IA ✨"
     },
-    
     "aiModal": {
       "title": "Générer les Descriptions avec l'IA",
       "instructions": "Comment ça marche :",
@@ -376,22 +373,20 @@
     }
   },
   "cvAnalyse": {
-
     "badges": {
-        "location": "Localisation",
-        "remote": "Télétravail",
-        "hybrid": "Hybride",
-        "onsite": "Sur site",
-        "fulltime": "Temps plein",
-        "parttime": "Temps partiel",
-        "contract": "Contrat",
-        "internship": "Stage",
-        "temporary": "Temporaire",
-        "salary": "Salaire",
-        "deadline": "Postuler avant",
-        "deadlineToday": "Dernier jour pour postuler!"
-      },
-
+      "location": "Localisation",
+      "remote": "Télétravail",
+      "hybrid": "Hybride",
+      "onsite": "Sur site",
+      "fulltime": "Temps plein",
+      "parttime": "Temps partiel",
+      "contract": "Contrat",
+      "internship": "Stage",
+      "temporary": "Temporaire",
+      "salary": "Salaire",
+      "deadline": "Postuler avant",
+      "deadlineToday": "Dernier jour pour postuler!"
+    },
     "header": {
       "title": "Analyse IA de CV",
       "positionAt": "chez"
@@ -438,7 +433,6 @@
       },
       "unableToRead": "Malheureusement, nous ne pouvons pas lire votre CV. Pouvez-vous essayer de télécharger un nouveau fichier ?",
       "generic": "Une erreur s'est produite lors du traitement de votre demande."
-      
     }
   },
   "app": {
@@ -682,7 +676,7 @@
       "viewInterviewSummary": "Voir le résumé de l'entretien",
       "interviewSummary": "Résumé de l'entretien",
       "cvScore": "Score CV",
-"aiInterview": "Entretien IA"
+      "aiInterview": "Entretien IA"
     },
     "modal": {
       "candidateInfo": "Informations du Candidat",
@@ -1097,7 +1091,6 @@
     "active": "Mode Démonstration - Temps restant : {{time}}",
     "autoCloseWarning": "L'application se fermera automatiquement à la fin du chronomètre"
   },
- 
   "loginModal": {
     "title": "Connexion",
     "subtitle": {
@@ -1129,9 +1122,7 @@
     },
     "resetTitle": "Réinitialiser le mot de passe",
     "resetDescription": "Entrez votre adresse email et nous vous enverrons un lien de réinitialisation."
-  }
-,
-
+  },
   "menuItem": {
     "tooltips": {
       "demoExpired": "Démo expirée - Contactez-nous pour continuer",
@@ -1917,720 +1908,699 @@
       "ticketNotFound": "Ticket non trouvé",
       "loadTicket": "Échec du chargement du ticket",
       "sendMessage": "Échec de l'envoi du message",
-  "updateStatus": "Échec de la mise à jour du statut du ticket",
-  "downloadFile": "Échec du téléchargement du fichier"
-},
-"common": {
-  "unknownUser": "Utilisateur inconnu",
-  "user": "Utilisateur"
-},
-"notifications": {
-  "newMessage": "Nouveau message",
-  "messageSent": "{{user}} a envoyé un message",
-  "statusUpdated": "Statut du ticket mis à jour",
-  "statusChanged": "Le statut du ticket \"{{title}}\" a été changé en : {{status}}"
-},
-"errorState": {
-  "title": "Oups ! Une erreur s'est produite",
-  "goBack": "Retourner en arrière"
-},
-"header": {
-  "backToTickets": "Retour aux tickets",
-  "created": "Créé",
-  "updateStatus": "Mettre à jour le statut"
-},
-"status": {
-  "open": "Ouvert",
-  "in_progress": "En cours",
-  "resolved": "Résolu",
-  "closed": "Fermé"
-},
-"priority": {
-  "low": "Priorité faible",
-  "medium": "Priorité moyenne",
-  "high": "Priorité élevée",
-  "urgent": "Priorité urgente"
-},
-"time": {
-  "justNow": "À l'instant",
-  "minutesAgo": "Il y a {{count}} minutes",
-  "hoursAgo": "Il y a {{count}} heures"
-},
-"messages": {
-  "title": "Conversation",
-  "count": "{{count}} messages",
-  "empty": "Pas encore de messages. Commencez la conversation !",
-  "placeholder": "Tapez votre message..."
-},
-"attachments": {
-  "title": "Pièces jointes",
-  "empty": "Aucune pièce jointe"
-},
-"statusModal": {
-  "title": "Mettre à jour le statut du ticket",
-  "updating": "Mise à jour...",
-  "cancel": "Annuler"
-}
-,
-
-"createTicket": {
-  "common": {
-    "user": "Utilisateur"
-  },
-  "errors": {
-    "userNotFound": "Utilisateur non trouvé",
-    "companyNotFound": "Entreprise non trouvée",
-    "loadInitialData": "Échec du chargement des données initiales",
-    "fileTooLarge": "Le fichier \"{{fileName}}\" est trop volumineux. La taille maximale est de 5 Mo.",
-    "userNotLoaded": "Utilisateur non chargé",
-    "createTicket": "Échec de la création du ticket"
-  },
-  "notifications": {
-    "newTicket": "Nouveau ticket",
-    "ticketCreated": "{{user}} a créé un ticket : \"{{title}}\""
-  },
-  "success": {
-    "title": "Ticket créé avec succès !",
-    "message": "Votre ticket d'assistance a été soumis et notre équipe y répondra bientôt.",
-    "redirecting": "Redirection..."
-  },
-  "header": {
-    "back": "Retour",
-    "title": "Créer un ticket d'assistance",
-    "subtitle": "Décrivez votre problème et nous vous aiderons à le résoudre"
-  },
-  "form": {
-    "errorTitle": "Erreur",
-    "titleLabel": "Titre",
-    "titlePlaceholder": "Brève description de votre problème",
-    "priorityLabel": "Priorité",
-    "categoryLabel": "Catégorie",
-    "categoryPlaceholder": "Sélectionnez une catégorie",
-    "descriptionLabel": "Description",
-    "descriptionPlaceholder": "Veuillez fournir des informations détaillées sur votre problème...",
-    "attachmentsLabel": "Pièces jointes",
-    "maxFileSize": "Max 5 Mo par fichier",
-    "clickToUpload": "Cliquez pour télécharger",
-    "dragAndDrop": "ou glissez-déposez les fichiers ici",
-    "cancelButton": "Annuler",
-    "createButton": "Créer le ticket",
-    "creatingButton": "Création en cours..."
-  },
-  "priority": {
-    "low": "Faible",
-    "medium": "Moyenne",
-    "high": "Élevée",
-    "urgent": "Urgente"
-  }
-}
-,
-"ticketsPage": {
-  "loading": "Chargement des tickets...",
-  "errors": {
-    "userNotFound": "Utilisateur non trouvé",
-    "loadUserData": "Échec du chargement des données utilisateur",
-    "fetchTickets": "Échec de récupération des tickets"
-  },
-  "errorState": {
-    "title": "Oups ! Une erreur s'est produite",
-    "tryAgain": "Réessayer"
-  },
-  "header": {
-    "title": "Tickets d'assistance",
-    "titleAdmin": "Tous les tickets d'assistance",
-    "count": "{{count}} ticket",
-    "acrossCompanies": "dans toutes les entreprises",
-    "newTicket": "Nouveau ticket",
-    "new": "Nouveau"
-  },
-  "search": {
-    "placeholder": "Rechercher des tickets..."
-  },
-  "filters": {
-    "allStatus": "Tous les statuts",
-    "allPriority": "Toutes les priorités"
-  },
-  "status": {
-    "open": "Ouvert",
-    "in_progress": "En cours",
-    "resolved": "Résolu",
-    "closed": "Fermé"
-  },
-  "priority": {
-    "low": "Faible",
-    "medium": "Moyenne",
-    "high": "Élevée",
-    "urgent": "Urgente"
-  },
-  "time": {
-    "minutesAgo": "il y a {{count}} min",
-    "hoursAgo": "il y a {{count}} h"
-  },
-  "common": {
-    "unknown": "Inconnu",
-    "unknownCompany": "Entreprise inconnue"
-  },
-  "empty": {
-    "noTicketsFound": "Aucun ticket trouvé",
-    "noTicketsYet": "Pas encore de tickets",
-    "tryAdjusting": "Essayez d'ajuster vos critères de recherche ou de filtre.",
-    "createFirst": "Créez votre premier ticket d'assistance pour commencer.",
-    "createFirstButton": "Créer le premier ticket"
-  },
-  "table": {
-    "ticket": "Ticket",
-    "status": "Statut",
-    "priority": "Priorité",
-    "company": "Entreprise",
-    "user": "Utilisateur",
-    "created": "Créé",
-    "activity": "Activité"
-  },
-  "mobile": {
-    "messages": "{{count}} message",
-    "files": "{{count}} fichier"
-  }
-},
-"footer": {
-  "operatedBy": "Exploité par Saussez Grégory, Budapest, Hongrie",
-  "privacyLink": "Politique de confidentialité",
-  "termsLink": "Conditions d'utilisation",
-  "cookiesLink": "Politique relative aux cookies",
-  "impressumLink": "Impressum",
-  "contact": "Pour toute question relative à la confidentialité, contactez",
-  "aiDisclaimer": "Les fonctionnalités d'IA sont uniquement à des fins de démonstration et ne doivent pas être utilisées pour de réelles décisions RH."
-},
-"privacyDemo": {
-  "title": "Avis de confidentialité (Version Démo)",
-  "intro": "Cette application de démonstration est exploitée par Saussez Grégory (Budapest, Hongrie). Le but de la démo est de tester les fonctionnalités d'InnoHR et de collecter des retours. Aucune activité commerciale n'est réalisée et le service est gratuit.",
-  "sections": {
-    "dataCollected": {
-      "title": "Données collectées",
-      "items": {
-        "0": "Informations que vous fournissez volontairement (ex. nom, e-mail, retours ou données de test). Veuillez éviter de saisir des informations personnelles réelles ou sensibles.",
-        "1": "Données techniques (comme le type de navigateur, l'adresse IP et la région géographique approximative) utilisées pour l'analyse des performances et la sécurité."
+      "updateStatus": "Échec de la mise à jour du statut du ticket",
+      "downloadFile": "Échec du téléchargement du fichier"
+    },
+    "common": {
+      "unknownUser": "Utilisateur inconnu",
+      "user": "Utilisateur"
+    },
+    "notifications": {
+      "newMessage": "Nouveau message",
+      "messageSent": "{{user}} a envoyé un message",
+      "statusUpdated": "Statut du ticket mis à jour",
+      "statusChanged": "Le statut du ticket \"{{title}}\" a été changé en : {{status}}"
+    },
+    "errorState": {
+      "title": "Oups ! Une erreur s'est produite",
+      "goBack": "Retourner en arrière"
+    },
+    "header": {
+      "backToTickets": "Retour aux tickets",
+      "created": "Créé",
+      "updateStatus": "Mettre à jour le statut"
+    },
+    "status": {
+      "open": "Ouvert",
+      "in_progress": "En cours",
+      "resolved": "Résolu",
+      "closed": "Fermé"
+    },
+    "priority": {
+      "low": "Priorité faible",
+      "medium": "Priorité moyenne",
+      "high": "Priorité élevée",
+      "urgent": "Priorité urgente"
+    },
+    "time": {
+      "justNow": "À l'instant",
+      "minutesAgo": "Il y a {{count}} minutes",
+      "hoursAgo": "Il y a {{count}} heures"
+    },
+    "messages": {
+      "title": "Conversation",
+      "count": "{{count}} messages",
+      "empty": "Pas encore de messages. Commencez la conversation !",
+      "placeholder": "Tapez votre message..."
+    },
+    "attachments": {
+      "title": "Pièces jointes",
+      "empty": "Aucune pièce jointe"
+    },
+    "statusModal": {
+      "title": "Mettre à jour le statut du ticket",
+      "updating": "Mise à jour...",
+      "cancel": "Annuler"
+    },
+    "createTicket": {
+      "common": {
+        "user": "Utilisateur"
+      },
+      "errors": {
+        "userNotFound": "Utilisateur non trouvé",
+        "companyNotFound": "Entreprise non trouvée",
+        "loadInitialData": "Échec du chargement des données initiales",
+        "fileTooLarge": "Le fichier \"{{fileName}}\" est trop volumineux. La taille maximale est de 5 Mo.",
+        "userNotLoaded": "Utilisateur non chargé",
+        "createTicket": "Échec de la création du ticket"
+      },
+      "notifications": {
+        "newTicket": "Nouveau ticket",
+        "ticketCreated": "{{user}} a créé un ticket : \"{{title}}\""
+      },
+      "success": {
+        "title": "Ticket créé avec succès !",
+        "message": "Votre ticket d'assistance a été soumis et notre équipe y répondra bientôt.",
+        "redirecting": "Redirection..."
+      },
+      "header": {
+        "back": "Retour",
+        "title": "Créer un ticket d'assistance",
+        "subtitle": "Décrivez votre problème et nous vous aiderons à le résoudre"
+      },
+      "form": {
+        "errorTitle": "Erreur",
+        "titleLabel": "Titre",
+        "titlePlaceholder": "Brève description de votre problème",
+        "priorityLabel": "Priorité",
+        "categoryLabel": "Catégorie",
+        "categoryPlaceholder": "Sélectionnez une catégorie",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "Veuillez fournir des informations détaillées sur votre problème...",
+        "attachmentsLabel": "Pièces jointes",
+        "maxFileSize": "Max 5 Mo par fichier",
+        "clickToUpload": "Cliquez pour télécharger",
+        "dragAndDrop": "ou glissez-déposez les fichiers ici",
+        "cancelButton": "Annuler",
+        "createButton": "Créer le ticket",
+        "creatingButton": "Création en cours..."
+      },
+      "priority": {
+        "low": "Faible",
+        "medium": "Moyenne",
+        "high": "Élevée",
+        "urgent": "Urgente"
       }
     },
-    "purpose": {
-      "title": "Finalité du traitement des données",
-      "text": "Les données sont utilisées uniquement pour évaluer la convivialité de la démo, assurer la sécurité du système et améliorer le développement futur d'InnoHR."
+    "ticketsPage": {
+      "loading": "Chargement des tickets...",
+      "errors": {
+        "userNotFound": "Utilisateur non trouvé",
+        "loadUserData": "Échec du chargement des données utilisateur",
+        "fetchTickets": "Échec de récupération des tickets"
+      },
+      "errorState": {
+        "title": "Oups ! Une erreur s'est produite",
+        "tryAgain": "Réessayer"
+      },
+      "header": {
+        "title": "Tickets d'assistance",
+        "titleAdmin": "Tous les tickets d'assistance",
+        "count": "{{count}} ticket",
+        "acrossCompanies": "dans toutes les entreprises",
+        "newTicket": "Nouveau ticket",
+        "new": "Nouveau"
+      },
+      "search": {
+        "placeholder": "Rechercher des tickets..."
+      },
+      "filters": {
+        "allStatus": "Tous les statuts",
+        "allPriority": "Toutes les priorités"
+      },
+      "status": {
+        "open": "Ouvert",
+        "in_progress": "En cours",
+        "resolved": "Résolu",
+        "closed": "Fermé"
+      },
+      "priority": {
+        "low": "Faible",
+        "medium": "Moyenne",
+        "high": "Élevée",
+        "urgent": "Urgente"
+      },
+      "time": {
+        "minutesAgo": "il y a {{count}} min",
+        "hoursAgo": "il y a {{count}} h"
+      },
+      "common": {
+        "unknown": "Inconnu",
+        "unknownCompany": "Entreprise inconnue"
+      },
+      "empty": {
+        "noTicketsFound": "Aucun ticket trouvé",
+        "noTicketsYet": "Pas encore de tickets",
+        "tryAdjusting": "Essayez d'ajuster vos critères de recherche ou de filtre.",
+        "createFirst": "Créez votre premier ticket d'assistance pour commencer.",
+        "createFirstButton": "Créer le premier ticket"
+      },
+      "table": {
+        "ticket": "Ticket",
+        "status": "Statut",
+        "priority": "Priorité",
+        "company": "Entreprise",
+        "user": "Utilisateur",
+        "created": "Créé",
+        "activity": "Activité"
+      },
+      "mobile": {
+        "messages": "{{count}} message",
+        "files": "{{count}} fichier"
+      }
     },
-    "storage": {
-      "title": "Stockage et conservation des données",
-      "text": "Toutes les données de la démo sont automatiquement supprimées chaque nuit dans le cadre d'un processus de nettoyage programmé. Seuls des journaux techniques minimaux peuvent être conservés jusqu'à 90 jours à des fins de sécurité et de débogage."
+    "footer": {
+      "operatedBy": "Exploité par Saussez Grégory, Budapest, Hongrie",
+      "privacyLink": "Politique de confidentialité",
+      "termsLink": "Conditions d'utilisation",
+      "cookiesLink": "Politique relative aux cookies",
+      "impressumLink": "Impressum",
+      "contact": "Pour toute question relative à la confidentialité, contactez",
+      "aiDisclaimer": "Les fonctionnalités d'IA sont uniquement à des fins de démonstration et ne doivent pas être utilisées pour de réelles décisions RH."
     },
-    "aiProcessing": {
-      "title": "Traitement par IA",
-      "text": "Certaines fonctionnalités de la démo utilisent des réponses générées par l'IA (via OpenRouter ou les API OpenAI). Ces réponses sont uniquement à des fins de démonstration et ne doivent pas être utilisées pour la prise de décision ou l'évaluation des employés."
-    },
-    "thirdParty": {
-      "title": "Services tiers",
-      "items": {
-        "supabase": {
-          "name": "Supabase (Plateforme BaaS)",
-          "desc": "Finalité : Hébergement de base de données et authentification. Siège : USA (serveurs basés dans l'UE).",
-          "linkHref": "https://supabase.com/privacy",
-          "linkText": "Politique de confidentialité",
-          "color": "border-blue-500"
+    "privacyDemo": {
+      "title": "Avis de confidentialité (Version Démo)",
+      "intro": "Cette application de démonstration est exploitée par Saussez Grégory (Budapest, Hongrie). Le but de la démo est de tester les fonctionnalités d'InnoHR et de collecter des retours. Aucune activité commerciale n'est réalisée et le service est gratuit.",
+      "sections": {
+        "dataCollected": {
+          "title": "Données collectées",
+          "items": {
+            "0": "Informations que vous fournissez volontairement (ex. nom, e-mail, retours ou données de test). Veuillez éviter de saisir des informations personnelles réelles ou sensibles.",
+            "1": "Données techniques (comme le type de navigateur, l'adresse IP et la région géographique approximative) utilisées pour l'analyse des performances et la sécurité."
+          }
         },
-        "openai": {
-          "name": "OpenRouter / OpenAI (Service IA)",
-          "desc": "Finalité : Analyse et réponses basées sur l'IA. Siège : USA. Les données ne sont pas stockées à long terme.",
-          "linkHref": "https://openai.com/privacy",
-          "linkText": "Politique de confidentialité",
-          "color": "border-green-500"
+        "purpose": {
+          "title": "Finalité du traitement des données",
+          "text": "Les données sont utilisées uniquement pour évaluer la convivialité de la démo, assurer la sécurité du système et améliorer le développement futur d'InnoHR."
         },
-        "vercel": {
-          "name": "Vercel (Hébergement)",
-          "desc": "Finalité : Hébergement web et distribution de contenu. Siège : USA (région UE activée).",
-          "linkHref": "https://vercel.com/legal/privacy-policy",
-          "linkText": "Politique de confidentialité",
-          "color": "border-purple-500"
+        "storage": {
+          "title": "Stockage et conservation des données",
+          "text": "Toutes les données de la démo sont automatiquement supprimées chaque nuit dans le cadre d'un processus de nettoyage programmé. Seuls des journaux techniques minimaux peuvent être conservés jusqu'à 90 jours à des fins de sécurité et de débogage."
         },
-        "stripe": {
-          "name": "Stripe (Service de paiement)",
-          "desc": "Finalité : Traitement des paiements. Actuellement désactivé dans la version démo. Siège : USA (stockage des données dans l'UE).",
-          "linkHref": "https://stripe.com/privacy",
-          "linkText": "Politique de confidentialité",
-          "color": "border-orange-500"
+        "aiProcessing": {
+          "title": "Traitement par IA",
+          "text": "Certaines fonctionnalités de la démo utilisent des réponses générées par l'IA (via OpenRouter ou les API OpenAI). Ces réponses sont uniquement à des fins de démonstration et ne doivent pas être utilisées pour la prise de décision ou l'évaluation des employés."
         },
-        "resend": {
-          "name": "Resend / Nodemailer (Envoi d'e-mails)",
-          "desc": "Finalité : Envoi d'e-mails de notification interne au développeur. Aucun message marketing externe n'est envoyé.",
-          "linkHref": "https://resend.com/privacy",
-          "linkText": "Politique de confidentialité",
-          "color": "border-teal-500"
+        "thirdParty": {
+          "title": "Services tiers",
+          "items": {
+            "supabase": {
+              "name": "Supabase (Plateforme BaaS)",
+              "desc": "Finalité : Hébergement de base de données et authentification. Siège : USA (serveurs basés dans l'UE).",
+              "linkHref": "https://supabase.com/privacy",
+              "linkText": "Politique de confidentialité",
+              "color": "border-blue-500"
+            },
+            "openai": {
+              "name": "OpenRouter / OpenAI (Service IA)",
+              "desc": "Finalité : Analyse et réponses basées sur l'IA. Siège : USA. Les données ne sont pas stockées à long terme.",
+              "linkHref": "https://openai.com/privacy",
+              "linkText": "Politique de confidentialité",
+              "color": "border-green-500"
+            },
+            "vercel": {
+              "name": "Vercel (Hébergement)",
+              "desc": "Finalité : Hébergement web et distribution de contenu. Siège : USA (région UE activée).",
+              "linkHref": "https://vercel.com/legal/privacy-policy",
+              "linkText": "Politique de confidentialité",
+              "color": "border-purple-500"
+            },
+            "stripe": {
+              "name": "Stripe (Service de paiement)",
+              "desc": "Finalité : Traitement des paiements. Actuellement désactivé dans la version démo. Siège : USA (stockage des données dans l'UE).",
+              "linkHref": "https://stripe.com/privacy",
+              "linkText": "Politique de confidentialité",
+              "color": "border-orange-500"
+            },
+            "resend": {
+              "name": "Resend / Nodemailer (Envoi d'e-mails)",
+              "desc": "Finalité : Envoi d'e-mails de notification interne au développeur. Aucun message marketing externe n'est envoyé.",
+              "linkHref": "https://resend.com/privacy",
+              "linkText": "Politique de confidentialité",
+              "color": "border-teal-500"
+            }
+          },
+          "noticeTitle": "Transfert de données :",
+          "noticeText": "Certaines données peuvent être transférées en dehors de l'Union européenne. Des clauses contractuelles standard (SCC) sont utilisées pour assurer une protection adéquate des données personnelles."
+        },
+        "dataController": {
+          "title": "Informations du responsable du traitement",
+          "nameLabel": "Nom :",
+          "emailLabel": "E-mail :",
+          "addressLabel": "Adresse :",
+          "dpoLabel": "Délégué à la protection des données :",
+          "name": "Saussez Grégory",
+          "email": "privacy@innohr.hu",
+          "address": "Budapest, Hongrie",
+          "dpo": "privacy@innohr.hu"
+        },
+        "userRights": {
+          "title": "Vos droits",
+          "text": "Vous pouvez demander l'accès à vos données ou leur suppression à tout moment en contactant privacy@innohr.hu. Vous avez également le droit de déposer une plainte auprès de l'Autorité nationale hongroise de protection des données et de la liberté d'information (NAIH) sur www.naih.hu."
+        },
+        "contact": {
+          "title": "Contact",
+          "text": "Exploitant : Saussez Grégory, Budapest, Hongrie",
+          "email": "privacy@innohr.hu"
         }
       },
-      "noticeTitle": "Transfert de données :",
-      "noticeText": "Certaines données peuvent être transférées en dehors de l'Union européenne. Des clauses contractuelles standard (SCC) sont utilisées pour assurer une protection adéquate des données personnelles."
+      "lastUpdated": "Dernière mise à jour : novembre 2025"
     },
-    "dataController": {
-      "title": "Informations du responsable du traitement",
-      "nameLabel": "Nom :",
-      "emailLabel": "E-mail :",
-      "addressLabel": "Adresse :",
-      "dpoLabel": "Délégué à la protection des données :",
-      "name": "Saussez Grégory",
-      "email": "privacy@innohr.hu",
-      "address": "Budapest, Hongrie",
-      "dpo": "privacy@innohr.hu"
+    "cookies": {
+      "title": "Cookies et Données",
+      "text": "Nous utilisons des cookies pour améliorer l'expérience de la démo. Aucun cookie de suivi ou de marketing tiers n'est utilisé.",
+      "accept": "Accepter",
+      "reject": "Refuser"
     },
-    "userRights": {
-      "title": "Vos droits",
-      "text": "Vous pouvez demander l'accès à vos données ou leur suppression à tout moment en contactant privacy@innohr.hu. Vous avez également le droit de déposer une plainte auprès de l'Autorité nationale hongroise de protection des données et de la liberté d'information (NAIH) sur www.naih.hu."
-    },
-    "contact": {
-      "title": "Contact",
-      "text": "Exploitant : Saussez Grégory, Budapest, Hongrie",
-      "email": "privacy@innohr.hu"
-    }
-  },
-  "lastUpdated": "Dernière mise à jour : novembre 2025"
-},
-"cookies": {
-  "title": "Cookies et Données",
-  "text": "Nous utilisons des cookies pour améliorer l'expérience de la démo. Aucun cookie de suivi ou de marketing tiers n'est utilisé.",
-  "accept": "Accepter",
-  "reject": "Refuser"
-},
-
-"termsDemo": {
-  "title": "Conditions d'utilisation de la Démo",
-  "lastUpdated": "Dernière mise à jour : {date}",
-  "sections": {
-    "demoFeatures": {
-      "title": "1. Caractéristiques de la version démo",
-      "content": "Il s'agit d'une version démo gratuite à des fins de test. Les fonctionnalités du système sont limitées et les données seront automatiquement supprimées après 30 jours."
-    },
-    "liability": {
-      "title": "2. Clause de non-responsabilité",
-      "content": "La version démo est fournie « telle quelle » sans aucune garantie. N'utilisez pas de données personnelles réelles ou d'informations sensibles."
-    },
-    "dataProcessing": {
-      "title": "3. Traitement des données",
-      "content": "Les données fournies lors de l'utilisation de la démo sont utilisées uniquement pour les tests du système.",
-      "detailsLink": "Détails :",
-      "privacyPolicy": "Politique de confidentialité"
-    },
-    "aiContent": {
-      "title": "4. Contenu généré par IA",
-      "content": "Le contenu généré par l'IA ne constitue pas un conseil professionnel. Des inexactitudes peuvent survenir."
-    },
-    "termination": {
-      "title": "5. Résiliation de l'accès",
-      "content": "Nous nous réservons le droit de mettre fin immédiatement à l'accès à la démo sans préavis."
-    },
-    "contact": {
-      "title": "6. Contact",
-      "content": "Pour toute question :"
-    }
-  }
-}
-,
-"demoBanner": {
-  "title": "Version démo :",
-  "text": "N'utilisez pas de données personnelles réelles. Toutes les données de la démo sont automatiquement supprimées chaque nuit."
-},
-
-"impressumDemo": {
-  "title": "Impressum",
-  "intro": "Conformément au droit européen, les informations légales suivantes s’appliquent à ce site web et à cette version démo.",
-  "fields": {
-    "operator": "Opérateur",
-    "address": "Adresse",
-    "email": "E-mail",
-    "website": "Site web"
-  },
-  "sections": {
-    "liability": {
-      "title": "Clause de non-responsabilité",
-      "text": "Malgré un contrôle soigneux du contenu, nous n'assumons aucune responsabilité pour le contenu des liens externes. Les opérateurs des pages liées sont seuls responsables de leur contenu."
-    },
-    "copyright": {
-      "title": "Avis de droit d'auteur",
-      "text": "Tous les textes, images et codes sources sont protégés par le droit d'auteur. Toute reproduction ou utilisation en dehors des limites du droit d'auteur nécessite une autorisation écrite préalable."
-    }
-  },
-  "lastUpdated": "Dernière mise à jour : octobre 2025"
-},
-
-"cookiesDemo": {
-  "title": "Avis relatif aux cookies (Version Démo)",
-  "intro": "Cette application de démonstration utilise un minimum de cookies et de technologies similaires afin d’assurer son bon fonctionnement et de mesurer les performances techniques. Aucun cookie publicitaire ou de suivi n’est utilisé.",
-  "sections": {
-    "whatAreCookies": {
-      "title": "Que sont les cookies ?",
-      "text": "Les cookies sont de petits fichiers texte stockés sur votre appareil lorsque vous visitez un site web. Ils permettent aux sites de fonctionner correctement, de mémoriser vos préférences et de collecter des statistiques d'utilisation anonymes."
-    },
-    "howWeUse": {
-      "title": "Comment nous utilisons les cookies",
-      "text": "Nous utilisons uniquement des cookies essentiels nécessaires à l'authentification et à la sécurité (via Supabase), ainsi qu’à l'analyse technique (via Vercel). Ces cookies ne vous identifient pas personnellement et sont automatiquement supprimés à la fin de votre session."
-    },
-    "types": {
-      "title": "Types de cookies utilisés",
-      "items": {
-        "necessary": "Cookies nécessaires – requis pour la connexion, la gestion de session et la sécurité.",
-        "analytics": "Cookies d'analyse – utilisés pour surveiller les performances techniques via Vercel Analytics. Aucun suivi personnel.",
-        "functional": "Cookies fonctionnels – utilisés temporairement pour mémoriser votre langue de démo et vos préférences de consentement."
+    "termsDemo": {
+      "title": "Conditions d'utilisation de la Démo",
+      "lastUpdated": "Dernière mise à jour : {date}",
+      "sections": {
+        "demoFeatures": {
+          "title": "1. Caractéristiques de la version démo",
+          "content": "Il s'agit d'une version démo gratuite à des fins de test. Les fonctionnalités du système sont limitées et les données seront automatiquement supprimées après 30 jours."
+        },
+        "liability": {
+          "title": "2. Clause de non-responsabilité",
+          "content": "La version démo est fournie « telle quelle » sans aucune garantie. N'utilisez pas de données personnelles réelles ou d'informations sensibles."
+        },
+        "dataProcessing": {
+          "title": "3. Traitement des données",
+          "content": "Les données fournies lors de l'utilisation de la démo sont utilisées uniquement pour les tests du système.",
+          "detailsLink": "Détails :",
+          "privacyPolicy": "Politique de confidentialité"
+        },
+        "aiContent": {
+          "title": "4. Contenu généré par IA",
+          "content": "Le contenu généré par l'IA ne constitue pas un conseil professionnel. Des inexactitudes peuvent survenir."
+        },
+        "termination": {
+          "title": "5. Résiliation de l'accès",
+          "content": "Nous nous réservons le droit de mettre fin immédiatement à l'accès à la démo sans préavis."
+        },
+        "contact": {
+          "title": "6. Contact",
+          "content": "Pour toute question :"
+        }
       }
     },
-    "manage": {
-      "title": "Gestion des cookies",
-      "text": "Vous pouvez gérer ou supprimer les cookies via les paramètres de votre navigateur. Comme il s'agit d'un environnement de démonstration, la désactivation des cookies peut empêcher certaines fonctionnalités (ex. connexion ou paramètres de langue) de fonctionner correctement."
+    "demoBanner": {
+      "title": "Version démo :",
+      "text": "N'utilisez pas de données personnelles réelles. Toutes les données de la démo sont automatiquement supprimées chaque nuit."
     },
-    "moreInfo": {
-      "title": "Plus d'informations",
-      "text": "Si vous avez des questions concernant cet avis relatif aux cookies, veuillez nous contacter à"
-    }
-  },
-  "lastUpdated": "Dernière mise à jour : novembre 2025"
-}
-    }
-,
-
-
-"createTicket": {
-  "common": {
-    "user": "Utilisateur"
-  },
-  "errors": {
-    "userNotFound": "Utilisateur non trouvé",
-    "companyNotFound": "Entreprise non trouvée",
-    "loadInitialData": "Échec du chargement des données initiales",
-    "fileTooLarge": "Le fichier \"{{fileName}}\" est trop volumineux. La taille maximale est de 5 Mo.",
-    "userNotLoaded": "Utilisateur non chargé",
-    "createTicket": "Échec de la création du ticket"
-  },
-  "notifications": {
-    "newTicket": "Nouveau ticket",
-    "ticketCreated": "{{user}} a créé un ticket : \"{{title}}\""
-  },
-  "success": {
-    "title": "Ticket créé avec succès !",
-    "message": "Votre ticket d'assistance a été soumis et notre équipe y répondra bientôt.",
-    "redirecting": "Redirection..."
-  },
-  "header": {
-    "back": "Retour",
-    "title": "Créer un ticket d'assistance",
-    "subtitle": "Décrivez votre problème et nous vous aiderons à le résoudre"
-  },
-  "form": {
-    "errorTitle": "Erreur",
-    "titleLabel": "Titre",
-    "titlePlaceholder": "Brève description de votre problème",
-    "priorityLabel": "Priorité",
-    "categoryLabel": "Catégorie",
-    "categoryPlaceholder": "Sélectionnez une catégorie",
-    "descriptionLabel": "Description",
-    "descriptionPlaceholder": "Veuillez fournir des informations détaillées sur votre problème...",
-    "attachmentsLabel": "Pièces jointes",
-    "maxFileSize": "Max 5 Mo par fichier",
-    "clickToUpload": "Cliquez pour télécharger",
-    "dragAndDrop": "ou glissez-déposez les fichiers ici",
-    "cancelButton": "Annuler",
-    "createButton": "Créer le ticket",
-    "creatingButton": "Création en cours..."
-  },
-  "priority": {
-    "low": "Faible",
-    "medium": "Moyenne",
-    "high": "Élevée",
-    "urgent": "Urgente"
-  }
-},
-
-"ticketsPage": {
-  "loading": "Chargement des tickets...",
-  "errors": {
-    "userNotFound": "Utilisateur non trouvé",
-    "loadUserData": "Échec du chargement des données utilisateur",
-    "fetchTickets": "Échec de récupération des tickets"
-  },
-  "errorState": {
-    "title": "Oups ! Une erreur s'est produite",
-    "tryAgain": "Réessayer"
-  },
-  "header": {
-    "title": "Tickets d'assistance",
-    "titleAdmin": "Tous les tickets d'assistance",
-    "count": "{{count}} ticket",
-    "acrossCompanies": "dans toutes les entreprises",
-    "newTicket": "Nouveau ticket",
-    "new": "Nouveau"
-  },
-  "search": {
-    "placeholder": "Rechercher des tickets..."
-  },
-  "filters": {
-    "allStatus": "Tous les statuts",
-    "allPriority": "Toutes les priorités"
-  },
-  "status": {
-    "open": "Ouvert",
-    "in_progress": "En cours",
-    "resolved": "Résolu",
-    "closed": "Fermé"
-  },
-  "priority": {
-    "low": "Faible",
-    "medium": "Moyenne",
-    "high": "Élevée",
-    "urgent": "Urgente"
-  },
-  "time": {
-    "minutesAgo": "il y a {{count}} min",
-    "hoursAgo": "il y a {{count}} h"
-  },
-  "common": {
-    "unknown": "Inconnu",
-    "unknownCompany": "Entreprise inconnue"
-  },
-  "empty": {
-    "noTicketsFound": "Aucun ticket trouvé",
-    "noTicketsYet": "Pas encore de tickets",
-    "tryAdjusting": "Essayez d'ajuster vos critères de recherche ou de filtre.",
-    "createFirst": "Créez votre premier ticket d'assistance pour commencer.",
-    "createFirstButton": "Créer le premier ticket"
-  },
-  "table": {
-    "ticket": "Ticket",
-    "status": "Statut",
-    "priority": "Priorité",
-    "company": "Entreprise",
-    "user": "Utilisateur",
-    "created": "Créé",
-    "activity": "Activité"
-  },
-  "mobile": {
-    "messages": "{{count}} message",
-    "files": "{{count}} fichier"
-  }
-},
-
-"footer": {
-  "operatedBy": "Exploité par Saussez Grégory, Budapest, Hongrie",
-  "privacyLink": "Politique de confidentialité",
-  "termsLink": "Conditions d'utilisation",
-  "cookiesLink": "Politique relative aux cookies",
-  "impressumLink": "Impressum",
-  "contact": "Pour toute question relative à la confidentialité, contactez",
-  "aiDisclaimer": "Les fonctionnalités d'IA sont uniquement à des fins de démonstration et ne doivent pas être utilisées pour de réelles décisions RH."
-},
-
-"privacyDemo": {
-  "title": "Avis de confidentialité (Version Démo)",
-  "intro": "Cette application de démonstration est exploitée par Saussez Grégory (Budapest, Hongrie). Le but de la démo est de tester les fonctionnalités d'InnoHR et de collecter des retours. Aucune activité commerciale n'est réalisée et le service est gratuit.",
-  "sections": {
-    "dataCollected": {
-      "title": "Données collectées",
-      "items": {
-        "0": "Informations que vous fournissez volontairement (ex. nom, e-mail, retours ou données de test). Veuillez éviter de saisir des informations personnelles réelles ou sensibles.",
-        "1": "Données techniques (comme le type de navigateur, l'adresse IP et la région géographique approximative) utilisées pour l'analyse des performances et la sécurité."
-      }
-    },
-    "purpose": {
-      "title": "Finalité du traitement des données",
-      "text": "Les données sont utilisées uniquement pour évaluer la convivialité de la démo, assurer la sécurité du système et améliorer le développement futur d'InnoHR."
-    },
-    "storage": {
-      "title": "Stockage et conservation des données",
-      "text": "Toutes les données de la démo sont automatiquement supprimées chaque nuit dans le cadre d'un processus de nettoyage programmé. Seuls des journaux techniques minimaux peuvent être conservés jusqu'à 90 jours à des fins de sécurité et de débogage."
-    },
-    "aiProcessing": {
-      "title": "Traitement par IA",
-      "text": "Certaines fonctionnalités de la démo utilisent des réponses générées par l'IA (via OpenRouter ou les API OpenAI). Ces réponses sont uniquement à des fins de démonstration et ne doivent pas être utilisées pour la prise de décision ou l'évaluation des employés."
-    },
-    "thirdParty": {
-      "title": "Services tiers",
-      "items": {
-        "supabase": {
-          "name": "Supabase (Plateforme BaaS)",
-          "desc": "Finalité : Hébergement de base de données et authentification. Siège : USA (serveurs basés dans l'UE).",
-          "linkHref": "https://supabase.com/privacy",
-          "linkText": "Politique de confidentialité",
-          "color": "border-blue-500"
+    "impressumDemo": {
+      "title": "Impressum",
+      "intro": "Conformément au droit européen, les informations légales suivantes s’appliquent à ce site web et à cette version démo.",
+      "fields": {
+        "operator": "Opérateur",
+        "address": "Adresse",
+        "email": "E-mail",
+        "website": "Site web"
+      },
+      "sections": {
+        "liability": {
+          "title": "Clause de non-responsabilité",
+          "text": "Malgré un contrôle soigneux du contenu, nous n'assumons aucune responsabilité pour le contenu des liens externes. Les opérateurs des pages liées sont seuls responsables de leur contenu."
         },
-        "openai": {
-          "name": "OpenRouter / OpenAI (Service IA)",
-          "desc": "Finalité : Analyse et réponses basées sur l'IA. Siège : USA. Les données ne sont pas stockées à long terme.",
-          "linkHref": "https://openai.com/privacy",
-          "linkText": "Politique de confidentialité",
-          "color": "border-green-500"
-        },
-        "vercel": {
-          "name": "Vercel (Hébergement)",
-          "desc": "Finalité : Hébergement web et distribution de contenu. Siège : USA (région UE activée).",
-          "linkHref": "https://vercel.com/legal/privacy-policy",
-          "linkText": "Politique de confidentialité",
-          "color": "border-purple-500"
-        },
-        "stripe": {
-          "name": "Stripe (Service de paiement)",
-          "desc": "Finalité : Traitement des paiements. Actuellement désactivé dans la version démo. Siège : USA (stockage des données dans l'UE).",
-          "linkHref": "https://stripe.com/privacy",
-          "linkText": "Politique de confidentialité",
-          "color": "border-orange-500"
-        },
-        "resend": {
-          "name": "Resend / Nodemailer (Envoi d'e-mails)",
-          "desc": "Finalité : Envoi d'e-mails de notification interne au développeur. Aucun message marketing externe n'est envoyé.",
-          "linkHref": "https://resend.com/privacy",
-          "linkText": "Politique de confidentialité",
-          "color": "border-teal-500"
+        "copyright": {
+          "title": "Avis de droit d'auteur",
+          "text": "Tous les textes, images et codes sources sont protégés par le droit d'auteur. Toute reproduction ou utilisation en dehors des limites du droit d'auteur nécessite une autorisation écrite préalable."
         }
       },
-      "noticeTitle": "Transfert de données :",
-      "noticeText": "Certaines données peuvent être transférées en dehors de l'Union européenne. Des clauses contractuelles standard (SCC) sont utilisées pour assurer une protection adéquate des données personnelles."
+      "lastUpdated": "Dernière mise à jour : octobre 2025"
     },
-    "dataController": {
-      "title": "Informations du responsable du traitement",
-      "nameLabel": "Nom :",
-      "emailLabel": "E-mail :",
-      "addressLabel": "Adresse :",
-      "dpoLabel": "Délégué à la protection des données :",
-      "name": "Saussez Grégory",
-      "email": "privacy@innohr.hu",
-      "address": "Budapest, Hongrie",
-      "dpo": "privacy@innohr.hu"
-    },
-    "userRights": {
-      "title": "Vos droits",
-      "text": "Vous pouvez demander l'accès à vos données ou leur suppression à tout moment en contactant privacy@innohr.hu. Vous avez également le droit de déposer une plainte auprès de l'Autorité nationale hongroise de protection des données et de la liberté d'information (NAIH) sur www.naih.hu."
-    },
-    "contact": {
-      "title": "Contact",
-      "text": "Exploitant : Saussez Grégory, Budapest, Hongrie",
-      "email": "privacy@innohr.hu"
+    "cookiesDemo": {
+      "title": "Avis relatif aux cookies (Version Démo)",
+      "intro": "Cette application de démonstration utilise un minimum de cookies et de technologies similaires afin d’assurer son bon fonctionnement et de mesurer les performances techniques. Aucun cookie publicitaire ou de suivi n’est utilisé.",
+      "sections": {
+        "whatAreCookies": {
+          "title": "Que sont les cookies ?",
+          "text": "Les cookies sont de petits fichiers texte stockés sur votre appareil lorsque vous visitez un site web. Ils permettent aux sites de fonctionner correctement, de mémoriser vos préférences et de collecter des statistiques d'utilisation anonymes."
+        },
+        "howWeUse": {
+          "title": "Comment nous utilisons les cookies",
+          "text": "Nous utilisons uniquement des cookies essentiels nécessaires à l'authentification et à la sécurité (via Supabase), ainsi qu’à l'analyse technique (via Vercel). Ces cookies ne vous identifient pas personnellement et sont automatiquement supprimés à la fin de votre session."
+        },
+        "types": {
+          "title": "Types de cookies utilisés",
+          "items": {
+            "necessary": "Cookies nécessaires – requis pour la connexion, la gestion de session et la sécurité.",
+            "analytics": "Cookies d'analyse – utilisés pour surveiller les performances techniques via Vercel Analytics. Aucun suivi personnel.",
+            "functional": "Cookies fonctionnels – utilisés temporairement pour mémoriser votre langue de démo et vos préférences de consentement."
+          }
+        },
+        "manage": {
+          "title": "Gestion des cookies",
+          "text": "Vous pouvez gérer ou supprimer les cookies via les paramètres de votre navigateur. Comme il s'agit d'un environnement de démonstration, la désactivation des cookies peut empêcher certaines fonctionnalités (ex. connexion ou paramètres de langue) de fonctionner correctement."
+        },
+        "moreInfo": {
+          "title": "Plus d'informations",
+          "text": "Si vous avez des questions concernant cet avis relatif aux cookies, veuillez nous contacter à"
+        }
+      },
+      "lastUpdated": "Dernière mise à jour : novembre 2025"
     }
   },
-  "lastUpdated": "Dernière mise à jour : novembre 2025"
-},
-
-"cookies": {
-  "title": "Cookies et Données",
-  "text": "Nous utilisons des cookies pour améliorer l'expérience de la démo. Aucun cookie de suivi ou de marketing tiers n'est utilisé.",
-  "accept": "Accepter",
-  "reject": "Refuser"
-},
-
-"termsDemo": {
-  "title": "Conditions d'utilisation de la Démo",
-  "lastUpdated": "Dernière mise à jour : {date}",
-  "sections": {
-    "demoFeatures": {
-      "title": "1. Caractéristiques de la version démo",
-      "content": "Il s'agit d'une version démo gratuite à des fins de test. Les fonctionnalités du système sont limitées et les données seront automatiquement supprimées après 30 jours."
+  "createTicket": {
+    "common": {
+      "user": "Utilisateur"
     },
-    "liability": {
-      "title": "2. Clause de non-responsabilité",
-      "content": "La version démo est fournie « telle quelle » sans aucune garantie. N'utilisez pas de données personnelles réelles ou d'informations sensibles."
+    "errors": {
+      "userNotFound": "Utilisateur non trouvé",
+      "companyNotFound": "Entreprise non trouvée",
+      "loadInitialData": "Échec du chargement des données initiales",
+      "fileTooLarge": "Le fichier \"{{fileName}}\" est trop volumineux. La taille maximale est de 5 Mo.",
+      "userNotLoaded": "Utilisateur non chargé",
+      "createTicket": "Échec de la création du ticket"
     },
-    "dataProcessing": {
-      "title": "3. Traitement des données",
-      "content": "Les données fournies lors de l'utilisation de la démo sont utilisées uniquement pour les tests du système.",
-      "detailsLink": "Détails :",
-      "privacyPolicy": "Politique de confidentialité"
+    "notifications": {
+      "newTicket": "Nouveau ticket",
+      "ticketCreated": "{{user}} a créé un ticket : \"{{title}}\""
     },
-    "aiContent": {
-      "title": "4. Contenu généré par IA",
-      "content": "Le contenu généré par l'IA ne constitue pas un conseil professionnel. Des inexactitudes peuvent survenir."
+    "success": {
+      "title": "Ticket créé avec succès !",
+      "message": "Votre ticket d'assistance a été soumis et notre équipe y répondra bientôt.",
+      "redirecting": "Redirection..."
     },
-    "termination": {
-      "title": "5. Résiliation de l'accès",
-      "content": "Nous nous réservons le droit de mettre fin immédiatement à l'accès à la démo sans préavis."
+    "header": {
+      "back": "Retour",
+      "title": "Créer un ticket d'assistance",
+      "subtitle": "Décrivez votre problème et nous vous aiderons à le résoudre"
     },
-    "contact": {
-      "title": "6. Contact",
-      "content": "Pour toute question :"
-    }
-  }
-},
-
-"demoBanner": {
-  "title": "Version démo :",
-  "text": "N'utilisez pas de données personnelles réelles. Toutes les données de la démo sont automatiquement supprimées chaque nuit."
-},
-
-"impressumDemo": {
-  "title": "Impressum",
-  "intro": "Conformément au droit européen, les informations légales suivantes s'appliquent à ce site web et à cette version démo.",
-  "fields": {
-    "operator": "Opérateur",
-    "address": "Adresse",
-    "email": "E-mail",
-    "website": "Site web"
-  },
-  "sections": {
-    "liability": {
-      "title": "Clause de non-responsabilité",
-      "text": "Malgré un contrôle soigneux du contenu, nous n'assumons aucune responsabilité pour le contenu des liens externes. Les opérateurs des pages liées sont seuls responsables de leur contenu."
+    "form": {
+      "errorTitle": "Erreur",
+      "titleLabel": "Titre",
+      "titlePlaceholder": "Brève description de votre problème",
+      "priorityLabel": "Priorité",
+      "categoryLabel": "Catégorie",
+      "categoryPlaceholder": "Sélectionnez une catégorie",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Veuillez fournir des informations détaillées sur votre problème...",
+      "attachmentsLabel": "Pièces jointes",
+      "maxFileSize": "Max 5 Mo par fichier",
+      "clickToUpload": "Cliquez pour télécharger",
+      "dragAndDrop": "ou glissez-déposez les fichiers ici",
+      "cancelButton": "Annuler",
+      "createButton": "Créer le ticket",
+      "creatingButton": "Création en cours..."
     },
-    "copyright": {
-      "title": "Avis de droit d'auteur",
-      "text": "Tous les textes, images et codes sources sont protégés par le droit d'auteur. Toute reproduction ou utilisation en dehors des limites du droit d'auteur nécessite une autorisation écrite préalable."
+    "priority": {
+      "low": "Faible",
+      "medium": "Moyenne",
+      "high": "Élevée",
+      "urgent": "Urgente"
     }
   },
-  "lastUpdated": "Dernière mise à jour : octobre 2025"
-},
-
-"cookiesDemo": {
-  "title": "Avis relatif aux cookies (Version Démo)",
-  "intro": "Cette application de démonstration utilise un minimum de cookies et de technologies similaires afin d'assurer son bon fonctionnement et de mesurer les performances techniques. Aucun cookie publicitaire ou de suivi n'est utilisé.",
-  "sections": {
-    "whatAreCookies": {
-      "title": "Que sont les cookies ?",
-      "text": "Les cookies sont de petits fichiers texte stockés sur votre appareil lorsque vous visitez un site web. Ils permettent aux sites de fonctionner correctement, de mémoriser vos préférences et de collecter des statistiques d'utilisation anonymes."
+  "ticketsPage": {
+    "loading": "Chargement des tickets...",
+    "errors": {
+      "userNotFound": "Utilisateur non trouvé",
+      "loadUserData": "Échec du chargement des données utilisateur",
+      "fetchTickets": "Échec de récupération des tickets"
     },
-    "howWeUse": {
-      "title": "Comment nous utilisons les cookies",
-      "text": "Nous utilisons uniquement des cookies essentiels nécessaires à l'authentification et à la sécurité (via Supabase), ainsi qu'à l'analyse technique (via Vercel). Ces cookies ne vous identifient pas personnellement et sont automatiquement supprimés à la fin de votre session."
+    "errorState": {
+      "title": "Oups ! Une erreur s'est produite",
+      "tryAgain": "Réessayer"
     },
-    "types": {
-      "title": "Types de cookies utilisés",
-      "items": {
-        "necessary": "Cookies nécessaires — requis pour la connexion, la gestion de session et la sécurité.",
-        "analytics": "Cookies d'analyse — utilisés pour surveiller les performances techniques via Vercel Analytics. Aucun suivi personnel.",
-        "functional": "Cookies fonctionnels — utilisés temporairement pour mémoriser votre langue de démo et vos préférences de consentement."
+    "header": {
+      "title": "Tickets d'assistance",
+      "titleAdmin": "Tous les tickets d'assistance",
+      "count": "{{count}} ticket",
+      "acrossCompanies": "dans toutes les entreprises",
+      "newTicket": "Nouveau ticket",
+      "new": "Nouveau"
+    },
+    "search": {
+      "placeholder": "Rechercher des tickets..."
+    },
+    "filters": {
+      "allStatus": "Tous les statuts",
+      "allPriority": "Toutes les priorités"
+    },
+    "status": {
+      "open": "Ouvert",
+      "in_progress": "En cours",
+      "resolved": "Résolu",
+      "closed": "Fermé"
+    },
+    "priority": {
+      "low": "Faible",
+      "medium": "Moyenne",
+      "high": "Élevée",
+      "urgent": "Urgente"
+    },
+    "time": {
+      "minutesAgo": "il y a {{count}} min",
+      "hoursAgo": "il y a {{count}} h"
+    },
+    "common": {
+      "unknown": "Inconnu",
+      "unknownCompany": "Entreprise inconnue"
+    },
+    "empty": {
+      "noTicketsFound": "Aucun ticket trouvé",
+      "noTicketsYet": "Pas encore de tickets",
+      "tryAdjusting": "Essayez d'ajuster vos critères de recherche ou de filtre.",
+      "createFirst": "Créez votre premier ticket d'assistance pour commencer.",
+      "createFirstButton": "Créer le premier ticket"
+    },
+    "table": {
+      "ticket": "Ticket",
+      "status": "Statut",
+      "priority": "Priorité",
+      "company": "Entreprise",
+      "user": "Utilisateur",
+      "created": "Créé",
+      "activity": "Activité"
+    },
+    "mobile": {
+      "messages": "{{count}} message",
+      "files": "{{count}} fichier"
+    }
+  },
+  "footer": {
+    "operatedBy": "Exploité par Saussez Grégory, Budapest, Hongrie",
+    "privacyLink": "Politique de confidentialité",
+    "termsLink": "Conditions d'utilisation",
+    "cookiesLink": "Politique relative aux cookies",
+    "impressumLink": "Impressum",
+    "contact": "Pour toute question relative à la confidentialité, contactez",
+    "aiDisclaimer": "Les fonctionnalités d'IA sont uniquement à des fins de démonstration et ne doivent pas être utilisées pour de réelles décisions RH."
+  },
+  "privacyDemo": {
+    "title": "Avis de confidentialité (Version Démo)",
+    "intro": "Cette application de démonstration est exploitée par Saussez Grégory (Budapest, Hongrie). Le but de la démo est de tester les fonctionnalités d'InnoHR et de collecter des retours. Aucune activité commerciale n'est réalisée et le service est gratuit.",
+    "sections": {
+      "dataCollected": {
+        "title": "Données collectées",
+        "items": {
+          "0": "Informations que vous fournissez volontairement (ex. nom, e-mail, retours ou données de test). Veuillez éviter de saisir des informations personnelles réelles ou sensibles.",
+          "1": "Données techniques (comme le type de navigateur, l'adresse IP et la région géographique approximative) utilisées pour l'analyse des performances et la sécurité."
+        }
+      },
+      "purpose": {
+        "title": "Finalité du traitement des données",
+        "text": "Les données sont utilisées uniquement pour évaluer la convivialité de la démo, assurer la sécurité du système et améliorer le développement futur d'InnoHR."
+      },
+      "storage": {
+        "title": "Stockage et conservation des données",
+        "text": "Toutes les données de la démo sont automatiquement supprimées chaque nuit dans le cadre d'un processus de nettoyage programmé. Seuls des journaux techniques minimaux peuvent être conservés jusqu'à 90 jours à des fins de sécurité et de débogage."
+      },
+      "aiProcessing": {
+        "title": "Traitement par IA",
+        "text": "Certaines fonctionnalités de la démo utilisent des réponses générées par l'IA (via OpenRouter ou les API OpenAI). Ces réponses sont uniquement à des fins de démonstration et ne doivent pas être utilisées pour la prise de décision ou l'évaluation des employés."
+      },
+      "thirdParty": {
+        "title": "Services tiers",
+        "items": {
+          "supabase": {
+            "name": "Supabase (Plateforme BaaS)",
+            "desc": "Finalité : Hébergement de base de données et authentification. Siège : USA (serveurs basés dans l'UE).",
+            "linkHref": "https://supabase.com/privacy",
+            "linkText": "Politique de confidentialité",
+            "color": "border-blue-500"
+          },
+          "openai": {
+            "name": "OpenRouter / OpenAI (Service IA)",
+            "desc": "Finalité : Analyse et réponses basées sur l'IA. Siège : USA. Les données ne sont pas stockées à long terme.",
+            "linkHref": "https://openai.com/privacy",
+            "linkText": "Politique de confidentialité",
+            "color": "border-green-500"
+          },
+          "vercel": {
+            "name": "Vercel (Hébergement)",
+            "desc": "Finalité : Hébergement web et distribution de contenu. Siège : USA (région UE activée).",
+            "linkHref": "https://vercel.com/legal/privacy-policy",
+            "linkText": "Politique de confidentialité",
+            "color": "border-purple-500"
+          },
+          "stripe": {
+            "name": "Stripe (Service de paiement)",
+            "desc": "Finalité : Traitement des paiements. Actuellement désactivé dans la version démo. Siège : USA (stockage des données dans l'UE).",
+            "linkHref": "https://stripe.com/privacy",
+            "linkText": "Politique de confidentialité",
+            "color": "border-orange-500"
+          },
+          "resend": {
+            "name": "Resend / Nodemailer (Envoi d'e-mails)",
+            "desc": "Finalité : Envoi d'e-mails de notification interne au développeur. Aucun message marketing externe n'est envoyé.",
+            "linkHref": "https://resend.com/privacy",
+            "linkText": "Politique de confidentialité",
+            "color": "border-teal-500"
+          }
+        },
+        "noticeTitle": "Transfert de données :",
+        "noticeText": "Certaines données peuvent être transférées en dehors de l'Union européenne. Des clauses contractuelles standard (SCC) sont utilisées pour assurer une protection adéquate des données personnelles."
+      },
+      "dataController": {
+        "title": "Informations du responsable du traitement",
+        "nameLabel": "Nom :",
+        "emailLabel": "E-mail :",
+        "addressLabel": "Adresse :",
+        "dpoLabel": "Délégué à la protection des données :",
+        "name": "Saussez Grégory",
+        "email": "privacy@innohr.hu",
+        "address": "Budapest, Hongrie",
+        "dpo": "privacy@innohr.hu"
+      },
+      "userRights": {
+        "title": "Vos droits",
+        "text": "Vous pouvez demander l'accès à vos données ou leur suppression à tout moment en contactant privacy@innohr.hu. Vous avez également le droit de déposer une plainte auprès de l'Autorité nationale hongroise de protection des données et de la liberté d'information (NAIH) sur www.naih.hu."
+      },
+      "contact": {
+        "title": "Contact",
+        "text": "Exploitant : Saussez Grégory, Budapest, Hongrie",
+        "email": "privacy@innohr.hu"
       }
     },
-    "manage": {
-      "title": "Gestion des cookies",
-      "text": "Vous pouvez gérer ou supprimer les cookies via les paramètres de votre navigateur. Comme il s'agit d'un environnement de démonstration, la désactivation des cookies peut empêcher certaines fonctionnalités (ex. connexion ou paramètres de langue) de fonctionner correctement."
-    },
-    "moreInfo": {
-      "title": "Plus d'informations",
-      "text": "Si vous avez des questions concernant cet avis relatif aux cookies, veuillez nous contacter à "
+    "lastUpdated": "Dernière mise à jour : novembre 2025"
+  },
+  "cookies": {
+    "title": "Cookies et Données",
+    "text": "Nous utilisons des cookies pour améliorer l'expérience de la démo. Aucun cookie de suivi ou de marketing tiers n'est utilisé.",
+    "accept": "Accepter",
+    "reject": "Refuser"
+  },
+  "termsDemo": {
+    "title": "Conditions d'utilisation de la Démo",
+    "lastUpdated": "Dernière mise à jour : {date}",
+    "sections": {
+      "demoFeatures": {
+        "title": "1. Caractéristiques de la version démo",
+        "content": "Il s'agit d'une version démo gratuite à des fins de test. Les fonctionnalités du système sont limitées et les données seront automatiquement supprimées après 30 jours."
+      },
+      "liability": {
+        "title": "2. Clause de non-responsabilité",
+        "content": "La version démo est fournie « telle quelle » sans aucune garantie. N'utilisez pas de données personnelles réelles ou d'informations sensibles."
+      },
+      "dataProcessing": {
+        "title": "3. Traitement des données",
+        "content": "Les données fournies lors de l'utilisation de la démo sont utilisées uniquement pour les tests du système.",
+        "detailsLink": "Détails :",
+        "privacyPolicy": "Politique de confidentialité"
+      },
+      "aiContent": {
+        "title": "4. Contenu généré par IA",
+        "content": "Le contenu généré par l'IA ne constitue pas un conseil professionnel. Des inexactitudes peuvent survenir."
+      },
+      "termination": {
+        "title": "5. Résiliation de l'accès",
+        "content": "Nous nous réservons le droit de mettre fin immédiatement à l'accès à la démo sans préavis."
+      },
+      "contact": {
+        "title": "6. Contact",
+        "content": "Pour toute question :"
+      }
     }
   },
-  "lastUpdated": "Dernière mise à jour : novembre 2025"
-}
-
-,
-"resetPage": {
-  "title": "Réinitialiser le mot de passe",
-  "loading": "Chargement...",
-  "fields": {
-    "newPasswordPlaceholder": "Nouveau mot de passe"
+  "demoBanner": {
+    "title": "Version démo :",
+    "text": "N'utilisez pas de données personnelles réelles. Toutes les données de la démo sont automatiquement supprimées chaque nuit."
   },
-  "buttons": {
-    "save": "Enregistrer le nouveau mot de passe",
-    "backToHome": "Retour à l'accueil",
-    "backToApp": "Retour à l'application"
+  "impressumDemo": {
+    "title": "Impressum",
+    "intro": "Conformément au droit européen, les informations légales suivantes s'appliquent à ce site web et à cette version démo.",
+    "fields": {
+      "operator": "Opérateur",
+      "address": "Adresse",
+      "email": "E-mail",
+      "website": "Site web"
+    },
+    "sections": {
+      "liability": {
+        "title": "Clause de non-responsabilité",
+        "text": "Malgré un contrôle soigneux du contenu, nous n'assumons aucune responsabilité pour le contenu des liens externes. Les opérateurs des pages liées sont seuls responsables de leur contenu."
+      },
+      "copyright": {
+        "title": "Avis de droit d'auteur",
+        "text": "Tous les textes, images et codes sources sont protégés par le droit d'auteur. Toute reproduction ou utilisation en dehors des limites du droit d'auteur nécessite une autorisation écrite préalable."
+      }
+    },
+    "lastUpdated": "Dernière mise à jour : octobre 2025"
   },
-  "messages": {
-    "passwordUpdated": "Votre mot de passe a été mis à jour !",
-    "redirecting": "Redirection..."
+  "cookiesDemo": {
+    "title": "Avis relatif aux cookies (Version Démo)",
+    "intro": "Cette application de démonstration utilise un minimum de cookies et de technologies similaires afin d'assurer son bon fonctionnement et de mesurer les performances techniques. Aucun cookie publicitaire ou de suivi n'est utilisé.",
+    "sections": {
+      "whatAreCookies": {
+        "title": "Que sont les cookies ?",
+        "text": "Les cookies sont de petits fichiers texte stockés sur votre appareil lorsque vous visitez un site web. Ils permettent aux sites de fonctionner correctement, de mémoriser vos préférences et de collecter des statistiques d'utilisation anonymes."
+      },
+      "howWeUse": {
+        "title": "Comment nous utilisons les cookies",
+        "text": "Nous utilisons uniquement des cookies essentiels nécessaires à l'authentification et à la sécurité (via Supabase), ainsi qu'à l'analyse technique (via Vercel). Ces cookies ne vous identifient pas personnellement et sont automatiquement supprimés à la fin de votre session."
+      },
+      "types": {
+        "title": "Types de cookies utilisés",
+        "items": {
+          "necessary": "Cookies nécessaires — requis pour la connexion, la gestion de session et la sécurité.",
+          "analytics": "Cookies d'analyse — utilisés pour surveiller les performances techniques via Vercel Analytics. Aucun suivi personnel.",
+          "functional": "Cookies fonctionnels — utilisés temporairement pour mémoriser votre langue de démo et vos préférences de consentement."
+        }
+      },
+      "manage": {
+        "title": "Gestion des cookies",
+        "text": "Vous pouvez gérer ou supprimer les cookies via les paramètres de votre navigateur. Comme il s'agit d'un environnement de démonstration, la désactivation des cookies peut empêcher certaines fonctionnalités (ex. connexion ou paramètres de langue) de fonctionner correctement."
+      },
+      "moreInfo": {
+        "title": "Plus d'informations",
+        "text": "Si vous avez des questions concernant cet avis relatif aux cookies, veuillez nous contacter à "
+      }
+    },
+    "lastUpdated": "Dernière mise à jour : novembre 2025"
   },
-  "errors": {
-    "missingPassword": "Veuillez entrer un nouveau mot de passe.",
-    "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères",
-    "noSession": "Aucune session valide trouvée. Veuillez demander un nouveau lien de réinitialisation.",
-    "sessionError": "Erreur de session"
-  }
-},
-
+  "resetPage": {
+    "title": "Réinitialiser le mot de passe",
+    "loading": "Chargement...",
+    "fields": {
+      "newPasswordPlaceholder": "Nouveau mot de passe"
+    },
+    "buttons": {
+      "save": "Enregistrer le nouveau mot de passe",
+      "backToHome": "Retour à l'accueil",
+      "backToApp": "Retour à l'application"
+    },
+    "messages": {
+      "passwordUpdated": "Votre mot de passe a été mis à jour !",
+      "redirecting": "Redirection..."
+    },
+    "errors": {
+      "missingPassword": "Veuillez entrer un nouveau mot de passe.",
+      "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères",
+      "noSession": "Aucune session valide trouvée. Veuillez demander un nouveau lien de réinitialisation.",
+      "sessionError": "Erreur de session"
+    }
+  },
   "payroll": {
     "title": "Gestion de la paie",
     "subtitle": "Gérez les données de paie des employés et générez des exports",
@@ -2640,7 +2610,6 @@
     "fetchError": "Erreur lors de la récupération de l'utilisateur actuel :",
     "verifySession": "Veuillez patienter pendant la vérification de votre session..."
   },
-
   "payrollModal": {
     "title": {
       "add": "Ajouter des informations de paie",
@@ -2759,70 +2728,67 @@
       }
     }
   },
-
   "payrollExportModal": {
-  "title": "Exporter les données de paie",
-  "advancedOptions": "Options avancées",
-  "locale": "fr-FR",
-  "errors": {
-    "exportFailed": "Échec de l’exportation des données de paie",
-    "genericError": "Une erreur est survenue"
-  },
-  "validation": {
-    "blockedTitle": "La paie ne peut pas être exportée"
-  },
-  "sections": {
-    "period": {
-      "title": "Période d’exportation",
-      "fields": {
-        "month": "Mois",
-        "year": "Année"
-      }
+    "title": "Exporter les données de paie",
+    "advancedOptions": "Options avancées",
+    "locale": "fr-FR",
+    "errors": {
+      "exportFailed": "Échec de l’exportation des données de paie",
+      "genericError": "Une erreur est survenue"
     },
-    "format": {
-      "title": "Format d’exportation",
-      "options": {
-        "generic": {
-          "label": "Format générique",
-          "description": "Format lisible par l’humain"
+    "validation": {
+      "blockedTitle": "La paie ne peut pas être exportée"
+    },
+    "sections": {
+      "period": {
+        "title": "Période d’exportation",
+        "fields": {
+          "month": "Mois",
+          "year": "Année"
+        }
+      },
+      "format": {
+        "title": "Format d’exportation",
+        "options": {
+          "generic": {
+            "label": "Format générique",
+            "description": "Format lisible par l’humain"
+          },
+          "kulcsSoft": {
+            "label": "Kulcs-Soft",
+            "description": "Système de paie Kulcs"
+          },
+          "nexon": {
+            "label": "Nexon",
+            "description": "Système de paie Nexon"
+          },
+          "sap": {
+            "label": "SAP HCM",
+            "description": "SAP SuccessFactors"
+          }
+        }
+      },
+      "filters": {
+        "title": "Filtres (optionnels)",
+        "fields": {
+          "department": "Département",
+          "includeTerminated": "Inclure les employés sortis"
         },
-        "kulcsSoft": {
-          "label": "Kulcs-Soft",
-          "description": "Système de paie Kulcs"
-        },
-        "nexon": {
-          "label": "Nexon",
-          "description": "Système de paie Nexon"
-        },
-        "sap": {
-          "label": "SAP HCM",
-          "description": "SAP SuccessFactors"
+        "placeholders": {
+          "department": "ex. : Ingénierie"
         }
       }
     },
-    "filters": {
-      "title": "Filtres (optionnels)",
-      "fields": {
-        "department": "Département",
-        "includeTerminated": "Inclure les employés sortis"
-      },
-      "placeholders": {
-        "department": "ex. : Ingénierie"
-      }
+    "buttons": {
+      "cancel": "Annuler",
+      "checking": "Vérification de la paie…",
+      "fixData": "Corriger les données de paie",
+      "exportPeriod": "Exporter la paie"
+    },
+    "summary": {
+      "exporting": "Export de la paie pour le mois"
     }
   },
-  "buttons": {
-    "cancel": "Annuler",
-    "checking": "Vérification de la paie…",
-    "fixData": "Corriger les données de paie",
-    "exportPeriod": "Exporter la paie"
-  },
-  "summary": {
-    "exporting": "Export de la paie pour le mois"
-  }
-}
-,
-
   "payrollForm": {
     "title": {
       "add": "Ajouter de nouvelles données de paie",
@@ -2924,7 +2890,6 @@
       "create": "Créer"
     }
   },
-
   "payrollList": {
     "title": "Gestion de la paie",
     "locale": "fr-FR",
@@ -2988,39 +2953,33 @@
       "activeEmployees": "Employés actifs",
       "totalMonthlyPayroll": "Total mensuel de la paie"
     }
-  }
-  ,
-  "interview": {
-  "closing": "Merci pour cet entretien virtuel ! Notre recruteur RH examinera attentivement vos réponses et vous contactera pour les éventuelles prochaines étapes. Nous apprécions vraiment le temps que vous avez pris pour partager votre expérience avec nous. 🙏",
-  "cta": {
-    "title": "Entretien Virtuel Disponible",
-    "subtitle": "10 questions personnalisées • ~10 minutes",
-    "description": "Votre profil est très intéressant ! Vous êtes invité(e) à réaliser un court entretien virtuel adapté à votre parcours et à ce poste. C'est entièrement facultatif, mais cela vous donne une opportunité supplémentaire de vous démarquer.",
-    "feature1": "Personnalisé",
-    "feature2": "Propulsé par IA",
-    "feature3": "Résultats instantanés",
-    "startButton": "Démarrer l'Entretien Virtuel",
-    "optional": "Facultatif — vous pouvez ignorer cette étape"
   },
-  "chat": {
-    "title": "Entretien Virtuel",
-    "completed": "Terminé",
-    "welcome": "Bonjour{name} ! Bienvenue dans votre entretien virtuel. Je vais vous poser 10 questions adaptées à votre profil et à ce poste. Prenez le temps qu'il vous faut pour chaque réponse — il n'y a pas de bonnes ou mauvaises réponses, soyez simplement vous-même.",
-    "questionLabel": "Question",
-    "evaluating": "Évaluation de vos réponses...",
-    "waitingQuestion": "En attente de la prochaine question...",
-    "inputPlaceholder": "Tapez votre réponse... (Entrée pour envoyer, Maj+Entrée pour une nouvelle ligne)",
-    "hint": "Appuyez sur Entrée pour envoyer • Maj+Entrée pour une nouvelle ligne"
+  "interview": {
+    "closing": "Merci pour cet entretien virtuel ! Notre recruteur RH examinera attentivement vos réponses et vous contactera pour les éventuelles prochaines étapes. Nous apprécions vraiment le temps que vous avez pris pour partager votre expérience avec nous. 🙏",
+    "cta": {
+      "title": "Entretien Virtuel Disponible",
+      "subtitle": "10 questions personnalisées • ~10 minutes",
+      "description": "Votre profil est très intéressant ! Vous êtes invité(e) à réaliser un court entretien virtuel adapté à votre parcours et à ce poste. C'est entièrement facultatif, mais cela vous donne une opportunité supplémentaire de vous démarquer.",
+      "feature1": "Personnalisé",
+      "feature2": "Propulsé par IA",
+      "feature3": "Résultats instantanés",
+      "startButton": "Démarrer l'Entretien Virtuel",
+      "optional": "Facultatif — vous pouvez ignorer cette étape"
+    },
+    "chat": {
+      "title": "Entretien Virtuel",
+      "completed": "Terminé",
+      "welcome": "Bonjour{name} ! Bienvenue dans votre entretien virtuel. Je vais vous poser 10 questions adaptées à votre profil et à ce poste. Prenez le temps qu'il vous faut pour chaque réponse — il n'y a pas de bonnes ou mauvaises réponses, soyez simplement vous-même.",
+      "questionLabel": "Question",
+      "evaluating": "Évaluation de vos réponses...",
+      "waitingQuestion": "En attente de la prochaine question...",
+      "inputPlaceholder": "Tapez votre réponse... (Entrée pour envoyer, Maj+Entrée pour une nouvelle ligne)",
+      "hint": "Appuyez sur Entrée pour envoyer • Maj+Entrée pour une nouvelle ligne",
+      "suggestionsLabel": "Choisissez une réponse ou écrivez la vôtre",
+      "writeOwnAnswer": "Écrire ma propre réponse",
+      "backToSuggestions": "← Retour aux suggestions",
+      "yourAnswer": "Votre réponse",
+      "sending": "Envoi en cours..."
+    }
   }
 }
-}
-
-
-  
-
-
-
-
-
-
-      

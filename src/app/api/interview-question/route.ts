@@ -25,7 +25,7 @@ async function callOpenRouterAPI(prompt: string, model = 'openai/gpt-3.5-turbo')
         model,
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.7,
-        max_tokens: 300,
+        max_tokens: 600,
       }),
     });
 
@@ -38,6 +38,16 @@ async function callOpenRouterAPI(prompt: string, model = 'openai/gpt-3.5-turbo')
     clearTimeout(timeoutId);
     throw error;
   }
+}
+
+function extractAndParseJSON(raw: string) {
+  const trimmed = raw.trim();
+  try {
+    return JSON.parse(trimmed);
+  } catch {}
+  const match = trimmed.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('No JSON found in response');
+  return JSON.parse(match[0]);
 }
 
 export async function POST(req: NextRequest) {
@@ -53,10 +63,10 @@ export async function POST(req: NextRequest) {
       .join('\n');
 
     const languageInstruction = language
-      ? `IMPORTANT: You MUST respond in this language: ${language}. Do not use any other language.`
+      ? `IMPORTANT: You MUST respond entirely in this language: ${language}. Every field — question and all suggestions — must be in that language.`
       : '';
 
-    const prompt = `You are conducting a professional job interview. Your task is to generate question number ${questionNumber} out of 10 for a candidate.
+    const prompt = `You are conducting a professional job interview. Generate question ${questionNumber} out of 10 for this candidate, along with 3 suggested answers they can choose from.
 
 ${languageInstruction}
 
@@ -69,21 +79,37 @@ ${cvText.substring(0, 3000)}
 CONVERSATION SO FAR:
 ${historyText || 'No questions asked yet.'}
 
-INSTRUCTIONS:
-- Generate ONE single interview question for question ${questionNumber}/10
-- The question must be DIRECTLY tailored to this specific candidate's background from their CV and this specific role
-- Build naturally on the conversation so far — reference or follow up on previous answers when relevant
-- Vary question types across the interview: mix behavioral ("Tell me about a time..."), situational ("How would you handle..."), technical (role-specific knowledge), motivational ("Why..."), and competency-based questions
+INSTRUCTIONS FOR THE QUESTION:
+- Tailor it directly to this candidate's CV background and this specific role
+- Build naturally on the conversation so far
+- Vary question types: behavioral ("Tell me about a time..."), situational ("How would you handle..."), technical, motivational, or competency-based
 - Keep it concise, clear, and professional
-- Do NOT number the question or add any preamble like "Question 10:" — just write the question itself
-- Do NOT add any closing remarks or next steps in the question
+- Do NOT number it or add preamble like "Question 5:" — just the question itself
 
-Respond with ONLY the question text, nothing else.`;
+INSTRUCTIONS FOR THE 3 SUGGESTED ANSWERS:
+- Each suggestion must be a realistic, complete answer a candidate might genuinely give
+- Make them meaningfully different from each other: one strong/confident, one moderate/honest, one that shows self-awareness or acknowledges a weakness
+- Each suggestion should be 1-3 sentences — substantial enough to be useful but not too long
+- They must be challenging and specific to the question asked, NOT generic filler
+- Write them in first person as if the candidate is speaking
+- Do NOT label them "Strong", "Moderate" etc. — just write the answer text
 
-    const question = await callOpenRouterAPI(prompt)
+Respond ONLY with valid JSON in this exact format, no markdown, no backticks:
+{"question": "...", "suggestions": ["...", "...", "..."]}`;
+
+    const raw = await callOpenRouterAPI(prompt)
       .catch(() => callOpenRouterAPI(prompt, 'anthropic/claude-3-haiku'));
 
-    return NextResponse.json({ question: question.trim() });
+    const parsed = extractAndParseJSON(raw);
+
+    if (!parsed.question || !Array.isArray(parsed.suggestions) || parsed.suggestions.length < 3) {
+      throw new Error('Invalid response structure from AI');
+    }
+
+    return NextResponse.json({
+      question: parsed.question.trim(),
+      suggestions: parsed.suggestions.map((s: string) => s.trim()).slice(0, 3),
+    });
   } catch (error) {
     console.error('Interview question error:', error);
     return NextResponse.json({ error: 'Failed to generate question' }, { status: 500 });

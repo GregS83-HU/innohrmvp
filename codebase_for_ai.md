@@ -1,6 +1,6 @@
 # Codebase - innohrmvp
 **Mode:** full-feature-extract  
-**Generated:** Sun Feb 15 15:29:06 CET 2026
+**Generated:** Tue Apr 28 08:30:48 CEST 2026
 **Purpose:** Complete AI analysis including all APIs, components & features
 
 ---
@@ -409,7 +409,7 @@ export interface MessageData {
 
 ```
 Folder: src/app/api/analyse-cv
-Type: ts | Lines:      418
+Type: ts | Lines:      395
 Top definitions:
 --- Exports ---
 export const runtime = "nodejs";
@@ -421,10 +421,14 @@ function sanitizeFileName(filename: string) {
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      418)</summary>
+<summary>📄 Preview (first 100 lines of      395)</summary>
 
 ```ts
 // src/app/api/analyse-cv/route.ts
+// CHANGE FROM ORIGINAL: return candidateId, cvText, and candidateFirstName in the response
+// so the client can pass them to the InterviewChat component.
+// Search for "// NEW:" comments to find all changes.
+
 export const runtime = "nodejs";
 import { NextRequest, NextResponse } from 'next/server';
 import parsePdfBuffer from '../../../../lib/parsePdfSafe';
@@ -437,9 +441,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-/**
- * Create notifications for all admins in the company when a CV is uploaded
- */
 async function notifyAdminsOfNewCV(
   positionId: string,
   positionName: string,
@@ -504,9 +505,6 @@ async function notifyAdminsOfNewCV(
   }
 }
 
-/**
- * Create notification for the position manager when a CV is uploaded
- */
 async function notifyManagerOfNewCV(
   positionId: string,
   positionName: string,
@@ -524,7 +522,9 @@ async function notifyManagerOfNewCV(
       message: `A new CV has been uploaded for ${positionName}`,
       position_id: positionId,
       recipient_id: managerId,
-... (truncated,      418 total lines)
+      read: false,
+      created_at: new Date().toISOString()
+... (truncated,      395 total lines)
 ```
 </details>
 
@@ -1688,6 +1688,305 @@ export async function GET(request: NextRequest) {
 
 ---
 
+## `src/app/api/generate-position-description/route.ts`
+
+```
+Folder: src/app/api/generate-position-description
+Type: ts | Lines:      275
+Top definitions:
+--- Exports ---
+export const runtime = "nodejs";
+
+--- Key Functions/Components ---
+const supabase = createClient(
+function extractAndParseJSON(rawResponse: string) {
+```
+
+<details>
+<summary>📄 Full content (     275 lines)</summary>
+
+```ts
+// src/app/api/generate-position-description/route.ts
+export const runtime = "nodejs";
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import { consumeCredit } from '../../../../lib/credit';
+import { getPrompt, fillPromptVariables, PromptNotFoundError, PromptDatabaseError } from '../../../../lib/prompts';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+// Optimized API call
+async function callOpenRouterAPI(prompt: string, model = 'anthropic/claude-3.5-sonnet') {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s timeout
+
+  try {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      signal: controller.signal,
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'https://localhost:3000',
+        'X-Title': 'CV Analysis App',
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.3, // Lower temperature for more focused, accurate output
+        max_tokens: 4000, // Increased to allow ~500-800 words per description
+      }),
+    });
+
+    clearTimeout(timeoutId);
+
+    const responseText = await response.text();
+
+    if (!response.ok) {
+      if (responseText.includes('<!DOCTYPE') || responseText.includes('<html>')) {
+        throw new Error(`API returned HTML error page. Check API key and endpoint status.`);
+      }
+      throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+    }
+
+    let completion;
+    try {
+      completion = JSON.parse(responseText);
+    } catch {
+      throw new Error(`API returned invalid JSON`);
+    }
+
+    if (!completion.choices || !completion.choices[0] || !completion.choices[0].message) {
+      throw new Error(`Invalid API response structure`);
+    }
+
+    return completion.choices[0].message.content;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    console.error('Error in callOpenRouterAPI:', error);
+    throw error;
+  }
+}
+
+// Fallback API call with different model
+async function callFallbackAPI(prompt: string) {
+  try {
+    // Try GPT-4o-mini as fallback (still good but faster)
+    return await callOpenRouterAPI(prompt, 'openai/gpt-4o-mini');
+  } catch {
+    // Final fallback: GPT-3.5
+    return await callOpenRouterAPI(prompt, 'openai/gpt-3.5-turbo');
+  }
+}
+
+// Robust JSON extraction
+function extractAndParseJSON(rawResponse: string) {
+  const trimmed = rawResponse.trim();
+  
+  // Try parsing directly first
+  try {
+    return JSON.parse(trimmed);
+  } catch {}
+
+  // If direct parsing fails, try to find JSON by looking for the outermost braces
+  const firstBrace = trimmed.indexOf('{');
+  const lastBrace = trimmed.lastIndexOf('}');
+  
+  if (firstBrace === -1 || lastBrace === -1) {
+    console.error('No JSON braces found in response:', rawResponse.substring(0, 200));
+    throw new Error('No valid JSON found in response');
+  }
+
+  const jsonString = trimmed.substring(firstBrace, lastBrace + 1);
+  
+  // Try multiple sanitization strategies
+  const strategies = [
+    // Strategy 1: Parse as-is
+    (s: string) => s,
+    
+    // Strategy 2: Escape unescaped control characters within string values
+    (s: string) => {
+      // This is tricky - we need to escape actual newlines/tabs in string values
+      // but not break already-escaped ones
+      return s.replace(/([^\\])([\n\r\t])/g, '$1\\$2');
+    },
+    
+    // Strategy 3: Remove control characters entirely
+    (s: string) => s.replace(/[\x00-\x1F\x7F]/g, ''),
+    
+    // Strategy 4: Replace actual newlines with spaces
+    (s: string) => s.replace(/\n/g, ' ').replace(/\r/g, '').replace(/\t/g, ' ')
+  ];
+  
+  for (let i = 0; i < strategies.length; i++) {
+    try {
+      const sanitized = strategies[i](jsonString);
+      const result = JSON.parse(sanitized);
+      if (i > 0) {
+        console.log(`Successfully parsed JSON using strategy ${i + 1}`);
+      }
+      return result;
+    } catch (e) {
+      if (i === 0) {
+        console.log(`Strategy 1 failed, trying alternatives...`);
+        console.error('Problematic JSON (first 300 chars):', jsonString.substring(0, 300));
+      }
+      // Continue to next strategy
+    }
+  }
+  
+  // All strategies failed
+  console.error('All parsing strategies failed. JSON snippet:', jsonString.substring(0, 500));
+  throw new Error('Invalid JSON structure in response - could not sanitize');
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { roughDraft, positionName, companyId } = body;
+
+    // Validate inputs
+    if (!roughDraft || roughDraft.trim().length < 20) {
+      return NextResponse.json({ 
+        error: 'Please provide a description of at least 20 characters.' 
+      }, { status: 400 });
+    }
+
+    if (!companyId) {
+      return NextResponse.json({ 
+        error: 'Missing company ID (needed to check AI credits).' 
+      }, { status: 400 });
+    }
+
+    // === CHECK AI CREDITS BEFORE GENERATION ===
+    console.log('Checking AI credits for company:', companyId);
+    const ok = await consumeCredit(companyId);
+    if (!ok) {
+      return NextResponse.json({ 
+        error: 'You have no remaining AI credits this month.' 
+      }, { status: 402 });
+    }
+
+    // === FETCH PROMPT FROM DATABASE ===
+    console.log('Fetching position description generation prompt from database...');
+    
+    let promptTemplate: string = '';
+    try {
+      promptTemplate = await getPrompt('position_description_generator');
+    } catch (error) {
+      if (error instanceof PromptNotFoundError || error instanceof PromptDatabaseError) {
+        console.error('Failed to load prompt:', error.message);
+        
+        // FALLBACK: Use hardcoded prompt if database lookup fails
+        console.log('Using fallback prompt template');
+        promptTemplate = `You are creating job descriptions from a rough draft.
+
+**INPUTS:**
+Position Name: {{positionName}}
+Rough Draft: {{roughDraft}}
+
+**CRITICAL RULES:**
+1. Use the ACTUAL position name everywhere (not the placeholder)
+2. Extract ALL information ONLY from the rough draft
+3. DO NOT substitute different technologies or change role type
+4. If draft says "React" → write about React (not Java/marketing)
+5. DO NOT copy from examples - read the actual rough draft
+
+**CREATE TWO OUTPUTS:**
+
+**position_description** (~500 words - job ad):
+- Use actual position name
+- Responsibilities from rough draft
+- Technologies/skills from rough draft
+- Experience from rough draft
+- Professional and engaging
+
+**position_description_detailed** (500-1000 words - CV matching):
+- Extremely detailed for AI CV analysis
+- Expand every item from rough draft
+- Examples: "React" → "React.js, hooks, JSX, state management, etc."
+- Include: Role overview, all requirements expanded, experience details, daily tasks
+- 500-1000 words
+
+**JSON OUTPUT:**
+{
+  "position_description": "...",
+  "position_description_detailed": "..."
+}
+
+**VERIFY:**
+✓ Same role type as rough draft?
+✓ Same technologies as rough draft?
+✓ Used actual position name?`;
+      } else {
+        throw error;
+      }
+    }
+    // Fill in the variables
+    // Note: fillPromptVariables seems to not be working, so we do manual replacement as backup
+    let prompt = fillPromptVariables(promptTemplate, {
+      positionName: positionName || 'Position',
+      roughDraft: roughDraft.trim()
+    });
+
+    // MANUAL REPLACEMENT as backup (in case fillPromptVariables fails)
+    prompt = prompt.replace(/\{\{positionName\}\}/g, positionName || 'Position');
+    prompt = prompt.replace(/\{\{roughDraft\}\}/g, roughDraft.trim());
+
+    console.log('=== DEBUG INFO ===');
+    console.log('Position Name INPUT:', positionName);
+    console.log('Rough Draft INPUT:', roughDraft.trim());
+    console.log('Prompt after variable replacement (first 500 chars):', prompt.substring(0, 500));
+    console.log('Checking if {{positionName}} was replaced:', prompt.includes('{{positionName}}') ? 'NO - STILL HAS PLACEHOLDER!' : 'YES - replaced');
+    console.log('==================');
+
+    // === CALL AI ===
+    console.log('Generating position descriptions with AI...');
+    
+    const rawResponse = await callOpenRouterAPI(prompt)
+      .catch(() => callFallbackAPI(prompt));
+
+    console.log('AI generation completed');
+
+    // Parse response
+    console.log('Raw AI response (first 200 chars):', rawResponse.substring(0, 200));
+    const aiData = extractAndParseJSON(rawResponse);
+    const { position_description, position_description_detailed } = aiData;
+
+    // Validate required fields
+    if (!position_description || !position_description_detailed) {
+      throw new Error('Missing required fields in AI response');
+    }
+
+    // Validate minimum lengths
+    if (position_description.length < 50 || position_description_detailed.length < 100) {
+      throw new Error('Generated descriptions are too short');
+    }
+
+    console.log('Descriptions validated successfully');
+
+    return NextResponse.json({
+      position_description,
+      position_description_detailed,
+      success: true
+    });
+
+  } catch (aiError: unknown) {
+    console.error('AI processing error:', aiError);
+    const errorMessage = aiError instanceof Error ? aiError.message : 'Unknown AI processing error';
+    return NextResponse.json({ 
+      error: `AI generation failed: ${errorMessage}` 
+    }, { status: 500 });
+  }
+}
+```
+</details>
+
+---
+
 ## `src/app/api/happiness/chat/route.ts`
 
 ```
@@ -2540,6 +2839,277 @@ export async function POST(req: NextRequest) {
 
 ---
 
+## `src/app/api/interview-conclude/route.ts`
+
+```
+Folder: src/app/api/interview-conclude
+Type: ts | Lines:      133
+Top definitions:
+--- Exports ---
+export const runtime = "nodejs";
+
+--- Key Functions/Components ---
+const supabase = createClient(
+interface Message {
+function extractAndParseJSON(rawResponse: string) {
+```
+
+<details>
+<summary>📄 Full content (     133 lines)</summary>
+
+```ts
+// src/app/api/interview-conclude/route.ts
+export const runtime = "nodejs";
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+interface Message {
+  role: 'interviewer' | 'candidate';
+  content: string;
+}
+
+async function callOpenRouterAPI(prompt: string, model = 'openai/gpt-3.5-turbo') {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+  try {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      signal: controller.signal,
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'https://localhost:3000',
+        'X-Title': 'CV Analysis App',
+      },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.2,
+        max_tokens: 1000,
+      }),
+    });
+
+    clearTimeout(timeoutId);
+    if (!response.ok) throw new Error(`API call failed: ${response.status}`);
+
+    const completion = await response.json();
+    return completion.choices[0].message.content;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    throw error;
+  }
+}
+
+function extractAndParseJSON(rawResponse: string) {
+  const trimmed = rawResponse.trim();
+  try {
+    return JSON.parse(trimmed);
+  } catch {}
+
+  const match = trimmed.match(/\{(?:[^{}]|(?:\{[^{}]*\}))*\}/);
+  if (!match) throw new Error('No valid JSON found in response');
+
+  return JSON.parse(match[0]);
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const {
+      cvText,
+      jobDescription,
+      positionName,
+      conversationHistory,
+      candidateId,
+      positionId,
+      language,
+    } = await req.json();
+
+    if (!conversationHistory || !candidateId || !positionId) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    const historyText = (conversationHistory as Message[])
+      .map(m => `${m.role === 'interviewer' ? 'Interviewer' : 'Candidate'}: ${m.content}`)
+      .join('\n');
+
+    const languageInstruction = language
+      ? `IMPORTANT: The summary field must be written in this language: ${language}.`
+      : '';
+
+    const prompt = `You are a senior HR recruiter evaluating a virtual job interview. Analyze the full conversation and produce a structured assessment.
+
+${languageInstruction}
+
+POSITION: ${positionName}
+JOB DESCRIPTION: ${jobDescription}
+
+CANDIDATE CV:
+${cvText ? cvText.substring(0, 2000) : 'Not available'}
+
+FULL INTERVIEW CONVERSATION:
+${historyText}
+
+TASK: Evaluate the candidate's interview performance and return a JSON object with exactly these fields:
+- "score": integer from 1 to 10 (10 = exceptional fit, 1 = very poor fit), based on quality and relevance of answers
+- "summary": a professional HR summary paragraph (4-6 sentences) covering: communication quality, relevant experience demonstrated, motivation, key strengths and weaknesses revealed during the interview, and overall recommendation. Write this in the language specified above.
+
+Respond ONLY with valid JSON, no markdown, no backticks, no preamble.
+Example: {"score": 7, "summary": "The candidate demonstrated..."}`;
+
+    const rawResponse = await callOpenRouterAPI(prompt)
+      .catch(() => callOpenRouterAPI(prompt, 'anthropic/claude-3-haiku'));
+
+    const { score, summary } = extractAndParseJSON(rawResponse);
+
+    if (!score || !summary) {
+      throw new Error('Missing score or summary in AI response');
+    }
+
+    // Save to database
+    const { error: updateError } = await supabase
+      .from('position_to_candidat')
+      .update({
+        interview_score: score,
+        interview_summary: summary,
+      })
+      .eq('candidat_id', candidateId)
+      .eq('position_id', positionId);
+
+    if (updateError) {
+      console.error('DB update error:', updateError);
+      return NextResponse.json({ error: 'Failed to save interview results' }, { status: 500 });
+    }
+
+    return NextResponse.json({ score, summary });
+  } catch (error) {
+    console.error('Interview conclude error:', error);
+    return NextResponse.json({ error: 'Failed to conclude interview' }, { status: 500 });
+  }
+}
+```
+</details>
+
+---
+
+## `src/app/api/interview-question/route.ts`
+
+```
+Folder: src/app/api/interview-question
+Type: ts | Lines:       90
+Top definitions:
+--- Exports ---
+export const runtime = "nodejs";
+
+--- Key Functions/Components ---
+interface Message {
+```
+
+<details>
+<summary>📄 Full content (      90 lines)</summary>
+
+```ts
+// src/app/api/interview-question/route.ts
+export const runtime = "nodejs";
+import { NextRequest, NextResponse } from 'next/server';
+
+interface Message {
+  role: 'interviewer' | 'candidate';
+  content: string;
+}
+
+async function callOpenRouterAPI(prompt: string, model = 'openai/gpt-3.5-turbo') {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      signal: controller.signal,
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'https://localhost:3000',
+        'X-Title': 'CV Analysis App',
+      },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
+        max_tokens: 300,
+      }),
+    });
+
+    clearTimeout(timeoutId);
+    if (!response.ok) throw new Error(`API call failed: ${response.status}`);
+
+    const completion = await response.json();
+    return completion.choices[0].message.content;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    throw error;
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const { cvText, jobDescription, positionName, conversationHistory, questionNumber, language } = await req.json();
+
+    if (!cvText || !jobDescription || questionNumber === undefined) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    const historyText = (conversationHistory as Message[])
+      .map(m => `${m.role === 'interviewer' ? 'Interviewer' : 'Candidate'}: ${m.content}`)
+      .join('\n');
+
+    const languageInstruction = language
+      ? `IMPORTANT: You MUST respond in this language: ${language}. Do not use any other language.`
+      : '';
+
+    const prompt = `You are conducting a professional job interview. Your task is to generate question number ${questionNumber} out of 10 for a candidate.
+
+${languageInstruction}
+
+POSITION: ${positionName}
+JOB DESCRIPTION: ${jobDescription}
+
+CANDIDATE CV SUMMARY:
+${cvText.substring(0, 3000)}
+
+CONVERSATION SO FAR:
+${historyText || 'No questions asked yet.'}
+
+INSTRUCTIONS:
+- Generate ONE single interview question for question ${questionNumber}/10
+- The question must be DIRECTLY tailored to this specific candidate's background from their CV and this specific role
+- Build naturally on the conversation so far — reference or follow up on previous answers when relevant
+- Vary question types across the interview: mix behavioral ("Tell me about a time..."), situational ("How would you handle..."), technical (role-specific knowledge), motivational ("Why..."), and competency-based questions
+- Keep it concise, clear, and professional
+- Do NOT number the question or add any preamble like "Question 10:" — just write the question itself
+- Do NOT add any closing remarks or next steps in the question
+
+Respond with ONLY the question text, nothing else.`;
+
+    const question = await callOpenRouterAPI(prompt)
+      .catch(() => callOpenRouterAPI(prompt, 'anthropic/claude-3-haiku'));
+
+    return NextResponse.json({ question: question.trim() });
+  } catch (error) {
+    console.error('Interview question error:', error);
+    return NextResponse.json({ error: 'Failed to generate question' }, { status: 500 });
+  }
+}
+```
+</details>
+
+---
+
 ## `src/app/api/interviews/route.ts`
 
 ```
@@ -3040,7 +3610,7 @@ export async function POST(req: NextRequest) {
 
 ```
 Folder: src/app/api/new-position
-Type: ts | Lines:       49
+Type: ts | Lines:       81
 Top definitions:
 --- Exports ---
 
@@ -3048,7 +3618,7 @@ Top definitions:
 ```
 
 <details>
-<summary>📄 Full content (      49 lines)</summary>
+<summary>📄 Full content (      81 lines)</summary>
 
 ```ts
 import { NextResponse } from 'next/server'
@@ -3058,10 +3628,32 @@ import { cookies } from 'next/headers'
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { user_id, manager_id, position_name, position_description, position_description_detailed, position_start_date } = body
+    const { 
+      user_id, 
+      manager_id, 
+      position_name, 
+      position_description, 
+      position_description_detailed, 
+      position_start_date,
+      // NEW ENRICHMENT FIELDS
+      location,
+      location_type,
+      employment_type,
+      salary_min,
+      salary_max,
+      salary_currency,
+      salary_public,
+      application_deadline,
+    } = body
 
+    // Validate required fields
     if (!user_id || !manager_id || !position_name || !position_description || !position_description_detailed || !position_start_date) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    // Validate employment_type is required
+    if (!employment_type) {
+      return NextResponse.json({ error: 'Employment type is required' }, { status: 400 })
     }
 
     const supabase = createServerComponentClient({ cookies })
@@ -3085,18 +3677,29 @@ export async function POST(request: Request) {
           position_description_detailed,
           position_start_date,
           user_id,
-          manager_id,        // ← added manager_id
+          manager_id,
           company_id: company.company_id,
+          // NEW ENRICHMENT FIELDS
+          location: location || null,
+          location_type: location_type || null,
+          employment_type: employment_type, // Required field
+          salary_min: salary_min || null,
+          salary_max: salary_max || null,
+          salary_currency: salary_currency || 'HUF',
+          salary_public: salary_public || false,
+          application_deadline: application_deadline || null,
         },
       ])
       .select()
 
     if (insertError || !insertedData || insertedData.length === 0) {
+      console.error('Insert error:', insertError)
       return NextResponse.json({ error: insertError?.message || 'Failed to create position' }, { status: 500 })
     }
 
     return NextResponse.json({ message: 'Position created successfully', id: insertedData[0].id })
   } catch (error) {
+    console.error('Route error:', error)
     return NextResponse.json({ error: (error as Error).message }, { status: 500 })
   }
 }
@@ -8842,23 +9445,18 @@ export default function ResetPasswordPage() {
 
 ```
 Folder: src/app/jobs/[slug]/openedpositions/new
-Type: tsx | Lines:      804
+Type: tsx | Lines:      437
 Top definitions:
 --- Exports ---
 export default function NewOpenedPositionPage() {
 
 --- Key Functions/Components ---
 const supabase = createClient(
-interface CompanyUser {
-interface TranslationFunction {
-interface ManagerDropdownProps {
-function ManagerDropdown({ selectedManager, onSelect, companyId, t }: ManagerDropdownProps) {
-interface ConfirmAnalysisModalProps {
-function ConfirmAnalysisModal({
+const DEFAULT_FORM: PositionFormData = {
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      804)</summary>
+<summary>📄 Preview (first 100 lines of      437)</summary>
 
 ```tsx
 'use client'
@@ -8866,102 +9464,101 @@ function ConfirmAnalysisModal({
 import { useSession } from '@supabase/auth-helpers-react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { Plus, Calendar, FileText, Briefcase, BarChart3, CheckCircle, AlertCircle, Activity, Lock, X, Clock, Users, ChevronDown, Search, User } from 'lucide-react'
+import { Plus, BarChart3, CheckCircle, AlertCircle, Activity, Lock } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { useLocale } from 'i18n/LocaleProvider'
+
+import { PositionForm, PositionFormData } from '../../../../../../components/newposition/PositionForm'
+import { AIGenerateModal } from '../../../../../../components/newposition/AIGenerateModal'
+import { ConfirmAnalysisModal } from '../../../../../../components/newposition//ConfirmAnalysisModal'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-interface CompanyUser {
-  user_id: string
-  first_name: string
-  last_name: string
-  email: string
-  is_admin: boolean
-  is_super_admin: boolean
-  is_manager: boolean
-  manager_id: string | null
-  manager_first_name: string | null
-  manager_last_name: string | null
-  employment_start_date: string | null
+const DEFAULT_FORM: PositionFormData = {
+  positionName: '',
+  selectedManager: null,
+  positionDescription: '',
+  positionDescriptionDetailed: '',
+  positionStartDate: '',
+  location: '',
+  locationType: '',
+  employmentType: '',
+  salaryMin: '',
+  salaryMax: '',
+  salaryCurrency: 'HUF',
+  salaryPublic: false,
+  applicationDeadline: '',
 }
 
-// Define the translation function type
-interface TranslationFunction {
-  (key: string): string
-}
+export default function NewOpenedPositionPage() {
+  const { t } = useLocale()
+  const router = useRouter()
+  const pathname = usePathname()
+  const session = useSession()
 
-interface ManagerDropdownProps {
-  selectedManager: CompanyUser | null
-  onSelect: (manager: CompanyUser | null) => void
-  companyId: string
-  t: TranslationFunction
-}
+  // Form state (single object, easy to reset)
+  const [form, setForm] = useState<PositionFormData>(DEFAULT_FORM)
+  const setField = <K extends keyof PositionFormData>(field: K, value: PositionFormData[K]) => {
+    setForm((prev) => ({ ...prev, [field]: value }))
+  }
 
-function ManagerDropdown({ selectedManager, onSelect, companyId, t }: ManagerDropdownProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [managers, setManagers] = useState<CompanyUser[]>([])
+  // UI / async state
+  const [message, setMessage] = useState<{ text: string; type: 'error' | 'success' } | null>(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const dropdownRef = useRef<HTMLDivElement>(null)
+  const [positionId, setPositionId] = useState<string | null>(null)
+  const [analysisLoading, setAnalysisLoading] = useState(false)
+  const [analysisResult, setAnalysisResult] = useState<{ matched: number; total: number } | null>(null)
+  const [progress, setProgress] = useState(0)
+  const [companyId, setCompanyId] = useState<string | null>(null)
+  const [canCreatePosition, setCanCreatePosition] = useState<boolean | null>(null)
+  const positionAccessChecked = useRef(false)
 
+  // Modal state
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [candidateCount, setCandidateCount] = useState(0)
+  const [fetchingCount, setFetchingCount] = useState(false)
+  const [showAIModal, setShowAIModal] = useState(false)
+  const [aiGenerating, setAiGenerating] = useState(false)
+
+  // Auth guard
   useEffect(() => {
-    const fetchManagers = async () => {
-      setLoading(true)
-      setError(null)
-      
-      try {
-        const { data, error } = await supabase
-          .rpc('get_company_users', { company_id_input: companyId })
-        
-        if (error) {
-          console.error('Error fetching company users:', error)
-          setError(t('managerDropdown.errorLoading'))
-          setManagers([])
-          return
-        }
-        
-        if (!data || data.length === 0) {
-          setError(t('managerDropdown.noUsers'))
-          setManagers([])
-          return
-        }
-        
-        setManagers(data)
-      } catch (err) {
-        console.error('Unexpected error:', err)
-        setError(t('managerDropdown.errorLoading'))
-        setManagers([])
-      } finally {
-        setLoading(false)
-      }
-    }
+    if (!session) router.push('/')
+  }, [session, router])
 
-    if (companyId) {
-      fetchManagers()
+  // Fetch company id
+  const fetchUserCompanyId = useCallback(async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('company_to_users')
+        .select('company_id')
+        .eq('user_id', userId)
+        .single()
+      if (!error && data?.company_id) setCompanyId(data.company_id)
+    } catch (e) {
+      console.error('Error in fetchUserCompanyId:', e)
     }
-  }, [companyId, t])
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const filteredManagers = managers.filter(manager => {
-    const fullName = `${manager.first_name} ${manager.last_name}`.toLowerCase()
-    return fullName.includes(searchTerm.toLowerCase())
-  })
-... (truncated,      804 total lines)
+  // Check position creation quota
+  const checkPositionCreationAccess = useCallback(async () => {
+    if (!companyId || positionAccessChecked.current) return
+    positionAccessChecked.current = true
+    try {
+      const { data, error } = await supabase.rpc('can_open_new_position', { p_company_id: companyId })
+      if (error) { setCanCreatePosition(false); return }
+      let hasAccess = false
+      if (typeof data === 'boolean') hasAccess = data
+      else if (typeof data === 'string') hasAccess = ['true', 'True', 'TRUE'].includes(data)
+      else if (typeof data === 'number') hasAccess = data === 1
+      setCanCreatePosition(hasAccess)
+    } catch {
+      setCanCreatePosition(false)
+    }
+  }, [companyId])
+... (truncated,      437 total lines)
 ```
 </details>
 
@@ -11165,7 +11762,7 @@ export default PrivacyDemoPage;
 
 ```
 Folder: src/app/jobs/[slug]/cv-analyse
-Type: tsx | Lines:      227
+Type: tsx | Lines:      264
 Top definitions:
 --- Exports ---
 export default async function CVAnalysePage({
@@ -11180,7 +11777,7 @@ type RawSupabaseResponse = {
 ```
 
 <details>
-<summary>📄 Full content (     227 lines)</summary>
+<summary>📄 Full content (     264 lines)</summary>
 
 ```tsx
 // src/app/jobs/[slug]/cv-analyse/page.tsx
@@ -11206,6 +11803,15 @@ type PositionData = {
   position_description: string;
   position_description_detailed: string;
   company_id: number;
+  // NEW ENRICHMENT FIELDS
+  location?: string | null;
+  location_type?: string | null;
+  employment_type?: string | null;
+  salary_min?: number | null;
+  salary_max?: number | null;
+  salary_currency?: string | null;
+  salary_public?: boolean | null;
+  application_deadline?: string | null;
   company: {
     company_name: string;
     slug: string;
@@ -11213,7 +11819,7 @@ type PositionData = {
   } | null;
 };
 
-// Type pour la réponse brute de Supabase (peut être objet ou tableau)
+// Type pour la réponse brute de Supabase
 type SupabaseCompany = {
   company_name: string;
   slug: string;
@@ -11226,6 +11832,15 @@ type RawSupabaseResponse = {
   position_description: string;
   position_description_detailed: string;
   company_id: number;
+  // NEW ENRICHMENT FIELDS
+  location?: string | null;
+  location_type?: string | null;
+  employment_type?: string | null;
+  salary_min?: number | null;
+  salary_max?: number | null;
+  salary_currency?: string | null;
+  salary_public?: boolean | null;
+  application_deadline?: string | null;
   company: SupabaseCompany | SupabaseCompany[] | null;
 };
 
@@ -11270,9 +11885,7 @@ export async function generateMetadata({
 // Cached data fetching function
 async function fetchPositionData(positionId: string, companySlug: string): Promise<PositionData | null> {
   try {
-    //console.log('Fetching position data for:', { positionId, companySlug });
-
-    // Single query with join to get all needed data
+    // Single query with join to get all needed data INCLUDING NEW FIELDS
     const { data: position, error } = await supabase
       .from('openedpositions')
       .select(`
@@ -11281,6 +11894,14 @@ async function fetchPositionData(positionId: string, companySlug: string): Promi
         position_description,
         position_description_detailed,
         company_id,
+        location,
+        location_type,
+        employment_type,
+        salary_min,
+        salary_max,
+        salary_currency,
+        salary_public,
+        application_deadline,
         company:company_id (
           company_name,
           slug,
@@ -11295,32 +11916,36 @@ async function fetchPositionData(positionId: string, companySlug: string): Promi
       return null;
     }
 
-    //console.log('Raw position data:', position);
-
-    // Cast to our raw response type to handle TypeScript properly
+    // Cast to our raw response type
     const rawPosition = position as RawSupabaseResponse;
 
-    // Normalize company data - handle both object and array cases
+    // Normalize company data
     let company: SupabaseCompany | null = null;
     
     if (rawPosition.company) {
       if (Array.isArray(rawPosition.company)) {
-        // If it's an array, take the first element
         company = rawPosition.company.length > 0 ? rawPosition.company[0] : null;
       } else {
-        // If it's an object, use it directly
         company = rawPosition.company;
       }
     }
 
-
-    // Return the properly typed data
+    // Return the properly typed data WITH NEW FIELDS
     const transformedPosition: PositionData = {
       id: rawPosition.id,
       position_name: rawPosition.position_name,
       position_description: rawPosition.position_description,
       position_description_detailed: rawPosition.position_description_detailed,
       company_id: rawPosition.company_id,
+      // NEW ENRICHMENT FIELDS
+      location: rawPosition.location,
+      location_type: rawPosition.location_type,
+      employment_type: rawPosition.employment_type,
+      salary_min: rawPosition.salary_min,
+      salary_max: rawPosition.salary_max,
+      salary_currency: rawPosition.salary_currency,
+      salary_public: rawPosition.salary_public,
+      application_deadline: rawPosition.application_deadline,
       company: company
     };
 
@@ -11403,6 +12028,15 @@ export default async function CVAnalysePage({
         positionId={position.id.toString()}
         gdpr_file_url={position.company?.gdpr_file_url || ''}
         companyName={position.company?.company_name || ''}
+        // NEW ENRICHMENT FIELDS - PASS THEM TO CLIENT
+        location={position.location}
+        locationType={position.location_type}
+        employmentType={position.employment_type}
+        salaryMin={position.salary_min}
+        salaryMax={position.salary_max}
+        salaryCurrency={position.salary_currency}
+        salaryPublic={position.salary_public}
+        applicationDeadline={position.application_deadline}
       />
       <Analytics />
     </>
@@ -16561,6 +17195,617 @@ export { ForfaitBadge } from './ForfaitBadge';
 
 ---
 
+## `components/newposition/AIGenerateModal.tsx`
+
+```
+Folder: components/newposition
+Type: tsx | Lines:      136
+Top definitions:
+--- Exports ---
+export function AIGenerateModal({ isOpen, onClose, onGenerate, positionName, loading = false }: AIGenerateModalProps) {
+
+--- Key Functions/Components ---
+interface AIGenerateModalProps {
+```
+
+<details>
+<summary>📄 Full content (     136 lines)</summary>
+
+```tsx
+'use client'
+
+import { useState } from 'react'
+import { X, Sparkles, Wand2, AlertCircle } from 'lucide-react'
+import { useLocale } from 'i18n/LocaleProvider'
+
+interface AIGenerateModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onGenerate: (roughDraft: string) => void
+  positionName: string
+  loading?: boolean
+}
+
+export function AIGenerateModal({ isOpen, onClose, onGenerate, positionName, loading = false }: AIGenerateModalProps) {
+  const { t } = useLocale()
+  const [roughDraft, setRoughDraft] = useState('')
+  const [error, setError] = useState<string | null>(null)
+
+  if (!isOpen) return null
+
+  const handleGenerate = () => {
+    if (roughDraft.trim().length < 20) {
+      setError(t('newPosition.aiModal.minLengthError'))
+      return
+    }
+    setError(null)
+    onGenerate(roughDraft)
+  }
+
+  const handleClose = () => {
+    if (!loading) {
+      setRoughDraft('')
+      setError(null)
+      onClose()
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 backdrop-blur-sm overflow-y-auto">
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full my-8 transform transition-all">
+          <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 relative">
+            <button
+              onClick={handleClose}
+              disabled={loading}
+              className="absolute top-4 right-4 text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <Sparkles className="w-12 h-12 text-white mx-auto mb-3" />
+            <h2 className="text-2xl font-bold text-white text-center">{t('newPosition.aiModal.title')}</h2>
+          </div>
+
+          <div className="p-6 space-y-4">
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-100">
+              <div className="flex items-start gap-3">
+                <Wand2 className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
+                <div className="text-sm text-purple-900">
+                  <p className="font-medium mb-1">{t('newPosition.aiModal.instructions')}</p>
+                  <ul className="list-disc list-inside space-y-1 text-purple-800">
+                    <li>{t('newPosition.aiModal.instruction1')}</li>
+                    <li>{t('newPosition.aiModal.instruction2')}</li>
+                    <li>{t('newPosition.aiModal.instruction3')}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {positionName && (
+              <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                <p className="text-sm text-gray-600">
+                  <span className="font-semibold">{t('newPosition.aiModal.generatingFor')}</span> {positionName}
+                </p>
+              </div>
+            )}
+
+            <div>
+              <label htmlFor="roughDraft" className="block text-sm font-semibold text-gray-700 mb-2">
+                {t('newPosition.aiModal.roughDraftLabel')}
+              </label>
+              <textarea
+                id="roughDraft"
+                value={roughDraft}
+                onChange={(e) => setRoughDraft(e.target.value)}
+                disabled={loading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none disabled:bg-gray-50 disabled:cursor-not-allowed"
+                rows={8}
+                placeholder={t('newPosition.aiModal.roughDraftPlaceholder')}
+              />
+              <div className="flex justify-between items-center mt-2">
+                <p className="text-xs text-gray-500">
+                  {roughDraft.length} {t('newPosition.aiModal.characters')} (min. 20)
+                </p>
+                {error && <p className="text-xs text-red-600">{error}</p>}
+              </div>
+            </div>
+
+            <div className="bg-amber-50 rounded-lg p-3 border border-amber-200">
+              <div className="flex items-center gap-2 text-amber-800 text-sm">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span>{t('newPosition.aiModal.creditWarning')}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6 pt-0 space-y-3">
+            <button
+              onClick={handleGenerate}
+              disabled={loading || roughDraft.trim().length < 20}
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                  {t('newPosition.aiModal.generating')}
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-5 h-5" />
+                  {t('newPosition.aiModal.generateButton')}
+                </>
+              )}
+            </button>
+            <button
+              onClick={handleClose}
+              disabled={loading}
+              className="w-full text-gray-500 py-2 px-6 rounded-lg font-medium hover:text-gray-700 hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {t('newPosition.aiModal.cancel')}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+```
+</details>
+
+---
+
+## `components/newposition/ConfirmAnalysisModal.tsx`
+
+```
+Folder: components/newposition
+Type: tsx | Lines:      115
+Top definitions:
+--- Exports ---
+export function ConfirmAnalysisModal({
+
+--- Key Functions/Components ---
+interface ConfirmAnalysisModalProps {
+```
+
+<details>
+<summary>📄 Full content (     115 lines)</summary>
+
+```tsx
+'use client'
+
+import { X, AlertCircle, Users, Clock } from 'lucide-react'
+import { useLocale } from 'i18n/LocaleProvider'
+
+interface ConfirmAnalysisModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onConfirm: () => void
+  onCreateWithoutAnalysis: () => void
+  candidateCount: number
+  loading?: boolean
+}
+
+export function ConfirmAnalysisModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  onCreateWithoutAnalysis,
+  candidateCount,
+  loading = false
+}: ConfirmAnalysisModalProps) {
+  const { t } = useLocale()
+
+  if (!isOpen) return null
+
+  const estimatedMinutes = Math.ceil((candidateCount * 5) / 60)
+  const estimatedTime = estimatedMinutes < 1
+    ? `${candidateCount * 5} ${t('newPosition.modal.seconds')}`
+    : `${estimatedMinutes} ${t('newPosition.modal.minute')}${estimatedMinutes > 1 ? 's' : ''}`
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all">
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 relative">
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="absolute top-4 right-4 text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <AlertCircle className="w-12 h-12 text-white mx-auto mb-3" />
+          <h2 className="text-2xl font-bold text-white text-center">{t('newPosition.modal.title')}</h2>
+        </div>
+
+        <div className="p-6 space-y-4">
+          <p className="text-gray-600 text-center">{t('newPosition.modal.message')}</p>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 text-center border border-blue-100">
+              <Users className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-blue-600">{candidateCount}</div>
+              <div className="text-xs text-gray-600">{t('newPosition.modal.candidates')}</div>
+            </div>
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4 text-center border border-purple-100">
+              <Clock className="w-6 h-6 text-purple-600 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-purple-600">{candidateCount}</div>
+              <div className="text-xs text-gray-600">{t('newPosition.modal.aiCredits')}</div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-4 border border-amber-200">
+            <div className="flex items-center gap-2 justify-center text-amber-800">
+              <Clock className="w-4 h-4" />
+              <span className="text-sm font-medium">
+                {t('newPosition.modal.estimatedTime')} ~{estimatedTime}
+              </span>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+            <p className="text-xs text-gray-600 text-center">
+              {t('newPosition.modal.willConsume')}{' '}
+              <span className="font-semibold text-gray-800">{candidateCount} {t('newPosition.modal.aiCredits')}</span>{' '}
+              {t('newPosition.modal.fromAccount')}
+            </p>
+          </div>
+        </div>
+
+        <div className="p-6 pt-0 space-y-3">
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            {loading ? (
+              <>
+                <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                {t('newPosition.modal.processing')}
+              </>
+            ) : (
+              t('newPosition.modal.confirmStart')
+            )}
+          </button>
+
+          <button
+            onClick={onCreateWithoutAnalysis}
+            disabled={loading}
+            className="w-full bg-white text-gray-700 py-3 px-6 rounded-lg font-medium border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {t('newPosition.modal.createWithoutAnalysis')}
+          </button>
+
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="w-full text-gray-500 py-2 px-6 rounded-lg font-medium hover:text-gray-700 hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {t('newPosition.modal.cancel')}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+```
+</details>
+
+---
+
+## `components/newposition/ManagerDropdown.tsx`
+
+```
+Folder: components/newposition
+Type: tsx | Lines:      160
+Top definitions:
+--- Exports ---
+export interface CompanyUser {
+export function ManagerDropdown({ selectedManager, onSelect, companyId, t }: ManagerDropdownProps) {
+
+--- Key Functions/Components ---
+const supabase = createClient(
+interface TranslationFunction {
+interface ManagerDropdownProps {
+```
+
+<details>
+<summary>📄 Full content (     160 lines)</summary>
+
+```tsx
+'use client'
+
+import { useEffect, useState, useRef } from 'react'
+import { Search, X, ChevronDown } from 'lucide-react'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+export interface CompanyUser {
+  user_id: string
+  first_name: string
+  last_name: string
+  email: string
+  is_admin: boolean
+  is_super_admin: boolean
+  is_manager: boolean
+  manager_id: string | null
+  manager_first_name: string | null
+  manager_last_name: string | null
+  employment_start_date: string | null
+}
+
+interface TranslationFunction {
+  (key: string): string
+}
+
+interface ManagerDropdownProps {
+  selectedManager: CompanyUser | null
+  onSelect: (manager: CompanyUser | null) => void
+  companyId: string
+  t: TranslationFunction
+}
+
+export function ManagerDropdown({ selectedManager, onSelect, companyId, t }: ManagerDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [managers, setManagers] = useState<CompanyUser[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const fetchManagers = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const { data, error } = await supabase
+          .rpc('get_company_users', { company_id_input: companyId })
+        if (error) {
+          setError(t('managerDropdown.errorLoading'))
+          setManagers([])
+          return
+        }
+        if (!data || data.length === 0) {
+          setError(t('managerDropdown.noUsers'))
+          setManagers([])
+          return
+        }
+        setManagers(data)
+      } catch {
+        setError(t('managerDropdown.errorLoading'))
+        setManagers([])
+      } finally {
+        setLoading(false)
+      }
+    }
+    if (companyId) fetchManagers()
+  }, [companyId, t])
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const filteredManagers = managers.filter(manager =>
+    `${manager.first_name} ${manager.last_name}`.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  const handleSelect = (manager: CompanyUser) => {
+    onSelect(manager)
+    setIsOpen(false)
+    setSearchTerm('')
+  }
+
+  const handleClear = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onSelect(null)
+  }
+
+  return (
+    <div ref={dropdownRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all flex items-center justify-between bg-white"
+      >
+        <span className={selectedManager ? 'text-gray-900' : 'text-gray-400'}>
+          {selectedManager
+            ? `${selectedManager.first_name} ${selectedManager.last_name}`
+            : t('managerDropdown.selectManager')}
+        </span>
+        <div className="flex items-center gap-2">
+          {selectedManager && (
+            <X className="w-4 h-4 text-gray-400 hover:text-gray-600 transition-colors" onClick={handleClear} />
+          )}
+          <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        </div>
+      </button>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-hidden">
+          <div className="p-3 border-b border-gray-200">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder={t('managerDropdown.searchPlaceholder')}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          </div>
+          <div className="overflow-y-auto max-h-48">
+            {loading ? (
+              <div className="p-4 text-center text-gray-500">
+                <div className="animate-spin w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                {t('managerDropdown.loading')}
+              </div>
+            ) : error ? (
+              <div className="p-4 text-center text-red-600 text-sm">{error}</div>
+            ) : filteredManagers.length === 0 ? (
+              <div className="p-4 text-center text-gray-500 text-sm">{t('managerDropdown.noUsersFound')}</div>
+            ) : (
+              filteredManagers.map((manager) => (
+                <button
+                  key={manager.user_id}
+                  type="button"
+                  onClick={() => handleSelect(manager)}
+                  className="w-full px-4 py-3 text-left hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0"
+                >
+                  <div className="font-medium text-gray-900">{manager.first_name} {manager.last_name}</div>
+                  <div className="text-sm text-gray-500">{manager.email}</div>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+```
+</details>
+
+---
+
+## `components/newposition/PositionForm.tsx`
+
+```
+Folder: components/newposition
+Type: tsx | Lines:      370
+Top definitions:
+--- Exports ---
+export interface PositionFormData {
+export function PositionForm({
+
+--- Key Functions/Components ---
+function formatWithThousands(raw: string): string {
+function unformat(formatted: string): string {
+interface SalaryInputProps {
+function SalaryInput({ value, onChange, placeholder = '0', className = '' }: SalaryInputProps) {
+interface PositionFormProps {
+```
+
+<details>
+<summary>📄 Preview (first 100 lines of      370)</summary>
+
+```tsx
+'use client'
+
+import { Plus, Briefcase, FileText, Calendar, Activity, MapPin, Sparkles, User } from 'lucide-react'
+import { ManagerDropdown, CompanyUser } from './ManagerDropdown'
+import { useLocale } from 'i18n/LocaleProvider'
+
+// --- Salary input with thousands separator ---
+
+function formatWithThousands(raw: string): string {
+  // Strip non-numeric except for leading minus (if you ever need negative)
+  const digits = raw.replace(/[^\d]/g, '')
+  if (!digits) return ''
+  return Number(digits).toLocaleString('fr-FR')
+}
+
+function unformat(formatted: string): string {
+  return formatted.replace(/,/g, '')
+}
+
+interface SalaryInputProps {
+  value: string          // stored as raw numeric string e.g. "1500000"
+  onChange: (raw: string) => void
+  placeholder?: string
+  className?: string
+}
+
+function SalaryInput({ value, onChange, placeholder = '0', className = '' }: SalaryInputProps) {
+  const displayed = value ? formatWithThousands(value) : ''
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = unformat(e.target.value)
+    if (raw === '' || /^\d+$/.test(raw)) {
+      onChange(raw)
+    }
+  }
+
+  return (
+    <input
+      type="text"
+      inputMode="numeric"
+      value={displayed}
+      onChange={handleChange}
+      placeholder={placeholder}
+      className={className}
+    />
+  )
+}
+
+// --- Types ---
+
+export interface PositionFormData {
+  positionName: string
+  selectedManager: CompanyUser | null
+  positionDescription: string
+  positionDescriptionDetailed: string
+  positionStartDate: string
+  location: string
+  locationType: 'onsite' | 'hybrid' | 'remote' | ''
+  employmentType: 'full-time' | 'part-time' | 'contract' | 'internship' | 'temporary' | ''
+  salaryMin: string
+  salaryMax: string
+  salaryCurrency: string
+  salaryPublic: boolean
+  applicationDeadline: string
+}
+
+interface PositionFormProps {
+  data: PositionFormData
+  onChange: <K extends keyof PositionFormData>(field: K, value: PositionFormData[K]) => void
+  onSubmit: (e: React.FormEvent) => void
+  onOpenAIModal: () => void
+  companyId: string | null
+  loading: boolean
+  aiGenerating: boolean
+  setMessage: (msg: { text: string; type: 'error' | 'success' } | null) => void
+}
+
+export function PositionForm({
+  data,
+  onChange,
+  onSubmit,
+  onOpenAIModal,
+  companyId,
+  loading,
+  aiGenerating,
+  setMessage,
+}: PositionFormProps) {
+  const { t } = useLocale()
+
+  const handleAIClick = () => {
+    if (!data.positionName.trim()) {
+      setMessage({ text: t('newPosition.messages.positionNameRequired'), type: 'error' })
+      return
+    }
+    onOpenAIModal()
+  }
+
+  return (
+    <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+      <div className="p-4 sm:p-6 lg:p-8">
+... (truncated,      370 total lines)
+```
+</details>
+
+---
+
 ## `components/payroll/BulkOperationsModal.tsx`
 
 ```
@@ -20452,9 +21697,9 @@ export async function getUserName(userId: string) {
 ---
 
 # Statistics
-- **Files included:** 150
-- **File size:** 648K
-- **Extraction date:** Sun Feb 15 15:29:10 CET 2026
+- **Files included:** 157
+- **File size:** 644K
+- **Extraction date:** Tue Apr 28 08:30:53 CEST 2026
 
 # Technology Stack Detected
 
@@ -20490,11 +21735,14 @@ src/app/api/company-email-settings/route.ts
 src/app/api/contact-submissions/route.ts
 src/app/api/contact/route.ts
 src/app/api/feedback/route.ts
+src/app/api/generate-position-description/route.ts
 src/app/api/happiness/chat/route.ts
 src/app/api/happiness/dashboard/route.ts
 src/app/api/happiness/session/route.ts
 src/app/api/import-users/route.ts
 src/app/api/interview-assistant/route.ts
+src/app/api/interview-conclude/route.ts
+src/app/api/interview-question/route.ts
 src/app/api/interviews/route.ts
 src/app/api/medical-certificates/confirm/route.ts
 src/app/api/medical-certificates/upload/route.ts
@@ -20589,6 +21837,7 @@ components
 components/absence
 components/absence/Calendar
 components/header
+components/newposition
 components/payroll
 components/timeclock
 ```
