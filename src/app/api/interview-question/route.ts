@@ -87,12 +87,16 @@ INSTRUCTIONS FOR THE QUESTION:
 - Do NOT number it or add preamble like "Question 5:" — just the question itself
 
 INSTRUCTIONS FOR THE 3 SUGGESTED ANSWERS:
-- Each suggestion must be a realistic, complete answer a candidate might genuinely give
-- Make them meaningfully different from each other: one strong/confident, one moderate/honest, one that shows self-awareness or acknowledges a weakness
-- Each suggestion should be 1-3 sentences — substantial enough to be useful but not too long
-- They must be challenging and specific to the question asked, NOT generic filler
-- Write them in first person as if the candidate is speaking
-- Do NOT label them "Strong", "Moderate" etc. — just write the answer text
+- Write exactly 3 answers in first person, as if the candidate is speaking
+- Each answer should be 1-3 sentences — substantial but not too long
+- They must be specific to the question and the role, NOT generic filler
+- Do NOT label them or give any hint about which is good or bad — just write the answer text
+- Order them RANDOMLY so the candidate cannot guess which is best by position
+
+The 3 answers must be:
+1. THE BEST ANSWER: demonstrates deep understanding, concrete experience, and exactly what a top candidate for this specific role would say. It should be specific, confident, and show real expertise or the right mindset.
+2. THE AVERAGE ANSWER: sounds reasonable and professional but is vague, lacks concrete examples, or shows only surface-level understanding. A candidate giving this answer would not be filtered out but would not stand out either.
+3. THE WRONG ANSWER: plausible enough that a candidate might genuinely choose it, but reveals a misunderstanding of the role, a red flag attitude, or a significant skills gap. It should NOT be obviously absurd — it should look like something a real but unsuitable candidate would say.
 
 Respond ONLY with valid JSON in this exact format, no markdown, no backticks:
 {"question": "...", "suggestions": ["...", "...", "..."]}`;
