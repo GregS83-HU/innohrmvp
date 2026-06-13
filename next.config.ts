@@ -9,15 +9,15 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        // Matches any root-level path hitting the domain
+        // Intercepts the bare domain homepage and any sub-marketing pages
         source: '/:path*',
         has: [
           {
             type: 'host',
-            value: 'hrinno.hu',
+            value: 'www.hrinno.hu', // Vercel redirects hrinno.hu here automatically
           },
         ],
-        // Points directly to your standalone, fast marketing deployment
+        // Pulls content dynamically from your separate marketing app repo
         destination: 'https://hrinno-marketing.vercel.app/:path*', 
       },
     ];
