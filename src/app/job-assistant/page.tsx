@@ -172,20 +172,23 @@ function StepIndicator({ current }: { current: Step }) {
   const currentIdx = stepMap[current];
 
   return (
-    <div className="flex items-center justify-center gap-0 mb-8">
+    <div className="flex items-center justify-center gap-0 mb-8 px-2">
       {steps.map((step, idx) => (
         <div key={step.id} className="flex items-center">
           <div className="flex flex-col items-center">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all
+            <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-semibold transition-all
               ${idx < currentIdx ? 'bg-emerald-500 text-white' : idx === currentIdx ? 'bg-emerald-600 text-white ring-4 ring-emerald-100' : 'bg-gray-200 text-gray-400'}`}>
               {idx < currentIdx ? '✓' : idx + 1}
             </div>
-            <span className={`text-xs mt-1 font-medium ${idx === currentIdx ? 'text-emerald-600' : 'text-gray-400'}`}>
+            <span className={`hidden sm:block text-xs mt-1 font-medium ${idx === currentIdx ? 'text-emerald-600' : 'text-gray-400'}`}>
               {step.label}
+            </span>
+            <span className={`sm:hidden text-[10px] mt-1 font-medium text-center leading-tight max-w-[40px] ${idx === currentIdx ? 'text-emerald-600' : 'text-gray-400'}`}>
+              {step.label.split(' ')[0]}
             </span>
           </div>
           {idx < steps.length - 1 && (
-            <div className={`w-12 h-0.5 mb-4 mx-1 transition-all ${idx < currentIdx ? 'bg-emerald-400' : 'bg-gray-200'}`} />
+            <div className={`w-6 sm:w-12 h-0.5 mb-4 mx-0.5 sm:mx-1 transition-all ${idx < currentIdx ? 'bg-emerald-400' : 'bg-gray-200'}`} />
           )}
         </div>
       ))}
@@ -525,12 +528,14 @@ export default function JobAssistantPage() {
         {/* ── STEP: INITIAL SCORE ── */}
         {step === 'initial-score' && analysisResult && (
           <div className="space-y-6">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-8">
               <h2 className="text-xl font-bold text-gray-900 mb-6">Initial CV Score</h2>
 
-              <div className="flex items-center gap-8 mb-8">
-                <ScoreRing score={analysisResult.overallScore} />
-                <div>
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-8 mb-8">
+                <div className="shrink-0">
+                  <ScoreRing score={analysisResult.overallScore} />
+                </div>
+                <div className="text-center sm:text-left">
                   <p className={`text-4xl font-bold ${scoreColor(analysisResult.overallScore)}`}>
                     {analysisResult.overallScore}/100
                   </p>
@@ -558,8 +563,8 @@ export default function JobAssistantPage() {
                 })}
               </div>
 
-              {/* Strengths & Gaps */}
-              <div className="grid grid-cols-2 gap-4">
+              {/* Strengths & Gaps — stacked on mobile, side by side on sm+ */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
                   <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wide mb-2">Top Strengths</p>
                   <ul className="space-y-1">
@@ -595,7 +600,7 @@ export default function JobAssistantPage() {
         {step === 'improved-cv' && improvementResult && analysisResult && (
           <div className="space-y-6">
             {/* Score comparison */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-8">
               <h2 className="text-xl font-bold text-gray-900 mb-6">CV Optimization Results</h2>
 
               <div className="flex items-center justify-around mb-6">
@@ -606,7 +611,7 @@ export default function JobAssistantPage() {
                     {analysisResult.overallScore}
                   </p>
                 </div>
-                <div className="text-3xl text-emerald-400 font-light">→</div>
+                <div className="text-2xl sm:text-3xl text-emerald-400 font-light">→</div>
                 <div className="text-center">
                   <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">After</p>
                   <ScoreRing score={improvementResult.newScore} size="sm" />
@@ -616,7 +621,7 @@ export default function JobAssistantPage() {
                 </div>
                 <div className="text-center">
                   <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">Gain</p>
-                  <div className="w-[88px] h-[88px] flex items-center justify-center">
+                  <div className="w-[72px] sm:w-[88px] h-[72px] sm:h-[88px] flex items-center justify-center">
                     <span className="text-2xl font-bold text-emerald-600">
                       +{improvementResult.newScore - analysisResult.overallScore}
                     </span>
@@ -678,7 +683,7 @@ export default function JobAssistantPage() {
             </div>
 
             {/* Question */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-8">
               <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">
                 What we assess: {interviewData.questions[currentQuestionIdx]?.whatWeAssess}
               </p>
@@ -723,18 +728,18 @@ export default function JobAssistantPage() {
 
             {/* Score Result */}
             {currentScore && (
-              <div className={`rounded-2xl border p-6 ${scoreBg(currentScore.score)}`}>
-                <div className="flex items-center gap-4 mb-4">
-                  <ScoreRing score={currentScore.score} size="sm" />
-                  <div>
-                    <p className={`text-xl font-bold ${scoreColor(currentScore.score)}`}>
+              <div className={`rounded-2xl border p-5 sm:p-6 ${scoreBg(currentScore.score)}`}>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-4">
+                  <div className="flex items-center gap-3">
+                    <ScoreRing score={currentScore.score} size="sm" />
+                    <p className={`text-lg sm:text-xl font-bold ${scoreColor(currentScore.score)}`}>
                       {currentScore.score}/100 — {currentScore.scoreLabel}
                     </p>
-                    <p className="text-sm text-gray-600 mt-0.5">{currentScore.quickFeedback}</p>
                   </div>
+                  <p className="text-sm text-gray-600 sm:mt-0.5">{currentScore.quickFeedback}</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                   <div>
                     <p className="text-xs font-semibold text-emerald-700 mb-1">✓ Strengths</p>
                     <ul className="space-y-1">
@@ -756,7 +761,7 @@ export default function JobAssistantPage() {
                 {currentScore.betterPhrasing && (
                   <div className="bg-white/70 rounded-lg p-3 mb-4">
                     <p className="text-xs font-semibold text-gray-600 mb-1">Better phrasing:</p>
-                    <p className="text-xs text-gray-700 italic">&quot;{currentScore.betterPhrasing}&quot;</p>
+                    <p className="text-xs text-gray-700 italic">"{currentScore.betterPhrasing}"</p>
                   </div>
                 )}
 
@@ -783,10 +788,12 @@ export default function JobAssistantPage() {
         {step === 'coaching-report' && coachingReport && (
           <div className="space-y-6">
             {/* Header card */}
-            <div className={`rounded-2xl border p-8 ${scoreBg(coachingReport.overallScore)}`}>
-              <div className="flex items-center gap-6 mb-4">
-                <ScoreRing score={coachingReport.overallScore} />
-                <div>
+            <div className={`rounded-2xl border p-5 sm:p-8 ${scoreBg(coachingReport.overallScore)}`}>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-4">
+                <div className="shrink-0 flex justify-center sm:block">
+                  <ScoreRing score={coachingReport.overallScore} />
+                </div>
+                <div className="text-center sm:text-left">
                   <p className="text-xs text-gray-500 uppercase tracking-wide">Overall Interview Score</p>
                   <p className={`text-4xl font-bold ${scoreColor(coachingReport.overallScore)}`}>
                     {coachingReport.overallScore}/100
@@ -800,7 +807,7 @@ export default function JobAssistantPage() {
             </div>
 
             {/* Performance by type */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
               <h3 className="font-semibold text-gray-900 mb-4">Performance by Question Type</h3>
               <div className="space-y-4">
                 {Object.entries(coachingReport.performanceByType).map(([type, val]) => (
@@ -819,8 +826,8 @@ export default function JobAssistantPage() {
               </div>
             </div>
 
-            {/* Strengths & Improvements */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Strengths & Improvements — stacked on mobile */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
                 <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wide mb-2">Top Strengths</p>
                 <ul className="space-y-2">
@@ -840,20 +847,20 @@ export default function JobAssistantPage() {
             </div>
 
             {/* Coaching Plan */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
               <h3 className="font-semibold text-gray-900 mb-4">Your Personal Coaching Plan</h3>
               <div className="space-y-4">
                 {coachingReport.coachingPlan.map((item, i) => (
                   <div key={i} className="border border-gray-100 rounded-xl p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className={`text-xs px-2 py-0.5 rounded border font-medium ${priorityColor(item.priority)}`}>
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <span className={`text-xs px-2 py-0.5 rounded border font-medium whitespace-nowrap ${priorityColor(item.priority)}`}>
                         {item.priority} Priority
                       </span>
                       <span className="font-semibold text-sm text-gray-800">{item.area}</span>
                     </div>
                     <p className="text-sm text-gray-600 mb-2">{item.advice}</p>
                     <div className="bg-blue-50 border border-blue-100 rounded-lg p-2.5">
-                      <p className="text-xs font-semibold text-blue-700 mb-0.5">This week&apos;s exercise:</p>
+                      <p className="text-xs font-semibold text-blue-700 mb-0.5">This week's exercise:</p>
                       <p className="text-xs text-blue-800">{item.practiceExercise}</p>
                     </div>
                   </div>
@@ -862,17 +869,17 @@ export default function JobAssistantPage() {
             </div>
 
             {/* Per-question review */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
               <h3 className="font-semibold text-gray-900 mb-4">Answer-by-Answer Review</h3>
               <div className="space-y-3">
                 {answeredQuestions.map((aq, i) => (
                   <details key={i} className="border border-gray-100 rounded-xl overflow-hidden">
-                    <summary className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50">
-                      <div className="flex items-center gap-3">
-                        <span className={`text-xs px-2 py-0.5 rounded font-medium ${typeBadgeColor(aq.type)}`}>{typeLabel(aq.type)}</span>
-                        <span className="text-sm text-gray-700 font-medium">{aq.question.substring(0, 60)}...</span>
+                    <summary className="flex items-start justify-between p-4 cursor-pointer hover:bg-gray-50 gap-2">
+                      <div className="flex flex-col gap-1 min-w-0">
+                        <span className={`text-xs px-2 py-0.5 rounded font-medium self-start ${typeBadgeColor(aq.type)}`}>{typeLabel(aq.type)}</span>
+                        <span className="text-sm text-gray-700 font-medium leading-snug">{aq.question.substring(0, 60)}...</span>
                       </div>
-                      <span className={`text-sm font-bold ${scoreColor(aq.score)}`}>{aq.score}/100</span>
+                      <span className={`text-sm font-bold flex-shrink-0 ${scoreColor(aq.score)}`}>{aq.score}/100</span>
                     </summary>
                     <div className="px-4 pb-4 space-y-3 border-t border-gray-100 pt-4">
                       <div>
@@ -891,8 +898,8 @@ export default function JobAssistantPage() {
             </div>
 
             {/* Encouraging close */}
-            <div className="bg-gradient-to-r from-emerald-600 to-teal-500 rounded-2xl p-6 text-white text-center">
-              <p className="text-lg font-medium">{coachingReport.encouragingClose}</p>
+            <div className="bg-gradient-to-r from-emerald-600 to-teal-500 rounded-2xl p-5 sm:p-6 text-white text-center">
+              <p className="text-base sm:text-lg font-medium">{coachingReport.encouragingClose}</p>
             </div>
 
             <button
