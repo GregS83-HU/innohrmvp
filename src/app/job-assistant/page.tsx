@@ -756,7 +756,7 @@ export default function JobAssistantPage() {
                 {currentScore.betterPhrasing && (
                   <div className="bg-white/70 rounded-lg p-3 mb-4">
                     <p className="text-xs font-semibold text-gray-600 mb-1">Better phrasing:</p>
-                    <p className="text-xs text-gray-700 italic">"{currentScore.betterPhrasing}"</p>
+                    <p className="text-xs text-gray-700 italic">&quot;{currentScore.betterPhrasing}&quot;</p>
                   </div>
                 )}
 
@@ -853,7 +853,7 @@ export default function JobAssistantPage() {
                     </div>
                     <p className="text-sm text-gray-600 mb-2">{item.advice}</p>
                     <div className="bg-blue-50 border border-blue-100 rounded-lg p-2.5">
-                      <p className="text-xs font-semibold text-blue-700 mb-0.5">This week's exercise:</p>
+                      <p className="text-xs font-semibold text-blue-700 mb-0.5">This week&apos;s exercise:</p>
                       <p className="text-xs text-blue-800">{item.practiceExercise}</p>
                     </div>
                   </div>
