@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { FiMenu, FiX } from 'react-icons/fi';
 import {
   Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown,
-  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users,Users2,BanknoteArrowDown
+  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users, Users2, BanknoteArrowDown, FileSearch
 } from 'lucide-react';
 import { useHeaderLogic } from '../hooks/useHeaderLogic';
 import {
@@ -73,10 +73,10 @@ export default function Header() {
     [user]
   );
 
-  const isSuperAdmin = useMemo(() => 
-  user && user.is_super_admin === true, 
-  [user]
-);
+  const isSuperAdmin = useMemo(() =>
+    user && user.is_super_admin === true,
+    [user]
+  );
 
   // Memoized values
   const buttonBaseClasses = useMemo(() =>
@@ -162,6 +162,14 @@ export default function Header() {
                   <Smile className="w-4 h-4" /> {t('header.happyCheck')}
                 </HappyCheckMenuItem>
               )}
+
+              {/* Job Application Assistant - public, always visible */}
+              <Link
+                href="/job-assistant"
+                className={`${buttonBaseClasses} bg-emerald-50 hover:bg-emerald-100 text-emerald-700`}
+              >
+                <FileSearch className="w-4 h-4" /> Job Assistant
+              </Link>
 
               {/* HR Tools Dropdown - only for logged users */}
               {user && (
@@ -330,39 +338,39 @@ export default function Header() {
                           </Link>
 
                           {/* NEW: Manage Contacts - super_admin only */}
-                           
-            {isSuperAdmin && (
-              <Link
-                href={manageContactsLink}
-                onClick={() => setIsAccountMenuOpen(false)}
-                className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}
-              >
-                <Users2 className="w-4 h-4" /> {t('header.manageContacts')}
-              </Link>
-              
-            )}
-            {isSuperAdmin && (
-              <Link
-                href={manageUsersUpload}
-                onClick={() => setIsAccountMenuOpen(false)}
-                className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}
-              >
-                <Users2 className="w-4 h-4" /> {'User Massive Upload'}
-              </Link>
-              
-              
-            )}
-             {isAdmin && (
-              <Link
-                href={payRoll}
-                onClick={() => setIsAccountMenuOpen(false)}
-                className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}
-              >
-                <BanknoteArrowDown className="w-4 h-4" /> {'Payroll'}
-              </Link>
-              
-              
-            )}
+
+                          {isSuperAdmin && (
+                            <Link
+                              href={manageContactsLink}
+                              onClick={() => setIsAccountMenuOpen(false)}
+                              className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}
+                            >
+                              <Users2 className="w-4 h-4" /> {t('header.manageContacts')}
+                            </Link>
+
+                          )}
+                          {isSuperAdmin && (
+                            <Link
+                              href={manageUsersUpload}
+                              onClick={() => setIsAccountMenuOpen(false)}
+                              className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}
+                            >
+                              <Users2 className="w-4 h-4" /> {'User Massive Upload'}
+                            </Link>
+
+
+                          )}
+                          {isAdmin && (
+                            <Link
+                              href={payRoll}
+                              onClick={() => setIsAccountMenuOpen(false)}
+                              className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}
+                            >
+                              <BanknoteArrowDown className="w-4 h-4" /> {'Payroll'}
+                            </Link>
+
+
+                          )}
 
                           {companySlug !== 'demo' && (
                             <Link
@@ -392,9 +400,9 @@ export default function Header() {
               )}
 
               {/* Mobile language icon (visible only on mobile) */}
-                <div className="flex sm:hidden">
-                  <LanguageSwitcher compact />
-                </div>
+              <div className="flex sm:hidden">
+                <LanguageSwitcher compact />
+              </div>
               {/* Time Clock icon - only for logged users */}
               {user && (
                 <button
@@ -408,13 +416,12 @@ export default function Header() {
 
               {/* Demo timer for tablet/mobile */}
               {(isDemoMode || isDemoExpired) && (
-                <div className={`xl:hidden flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-medium ${
-                  isDemoExpired
-                    ? 'bg-red-100 text-red-800'
-                    : demoTimeLeft && demoTimeLeft < 300
+                <div className={`xl:hidden flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-medium ${isDemoExpired
+                  ? 'bg-red-100 text-red-800'
+                  : demoTimeLeft && demoTimeLeft < 300
                     ? 'bg-red-100 text-red-800'
                     : 'bg-orange-100 text-orange-800'
-                }`}>
+                  }`}>
                   <Clock className="w-3 h-3" />
                   {isDemoExpired ? t('header.expired') : (demoTimeLeft ? formatTime(demoTimeLeft) : '00:00')}
                 </div>
@@ -473,37 +480,36 @@ export default function Header() {
                   </div>
                 ) : (
                   <div className="flex items-center gap-3">
-    {companySlug === 'demo' && (
-      <div
-        className="flex items-center gap-1 text-sm text-gray-600 whitespace-nowrap cursor-pointer hover:text-blue-600 transition-colors"
-        onClick={() => setIsLoginOpen(true)}
-      >
-        <span>{t('header.demoProfilesHint')}</span>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-4 h-4 text-gray-500"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-        </svg>
-      </div>
-    )}
+                    {companySlug === 'demo' && (
+                      <div
+                        className="flex items-center gap-1 text-sm text-gray-600 whitespace-nowrap cursor-pointer hover:text-blue-600 transition-colors"
+                        onClick={() => setIsLoginOpen(true)}
+                      >
+                        <span>{t('header.demoProfilesHint')}</span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="w-4 h-4 text-gray-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    )}
 
-    <button
-      onClick={() => setIsLoginOpen(true)}
-      className={`${buttonBaseClasses} ${
-        isDemoExpired
-          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-          : 'bg-blue-600 hover:bg-blue-700 text-white'
-      }`}
-      disabled={isDemoExpired}
-    >
-      <User className="w-4 h-4" /> {t('header.login')}
-    </button>
-  </div>
+                    <button
+                      onClick={() => setIsLoginOpen(true)}
+                      className={`${buttonBaseClasses} ${isDemoExpired
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                        }`}
+                      disabled={isDemoExpired}
+                    >
+                      <User className="w-4 h-4" /> {t('header.login')}
+                    </button>
+                  </div>
                 )}
               </div>
 
@@ -561,6 +567,15 @@ export default function Header() {
                   <Smile className="w-4 h-4" /> {t('header.happyCheck')}
                 </HappyCheckMenuItem>
               )}
+
+              {/* Job Application Assistant - public, always visible */}
+              <Link
+                href="/job-assistant"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`${buttonBaseClasses} bg-emerald-50 hover:bg-emerald-100 text-emerald-700 w-full justify-start`}
+              >
+                <FileSearch className="w-4 h-4" /> Job Assistant
+              </Link>
 
               {/* HR Tools Collapsible Section - only for logged users */}
               {user && (
@@ -722,17 +737,17 @@ export default function Header() {
                         <UserCog className="w-4 h-4" /> {t('header.manageUsers')}
                       </DemoAwareMenuItem>
 
-                        {/* NEW: Manage Contacts - super_admin only */}
-                         {isSuperAdmin && (
-          <DemoAwareMenuItem
-            href={manageContactsLink}
-            onClick={() => setIsMobileMenuOpen(false)}
-            className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start text-sm`}
-            isDemoExpired={isDemoExpired}
-          >
-            <Users2 className="w-4 h-4" /> {t('header.manageContacts')}
-          </DemoAwareMenuItem>
-        )}
+                      {/* NEW: Manage Contacts - super_admin only */}
+                      {isSuperAdmin && (
+                        <DemoAwareMenuItem
+                          href={manageContactsLink}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start text-sm`}
+                          isDemoExpired={isDemoExpired}
+                        >
+                          <Users2 className="w-4 h-4" /> {t('header.manageContacts')}
+                        </DemoAwareMenuItem>
+                      )}
 
 
                       {companySlug !== 'demo' && (
