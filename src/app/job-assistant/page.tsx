@@ -754,7 +754,7 @@ export default function JobAssistantPage() {
                 {currentScore.betterPhrasing && (
                   <div className="bg-white/70 rounded-lg p-3 mb-4">
                     <p className="text-xs font-semibold text-gray-600 mb-1">{t('jobAssistant.interview.betterPhrasing')}</p>
-                    <p className="text-xs text-gray-700 italic">"{currentScore.betterPhrasing}"</p>
+                    <p className="text-xs text-gray-700 italic">&quot;{currentScore.betterPhrasing}&quot;</p>
                   </div>
                 )}
 
