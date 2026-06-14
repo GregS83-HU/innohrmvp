@@ -10,17 +10,22 @@ const openai = new OpenAI({
   apiKey: process.env.OPENROUTER_API_KEY,
 });
 
+const LANGUAGE_NAMES: Record<string, string> = { en: 'English', hu: 'Hungarian', fr: 'French' };
+
 export async function POST(req: NextRequest) {
   try {
-    const { cvText, jobDescription } = await req.json();
+    const { cvText, jobDescription, locale = 'en' } = await req.json();
+    const language = LANGUAGE_NAMES[locale] || 'English';
 
     if (!cvText || !jobDescription) {
       return NextResponse.json({ error: 'CV text and job description are required' }, { status: 400 });
     }
 
-    const prompt = `You are an expert CV writer and career coach. Rewrite this CV to better match the job description. 
-Preserve all real experience, education, and facts — do NOT invent anything. 
+    const prompt = `You are an expert CV writer and career coach. Rewrite this CV to better match the job description.
+Preserve all real experience, education, and facts — do NOT invent anything.
 Improve phrasing, keywords, structure, and emphasis to align with the job requirements.
+
+IMPORTANT: Write ALL text content (section content, key changes, improvement summary) in ${language}. Only JSON keys stay in English.
 
 ORIGINAL CV:
 ${cvText}
@@ -32,8 +37,8 @@ Respond ONLY with a valid JSON object in this exact format:
 {
   "improvedCvSections": [
     {
-      "heading": "<section title, e.g. Professional Summary, Work Experience, Skills, Education>",
-      "content": "<full section content as plain text, using newlines to separate items>"
+      "heading": "<section title in ${language}>",
+      "content": "<full section content in ${language}, using newlines to separate items>"
     }
   ],
   "newScore": <number 0-100>,
@@ -44,8 +49,8 @@ Respond ONLY with a valid JSON object in this exact format:
     "keywordsMatch": <0-100>,
     "overallPresentation": <0-100>
   },
-  "keyChanges": ["<change 1>", "<change 2>", "<change 3>", "<change 4>", "<change 5>"],
-  "improvementSummary": "<2-3 sentences explaining the main improvements made>"
+  "keyChanges": ["<change 1 in ${language}>", "<change 2 in ${language}>", "<change 3 in ${language}>", "<change 4 in ${language}>", "<change 5 in ${language}>"],
+  "improvementSummary": "<2-3 sentences in ${language} explaining the main improvements made>"
 }`;
 
     const completion = await openai.chat.completions.create({
@@ -62,14 +67,13 @@ Respond ONLY with a valid JSON object in this exact format:
 
     const result = JSON.parse(jsonMatch[0]);
 
-    // Build DOCX from improved CV sections
+    // Build DOCX
     const dividerBorder = {
       bottom: { style: BorderStyle.SINGLE, size: 4, color: '4F7942', space: 1 },
     };
 
     const docChildren: Paragraph[] = [];
 
-    // Title
     docChildren.push(
       new Paragraph({
         heading: HeadingLevel.HEADING_1,
@@ -86,9 +90,7 @@ Respond ONLY with a valid JSON object in this exact format:
       })
     );
 
-    // Sections
     for (const section of result.improvedCvSections || []) {
-      // Section heading with underline border
       docChildren.push(
         new Paragraph({
           heading: HeadingLevel.HEADING_2,
@@ -98,13 +100,10 @@ Respond ONLY with a valid JSON object in this exact format:
         })
       );
 
-      // Section content - split by newlines
       const lines = (section.content || '').split('\n').filter((l: string) => l.trim());
       for (const line of lines) {
         const trimmed = line.trim();
         if (!trimmed) continue;
-
-        // Detect bullet-like lines
         const isBullet = trimmed.startsWith('•') || trimmed.startsWith('-') || trimmed.startsWith('*');
         const cleanLine = isBullet ? trimmed.replace(/^[•\-\*]\s*/, '') : trimmed;
 
@@ -148,20 +147,12 @@ Respond ONLY with a valid JSON object in this exact format:
         default: { document: { run: { font: 'Arial', size: 22 } } },
         paragraphStyles: [
           {
-            id: 'Heading1',
-            name: 'Heading 1',
-            basedOn: 'Normal',
-            next: 'Normal',
-            quickFormat: true,
+            id: 'Heading1', name: 'Heading 1', basedOn: 'Normal', next: 'Normal', quickFormat: true,
             run: { size: 36, bold: true, font: 'Arial', color: '2D5A27' },
             paragraph: { spacing: { before: 0, after: 200 }, outlineLevel: 0 },
           },
           {
-            id: 'Heading2',
-            name: 'Heading 2',
-            basedOn: 'Normal',
-            next: 'Normal',
-            quickFormat: true,
+            id: 'Heading2', name: 'Heading 2', basedOn: 'Normal', next: 'Normal', quickFormat: true,
             run: { size: 26, bold: true, font: 'Arial', color: '2D5A27' },
             paragraph: { spacing: { before: 240, after: 120 }, outlineLevel: 1 },
           },
@@ -171,7 +162,7 @@ Respond ONLY with a valid JSON object in this exact format:
         {
           properties: {
             page: {
-              size: { width: 11906, height: 16838 }, // A4
+              size: { width: 11906, height: 16838 },
               margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 },
             },
           },
@@ -183,10 +174,7 @@ Respond ONLY with a valid JSON object in this exact format:
     const docBuffer = await Packer.toBuffer(doc);
     const base64 = docBuffer.toString('base64');
 
-    return NextResponse.json({
-      ...result,
-      docxBase64: base64,
-    });
+    return NextResponse.json({ ...result, docxBase64: base64 });
   } catch (error) {
     console.error('Job assistant improve error:', error);
     return NextResponse.json({ error: 'CV improvement failed. Please try again.' }, { status: 500 });

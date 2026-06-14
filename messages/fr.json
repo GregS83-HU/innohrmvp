@@ -2982,4 +2982,98 @@
       "sending": "Envoi en cours..."
     }
   }
+  ,
+  "jobAssistant": {
+    "header": {
+      "title": "Assistant Candidature",
+      "subtitle": "Évaluez votre CV, optimisez-le et préparez votre entretien"
+    },
+    "steps": {
+      "upload": "Envoi",
+      "score": "Score Initial",
+      "cv": "CV Amélioré",
+      "interview": "Entretien",
+      "coaching": "Coaching"
+    },
+    "errors": {
+      "uploadCv": "Veuillez télécharger votre CV.",
+      "pasteJob": "Veuillez coller la description du poste.",
+      "analysisFailed": "L'analyse a échoué. Veuillez réessayer.",
+      "improvementFailed": "L'amélioration du CV a échoué. Veuillez réessayer.",
+      "interviewFailed": "Échec de la génération des questions. Veuillez réessayer.",
+      "scoringFailed": "La notation a échoué. Veuillez réessayer.",
+      "reportFailed": "Échec de la génération du rapport. Veuillez réessayer.",
+      "somethingWrong": "Une erreur s'est produite"
+    },
+    "upload": {
+      "cvLabel": "Votre CV (PDF)",
+      "dropHint": "Déposez votre CV ici ou",
+      "browse": "parcourir",
+      "pdfOnly": "PDF uniquement",
+      "clickToChange": "Cliquer pour changer",
+      "jobLabel": "Description du Poste",
+      "jobPlaceholder": "Collez ici la description complète du poste...",
+      "characters": "caractères",
+      "analyzeButton": "Analyser ma Candidature →"
+    },
+    "loading": {
+      "analyzing": "Analyse de votre CV par rapport à la description du poste...",
+      "improving": "Réécriture et optimisation de votre CV...",
+      "generatingInterview": "Préparation de vos questions d'entretien personnalisées...",
+      "generatingReport": "Génération de votre rapport de coaching personnalisé..."
+    },
+    "initialScore": {
+      "title": "Score Initial du CV",
+      "topStrengths": "Points Forts",
+      "topGaps": "Lacunes Principales",
+      "optimizeButton": "Optimiser mon CV →",
+      "optimizeSubtitle": "Améliorer le score + télécharger DOCX",
+      "skipButton": "Passer à l'Entretien →",
+      "skipSubtitle": "Déjà candidaté ? Entraînez-vous maintenant"
+    },
+    "improvedCv": {
+      "title": "Résultats de l'Optimisation du CV",
+      "before": "Avant",
+      "after": "Après",
+      "gain": "Gain",
+      "keyChanges": "Changements Clés",
+      "downloadButton": "Télécharger le CV Optimisé (.docx)",
+      "interviewButton": "Commencer l'Entraînement →"
+    },
+    "interview": {
+      "questionOf": "Question {current} sur {total}",
+      "whatWeAssess": "Ce que nous évaluons :",
+      "answerPlaceholder": "Tapez votre réponse ici... Prenez le temps, comme dans un vrai entretien.",
+      "submitButton": "Soumettre la Réponse",
+      "scoringButton": "Notation...",
+      "showHint": "Voir un Indice",
+      "hideHint": "Masquer l'Indice",
+      "hintLabel": "💡 Réponse Suggérée (Inspiration Seulement)",
+      "strengthsLabel": "✓ Points Forts",
+      "improveLabel": "↗ À Améliorer",
+      "betterPhrasing": "Meilleure formulation :",
+      "suggestedAnswer": "Réponse suggérée :",
+      "nextQuestion": "Question Suivante →",
+      "getReport": "Obtenir le Rapport →"
+    },
+    "coaching": {
+      "overallScore": "Score Global de l'Entretien",
+      "performanceTitle": "Performance par Type de Question",
+      "topStrengths": "Points Forts",
+      "mustImprove": "À Améliorer",
+      "coachingPlanTitle": "Votre Plan de Coaching Personnel",
+      "priority": "Priorité {level}",
+      "weeklyExercise": "Exercice de la semaine :",
+      "reviewTitle": "Revue Question par Question",
+      "yourAnswer": "Votre réponse :",
+      "suggestedAnswer": "Réponse suggérée :",
+      "restartButton": "Nouvelle Candidature"
+    },
+    "questionTypes": {
+      "behavioral": "Comportemental",
+      "technical": "Technique",
+      "motivational": "Motivationnel",
+      "situational": "Situationnel"
+    }
+  }
 }

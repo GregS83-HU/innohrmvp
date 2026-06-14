@@ -6,9 +6,12 @@ const openai = new OpenAI({
   apiKey: process.env.OPENROUTER_API_KEY,
 });
 
+const LANGUAGE_NAMES: Record<string, string> = { en: 'English', hu: 'Hungarian', fr: 'French' };
+
 export async function POST(req: NextRequest) {
   try {
-    const { cvText, jobDescription } = await req.json();
+    const { cvText, jobDescription, locale = 'en' } = await req.json();
+    const language = LANGUAGE_NAMES[locale] || 'English';
 
     if (!cvText || !jobDescription) {
       return NextResponse.json({ error: 'CV and job description are required' }, { status: 400 });
@@ -22,6 +25,8 @@ Mix question types:
 - 2 motivational questions (why this role, career goals)
 - 2 situational questions ("How would you handle...")
 
+IMPORTANT: Write ALL text content (questions, assessments, answer points, suggested answers, tips) in ${language}. Only JSON keys stay in English.
+
 CV:
 ${cvText}
 
@@ -34,14 +39,14 @@ Respond ONLY with a valid JSON object in this exact format:
     {
       "id": 1,
       "type": "<behavioral|technical|motivational|situational>",
-      "question": "<the interview question>",
-      "whatWeAssess": "<1 sentence: what this question evaluates>",
-      "idealAnswerPoints": ["<key point 1>", "<key point 2>", "<key point 3>"],
-      "suggestedAnswer": "<a strong sample answer of 3-4 sentences that the candidate could use as inspiration>"
+      "question": "<the interview question in ${language}>",
+      "whatWeAssess": "<1 sentence in ${language}: what this question evaluates>",
+      "idealAnswerPoints": ["<key point 1 in ${language}>", "<key point 2 in ${language}>", "<key point 3 in ${language}>"],
+      "suggestedAnswer": "<a strong sample answer in ${language} of 3-4 sentences>"
     }
   ],
   "roleTitle": "<extracted job title from the job description>",
-  "interviewTips": ["<tip 1>", "<tip 2>", "<tip 3>"]
+  "interviewTips": ["<tip 1 in ${language}>", "<tip 2 in ${language}>", "<tip 3 in ${language}>"]
 }`;
 
     const completion = await openai.chat.completions.create({
@@ -56,8 +61,7 @@ Respond ONLY with a valid JSON object in this exact format:
       return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 });
     }
 
-    const result = JSON.parse(jsonMatch[0]);
-    return NextResponse.json(result);
+    return NextResponse.json(JSON.parse(jsonMatch[0]));
   } catch (error) {
     console.error('Interview generate error:', error);
     return NextResponse.json({ error: 'Failed to generate interview questions. Please try again.' }, { status: 500 });

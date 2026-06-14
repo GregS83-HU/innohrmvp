@@ -2671,5 +2671,98 @@
       "yourAnswer": "Your answer",
       "sending": "Sending..."
     }
+  },
+  "jobAssistant": {
+    "header": {
+      "title": "Job Application Assistant",
+      "subtitle": "Score your CV, optimize it, and ace your interview"
+    },
+    "steps": {
+      "upload": "Upload",
+      "score": "Initial Score",
+      "cv": "Improved CV",
+      "interview": "Interview",
+      "coaching": "Coaching"
+    },
+    "errors": {
+      "uploadCv": "Please upload your CV.",
+      "pasteJob": "Please paste the job description.",
+      "analysisFailed": "Analysis failed. Please try again.",
+      "improvementFailed": "CV improvement failed. Please try again.",
+      "interviewFailed": "Failed to generate interview questions. Please try again.",
+      "scoringFailed": "Scoring failed. Please try again.",
+      "reportFailed": "Failed to generate coaching report. Please try again.",
+      "somethingWrong": "Something went wrong"
+    },
+    "upload": {
+      "cvLabel": "Your CV (PDF)",
+      "dropHint": "Drop your CV here or",
+      "browse": "browse",
+      "pdfOnly": "PDF only",
+      "clickToChange": "Click to change",
+      "jobLabel": "Job Description",
+      "jobPlaceholder": "Paste the full job description here...",
+      "characters": "characters",
+      "analyzeButton": "Analyze My Application →"
+    },
+    "loading": {
+      "analyzing": "Analyzing your CV against the job description...",
+      "improving": "Rewriting and optimizing your CV...",
+      "generatingInterview": "Preparing your personalized interview questions...",
+      "generatingReport": "Generating your personalized coaching report..."
+    },
+    "initialScore": {
+      "title": "Initial CV Score",
+      "topStrengths": "Top Strengths",
+      "topGaps": "Top Gaps",
+      "optimizeButton": "Optimize My CV →",
+      "optimizeSubtitle": "Improve score + download DOCX",
+      "skipButton": "Skip to Interview →",
+      "skipSubtitle": "Already applied? Practice now"
+    },
+    "improvedCv": {
+      "title": "CV Optimization Results",
+      "before": "Before",
+      "after": "After",
+      "gain": "Gain",
+      "keyChanges": "Key Changes Made",
+      "downloadButton": "Download Optimized CV (.docx)",
+      "interviewButton": "Start Interview Training →"
+    },
+    "interview": {
+      "questionOf": "Question {current} of {total}",
+      "whatWeAssess": "What we assess:",
+      "answerPlaceholder": "Type your answer here... Take your time, as you would in a real interview.",
+      "submitButton": "Submit Answer",
+      "scoringButton": "Scoring...",
+      "showHint": "See Hint",
+      "hideHint": "Hide Hint",
+      "hintLabel": "💡 Suggested Answer (Inspiration Only)",
+      "strengthsLabel": "✓ Strengths",
+      "improveLabel": "↗ Improve",
+      "betterPhrasing": "Better phrasing:",
+      "suggestedAnswer": "Suggested answer:",
+      "nextQuestion": "Next Question →",
+      "getReport": "Get Coaching Report →"
+    },
+    "coaching": {
+      "overallScore": "Overall Interview Score",
+      "performanceTitle": "Performance by Question Type",
+      "topStrengths": "Top Strengths",
+      "mustImprove": "Must Improve",
+      "coachingPlanTitle": "Your Personal Coaching Plan",
+      "priority": "{level} Priority",
+      "weeklyExercise": "This week's exercise:",
+      "reviewTitle": "Answer-by-Answer Review",
+      "yourAnswer": "Your answer:",
+      "suggestedAnswer": "Suggested answer:",
+      "restartButton": "Start New Application"
+    },
+    "questionTypes": {
+      "behavioral": "Behavioral",
+      "technical": "Technical",
+      "motivational": "Motivational",
+      "situational": "Situational"
+    }
   }
 }

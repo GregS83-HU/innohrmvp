@@ -2673,5 +2673,98 @@
       "yourAnswer": "Az Ön válasza",
       "sending": "Küldés..."
     }
+  },
+  "jobAssistant": {
+    "header": {
+      "title": "Állásjelentkezési Asszisztens",
+      "subtitle": "Pontozd az önéletrajzod, optimalizáld, és készülj az interjúra"
+    },
+    "steps": {
+      "upload": "Feltöltés",
+      "score": "Kezdeti Pont",
+      "cv": "Jobb ÖÉ",
+      "interview": "Interjú",
+      "coaching": "Coaching"
+    },
+    "errors": {
+      "uploadCv": "Kérjük, töltsd fel az önéletrajzod.",
+      "pasteJob": "Kérjük, illeszd be az álláshirdetést.",
+      "analysisFailed": "Az elemzés sikertelen. Kérjük, próbáld újra.",
+      "improvementFailed": "Az önéletrajz javítása sikertelen. Kérjük, próbáld újra.",
+      "interviewFailed": "Nem sikerült interjúkérdéseket generálni. Kérjük, próbáld újra.",
+      "scoringFailed": "A pontozás sikertelen. Kérjük, próbáld újra.",
+      "reportFailed": "Nem sikerült coaching-jelentést generálni. Kérjük, próbáld újra.",
+      "somethingWrong": "Valami hiba történt"
+    },
+    "upload": {
+      "cvLabel": "Önéletrajzod (PDF)",
+      "dropHint": "Húzd ide az önéletrajzod vagy",
+      "browse": "böngéssz",
+      "pdfOnly": "Csak PDF",
+      "clickToChange": "Kattints a módosításhoz",
+      "jobLabel": "Álláshirdetés",
+      "jobPlaceholder": "Illeszd be ide a teljes álláshirdetést...",
+      "characters": "karakter",
+      "analyzeButton": "Pályázatom Elemzése →"
+    },
+    "loading": {
+      "analyzing": "Az önéletrajz elemzése az álláshirdetés alapján...",
+      "improving": "Az önéletrajz átírása és optimalizálása...",
+      "generatingInterview": "Személyre szabott interjúkérdések előkészítése...",
+      "generatingReport": "Személyre szabott coaching-jelentés generálása..."
+    },
+    "initialScore": {
+      "title": "Kezdeti Önéletrajz Pontszám",
+      "topStrengths": "Fő Erősségek",
+      "topGaps": "Fő Hiányosságok",
+      "optimizeButton": "Önéletrajzom Optimalizálása →",
+      "optimizeSubtitle": "Pontszám javítása + DOCX letöltés",
+      "skipButton": "Ugrás az Interjúra →",
+      "skipSubtitle": "Már jelentkeztél? Gyakorolj most"
+    },
+    "improvedCv": {
+      "title": "Önéletrajz Optimalizálás Eredménye",
+      "before": "Előtte",
+      "after": "Utána",
+      "gain": "Nyereség",
+      "keyChanges": "Fő Változtatások",
+      "downloadButton": "Optimalizált ÖÉ Letöltése (.docx)",
+      "interviewButton": "Interjú Tréning Indítása →"
+    },
+    "interview": {
+      "questionOf": "{current}. kérdés / {total}",
+      "whatWeAssess": "Mit értékelünk:",
+      "answerPlaceholder": "Írd ide a válaszod... Gondolkodj, mintha valódi interjún lennél.",
+      "submitButton": "Válasz Elküldése",
+      "scoringButton": "Pontozás...",
+      "showHint": "Tipp Mutatása",
+      "hideHint": "Tipp Elrejtése",
+      "hintLabel": "💡 Javasolt Válasz (Csak Inspiráció)",
+      "strengthsLabel": "✓ Erősségek",
+      "improveLabel": "↗ Fejlesztendő",
+      "betterPhrasing": "Jobb megfogalmazás:",
+      "suggestedAnswer": "Javasolt válasz:",
+      "nextQuestion": "Következő Kérdés →",
+      "getReport": "Coaching Jelentés →"
+    },
+    "coaching": {
+      "overallScore": "Összesített Interjú Pontszám",
+      "performanceTitle": "Teljesítmény Kérdéstípusonként",
+      "topStrengths": "Fő Erősségek",
+      "mustImprove": "Fejlesztendő Területek",
+      "coachingPlanTitle": "Személyes Coaching Terved",
+      "priority": "{level} Prioritás",
+      "weeklyExercise": "Heti gyakorlat:",
+      "reviewTitle": "Kérdésenkénti Áttekintés",
+      "yourAnswer": "A te válaszod:",
+      "suggestedAnswer": "Javasolt válasz:",
+      "restartButton": "Új Pályázat Indítása"
+    },
+    "questionTypes": {
+      "behavioral": "Viselkedési",
+      "technical": "Szakmai",
+      "motivational": "Motivációs",
+      "situational": "Szituációs"
+    }
   }
 }

@@ -6,15 +6,20 @@ const openai = new OpenAI({
   apiKey: process.env.OPENROUTER_API_KEY,
 });
 
+const LANGUAGE_NAMES: Record<string, string> = { en: 'English', hu: 'Hungarian', fr: 'French' };
+
 export async function POST(req: NextRequest) {
   try {
-    const { question, questionType, idealAnswerPoints, userAnswer, jobDescription } = await req.json();
+    const { question, questionType, idealAnswerPoints, userAnswer, jobDescription, locale = 'en' } = await req.json();
+    const language = LANGUAGE_NAMES[locale] || 'English';
 
     if (!question || !userAnswer) {
       return NextResponse.json({ error: 'Question and answer are required' }, { status: 400 });
     }
 
     const prompt = `You are an expert interview coach. Score the candidate's answer to this interview question.
+
+IMPORTANT: Write ALL text content (scoreLabel, strengths, improvements, feedback, phrasing) in ${language}. Only JSON keys stay in English.
 
 QUESTION TYPE: ${questionType}
 QUESTION: ${question}
@@ -27,11 +32,11 @@ ${userAnswer}
 Respond ONLY with a valid JSON object:
 {
   "score": <number 0-100>,
-  "scoreLabel": "<Excellent|Good|Average|Needs Improvement|Poor>",
-  "strengths": ["<strength of their answer 1>", "<strength 2>"],
-  "improvements": ["<what they missed or could improve 1>", "<improvement 2>"],
-  "quickFeedback": "<2-3 sentences of direct, constructive feedback on this specific answer>",
-  "betterPhrasing": "<1-2 sentences suggesting how they could rephrase a key part of their answer>"
+  "scoreLabel": "<Excellent|Good|Average|Needs Improvement|Poor — translated in ${language}>",
+  "strengths": ["<strength 1 in ${language}>", "<strength 2 in ${language}>"],
+  "improvements": ["<improvement 1 in ${language}>", "<improvement 2 in ${language}>"],
+  "quickFeedback": "<2-3 sentences of direct constructive feedback in ${language}>",
+  "betterPhrasing": "<1-2 sentences suggesting better phrasing in ${language}>"
 }`;
 
     const completion = await openai.chat.completions.create({

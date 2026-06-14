@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import { useLocale } from 'i18n/LocaleProvider';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -97,12 +98,12 @@ function scoreBarColor(score: number): string {
   return 'bg-red-400';
 }
 
-function typeLabel(type: string): string {
+function typeLabel(type: string, t: (key: string) => string): string {
   const map: Record<string, string> = {
-    behavioral: 'Behavioral',
-    technical: 'Technical',
-    motivational: 'Motivational',
-    situational: 'Situational',
+    behavioral: t('jobAssistant.questionTypes.behavioral'),
+    technical: t('jobAssistant.questionTypes.technical'),
+    motivational: t('jobAssistant.questionTypes.motivational'),
+    situational: t('jobAssistant.questionTypes.situational'),
   };
   return map[type] || type;
 }
@@ -152,13 +153,13 @@ function ScoreRing({ score, size = 'lg' }: { score: number; size?: 'sm' | 'lg' }
   );
 }
 
-function StepIndicator({ current }: { current: Step }) {
+function StepIndicator({ current, t }: { current: Step; t: (key: string) => string }) {
   const steps = [
-    { id: 'upload', label: 'Upload' },
-    { id: 'score', label: 'Initial Score' },
-    { id: 'cv', label: 'Improved CV' },
-    { id: 'interview', label: 'Interview' },
-    { id: 'coaching', label: 'Coaching' },
+    { id: 'upload', label: t('jobAssistant.steps.upload') },
+    { id: 'score', label: t('jobAssistant.steps.score') },
+    { id: 'cv', label: t('jobAssistant.steps.cv') },
+    { id: 'interview', label: t('jobAssistant.steps.interview') },
+    { id: 'coaching', label: t('jobAssistant.steps.coaching') },
   ];
 
   const stepMap: Record<Step, number> = {
@@ -211,6 +212,7 @@ function LoadingSpinner({ message }: { message: string }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function JobAssistantPage() {
+  const { t, locale } = useLocale();
   const [step, setStep] = useState<Step>('upload');
   const [cvFile, setCvFile] = useState<File | null>(null);
   const [jobDescription, setJobDescription] = useState('');
@@ -221,7 +223,6 @@ export default function JobAssistantPage() {
   const [improvementResult, setImprovementResult] = useState<ImprovementResult | null>(null);
   const [interviewData, setInterviewData] = useState<InterviewData | null>(null);
 
-  // Interview state
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [userAnswer, setUserAnswer] = useState('');
   const [isScoring, setIsScoring] = useState(false);
@@ -232,8 +233,6 @@ export default function JobAssistantPage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // ─── Drag & Drop ───────────────────────────────────────────────────────────
-
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
@@ -242,15 +241,13 @@ export default function JobAssistantPage() {
       setCvFile(file);
       setError('');
     } else {
-      setError('Please upload a PDF file.');
+      setError(t('jobAssistant.errors.uploadCv'));
     }
-  }, []);
-
-  // ─── Step 1: Analyze ───────────────────────────────────────────────────────
+  }, [t]);
 
   const handleAnalyze = async () => {
-    if (!cvFile) return setError('Please upload your CV.');
-    if (!jobDescription.trim()) return setError('Please paste the job description.');
+    if (!cvFile) return setError(t('jobAssistant.errors.uploadCv'));
+    if (!jobDescription.trim()) return setError(t('jobAssistant.errors.pasteJob'));
     setError('');
     setStep('analyzing');
 
@@ -258,20 +255,19 @@ export default function JobAssistantPage() {
       const fd = new FormData();
       fd.append('cv', cvFile);
       fd.append('jobDescription', jobDescription);
+      fd.append('locale', locale);
 
       const res = await fetch('/api/job-assistant/analyze', { method: 'POST', body: fd });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Analysis failed');
+      if (!res.ok) throw new Error(data.error || t('jobAssistant.errors.analysisFailed'));
 
       setAnalysisResult(data);
       setStep('initial-score');
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Something went wrong');
+      setError(e instanceof Error ? e.message : t('jobAssistant.errors.somethingWrong'));
       setStep('upload');
     }
   };
-
-  // ─── Step 2: Improve CV ────────────────────────────────────────────────────
 
   const handleImprove = async () => {
     if (!analysisResult) return;
@@ -281,20 +277,18 @@ export default function JobAssistantPage() {
       const res = await fetch('/api/job-assistant/improve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cvText: analysisResult.cvText, jobDescription }),
+        body: JSON.stringify({ cvText: analysisResult.cvText, jobDescription, locale }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Improvement failed');
+      if (!res.ok) throw new Error(data.error || t('jobAssistant.errors.improvementFailed'));
 
       setImprovementResult(data);
       setStep('improved-cv');
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Something went wrong');
+      setError(e instanceof Error ? e.message : t('jobAssistant.errors.somethingWrong'));
       setStep('initial-score');
     }
   };
-
-  // ─── Download DOCX ────────────────────────────────────────────────────────
 
   const handleDownloadDocx = () => {
     if (!improvementResult?.docxBase64) return;
@@ -308,8 +302,6 @@ export default function JobAssistantPage() {
     URL.revokeObjectURL(url);
   };
 
-  // ─── Step 3: Generate Interview ────────────────────────────────────────────
-
   const handleGenerateInterview = async () => {
     if (!analysisResult) return;
     setStep('interview-generating');
@@ -318,10 +310,10 @@ export default function JobAssistantPage() {
       const res = await fetch('/api/job-assistant/interview/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cvText: analysisResult.cvText, jobDescription }),
+        body: JSON.stringify({ cvText: analysisResult.cvText, jobDescription, locale }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to generate questions');
+      if (!res.ok) throw new Error(data.error || t('jobAssistant.errors.interviewFailed'));
 
       setInterviewData(data);
       setCurrentQuestionIdx(0);
@@ -330,12 +322,10 @@ export default function JobAssistantPage() {
       setCurrentScore(null);
       setStep('interview');
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Something went wrong');
+      setError(e instanceof Error ? e.message : t('jobAssistant.errors.somethingWrong'));
       setStep('improved-cv');
     }
   };
-
-  // ─── Step 4: Score Answer ─────────────────────────────────────────────────
 
   const handleScoreAnswer = async () => {
     if (!interviewData || !userAnswer.trim()) return;
@@ -353,13 +343,14 @@ export default function JobAssistantPage() {
           idealAnswerPoints: q.idealAnswerPoints,
           userAnswer,
           jobDescription,
+          locale,
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Scoring failed');
+      if (!res.ok) throw new Error(data.error || t('jobAssistant.errors.scoringFailed'));
       setCurrentScore(data);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Scoring failed');
+      setError(e instanceof Error ? e.message : t('jobAssistant.errors.scoringFailed'));
     } finally {
       setIsScoring(false);
     }
@@ -383,7 +374,6 @@ export default function JobAssistantPage() {
       setCurrentScore(null);
       setShowSuggestedAnswer(false);
     } else {
-      // Last question — conclude
       handleConclude([...answeredQuestions, {
         question: q.question,
         type: q.type,
@@ -395,8 +385,6 @@ export default function JobAssistantPage() {
     }
   };
 
-  // ─── Step 5: Coaching Report ───────────────────────────────────────────────
-
   const handleConclude = async (finalAnswers: AnsweredQuestion[]) => {
     setStep('concluding');
     try {
@@ -407,14 +395,15 @@ export default function JobAssistantPage() {
           answeredQuestions: finalAnswers,
           jobDescription,
           roleTitle: interviewData?.roleTitle,
+          locale,
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to generate report');
+      if (!res.ok) throw new Error(data.error || t('jobAssistant.errors.reportFailed'));
       setCoachingReport(data);
       setStep('coaching-report');
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Something went wrong');
+      setError(e instanceof Error ? e.message : t('jobAssistant.errors.somethingWrong'));
       setStep('interview');
     }
   };
@@ -433,8 +422,6 @@ export default function JobAssistantPage() {
     setError('');
   };
 
-  // ─── Render ────────────────────────────────────────────────────────────────
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50">
       <div className="max-w-3xl mx-auto px-4 py-10">
@@ -446,11 +433,11 @@ export default function JobAssistantPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Job Application Assistant</h1>
-          <p className="text-gray-500 mt-2">Score your CV, optimize it, and ace your interview</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('jobAssistant.header.title')}</h1>
+          <p className="text-gray-500 mt-2">{t('jobAssistant.header.subtitle')}</p>
         </div>
 
-        <StepIndicator current={step} />
+        <StepIndicator current={step} t={t} />
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm flex items-center gap-2">
@@ -465,7 +452,7 @@ export default function JobAssistantPage() {
         {step === 'upload' && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">Your CV (PDF)</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">{t('jobAssistant.upload.cvLabel')}</label>
               <div
                 className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all
                   ${isDragging ? 'border-emerald-400 bg-emerald-50' : cvFile ? 'border-emerald-300 bg-emerald-50' : 'border-gray-200 hover:border-emerald-300 hover:bg-gray-50'}`}
@@ -484,7 +471,7 @@ export default function JobAssistantPage() {
                       </svg>
                     </div>
                     <p className="font-medium text-emerald-700">{cvFile.name}</p>
-                    <p className="text-sm text-gray-400">{(cvFile.size / 1024).toFixed(0)} KB · Click to change</p>
+                    <p className="text-sm text-gray-400">{(cvFile.size / 1024).toFixed(0)} KB · {t('jobAssistant.upload.clickToChange')}</p>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -493,23 +480,23 @@ export default function JobAssistantPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                       </svg>
                     </div>
-                    <p className="text-gray-500">Drop your CV here or <span className="text-emerald-600 font-medium">browse</span></p>
-                    <p className="text-xs text-gray-400">PDF only</p>
+                    <p className="text-gray-500">{t('jobAssistant.upload.dropHint')} <span className="text-emerald-600 font-medium">{t('jobAssistant.upload.browse')}</span></p>
+                    <p className="text-xs text-gray-400">{t('jobAssistant.upload.pdfOnly')}</p>
                   </div>
                 )}
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">Job Description</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">{t('jobAssistant.upload.jobLabel')}</label>
               <textarea
                 value={jobDescription}
                 onChange={e => setJobDescription(e.target.value)}
                 rows={8}
-                placeholder="Paste the full job description here..."
+                placeholder={t('jobAssistant.upload.jobPlaceholder')}
                 className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent resize-none"
               />
-              <p className="text-xs text-gray-400 mt-1">{jobDescription.length} characters</p>
+              <p className="text-xs text-gray-400 mt-1">{jobDescription.length} {t('jobAssistant.upload.characters')}</p>
             </div>
 
             <button
@@ -517,22 +504,22 @@ export default function JobAssistantPage() {
               disabled={!cvFile || !jobDescription.trim()}
               className="w-full py-3.5 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"
             >
-              Analyze My Application →
+              {t('jobAssistant.upload.analyzeButton')}
             </button>
           </div>
         )}
 
         {/* ── STEP: ANALYZING ── */}
-        {step === 'analyzing' && <LoadingSpinner message="Analyzing your CV against the job description..." />}
+        {step === 'analyzing' && <LoadingSpinner message={t('jobAssistant.loading.analyzing')} />}
 
         {/* ── STEP: INITIAL SCORE ── */}
         {step === 'initial-score' && analysisResult && (
           <div className="space-y-6">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Initial CV Score</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-6">{t('jobAssistant.initialScore.title')}</h2>
 
               <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-8 mb-8">
-                <div className="shrink-0">
+                <div className="flex-shrink-0">
                   <ScoreRing score={analysisResult.overallScore} />
                 </div>
                 <div className="text-center sm:text-left">
@@ -543,7 +530,6 @@ export default function JobAssistantPage() {
                 </div>
               </div>
 
-              {/* Breakdown */}
               <div className="space-y-3 mb-6">
                 {Object.entries(analysisResult.breakdown).map(([key, val]) => {
                   const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
@@ -563,10 +549,9 @@ export default function JobAssistantPage() {
                 })}
               </div>
 
-              {/* Strengths & Gaps — stacked on mobile, side by side on sm+ */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
-                  <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wide mb-2">Top Strengths</p>
+                  <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wide mb-2">{t('jobAssistant.initialScore.topStrengths')}</p>
                   <ul className="space-y-1">
                     {analysisResult.topStrengths.map((s, i) => (
                       <li key={i} className="text-sm text-emerald-800 flex gap-2"><span>✓</span>{s}</li>
@@ -574,7 +559,7 @@ export default function JobAssistantPage() {
                   </ul>
                 </div>
                 <div className="bg-red-50 border border-red-100 rounded-xl p-4">
-                  <p className="text-xs font-semibold text-red-700 uppercase tracking-wide mb-2">Top Gaps</p>
+                  <p className="text-xs font-semibold text-red-700 uppercase tracking-wide mb-2">{t('jobAssistant.initialScore.topGaps')}</p>
                   <ul className="space-y-1">
                     {analysisResult.topGaps.map((g, i) => (
                       <li key={i} className="text-sm text-red-800 flex gap-2"><span>!</span>{g}</li>
@@ -584,28 +569,37 @@ export default function JobAssistantPage() {
               </div>
             </div>
 
-            <button
-              onClick={handleImprove}
-              className="w-full py-3.5 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition-all shadow-sm"
-            >
-              Optimize My CV →
-            </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                onClick={handleImprove}
+                className="w-full py-3.5 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition-all shadow-sm flex flex-col items-center gap-0.5"
+              >
+                <span>{t('jobAssistant.initialScore.optimizeButton')}</span>
+                <span className="text-xs font-normal opacity-80">{t('jobAssistant.initialScore.optimizeSubtitle')}</span>
+              </button>
+              <button
+                onClick={handleGenerateInterview}
+                className="w-full py-3.5 bg-white border-2 border-emerald-500 text-emerald-600 font-semibold rounded-xl hover:bg-emerald-50 transition-all flex flex-col items-center gap-0.5"
+              >
+                <span>{t('jobAssistant.initialScore.skipButton')}</span>
+                <span className="text-xs font-normal opacity-70">{t('jobAssistant.initialScore.skipSubtitle')}</span>
+              </button>
+            </div>
           </div>
         )}
 
         {/* ── STEP: IMPROVING ── */}
-        {step === 'improving' && <LoadingSpinner message="Rewriting and optimizing your CV..." />}
+        {step === 'improving' && <LoadingSpinner message={t('jobAssistant.loading.improving')} />}
 
         {/* ── STEP: IMPROVED CV ── */}
         {step === 'improved-cv' && improvementResult && analysisResult && (
           <div className="space-y-6">
-            {/* Score comparison */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">CV Optimization Results</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-6">{t('jobAssistant.improvedCv.title')}</h2>
 
               <div className="flex items-center justify-around mb-6">
                 <div className="text-center">
-                  <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">Before</p>
+                  <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">{t('jobAssistant.improvedCv.before')}</p>
                   <ScoreRing score={analysisResult.overallScore} size="sm" />
                   <p className={`text-2xl font-bold mt-2 ${scoreColor(analysisResult.overallScore)}`}>
                     {analysisResult.overallScore}
@@ -613,14 +607,14 @@ export default function JobAssistantPage() {
                 </div>
                 <div className="text-2xl sm:text-3xl text-emerald-400 font-light">→</div>
                 <div className="text-center">
-                  <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">After</p>
+                  <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">{t('jobAssistant.improvedCv.after')}</p>
                   <ScoreRing score={improvementResult.newScore} size="sm" />
                   <p className={`text-2xl font-bold mt-2 ${scoreColor(improvementResult.newScore)}`}>
                     {improvementResult.newScore}
                   </p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">Gain</p>
+                  <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">{t('jobAssistant.improvedCv.gain')}</p>
                   <div className="w-[72px] sm:w-[88px] h-[72px] sm:h-[88px] flex items-center justify-center">
                     <span className="text-2xl font-bold text-emerald-600">
                       +{improvementResult.newScore - analysisResult.overallScore}
@@ -632,7 +626,7 @@ export default function JobAssistantPage() {
               <p className="text-sm text-gray-600 mb-4">{improvementResult.improvementSummary}</p>
 
               <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 mb-6">
-                <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wide mb-2">Key Changes Made</p>
+                <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wide mb-2">{t('jobAssistant.improvedCv.keyChanges')}</p>
                 <ul className="space-y-1">
                   {improvementResult.keyChanges.map((c, i) => (
                     <li key={i} className="text-sm text-emerald-800 flex gap-2"><span className="text-emerald-500">→</span>{c}</li>
@@ -647,7 +641,7 @@ export default function JobAssistantPage() {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                Download Optimized CV (.docx)
+                {t('jobAssistant.improvedCv.downloadButton')}
               </button>
             </div>
 
@@ -655,25 +649,26 @@ export default function JobAssistantPage() {
               onClick={handleGenerateInterview}
               className="w-full py-3.5 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition-all shadow-sm"
             >
-              Start Interview Training →
+              {t('jobAssistant.improvedCv.interviewButton')}
             </button>
           </div>
         )}
 
         {/* ── STEP: INTERVIEW GENERATING ── */}
-        {step === 'interview-generating' && <LoadingSpinner message="Preparing your personalized interview questions..." />}
+        {step === 'interview-generating' && <LoadingSpinner message={t('jobAssistant.loading.generatingInterview')} />}
 
         {/* ── STEP: INTERVIEW ── */}
         {step === 'interview' && interviewData && (
           <div className="space-y-6">
-            {/* Progress */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm text-gray-500 font-medium">
-                  Question {currentQuestionIdx + 1} of {interviewData.questions.length}
+                  {t('jobAssistant.interview.questionOf')
+                    .replace('{current}', String(currentQuestionIdx + 1))
+                    .replace('{total}', String(interviewData.questions.length))}
                 </span>
                 <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${typeBadgeColor(interviewData.questions[currentQuestionIdx]?.type)}`}>
-                  {typeLabel(interviewData.questions[currentQuestionIdx]?.type)}
+                  {typeLabel(interviewData.questions[currentQuestionIdx]?.type, t)}
                 </span>
               </div>
               <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
@@ -682,10 +677,9 @@ export default function JobAssistantPage() {
               </div>
             </div>
 
-            {/* Question */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-8">
               <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">
-                What we assess: {interviewData.questions[currentQuestionIdx]?.whatWeAssess}
+                {t('jobAssistant.interview.whatWeAssess')} {interviewData.questions[currentQuestionIdx]?.whatWeAssess}
               </p>
               <h3 className="text-lg font-semibold text-gray-900 mb-6">
                 {interviewData.questions[currentQuestionIdx]?.question}
@@ -695,7 +689,7 @@ export default function JobAssistantPage() {
                 value={userAnswer}
                 onChange={e => setUserAnswer(e.target.value)}
                 rows={6}
-                placeholder="Type your answer here... Take your time, as you would in a real interview."
+                placeholder={t('jobAssistant.interview.answerPlaceholder')}
                 disabled={!!currentScore}
                 className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent resize-none disabled:bg-gray-50 disabled:text-gray-500"
               />
@@ -707,26 +701,25 @@ export default function JobAssistantPage() {
                     disabled={!userAnswer.trim() || isScoring}
                     className="flex-1 py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                   >
-                    {isScoring ? 'Scoring...' : 'Submit Answer'}
+                    {isScoring ? t('jobAssistant.interview.scoringButton') : t('jobAssistant.interview.submitButton')}
                   </button>
                   <button
                     onClick={() => setShowSuggestedAnswer(s => !s)}
                     className="px-4 py-3 bg-gray-100 text-gray-600 font-medium rounded-xl hover:bg-gray-200 transition-all text-sm"
                   >
-                    {showSuggestedAnswer ? 'Hide' : 'See'} Hint
+                    {showSuggestedAnswer ? t('jobAssistant.interview.hideHint') : t('jobAssistant.interview.showHint')}
                   </button>
                 </div>
               )}
 
               {showSuggestedAnswer && !currentScore && (
                 <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                  <p className="text-xs font-semibold text-amber-700 mb-1">💡 Suggested Answer (Inspiration Only)</p>
+                  <p className="text-xs font-semibold text-amber-700 mb-1">{t('jobAssistant.interview.hintLabel')}</p>
                   <p className="text-sm text-amber-800">{interviewData.questions[currentQuestionIdx]?.suggestedAnswer}</p>
                 </div>
               )}
             </div>
 
-            {/* Score Result */}
             {currentScore && (
               <div className={`rounded-2xl border p-5 sm:p-6 ${scoreBg(currentScore.score)}`}>
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-4">
@@ -741,7 +734,7 @@ export default function JobAssistantPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                   <div>
-                    <p className="text-xs font-semibold text-emerald-700 mb-1">✓ Strengths</p>
+                    <p className="text-xs font-semibold text-emerald-700 mb-1">{t('jobAssistant.interview.strengthsLabel')}</p>
                     <ul className="space-y-1">
                       {currentScore.strengths.map((s, i) => (
                         <li key={i} className="text-xs text-gray-700">{s}</li>
@@ -749,7 +742,7 @@ export default function JobAssistantPage() {
                     </ul>
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-amber-700 mb-1">↗ Improve</p>
+                    <p className="text-xs font-semibold text-amber-700 mb-1">{t('jobAssistant.interview.improveLabel')}</p>
                     <ul className="space-y-1">
                       {currentScore.improvements.map((s, i) => (
                         <li key={i} className="text-xs text-gray-700">{s}</li>
@@ -760,13 +753,13 @@ export default function JobAssistantPage() {
 
                 {currentScore.betterPhrasing && (
                   <div className="bg-white/70 rounded-lg p-3 mb-4">
-                    <p className="text-xs font-semibold text-gray-600 mb-1">Better phrasing:</p>
-                    <p className="text-xs text-gray-700 italic">&quot;{currentScore.betterPhrasing}&quot;</p>
+                    <p className="text-xs font-semibold text-gray-600 mb-1">{t('jobAssistant.interview.betterPhrasing')}</p>
+                    <p className="text-xs text-gray-700 italic">"{currentScore.betterPhrasing}"</p>
                   </div>
                 )}
 
                 <div className="bg-white/50 rounded-lg p-3 mb-4">
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Suggested answer:</p>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">{t('jobAssistant.interview.suggestedAnswer')}</p>
                   <p className="text-xs text-gray-700">{interviewData.questions[currentQuestionIdx]?.suggestedAnswer}</p>
                 </div>
 
@@ -774,7 +767,9 @@ export default function JobAssistantPage() {
                   onClick={handleNextQuestion}
                   className="w-full py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition-all"
                 >
-                  {currentQuestionIdx < interviewData.questions.length - 1 ? 'Next Question →' : 'Get Coaching Report →'}
+                  {currentQuestionIdx < interviewData.questions.length - 1
+                    ? t('jobAssistant.interview.nextQuestion')
+                    : t('jobAssistant.interview.getReport')}
                 </button>
               </div>
             )}
@@ -782,19 +777,18 @@ export default function JobAssistantPage() {
         )}
 
         {/* ── STEP: CONCLUDING ── */}
-        {step === 'concluding' && <LoadingSpinner message="Generating your personalized coaching report..." />}
+        {step === 'concluding' && <LoadingSpinner message={t('jobAssistant.loading.generatingReport')} />}
 
         {/* ── STEP: COACHING REPORT ── */}
         {step === 'coaching-report' && coachingReport && (
           <div className="space-y-6">
-            {/* Header card */}
             <div className={`rounded-2xl border p-5 sm:p-8 ${scoreBg(coachingReport.overallScore)}`}>
               <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-4">
-                <div className="shrink-0 flex justify-center sm:block">
+                <div className="flex-shrink-0 flex justify-center sm:block">
                   <ScoreRing score={coachingReport.overallScore} />
                 </div>
                 <div className="text-center sm:text-left">
-                  <p className="text-xs text-gray-500 uppercase tracking-wide">Overall Interview Score</p>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide">{t('jobAssistant.coaching.overallScore')}</p>
                   <p className={`text-4xl font-bold ${scoreColor(coachingReport.overallScore)}`}>
                     {coachingReport.overallScore}/100
                   </p>
@@ -806,14 +800,13 @@ export default function JobAssistantPage() {
               <p className="text-sm text-gray-700">{coachingReport.executiveSummary}</p>
             </div>
 
-            {/* Performance by type */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Performance by Question Type</h3>
+              <h3 className="font-semibold text-gray-900 mb-4">{t('jobAssistant.coaching.performanceTitle')}</h3>
               <div className="space-y-4">
                 {Object.entries(coachingReport.performanceByType).map(([type, val]) => (
                   <div key={type}>
                     <div className="flex justify-between text-sm mb-1">
-                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${typeBadgeColor(type)}`}>{typeLabel(type)}</span>
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${typeBadgeColor(type)}`}>{typeLabel(type, t)}</span>
                       <span className={`font-semibold ${scoreColor(val.avgScore)}`}>{val.avgScore}/100</span>
                     </div>
                     <div className="h-2 bg-gray-100 rounded-full overflow-hidden mb-1">
@@ -826,10 +819,9 @@ export default function JobAssistantPage() {
               </div>
             </div>
 
-            {/* Strengths & Improvements — stacked on mobile */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
-                <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wide mb-2">Top Strengths</p>
+                <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wide mb-2">{t('jobAssistant.coaching.topStrengths')}</p>
                 <ul className="space-y-2">
                   {coachingReport.topStrengths.map((s, i) => (
                     <li key={i} className="text-sm text-emerald-800 flex gap-2"><span>✓</span>{s}</li>
@@ -837,7 +829,7 @@ export default function JobAssistantPage() {
                 </ul>
               </div>
               <div className="bg-red-50 border border-red-100 rounded-xl p-4">
-                <p className="text-xs font-semibold text-red-700 uppercase tracking-wide mb-2">Must Improve</p>
+                <p className="text-xs font-semibold text-red-700 uppercase tracking-wide mb-2">{t('jobAssistant.coaching.mustImprove')}</p>
                 <ul className="space-y-2">
                   {coachingReport.criticalImprovements.map((s, i) => (
                     <li key={i} className="text-sm text-red-800 flex gap-2"><span>!</span>{s}</li>
@@ -846,21 +838,20 @@ export default function JobAssistantPage() {
               </div>
             </div>
 
-            {/* Coaching Plan */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Your Personal Coaching Plan</h3>
+              <h3 className="font-semibold text-gray-900 mb-4">{t('jobAssistant.coaching.coachingPlanTitle')}</h3>
               <div className="space-y-4">
                 {coachingReport.coachingPlan.map((item, i) => (
                   <div key={i} className="border border-gray-100 rounded-xl p-4">
                     <div className="flex flex-wrap items-center gap-2 mb-2">
                       <span className={`text-xs px-2 py-0.5 rounded border font-medium whitespace-nowrap ${priorityColor(item.priority)}`}>
-                        {item.priority} Priority
+                        {t('jobAssistant.coaching.priority').replace('{level}', item.priority)}
                       </span>
                       <span className="font-semibold text-sm text-gray-800">{item.area}</span>
                     </div>
                     <p className="text-sm text-gray-600 mb-2">{item.advice}</p>
                     <div className="bg-blue-50 border border-blue-100 rounded-lg p-2.5">
-                      <p className="text-xs font-semibold text-blue-700 mb-0.5">This week&apos;s exercise:</p>
+                      <p className="text-xs font-semibold text-blue-700 mb-0.5">{t('jobAssistant.coaching.weeklyExercise')}</p>
                       <p className="text-xs text-blue-800">{item.practiceExercise}</p>
                     </div>
                   </div>
@@ -868,27 +859,26 @@ export default function JobAssistantPage() {
               </div>
             </div>
 
-            {/* Per-question review */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Answer-by-Answer Review</h3>
+              <h3 className="font-semibold text-gray-900 mb-4">{t('jobAssistant.coaching.reviewTitle')}</h3>
               <div className="space-y-3">
                 {answeredQuestions.map((aq, i) => (
                   <details key={i} className="border border-gray-100 rounded-xl overflow-hidden">
                     <summary className="flex items-start justify-between p-4 cursor-pointer hover:bg-gray-50 gap-2">
                       <div className="flex flex-col gap-1 min-w-0">
-                        <span className={`text-xs px-2 py-0.5 rounded font-medium self-start ${typeBadgeColor(aq.type)}`}>{typeLabel(aq.type)}</span>
+                        <span className={`text-xs px-2 py-0.5 rounded font-medium self-start ${typeBadgeColor(aq.type)}`}>{typeLabel(aq.type, t)}</span>
                         <span className="text-sm text-gray-700 font-medium leading-snug">{aq.question.substring(0, 60)}...</span>
                       </div>
                       <span className={`text-sm font-bold flex-shrink-0 ${scoreColor(aq.score)}`}>{aq.score}/100</span>
                     </summary>
                     <div className="px-4 pb-4 space-y-3 border-t border-gray-100 pt-4">
                       <div>
-                        <p className="text-xs font-semibold text-gray-500 mb-1">Your answer:</p>
+                        <p className="text-xs font-semibold text-gray-500 mb-1">{t('jobAssistant.coaching.yourAnswer')}</p>
                         <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3">{aq.userAnswer}</p>
                       </div>
                       <p className="text-sm text-gray-600">{aq.feedback.quickFeedback}</p>
                       <div>
-                        <p className="text-xs font-semibold text-gray-500 mb-1">Suggested answer:</p>
+                        <p className="text-xs font-semibold text-gray-500 mb-1">{t('jobAssistant.coaching.suggestedAnswer')}</p>
                         <p className="text-sm text-gray-600 italic bg-emerald-50 rounded-lg p-3">{aq.suggestedAnswer}</p>
                       </div>
                     </div>
@@ -897,7 +887,6 @@ export default function JobAssistantPage() {
               </div>
             </div>
 
-            {/* Encouraging close */}
             <div className="bg-gradient-to-r from-emerald-600 to-teal-500 rounded-2xl p-5 sm:p-6 text-white text-center">
               <p className="text-base sm:text-lg font-medium">{coachingReport.encouragingClose}</p>
             </div>
@@ -906,7 +895,7 @@ export default function JobAssistantPage() {
               onClick={handleRestart}
               className="w-full py-3.5 bg-white border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:border-emerald-300 hover:text-emerald-600 transition-all"
             >
-              Start New Application
+              {t('jobAssistant.coaching.restartButton')}
             </button>
           </div>
         )}
