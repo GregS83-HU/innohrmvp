@@ -2703,7 +2703,8 @@
       "jobLabel": "Job Description",
       "jobPlaceholder": "Paste the full job description here...",
       "characters": "characters",
-      "analyzeButton": "Analyze My Application →"
+      "analyzeButton": "Analyze My Application →",
+      "aiConsent": "I understand and accept that my CV will be processed by an AI system for analysis purposes. No data is stored after the session ends."
     },
     "loading": {
       "analyzing": "Analyzing your CV against the job description...",

@@ -819,6 +819,7 @@
       "dropzoneHelp": "PDF vagy kép • Maximum 1 MB",
       "uploadButton": "Feltöltés és feldolgozás",
       "processing": "Feldolgozás..."
+      
     },
     "results": {
       "titleSuccess": "Kinyert igazolás adatai",
@@ -2705,7 +2706,8 @@
       "jobLabel": "Álláshirdetés",
       "jobPlaceholder": "Illeszd be ide a teljes álláshirdetést...",
       "characters": "karakter",
-      "analyzeButton": "Pályázatom Elemzése →"
+      "analyzeButton": "Pályázatom Elemzése →",
+      "aiConsent": "Tudomásul veszem és elfogadom, hogy önéletrajzomat mesterséges intelligencia dolgozza fel elemzési célból. A munkamenet végén semmilyen adat nem kerül tárolásra."
     },
     "loading": {
       "analyzing": "Az önéletrajz elemzése az álláshirdetés alapján...",

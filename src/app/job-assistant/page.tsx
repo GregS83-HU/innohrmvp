@@ -218,6 +218,8 @@ export default function JobAssistantPage() {
   const [jobDescription, setJobDescription] = useState('');
   const [error, setError] = useState('');
   const [isDragging, setIsDragging] = useState(false);
+  const [consentChecked, setConsentChecked] = useState(false);
+
 
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [improvementResult, setImprovementResult] = useState<ImprovementResult | null>(null);
@@ -499,9 +501,21 @@ export default function JobAssistantPage() {
               <p className="text-xs text-gray-400 mt-1">{jobDescription.length} {t('jobAssistant.upload.characters')}</p>
             </div>
 
+           <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={consentChecked}
+                onChange={e => setConsentChecked(e.target.checked)}
+                className="mt-0.5 w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-400 cursor-pointer flex-shrink-0"
+              />
+              <span className="text-xs text-gray-500 leading-relaxed">
+                {t('jobAssistant.upload.aiConsent')}
+              </span>
+            </label>
+
             <button
               onClick={handleAnalyze}
-              disabled={!cvFile || !jobDescription.trim()}
+              disabled={!cvFile || !jobDescription.trim() || !consentChecked}
               className="w-full py-3.5 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"
             >
               {t('jobAssistant.upload.analyzeButton')}
