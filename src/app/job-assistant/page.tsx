@@ -233,7 +233,18 @@ export default function JobAssistantPage() {
 
   // Voice input state
   const [isRecording, setIsRecording] = useState(false);
-  const recognitionRef = useRef<any>(null);
+  interface SpeechRecognitionInstance {
+    continuous: boolean;
+    interimResults: boolean;
+    lang: string;
+    start: () => void;
+    stop: () => void;
+    onstart: (() => void) | null;
+    onend: (() => void) | null;
+    onerror: (() => void) | null;
+    onresult: ((event: { resultIndex: number; results: { isFinal: boolean; 0: { transcript: string } }[] }) => void) | null;
+  }
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const isSpeechSupported = typeof window !== 'undefined' &&
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
 
@@ -245,13 +256,13 @@ export default function JobAssistantPage() {
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
+    const w = window as Window & { SpeechRecognition?: SpeechRecognitionConstructor; webkitSpeechRecognition?: SpeechRecognitionConstructor };
+    const SpeechRecognitionAPI = w.SpeechRecognition || w.webkitSpeechRecognition;
 
     if (!SpeechRecognitionAPI) return;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const recognition = new SpeechRecognitionAPI() as any;
+    const recognition = new SpeechRecognitionAPI();
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = locale === 'hu' ? 'hu-HU' : locale === 'fr' ? 'fr-FR' : 'en-US';
@@ -260,8 +271,7 @@ export default function JobAssistantPage() {
 
     recognition.onstart = () => setIsRecording(true);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: { resultIndex: number; results: { isFinal: boolean; 0: { transcript: string } }[] }) => {
       let interim = '';
       let final = '';
       for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -852,7 +862,7 @@ export default function JobAssistantPage() {
                 {currentScore.betterPhrasing && (
                   <div className="bg-white/70 rounded-lg p-3 mb-4">
                     <p className="text-xs font-semibold text-gray-600 mb-1">{t('jobAssistant.interview.betterPhrasing')}</p>
-                    <p className="text-xs text-gray-700 italic">"{currentScore.betterPhrasing}"</p>
+                    <p className="text-xs text-gray-700 italic">&ldquo;{currentScore.betterPhrasing}&rdquo;</p>
                   </div>
                 )}
 
