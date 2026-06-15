@@ -819,7 +819,6 @@
       "dropzoneHelp": "PDF vagy kép • Maximum 1 MB",
       "uploadButton": "Feltöltés és feldolgozás",
       "processing": "Feldolgozás..."
-      
     },
     "results": {
       "titleSuccess": "Kinyert igazolás adatai",
@@ -2747,7 +2746,11 @@
       "betterPhrasing": "Jobb megfogalmazás:",
       "suggestedAnswer": "Javasolt válasz:",
       "nextQuestion": "Következő Kérdés →",
-      "getReport": "Coaching Jelentés →"
+      "getReport": "Coaching Jelentés →",
+      "recordingPlaceholder": "Figyelek... mondja el a választ",
+      "recording": "Felvétel...",
+      "startRecording": "Válasz hanggal",
+      "stopRecording": "Felvétel leállítása"
     },
     "coaching": {
       "overallScore": "Összesített Interjú Pontszám",

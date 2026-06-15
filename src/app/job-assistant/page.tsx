@@ -218,8 +218,6 @@ export default function JobAssistantPage() {
   const [jobDescription, setJobDescription] = useState('');
   const [error, setError] = useState('');
   const [isDragging, setIsDragging] = useState(false);
-  const [consentChecked, setConsentChecked] = useState(false);
-
 
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [improvementResult, setImprovementResult] = useState<ImprovementResult | null>(null);
@@ -233,7 +231,66 @@ export default function JobAssistantPage() {
   const [answeredQuestions, setAnsweredQuestions] = useState<AnsweredQuestion[]>([]);
   const [coachingReport, setCoachingReport] = useState<CoachingReport | null>(null);
 
+  // Voice input state
+  const [isRecording, setIsRecording] = useState(false);
+  const recognitionRef = useRef<any>(null);
+  const isSpeechSupported = typeof window !== 'undefined' &&
+    ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleToggleRecording = useCallback(() => {
+    if (isRecording) {
+      recognitionRef.current?.stop();
+      return;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognitionAPI) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const recognition = new SpeechRecognitionAPI() as any;
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = locale === 'hu' ? 'hu-HU' : locale === 'fr' ? 'fr-FR' : 'en-US';
+
+    let baseText = userAnswer;
+
+    recognition.onstart = () => setIsRecording(true);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    recognition.onresult = (event: any) => {
+      let interim = '';
+      let final = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          final += transcript;
+        } else {
+          interim += transcript;
+        }
+      }
+      if (final) {
+        baseText = (baseText ? baseText + ' ' : '') + final.trim();
+      }
+      setUserAnswer(baseText + (interim ? (baseText ? ' ' : '') + interim : ''));
+    };
+
+    recognition.onend = () => {
+      setIsRecording(false);
+      recognitionRef.current = null;
+    };
+
+    recognition.onerror = () => {
+      setIsRecording(false);
+      recognitionRef.current = null;
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  }, [isRecording, userAnswer, locale]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -375,6 +432,7 @@ export default function JobAssistantPage() {
       setUserAnswer('');
       setCurrentScore(null);
       setShowSuggestedAnswer(false);
+      recognitionRef.current?.stop();
     } else {
       handleConclude([...answeredQuestions, {
         question: q.question,
@@ -501,21 +559,9 @@ export default function JobAssistantPage() {
               <p className="text-xs text-gray-400 mt-1">{jobDescription.length} {t('jobAssistant.upload.characters')}</p>
             </div>
 
-           <label className="flex items-start gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={consentChecked}
-                onChange={e => setConsentChecked(e.target.checked)}
-                className="mt-0.5 w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-400 cursor-pointer flex-shrink-0"
-              />
-              <span className="text-xs text-gray-500 leading-relaxed">
-                {t('jobAssistant.upload.aiConsent')}
-              </span>
-            </label>
-
             <button
               onClick={handleAnalyze}
-              disabled={!cvFile || !jobDescription.trim() || !consentChecked}
+              disabled={!cvFile || !jobDescription.trim()}
               className="w-full py-3.5 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"
             >
               {t('jobAssistant.upload.analyzeButton')}
@@ -699,24 +745,62 @@ export default function JobAssistantPage() {
                 {interviewData.questions[currentQuestionIdx]?.question}
               </h3>
 
-              <textarea
-                value={userAnswer}
-                onChange={e => setUserAnswer(e.target.value)}
-                rows={6}
-                placeholder={t('jobAssistant.interview.answerPlaceholder')}
-                disabled={!!currentScore}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent resize-none disabled:bg-gray-50 disabled:text-gray-500"
-              />
+              <div className="relative">
+                <textarea
+                  value={userAnswer}
+                  onChange={e => setUserAnswer(e.target.value)}
+                  rows={6}
+                  placeholder={isRecording ? t('jobAssistant.interview.recordingPlaceholder') : t('jobAssistant.interview.answerPlaceholder')}
+                  disabled={!!currentScore}
+                  className={`w-full rounded-xl border px-4 py-3 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent resize-none disabled:bg-gray-50 disabled:text-gray-500 transition-all ${
+                    isRecording
+                      ? 'border-red-300 focus:ring-red-300 bg-red-50/30'
+                      : 'border-gray-200 focus:ring-emerald-400'
+                  }`}
+                />
+                {isRecording && (
+                  <div className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-red-50 border border-red-200 rounded-lg px-2 py-1">
+                    <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                    <span className="text-xs text-red-600 font-medium">{t('jobAssistant.interview.recording')}</span>
+                  </div>
+                )}
+              </div>
 
               {!currentScore && (
                 <div className="flex gap-3 mt-4">
                   <button
                     onClick={handleScoreAnswer}
-                    disabled={!userAnswer.trim() || isScoring}
+                    disabled={!userAnswer.trim() || isScoring || isRecording}
                     className="flex-1 py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                   >
                     {isScoring ? t('jobAssistant.interview.scoringButton') : t('jobAssistant.interview.submitButton')}
                   </button>
+
+                  {/* Mic button - only shown on supported browsers */}
+                  {isSpeechSupported && (
+                    <button
+                      onClick={handleToggleRecording}
+                      title={isRecording ? t('jobAssistant.interview.stopRecording') : t('jobAssistant.interview.startRecording')}
+                      className={`px-4 py-3 rounded-xl font-medium transition-all flex items-center gap-2 ${
+                        isRecording
+                          ? 'bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-200'
+                          : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+                      }`}
+                    >
+                      {isRecording ? (
+                        <>
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <rect x="6" y="6" width="12" height="12" rx="2" />
+                          </svg>
+                        </>
+                      ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                        </svg>
+                      )}
+                    </button>
+                  )}
+
                   <button
                     onClick={() => setShowSuggestedAnswer(s => !s)}
                     className="px-4 py-3 bg-gray-100 text-gray-600 font-medium rounded-xl hover:bg-gray-200 transition-all text-sm"
@@ -768,7 +852,7 @@ export default function JobAssistantPage() {
                 {currentScore.betterPhrasing && (
                   <div className="bg-white/70 rounded-lg p-3 mb-4">
                     <p className="text-xs font-semibold text-gray-600 mb-1">{t('jobAssistant.interview.betterPhrasing')}</p>
-                    <p className="text-xs text-gray-700 italic">&quot;{currentScore.betterPhrasing}&quot;</p>
+                    <p className="text-xs text-gray-700 italic">"{currentScore.betterPhrasing}"</p>
                   </div>
                 )}
 

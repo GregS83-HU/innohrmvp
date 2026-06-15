@@ -819,7 +819,6 @@
       "dropzoneHelp": "PDF ou Image • Maximum 1 Mo",
       "uploadButton": "Télécharger et Traiter",
       "processing": "Traitement..."
-      
     },
     "results": {
       "titleSuccess": "Détails du Certificat Extraits",
@@ -2982,8 +2981,7 @@
       "yourAnswer": "Votre réponse",
       "sending": "Envoi en cours..."
     }
-  }
-  ,
+  },
   "jobAssistant": {
     "header": {
       "title": "Assistant Candidature",
@@ -3056,7 +3054,11 @@
       "betterPhrasing": "Meilleure formulation :",
       "suggestedAnswer": "Réponse suggérée :",
       "nextQuestion": "Question Suivante →",
-      "getReport": "Obtenir le Rapport →"
+      "getReport": "Obtenir le Rapport →",
+      "recordingPlaceholder": "À l'écoute... parlez votre réponse",
+      "recording": "Écoute...",
+      "startRecording": "Répondre par la voix",
+      "stopRecording": "Arrêter l'enregistrement"
     },
     "coaching": {
       "overallScore": "Score Global de l'Entretien",

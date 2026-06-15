@@ -2744,7 +2744,11 @@
       "betterPhrasing": "Better phrasing:",
       "suggestedAnswer": "Suggested answer:",
       "nextQuestion": "Next Question →",
-      "getReport": "Get Coaching Report →"
+      "getReport": "Get Coaching Report →",
+      "recordingPlaceholder": "Listening... speak your answer",
+      "recording": "Listening...",
+      "startRecording": "Answer by voice",
+      "stopRecording": "Stop recording"
     },
     "coaching": {
       "overallScore": "Overall Interview Score",
