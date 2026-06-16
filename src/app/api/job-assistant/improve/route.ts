@@ -54,7 +54,7 @@ Respond ONLY with a valid JSON object in this exact format:
 }`;
 
     const completion = await openai.chat.completions.create({
-      model: 'openai/gpt-3.5-turbo',
+      model: 'openai/gpt-4o-mini',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.4,
     });

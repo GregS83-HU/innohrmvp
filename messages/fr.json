@@ -3058,7 +3058,9 @@
       "recordingPlaceholder": "À l'écoute... parlez votre réponse",
       "recording": "Écoute...",
       "startRecording": "Répondre par la voix",
-      "stopRecording": "Arrêter l'enregistrement"
+      "stopRecording": "Arrêter l'enregistrement",
+      "voiceUnsupportedTitle": "Saisie vocale non disponible",
+"voiceUnsupportedText": "Votre navigateur ne prend pas en charge la saisie vocale. Utilisez Chrome ou Edge pour cette fonctionnalité, ou tapez votre réponse ci-dessous."
     },
     "coaching": {
       "overallScore": "Score Global de l'Entretien",

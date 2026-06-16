@@ -10,7 +10,7 @@ const LANGUAGE_NAMES: Record<string, string> = { en: 'English', hu: 'Hungarian',
 
 export async function POST(req: NextRequest) {
   try {
-    const { answeredQuestions, jobDescription, roleTitle, locale = 'en' } = await req.json();
+    const { answeredQuestions, jobDescription, roleTitle, cvText, locale = 'en' } = await req.json();
     const language = LANGUAGE_NAMES[locale] || 'English';
 
     if (!answeredQuestions || answeredQuestions.length === 0) {
@@ -21,63 +21,94 @@ export async function POST(req: NextRequest) {
       answeredQuestions.reduce((sum: number, q: { score: number }) => sum + q.score, 0) / answeredQuestions.length
     );
 
+    // Include the already-computed per-question feedback — don't make the model re-infer it
     const questionsContext = answeredQuestions
-      .map((q: { question: string; type: string; score: number; userAnswer: string }, i: number) =>
-        `Q${i + 1} [${q.type}] (Score: ${q.score}/100): ${q.question}\nAnswer: ${q.userAnswer?.substring(0, 200)}`
-      )
-      .join('\n\n');
+      .map((q: {
+        question: string;
+        type: string;
+        score: number;
+        userAnswer: string;
+        feedback: {
+          strengths: string[];
+          improvements: string[];
+          quickFeedback: string;
+        };
+      }, i: number) => `Q${i + 1} [${q.type}] — Score: ${q.score}/100
+Question: ${q.question}
+Answer: ${q.userAnswer?.substring(0, 400)}
+Coach feedback: ${q.feedback?.quickFeedback || ''}
+Strengths shown: ${q.feedback?.strengths?.join('; ') || '—'}
+Needs work: ${q.feedback?.improvements?.join('; ') || '—'}`)
+      .join('\n\n---\n\n');
 
-    const prompt = `You are a senior interview coach. Provide a comprehensive coaching report for this candidate after their mock interview.
+    const cvContext = cvText
+      ? `CANDIDATE BACKGROUND (from CV):\n${cvText.substring(0, 1200)}`
+      : 'CANDIDATE BACKGROUND: Not provided.';
 
+    const prompt = `You are a senior interview coach writing a post-interview coaching report.
 IMPORTANT: Write ALL text content in ${language}. Only JSON keys stay in English.
 
 ROLE APPLIED FOR: ${roleTitle}
-AVERAGE INTERVIEW SCORE: ${avgScore}/100
+AVERAGE SCORE: ${avgScore}/100
 
-INTERVIEW PERFORMANCE SUMMARY:
+${cvContext}
+
+JOB REQUIREMENTS:
+${jobDescription?.substring(0, 600)}
+
+DETAILED INTERVIEW PERFORMANCE (with per-question coaching notes):
 ${questionsContext}
 
-JOB REQUIREMENTS CONTEXT:
-${jobDescription?.substring(0, 800)}
+Your report must be SPECIFIC to this candidate — reference their actual answers, their background from the CV, 
+and the concrete gaps identified in the per-question feedback above. 
+Do NOT produce generic advice that could apply to any candidate.
 
-Respond ONLY with a valid JSON object:
+Respond ONLY with valid JSON:
 {
   "overallScore": ${avgScore},
-  "overallVerdict": "<Strongly Recommend|Recommend|Borderline|Not Recommended — translated in ${language}>",
-  "executiveSummary": "<3-4 sentences in ${language}>",
+  "overallVerdict": "<Strongly Recommend|Recommend|Borderline|Not Recommended in ${language}>",
+  "executiveSummary": "<3-4 sentences referencing their specific answers and background in ${language}>",
   "performanceByType": {
-    "behavioral": { "avgScore": <0-100>, "comment": "<1-2 sentences in ${language}>" },
-    "technical": { "avgScore": <0-100>, "comment": "<1-2 sentences in ${language}>" },
-    "motivational": { "avgScore": <0-100>, "comment": "<1-2 sentences in ${language}>" },
-    "situational": { "avgScore": <0-100>, "comment": "<1-2 sentences in ${language}>" }
+    "behavioral": { "avgScore": <0-100>, "comment": "<comment grounded in their actual behavioral answers in ${language}>" },
+    "technical": { "avgScore": <0-100>, "comment": "<comment grounded in their actual technical answers in ${language}>" },
+    "motivational": { "avgScore": <0-100>, "comment": "<comment grounded in their actual motivational answers in ${language}>" },
+    "situational": { "avgScore": <0-100>, "comment": "<comment grounded in their actual situational answers in ${language}>" }
   },
-  "topStrengths": ["<strength 1 in ${language}>", "<strength 2 in ${language}>", "<strength 3 in ${language}>"],
-  "criticalImprovements": ["<improvement 1 in ${language}>", "<improvement 2 in ${language}>", "<improvement 3 in ${language}>"],
+  "topStrengths": ["<specific strength with example from their answers>", "<specific strength>", "<specific strength>"],
+  "criticalImprovements": ["<specific gap with reference to which question(s) revealed it>", "<specific gap>", "<specific gap>"],
   "coachingPlan": [
     {
-      "area": "<area in ${language}>",
+      "area": "<area directly tied to a weakness seen in the interview>",
       "priority": "<High|Medium|Low>",
-      "advice": "<2-3 sentences in ${language}>",
-      "practiceExercise": "<concrete exercise in ${language}>"
+      "advice": "<advice that references their actual answer patterns in ${language}>",
+      "practiceExercise": "<concrete exercise tailored to their specific gaps in ${language}>"
     }
   ],
-  "interviewReadiness": "<Not Ready|Needs More Practice|Almost Ready|Ready — translated in ${language}>",
-  "encouragingClose": "<2 sentences in ${language}>"
+  "interviewReadiness": "<Not Ready|Needs More Practice|Almost Ready|Ready in ${language}>",
+  "encouragingClose": "<2 sentences referencing something specific and positive from their interview in ${language}>"
 }`;
 
     const completion = await openai.chat.completions.create({
-      model: 'openai/gpt-3.5-turbo',
+      model: 'openai/gpt-4o-mini',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.4,
+      response_format: { type: 'json_object' },
     });
 
     const raw = completion.choices[0]?.message?.content || '';
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 });
+
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      const jsonMatch = raw.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 });
+      }
+      parsed = JSON.parse(jsonMatch[0]);
     }
 
-    return NextResponse.json(JSON.parse(jsonMatch[0]));
+    return NextResponse.json(parsed);
   } catch (error) {
     console.error('Interview conclude error:', error);
     return NextResponse.json({ error: 'Failed to generate coaching report. Please try again.' }, { status: 500 });

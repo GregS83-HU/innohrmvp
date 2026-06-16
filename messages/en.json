@@ -2748,7 +2748,9 @@
       "recordingPlaceholder": "Listening... speak your answer",
       "recording": "Listening...",
       "startRecording": "Answer by voice",
-      "stopRecording": "Stop recording"
+      "stopRecording": "Stop recording",
+      "voiceUnsupportedTitle": "Voice input not available",
+"voiceUnsupportedText": "Your browser doesn't support voice input. Please use Chrome or Edge to use this feature, or type your answer below."
     },
     "coaching": {
       "overallScore": "Overall Interview Score",

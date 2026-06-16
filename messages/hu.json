@@ -2750,7 +2750,9 @@
       "recordingPlaceholder": "Figyelek... mondja el a választ",
       "recording": "Felvétel...",
       "startRecording": "Válasz hanggal",
-      "stopRecording": "Felvétel leállítása"
+      "stopRecording": "Felvétel leállítása",
+      "voiceUnsupportedTitle": "Hangbevitel nem elérhető",
+"voiceUnsupportedText": "A böngésződ nem támogatja a hangbevitelt. Használd a Chrome-ot vagy az Edge-et ehhez a funkcióhoz, vagy írd be a választ az alábbi mezőbe."
     },
     "coaching": {
       "overallScore": "Összesített Interjú Pontszám",
