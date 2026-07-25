@@ -141,12 +141,14 @@ export default function Header() {
               )}
 
               {/* Job Application Assistant - always visible */}
-              <Link
-                href="/job-assistant"
-                className={`${buttonBaseClasses} bg-emerald-50 hover:bg-emerald-100 text-emerald-700`}
-              >
-                <FileSearch className="w-4 h-4" /> Job Assistant
-              </Link>
+              {!companySlug && (
+                <Link
+                  href="/job-assistant"
+                  className={`${buttonBaseClasses} bg-emerald-50 hover:bg-emerald-100 text-emerald-700`}
+                >
+                  <FileSearch className="w-4 h-4" /> Job Assistant
+                </Link>
+              )}
 
               {/* HR Tools Dropdown - only in slug context */}
               {companySlug && user && (
@@ -427,6 +429,7 @@ export default function Header() {
               )}
 
               {/* Job Application Assistant - always visible */}
+              {!companySlug && (
               <Link
                 href="/job-assistant"
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -434,6 +437,7 @@ export default function Header() {
               >
                 <FileSearch className="w-4 h-4" /> Job Assistant
               </Link>
+              )}
 
               {/* HR Tools - only in slug context */}
               {companySlug && user && (

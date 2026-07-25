@@ -1,6 +1,6 @@
 # Codebase - innohrmvp
 **Mode:** full-feature-extract  
-**Generated:** Sat Jun 13 08:40:15 CEST 2026
+**Generated:** Fri Jun 19 08:24:00 CEST 2026
 **Purpose:** Complete AI analysis including all APIs, components & features
 
 ---
@@ -10,7 +10,7 @@
 
 ```
 Folder: .
-Type: json | Lines:       73
+Type: json | Lines:       75
 Top definitions:
 --- Package Info ---
   "name": "innohrmvp",
@@ -51,13 +51,13 @@ Top definitions:
     "canvas": "^3.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "docx": "^9.7.1",
     "file-saver": "^2.0.5",
     "framer-motion": "^12.23.12",
-    "jszip": "^3.10.1",
 ```
 
 <details>
-<summary>📄 Full content (      73 lines)</summary>
+<summary>📄 Full content (      75 lines)</summary>
 
 ```json
 {
@@ -89,6 +89,7 @@ Top definitions:
     "canvas": "^3.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "docx": "^9.7.1",
     "file-saver": "^2.0.5",
     "framer-motion": "^12.23.12",
     "jszip": "^3.10.1",
@@ -113,6 +114,7 @@ Top definitions:
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/dom-speech-recognition": "^0.0.12",
     "@types/node": "^20",
     "@types/nodemailer": "^7.0.3",
     "@types/pdf-parse": "^1.1.5",
@@ -194,7 +196,7 @@ Top definitions:
 export default withNextIntl(nextConfig);
 
 --- Key Functions/Components ---
-const withNextIntl = createNextIntlPlugin('./src/i18n.ts');
+const withNextIntl = createNextIntlPlugin("./src/i18n.ts");
 const nextConfig: NextConfig = {
 ```
 
@@ -203,12 +205,12 @@ const nextConfig: NextConfig = {
 
 ```ts
 import type { NextConfig } from "next";
-import createNextIntlPlugin from 'next-intl/plugin';
+import createNextIntlPlugin from "next-intl/plugin";
 
-const withNextIntl = createNextIntlPlugin('./src/i18n.ts');
+const withNextIntl = createNextIntlPlugin("./src/i18n.ts");
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ['pdf-parse'],
+  serverExternalPackages: ["pdf-parse"],
 };
 
 export default withNextIntl(nextConfig);
@@ -3258,6 +3260,691 @@ export async function POST(req: Request) {
 
     if (authError || !authUser) {
 ... (truncated,      301 total lines)
+```
+</details>
+
+---
+
+## `src/app/api/job-assistant/analyze/route.ts`
+
+```
+Folder: src/app/api/job-assistant/analyze
+Type: ts | Lines:       77
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+const openai = new OpenAI({
+const LANGUAGE_NAMES: Record<string, string> = { en: 'English', hu: 'Hungarian', fr: 'French' };
+```
+
+<details>
+<summary>📄 Full content (      77 lines)</summary>
+
+```ts
+import { NextRequest, NextResponse } from 'next/server';
+import OpenAI from 'openai';
+import pdfParse from 'pdf-parse';
+
+const openai = new OpenAI({
+  baseURL: 'https://openrouter.ai/api/v1',
+  apiKey: process.env.OPENROUTER_API_KEY,
+});
+
+const LANGUAGE_NAMES: Record<string, string> = { en: 'English', hu: 'Hungarian', fr: 'French' };
+
+export async function POST(req: NextRequest) {
+  try {
+    const formData = await req.formData();
+    const cvFile = formData.get('cv') as File | null;
+    const jobDescription = formData.get('jobDescription') as string | null;
+    const locale = (formData.get('locale') as string) || 'en';
+    const language = LANGUAGE_NAMES[locale] || 'English';
+
+    if (!cvFile || !jobDescription) {
+      return NextResponse.json({ error: 'CV file and job description are required' }, { status: 400 });
+    }
+
+    const arrayBuffer = await cvFile.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const pdfData = await pdfParse(buffer);
+    const cvText = pdfData.text;
+
+    if (!cvText || cvText.trim().length < 50) {
+      return NextResponse.json({ error: 'Could not extract text from PDF. Please ensure the CV is not scanned.' }, { status: 400 });
+    }
+
+    const prompt = `You are an expert HR consultant and career coach. Analyze this CV against the job description and provide a detailed assessment.
+
+IMPORTANT: Write ALL text values (comments, strengths, gaps, summary) in ${language}. Only the JSON keys must stay in English.
+
+CV:
+${cvText}
+
+JOB DESCRIPTION:
+${jobDescription}
+
+Respond ONLY with a valid JSON object in this exact format:
+{
+  "overallScore": <number 0-100>,
+  "breakdown": {
+    "skillsMatch": { "score": <0-100>, "comment": "<2 sentences in ${language}>" },
+    "experienceMatch": { "score": <0-100>, "comment": "<2 sentences in ${language}>" },
+    "educationMatch": { "score": <0-100>, "comment": "<2 sentences in ${language}>" },
+    "keywordsMatch": { "score": <0-100>, "comment": "<2 sentences in ${language}>" },
+    "overallPresentation": { "score": <0-100>, "comment": "<2 sentences in ${language}>" }
+  },
+  "topStrengths": ["<strength 1 in ${language}>", "<strength 2 in ${language}>", "<strength 3 in ${language}>"],
+  "topGaps": ["<gap 1 in ${language}>", "<gap 2 in ${language}>", "<gap 3 in ${language}>"],
+  "summary": "<3-4 sentence overall assessment in ${language}>"
+}`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'openai/gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.3,
+    });
+
+    const raw = completion.choices[0]?.message?.content || '';
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 });
+    }
+
+    const result = JSON.parse(jsonMatch[0]);
+    result.cvText = cvText;
+
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error('Job assistant analyze error:', error);
+    return NextResponse.json({ error: 'Analysis failed. Please try again.' }, { status: 500 });
+  }
+}
+```
+</details>
+
+---
+
+## `src/app/api/job-assistant/improve/route.ts`
+
+```
+Folder: src/app/api/job-assistant/improve
+Type: ts | Lines:      181
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+const openai = new OpenAI({
+const LANGUAGE_NAMES: Record<string, string> = { en: 'English', hu: 'Hungarian', fr: 'French' };
+```
+
+<details>
+<summary>📄 Full content (     181 lines)</summary>
+
+```ts
+import { NextRequest, NextResponse } from 'next/server';
+import OpenAI from 'openai';
+import {
+  Document, Packer, Paragraph, TextRun, HeadingLevel,
+  AlignmentType, LevelFormat, BorderStyle
+} from 'docx';
+
+const openai = new OpenAI({
+  baseURL: 'https://openrouter.ai/api/v1',
+  apiKey: process.env.OPENROUTER_API_KEY,
+});
+
+const LANGUAGE_NAMES: Record<string, string> = { en: 'English', hu: 'Hungarian', fr: 'French' };
+
+export async function POST(req: NextRequest) {
+  try {
+    const { cvText, jobDescription, locale = 'en' } = await req.json();
+    const language = LANGUAGE_NAMES[locale] || 'English';
+
+    if (!cvText || !jobDescription) {
+      return NextResponse.json({ error: 'CV text and job description are required' }, { status: 400 });
+    }
+
+    const prompt = `You are an expert CV writer and career coach. Rewrite this CV to better match the job description.
+Preserve all real experience, education, and facts — do NOT invent anything.
+Improve phrasing, keywords, structure, and emphasis to align with the job requirements.
+
+IMPORTANT: Write ALL text content (section content, key changes, improvement summary) in ${language}. Only JSON keys stay in English.
+
+ORIGINAL CV:
+${cvText}
+
+JOB DESCRIPTION:
+${jobDescription}
+
+Respond ONLY with a valid JSON object in this exact format:
+{
+  "improvedCvSections": [
+    {
+      "heading": "<section title in ${language}>",
+      "content": "<full section content in ${language}, using newlines to separate items>"
+    }
+  ],
+  "newScore": <number 0-100>,
+  "scoreBreakdown": {
+    "skillsMatch": <0-100>,
+    "experienceMatch": <0-100>,
+    "educationMatch": <0-100>,
+    "keywordsMatch": <0-100>,
+    "overallPresentation": <0-100>
+  },
+  "keyChanges": ["<change 1 in ${language}>", "<change 2 in ${language}>", "<change 3 in ${language}>", "<change 4 in ${language}>", "<change 5 in ${language}>"],
+  "improvementSummary": "<2-3 sentences in ${language} explaining the main improvements made>"
+}`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'openai/gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.4,
+    });
+
+    const raw = completion.choices[0]?.message?.content || '';
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 });
+    }
+
+    const result = JSON.parse(jsonMatch[0]);
+
+    // Build DOCX
+    const dividerBorder = {
+      bottom: { style: BorderStyle.SINGLE, size: 4, color: '4F7942', space: 1 },
+    };
+
+    const docChildren: Paragraph[] = [];
+
+    docChildren.push(
+      new Paragraph({
+        heading: HeadingLevel.HEADING_1,
+        children: [new TextRun({ text: 'Optimized CV', bold: true, color: '2D5A27' })],
+        alignment: AlignmentType.CENTER,
+      })
+    );
+
+    docChildren.push(
+      new Paragraph({
+        children: [new TextRun({ text: 'Tailored for the position', italics: true, color: '666666', size: 20 })],
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 400 },
+      })
+    );
+
+    for (const section of result.improvedCvSections || []) {
+      docChildren.push(
+        new Paragraph({
+          heading: HeadingLevel.HEADING_2,
+          border: dividerBorder,
+          children: [new TextRun({ text: section.heading?.toUpperCase() || '', bold: true, color: '2D5A27' })],
+          spacing: { before: 320, after: 160 },
+        })
+      );
+
+      const lines = (section.content || '').split('\n').filter((l: string) => l.trim());
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+        const isBullet = trimmed.startsWith('•') || trimmed.startsWith('-') || trimmed.startsWith('*');
+        const cleanLine = isBullet ? trimmed.replace(/^[•\-\*]\s*/, '') : trimmed;
+
+        if (isBullet) {
+          docChildren.push(
+            new Paragraph({
+              numbering: { reference: 'cv-bullets', level: 0 },
+              children: [new TextRun({ text: cleanLine, size: 22 })],
+              spacing: { after: 80 },
+            })
+          );
+        } else {
+          docChildren.push(
+            new Paragraph({
+              children: [new TextRun({ text: cleanLine, size: 22 })],
+              spacing: { after: 120 },
+            })
+          );
+        }
+      }
+    }
+
+    const doc = new Document({
+      numbering: {
+        config: [
+          {
+            reference: 'cv-bullets',
+            levels: [
+              {
+                level: 0,
+                format: LevelFormat.BULLET,
+                text: '•',
+                alignment: AlignmentType.LEFT,
+                style: { paragraph: { indent: { left: 720, hanging: 360 } } },
+              },
+            ],
+          },
+        ],
+      },
+      styles: {
+        default: { document: { run: { font: 'Arial', size: 22 } } },
+        paragraphStyles: [
+          {
+            id: 'Heading1', name: 'Heading 1', basedOn: 'Normal', next: 'Normal', quickFormat: true,
+            run: { size: 36, bold: true, font: 'Arial', color: '2D5A27' },
+            paragraph: { spacing: { before: 0, after: 200 }, outlineLevel: 0 },
+          },
+          {
+            id: 'Heading2', name: 'Heading 2', basedOn: 'Normal', next: 'Normal', quickFormat: true,
+            run: { size: 26, bold: true, font: 'Arial', color: '2D5A27' },
+            paragraph: { spacing: { before: 240, after: 120 }, outlineLevel: 1 },
+          },
+        ],
+      },
+      sections: [
+        {
+          properties: {
+            page: {
+              size: { width: 11906, height: 16838 },
+              margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 },
+            },
+          },
+          children: docChildren,
+        },
+      ],
+    });
+
+    const docBuffer = await Packer.toBuffer(doc);
+    const base64 = docBuffer.toString('base64');
+
+    return NextResponse.json({ ...result, docxBase64: base64 });
+  } catch (error) {
+    console.error('Job assistant improve error:', error);
+    return NextResponse.json({ error: 'CV improvement failed. Please try again.' }, { status: 500 });
+  }
+}
+```
+</details>
+
+---
+
+## `src/app/api/job-assistant/interview/conclude/route.ts`
+
+```
+Folder: src/app/api/job-assistant/interview/conclude
+Type: ts | Lines:      115
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+const openai = new OpenAI({
+const LANGUAGE_NAMES: Record<string, string> = { en: 'English', hu: 'Hungarian', fr: 'French' };
+```
+
+<details>
+<summary>📄 Full content (     115 lines)</summary>
+
+```ts
+import { NextRequest, NextResponse } from 'next/server';
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  baseURL: 'https://openrouter.ai/api/v1',
+  apiKey: process.env.OPENROUTER_API_KEY,
+});
+
+const LANGUAGE_NAMES: Record<string, string> = { en: 'English', hu: 'Hungarian', fr: 'French' };
+
+export async function POST(req: NextRequest) {
+  try {
+    const { answeredQuestions, jobDescription, roleTitle, cvText, locale = 'en' } = await req.json();
+    const language = LANGUAGE_NAMES[locale] || 'English';
+
+    if (!answeredQuestions || answeredQuestions.length === 0) {
+      return NextResponse.json({ error: 'Answered questions are required' }, { status: 400 });
+    }
+
+    const avgScore = Math.round(
+      answeredQuestions.reduce((sum: number, q: { score: number }) => sum + q.score, 0) / answeredQuestions.length
+    );
+
+    // Include the already-computed per-question feedback — don't make the model re-infer it
+    const questionsContext = answeredQuestions
+      .map((q: {
+        question: string;
+        type: string;
+        score: number;
+        userAnswer: string;
+        feedback: {
+          strengths: string[];
+          improvements: string[];
+          quickFeedback: string;
+        };
+      }, i: number) => `Q${i + 1} [${q.type}] — Score: ${q.score}/100
+Question: ${q.question}
+Answer: ${q.userAnswer?.substring(0, 400)}
+Coach feedback: ${q.feedback?.quickFeedback || ''}
+Strengths shown: ${q.feedback?.strengths?.join('; ') || '—'}
+Needs work: ${q.feedback?.improvements?.join('; ') || '—'}`)
+      .join('\n\n---\n\n');
+
+    const cvContext = cvText
+      ? `CANDIDATE BACKGROUND (from CV):\n${cvText.substring(0, 1200)}`
+      : 'CANDIDATE BACKGROUND: Not provided.';
+
+    const prompt = `You are a senior interview coach writing a post-interview coaching report.
+IMPORTANT: Write ALL text content in ${language}. Only JSON keys stay in English.
+
+ROLE APPLIED FOR: ${roleTitle}
+AVERAGE SCORE: ${avgScore}/100
+
+${cvContext}
+
+JOB REQUIREMENTS:
+${jobDescription?.substring(0, 600)}
+
+DETAILED INTERVIEW PERFORMANCE (with per-question coaching notes):
+${questionsContext}
+
+Your report must be SPECIFIC to this candidate — reference their actual answers, their background from the CV, 
+and the concrete gaps identified in the per-question feedback above. 
+Do NOT produce generic advice that could apply to any candidate.
+
+Respond ONLY with valid JSON:
+{
+  "overallScore": ${avgScore},
+  "overallVerdict": "<Strongly Recommend|Recommend|Borderline|Not Recommended in ${language}>",
+  "executiveSummary": "<3-4 sentences referencing their specific answers and background in ${language}>",
+  "performanceByType": {
+    "behavioral": { "avgScore": <0-100>, "comment": "<comment grounded in their actual behavioral answers in ${language}>" },
+    "technical": { "avgScore": <0-100>, "comment": "<comment grounded in their actual technical answers in ${language}>" },
+    "motivational": { "avgScore": <0-100>, "comment": "<comment grounded in their actual motivational answers in ${language}>" },
+    "situational": { "avgScore": <0-100>, "comment": "<comment grounded in their actual situational answers in ${language}>" }
+  },
+  "topStrengths": ["<specific strength with example from their answers>", "<specific strength>", "<specific strength>"],
+  "criticalImprovements": ["<specific gap with reference to which question(s) revealed it>", "<specific gap>", "<specific gap>"],
+  "coachingPlan": [
+    {
+      "area": "<area directly tied to a weakness seen in the interview>",
+      "priority": "<High|Medium|Low>",
+      "advice": "<advice that references their actual answer patterns in ${language}>",
+      "practiceExercise": "<concrete exercise tailored to their specific gaps in ${language}>"
+    }
+  ],
+  "interviewReadiness": "<Not Ready|Needs More Practice|Almost Ready|Ready in ${language}>",
+  "encouragingClose": "<2 sentences referencing something specific and positive from their interview in ${language}>"
+}`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'openai/gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.4,
+      response_format: { type: 'json_object' },
+    });
+
+    const raw = completion.choices[0]?.message?.content || '';
+
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      const jsonMatch = raw.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 });
+      }
+      parsed = JSON.parse(jsonMatch[0]);
+    }
+
+    return NextResponse.json(parsed);
+  } catch (error) {
+    console.error('Interview conclude error:', error);
+    return NextResponse.json({ error: 'Failed to generate coaching report. Please try again.' }, { status: 500 });
+  }
+}
+```
+</details>
+
+---
+
+## `src/app/api/job-assistant/interview/generate/route.ts`
+
+```
+Folder: src/app/api/job-assistant/interview/generate
+Type: ts | Lines:       68
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+const openai = new OpenAI({
+const LANGUAGE_NAMES: Record<string, string> = { en: 'English', hu: 'Hungarian', fr: 'French' };
+```
+
+<details>
+<summary>📄 Full content (      68 lines)</summary>
+
+```ts
+import { NextRequest, NextResponse } from 'next/server';
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  baseURL: 'https://openrouter.ai/api/v1',
+  apiKey: process.env.OPENROUTER_API_KEY,
+});
+
+const LANGUAGE_NAMES: Record<string, string> = { en: 'English', hu: 'Hungarian', fr: 'French' };
+
+export async function POST(req: NextRequest) {
+  try {
+    const { cvText, jobDescription, locale = 'en' } = await req.json();
+    const language = LANGUAGE_NAMES[locale] || 'English';
+
+    if (!cvText || !jobDescription) {
+      return NextResponse.json({ error: 'CV and job description are required' }, { status: 400 });
+    }
+
+    const prompt = `You are a senior hiring manager conducting a job interview. Based on the candidate's CV and the job description, generate exactly 10 interview questions.
+
+Mix question types:
+- 3 behavioral questions (past experience, "Tell me about a time...")
+- 3 technical/skills questions specific to the role
+- 2 motivational questions (why this role, career goals)
+- 2 situational questions ("How would you handle...")
+
+IMPORTANT: Write ALL text content (questions, assessments, answer points, suggested answers, tips) in ${language}. Only JSON keys stay in English.
+
+CV:
+${cvText}
+
+JOB DESCRIPTION:
+${jobDescription}
+
+Respond ONLY with a valid JSON object in this exact format:
+{
+  "questions": [
+    {
+      "id": 1,
+      "type": "<behavioral|technical|motivational|situational>",
+      "question": "<the interview question in ${language}>",
+      "whatWeAssess": "<1 sentence in ${language}: what this question evaluates>",
+      "idealAnswerPoints": ["<key point 1 in ${language}>", "<key point 2 in ${language}>", "<key point 3 in ${language}>"],
+      "suggestedAnswer": "<a strong sample answer in ${language} of 3-4 sentences>"
+    }
+  ],
+  "roleTitle": "<extracted job title from the job description>",
+  "interviewTips": ["<tip 1 in ${language}>", "<tip 2 in ${language}>", "<tip 3 in ${language}>"]
+}`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'openai/gpt-3.5-turbo',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.5,
+    });
+
+    const raw = completion.choices[0]?.message?.content || '';
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 });
+    }
+
+    return NextResponse.json(JSON.parse(jsonMatch[0]));
+  } catch (error) {
+    console.error('Interview generate error:', error);
+    return NextResponse.json({ error: 'Failed to generate interview questions. Please try again.' }, { status: 500 });
+  }
+}
+```
+</details>
+
+---
+
+## `src/app/api/job-assistant/interview/score/route.ts`
+
+```
+Folder: src/app/api/job-assistant/interview/score
+Type: ts | Lines:      129
+Top definitions:
+--- Exports ---
+
+--- Key Functions/Components ---
+const openai = new OpenAI({
+const LANGUAGE_NAMES: Record<string, string> = {
+```
+
+<details>
+<summary>📄 Full content (     129 lines)</summary>
+
+```ts
+import { NextRequest, NextResponse } from 'next/server';
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  baseURL: 'https://openrouter.ai/api/v1',
+  apiKey: process.env.OPENROUTER_API_KEY,
+});
+
+const LANGUAGE_NAMES: Record<string, string> = {
+  en: 'English',
+  hu: 'Hungarian',
+  fr: 'French',
+};
+
+export async function POST(req: NextRequest) {
+  try {
+    const {
+      question,
+      questionType,
+      idealAnswerPoints,
+      userAnswer,
+      jobDescription,
+      cvSummary,        // ← NEW: parsed CV data (skills, experience, etc.)
+      locale = 'en',
+    } = await req.json();
+
+    const language = LANGUAGE_NAMES[locale] || 'English';
+
+    if (!question || !userAnswer) {
+      return NextResponse.json(
+        { error: 'Question and answer are required' },
+        { status: 400 }
+      );
+    }
+
+    // Build CV context block — only injected if available
+    const cvContext = cvSummary
+      ? `
+CANDIDATE PROFILE (from their CV):
+- Skills: ${cvSummary.skills?.join(', ') || 'Not provided'}
+- Years of experience: ${cvSummary.yearsOfExperience || 'Unknown'}
+- Most recent role: ${cvSummary.mostRecentRole || 'Unknown'}
+- Key achievements: ${cvSummary.keyAchievements?.join('; ') || 'None listed'}
+- Education: ${cvSummary.education || 'Not provided'}
+
+Use this profile to:
+1. Identify which of their real experiences they FAILED to mention in their answer
+2. Make the "betterPhrasing" example reference their ACTUAL background (not a generic answer)
+3. Point out missed opportunities to leverage their specific strengths`
+      : `CANDIDATE PROFILE: Not provided. Give general coaching advice.`;
+
+    // Format ideal points as a numbered list so the model weighs them properly
+    const idealPointsFormatted = idealAnswerPoints?.length
+      ? idealAnswerPoints
+          .map((point: string, i: number) => `  ${i + 1}. ${point}`)
+          .join('\n')
+      : '  (No ideal points provided — use your judgment for this question type)';
+
+    const prompt = `You are an expert interview coach evaluating a ${questionType} interview question.
+Write ALL text in ${language}. Only JSON keys stay in English.
+
+━━━ CONTEXT ━━━
+QUESTION: ${question}
+QUESTION TYPE: ${questionType}
+
+WHAT A STRONG ANSWER LOOKS LIKE (ideal points):
+${idealPointsFormatted}
+
+JOB DESCRIPTION (excerpt):
+${jobDescription?.substring(0, 600) || 'Not provided'}
+
+${cvContext}
+
+━━━ CANDIDATE'S ANSWER ━━━
+${userAnswer}
+
+━━━ SCORING INSTRUCTIONS ━━━
+Score how well the answer covers the ideal points above.
+- "strengths": what they DID cover well from the ideal points
+- "improvements": which ideal points are MISSING or underdeveloped
+- "quickFeedback": direct 2-3 sentence coach note referencing the ideal points gap
+- "betterPhrasing": rewrite their answer to be stronger — it MUST:
+    • Cover the same ground as the ideal points
+    • If CV data is available, incorporate their specific background/achievements
+    • Match the level of specificity of the ideal points (if ideal points are generic, be generic; if detailed, be detailed)
+    • Sound natural for the candidate, not like a template
+
+Respond ONLY with valid JSON:
+{
+  "score": <0-100>,
+  "scoreLabel": "<Excellent|Good|Average|Needs Improvement|Poor in ${language}>",
+  "strengths": ["<what they covered from ideal points>"],
+  "improvements": ["<which ideal points are missing or weak>"],
+  "quickFeedback": "<2-3 sentences referencing the ideal points gap in ${language}>",
+  "betterPhrasing": "<rewritten answer aligned with ideal points, using their CV background if available, in ${language}>"
+}`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'openai/gpt-4o-mini', // upgraded from gpt-3.5-turbo
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.3,
+      response_format: { type: 'json_object' }, // enforces valid JSON output
+    });
+
+    const raw = completion.choices[0]?.message?.content || '';
+
+    let parsed: Record<string, unknown>;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      // Fallback regex for models that ignore response_format
+      const jsonMatch = raw.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        return NextResponse.json(
+          { error: 'Failed to parse AI response' },
+          { status: 500 }
+        );
+      }
+      parsed = JSON.parse(jsonMatch[0]);
+    }
+
+    return NextResponse.json(parsed);
+  } catch (error) {
+    console.error('Interview score error:', error);
+    return NextResponse.json(
+      { error: 'Scoring failed. Please try again.' },
+      { status: 500 }
+    );
+  }
+}
 ```
 </details>
 
@@ -13948,7 +14635,7 @@ const HappinessCheckInner: React.FC = () => {
 
 ```
 Folder: components
-Type: tsx | Lines:      801
+Type: tsx | Lines:      581
 Top definitions:
 --- Exports ---
 export default function Header() {
@@ -13957,7 +14644,7 @@ export default function Header() {
 ```
 
 <details>
-<summary>📄 Preview (first 100 lines of      801)</summary>
+<summary>📄 Preview (first 100 lines of      581)</summary>
 
 ```tsx
 'use client';
@@ -13967,7 +14654,7 @@ import Link from 'next/link';
 import { FiMenu, FiX } from 'react-icons/fi';
 import {
   Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown,
-  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users,Users2,BanknoteArrowDown
+  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users, Users2, BanknoteArrowDown, FileSearch
 } from 'lucide-react';
 import { useHeaderLogic } from '../hooks/useHeaderLogic';
 import {
@@ -13982,7 +14669,6 @@ export default function Header() {
   const { t } = useLocale();
 
   const {
-    // State
     isLoginOpen, setIsLoginOpen,
     isMobileMenuOpen, setIsMobileMenuOpen,
     isHRToolsMenuOpen, setIsHRToolsMenuOpen,
@@ -13999,17 +14685,11 @@ export default function Header() {
     demoTimeLeft,
     isDemoMode,
     isDemoExpired,
-
-    // Refs
     hrToolsMenuRef,
     accountMenuRef,
     userMenuRef,
-
-    // Computed values
     companySlug,
     buildLink,
-
-    // Functions
     handleLogin,
     handleLogout,
     formatTime,
@@ -14019,28 +14699,11 @@ export default function Header() {
   const [isMobileHRToolsOpen, setIsMobileHRToolsOpen] = React.useState(false);
   const [isMobileAccountOpen, setIsMobileAccountOpen] = React.useState(false);
 
-  // Helper functions to determine user roles
-  const isRegularUser = useMemo(() =>
-    user && !user.is_manager && !user.is_admin,
-    [user]
-  );
+  const isRegularUser = useMemo(() => user && !user.is_manager && !user.is_admin, [user]);
+  const isManager = useMemo(() => user && user.is_manager && !user.is_admin, [user]);
+  const isAdmin = useMemo(() => user && user.is_admin, [user]);
+  const isSuperAdmin = useMemo(() => user && user.is_super_admin === true, [user]);
 
-  const isManager = useMemo(() =>
-    user && user.is_manager && !user.is_admin,
-    [user]
-  );
-
-  const isAdmin = useMemo(() =>
-    user && user.is_admin,
-    [user]
-  );
-
-  const isSuperAdmin = useMemo(() => 
-  user && user.is_super_admin === true, 
-  [user]
-);
-
-  // Memoized values
   const buttonBaseClasses = useMemo(() =>
     'flex items-center gap-2 px-3 py-2 rounded-xl font-medium text-sm transition-all shadow-sm hover:shadow-md whitespace-nowrap',
     []
@@ -14058,7 +14721,33 @@ export default function Header() {
   const manageContactsLink = useMemo(() => buildLink('/contact-submissions'), [buildLink]);
   const manageUsersUpload = useMemo(() => buildLink('/admin/import-users'), [buildLink]);
   const payRoll = useMemo(() => buildLink('/payroll'), [buildLink]);
-... (truncated,      801 total lines)
+
+  return (
+    <>
+      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+        <DemoTimer
+          isDemoMode={isDemoMode}
+          isDemoExpired={isDemoExpired}
+          demoTimeLeft={demoTimeLeft}
+          formatTime={formatTime}
+        />
+
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between w-full mx-auto">
+
+            {/* Logo + Forfait + Language */}
+            <div className="flex-shrink-0 flex flex-col items-start gap-1 -ml-2">
+              <Link href={companySlug === 'demo' ? `/jobs/demo/contact` : buildLink('/')}>
+                <img
+                  src={companySlug && companyLogo ? companyLogo : '/HRInnoLogo.jpeg'}
+                  alt="Logo"
+                  className="h-10 sm:h-12 object-contain"
+                />
+              </Link>
+              <div className="flex items-center gap-2 mt-1">
+                <ForfaitBadge companyForfait={companyForfait} />
+                <div className="hidden sm:flex">
+... (truncated,      581 total lines)
 ```
 </details>
 
@@ -21728,9 +22417,9 @@ export async function getUserName(userId: string) {
 ---
 
 # Statistics
-- **Files included:** 157
-- **File size:** 644K
-- **Extraction date:** Sat Jun 13 08:40:20 CEST 2026
+- **Files included:** 162
+- **File size:** 708K
+- **Extraction date:** Fri Jun 19 08:24:05 CEST 2026
 
 # Technology Stack Detected
 
@@ -21775,6 +22464,11 @@ src/app/api/interview-assistant/route.ts
 src/app/api/interview-conclude/route.ts
 src/app/api/interview-question/route.ts
 src/app/api/interviews/route.ts
+src/app/api/job-assistant/analyze/route.ts
+src/app/api/job-assistant/improve/route.ts
+src/app/api/job-assistant/interview/conclude/route.ts
+src/app/api/job-assistant/interview/generate/route.ts
+src/app/api/job-assistant/interview/score/route.ts
 src/app/api/medical-certificates/confirm/route.ts
 src/app/api/medical-certificates/upload/route.ts
 src/app/api/new-position/route.ts
@@ -21822,6 +22516,7 @@ src/app/api/users/users-creation/route.ts
 ## User-Facing Pages
 ```
 src/app/ObsoleteHome/page.tsx
+src/app/job-assistant/page.tsx
 src/app/jobs/[slug]/Home/page.tsx
 src/app/jobs/[slug]/absences/calendar/page.tsx
 src/app/jobs/[slug]/absences/page.tsx
