@@ -255,11 +255,11 @@ Free
 
 Momentum
 
-- Paid tier (Stripe price `price_1S9fz0BqOCxgBpW2AsHOWVii`). Grants: up to 5 open job positions, up to 10 medical certificate uploads/month, AI wellbeing chatbot access, 100 included AI credits.
+- Paid tier (Stripe price `price_1S9ezYBqOCxgBpW2elkKzqUB`, live-mode "HR Inno - Momentum" — 20 000 HUF/month). Grants: up to 5 open job positions, up to 10 medical certificate uploads/month, AI wellbeing chatbot access, 100 included AI credits.
 
 Infinity
 
-- Paid tier (Stripe price `price_1S9fzIBqOCxgBpW2TkYzispP`). Grants: up to 10 open job positions, up to 20 medical certificate uploads/month, AI wellbeing chatbot access, 250 included AI credits.
+- Paid tier (Stripe price `price_1S9ezpBqOCxgBpW26j6WvxOE`, live-mode "HR Inno - Infinity" — 45 000 HUF/month). Grants: up to 10 open job positions, up to 20 medical certificate uploads/month, AI wellbeing chatbot access, 250 included AI credits.
 
 Notes
 

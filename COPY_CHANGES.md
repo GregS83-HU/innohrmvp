@@ -25,13 +25,13 @@ Frontend and copy only — no backend logic, entitlements, or Stripe integration
 
 **i18n**: all new copy added to `messages/en.json`, `messages/fr.json`, and `messages/hu.json` (existing `home.*` keys updated, new `home.forEmployers.*`, `pricing.*`, and `header.pricing` keys added).
 
-## Prices used — please verify before shipping
+## Prices used
 
 Task said to pull real prices from Stripe rather than invent them. I did, using the Stripe CLI, and found something worth your attention:
 
 - **Momentum: 20 000 Ft/month. Infinity: 45 000 Ft/month.** (Hungarian Forint, not USD — that's the actual currency configured on both Stripe price objects.)
 - **These prices are used on the pricing page and are confirmed accurate against live Stripe products** ("HR Inno - Momentum" / "HR Inno - Infinity", `livemode: true`).
-- **However, the `stripe_price_id` values currently stored in the `forfait` table point to *test-mode* Stripe prices with the same amounts**, not these live ones. I did not touch this (Stripe integration is out of scope here), but it means actual checkout for Momentum/Infinity may currently fail in production if it's calling Stripe with a live secret key against a test-mode price ID — worth having someone check `create-subscription`/`create-portal-session` against the real `forfait.stripe_price_id` values and correcting them to the live price IDs (`price_1S9ezYBqOCxgBpW2elkKzqUB` for Momentum, `price_1S9ezpBqOCxgBpW26j6WvxOE` for Infinity) if so.
+- **Fixed separately (production database, not this frontend change):** the `stripe_price_id` values stored in the `forfait` table pointed to *test-mode* Stripe prices with the same amounts, not the live ones — meaning checkout for Momentum/Infinity likely would have failed in production (a live-mode Stripe call against a test-mode price ID). Corrected `forfait.stripe_price_id` directly: Momentum → `price_1S9ezYBqOCxgBpW2elkKzqUB`, Infinity → `price_1S9ezpBqOCxgBpW26j6WvxOE` (both live-mode, verified against the live Stripe products). No application code changed — `create-subscription`/`create-portal-session`/the webhook already read this column, they just had the wrong value to read.
 - Free is $0 / 0 Ft — no Stripe price exists for it, consistent with the rest of the app.
 
 ## Translation quality — flag for review

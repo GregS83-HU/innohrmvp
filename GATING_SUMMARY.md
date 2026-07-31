@@ -12,8 +12,10 @@ That's not what's configured. The actual tiers, from `forfait`:
 | Plan | `stripe_price_id` | Max open positions | Max medical certs/month | AI wellbeing chatbot | Included AI credits |
 |---|---|---|---|---|---|
 | **Free** | *(null — no Stripe price, default/no-payment tier)* | 3 | 5 | No | 50 |
-| **Momentum** | `price_1S9fz0BqOCxgBpW2AsHOWVii` | 5 | 10 | Yes | 100 |
-| **Infinity** | `price_1S9fzIBqOCxgBpW2TkYzispP` | 10 | 20 | Yes | 250 |
+| **Momentum** | `price_1S9ezYBqOCxgBpW2elkKzqUB` | 5 | 10 | Yes | 100 |
+| **Infinity** | `price_1S9ezpBqOCxgBpW26j6WvxOE` | 10 | 20 | Yes | 250 |
+
+(Corrected 2026-07-31: the `forfait` table originally referenced test-mode Stripe price IDs — `price_1S9fz0BqOCxgBpW2AsHOWVii` / `price_1S9fzIBqOCxgBpW2TkYzispP` — with the same 20,000/45,000 HUF amounts but not usable by a live-mode checkout. Updated to the corresponding live-mode price IDs above; see `COPY_CHANGES.md`.)
 
 Important correction to the task's assumption: **Free is not "no company
 features, public Job Assistant only."** It's a real tier with real company-level
