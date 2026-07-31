@@ -34,11 +34,11 @@ HRInno
 - Production
 - Growth
 
-Assessment based on evidence in the codebase: multiple functional modules exist end-to-end, and the most severe data-exposure gaps (medical certificates, CVs, candidate records) have since been closed, and plan-based feature gating now exists for three features. Still consistent with an active MVP rather than a production-hardened product: no product documentation beyond this brief, ad hoc per-route admin checks instead of a centralized authorization layer, most modules still have no plan-based differentiation at all, and known unresolved workarounds remain (see Section 8).
+Assessment based on evidence in the codebase: multiple functional modules exist end-to-end, and the most severe data-exposure gaps (medical certificates, CVs, candidate records) have since been closed, plan-based feature gating now exists for three features, and the app now has a real public homepage, a pricing page, and a minimal design system. Still consistent with an active MVP rather than a production-hardened product: no product documentation beyond this brief, ad hoc per-route admin checks instead of a centralized authorization layer, most modules still have no plan-based differentiation at all, no self-serve company signup exists, and known unresolved workarounds remain (see Section 8).
 
 ## Short Description
 
-HRInno is a multi-tenant HR platform that combines AI-assisted recruitment (job postings, AI-generated job descriptions, AI-driven first-round interviews with voice recognition) with core HR operations (payroll, time & attendance, absences, performance, medical certificates) and an AI employee-wellbeing chatbot — plus a free, public, candidate-facing tool that scores and improves a CV and runs a mock AI interview.
+HRInno is a multi-tenant HR platform that combines AI-assisted recruitment (job postings, AI-generated job descriptions, AI-driven first-round interviews with voice recognition) with core HR operations (payroll, time & attendance, absences, performance, medical certificates) and an AI employee-wellbeing chatbot — plus a free, public, candidate-facing tool that scores and improves a CV and runs a mock AI interview. A separate marketing site (`hrinno-marketing`, www.hrinno.hu) carries the same pitch plus an interactive ROI calculator, with CTAs pointing back into this app.
 
 ---
 
@@ -113,7 +113,14 @@ List ONLY completed features, based on what exists in the code.
 
 ## Dashboard
 
-Not confirmed in the codebase — no dedicated dashboard module was identified during review.
+- Per-company SaaS entry point at `/jobs/[slug]` — reached only by someone who knows their company's slug (not discoverable/indexed). Not logged in: company branding (logo/name) and a login prompt. Logged in: "Welcome back" plus a role-aware grid of quick links to the company's HR tools (positions, HR tools, performance, time clock, absences, and for admins: payroll, subscription, users, tickets).
+- Distinct from the public homepage at `/` (see Marketing/Public Site below), which the previous version of this brief mistakenly conflated with this dashboard.
+
+## Marketing / Public Site
+
+- Public homepage (`/`, no company slug) leads with the free Job Assistant (AI CV scoring, no account needed) as the primary hook, with a "For employers" section below introducing the full platform and a link to the new pricing page.
+- New pricing page (`/pricing`): three columns (Free / Momentum / Infinity) with real limits and prices pulled from Stripe/the `forfait` table, and a note that downgrading never deletes existing data.
+- A separate repository/site, `hrinno-marketing` (www.hrinno.hu), also exists and now carries an aligned pitch: the Job Assistant, a "Full HR Platform" section, and the same pricing data, plus an interactive ROI calculator. Its pricing CTAs go to a contact form rather than a live checkout, since no self-serve signup exists yet (see Known Limitations).
 
 ## AI Features
 
@@ -175,7 +182,7 @@ Not documented in the codebase.
 - Plan-based feature gating covers only three features (opening a new job position, medical certificate uploads, the AI wellbeing chatbot) because those are the only ones with real per-plan limits/flags in the `forfait` table. Payroll, time & attendance, absences, performance management, tickets, and onboarding have no plan-based distinction at all — every company, including one with no active subscription, has identical access to those.
 - `openedpositions` still has catch-all row-level-security policies (`"Allow all updates"`, `"Allow public insert"`) with no company scoping, found while implementing the position-creation plan gate but not fixed — same class of issue as the `medical_certificates`/`candidats` policies that were fixed, but "Allow public insert" may be an intentional public job-posting flow rather than a bug, so it needs its own review before changing.
 - No product documentation exists beyond this brief (README is unmodified Next.js boilerplate).
-- No custom design system: no Tailwind theme/config, no defined brand colors or typography beyond default black/white and Arial/Helvetica.
+- No self-serve company signup exists: no code path anywhere inserts a new row into the `company` table. New companies must be onboarded manually today. This means pricing page/CTA "buy" buttons (in this app and on the marketing site) cannot lead to a real checkout for a brand-new prospect yet — existing checkout (`create-subscription`) only works for a company that's already been onboarded, with an admin already logged in.
 - Medical certificate and CV data are sent to third-party services (OCR.Space, OpenRouter/OpenAI) with only a stored AI-consent-date field as a visible safeguard — no visible redaction step. (Storage access control for this data was fixed — see Section 19 — but this third-party transmission gap was not in scope of that fix.)
 - No explicit data retention or deletion policy found for Job Assistant CV data; no persistence layer was found for it either, so this is an absence of evidence, not a confirmed policy in either direction.
 - Leftover debug `console.log` statements remain in roughly 30 files across `src/app` (one instance that logged raw AI-extracted medical certificate text was removed — see Section 19 — the rest were not audited).
@@ -195,7 +202,7 @@ Web (responsive), Next.js application. No native mobile app.
 
 Frontend
 
-- Next.js 15, React 19, Tailwind CSS v4 (no custom theme configured)
+- Next.js 15, React 19, Tailwind CSS v4 with a minimal custom theme (`@theme` block in `globals.css`: brand indigo/accent emerald color scales, formalizing colors already used ad hoc throughout the app) and a Sora/Inter font pairing via `next/font/google`, replacing the previous default black/white/Arial. Explicitly a starting point, not a full rebrand — applied only to the homepage and pricing page so far.
 
 Backend
 
@@ -284,7 +291,7 @@ Not documented in the codebase. No competitor names, comparisons, or market rese
 
 # 13. Positioning
 
-Not formally defined anywhere in the codebase. The only existing user-facing copy that hints at positioning is the homepage hero text: "HR was never as easy as now!" / "Revolutionize your human resources with AI-powered tools for recruitment, employee wellness, and workplace happiness assessment." This has not been developed into a formal positioning statement.
+Not formally defined as a written statement, but the homepage hero now states a clear positioning: lead with the free, no-account Job Assistant as the candidate-facing hook ("Get your CV scored, free before you apply"), with the full HR platform (recruitment, payroll, time & attendance, absences, performance) positioned as what a company gets once a candidate becomes a lead. The `hrinno-marketing` site carries an aligned version of this pitch. The previous generic tagline ("HR was never as easy as now!") is gone from the homepage itself but still appears in `<meta name="description">` (`src/app/layout.tsx`) and other copy that wasn't updated.
 
 ---
 
@@ -298,7 +305,8 @@ Important information for Marketing.
 - Do NOT present the AI job-description generator as fully polished — it has a known, unresolved bug worked around manually rather than fixed.
 - Do NOT make guarantees about candidate CV data privacy or retention — no documented policy exists in either direction.
 - The public Job Assistant (free CV scoring + AI-rewritten CV + voice-based mock interview + coaching report) is the strongest, most differentiated feature in the product — it is the best candidate for a dedicated campaign, and is unaffected by the plan gating described above since it requires no company account.
-- No design system or brand identity exists yet; any campaign creative needs to establish visual identity rather than extend an existing one.
+- A minimal brand (indigo/emerald color palette, Sora/Inter fonts) now exists on the homepage and pricing page — usable as a starting point for campaign creative, but not yet a full brand system (no logo refresh, no broader style guide).
+- Do NOT imply self-serve sign-up is available — no code path creates a new company account yet. Pricing CTAs (both in this app and on `hrinno-marketing`) currently lead to a contact form/demo, not a live checkout, and that's accurate to the product's current state, not a placeholder to "fix" in copy.
 
 ---
 
@@ -310,7 +318,8 @@ Current readiness (0–100%)
 
 Major blockers
 
-- Monetization is only partially functional: job posting creation, medical certificate uploads, and the wellbeing chatbot enforce plan limits, but every other paid-feeling module (payroll, time & attendance, absences, performance, etc.) is available identically regardless of plan, including to companies with no active subscription.
+- No self-serve company signup: a prospective customer can see pricing (in-app and on the marketing site) but cannot actually buy a plan without manual onboarding first. This is the main gap between "marketing pitch" and "revenue."
+- Monetization is only partially functional even for onboarded companies: job posting creation, medical certificate uploads, and the wellbeing chatbot enforce plan limits, but every other paid-feeling module (payroll, time & attendance, absences, performance, etc.) is available identically regardless of plan, including to companies with no active subscription.
 - Medical certificate and CV data is still sent to third-party AI/OCR services with no redaction step, and there's no confirmed retention/deletion policy — a compliance gap even though access control was fixed.
 - No product documentation exists beyond this brief.
 
@@ -383,6 +392,7 @@ Business questions still unresolved, based on gaps found in the codebase:
 - Should payroll, time & attendance, absences, performance, tickets, and onboarding also be plan-differentiated? If so, this needs a product decision on what belongs to which plan, plus new columns on the `forfait` table — nothing in the current data model supports it.
 - What is the intended approach for third-party AI/OCR data handling and retention for medical certificates and CVs (still unresolved even after the access-control fixes)?
 - What is the target market (company size, industry, geography)? Nothing in the repo confirms this beyond a weak i18n/commit-language signal.
+- Should a self-serve signup + checkout flow be built now that both pricing surfaces (in-app and marketing site) exist but have no live purchase path? This would need a new company-creation endpoint, an admin-user creation step, and wiring to the existing Stripe checkout — a genuine new feature, not a copy change.
 
 ---
 
@@ -390,14 +400,15 @@ Business questions still unresolved, based on gaps found in the codebase:
 
 Brief summary (maximum 10 bullet points). Based on the most recent completed work:
 
-- Secured medical certificate storage: private bucket, short-lived signed URLs replacing a previously public URL, company-scoped database access, and removal of a debug log that leaked raw OCR text from health documents
-- Secured CV storage and candidate/position data: private bucket, signed URLs scoped to the requesting user's company, and company-scoped database access replacing previously wide-open policies
+- Rebuilt the homepage: a public marketing page (`/`) leading with the free Job Assistant, and a separate, correct per-company SaaS dashboard (`/jobs/[slug]`) for already-onboarded companies — these were briefly and mistakenly conflated in one shared component before this fix
+- Added a `/pricing` page (Free/Momentum/Infinity, real limits and prices) and a minimal design system (brand colors, Sora/Inter fonts)
+- Corrected `forfait.stripe_price_id` for Momentum/Infinity, which had pointed to test-mode Stripe prices instead of the live ones, likely blocking real checkout
+- Aligned the separate `hrinno-marketing` site with the same Job Assistant + full-platform + pricing pitch
+- Secured medical certificate and CV storage: private buckets, short-lived signed URLs replacing previously public ones, company-scoped database access
 - Fixed a candidate-stats API endpoint that had no authentication at all
-- Implemented plan-based feature gating for job posting creation, medical certificate uploads, and the AI wellbeing chatbot, tied to the real Stripe-linked plan tiers (Free, Momentum, Infinity)
-- Fixed a company with no active subscription to permanently fall back to Free-tier limits instead of being blocked outright, without retroactively hiding or blocking any data from before a downgrade
-- Added Stripe webhook handling for subscription cancellation on Stripe's own side (`customer.subscription.deleted`), keeping the company's plan in sync; also fixed the webhook endpoint to correctly verify and handle both live-mode and test-mode Stripe events arriving at the same production URL
-- Restricted the Job Assistant to public-only access
-- Added voice recognition and an AI consent flow to the interview assistant
+- Implemented plan-based feature gating for job posting creation, medical certificate uploads, and the AI wellbeing chatbot, tied to the real Stripe-linked plan tiers
+- Fixed a company with no active subscription to permanently fall back to Free-tier limits instead of being blocked outright, without retroactively hiding or blocking any existing data
+- Added Stripe webhook handling for subscription cancellation on Stripe's own side, and fixed the webhook to correctly handle both live-mode and test-mode events arriving at the same production URL
 
 ---
 
@@ -416,10 +427,10 @@ Maximum 10 bullet points.
 
 - HRInno is an AI-assisted, multi-tenant HR platform covering recruitment, payroll, time & attendance, absences, performance, and employee wellbeing.
 - Primary audience (inferred): HR administrators/company owners; secondary: recruiters, managers, employees; tertiary: job candidates via a free public tool.
-- Current maturity: MVP — the most severe data-exposure risks (public storage URLs, unauthenticated candidate data access) have been fixed, and monetization is now partially functional, but the product is still not production-hardened.
-- Biggest strength: the public, free Job Assistant (AI CV scoring/rewriting + voice-based mock interview) is a genuine differentiator versus typical employer-only ATS AI tools.
-- Real plan tiers are Free, Momentum, and Infinity, and now actually enforce limits on job postings, medical certificate uploads, and wellbeing-chatbot access — including a company with no active subscription, which now permanently behaves like the Free plan instead of being blocked, and stays in sync with Stripe-side cancellations via a webhook handler.
-- Biggest remaining weaknesses: most modules (payroll, time & attendance, absences, performance, tickets, onboarding) have no plan differentiation at all; medical certificate/CV data still goes to third-party AI/OCR services with no redaction step.
-- `openedpositions` still has unscoped row-level-security policies, found but not yet fixed.
-- Launch readiness has not been formally assessed; major blockers are now narrower (partial monetization gap, third-party data-handling compliance) than the previously wide-open data-exposure issues.
+- Current maturity: MVP — the most severe data-exposure risks have been fixed, monetization is now partially functional, and the product now has a real homepage, pricing page, and minimal design system — but it's still not production-hardened, and there's no way for a new customer to actually buy a plan yet.
+- Biggest strength: the public, free Job Assistant (AI CV scoring/rewriting + voice-based mock interview) is a genuine differentiator versus typical employer-only ATS AI tools, and is now the lead hook on both the app's homepage and the separate `hrinno-marketing` site.
+- Real plan tiers are Free, Momentum, and Infinity, now correctly priced (a stale test-mode Stripe price ID was found and fixed) and enforced for job postings, medical certificate uploads, and wellbeing-chatbot access — including a company with no active subscription, which now permanently behaves like the Free plan instead of being blocked.
+- Biggest gap: no self-serve company signup exists at all, so the new pricing pages (in-app and marketing site) have nowhere for a new prospect's "buy" click to actually go — both currently route to a contact form/demo instead.
+- Other remaining weaknesses: most modules (payroll, time & attendance, absences, performance, tickets, onboarding) have no plan differentiation at all; medical certificate/CV data still goes to third-party AI/OCR services with no redaction step; `openedpositions` still has unscoped row-level-security policies, found but not yet fixed.
+- Launch readiness has not been formally assessed; major blockers have shifted from wide-open data exposure (now fixed) to the missing self-serve signup and partial monetization coverage.
 - No competitor research, market sizing, or formal positioning statement exists in the repo.
