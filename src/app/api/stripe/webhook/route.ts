@@ -5,23 +5,37 @@
 
   export const runtime = "nodejs"
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+  const stripeLive = new Stripe(process.env.STRIPE_SECRET_KEY!)
+  const stripeTest = process.env.STRIPE_SECRET_KEY_TEST ? new Stripe(process.env.STRIPE_SECRET_KEY_TEST) : null
 
   // The live-mode and test-mode "HRInno" webhook destinations both point at
   // this same production URL (Vercel's Preview/Production env var scoping
   // is per-deployment, not per-request, so it can't tell live vs test
   // events apart here - both land on the same running Production
-  // deployment). Each Stripe destination signs with its own secret, so
-  // verification tries every configured secret in turn and accepts
-  // whichever one matches, instead of assuming a single secret.
-  function verifyStripeEvent(body: string, sig: string): Stripe.Event {
-    const secrets = [process.env.STRIPE_WEBHOOK_SECRET, process.env.STRIPE_WEBHOOK_SECRET_TEST].filter(
-      (s): s is string => !!s
-    )
+  // deployment). Each destination signs with its own secret, AND any
+  // follow-up Stripe API call (customers.retrieve, subscriptions.retrieve)
+  // needs the matching mode's API secret key - a live-mode key can't look
+  // up a test-mode object ("No such customer: ...; a similar object exists
+  // in test mode, but a live mode key was used"), and vice versa. So
+  // verification returns both the parsed event and the Stripe client whose
+  // secret matched, and the rest of the handler must use that client for
+  // every subsequent Stripe API call, not the live one by default.
+  function verifyStripeEvent(body: string, sig: string): { event: Stripe.Event; stripe: Stripe } {
+    const candidates: Array<{ secret: string; stripe: Stripe }> = [
+      { secret: process.env.STRIPE_WEBHOOK_SECRET!, stripe: stripeLive },
+    ]
+    if (process.env.STRIPE_WEBHOOK_SECRET_TEST && stripeTest) {
+      candidates.push({ secret: process.env.STRIPE_WEBHOOK_SECRET_TEST, stripe: stripeTest })
+    }
+
     let lastErr: unknown
-    for (const secret of secrets) {
+    for (const { secret, stripe: client } of candidates) {
       try {
-        return stripe.webhooks.constructEvent(body, sig, secret)
+        // constructEvent is pure signature verification against the given
+        // secret - it doesn't call the network, so which client instance
+        // it's invoked on doesn't matter, only the secret does.
+        const event = stripeLive.webhooks.constructEvent(body, sig, secret)
+        return { event, stripe: client }
       } catch (err) {
         lastErr = err
       }
@@ -94,8 +108,9 @@
 
     // Verify Stripe webhook signature
     let event: Stripe.Event
+    let stripe: Stripe
     try {
-      event = verifyStripeEvent(body, sig)
+      ;({ event, stripe } = verifyStripeEvent(body, sig))
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Webhook signature unknown error"
       console.error("❌ Webhook signature verification failed:", msg)
