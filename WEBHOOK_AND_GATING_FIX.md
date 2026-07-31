@@ -104,19 +104,63 @@ both enabled** (alongside whatever events are already configured for
 `invoice.payment_failed`). If they're not listed, add them — otherwise this
 code will simply never run in production despite being correct.
 
+## Bug 2 follow-up — one production URL serving both live and test Stripe modes
+
+Discovered while verifying Bug 2 end-to-end (Stripe CLI trigger + Vercel/Supabase
+CLI access to check the result directly): HRInno's live-mode and test-mode
+Stripe "HRInno" event destinations both point at the same production URL,
+`https://hrinno.vercel.app/api/stripe/webhook`. Vercel's Preview/Production
+environment-variable scoping is per-*deployment*, not per-request, so it
+cannot distinguish a live-mode event from a test-mode event arriving at that
+one URL — both are handled by the same running Production deployment. This
+surfaced as two distinct, sequential failures, each fixed in
+[src/app/api/stripe/webhook/route.ts](src/app/api/stripe/webhook/route.ts):
+
+1. **Signature verification** (`400`, "No signatures found matching the
+   expected signature for payload") — each destination signs with its own
+   secret. `verifyStripeEvent()` now tries `STRIPE_WEBHOOK_SECRET` (live)
+   and, if that fails, `STRIPE_WEBHOOK_SECRET_TEST`, accepting whichever
+   matches, instead of assuming a single secret.
+2. **Outbound Stripe API calls** (`500`, "No such customer: ...; a similar
+   object exists in test mode, but a live mode key was used to make this
+   request") — verifying the signature correctly doesn't fix this on its
+   own: every `stripe.customers.retrieve()` / `stripe.subscriptions.retrieve()`
+   call in the handler was still using a single module-level client built
+   from the live `STRIPE_SECRET_KEY`. `verifyStripeEvent()` now returns
+   the Stripe client instance whose secret matched (backed by
+   `STRIPE_SECRET_KEY` or the new `STRIPE_SECRET_KEY_TEST`) alongside the
+   parsed event, and every subsequent Stripe API call in `POST` uses that
+   client instead of a hardcoded live one. This affects the existing
+   `checkout.session.completed`/`invoice.payment_succeeded`/
+   `invoice.payment_failed` handlers too, not just the new subscription ones.
+
+**Two new Production env vars required**, both added and confirmed working:
+`STRIPE_WEBHOOK_SECRET_TEST` (the test-mode destination's signing secret)
+and `STRIPE_SECRET_KEY_TEST` (the test-mode API secret key — a different
+value, easy to mix up with the one above).
+
 ## Verification plan
 
-**(a) Stripe CLI — subscription deletion**
+**(a) Stripe CLI — subscription deletion. Completed and confirmed in production.**
 ```
 stripe trigger customer.subscription.deleted
 ```
-Confirm in Supabase that the corresponding test company's `forfait` and
-`stripe_subscription_id` are both `null` afterward, and check the server
-logs for the `✅ Company <id> subscription ended on Stripe's side → forfait cleared`
-line. If testing against a real customer/subscription pair (rather than the
+Confirmed via direct Vercel log access (`vercel logs hrinno.vercel.app`) and
+direct Supabase queries (`supabase db query --linked`) rather than relaying
+through the Dashboard UI: the event verifies, resolves the correct-mode
+Stripe client, and completes cleanly at `info` level (`ℹ️ Subscription
+deleted/canceled but no matching company found for customer ...` — expected,
+since the CLI's synthetic customer isn't linked to a real company), and the
+event row lands in `stripe_events`. This was reached only after fixing both
+issues in the "Bug 2 follow-up" section above — the first several attempts
+surfaced those bugs rather than confirming the original fix.
+
+For testing against a real customer/subscription pair (rather than the
 CLI's synthetic test event), first confirm the company's
 `stripe_subscription_id` in the DB matches the subscription ID in the event,
-otherwise the new staleness guard will correctly skip the update.
+otherwise the new staleness guard will correctly skip the update. Not yet
+exercised against a real company - still worth doing once a suitable test
+subscription exists, since the CLI's synthetic customer never matches one.
 
 **(b) Free-tier fallback, zero existing data**
 Pick (or create) a company with `forfait = null` and no positions/certificates.
