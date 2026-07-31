@@ -86,13 +86,9 @@ export default function NewOpenedPositionPage() {
     if (!companyId || positionAccessChecked.current) return
     positionAccessChecked.current = true
     try {
-      const { data, error } = await supabase.rpc('can_open_new_position', { p_company_id: companyId })
-      if (error) { setCanCreatePosition(false); return }
-      let hasAccess = false
-      if (typeof data === 'boolean') hasAccess = data
-      else if (typeof data === 'string') hasAccess = ['true', 'True', 'TRUE'].includes(data)
-      else if (typeof data === 'number') hasAccess = data === 1
-      setCanCreatePosition(hasAccess)
+      const res = await fetch(`/api/entitlements/check?company_id=${companyId}&feature=recruitment.openPosition`)
+      const result = await res.json()
+      setCanCreatePosition(res.ok && result.allowed === true)
     } catch {
       setCanCreatePosition(false)
     }
