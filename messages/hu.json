@@ -442,6 +442,11 @@
     "startButton": "Felmérés indítása",
     "noPersonalData": "Nem gyűjtünk személyes adatokat • Csak anonim, összesített eredmények",
     "resultsIncluded": "• Az eredmények szerepelni fognak a(z) {{companyName}} jólléti összesítésében",
+    "upgradeRequired": {
+      "title": "Az Ön csomagjában nem elérhető",
+      "message": "Ez a jólléti felmérés nem szerepel a vállalata jelenlegi csomagjában.",
+      "messageWithCompany": "Ez a jólléti felmérés nem szerepel a(z) {{companyName}} jelenlegi csomagjában."
+    },
     "loading": "Felmérés betöltése...",
     "header": "Boldogság Ellenőrzés 😊",
     "inputPlaceholder": "Írd be a válaszodat...",

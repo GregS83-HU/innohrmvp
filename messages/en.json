@@ -440,6 +440,11 @@
     "startButton": "Start the Assessment",
     "noPersonalData": "No personal data is collected • Only anonymous aggregated results",
     "resultsIncluded": "• Results will be included in {{companyName}}'s wellness insights",
+    "upgradeRequired": {
+      "title": "Not available on your plan",
+      "message": "This wellbeing assessment isn't included in your company's current plan.",
+      "messageWithCompany": "This wellbeing assessment isn't included in {{companyName}}'s current plan."
+    },
     "loading": "Loading assessment...",
     "header": "Happy Check 😊",
     "inputPlaceholder": "Type your response...",

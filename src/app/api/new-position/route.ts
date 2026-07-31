@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
+import { hasFeatureAccess, entitlementErrorBody } from '../../../../lib/entitlements'
 
 export async function POST(request: Request) {
   try {
@@ -43,6 +44,11 @@ export async function POST(request: Request) {
 
     if (companyError || !company) {
       return NextResponse.json({ error: companyError?.message || 'Company not found' }, { status: 400 })
+    }
+
+    const entitlement = await hasFeatureAccess(company.company_id, 'recruitment.openPosition')
+    if (!entitlement.allowed) {
+      return NextResponse.json(entitlementErrorBody('recruitment.openPosition', entitlement), { status: 403 })
     }
 
     const { data: insertedData, error: insertError } = await supabase

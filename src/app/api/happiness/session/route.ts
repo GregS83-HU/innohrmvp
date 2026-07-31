@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { randomBytes, createHash } from 'crypto'
+import { hasFeatureAccess, entitlementErrorBody } from '../../../../../lib/entitlements'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -34,7 +35,18 @@ export async function POST(req: NextRequest) {
   try {
     const body: CreateSessionRequestBody = await req.json()
     const { company_id } = body // Extract company_id from request body
-    
+
+    // Only gate when a company is identified - this endpoint also supports
+    // fully anonymous, company-less sessions (see "Allow anonymous session
+    // creation" RLS policy on happiness_sessions), which have nothing to
+    // check a plan against.
+    if (company_id) {
+      const entitlement = await hasFeatureAccess(company_id, 'happiness.chatbot')
+      if (!entitlement.allowed) {
+        return NextResponse.json(entitlementErrorBody('happiness.chatbot', entitlement), { status: 403 })
+      }
+    }
+
     const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
     const userAgent = req.headers.get('user-agent') || 'unknown'
     const sessionToken = generateSessionToken()

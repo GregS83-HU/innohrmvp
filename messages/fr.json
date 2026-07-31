@@ -442,6 +442,11 @@
     "startButton": "Commencer l'Évaluation",
     "noPersonalData": "Aucune donnée personnelle n'est collectée • Seuls les résultats agrégés anonymes",
     "resultsIncluded": "• Les résultats seront inclus dans les insights bien-être de {{companyName}}",
+    "upgradeRequired": {
+      "title": "Non disponible avec votre forfait",
+      "message": "Cette évaluation de bien-être n'est pas incluse dans le forfait actuel de votre entreprise.",
+      "messageWithCompany": "Cette évaluation de bien-être n'est pas incluse dans le forfait actuel de {{companyName}}."
+    },
     "loading": "Chargement de l'évaluation...",
     "header": "Happy Check 😊",
     "inputPlaceholder": "Tapez votre réponse...",
