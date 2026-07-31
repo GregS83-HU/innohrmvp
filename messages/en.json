@@ -1,26 +1,35 @@
 {
   "home": {
     "hero": {
-      "title": "HR was never as",
-      "titleHighlight": "easy",
-      "titleEnd": "as now!",
-      "subtitle": "Revolutionize your human resources with AI-powered tools for recruitment, employee wellness, and workplace happiness assessment."
+      "eyebrow": "Free for job seekers — no account needed",
+      "title": "Get your CV scored,",
+      "titleHighlight": "free",
+      "titleEnd": "before you apply.",
+      "subtitle": "Upload your resume and get an instant AI score, a rewritten version, and a mock interview with feedback — in minutes, no sign-up required. HRInno's Job Assistant is free for every candidate.",
+      "cta": "Try the Job Assistant",
+      "ctaNote": "No account needed"
+    },
+    "forEmployers": {
+      "eyebrow": "For employers",
+      "title": "One platform, once you're hiring",
+      "subtitle": "The same AI that helps candidates prepare also powers your hiring pipeline — plus payroll, time & attendance, absences, and performance, all in one place.",
+      "cta": "See pricing"
     },
     "features": {
       "cvAnalysis": {
-        "title": "AI CV Analysis",
-        "description": "Intelligent resume screening with detailed compatibility scoring and automated candidate evaluation.",
+        "title": "AI Recruitment Pipeline",
+        "description": "AI-scored candidates, job postings, and a full applicant pipeline — from first CV to final offer.",
         "badge": "Smart Matching"
       },
       "wellness": {
         "title": "Workplace Wellness",
-        "description": "Anonymous employee happiness assessment based on the scientific PERMA-W model for better workplace culture.",
-        "badge": "Anonymous & Secure"
+        "description": "Anonymous employee happiness check-ins based on the PERMA-W model, so you can track team wellbeing over time.",
+        "badge": "Anonymous & Confidential"
       },
       "teamManagement": {
-        "title": "HR Team powered",
-        "description": "Streamlined hiring process with position management, applicant tracking, candidates database AI analyze and detailed analytics dashboard.",
-        "badge": "Full Pipeline"
+        "title": "Payroll & Time Tracking",
+        "description": "Run payroll, track time and attendance, and manage absences without spreadsheets.",
+        "badge": "One Platform"
       }
     },
     "cta": {
@@ -42,6 +51,42 @@
         "footer": "By accepting, you acknowledge that this is a demonstration system"
       }
     }
+  },
+  "pricing": {
+    "eyebrow": "Pricing",
+    "title": "Plans for every stage of hiring",
+    "subtitle": "Every plan includes the full HR platform — recruitment, payroll, time & attendance, absences, and performance. Plan limits apply to open job postings, medical certificate uploads, and the AI wellbeing chatbot only.",
+    "perMonth": "/month",
+    "currentPlanLabel": "Includes",
+    "free": {
+      "name": "Free",
+      "price": "0 Ft",
+      "tagline": "Get started with a small team",
+      "cta": "Start free"
+    },
+    "momentum": {
+      "name": "Momentum",
+      "price": "20 000 Ft",
+      "tagline": "For growing teams",
+      "cta": "Choose Momentum",
+      "badge": "Most popular"
+    },
+    "infinity": {
+      "name": "Infinity",
+      "price": "45 000 Ft",
+      "tagline": "For teams hiring at scale",
+      "cta": "Choose Infinity"
+    },
+    "features": {
+      "positions": "Up to {{count}} open job positions",
+      "certificates": "Up to {{count}} medical certificate uploads / month",
+      "credits": "{{count}} AI credits included",
+      "wellbeingIncluded": "AI wellbeing chatbot included",
+      "wellbeingNotIncluded": "AI wellbeing chatbot not included",
+      "fullPlatform": "Full HR platform: recruitment, payroll, time & attendance, absences, performance"
+    },
+    "dataNote": "Canceling or downgrading never deletes your existing data — you keep full access to everything you already have. Only creating new items above your new plan's limit is paused.",
+    "priceNote": "Prices shown in Hungarian Forint (HUF), billed monthly."
   },
   "contactForm": {
     "header": {
@@ -149,7 +194,8 @@
     "logout": "Logout",
     "login": "Login",
     "demoProfilesHint": "Click here for different profiles",
-    "manageContacts": "Manage Contacts"
+    "manageContacts": "Manage Contacts",
+    "pricing": "Pricing"
   },
   "positions": {
     "availablePositions": "Available Positions",

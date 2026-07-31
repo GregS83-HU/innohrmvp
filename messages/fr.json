@@ -1,26 +1,35 @@
 {
   "home": {
     "hero": {
-      "title": "Les processus RH n'ont jamais été aussi",
-      "titleHighlight": "faciles",
-      "titleEnd": "qu'aujourd'hui !",
-      "subtitle": "Révolutionnez vos ressources humaines avec des outils alimentés par l'IA pour le recrutement, le bien-être des employés et l'évaluation du bonheur au travail."
+      "eyebrow": "Gratuit pour les candidats — aucun compte requis",
+      "title": "Faites évaluer votre CV,",
+      "titleHighlight": "gratuitement",
+      "titleEnd": "avant de postuler.",
+      "subtitle": "Téléchargez votre CV et obtenez instantanément une note IA, une version réécrite et un entretien d'entraînement avec retour — en quelques minutes, sans inscription. L'Assistant Candidature de HRInno est gratuit pour tous les candidats.",
+      "cta": "Essayer l'Assistant Candidature",
+      "ctaNote": "Aucun compte requis"
+    },
+    "forEmployers": {
+      "eyebrow": "Pour les entreprises",
+      "title": "Une seule plateforme, dès que vous recrutez",
+      "subtitle": "La même IA qui aide les candidats à se préparer alimente aussi votre pipeline de recrutement — ainsi que la paie, le suivi du temps, les absences et la performance, le tout en un seul endroit.",
+      "cta": "Voir les tarifs"
     },
     "features": {
       "cvAnalysis": {
-        "title": "Analyse IA de CV",
-        "description": "Filtrage intelligent de CV avec notation de compatibilité détaillée et évaluation automatisée des candidats.",
+        "title": "Pipeline de Recrutement IA",
+        "description": "Candidats notés par IA, offres d'emploi et pipeline de candidatures complet — du premier CV à l'offre finale.",
         "badge": "Matching Intelligent"
       },
       "wellness": {
         "title": "Bien-être au Travail",
-        "description": "Évaluation anonyme du bonheur des employés basée sur le modèle scientifique PERMA-W pour une meilleure culture d'entreprise.",
-        "badge": "Anonyme et Sécurisé"
+        "description": "Suivi anonyme du bonheur des employés basé sur le modèle PERMA-W, pour suivre le bien-être de l'équipe dans le temps.",
+        "badge": "Anonyme et Confidentiel"
       },
       "teamManagement": {
-        "title": "Équipe RH Optimisée",
-        "description": "Processus de recrutement simplifié avec gestion des postes, suivi des candidats, base de données des candidats avec analyse IA et tableau de bord analytique détaillé.",
-        "badge": "Pipeline Complet"
+        "title": "Paie & Suivi du Temps",
+        "description": "Gérez la paie, suivez le temps et les présences, et gérez les absences sans tableurs.",
+        "badge": "Une Seule Plateforme"
       }
     },
     "cta": {
@@ -42,6 +51,42 @@
         "footer": "En acceptant, vous reconnaissez qu'il s'agit d'un système de démonstration"
       }
     }
+  },
+  "pricing": {
+    "eyebrow": "Tarifs",
+    "title": "Des formules pour chaque étape du recrutement",
+    "subtitle": "Chaque formule inclut la plateforme RH complète — recrutement, paie, suivi du temps, absences et performance. Les limites de formule s'appliquent uniquement aux offres d'emploi ouvertes, aux téléversements de certificats médicaux et au chatbot de bien-être IA.",
+    "perMonth": "/mois",
+    "currentPlanLabel": "Inclus",
+    "free": {
+      "name": "Free",
+      "price": "0 Ft",
+      "tagline": "Pour démarrer avec une petite équipe",
+      "cta": "Commencer gratuitement"
+    },
+    "momentum": {
+      "name": "Momentum",
+      "price": "20 000 Ft",
+      "tagline": "Pour les équipes en croissance",
+      "cta": "Choisir Momentum",
+      "badge": "Le plus populaire"
+    },
+    "infinity": {
+      "name": "Infinity",
+      "price": "45 000 Ft",
+      "tagline": "Pour les équipes qui recrutent à grande échelle",
+      "cta": "Choisir Infinity"
+    },
+    "features": {
+      "positions": "Jusqu'à {{count}} offres d'emploi ouvertes",
+      "certificates": "Jusqu'à {{count}} téléversements de certificats médicaux / mois",
+      "credits": "{{count}} crédits IA inclus",
+      "wellbeingIncluded": "Chatbot de bien-être IA inclus",
+      "wellbeingNotIncluded": "Chatbot de bien-être IA non inclus",
+      "fullPlatform": "Plateforme RH complète : recrutement, paie, suivi du temps, absences, performance"
+    },
+    "dataNote": "L'annulation ou la rétrogradation ne supprime jamais vos données existantes — vous conservez un accès complet à tout ce que vous avez déjà. Seule la création de nouveaux éléments au-delà de la limite de votre nouvelle formule est suspendue.",
+    "priceNote": "Prix affichés en forint hongrois (HUF), facturés mensuellement."
   },
   "contactForm": {
     "header": {
@@ -149,7 +194,8 @@
     "logout": "Déconnexion",
     "login": "Connexion",
     "demoProfilesHint": "Cliquez ici pour différents profils",
-    "manageContacts": "Gérer les Contacts"
+    "manageContacts": "Gérer les Contacts",
+    "pricing": "Tarifs"
   },
   "positions": {
     "availablePositions": "Postes Disponibles",

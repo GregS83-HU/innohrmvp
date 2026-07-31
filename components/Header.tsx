@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { FiMenu, FiX } from 'react-icons/fi';
 import {
   Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown,
-  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users, Users2, BanknoteArrowDown, FileSearch
+  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users, Users2, BanknoteArrowDown, FileSearch, Tag
 } from 'lucide-react';
 import { useHeaderLogic } from '../hooks/useHeaderLogic';
 import {
@@ -147,6 +147,16 @@ export default function Header() {
                   className={`${buttonBaseClasses} bg-emerald-50 hover:bg-emerald-100 text-emerald-700`}
                 >
                   <FileSearch className="w-4 h-4" /> Job Assistant
+                </Link>
+              )}
+
+              {/* Pricing - always visible */}
+              {!companySlug && (
+                <Link
+                  href="/pricing"
+                  className={`${buttonBaseClasses} bg-brand-50 hover:bg-brand-100 text-brand-700`}
+                >
+                  <Tag className="w-4 h-4" /> {t('header.pricing')}
                 </Link>
               )}
 
@@ -436,6 +446,17 @@ export default function Header() {
                 className={`${buttonBaseClasses} bg-emerald-50 hover:bg-emerald-100 text-emerald-700 w-full justify-start`}
               >
                 <FileSearch className="w-4 h-4" /> Job Assistant
+              </Link>
+              )}
+
+              {/* Pricing - always visible */}
+              {!companySlug && (
+              <Link
+                href="/pricing"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`${buttonBaseClasses} bg-brand-50 hover:bg-brand-100 text-brand-700 w-full justify-start`}
+              >
+                <Tag className="w-4 h-4" /> {t('header.pricing')}
               </Link>
               )}
 

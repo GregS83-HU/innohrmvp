@@ -1,26 +1,35 @@
 {
   "home": {
     "hero": {
-      "title": "Az HR soha nem volt még ilyen",
-      "titleHighlight": "egyszerű",
-      "titleEnd": "mint most!",
-      "subtitle": "Forradalmasítsd a humán erőforrás menedzsmentet AI-alapú eszközökkel a toborzáshoz, az alkalmazottak jóllétéhez és a munkahelyi boldogság méréséhez."
+      "eyebrow": "Ingyenes álláskeresőknek — nincs szükség fiókra",
+      "title": "Értékeltesd az önéletrajzodat",
+      "titleHighlight": "ingyen,",
+      "titleEnd": "mielőtt jelentkezel.",
+      "subtitle": "Töltsd fel az önéletrajzodat, és percek alatt kapj AI pontszámot, átírt verziót és próbainterjút visszajelzéssel — regisztráció nélkül. A HRInno Állásasszisztense minden jelentkező számára ingyenes.",
+      "cta": "Kipróbálom az Állásasszisztenst",
+      "ctaNote": "Nincs szükség fiókra"
+    },
+    "forEmployers": {
+      "eyebrow": "Munkáltatóknak",
+      "title": "Egy platform, amint toborzol",
+      "subtitle": "Ugyanaz az AI, amely a jelölteket segíti a felkészülésben, működteti a toborzási folyamatodat is — plusz bérszámfejtés, munkaidő-nyilvántartás, távollétek és teljesítménykezelés, mindez egy helyen.",
+      "cta": "Árak megtekintése"
     },
     "features": {
       "cvAnalysis": {
-        "title": "AI Önéletrajz Elemzés",
-        "description": "Intelligens önéletrajz szűrés részletes kompatibilitási pontozással és automatizált jelölt értékeléssel.",
+        "title": "AI Toborzási Folyamat",
+        "description": "AI által pontozott jelöltek, álláshirdetések és teljes jelentkezői folyamat — az első önéletrajztól a végső ajánlatig.",
         "badge": "Intelligens Párosítás"
       },
       "wellness": {
         "title": "Munkahelyi Jóllét",
-        "description": "Anonim alkalmazotti boldogság mérés a tudományos PERMA-W modell alapján a jobb munkahelyi kultúráért.",
-        "badge": "Anonim és Biztonságos"
+        "description": "Anonim alkalmazotti boldogság-mérés a PERMA-W modell alapján, hogy nyomon követhesd a csapat jóllétét az idő során.",
+        "badge": "Anonim és Bizalmas"
       },
       "teamManagement": {
-        "title": "HR Csapat Támogatás",
-        "description": "Egyszerűsített toborzási folyamat pozíciókezeléssel, pályázókövetéssel, jelölt adatbázis AI elemzéssel és részletes elemző irányítópulttal.",
-        "badge": "Teljes Folyamat"
+        "title": "Bérszámfejtés & Munkaidő-nyilvántartás",
+        "description": "Kezeld a bérszámfejtést, kövesd a munkaidőt és a jelenlétet, és kezeld a távolléteket táblázatok nélkül.",
+        "badge": "Egy Platform"
       }
     },
     "cta": {
@@ -42,6 +51,42 @@
         "footer": "Az elfogadással Ön elismeri, hogy ez egy demonstrációs rendszer"
       }
     }
+  },
+  "pricing": {
+    "eyebrow": "Árak",
+    "title": "Csomagok a toborzás minden szakaszához",
+    "subtitle": "Minden csomag tartalmazza a teljes HR platformot — toborzás, bérszámfejtés, munkaidő-nyilvántartás, távollétek és teljesítménykezelés. A csomaglimitek csak a nyitott álláshelyekre, az orvosi igazolások feltöltésére és az AI jólléti chatbotra vonatkoznak.",
+    "perMonth": "/hó",
+    "currentPlanLabel": "Tartalmazza",
+    "free": {
+      "name": "Free",
+      "price": "0 Ft",
+      "tagline": "Kezdéshez kis csapatoknak",
+      "cta": "Ingyenes kezdés"
+    },
+    "momentum": {
+      "name": "Momentum",
+      "price": "20 000 Ft",
+      "tagline": "Növekvő csapatoknak",
+      "cta": "Momentum választása",
+      "badge": "Legnépszerűbb"
+    },
+    "infinity": {
+      "name": "Infinity",
+      "price": "45 000 Ft",
+      "tagline": "Nagy léptékben toborzó csapatoknak",
+      "cta": "Infinity választása"
+    },
+    "features": {
+      "positions": "Legfeljebb {{count}} nyitott álláshely",
+      "certificates": "Legfeljebb {{count}} orvosi igazolás feltöltés / hó",
+      "credits": "{{count}} AI kredit",
+      "wellbeingIncluded": "AI jólléti chatbot elérhető",
+      "wellbeingNotIncluded": "AI jólléti chatbot nem elérhető",
+      "fullPlatform": "Teljes HR platform: toborzás, bérszámfejtés, munkaidő-nyilvántartás, távollétek, teljesítmény"
+    },
+    "dataNote": "A lemondás vagy visszaminősítés soha nem törli a meglévő adataidat — továbbra is teljes hozzáférésed lesz mindenhez, amid már van. Csak az új csomaglimit fölötti új elemek létrehozása szünetel.",
+    "priceNote": "Az árak magyar forintban (HUF) szerepelnek, havi elszámolással."
   },
   "contactForm": {
     "header": {
@@ -149,7 +194,8 @@
     "logout": "Kijelentkezés",
     "login": "Bejelentkezés",
     "demoProfilesHint": "Kattints ide a különböző profilokhoz",
-    "manageContacts": "Kapcsolatok Kezelése"
+    "manageContacts": "Kapcsolatok Kezelése",
+    "pricing": "Árak"
   },
   "positions": {
     "availablePositions": "Elérhető pozíciók",

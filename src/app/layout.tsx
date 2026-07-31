@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Sora, Inter } from "next/font/google";
 import "./globals.css";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
@@ -8,6 +9,8 @@ import { messages } from "../i18n/messages";
 import CookieConsent from "../../components/CookieConsent";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
+const sora = Sora({ subsets: ["latin"], variable: "--font-sora", display: "swap" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 export const metadata: Metadata = {
   title: "HRInno",
@@ -20,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${sora.variable} ${inter.variable}`}>
       <body>
         <LocaleProvider messages={messages}>
           <ClientProvider>
