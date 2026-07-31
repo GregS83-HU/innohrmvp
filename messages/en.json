@@ -15,6 +15,13 @@
       "subtitle": "The same AI that helps candidates prepare also powers your hiring pipeline — plus payroll, time & attendance, absences, and performance, all in one place.",
       "cta": "See pricing"
     },
+    "dashboard": {
+      "welcomeBack": "Welcome back, {{name}}",
+      "subtitle": "Your company's HR tools, all in one place.",
+      "subtitleCompany": "{{company}}'s HR tools, all in one place.",
+      "defaultTitle": "Welcome",
+      "loginPrompt": "Log in to access your company's HR portal."
+    },
     "features": {
       "cvAnalysis": {
         "title": "AI Recruitment Pipeline",
@@ -195,7 +202,8 @@
     "login": "Login",
     "demoProfilesHint": "Click here for different profiles",
     "manageContacts": "Manage Contacts",
-    "pricing": "Pricing"
+    "pricing": "Pricing",
+    "payroll": "Payroll"
   },
   "positions": {
     "availablePositions": "Available Positions",

@@ -268,7 +268,7 @@ export default function Header() {
                           )}
                           {isAdmin && (
                             <Link href={payRoll} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}>
-                              <BanknoteArrowDown className="w-4 h-4" /> {'Payroll'}
+                              <BanknoteArrowDown className="w-4 h-4" /> {t('header.payroll')}
                             </Link>
                           )}
                           {companySlug !== 'demo' && (

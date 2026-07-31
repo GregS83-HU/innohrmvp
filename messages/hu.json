@@ -15,6 +15,13 @@
       "subtitle": "Ugyanaz az AI, amely a jelölteket segíti a felkészülésben, működteti a toborzási folyamatodat is — plusz bérszámfejtés, munkaidő-nyilvántartás, távollétek és teljesítménykezelés, mindez egy helyen.",
       "cta": "Árak megtekintése"
     },
+    "dashboard": {
+      "welcomeBack": "Üdvözlünk újra, {{name}}",
+      "subtitle": "A vállalatod HR eszközei, egy helyen.",
+      "subtitleCompany": "A(z) {{company}} HR eszközei, egy helyen.",
+      "defaultTitle": "Üdvözlünk",
+      "loginPrompt": "Jelentkezz be a vállalatod HR portáljának eléréséhez."
+    },
     "features": {
       "cvAnalysis": {
         "title": "AI Toborzási Folyamat",
@@ -195,7 +202,8 @@
     "login": "Bejelentkezés",
     "demoProfilesHint": "Kattints ide a különböző profilokhoz",
     "manageContacts": "Kapcsolatok Kezelése",
-    "pricing": "Árak"
+    "pricing": "Árak",
+    "payroll": "Bérszámfejtés"
   },
   "positions": {
     "availablePositions": "Elérhető pozíciók",

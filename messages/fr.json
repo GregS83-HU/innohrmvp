@@ -15,6 +15,13 @@
       "subtitle": "La même IA qui aide les candidats à se préparer alimente aussi votre pipeline de recrutement — ainsi que la paie, le suivi du temps, les absences et la performance, le tout en un seul endroit.",
       "cta": "Voir les tarifs"
     },
+    "dashboard": {
+      "welcomeBack": "Content de vous revoir, {{name}}",
+      "subtitle": "Les outils RH de votre entreprise, au même endroit.",
+      "subtitleCompany": "Les outils RH de {{company}}, au même endroit.",
+      "defaultTitle": "Bienvenue",
+      "loginPrompt": "Connectez-vous pour accéder au portail RH de votre entreprise."
+    },
     "features": {
       "cvAnalysis": {
         "title": "Pipeline de Recrutement IA",
@@ -195,7 +202,8 @@
     "login": "Connexion",
     "demoProfilesHint": "Cliquez ici pour différents profils",
     "manageContacts": "Gérer les Contacts",
-    "pricing": "Tarifs"
+    "pricing": "Tarifs",
+    "payroll": "Paie"
   },
   "positions": {
     "availablePositions": "Postes Disponibles",

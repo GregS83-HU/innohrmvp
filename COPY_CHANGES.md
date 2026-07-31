@@ -4,12 +4,19 @@ Frontend and copy only — no backend logic, entitlements, or Stripe integration
 
 ## What changed
 
-**Homepage hero** ([src/app/jobs/[slug]/Home/page.tsx](src/app/jobs/[slug]/Home/page.tsx), rendered at both `/` and `/jobs/[slug]/Home`):
+**Correction (2026-07-31, after initial review):** the first version of this change reused one `Home` component for both the public homepage (`/`) and the private per-company page (`/jobs/[slug]/Home`) — so an existing company's own employees landed on the "free Job Assistant, no account needed" candidate pitch, which doesn't make sense for them. These are now two separate components:
+
+**Public homepage** ([src/app/page.tsx](src/app/page.tsx), route: `/`, no slug):
 - Replaced the generic "HR was never as easy as now!" hero with one leading on the free Job Assistant (CV scoring, no account needed), with a primary CTA to `/job-assistant`.
-- Added a new "For employers" section below the fold introducing the full platform (recruitment, payroll, time & attendance, absences, performance) as what a company gets once a candidate becomes a lead, with a CTA to the new `/pricing` page.
+- Added a "For employers" section below the fold introducing the full platform (recruitment, payroll, time & attendance, absences, performance) as what a company gets once a candidate becomes a lead, with a CTA to the new `/pricing` page.
 - Reframed the three feature cards from generic "CV Analysis / Wellness / Team Management" to "AI Recruitment Pipeline / Payroll & Time Tracking / Workplace Wellness" so they describe the employer-side platform rather than duplicating the Job Assistant pitch.
 - Removed the large standalone logo image that used to sit at the top of the hero — the header already shows the logo on every page, and dropping it gets to the value proposition faster. This wasn't asked for explicitly; flagging it as a judgment call.
 - Softened "Anonymous & Secure" (wellbeing feature badge) to "Anonymous & Confidential" — "Secure" reads as an implicit security claim that isn't backed by any stated certification.
+
+**Company SaaS entry point** ([src/app/jobs/[slug]/Home/page.tsx](src/app/jobs/[slug]/Home/page.tsx), route: `/jobs/[slug]`) — rebuilt as what it actually is: the private entry point for a specific, already-onboarded company's employees, reached only by someone who already knows their company's slug. No candidate pitch, no pricing pitch.
+- Not logged in: company logo/name (fetched by slug) and a "Log in to access your company's HR portal" prompt, reusing the existing `LoginModal`.
+- Logged in: "Welcome back, [name]" plus a role-aware grid of quick links to the same tools already in the header's dropdowns (positions, HR tools, performance, time clock, absences, and — for admins — payroll, subscription, users, tickets), so the most relevant actions are one click away instead of buried in dropdown menus.
+- The demo-environment disclaimer modal (for `/jobs/demo`) moved here with it, since it only ever applied in slug mode.
 
 **New pricing page** ([src/app/pricing/page.tsx](src/app/pricing/page.tsx), route: `/pricing`):
 - Three-column Free / Momentum / Infinity layout using the real limits (positions, medical certificate uploads/month, AI credits, wellbeing chatbot inclusion) and real HUF prices (see "Prices used" below).
