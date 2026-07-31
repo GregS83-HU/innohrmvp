@@ -1,6 +1,7 @@
 // /api/medical-certificates/confirm/route.ts
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { hasFeatureAccess, entitlementErrorBody } from '../../../../../lib/entitlements'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -34,6 +35,11 @@ export async function POST(request: Request) {
         { error: 'Invalid company_id format' },
         { status: 400 }
       )
+    }
+
+    const entitlement = await hasFeatureAccess(companyIdNumber, 'medicalCertificates.upload')
+    if (!entitlement.allowed) {
+      return NextResponse.json(entitlementErrorBody('medicalCertificates.upload', entitlement), { status: 403 })
     }
 
     // Upload file to Supabase Storage

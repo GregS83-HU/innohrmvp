@@ -120,22 +120,40 @@ export default function CertificateDownloadPage() {
       const zip = new JSZip();
       zip.file('certificates.xlsx', excelBuffer);
 
-      // 3) Download files directly from public URL
+      // 3) Get short-lived signed URLs for this batch, then download each file
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error(t('certificateDownload.errors.fetchFailed'));
+      }
+
+      const signedUrlRes = await fetch('/api/medical-certificates/signed-url', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ certificate_ids: certificates.map((c) => c.id) }),
+      });
+
+      if (!signedUrlRes.ok) throw new Error(await signedUrlRes.text());
+      const { urls }: { urls: Record<number, string> } = await signedUrlRes.json();
+
       for (const c of certificates) {
-        if (!c.certificate_file) continue;
+        const signedUrl = urls[c.id];
+        if (!signedUrl) continue;
 
         try {
-          const response = await fetch(c.certificate_file);
+          const response = await fetch(signedUrl);
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
           const blob = await response.blob();
 
           const filename = decodeURIComponent(
-            c.certificate_file.split('/').pop() || `certificate_${c.id}`
+            c.certificate_file?.split('/').pop() || `certificate_${c.id}`
           );
 
           zip.file(filename, blob);
         } catch (err) {
-          console.warn(`❌ Failed to fetch ${c.certificate_file}`, err);
+          console.warn(`Failed to fetch certificate ${c.id}`, err);
         }
       }
 

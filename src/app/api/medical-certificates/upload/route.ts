@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Analytics } from "@vercel/analytics/next"
 import { getPrompt, fillPromptVariables, PromptNotFoundError, PromptDatabaseError } from "../../../../../lib/prompts";
+import { hasFeatureAccess, entitlementErrorBody } from "../../../../../lib/entitlements";
 
 export const dynamic = "force-dynamic"; // évite le cache
 export const maxDuration = 60; // Vercel: laisse le temps à l'OCR
@@ -76,6 +77,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Company ID is required" }, { status: 400 });
     }
 
+    const entitlement = await hasFeatureAccess(companyId, "medicalCertificates.upload");
+    if (!entitlement.allowed) {
+      return NextResponse.json(entitlementErrorBody("medicalCertificates.upload", entitlement), { status: 403 });
+    }
+
     // Détection type fichier
     const fileType = file.type;
     const isPdf = fileType === "application/pdf";
@@ -98,11 +104,6 @@ export async function POST(req: NextRequest) {
     if (uploadError) {
       return NextResponse.json({ error: `Upload failed: ${uploadError.message}` }, { status: 500 });
     }
-
-    const { data: publicUrlData } = supabase
-      .storage.from("medical-certificates")
-      .getPublicUrl(filePath);
-    const publicUrl = publicUrlData?.publicUrl ?? null;
 
     const { data: signed, error: signErr } = await supabase
       .storage.from("medical-certificates")
@@ -184,7 +185,6 @@ export async function POST(req: NextRequest) {
     const aiJson = await aiRes.json();
     const candidateText = aiJson?.choices?.[0]?.message?.content ?? "";
     let structured: CertificateData | null = safeExtractJson(candidateText);
-    console.log("JSON from AI:", candidateText)
 
     if (!structured) {
       structured = {
@@ -199,7 +199,6 @@ export async function POST(req: NextRequest) {
       success: true,
       company_id: companyId,
       storage_path: filePath,
-      public_url: publicUrl,
       raw_text: rawText,
       extracted_data: structured,
     });
