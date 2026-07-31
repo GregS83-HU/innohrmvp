@@ -23,6 +23,37 @@ export async function GET(
     return NextResponse.json({ error: 'Position ID manquant' }, { status: 400 })
   }
 
+  const authHeader = request.headers.get('authorization')
+  if (!authHeader) {
+    return NextResponse.json({ error: 'Missing authorization header' }, { status: 401 })
+  }
+
+  const token = authHeader.replace('Bearer ', '')
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+  }
+
+  const { data: position, error: positionError } = await supabase
+    .from('openedpositions')
+    .select('company_id')
+    .eq('id', positionId)
+    .single()
+
+  if (positionError || !position) {
+    return NextResponse.json({ error: 'Position not found' }, { status: 404 })
+  }
+
+  const { data: membership, error: membershipError } = await supabase
+    .from('company_to_users')
+    .select('company_id')
+    .eq('user_id', user.id)
+    .eq('company_id', position.company_id)
+    .single()
+
+  if (membershipError || !membership) {
+    return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+  }
 
   const { data, error } = await supabase
     .from('position_to_candidat')

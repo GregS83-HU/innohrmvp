@@ -95,16 +95,18 @@ function InterviewSummaryPopover({ summary, onClose, anchorRef }: {
   )
 }
 
-function Card({ 
-  row, 
-  onClick, 
-  isSelected, 
+function Card({
+  row,
+  onClick,
+  isSelected,
   onToggleSelection,
-}: { 
+  onViewCv,
+}: {
   row: Row
   onClick: (row: Row) => void
   isSelected: boolean
   onToggleSelection: (candidateId: number, event: React.MouseEvent) => void
+  onViewCv: (candidateId: number) => void
 }) {
   const { t } = useLocale()
   const [showSummary, setShowSummary] = useState(false)
@@ -269,16 +271,17 @@ const summaryAnchorRef = useRef<HTMLDivElement>(null)
           {row.candidats?.created_at ? new Date(row.candidats.created_at).toLocaleDateString('en-GB') : '—'}
         </span>
         {row.candidats?.cv_file && (
-          <a
-            href={row.candidats.cv_file}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onViewCv(row.candidat_id)
+            }}
             className="flex items-center gap-1 text-purple-600 hover:text-purple-800 hover:underline text-xs transition-colors"
-            onClick={(e) => e.stopPropagation()}
           >
             <FileText className="w-3 h-3" />
             <span>{t('trelloBoard.card.viewCV')}</span>
-          </a>
+          </button>
         )}
       </div>
     </div>
@@ -296,7 +299,8 @@ function Column({
   onToggleSelection,
   onSelectAll,
   onDeselectAll,
-}: { 
+  onViewCv,
+}: {
   columnId: string
   columnName: string
   rows: Row[]
@@ -307,6 +311,7 @@ function Column({
   onToggleSelection: (candidateId: number, event: React.MouseEvent) => void
   onSelectAll: (columnId: string) => void
   onDeselectAll: (columnId: string) => void
+  onViewCv: (candidateId: number) => void
 }) {
   const { t } = useLocale()
   const { isOver, setNodeRef } = useDroppable({
@@ -369,12 +374,13 @@ function Column({
       <div className="flex-1 min-h-[300px]">
         <SortableContext items={displayRows.map(r => r.candidat_id.toString())} strategy={verticalListSortingStrategy}>
           {displayRows.map(row => (
-            <Card 
-              key={row.candidat_id} 
-              row={row} 
+            <Card
+              key={row.candidat_id}
+              row={row}
               onClick={onCardClick}
               isSelected={selectedCandidates.has(row.candidat_id)}
               onToggleSelection={onToggleSelection}
+              onViewCv={onViewCv}
             />
           ))}
         </SortableContext>
@@ -766,6 +772,26 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
     setIsEditingComment(false)
   }
 
+  const handleViewCv = async (candidateId: number) => {
+    if (!session?.access_token) return
+    try {
+      const res = await fetch('/api/candidates/signed-cv-url', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ candidate_ids: [candidateId] }),
+      })
+      if (!res.ok) return
+      const data = await res.json()
+      const url = data.urls?.[candidateId]
+      if (url) window.open(url, '_blank', 'noopener,noreferrer')
+    } catch (err) {
+      console.error('Failed to get CV link:', err)
+    }
+  }
+
   const handleCloseModal = () => {
     setSelectedCandidate(null)
     setIsEditingComment(false)
@@ -903,6 +929,7 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
                   onToggleSelection={handleToggleSelection}
                   onSelectAll={handleSelectAllInColumn}
                   onDeselectAll={handleDeselectAllInColumn}
+                  onViewCv={handleViewCv}
                 />
               )
             })}
@@ -998,9 +1025,13 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
                       </div>
                       <div className="flex-1">
                         <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{t('trelloBoard.modal.cvFile')}</p>
-                        <a href={selectedCandidate.candidats.cv_file} target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:text-purple-800 hover:underline transition-colors font-medium">
+                        <button
+                          type="button"
+                          onClick={() => handleViewCv(selectedCandidate.candidat_id)}
+                          className="text-purple-600 hover:text-purple-800 hover:underline transition-colors font-medium"
+                        >
                           {t('trelloBoard.modal.viewCV')}
-                        </a>
+                        </button>
                       </div>
                     </div>
                   )}

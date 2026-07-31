@@ -117,7 +117,7 @@ async function notifyManagerOfNewCV(
   }
 }
 
-async function callOpenRouterAPI(prompt: string, context = '', model = 'openai/gpt-3.5-turbo') {
+async function callOpenRouterAPI(prompt: string, context = '', model = '  ') {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 60000);
 
@@ -317,24 +317,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Échec upload CV' }, { status: 500 });
     }
 
-    const { data: signedUrlData, error: signedUrlError } = await supabase
-      .storage
-      .from('cvs')
-      .createSignedUrl(filePath, 60 * 60);
-
-    if (signedUrlError || !signedUrlData) {
-      throw new Error("Failed to create signed URL for CV");
-    }
-
-    const cvFileUrl = signedUrlData.signedUrl;
-
     const { data: candidate, error: insertError } = await supabase
       .from('candidats')
       .insert({
         candidat_firstname,
         candidat_lastname,
         cv_text: fullCvText,
-        cv_file: cvFileUrl,
+        cv_file: filePath,
         candidat_email,
         candidat_phone,
         candidat_gdpr_consent_date: new Date().toISOString(),
