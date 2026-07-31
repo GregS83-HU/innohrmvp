@@ -131,7 +131,7 @@ Not confirmed in the codebase — no dedicated dashboard module was identified d
 ## Settings
 
 - Stripe-based subscription management page (view plan status, manage billing via Stripe customer portal)
-- Plan-based feature gating: a single server-side helper checks a company's plan (`company.forfait`) before allowing new job postings, new medical certificate uploads, and wellbeing-chatbot sessions, using per-plan limits stored in the `forfait` table. A company with no active plan is denied all three. See Section 11 for the actual plan tiers and Section 8 for what is and isn't covered by this.
+- Plan-based feature gating: a single server-side helper checks a company's plan (`company.forfait`) before allowing new job postings, new medical certificate uploads, and wellbeing-chatbot sessions, using per-plan limits stored in the `forfait` table. A company with no active plan permanently behaves like the Free plan for these three checks, rather than being blocked outright. See Section 11 for the actual plan tiers and Section 8 for what is and isn't covered by this.
 
 ## Notifications
 
@@ -173,7 +173,6 @@ Not documented in the codebase.
 # 8. Known Limitations
 
 - Plan-based feature gating covers only three features (opening a new job position, medical certificate uploads, the AI wellbeing chatbot) because those are the only ones with real per-plan limits/flags in the `forfait` table. Payroll, time & attendance, absences, performance management, tickets, and onboarding have no plan-based distinction at all — every company, including one with no active subscription, has identical access to those.
-- No Stripe `customer.subscription.deleted` webhook handler: the webhook route handles checkout completion and payment success/failure, but not subscription deletion/expiry from Stripe's side. If a subscription lapses through Stripe directly (rather than the app's own cancel button, which does correctly clear the company's plan), the company keeps its old plan's access indefinitely.
 - `openedpositions` still has catch-all row-level-security policies (`"Allow all updates"`, `"Allow public insert"`) with no company scoping, found while implementing the position-creation plan gate but not fixed — same class of issue as the `medical_certificates`/`candidats` policies that were fixed, but "Allow public insert" may be an intentional public job-posting flow rather than a bug, so it needs its own review before changing.
 - No product documentation exists beyond this brief (README is unmodified Next.js boilerplate).
 - No custom design system: no Tailwind theme/config, no defined brand colors or typography beyond default black/white and Arial/Helvetica.
@@ -265,7 +264,8 @@ Infinity
 Notes
 
 - Plan names are Free / Momentum / Infinity — not the Starter/Pro/Enterprise naming previously assumed in this document before the actual `forfait` table was inspected.
-- A company with no active plan (`forfait` is null — the state both before ever subscribing and immediately after canceling) is denied all three of the gated features above; it does not fall back to Free-tier limits.
+- A company with no active plan (`forfait` is null — the state both before ever subscribing and immediately after canceling/expiry) permanently behaves like the Free plan for the three gated features: capped at Free's limits (3 open positions, 5 medical certificates/month, no wellbeing chatbot), not blocked outright. This is not a temporary grace period — "no plan" and "Free plan" are treated as identical going forward. A company that had more items than Free's caps allow before downgrading (e.g. 8 open positions on Infinity, dropping to Free's cap of 3) keeps full read/edit/close access to everything it already has; only creating new items beyond the cap is blocked.
+- A Stripe subscription canceled directly on Stripe's side (not through the app's own cancel button) is now correctly synced back to the company record via a `customer.subscription.deleted` webhook handler (plus a narrower `customer.subscription.updated` handler for cancellations reported that way), clearing the plan to the same null/Free-fallback state as an in-app cancellation.
 - Per-plan limits/flags live in the `forfait` table and are read live by the app, not hardcoded — changing a plan's limits in Supabase takes effect without a code deploy.
 - AI credits (`included_ai_credits` / `used_ai_credits`) are metered per API call (e.g. CV analysis, medical certificate OCR) independently of the three gated features above; this metering was already implemented before the recent gating work and is unchanged.
 - As of this update, gating covers job posting creation, medical certificate uploads, and the AI wellbeing chatbot only. Payroll, time & attendance, absences, performance, tickets, and onboarding are not plan-differentiated in the data model at all (see Section 8).
@@ -311,7 +311,6 @@ Current readiness (0–100%)
 Major blockers
 
 - Monetization is only partially functional: job posting creation, medical certificate uploads, and the wellbeing chatbot enforce plan limits, but every other paid-feeling module (payroll, time & attendance, absences, performance, etc.) is available identically regardless of plan, including to companies with no active subscription.
-- No handler for Stripe subscription deletion/expiry means a company's plan can go stale (stay on a paid plan's access after the underlying Stripe subscription actually ended) if canceled through Stripe rather than the app's own cancel flow.
 - Medical certificate and CV data is still sent to third-party AI/OCR services with no redaction step, and there's no confirmed retention/deletion policy — a compliance gap even though access control was fixed.
 - No product documentation exists beyond this brief.
 
@@ -382,7 +381,6 @@ Not documented in the codebase.
 Business questions still unresolved, based on gaps found in the codebase:
 
 - Should payroll, time & attendance, absences, performance, tickets, and onboarding also be plan-differentiated? If so, this needs a product decision on what belongs to which plan, plus new columns on the `forfait` table — nothing in the current data model supports it.
-- What should happen when a Stripe subscription is canceled/expires outside the app's own cancel flow, given there's currently no webhook handler syncing that back to the company's plan?
 - What is the intended approach for third-party AI/OCR data handling and retention for medical certificates and CVs (still unresolved even after the access-control fixes)?
 - What is the target market (company size, industry, geography)? Nothing in the repo confirms this beyond a weak i18n/commit-language signal.
 
@@ -396,6 +394,8 @@ Brief summary (maximum 10 bullet points). Based on the most recent completed wor
 - Secured CV storage and candidate/position data: private bucket, signed URLs scoped to the requesting user's company, and company-scoped database access replacing previously wide-open policies
 - Fixed a candidate-stats API endpoint that had no authentication at all
 - Implemented plan-based feature gating for job posting creation, medical certificate uploads, and the AI wellbeing chatbot, tied to the real Stripe-linked plan tiers (Free, Momentum, Infinity)
+- Fixed a company with no active subscription to permanently fall back to Free-tier limits instead of being blocked outright, without retroactively hiding or blocking any data from before a downgrade
+- Added Stripe webhook handling for subscription cancellation on Stripe's own side (`customer.subscription.deleted`), keeping the company's plan in sync; also fixed the webhook endpoint to correctly verify and handle both live-mode and test-mode Stripe events arriving at the same production URL
 - Restricted the Job Assistant to public-only access
 - Added voice recognition and an AI consent flow to the interview assistant
 
@@ -418,8 +418,8 @@ Maximum 10 bullet points.
 - Primary audience (inferred): HR administrators/company owners; secondary: recruiters, managers, employees; tertiary: job candidates via a free public tool.
 - Current maturity: MVP — the most severe data-exposure risks (public storage URLs, unauthenticated candidate data access) have been fixed, and monetization is now partially functional, but the product is still not production-hardened.
 - Biggest strength: the public, free Job Assistant (AI CV scoring/rewriting + voice-based mock interview) is a genuine differentiator versus typical employer-only ATS AI tools.
-- Real plan tiers are Free, Momentum, and Infinity, and now actually enforce limits on job postings, medical certificate uploads, and wellbeing-chatbot access.
-- Biggest remaining weaknesses: most modules (payroll, time & attendance, absences, performance, tickets, onboarding) have no plan differentiation at all; no Stripe subscription-cancellation sync; medical certificate/CV data still goes to third-party AI/OCR services with no redaction step.
+- Real plan tiers are Free, Momentum, and Infinity, and now actually enforce limits on job postings, medical certificate uploads, and wellbeing-chatbot access — including a company with no active subscription, which now permanently behaves like the Free plan instead of being blocked, and stays in sync with Stripe-side cancellations via a webhook handler.
+- Biggest remaining weaknesses: most modules (payroll, time & attendance, absences, performance, tickets, onboarding) have no plan differentiation at all; medical certificate/CV data still goes to third-party AI/OCR services with no redaction step.
 - `openedpositions` still has unscoped row-level-security policies, found but not yet fixed.
 - Launch readiness has not been formally assessed; major blockers are now narrower (partial monetization gap, third-party data-handling compliance) than the previously wide-open data-exposure issues.
 - No competitor research, market sizing, or formal positioning statement exists in the repo.
