@@ -153,7 +153,7 @@ No native mobile app identified; the product is a responsive web application (Ne
 ## Administration
 
 - Bulk user import and user creation
-- Job posting / position management (public and private postings) — creating a new open position is capped per the company's plan
+- Job posting / position management (public and private postings) — creating a new open position is capped per the company's plan. The public job board now excludes positions whose `position_end_date` has passed (previously showed every position ever created, closed or not); RLS on `openedpositions` was verified directly against production and confirmed already correctly scoped (company-scoped insert/update, intentionally public read for the job board) — see Section 19.
 - Recruitment pipeline / applicant tracking, restricted so a user can only view or edit candidates for positions owned by their own company
 - Payroll (grid/bulk entry, allowances, deductions, period close, exports)
 - Time & attendance (time clock, employee and manager views)
@@ -182,12 +182,11 @@ Not documented in the codebase.
 # 8. Known Limitations
 
 - Plan-based feature gating covers only three features (opening a new job position, medical certificate uploads, the AI wellbeing chatbot) because those are the only ones with real per-plan limits/flags in the `forfait` table. Payroll, time & attendance, absences, performance management, tickets, and onboarding have no plan-based distinction at all — every company, including one with no active subscription, has identical access to those.
-- The public job board (`positions-public/route.ts`) returns every row unconditionally, including positions with a past `position_end_date` — an app-level query bug (not an RLS issue) that means candidates may see job postings the company has already closed.
 - No product documentation exists beyond this brief (README is unmodified Next.js boilerplate).
 - No self-serve company signup exists: no code path anywhere inserts a new row into the `company` table. New companies must be onboarded manually today. This means pricing page/CTA "buy" buttons (in this app and on the marketing site) cannot lead to a real checkout for a brand-new prospect yet — existing checkout (`create-subscription`) only works for a company that's already been onboarded, with an admin already logged in.
 - Medical certificate and CV data are still sent to third-party services (OCR.Space, OpenRouter/OpenAI). A best-effort regex redaction pass (national ID/phone/address) now runs on medical certificate text before that AI call, and a missing AI-consent checkbox on the certificate upload page was fixed — but this redaction is not a guarantee (fixed regex patterns, not an ML PII detector, so unusual/non-Hungarian formats can still get through), and whether OCR.Space's/OpenRouter's own data-handling terms are acceptable for health data, or whether a formal Data Processing Agreement is needed with either, has not been reviewed (see `REDACTION_RETENTION_FIX.md`).
 - A runtime-adjustable data retention mechanism now exists (`data_retention_settings` table, admin UI, daily scheduled deletion job) for medical certificates and company-pipeline CV data, verified end-to-end against production. Job Assistant CV data still has no persistence layer at all (confirmed, not just unconfirmed, by tracing every route — nothing touches Supabase), so there's nothing for that data type to delete. The retention periods currently configured (365 days for every data type) are placeholders picked to demonstrate the mechanism, explicitly not a legal or compliance determination — the real periods still require a human legal decision.
-- Leftover debug `console.log` statements remain in roughly 30 files across `src/app` (one instance that logged raw AI-extracted medical certificate text was removed in an earlier fix; the rest were not audited). A few remaining `console.error` calls in `analyse-cv/route.ts` log the AI's raw output text on a JSON-parse failure, which could include candidate-derived text in server logs on that edge case — not fixed, flagged in `DATA_FLOW_AUDIT.md`.
+- Leftover debug `console.log` statements remain in roughly 30 files across `src/app` (two instances that logged raw AI-extracted content — one in the medical certificate OCR flow, one in `analyse-cv/route.ts`'s JSON-parse failure path — have been fixed; the rest of the ~30 files were not audited). A few remaining `console.error` calls in `analyse-cv/route.ts` log raw Supabase error objects on insert/upload failure, which could in principle include a candidate's field value via Postgres's constraint-violation error detail — not fixed, flagged in `RLS_JOBBOARD_LOG_FIX.md`.
 - Known unresolved bug in job description generation: a prompt-variable helper ("fillPromptVariables") does not work correctly, worked around with manual replacement rather than fixed.
 - Admin/permission checks are implemented ad hoc per route rather than through a centralized authorization layer. Explicitly not addressed by the recent security and gating work, which added company/plan checks alongside the existing ad hoc pattern rather than replacing it.
 - Obsolete/backup code and folders (e.g., an "ObsoleteHome" folder) remain in the codebase.
@@ -402,16 +401,15 @@ Business questions still unresolved, based on gaps found in the codebase:
 
 Brief summary (maximum 10 bullet points). Based on the most recent completed work:
 
-- Rebuilt the homepage: a public marketing page (`/`) leading with the free Job Assistant, and a separate, correct per-company SaaS dashboard (`/jobs/[slug]`) for already-onboarded companies — these were briefly and mistakenly conflated in one shared component before this fix
-- Added a `/pricing` page (Free/Momentum/Infinity, real limits and prices) and a minimal design system (brand colors, Sora/Inter fonts)
+- Rebuilt the homepage (public marketing page + separate per-company SaaS dashboard) and added a `/pricing` page (Free/Momentum/Infinity, real limits/prices) plus a minimal design system (brand colors, Sora/Inter fonts), and aligned the separate `hrinno-marketing` site with the same pitch
 - Corrected `forfait.stripe_price_id` for Momentum/Infinity, which had pointed to test-mode Stripe prices instead of the live ones, likely blocking real checkout
-- Aligned the separate `hrinno-marketing` site with the same Job Assistant + full-platform + pricing pitch
 - Secured medical certificate and CV storage (private buckets, short-lived signed URLs replacing previously public ones, company-scoped database access) and fixed a candidate-stats API endpoint that had no authentication at all
 - Implemented plan-based feature gating for job posting creation, medical certificate uploads, and the AI wellbeing chatbot, tied to the real Stripe-linked plan tiers
-- Fixed a company with no active subscription to permanently fall back to Free-tier limits instead of being blocked outright, without retroactively hiding or blocking any existing data
-- Added Stripe webhook handling for subscription cancellation on Stripe's own side, and fixed the webhook to correctly handle both live-mode and test-mode events arriving at the same production URL
+- Fixed a company with no active subscription to permanently fall back to Free-tier limits instead of being blocked outright, and added Stripe webhook handling so a subscription canceled directly on Stripe's side (live or test mode) correctly syncs back to the company record
 - Added lightweight funnel tracking (Job Assistant usage → pricing views/clicks → contact form submissions → manually onboarded companies) across this app and `hrinno-marketing`, with a super-admin dashboard, to inform a future self-serve-signup decision
 - Added best-effort PII redaction on medical certificate text before it reaches the AI provider, fixed a missing AI-consent checkbox on the certificate upload flow, and built a runtime-adjustable data retention system (settings table, admin UI, daily scheduled deletion) for medical certificates and company-pipeline CVs, verified end-to-end against production
+- Verified the `openedpositions` RLS policies directly against production: the unscoped "Allow all updates"/"Allow public insert" policies flagged in earlier work no longer exist (already fixed by a prior change) — confirmed correct, not re-fixed, with the query result and code trace kept in `RLS_JOBBOARD_LOG_FIX.md`
+- Fixed the public job board (`positions-public/route.ts`) to exclude positions with a past `position_end_date`, which it previously returned unconditionally, and trimmed a log leak in `analyse-cv/route.ts` that logged the AI's full raw response text (candidate-derived) on a JSON-parse failure
 
 ---
 
