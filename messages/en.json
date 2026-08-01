@@ -474,7 +474,7 @@
       "gdprLinkText": "GDPR policy",
       "gdprPost": "",
       "success": "Analysis completed successfully! Your CV has been processed and saved.",
-      "aiConsent": "I agree that my CV will be analyzed by an artificial intelligence model to generate insights and feedback.",
+      "aiConsent": "I agree that my CV will be analyzed by a third-party AI service to generate insights and feedback.",
       "error": {
         "title": "Upload Error"
       },
@@ -875,7 +875,8 @@
       "dropzoneEmpty": "Click here to select your file",
       "dropzoneHelp": "PDF or Image • Maximum 1MB",
       "uploadButton": "Upload & Process",
-      "processing": "Processing..."
+      "processing": "Processing...",
+      "aiConsent": "🤖 I agree that this document will be processed using AI technology — including third-party OCR and AI analysis services — to automatically extract information."
     },
     "results": {
       "titleSuccess": "Extracted Certificate Details",
@@ -1099,7 +1100,7 @@
       "title": "Medical Certificate (Optional)",
       "selectFile": "Click to select certificate",
       "fileHelp": "PDF or Image • Max 1MB",
-      "aiConsent": "🤖 I agree that my medical certificate will be processed using AI technology for automated data extraction and validation.",
+      "aiConsent": "🤖 I agree that my medical certificate will be processed using AI technology — including third-party OCR and AI analysis services — for automated data extraction and validation.",
       "processButton": "Process Certificate",
       "processing": "Processing...",
       "confirmButton": "Confirm Certificate",
@@ -2763,7 +2764,7 @@
       "jobPlaceholder": "Paste the full job description here...",
       "characters": "characters",
       "analyzeButton": "Analyze My Application →",
-      "aiConsent": "I understand and accept that my CV will be processed by an AI system for analysis purposes. No data is stored after the session ends."
+      "aiConsent": "I understand and accept that my CV will be processed by a third-party AI service for analysis purposes. No data is stored after the session ends."
     },
     "loading": {
       "analyzing": "Analyzing your CV against the job description...",

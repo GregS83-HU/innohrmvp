@@ -476,7 +476,7 @@
       "gdprLinkText": "GDPR szabályzatot",
       "gdprPost": "",
       "success": "Az elemzés sikeresen befejeződött! Az önéletrajzát feldolgoztuk és elmentettük.",
-      "aiConsent": "Hozzájárulok ahhoz, hogy az önéletrajzomat egy mesterséges intelligencia modell elemezze, hogy visszajelzéseket és értékelést készítsen róla.",
+      "aiConsent": "Hozzájárulok ahhoz, hogy az önéletrajzomat egy harmadik fél mesterséges intelligencia szolgáltatása elemezze, hogy visszajelzéseket és értékelést készítsen róla.",
       "error": {
         "title": "Feltöltési hiba"
       },
@@ -877,7 +877,8 @@
       "dropzoneEmpty": "Kattints ide a fájl kiválasztásához",
       "dropzoneHelp": "PDF vagy kép • Maximum 1 MB",
       "uploadButton": "Feltöltés és feldolgozás",
-      "processing": "Feldolgozás..."
+      "processing": "Feldolgozás...",
+      "aiConsent": "🤖 Hozzájárulok ahhoz, hogy ezt a dokumentumot mesterséges intelligencia — beleértve harmadik fél OCR- és AI-elemző szolgáltatásait — dolgozza fel az adatok automatikus kinyerése céljából."
     },
     "results": {
       "titleSuccess": "Kinyert igazolás adatai",
@@ -1101,7 +1102,7 @@
       "title": "Orvosi igazolás (nem kötelező)",
       "selectFile": "Kattintson az igazolás kiválasztásához",
       "fileHelp": "PDF vagy kép • Max. 1 MB",
-      "aiConsent": "🤖 Beleegyezem, hogy az orvosi igazolásomat mesterséges intelligencia segítségével dolgozzák fel az adatok automatikus kinyerése és ellenőrzése céljából.",
+      "aiConsent": "🤖 Beleegyezem, hogy az orvosi igazolásomat mesterséges intelligencia — beleértve harmadik fél OCR- és AI-elemző szolgáltatásait — segítségével dolgozzák fel az adatok automatikus kinyerése és ellenőrzése céljából.",
       "processButton": "Igazolás feldolgozása",
       "processing": "Feldolgozás...",
       "confirmButton": "Igazolás megerősítése",
@@ -2765,7 +2766,7 @@
       "jobPlaceholder": "Illeszd be ide a teljes álláshirdetést...",
       "characters": "karakter",
       "analyzeButton": "Pályázatom Elemzése →",
-      "aiConsent": "Tudomásul veszem és elfogadom, hogy önéletrajzomat mesterséges intelligencia dolgozza fel elemzési célból. A munkamenet végén semmilyen adat nem kerül tárolásra."
+      "aiConsent": "Tudomásul veszem és elfogadom, hogy önéletrajzomat egy harmadik fél mesterséges intelligencia szolgáltatása dolgozza fel elemzési célból. A munkamenet végén semmilyen adat nem kerül tárolásra."
     },
     "loading": {
       "analyzing": "Az önéletrajz elemzése az álláshirdetés alapján...",

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { FiMenu, FiX } from 'react-icons/fi';
 import {
   Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown,
-  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users, Users2, BanknoteArrowDown, FileSearch, Tag
+  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users, Users2, BanknoteArrowDown, FileSearch, Tag, Shield
 } from 'lucide-react';
 import { useHeaderLogic } from '../hooks/useHeaderLogic';
 import {
@@ -72,6 +72,7 @@ export default function Header() {
   const manageContactsLink = useMemo(() => buildLink('/contact-submissions'), [buildLink]);
   const manageUsersUpload = useMemo(() => buildLink('/admin/import-users'), [buildLink]);
   const funnelDashboardLink = useMemo(() => buildLink('/admin/funnel'), [buildLink]);
+  const dataRetentionLink = useMemo(() => buildLink('/admin/data-retention'), [buildLink]);
   const payRoll = useMemo(() => buildLink('/payroll'), [buildLink]);
 
   return (
@@ -270,6 +271,11 @@ export default function Header() {
                           {isSuperAdmin && (
                             <Link href={funnelDashboardLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}>
                               <BarChart3 className="w-4 h-4" /> {'Funnel Dashboard'}
+                            </Link>
+                          )}
+                          {isSuperAdmin && (
+                            <Link href={dataRetentionLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}>
+                              <Shield className="w-4 h-4" /> {'Data Retention'}
                             </Link>
                           )}
                           {isAdmin && (

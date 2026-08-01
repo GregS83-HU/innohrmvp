@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { Analytics } from "@vercel/analytics/next"
 import { getPrompt, fillPromptVariables, PromptNotFoundError, PromptDatabaseError } from "../../../../../lib/prompts";
 import { hasFeatureAccess, entitlementErrorBody } from "../../../../../lib/entitlements";
+import { redactDirectIdentifiers } from "../../../../../lib/piiRedaction";
 
 export const dynamic = "force-dynamic"; // évite le cache
 export const maxDuration = 60; // Vercel: laisse le temps à l'OCR
@@ -152,12 +153,19 @@ export async function POST(req: NextRequest) {
         .trim() || "";
 
     // 3) Extraction JSON via OpenRouter using database prompt
+    // Best-effort redaction of direct identifiers (national ID, phone,
+    // address) not needed for name/date extraction, before this text
+    // leaves HRInno for a third-party AI provider. See lib/piiRedaction.ts
+    // and REDACTION_RETENTION_FIX.md — this is not a guarantee of complete
+    // PII removal.
+    const redactedText = redactDirectIdentifiers(rawText);
+
     let extractPrompt: string;
-    
+
     try {
       const promptTemplate = await getPrompt('medical_certificate_extraction');
       extractPrompt = fillPromptVariables(promptTemplate, {
-        rawText
+        rawText: redactedText
       });
     } catch (error) {
       if (error instanceof PromptNotFoundError || error instanceof PromptDatabaseError) {

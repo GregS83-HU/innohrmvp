@@ -476,7 +476,7 @@
       "gdprLinkText": "politique RGPD",
       "gdprPost": "",
       "success": "Analyse terminée avec succès ! Votre CV a été traité et enregistré.",
-      "aiConsent": "J'accepte que mon CV soit analysé par un modèle d'intelligence artificielle pour générer des insights et des retours.",
+      "aiConsent": "J'accepte que mon CV soit analysé par un service d'intelligence artificielle tiers pour générer des insights et des retours.",
       "error": {
         "title": "Erreur de Téléchargement"
       },
@@ -877,7 +877,8 @@
       "dropzoneEmpty": "Cliquez ici pour sélectionner votre fichier",
       "dropzoneHelp": "PDF ou Image • Maximum 1 Mo",
       "uploadButton": "Télécharger et Traiter",
-      "processing": "Traitement..."
+      "processing": "Traitement...",
+      "aiConsent": "🤖 J'accepte que ce document soit traité par une technologie d'IA — y compris des services tiers d'OCR et d'analyse par IA — afin d'en extraire automatiquement les informations."
     },
     "results": {
       "titleSuccess": "Détails du Certificat Extraits",
@@ -1101,7 +1102,7 @@
       "title": "Certificat Médical (Optionnel)",
       "selectFile": "Cliquer pour sélectionner le certificat",
       "fileHelp": "PDF ou Image • Max 1 Mo",
-      "aiConsent": "🤖 J'accepte que mon certificat médical soit traité par la technologie IA pour l'extraction et la validation automatisées des données.",
+      "aiConsent": "🤖 J'accepte que mon certificat médical soit traité par une technologie d'IA — y compris des services tiers d'OCR et d'analyse par IA — pour l'extraction et la validation automatisées des données.",
       "processButton": "Traiter le Certificat",
       "processing": "Traitement...",
       "confirmButton": "Confirmer le Certificat",
@@ -3073,7 +3074,7 @@
       "jobPlaceholder": "Collez ici la description complète du poste...",
       "characters": "caractères",
       "analyzeButton": "Analyser ma Candidature →",
-      "aiConsent": "Je comprends et accepte que mon CV soit traité par un système d'intelligence artificielle à des fins d'analyse. Aucune donnée n'est conservée après la fin de la session."
+      "aiConsent": "Je comprends et accepte que mon CV soit traité par un service d'intelligence artificielle tiers à des fins d'analyse. Aucune donnée n'est conservée après la fin de la session."
     },
     "loading": {
       "analyzing": "Analyse de votre CV par rapport à la description du poste...",
