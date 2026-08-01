@@ -6,8 +6,8 @@ export async function GET(req: Request) {
     const supabase = createServerClient()
     const { searchParams } = new URL(req.url)
     const slug = searchParams.get("slug")
-    
-    
+    const now = new Date().toISOString()
+
     let query = supabase
       .from("openedpositions")
       .select(
@@ -16,6 +16,7 @@ export async function GET(req: Request) {
         position_name,
         position_description,
         position_description_detailed,
+        position_end_date,
         manager_id,
         company:company(
           company_logo,
@@ -24,6 +25,10 @@ export async function GET(req: Request) {
         )
       `
       )
+      // Public job board only — exclude positions already closed. Matches the
+      // same convention already used in positions-private/route.ts: a null
+      // position_end_date means "still open", not "expired".
+      .or(`position_end_date.is.null,position_end_date.gt.${now}`)
 
     // ⚡ Filtre par slug si fourni
     if (slug) {

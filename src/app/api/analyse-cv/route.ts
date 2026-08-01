@@ -186,14 +186,23 @@ function extractAndParseJSON(rawResponse: string, context = '') {
 
   const match = trimmed.match(/\{(?:[^{}]|(?:\{[^{}]*\}))*\}/);
   if (!match) {
-    console.error(`No JSON found in ${context} response:`, rawResponse);
+    // Don't log the full AI response — it's derived from the candidate's CV
+    // and the job description, so it can contain candidate-identifying
+    // text. A short snippet + length is enough to spot a malformed-output
+    // pattern (e.g. the model wrapping JSON in markdown fences); if that's
+    // not enough to diagnose a recurring failure, revisit this rather than
+    // going back to logging the full text.
+    console.error(`No JSON found in ${context} response (length ${rawResponse.length}): "${rawResponse.slice(0, 80)}..."`);
     throw new Error(`No valid JSON found in ${context} response`);
   }
 
   try {
     return JSON.parse(match[0]);
   } catch (parseError) {
-    console.error(`Invalid JSON in ${context} response:`, match[0]);
+    console.error(
+      `Invalid JSON in ${context} response (length ${match[0].length}): "${match[0].slice(0, 80)}..."`,
+      parseError instanceof Error ? parseError.message : parseError
+    );
     throw new Error(`Invalid JSON structure in ${context} response`);
   }
 }
