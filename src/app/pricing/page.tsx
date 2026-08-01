@@ -2,16 +2,34 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { Check, X, Info } from 'lucide-react';
+import { Check, X, Lock, Info } from 'lucide-react';
 import { useLocale } from 'i18n/LocaleProvider';
 import { trackFunnelEvent } from '../../../lib/funnelTracking';
 
 type PlanKey = 'free' | 'momentum' | 'infinity';
 
-const PLAN_LIMITS: Record<PlanKey, { positions: number; certificates: number; credits: number; wellbeing: boolean }> = {
-  free: { positions: 3, certificates: 5, credits: 50, wellbeing: false },
-  momentum: { positions: 5, certificates: 10, credits: 100, wellbeing: true },
-  infinity: { positions: 10, certificates: 20, credits: 250, wellbeing: true },
+// Job postings/certificates/credits/wellbeing are still simple quantity or
+// on-off limits. Payroll/attendance/absences and performance are now
+// capability gates with an employee-count cap (see MODULE_GATING_FIX.md) -
+// hrOps/performance below drive which icon+copy each plan shows for them:
+// "locked" (Free - preview only, not usable), "included" (usable up to the
+// cap), or plain not-included (Momentum's missing performance - a real
+// working plan that just doesn't have that one module, not a preview).
+const PLAN_LIMITS: Record<
+  PlanKey,
+  {
+    positions: number;
+    certificates: number;
+    credits: number;
+    wellbeing: boolean;
+    employeeCap: number | null;
+    hrOps: 'locked' | 'included';
+    performance: 'locked' | 'notIncluded' | 'included';
+  }
+> = {
+  free: { positions: 2, certificates: 5, credits: 50, wellbeing: false, employeeCap: null, hrOps: 'locked', performance: 'locked' },
+  momentum: { positions: 5, certificates: 10, credits: 100, wellbeing: true, employeeCap: 20, hrOps: 'included', performance: 'notIncluded' },
+  infinity: { positions: 10, certificates: 20, credits: 250, wellbeing: true, employeeCap: 100, hrOps: 'included', performance: 'included' },
 };
 
 export default function PricingPage() {
@@ -89,11 +107,49 @@ export default function PricingPage() {
                     )}
                     {limits.wellbeing ? t('pricing.features.wellbeingIncluded') : t('pricing.features.wellbeingNotIncluded')}
                   </li>
-                  <li className="flex items-start gap-2 text-sm text-gray-700 pt-2 border-t border-gray-100">
-                    <Check className="w-4 h-4 text-accent-600 flex-shrink-0 mt-0.5" />
-                    {t('pricing.features.fullPlatform')}
+
+                  {/* Payroll / time & attendance / absences */}
+                  <li className={`flex items-start gap-2 text-sm pt-2 border-t border-gray-100 ${limits.hrOps === 'included' ? 'text-gray-700' : 'text-gray-400'}`}>
+                    {limits.hrOps === 'included' ? (
+                      <Check className="w-4 h-4 text-accent-600 flex-shrink-0 mt-0.5" />
+                    ) : (
+                      <Lock className="w-4 h-4 text-gray-300 flex-shrink-0 mt-0.5" />
+                    )}
+                    {limits.hrOps === 'included'
+                      ? t('pricing.features.hrOpsIncluded', { count: limits.employeeCap ?? 0 })
+                      : t('pricing.features.hrOpsLocked')}
+                  </li>
+
+                  {/* Performance management */}
+                  <li className={`flex items-start gap-2 text-sm ${limits.performance === 'included' ? 'text-gray-700' : 'text-gray-400'}`}>
+                    {limits.performance === 'included' ? (
+                      <Check className="w-4 h-4 text-accent-600 flex-shrink-0 mt-0.5" />
+                    ) : limits.performance === 'locked' ? (
+                      <Lock className="w-4 h-4 text-gray-300 flex-shrink-0 mt-0.5" />
+                    ) : (
+                      <X className="w-4 h-4 text-gray-300 flex-shrink-0 mt-0.5" />
+                    )}
+                    {limits.performance === 'included'
+                      ? t('pricing.features.performanceIncluded', { count: limits.employeeCap ?? 0 })
+                      : limits.performance === 'locked'
+                      ? t('pricing.features.performanceLocked')
+                      : t('pricing.features.performanceNotIncluded')}
                   </li>
                 </ul>
+
+                {plan === 'infinity' && (
+                  <p className="text-xs text-gray-400 mb-4 -mt-4">
+                    {t('pricing.infinity.contactNote')}{' '}
+                    <a
+                      href="https://www.hrinno.hu/#contact-form"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand-600 hover:underline font-medium"
+                    >
+                      {t('pricing.infinity.contactLink')}
+                    </a>
+                  </p>
+                )}
 
                 <Link
                   href="/job-assistant"

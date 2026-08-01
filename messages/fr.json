@@ -12,7 +12,7 @@
     "forEmployers": {
       "eyebrow": "Pour les entreprises",
       "title": "Une seule plateforme, dès que vous recrutez",
-      "subtitle": "La même IA qui aide les candidats à se préparer alimente aussi votre pipeline de recrutement — ainsi que la paie, le suivi du temps, les absences et la performance, le tout en un seul endroit.",
+      "subtitle": "La même IA qui aide les candidats à se préparer alimente aussi votre pipeline de recrutement. Essayez-la gratuitement — puis passez à un forfait supérieur pour gérer réellement la paie, le suivi du temps, les absences et la performance de votre équipe.",
       "cta": "Voir les tarifs"
     },
     "dashboard": {
@@ -35,8 +35,8 @@
       },
       "teamManagement": {
         "title": "Paie & Suivi du Temps",
-        "description": "Gérez la paie, suivez le temps et les présences, et gérez les absences sans tableurs.",
-        "badge": "Une Seule Plateforme"
+        "description": "Gérez la paie, suivez le temps et les présences, et gérez les absences sans tableurs — sur les forfaits Momentum et Infinity.",
+        "badge": "Momentum & Infinity"
       }
     },
     "cta": {
@@ -62,27 +62,29 @@
   "pricing": {
     "eyebrow": "Tarifs",
     "title": "Des formules pour chaque étape du recrutement",
-    "subtitle": "Chaque formule inclut la plateforme RH complète — recrutement, paie, suivi du temps, absences et performance. Les limites de formule s'appliquent uniquement aux offres d'emploi ouvertes, aux téléversements de certificats médicaux et au chatbot de bien-être IA.",
+    "subtitle": "Commencez gratuitement pour découvrir HRInno. Passez à un forfait supérieur quand vous êtes prêt à gérer la paie, le suivi du temps et les absences de votre équipe — ou pour débloquer la gestion de la performance.",
     "perMonth": "/mois",
     "currentPlanLabel": "Inclus",
     "free": {
       "name": "Free",
       "price": "0 Ft",
-      "tagline": "Pour démarrer avec une petite équipe",
+      "tagline": "Découvrez la plateforme avant de vous engager",
       "cta": "Commencer gratuitement"
     },
     "momentum": {
       "name": "Momentum",
       "price": "20 000 Ft",
-      "tagline": "Pour les équipes en croissance",
+      "tagline": "Gérez de vraies opérations RH",
       "cta": "Choisir Momentum",
       "badge": "Le plus populaire"
     },
     "infinity": {
       "name": "Infinity",
       "price": "45 000 Ft",
-      "tagline": "Pour les équipes qui recrutent à grande échelle",
-      "cta": "Choisir Infinity"
+      "tagline": "Tout, à grande échelle",
+      "cta": "Choisir Infinity",
+      "contactNote": "Plus de 100 employés ?",
+      "contactLink": "Contactez-nous pour un devis personnalisé."
     },
     "features": {
       "positions": "Jusqu'à {{count}} offres d'emploi ouvertes",
@@ -90,7 +92,11 @@
       "credits": "{{count}} crédits IA inclus",
       "wellbeingIncluded": "Chatbot de bien-être IA inclus",
       "wellbeingNotIncluded": "Chatbot de bien-être IA non inclus",
-      "fullPlatform": "Plateforme RH complète : recrutement, paie, suivi du temps, absences, performance"
+      "hrOpsIncluded": "Paie, suivi du temps et absences pour jusqu'à {{count}} employés",
+      "hrOpsLocked": "Paie, suivi du temps et absences — aperçu uniquement, pas pour une utilisation réelle",
+      "performanceIncluded": "Gestion de la performance pour jusqu'à {{count}} employés",
+      "performanceLocked": "Gestion de la performance — aperçu uniquement",
+      "performanceNotIncluded": "Gestion de la performance non incluse"
     },
     "dataNote": "L'annulation ou la rétrogradation ne supprime jamais vos données existantes — vous conservez un accès complet à tout ce que vous avez déjà. Seule la création de nouveaux éléments au-delà de la limite de votre nouvelle formule est suspendue.",
     "priceNote": "Prix affichés en forint hongrois (HUF), facturés mensuellement."

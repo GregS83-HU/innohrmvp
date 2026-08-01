@@ -12,7 +12,7 @@
     "forEmployers": {
       "eyebrow": "Munkáltatóknak",
       "title": "Egy platform, amint toborzol",
-      "subtitle": "Ugyanaz az AI, amely a jelölteket segíti a felkészülésben, működteti a toborzási folyamatodat is — plusz bérszámfejtés, munkaidő-nyilvántartás, távollétek és teljesítménykezelés, mindez egy helyen.",
+      "subtitle": "Ugyanaz az AI, amely a jelölteket segíti a felkészülésben, működteti a toborzási folyamatodat is. Próbáld ki ingyen — majd válts magasabb csomagra, hogy valódi bérszámfejtést, munkaidő-nyilvántartást, távollét-kezelést és teljesítménykezelést futtass a csapatodnak.",
       "cta": "Árak megtekintése"
     },
     "dashboard": {
@@ -35,8 +35,8 @@
       },
       "teamManagement": {
         "title": "Bérszámfejtés & Munkaidő-nyilvántartás",
-        "description": "Kezeld a bérszámfejtést, kövesd a munkaidőt és a jelenlétet, és kezeld a távolléteket táblázatok nélkül.",
-        "badge": "Egy Platform"
+        "description": "Kezeld a bérszámfejtést, kövesd a munkaidőt és a jelenlétet, és kezeld a távolléteket táblázatok nélkül — Momentum és Infinity csomagban.",
+        "badge": "Momentum & Infinity"
       }
     },
     "cta": {
@@ -62,27 +62,29 @@
   "pricing": {
     "eyebrow": "Árak",
     "title": "Csomagok a toborzás minden szakaszához",
-    "subtitle": "Minden csomag tartalmazza a teljes HR platformot — toborzás, bérszámfejtés, munkaidő-nyilvántartás, távollétek és teljesítménykezelés. A csomaglimitek csak a nyitott álláshelyekre, az orvosi igazolások feltöltésére és az AI jólléti chatbotra vonatkoznak.",
+    "subtitle": "Kezdje ingyen, hogy kipróbálja a HRInno-t. Váltson magasabb csomagra, ha készen áll a valódi bérszámfejtésre, munkaidő-nyilvántartásra és távollét-kezelésre — vagy oldja fel a teljesítménykezelést is.",
     "perMonth": "/hó",
     "currentPlanLabel": "Tartalmazza",
     "free": {
       "name": "Free",
       "price": "0 Ft",
-      "tagline": "Kezdéshez kis csapatoknak",
+      "tagline": "Ismerje meg a platformot elköteleződés előtt",
       "cta": "Ingyenes kezdés"
     },
     "momentum": {
       "name": "Momentum",
       "price": "20 000 Ft",
-      "tagline": "Növekvő csapatoknak",
+      "tagline": "Valódi HR-műveletek",
       "cta": "Momentum választása",
       "badge": "Legnépszerűbb"
     },
     "infinity": {
       "name": "Infinity",
       "price": "45 000 Ft",
-      "tagline": "Nagy léptékben toborzó csapatoknak",
-      "cta": "Infinity választása"
+      "tagline": "Minden, nagy léptékben",
+      "cta": "Infinity választása",
+      "contactNote": "Több mint 100 alkalmazott?",
+      "contactLink": "Kérjen egyedi árajánlatot."
     },
     "features": {
       "positions": "Legfeljebb {{count}} nyitott álláshely",
@@ -90,7 +92,11 @@
       "credits": "{{count}} AI kredit",
       "wellbeingIncluded": "AI jólléti chatbot elérhető",
       "wellbeingNotIncluded": "AI jólléti chatbot nem elérhető",
-      "fullPlatform": "Teljes HR platform: toborzás, bérszámfejtés, munkaidő-nyilvántartás, távollétek, teljesítmény"
+      "hrOpsIncluded": "Bérszámfejtés, munkaidő-nyilvántartás és távollétek legfeljebb {{count}} alkalmazottig",
+      "hrOpsLocked": "Bérszámfejtés, munkaidő-nyilvántartás és távollétek — csak előnézet, valódi HR-műveletekre nem használható",
+      "performanceIncluded": "Teljesítménykezelés legfeljebb {{count}} alkalmazottig",
+      "performanceLocked": "Teljesítménykezelés — csak előnézet",
+      "performanceNotIncluded": "Teljesítménykezelés nem elérhető"
     },
     "dataNote": "A lemondás vagy visszaminősítés soha nem törli a meglévő adataidat — továbbra is teljes hozzáférésed lesz mindenhez, amid már van. Csak az új csomaglimit fölötti új elemek létrehozása szünetel.",
     "priceNote": "Az árak magyar forintban (HUF) szerepelnek, havi elszámolással."

@@ -12,7 +12,7 @@
     "forEmployers": {
       "eyebrow": "For employers",
       "title": "One platform, once you're hiring",
-      "subtitle": "The same AI that helps candidates prepare also powers your hiring pipeline — plus payroll, time & attendance, absences, and performance, all in one place.",
+      "subtitle": "The same AI that helps candidates prepare also powers your hiring pipeline. Try it free — then upgrade to run real payroll, time & attendance, absences, and performance for your team.",
       "cta": "See pricing"
     },
     "dashboard": {
@@ -35,8 +35,8 @@
       },
       "teamManagement": {
         "title": "Payroll & Time Tracking",
-        "description": "Run payroll, track time and attendance, and manage absences without spreadsheets.",
-        "badge": "One Platform"
+        "description": "Run payroll, track time and attendance, and manage absences without spreadsheets — on Momentum and Infinity plans.",
+        "badge": "Momentum & Infinity"
       }
     },
     "cta": {
@@ -62,27 +62,29 @@
   "pricing": {
     "eyebrow": "Pricing",
     "title": "Plans for every stage of hiring",
-    "subtitle": "Every plan includes the full HR platform — recruitment, payroll, time & attendance, absences, and performance. Plan limits apply to open job postings, medical certificate uploads, and the AI wellbeing chatbot only.",
+    "subtitle": "Start free to try HRInno. Upgrade when you're ready to run real payroll, time & attendance, and absences for your team — or unlock performance management too.",
     "perMonth": "/month",
     "currentPlanLabel": "Includes",
     "free": {
       "name": "Free",
       "price": "0 Ft",
-      "tagline": "Get started with a small team",
+      "tagline": "Try the platform before you commit",
       "cta": "Start free"
     },
     "momentum": {
       "name": "Momentum",
       "price": "20 000 Ft",
-      "tagline": "For growing teams",
+      "tagline": "Run real HR operations",
       "cta": "Choose Momentum",
       "badge": "Most popular"
     },
     "infinity": {
       "name": "Infinity",
       "price": "45 000 Ft",
-      "tagline": "For teams hiring at scale",
-      "cta": "Choose Infinity"
+      "tagline": "Everything, at scale",
+      "cta": "Choose Infinity",
+      "contactNote": "More than 100 employees?",
+      "contactLink": "Contact us for a custom quote."
     },
     "features": {
       "positions": "Up to {{count}} open job positions",
@@ -90,7 +92,11 @@
       "credits": "{{count}} AI credits included",
       "wellbeingIncluded": "AI wellbeing chatbot included",
       "wellbeingNotIncluded": "AI wellbeing chatbot not included",
-      "fullPlatform": "Full HR platform: recruitment, payroll, time & attendance, absences, performance"
+      "hrOpsIncluded": "Payroll, time & attendance, and absences for up to {{count}} employees",
+      "hrOpsLocked": "Payroll, time & attendance, and absences — preview only, not for real HR operations",
+      "performanceIncluded": "Performance management for up to {{count}} employees",
+      "performanceLocked": "Performance management — preview only",
+      "performanceNotIncluded": "Performance management not included"
     },
     "dataNote": "Canceling or downgrading never deletes your existing data — you keep full access to everything you already have. Only creating new items above your new plan's limit is paused.",
     "priceNote": "Prices shown in Hungarian Forint (HUF), billed monthly."
