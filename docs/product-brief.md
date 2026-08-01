@@ -24,7 +24,7 @@ HRInno
 
 ## Last Updated
 
-2026-07-31
+2026-08-01
 
 ## Status
 - Idea
@@ -121,6 +121,7 @@ List ONLY completed features, based on what exists in the code.
 - Public homepage (`/`, no company slug) leads with the free Job Assistant (AI CV scoring, no account needed) as the primary hook, with a "For employers" section below introducing the full platform and a link to the new pricing page.
 - New pricing page (`/pricing`): three columns (Free / Momentum / Infinity) with real limits and prices pulled from Stripe/the `forfait` table, and a note that downgrading never deletes existing data.
 - A separate repository/site, `hrinno-marketing` (www.hrinno.hu), also exists and now carries an aligned pitch: the Job Assistant, a "Full HR Platform" section, and the same pricing data, plus an interactive ROI calculator. Its pricing CTAs go to a contact form rather than a live checkout, since no self-serve signup exists yet (see Known Limitations).
+- Lightweight funnel tracking now exists across both this app and `hrinno-marketing`: Job Assistant start/completion, pricing views and per-plan CTA clicks, contact form submissions, and ROI calculator use are logged (with an anonymous session id, no CV/interview content) to a shared Supabase table, viewable in a super-admin funnel dashboard (`/admin/funnel`) with a manual admin field on the `company` record to link an onboarded company back to the contact submission that led to it. This is instrumentation to inform a future self-serve-signup decision, not a self-serve funnel itself — see `FUNNEL_TRACKING.md`.
 
 ## AI Features
 
@@ -132,13 +133,14 @@ List ONLY completed features, based on what exists in the code.
 
 ## Documents
 
-- Medical certificate upload, listing, and download, with AI-based OCR text extraction. Files are stored in a private bucket and viewed via short-lived signed URLs generated on demand (previously a public URL was also generated for every upload); monthly upload volume is capped per the company's plan.
-- CV upload and parsing (Job Assistant, and separately for company-side recruitment pipelines). Company-side CVs are stored privately and viewed via short-lived signed URLs, generated only for users confirmed to belong to the company that owns the position the candidate applied to.
+- Medical certificate upload, listing, and download, with AI-based OCR text extraction. Files are stored in a private bucket and viewed via short-lived signed URLs generated on demand (previously a public URL was also generated for every upload); monthly upload volume is capped per the company's plan. Before the OCR'd text is sent to the AI provider for extraction, a best-effort regex redaction pass now strips likely national ID numbers, phone numbers, and addresses (dates are protected so extraction still works); this is not a guarantee of complete PII removal. The upload flow now also requires an AI-processing consent checkbox before any document is sent to OCR/AI — previously this page had no consent UI at all, so the consent-date field was never populated.
+- CV upload and parsing (Job Assistant, and separately for company-side recruitment pipelines). Company-side CVs are stored privately and viewed via short-lived signed URLs, generated only for users confirmed to belong to the company that owns the position the candidate applied to. CV content sent to the AI provider was audited and found already minimal (CV text/job description only, no extra PII fields) — no redaction applied here, since name/contact info is needed for the product to function (candidate-to-job matching).
 
 ## Settings
 
 - Stripe-based subscription management page (view plan status, manage billing via Stripe customer portal)
 - Plan-based feature gating: a single server-side helper checks a company's plan (`company.forfait`) before allowing new job postings, new medical certificate uploads, and wellbeing-chatbot sessions, using per-plan limits stored in the `forfait` table. A company with no active plan permanently behaves like the Free plan for these three checks, rather than being blocked outright. See Section 11 for the actual plan tiers and Section 8 for what is and isn't covered by this.
+- Data retention settings (super-admin only, `/admin/data-retention`): retention periods for medical certificates and company-pipeline CV data are stored in a database table and editable from this page with zero code change or redeploy, with a visible audit trail (who changed what, when) and a live preview of what the next scheduled deletion run would delete. A daily scheduled job deletes data older than whatever is currently configured. Retention periods are currently 365-day placeholders, not legally-informed numbers — see Section 8.
 
 ## Notifications
 
@@ -180,12 +182,12 @@ Not documented in the codebase.
 # 8. Known Limitations
 
 - Plan-based feature gating covers only three features (opening a new job position, medical certificate uploads, the AI wellbeing chatbot) because those are the only ones with real per-plan limits/flags in the `forfait` table. Payroll, time & attendance, absences, performance management, tickets, and onboarding have no plan-based distinction at all — every company, including one with no active subscription, has identical access to those.
-- `openedpositions` still has catch-all row-level-security policies (`"Allow all updates"`, `"Allow public insert"`) with no company scoping, found while implementing the position-creation plan gate but not fixed — same class of issue as the `medical_certificates`/`candidats` policies that were fixed, but "Allow public insert" may be an intentional public job-posting flow rather than a bug, so it needs its own review before changing.
+- The public job board (`positions-public/route.ts`) returns every row unconditionally, including positions with a past `position_end_date` — an app-level query bug (not an RLS issue) that means candidates may see job postings the company has already closed.
 - No product documentation exists beyond this brief (README is unmodified Next.js boilerplate).
 - No self-serve company signup exists: no code path anywhere inserts a new row into the `company` table. New companies must be onboarded manually today. This means pricing page/CTA "buy" buttons (in this app and on the marketing site) cannot lead to a real checkout for a brand-new prospect yet — existing checkout (`create-subscription`) only works for a company that's already been onboarded, with an admin already logged in.
-- Medical certificate and CV data are sent to third-party services (OCR.Space, OpenRouter/OpenAI) with only a stored AI-consent-date field as a visible safeguard — no visible redaction step. (Storage access control for this data was fixed — see Section 19 — but this third-party transmission gap was not in scope of that fix.)
-- No explicit data retention or deletion policy found for Job Assistant CV data; no persistence layer was found for it either, so this is an absence of evidence, not a confirmed policy in either direction.
-- Leftover debug `console.log` statements remain in roughly 30 files across `src/app` (one instance that logged raw AI-extracted medical certificate text was removed — see Section 19 — the rest were not audited).
+- Medical certificate and CV data are still sent to third-party services (OCR.Space, OpenRouter/OpenAI). A best-effort regex redaction pass (national ID/phone/address) now runs on medical certificate text before that AI call, and a missing AI-consent checkbox on the certificate upload page was fixed — but this redaction is not a guarantee (fixed regex patterns, not an ML PII detector, so unusual/non-Hungarian formats can still get through), and whether OCR.Space's/OpenRouter's own data-handling terms are acceptable for health data, or whether a formal Data Processing Agreement is needed with either, has not been reviewed (see `REDACTION_RETENTION_FIX.md`).
+- A runtime-adjustable data retention mechanism now exists (`data_retention_settings` table, admin UI, daily scheduled deletion job) for medical certificates and company-pipeline CV data, verified end-to-end against production. Job Assistant CV data still has no persistence layer at all (confirmed, not just unconfirmed, by tracing every route — nothing touches Supabase), so there's nothing for that data type to delete. The retention periods currently configured (365 days for every data type) are placeholders picked to demonstrate the mechanism, explicitly not a legal or compliance determination — the real periods still require a human legal decision.
+- Leftover debug `console.log` statements remain in roughly 30 files across `src/app` (one instance that logged raw AI-extracted medical certificate text was removed in an earlier fix; the rest were not audited). A few remaining `console.error` calls in `analyse-cv/route.ts` log the AI's raw output text on a JSON-parse failure, which could include candidate-derived text in server logs on that edge case — not fixed, flagged in `DATA_FLOW_AUDIT.md`.
 - Known unresolved bug in job description generation: a prompt-variable helper ("fillPromptVariables") does not work correctly, worked around with manual replacement rather than fixed.
 - Admin/permission checks are implemented ad hoc per route rather than through a centralized authorization layer. Explicitly not addressed by the recent security and gating work, which added company/plan checks alongside the existing ad hoc pattern rather than replacing it.
 - Obsolete/backup code and folders (e.g., an "ObsoleteHome" folder) remain in the codebase.
@@ -301,7 +303,7 @@ Important information for Marketing.
 
 - Use the real plan names — Free, Momentum, Infinity — not generic tier names like "Starter/Pro/Enterprise."
 - Plan-based gating is now real for three things: number of open job postings, number of medical certificate uploads per month, and AI wellbeing chatbot access (Momentum/Infinity only, not Free). It is safe to market these as plan differentiators. Do NOT claim any other module (payroll, time & attendance, absences, performance, tickets, onboarding) is plan-differentiated — it isn't, for any plan including Free.
-- Storage access control for medical certificates and CVs was significantly hardened (private storage, short-lived signed URLs, company-scoped database access) — but do NOT claim full compliance (e.g. GDPR/HIPAA) yet: medical certificate and CV data is still sent to third-party AI/OCR services (OCR.Space, OpenRouter) with no redaction step, and there's no confirmed data retention/deletion policy.
+- Storage access control for medical certificates and CVs was significantly hardened (private storage, short-lived signed URLs, company-scoped database access), a best-effort PII redaction pass now runs on medical certificate text before it's sent to the AI provider, and a runtime-adjustable retention/deletion mechanism now exists — but do NOT claim full compliance (e.g. GDPR/HIPAA) yet: the redaction is best-effort (not an ML PII detector, can miss things), the configured retention periods (365 days) are placeholders awaiting a real legal decision, and whether the AI/OCR providers' own terms are acceptable for health data hasn't been reviewed.
 - Do NOT present the AI job-description generator as fully polished — it has a known, unresolved bug worked around manually rather than fixed.
 - Do NOT make guarantees about candidate CV data privacy or retention — no documented policy exists in either direction.
 - The public Job Assistant (free CV scoring + AI-rewritten CV + voice-based mock interview + coaching report) is the strongest, most differentiated feature in the product — it is the best candidate for a dedicated campaign, and is unaffected by the plan gating described above since it requires no company account.
@@ -320,7 +322,7 @@ Major blockers
 
 - No self-serve company signup: a prospective customer can see pricing (in-app and on the marketing site) but cannot actually buy a plan without manual onboarding first. This is the main gap between "marketing pitch" and "revenue."
 - Monetization is only partially functional even for onboarded companies: job posting creation, medical certificate uploads, and the wellbeing chatbot enforce plan limits, but every other paid-feeling module (payroll, time & attendance, absences, performance, etc.) is available identically regardless of plan, including to companies with no active subscription.
-- Medical certificate and CV data is still sent to third-party AI/OCR services with no redaction step, and there's no confirmed retention/deletion policy — a compliance gap even though access control was fixed.
+- Medical certificate and CV data is still sent to third-party AI/OCR services. Best-effort redaction and a runtime-adjustable retention mechanism now exist (see Section 8), but the retention periods are placeholders pending a real legal decision, and the providers' own data-handling terms for health data haven't been reviewed — still a compliance gap, just a narrower one than before.
 - No product documentation exists beyond this brief.
 
 Recommended launch timing
@@ -333,7 +335,7 @@ Recommended launch timing
 
 Current metrics (if known)
 
-- Not available. Vercel Analytics and Speed Insights are integrated in the codebase, but no usage data is accessible from the repository itself.
+- Not available. Vercel Analytics and Speed Insights are integrated in the codebase, and lightweight funnel-event tracking (Job Assistant usage, pricing views/clicks, contact form submissions, ROI calculator use, manual company-onboarding linkage) now exists in a Supabase table with a super-admin dashboard, but no actual usage numbers are accessible from the repository itself — this is instrumentation only, not reported results.
 
 Users
 
@@ -390,7 +392,7 @@ Not documented in the codebase.
 Business questions still unresolved, based on gaps found in the codebase:
 
 - Should payroll, time & attendance, absences, performance, tickets, and onboarding also be plan-differentiated? If so, this needs a product decision on what belongs to which plan, plus new columns on the `forfait` table — nothing in the current data model supports it.
-- What is the intended approach for third-party AI/OCR data handling and retention for medical certificates and CVs (still unresolved even after the access-control fixes)?
+- What are the real retention periods for medical certificates and CV data (the mechanism now exists — see Section 8 — but the 365-day values configured today are placeholders, not a legal decision)? Are OCR.Space's and OpenRouter's own data-handling terms acceptable for health data, and is a formal Data Processing Agreement needed with either?
 - What is the target market (company size, industry, geography)? Nothing in the repo confirms this beyond a weak i18n/commit-language signal.
 - Should a self-serve signup + checkout flow be built now that both pricing surfaces (in-app and marketing site) exist but have no live purchase path? This would need a new company-creation endpoint, an admin-user creation step, and wiring to the existing Stripe checkout — a genuine new feature, not a copy change.
 
@@ -404,11 +406,12 @@ Brief summary (maximum 10 bullet points). Based on the most recent completed wor
 - Added a `/pricing` page (Free/Momentum/Infinity, real limits and prices) and a minimal design system (brand colors, Sora/Inter fonts)
 - Corrected `forfait.stripe_price_id` for Momentum/Infinity, which had pointed to test-mode Stripe prices instead of the live ones, likely blocking real checkout
 - Aligned the separate `hrinno-marketing` site with the same Job Assistant + full-platform + pricing pitch
-- Secured medical certificate and CV storage: private buckets, short-lived signed URLs replacing previously public ones, company-scoped database access
-- Fixed a candidate-stats API endpoint that had no authentication at all
+- Secured medical certificate and CV storage (private buckets, short-lived signed URLs replacing previously public ones, company-scoped database access) and fixed a candidate-stats API endpoint that had no authentication at all
 - Implemented plan-based feature gating for job posting creation, medical certificate uploads, and the AI wellbeing chatbot, tied to the real Stripe-linked plan tiers
 - Fixed a company with no active subscription to permanently fall back to Free-tier limits instead of being blocked outright, without retroactively hiding or blocking any existing data
 - Added Stripe webhook handling for subscription cancellation on Stripe's own side, and fixed the webhook to correctly handle both live-mode and test-mode events arriving at the same production URL
+- Added lightweight funnel tracking (Job Assistant usage → pricing views/clicks → contact form submissions → manually onboarded companies) across this app and `hrinno-marketing`, with a super-admin dashboard, to inform a future self-serve-signup decision
+- Added best-effort PII redaction on medical certificate text before it reaches the AI provider, fixed a missing AI-consent checkbox on the certificate upload flow, and built a runtime-adjustable data retention system (settings table, admin UI, daily scheduled deletion) for medical certificates and company-pipeline CVs, verified end-to-end against production
 
 ---
 
@@ -417,7 +420,7 @@ Brief summary (maximum 10 bullet points). Based on the most recent completed wor
 - Lead campaigns with the public Job Assistant (free CV scoring + AI mock interview) as the primary differentiator and top-of-funnel acquisition tool, rather than the table-stakes HR modules (payroll, time tracking, absences, performance).
 - Use a two-sided funnel: attract candidates for free via the Job Assistant, convert HR buyers who encounter it through job postings.
 - Job posting limits, medical certificate limits, and AI wellbeing chatbot access can now be marketed as real plan differentiators (Free / Momentum / Infinity). Do not imply any other module is plan-gated.
-- Continue to hold off on claiming full data-privacy/compliance for medical certificates and CVs — access control was fixed, but third-party AI/OCR processing and data retention are still open questions (see Section 18).
+- Continue to hold off on claiming full data-privacy/compliance for medical certificates and CVs — access control, best-effort redaction, and a retention mechanism are now in place, but the retention periods are still placeholders and the AI/OCR providers' own terms for health data haven't been legally reviewed (see Section 18).
 
 ---
 
@@ -431,6 +434,6 @@ Maximum 10 bullet points.
 - Biggest strength: the public, free Job Assistant (AI CV scoring/rewriting + voice-based mock interview) is a genuine differentiator versus typical employer-only ATS AI tools, and is now the lead hook on both the app's homepage and the separate `hrinno-marketing` site.
 - Real plan tiers are Free, Momentum, and Infinity, now correctly priced (a stale test-mode Stripe price ID was found and fixed) and enforced for job postings, medical certificate uploads, and wellbeing-chatbot access — including a company with no active subscription, which now permanently behaves like the Free plan instead of being blocked.
 - Biggest gap: no self-serve company signup exists at all, so the new pricing pages (in-app and marketing site) have nowhere for a new prospect's "buy" click to actually go — both currently route to a contact form/demo instead.
-- Other remaining weaknesses: most modules (payroll, time & attendance, absences, performance, tickets, onboarding) have no plan differentiation at all; medical certificate/CV data still goes to third-party AI/OCR services with no redaction step; `openedpositions` still has unscoped row-level-security policies, found but not yet fixed.
+- Other remaining weaknesses: most modules (payroll, time & attendance, absences, performance, tickets, onboarding) have no plan differentiation at all; medical certificate/CV data still goes to third-party AI/OCR services, and while best-effort redaction and a runtime-adjustable retention mechanism now exist, the retention periods are placeholders and the providers' own terms for health data haven't been legally reviewed.
 - Launch readiness has not been formally assessed; major blockers have shifted from wide-open data exposure (now fixed) to the missing self-serve signup and partial monetization coverage.
 - No competitor research, market sizing, or formal positioning statement exists in the repo.
