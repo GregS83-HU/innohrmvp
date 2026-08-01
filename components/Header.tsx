@@ -71,6 +71,7 @@ export default function Header() {
   const teamperformance = useMemo(() => buildLink('/performance/team'), [buildLink]);
   const manageContactsLink = useMemo(() => buildLink('/contact-submissions'), [buildLink]);
   const manageUsersUpload = useMemo(() => buildLink('/admin/import-users'), [buildLink]);
+  const funnelDashboardLink = useMemo(() => buildLink('/admin/funnel'), [buildLink]);
   const payRoll = useMemo(() => buildLink('/payroll'), [buildLink]);
 
   return (
@@ -264,6 +265,11 @@ export default function Header() {
                           {isSuperAdmin && (
                             <Link href={manageUsersUpload} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}>
                               <Users2 className="w-4 h-4" /> {'User Massive Upload'}
+                            </Link>
+                          )}
+                          {isSuperAdmin && (
+                            <Link href={funnelDashboardLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}>
+                              <BarChart3 className="w-4 h-4" /> {'Funnel Dashboard'}
                             </Link>
                           )}
                           {isAdmin && (

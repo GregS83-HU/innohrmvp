@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { useLocale } from 'i18n/LocaleProvider';
+import { trackFunnelEvent } from '../../../lib/funnelTracking';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -319,6 +320,7 @@ export default function JobAssistantPage() {
     if (!jobDescription.trim()) return setError(t('jobAssistant.errors.pasteJob'));
     setError('');
     setStep('analyzing');
+    trackFunnelEvent('job_assistant_started');
 
     try {
       const fd = new FormData();
@@ -332,6 +334,7 @@ export default function JobAssistantPage() {
 
       setAnalysisResult(data);
       setStep('initial-score');
+      trackFunnelEvent('job_assistant_completed');
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : t('jobAssistant.errors.somethingWrong'));
       setStep('upload');

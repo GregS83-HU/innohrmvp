@@ -1,8 +1,10 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { Check, X, Info } from 'lucide-react';
 import { useLocale } from 'i18n/LocaleProvider';
+import { trackFunnelEvent } from '../../../lib/funnelTracking';
 
 type PlanKey = 'free' | 'momentum' | 'infinity';
 
@@ -16,6 +18,10 @@ export default function PricingPage() {
   const { t } = useLocale();
 
   const plans: PlanKey[] = ['free', 'momentum', 'infinity'];
+
+  useEffect(() => {
+    trackFunnelEvent('pricing_viewed', { source: 'pricing_page' });
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-50 to-indigo-100 px-4 py-16">
@@ -91,6 +97,7 @@ export default function PricingPage() {
 
                 <Link
                   href="/job-assistant"
+                  onClick={() => trackFunnelEvent('pricing_cta_clicked', { source: 'pricing_page', plan })}
                   className={`block text-center px-6 py-3 rounded-lg font-semibold transition-all ${
                     isMomentum
                       ? 'bg-gradient-to-r from-brand-600 to-accent-600 text-white hover:opacity-90 shadow-md'
