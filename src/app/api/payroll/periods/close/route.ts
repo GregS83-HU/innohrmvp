@@ -4,6 +4,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
+import { hasFeatureAccess, entitlementErrorBody, resolveCompanyIdForUser } from '../../../../../../lib/entitlements';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -47,6 +48,15 @@ export async function POST(request: NextRequest) {
         { error: 'Forbidden - Admin access required' },
         { status: 403 }
       );
+    }
+
+    const companyId = await resolveCompanyIdForUser(closed_by);
+    if (!companyId) {
+      return NextResponse.json({ error: 'Company not found' }, { status: 400 });
+    }
+    const entitlement = await hasFeatureAccess(companyId, 'payroll.use');
+    if (!entitlement.allowed) {
+      return NextResponse.json(entitlementErrorBody('payroll.use', entitlement), { status: 403 });
     }
 
     // Check if period is already closed
@@ -156,6 +166,15 @@ export async function PUT(request: NextRequest) {
         { error: 'Forbidden - Admin access required' },
         { status: 403 }
       );
+    }
+
+    const companyId = await resolveCompanyIdForUser(reopened_by);
+    if (!companyId) {
+      return NextResponse.json({ error: 'Company not found' }, { status: 400 });
+    }
+    const entitlement = await hasFeatureAccess(companyId, 'payroll.use');
+    if (!entitlement.allowed) {
+      return NextResponse.json(entitlementErrorBody('payroll.use', entitlement), { status: 403 });
     }
 
     // Check if period exists and is closed

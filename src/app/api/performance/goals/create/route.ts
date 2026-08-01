@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
+import { hasFeatureAccess, entitlementErrorBody } from '../../../../../../lib/entitlements'
 
 export async function POST(request: Request) {
   try {
@@ -42,9 +43,14 @@ export async function POST(request: Request) {
     console.log('🏢 Company lookup:', { company, error: companyError?.message })
 
     if (companyError || !company) {
-      return NextResponse.json({ 
-        error: companyError?.message || 'Company not found' 
+      return NextResponse.json({
+        error: companyError?.message || 'Company not found'
       }, { status: 400 })
+    }
+
+    const entitlement = await hasFeatureAccess(company.company_id, 'performance.use')
+    if (!entitlement.allowed) {
+      return NextResponse.json(entitlementErrorBody('performance.use', entitlement), { status: 403 })
     }
 
     // Get manager

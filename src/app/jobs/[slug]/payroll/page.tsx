@@ -11,6 +11,8 @@ import PayrollGridView from '../../../../../components/payroll/PayrollGridView';
 import type { GridEmployee } from '../../../../../components/payroll/PayrollGridView';
 import type { EmployeePayroll } from '../../../../../types/payroll';
 import { useLocale } from 'i18n/LocaleProvider';
+import { useModuleAccess } from '../../../../../hooks/useModuleAccess';
+import LockedModuleNotice from '../../../../../components/entitlements/LockedModuleNotice';
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,6 +34,7 @@ export default function PayrollPage() {
     const [refreshKey, setRefreshKey] = useState(0);
     const [currentUser, setCurrentUser] = useState<User | undefined>();
     const [loading, setLoading] = useState(true);
+    const moduleAccess = useModuleAccess(currentUser?.id);
 
     // Grid view edit state
     const [editingUserId, setEditingUserId] = useState<string | null>(null);
@@ -100,13 +103,25 @@ export default function PayrollPage() {
         setShowEditModal(true);
     };
 
-    if (loading) {
+    if (loading || moduleAccess.loading) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
                 <div className="bg-white p-8 rounded-2xl shadow-lg">
                     <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
                     <p className="text-gray-600 text-center">{t('payroll.loading')}</p>
                 </div>
+            </div>
+        );
+    }
+
+    // Locked preview for admins on a plan that doesn't include payroll.
+    // Non-admins should never reach this page (hidden from their nav), but
+    // the same check applies defensively either way. See MODULE_GATING_FIX.md.
+    if (!moduleAccess.payrollAttendanceAbsencesEnabled) {
+        if (!moduleAccess.isAdmin) return null;
+        return (
+            <div className="container mx-auto px-4 py-8">
+                <LockedModuleNotice feature="payroll.use" plan={moduleAccess.plan} upgradeHref={`/jobs/${slug}/subscription`} />
             </div>
         );
     }

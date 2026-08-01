@@ -5,6 +5,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import type { CreatePayrollRequest, EmployeePayroll } from '../../../../types/payroll';
+import { hasFeatureAccess, entitlementErrorBody, resolveCompanyIdForUser } from '../../../../lib/entitlements';
 
 /**
  * GET /api/payroll
@@ -116,12 +117,22 @@ export async function POST(request: NextRequest) {
     const body: CreatePayrollRequest = await request.json();
 
     // Validate required fields
-    if (!body.user_id || !body.country_code || !body.employment_type || 
+    if (!body.user_id || !body.country_code || !body.employment_type ||
         !body.contract_type || !body.salary_amount) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
+    }
+
+    // Plan gating: payroll must be enabled for the employee's company plan.
+    const companyId = await resolveCompanyIdForUser(body.user_id);
+    if (!companyId) {
+      return NextResponse.json({ error: 'Company not found for this employee' }, { status: 400 });
+    }
+    const entitlement = await hasFeatureAccess(companyId, 'payroll.use');
+    if (!entitlement.allowed) {
+      return NextResponse.json(entitlementErrorBody('payroll.use', entitlement), { status: 403 });
     }
 
     // Check if user already has active payroll record

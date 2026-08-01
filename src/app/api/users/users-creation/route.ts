@@ -1,6 +1,7 @@
 // app/api/users-creation/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { hasFeatureAccess, entitlementErrorBody } from '../../../../../lib/entitlements';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -34,6 +35,18 @@ export async function POST(req: NextRequest) {
         { error: 'Employment start date is required' },
         { status: 400 }
       );
+    }
+
+    if (!companyId) {
+      return NextResponse.json({ error: 'Company ID is required' }, { status: 400 });
+    }
+
+    // Seat cap: block adding a new employee past the plan's max_employees.
+    // Existing employees are never affected by this check - see
+    // MODULE_GATING_FIX.md.
+    const entitlement = await hasFeatureAccess(parseInt(companyId, 10), 'company.addEmployee');
+    if (!entitlement.allowed) {
+      return NextResponse.json(entitlementErrorBody('company.addEmployee', entitlement), { status: 403 });
     }
 
     // 1️⃣ Create user in Supabase Auth

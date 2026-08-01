@@ -1,6 +1,7 @@
 // /app/api/timeclock/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { hasFeatureAccess, entitlementErrorBody } from '../../../../lib/entitlements';
 
 // -------------------
 // Types
@@ -251,6 +252,12 @@ export async function POST(request: NextRequest) {
     }
 
     const companyId = await getUserCompany(userId);
+
+    const entitlement = await hasFeatureAccess(companyId, 'attendance.use');
+    if (!entitlement.allowed) {
+      return NextResponse.json(entitlementErrorBody('attendance.use', entitlement), { status: 403 });
+    }
+
     const todayEntry = await getTodayTimeEntry(userId);
 
     if (action === 'clock_in') {

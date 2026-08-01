@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react'
 import { Plus, Target, TrendingUp, Calendar, AlertCircle, CheckCircle } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { useLocale } from 'i18n/LocaleProvider'
+import { useModuleAccess } from '../../../../../hooks/useModuleAccess'
+import LockedModuleNotice from '../../../../../components/entitlements/LockedModuleNotice'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -43,6 +45,7 @@ export default function PerformanceDashboard() {
   const [loading, setLoading] = useState(true)
   const [currentQuarter, setCurrentQuarter] = useState('')
   const [weekStart, setWeekStart] = useState('')
+  const moduleAccess = useModuleAccess(session?.user?.id)
 
   useEffect(() => {
     if (!session) {
@@ -121,13 +124,25 @@ export default function PerformanceDashboard() {
       : t('performanceDashboard.pulseReminder.description_plural', { count })
   }
 
-  if (!session || loading) {
+  if (!session || loading || moduleAccess.loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-lg p-8 text-center">
           <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
           <p className="text-gray-600">{t('performanceDashboard.loading.message')}</p>
         </div>
+      </div>
+    )
+  }
+
+  // Locked preview for admins on a plan that doesn't include performance
+  // management. Non-admins get nothing here at all rather than a locked
+  // preview - a deliberate product decision, see MODULE_GATING_FIX.md.
+  if (!moduleAccess.performanceEnabled) {
+    if (!moduleAccess.isAdmin) return null
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 sm:p-6 lg:p-8">
+        <LockedModuleNotice feature="performance.use" plan={moduleAccess.plan} upgradeHref={`/jobs/${companySlug}/subscription`} />
       </div>
     )
   }

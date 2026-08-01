@@ -29,6 +29,8 @@ import LeaveBalances from '../../../../../components/absence/LeaveBalances';
 import RecentRequests from '../../../../../components/absence/RecentRequests';
 import PendingApprovals from '../../../../../components/absence/PendingApprovals';
 import RequestLeaveModal from '../../../../../components/absence/RequestLeaveModal2';
+import { useModuleAccess } from '../../../../../hooks/useModuleAccess';
+import LockedModuleNotice from '../../../../../components/entitlements/LockedModuleNotice';
 
 // Type for certificate data (matching what CertificateUploadModal returns)
 interface CertificateData {
@@ -73,6 +75,7 @@ const AbsenceManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'approvals'>('overview');
   const [companyId, setCompanyId] = useState<string | null>(null);
   const router = useRouter();
+  const moduleAccess = useModuleAccess(currentUser?.id);
 
   // Certificate upload states
   const [showCertificateModal, setShowCertificateModal] = useState(false);
@@ -285,11 +288,19 @@ const AbsenceManagement: React.FC = () => {
         // Certificate ID will be added in the modal's handleSubmitWithNotification
       };
 
-      const { error } = await supabase
-        .from('leave_requests')
-        .insert(insertData);
+      // Goes through a server route (not a direct client insert) so plan
+      // gating (absences.use) is actually enforced - see
+      // src/app/api/leave-requests/create/route.ts and MODULE_GATING_FIX.md.
+      const res = await fetch('/api/leave-requests/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(insertData),
+      });
 
-      if (error) throw error;
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.message || errBody.error || t('absenceManagement.messages.unexpectedError'));
+      }
 
       // Reset form and close modal
       setRequestForm({
@@ -401,7 +412,20 @@ const AbsenceManagement: React.FC = () => {
   if (!currentUser) {
     return null;
   }
-  
+
+  // Locked preview for admins on a plan that doesn't include absences.
+  // Non-admins (regular employees, plain managers) get nothing here at
+  // all rather than a locked preview - a deliberate product decision, see
+  // MODULE_GATING_FIX.md.
+  if (!moduleAccess.loading && !moduleAccess.payrollAttendanceAbsencesEnabled) {
+    if (!moduleAccess.isAdmin) return null;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-6 lg:p-8">
+        <LockedModuleNotice feature="absences.use" plan={moduleAccess.plan} upgradeHref={`/jobs/${companySlug}/subscription`} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">

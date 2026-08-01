@@ -5,6 +5,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import type { CreateAllowanceRequest } from '../../../../../types/payroll';
+import { hasFeatureAccess, entitlementErrorBody, resolveCompanyIdForUser } from '../../../../../lib/entitlements';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -84,6 +85,15 @@ export async function POST(request: NextRequest) {
         { error: 'Forbidden - Admin access required' },
         { status: 403 }
       );
+    }
+
+    const companyId = await resolveCompanyIdForUser(currentUserId);
+    if (!companyId) {
+      return NextResponse.json({ error: 'Company not found' }, { status: 400 });
+    }
+    const entitlement = await hasFeatureAccess(companyId, 'payroll.use');
+    if (!entitlement.allowed) {
+      return NextResponse.json(entitlementErrorBody('payroll.use', entitlement), { status: 403 });
     }
 
     const body: CreateAllowanceRequest = await request.json();

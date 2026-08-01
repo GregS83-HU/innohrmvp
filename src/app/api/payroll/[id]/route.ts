@@ -6,6 +6,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import type { UpdatePayrollRequest } from '../../../../../types/payroll';
+import { hasFeatureAccess, entitlementErrorBody, resolveCompanyIdForUser } from '../../../../../lib/entitlements';
 
 /**
  * Utility: Get Supabase client with service role
@@ -116,6 +117,15 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
     }
 
+    const companyId = await resolveCompanyIdForUser(currentUserId);
+    if (!companyId) {
+      return NextResponse.json({ error: 'Company not found' }, { status: 400 });
+    }
+    const entitlement = await hasFeatureAccess(companyId, 'payroll.use');
+    if (!entitlement.allowed) {
+      return NextResponse.json(entitlementErrorBody('payroll.use', entitlement), { status: 403 });
+    }
+
     const body: UpdatePayrollRequest = await request.json();
 
     // Verify payroll exists
@@ -213,6 +223,15 @@ export async function DELETE(request: NextRequest) {
     const isAdmin = await checkAdmin(supabase, currentUserId);
     if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
+    }
+
+    const companyId = await resolveCompanyIdForUser(currentUserId);
+    if (!companyId) {
+      return NextResponse.json({ error: 'Company not found' }, { status: 400 });
+    }
+    const entitlement = await hasFeatureAccess(companyId, 'payroll.use');
+    if (!entitlement.allowed) {
+      return NextResponse.json(entitlementErrorBody('payroll.use', entitlement), { status: 403 });
     }
 
     const { data, error } = await supabase

@@ -1,7 +1,9 @@
 // Server-side feature-gating helper. See src/config/entitlements.ts for the
-// feature -> DB check mapping, and GATING_SUMMARY.md for the full audit.
+// feature -> DB check mapping, GATING_SUMMARY.md for the original three
+// features, and MODULE_GATING_FIX.md for payroll/attendance/absences/
+// performance and the employee seat cap.
 import { createClient } from "@supabase/supabase-js";
-import { FEATURE_RULES, type FeatureKey } from "../src/config/entitlements";
+import { FEATURE_RULES, getAddEmployeeLimitMessage, type FeatureKey } from "../src/config/entitlements";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -30,6 +32,9 @@ type ForfaitRow = {
   max_opened_position: number | null;
   max_medical_certificates: number | null;
   access_happy_check: boolean | null;
+  access_payroll_attendance_absences: boolean | null;
+  access_performance: boolean | null;
+  max_employees: number | null;
 };
 
 /**
@@ -59,7 +64,9 @@ export async function hasFeatureAccess(
 
   const { data: forfait, error: forfaitError } = await supabase
     .from("forfait")
-    .select("forfait_name, max_opened_position, max_medical_certificates, access_happy_check")
+    .select(
+      "forfait_name, max_opened_position, max_medical_certificates, access_happy_check, access_payroll_attendance_absences, access_performance, max_employees"
+    )
     .eq("forfait_name", planName)
     .single<ForfaitRow>();
 
@@ -74,7 +81,14 @@ export async function hasFeatureAccess(
   const rule = FEATURE_RULES[feature];
 
   if (rule.kind === "flag") {
-    if (forfait.access_happy_check) {
+    const flagValue =
+      rule.rpc === "can_access_happy_check"
+        ? forfait.access_happy_check
+        : rule.rpc === "can_use_payroll_attendance_absences"
+        ? forfait.access_payroll_attendance_absences
+        : forfait.access_performance;
+
+    if (flagValue) {
       return { allowed: true, plan: forfait.forfait_name };
     }
     return { allowed: false, reason: "not_included_in_plan", plan: forfait.forfait_name };
@@ -89,8 +103,24 @@ export async function hasFeatureAccess(
   // `forfait` is genuinely null in the DB without either rewriting the
   // functions or writing "Free" into that column, neither of which this
   // fix does.
-  const max = rule.rpc === "can_open_new_position" ? forfait.max_opened_position : forfait.max_medical_certificates;
+  if (rule.rpc === "can_add_employee" && forfait.max_employees === null) {
+    // Unlike the other two capacity checks, a null max here is a real,
+    // intentional value (Free's seat count is uncapped - see
+    // MODULE_GATING_FIX.md), not a data error, so it means "no limit"
+    // rather than "fail closed".
+    return { allowed: true, plan: forfait.forfait_name };
+  }
+
+  const max =
+    rule.rpc === "can_open_new_position"
+      ? forfait.max_opened_position
+      : rule.rpc === "can_add_medical_certificate"
+      ? forfait.max_medical_certificates
+      : forfait.max_employees;
   if (max === null) {
+    // For the other two checks (job postings, medical certs), every real
+    // plan always has a numeric max - a null here means the Free row is
+    // missing/misconfigured, so fail closed.
     return { allowed: false, reason: "unknown_plan", plan: forfait.forfait_name };
   }
 
@@ -103,7 +133,7 @@ export async function hasFeatureAccess(
 }
 
 async function countExistingForCapacityCheck(
-  rpc: "can_open_new_position" | "can_add_medical_certificate",
+  rpc: "can_open_new_position" | "can_add_medical_certificate" | "can_add_employee",
   companyId: string | number
 ): Promise<number> {
   if (rpc === "can_open_new_position") {
@@ -113,6 +143,21 @@ async function countExistingForCapacityCheck(
       .select("id", { count: "exact", head: true })
       .eq("company_id", companyId)
       .or(`position_end_date.is.null,position_end_date.gt.${nowIso}`);
+    return count ?? 0;
+  }
+
+  if (rpc === "can_add_employee") {
+    // "Employee" = an active row in company_to_users, the same join table
+    // and is_active flag the user-management module (users-creation page)
+    // already uses as the source of truth for who's currently part of the
+    // company. Deactivated (is_active=false) users don't count against the
+    // seat cap. See MODULE_GATING_FIX.md for why this definition was
+    // chosen over the alternatives.
+    const { count } = await supabase
+      .from("company_to_users")
+      .select("id", { count: "exact", head: true })
+      .eq("company_id", companyId)
+      .eq("is_active", true);
     return count ?? 0;
   }
 
@@ -128,13 +173,35 @@ async function countExistingForCapacityCheck(
   return count ?? 0;
 }
 
+/**
+ * Resolves a user's company_id via company_to_users, for routes (payroll,
+ * timeclock, performance, etc.) that receive a user id but not an explicit
+ * company id. Returns null if the user has no company link.
+ */
+export async function resolveCompanyIdForUser(userId: string): Promise<number | null> {
+  const { data, error } = await supabase
+    .from("company_to_users")
+    .select("company_id")
+    .eq("user_id", userId)
+    .single();
+
+  if (error || !data?.company_id) return null;
+  return data.company_id;
+}
+
 /** Standard 403 body for API routes when hasFeatureAccess() denies access. */
 export function entitlementErrorBody(feature: FeatureKey, result: Extract<EntitlementResult, { allowed: false }>) {
+  const message =
+    feature === "company.addEmployee" && result.reason === "plan_limit_reached"
+      ? getAddEmployeeLimitMessage(result.plan)
+      : undefined;
+
   return {
     error: "Upgrade required",
     code: "UPGRADE_REQUIRED" as const,
     feature,
     reason: result.reason,
     plan: result.plan,
+    ...(message ? { message } : {}),
   };
 }

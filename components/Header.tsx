@@ -8,6 +8,7 @@ import {
   User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users, Users2, BanknoteArrowDown, FileSearch, Tag, Shield
 } from 'lucide-react';
 import { useHeaderLogic } from '../hooks/useHeaderLogic';
+import { useModuleAccess } from '../hooks/useModuleAccess';
 import {
   LoginModal, HappyCheckMenuItem, DemoAwareMenuItem, DemoTimer, ForfaitBadge
 } from './header/';
@@ -54,6 +55,13 @@ export default function Header() {
   const isManager = useMemo(() => user && user.is_manager && !user.is_admin, [user]);
   const isAdmin = useMemo(() => user && user.is_admin, [user]);
   const isSuperAdmin = useMemo(() => user && user.is_super_admin === true, [user]);
+  // Admins always see payroll/attendance/absences/performance nav items
+  // (locked preview at the destination page if the plan doesn't include
+  // them); everyone else only sees them when the plan actually includes
+  // them - see MODULE_GATING_FIX.md.
+  const moduleAccess = useModuleAccess(user?.id);
+  const showPayrollAttendanceAbsences = !!isAdmin || moduleAccess.payrollAttendanceAbsencesEnabled;
+  const showPerformance = !!isAdmin || moduleAccess.performanceEnabled;
 
   const buttonBaseClasses = useMemo(() =>
     'flex items-center gap-2 px-3 py-2 rounded-xl font-medium text-sm transition-all shadow-sm hover:shadow-md whitespace-nowrap',
@@ -205,22 +213,26 @@ export default function Header() {
                               <Stethoscope className="w-4 h-4" /> {t('header.certificatesDownload')}
                             </Link>
                           )}
-                          <Link href={myperformance} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-orange-50 text-orange-700 w-full px-4 py-3 border-b border-gray-100`}>
-                            <Target className="w-4 h-4" /> {t('header.myPerformance')}
-                          </Link>
-                          {(isManager || isAdmin) && (
+                          {showPerformance && (
+                            <Link href={myperformance} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-orange-50 text-orange-700 w-full px-4 py-3 border-b border-gray-100`}>
+                              <Target className="w-4 h-4" /> {t('header.myPerformance')}
+                            </Link>
+                          )}
+                          {(isManager || isAdmin) && showPerformance && (
                             <Link href={teamperformance} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-orange-50 text-orange-700 w-full px-4 py-3 border-b border-gray-100`}>
                               <Users className="w-4 h-4" /> {t('header.teamPerformance')}
                             </Link>
                           )}
-                          {(isManager || isAdmin) && (
+                          {(isManager || isAdmin) && showPayrollAttendanceAbsences && (
                             <Link href={timeclockmanager} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-indigo-50 text-indigo-700 w-full px-4 py-3 border-b border-gray-100`}>
                               <CalendarClock className="w-4 h-4" /> {t('header.timeClockCheck')}
                             </Link>
                           )}
-                          <Link href={manageabsencesLink} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-indigo-50 text-indigo-700 w-full px-4 py-3`}>
-                            <CalendarClock className="w-4 h-4" /> {t('header.absences')}
-                          </Link>
+                          {showPayrollAttendanceAbsences && (
+                            <Link href={manageabsencesLink} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-indigo-50 text-indigo-700 w-full px-4 py-3`}>
+                              <CalendarClock className="w-4 h-4" /> {t('header.absences')}
+                            </Link>
+                          )}
                         </div>
                       )}
                     </>
@@ -508,22 +520,26 @@ export default function Header() {
                           <Stethoscope className="w-4 h-4" /> {t('header.certificatesDownload')}
                         </DemoAwareMenuItem>
                       )}
-                      <DemoAwareMenuItem href={myperformance} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-orange-50 hover:bg-orange-100 text-orange-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
-                        <Target className="w-4 h-4" /> {t('header.myPerformance')}
-                      </DemoAwareMenuItem>
-                      {(isManager || isAdmin) && (
+                      {showPerformance && (
+                        <DemoAwareMenuItem href={myperformance} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-orange-50 hover:bg-orange-100 text-orange-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
+                          <Target className="w-4 h-4" /> {t('header.myPerformance')}
+                        </DemoAwareMenuItem>
+                      )}
+                      {(isManager || isAdmin) && showPerformance && (
                         <DemoAwareMenuItem href={teamperformance} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-orange-50 hover:bg-orange-100 text-orange-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
                           <Users className="w-4 h-4" /> {t('header.teamPerformance')}
                         </DemoAwareMenuItem>
                       )}
-                      {(isManager || isAdmin) && (
+                      {(isManager || isAdmin) && showPayrollAttendanceAbsences && (
                         <DemoAwareMenuItem href={timeclockmanager} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-indigo-50 hover:bg-indigo-100 text-indigo-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
                           <CalendarClock className="w-4 h-4" /> {t('header.timeClockCheck')}
                         </DemoAwareMenuItem>
                       )}
-                      <DemoAwareMenuItem href={manageabsencesLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-indigo-50 hover:bg-indigo-100 text-indigo-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
-                        <CalendarClock className="w-4 h-4" /> {t('header.absences')}
-                      </DemoAwareMenuItem>
+                      {showPayrollAttendanceAbsences && (
+                        <DemoAwareMenuItem href={manageabsencesLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-indigo-50 hover:bg-indigo-100 text-indigo-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
+                          <CalendarClock className="w-4 h-4" /> {t('header.absences')}
+                        </DemoAwareMenuItem>
+                      )}
                     </div>
                   )}
                 </div>

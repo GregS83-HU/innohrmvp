@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import * as XLSX from "xlsx"
+import { hasFeatureAccess } from "../../../../lib/entitlements"
+import { getAddEmployeeLimitMessage } from "../../../../src/config/entitlements"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -54,6 +56,20 @@ export async function POST(req: NextRequest) {
 
       if (!email || !company_id) {
         results.push({ email, error: "Missing email or company_id" })
+        continue
+      }
+
+      // Seat cap: block adding this row past the plan's max_employees.
+      // Checked per-row since a CSV can span multiple companies, and each
+      // earlier row in this same import may have just used up the last
+      // available seat. See MODULE_GATING_FIX.md.
+      const entitlement = await hasFeatureAccess(company_id, "company.addEmployee")
+      if (!entitlement.allowed) {
+        const message =
+          entitlement.reason === "plan_limit_reached"
+            ? getAddEmployeeLimitMessage(entitlement.plan)
+            : `Company's plan does not allow adding employees (${entitlement.reason})`
+        results.push({ email, error: message })
         continue
       }
 

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { hasFeatureAccess, entitlementErrorBody, resolveCompanyIdForUser } from '../../../../../../lib/entitlements'
 
 export async function POST(request: Request) {
   try {
@@ -17,6 +18,15 @@ export async function POST(request: Request) {
     }
     if (!['green', 'yellow', 'red'].includes(status)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
+    }
+
+    const companyId = await resolveCompanyIdForUser(employee_id)
+    if (!companyId) {
+      return NextResponse.json({ error: 'Company not found' }, { status: 400 })
+    }
+    const entitlement = await hasFeatureAccess(companyId, 'performance.use')
+    if (!entitlement.allowed) {
+      return NextResponse.json(entitlementErrorBody('performance.use', entitlement), { status: 403 })
     }
 
     // --- Supabase server client with cookies ---

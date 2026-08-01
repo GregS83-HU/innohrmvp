@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { hasFeatureAccess, entitlementErrorBody, resolveCompanyIdForUser } from '../../../../../../lib/entitlements';
 
 interface GoalUpdatePayload {
   updated_at: string;
@@ -22,6 +23,15 @@ export async function PATCH(request: Request) {
 
     if (!user_id) {
       return NextResponse.json({ error: 'User ID required' }, { status: 400 });
+    }
+
+    const companyId = await resolveCompanyIdForUser(user_id);
+    if (!companyId) {
+      return NextResponse.json({ error: 'Company not found' }, { status: 400 });
+    }
+    const entitlement = await hasFeatureAccess(companyId, 'performance.use');
+    if (!entitlement.allowed) {
+      return NextResponse.json(entitlementErrorBody('performance.use', entitlement), { status: 403 });
     }
 
     const cookieStore = await cookies();
@@ -91,6 +101,15 @@ export async function DELETE(request: Request) {
 
     if (!user_id) {
       return NextResponse.json({ error: 'User ID required' }, { status: 400 });
+    }
+
+    const companyId = await resolveCompanyIdForUser(user_id);
+    if (!companyId) {
+      return NextResponse.json({ error: 'Company not found' }, { status: 400 });
+    }
+    const entitlement = await hasFeatureAccess(companyId, 'performance.use');
+    if (!entitlement.allowed) {
+      return NextResponse.json(entitlementErrorBody('performance.use', entitlement), { status: 403 });
     }
 
     const cookieStore = await cookies();
