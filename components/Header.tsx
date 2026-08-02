@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { FiMenu, FiX } from 'react-icons/fi';
 import {
   Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown,
-  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users, Users2, BanknoteArrowDown, FileSearch, Tag, Shield, ClipboardCheck
+  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users, Users2, BanknoteArrowDown, FileSearch, Tag, Shield, ClipboardCheck, BookOpen
 } from 'lucide-react';
 import { useHeaderLogic } from '../hooks/useHeaderLogic';
 import { useModuleAccess } from '../hooks/useModuleAccess';
@@ -72,6 +72,7 @@ export default function Header() {
   const uploadCertificateLink = useMemo(() => buildLink('/medical-certificate/upload'), [buildLink]);
   const manageSubscriptionLink = useMemo(() => buildLink('/subscription'), [buildLink]);
   const manageUsersLink = useMemo(() => buildLink('/users-creation'), [buildLink]);
+  const helpGuideLink = useMemo(() => buildLink('/help'), [buildLink]);
   const manageticketsLink = useMemo(() => buildLink('/tickets'), [buildLink]);
   const manageabsencesLink = useMemo(() => buildLink('/absences'), [buildLink]);
   const timeclockmanager = useMemo(() => buildLink('/time-clock/manager'), [buildLink]);
@@ -268,8 +269,11 @@ export default function Header() {
                               <CreditCard className="w-4 h-4" /> {t('header.manageSubscription')}
                             </Link>
                           )}
-                          <Link href={manageUsersLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 ${companySlug !== 'demo' ? 'border-b border-gray-100' : ''}`}>
+                          <Link href={manageUsersLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}>
                             <UserCog className="w-4 h-4" /> {t('header.manageUsers')}
+                          </Link>
+                          <Link href={helpGuideLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}>
+                            <BookOpen className="w-4 h-4" /> {t('header.userGuide')}
                           </Link>
                           {isSuperAdmin && (
                             <Link href={manageContactsLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}>
@@ -574,6 +578,9 @@ export default function Header() {
                       )}
                       <DemoAwareMenuItem href={manageUsersLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
                         <UserCog className="w-4 h-4" /> {t('header.manageUsers')}
+                      </DemoAwareMenuItem>
+                      <DemoAwareMenuItem href={helpGuideLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
+                        <BookOpen className="w-4 h-4" /> {t('header.userGuide')}
                       </DemoAwareMenuItem>
                       {isSuperAdmin && (
                         <DemoAwareMenuItem href={manageContactsLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
