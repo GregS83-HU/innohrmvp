@@ -38,7 +38,12 @@ export default function Page() {
     if (!moduleAccess.isAdmin) return null;
     return (
       <div className="min-h-screen p-8">
-        <LockedModuleNotice feature="attendance.use" plan={moduleAccess.plan} upgradeHref={`/jobs/${slug}/subscription`} />
+        <LockedModuleNotice
+          feature="attendance.use"
+          plan={moduleAccess.plan}
+          upgradeHref={moduleAccess.onboardingCompleted ? `/jobs/${slug}/subscription` : `/jobs/${slug}/contact`}
+          reason={moduleAccess.onboardingCompleted ? 'plan' : 'onboarding'}
+        />
       </div>
     );
   }

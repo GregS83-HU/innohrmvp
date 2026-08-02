@@ -152,7 +152,7 @@ export default function PricingPage() {
                 )}
 
                 <Link
-                  href="/job-assistant"
+                  href="/signup"
                   onClick={() => trackFunnelEvent('pricing_cta_clicked', { source: 'pricing_page', plan })}
                   className={`block text-center px-6 py-3 rounded-lg font-semibold transition-all ${
                     isMomentum

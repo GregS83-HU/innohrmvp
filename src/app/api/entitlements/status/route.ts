@@ -40,17 +40,24 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Company not found for this user' }, { status: 404 });
     }
 
-    const [payroll, performance] = await Promise.all([
+    const [payroll, performance, companyRow] = await Promise.all([
       hasFeatureAccess(companyLink.company_id, 'payroll.use'),
       hasFeatureAccess(companyLink.company_id, 'performance.use'),
+      supabase.from('company').select('onboarding_completed').eq('id', companyLink.company_id).single(),
     ]);
 
     return NextResponse.json({
       isAdmin: !!userData.is_admin,
       companyId: companyLink.company_id,
       plan: payroll.plan ?? performance.plan ?? null,
+      // These already fold in the onboarding gate (hasFeatureAccess checks
+      // it first) - a company that's on Momentum/Infinity but not yet
+      // onboarded gets `false` here just like a company on Free would.
+      // `onboardingCompleted` is exposed separately so the UI can tell
+      // "not in your plan" apart from "not onboarded yet" for messaging.
       payrollAttendanceAbsencesEnabled: payroll.allowed,
       performanceEnabled: performance.allowed,
+      onboardingCompleted: !!companyRow.data?.onboarding_completed,
     });
   } catch (error) {
     console.error('Entitlement status error:', error);

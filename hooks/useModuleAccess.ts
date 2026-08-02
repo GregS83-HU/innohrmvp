@@ -8,6 +8,7 @@ export type ModuleAccessState = {
   plan: string | null;
   payrollAttendanceAbsencesEnabled: boolean;
   performanceEnabled: boolean;
+  onboardingCompleted: boolean;
 };
 
 const DEFAULT_STATE: ModuleAccessState = {
@@ -16,6 +17,7 @@ const DEFAULT_STATE: ModuleAccessState = {
   plan: null,
   payrollAttendanceAbsencesEnabled: false,
   performanceEnabled: false,
+  onboardingCompleted: false,
 };
 
 /**
@@ -52,6 +54,7 @@ export function useModuleAccess(userId: string | null | undefined): ModuleAccess
           plan: data.plan ?? null,
           payrollAttendanceAbsencesEnabled: !!data.payrollAttendanceAbsencesEnabled,
           performanceEnabled: !!data.performanceEnabled,
+          onboardingCompleted: !!data.onboardingCompleted,
         });
       })
       .catch(() => {

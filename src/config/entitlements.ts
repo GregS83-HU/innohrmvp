@@ -30,6 +30,20 @@ export type EntitlementCheck =
   // Boolean flag check: reads a per-plan boolean column.
   | { kind: "flag"; rpc: "can_access_happy_check" | "can_use_payroll_attendance_absences" | "can_use_performance" };
 
+// Features that require company.onboarding_completed = true, on top of
+// whatever plan check applies - regardless of forfait, a company that
+// signed up self-serve stays locked out of these until our team flips the
+// flag after a manual setup call. Recruitment (job postings) and medical
+// certificates are deliberately NOT in this set: those stay usable
+// immediately after self-serve signup, subject only to plan limits.
+export const ONBOARDING_GATED_FEATURES: ReadonlySet<FeatureKey> = new Set([
+  "payroll.use",
+  "attendance.use",
+  "absences.use",
+  "performance.use",
+  "happiness.chatbot",
+]);
+
 export const FEATURE_RULES: Record<FeatureKey, EntitlementCheck> = {
   "recruitment.openPosition": { kind: "capacity", rpc: "can_open_new_position" },
   "medicalCertificates.upload": { kind: "capacity", rpc: "can_add_medical_certificate" },
@@ -107,6 +121,12 @@ export const FEATURE_COPY: Record<FeatureKey, { title: string; limitReached: str
     noSubscription: "Your company doesn't have an active plan. Subscribe to a plan to add employees.",
   },
 };
+
+// Shared copy for any ONBOARDING_GATED_FEATURES feature blocked because
+// company.onboarding_completed is false - same message regardless of which
+// module it is or what plan the company is on, since the reason is always
+// "no setup call yet", not a plan limitation.
+export const ONBOARDING_REQUIRED_MESSAGE = "Available after your onboarding call.";
 
 // Infinity has no higher self-serve tier, so hitting its employee cap isn't
 // a plain "upgrade" prompt - it should route to a custom quote conversation

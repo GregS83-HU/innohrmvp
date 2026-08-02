@@ -25,7 +25,10 @@ export type FunnelEventType =
   | 'pricing_viewed'
   | 'pricing_cta_clicked'
   | 'contact_form_submitted'
-  | 'roi_calculator_used';
+  | 'roi_calculator_used'
+  | 'signup_started'
+  | 'signup_completed'
+  | 'onboarding_marked_complete';
 
 export type FunnelSource = 'homepage' | 'pricing_page' | 'marketing_site';
 export type FunnelPlan = 'free' | 'momentum' | 'infinity';

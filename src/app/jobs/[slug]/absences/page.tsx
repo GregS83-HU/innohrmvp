@@ -421,7 +421,12 @@ const AbsenceManagement: React.FC = () => {
     if (!moduleAccess.isAdmin) return null;
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-6 lg:p-8">
-        <LockedModuleNotice feature="absences.use" plan={moduleAccess.plan} upgradeHref={`/jobs/${companySlug}/subscription`} />
+        <LockedModuleNotice
+          feature="absences.use"
+          plan={moduleAccess.plan}
+          upgradeHref={moduleAccess.onboardingCompleted ? `/jobs/${companySlug}/subscription` : `/jobs/${companySlug}/contact`}
+          reason={moduleAccess.onboardingCompleted ? 'plan' : 'onboarding'}
+        />
       </div>
     );
   }

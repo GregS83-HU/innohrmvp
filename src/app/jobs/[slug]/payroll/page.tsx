@@ -121,7 +121,12 @@ export default function PayrollPage() {
         if (!moduleAccess.isAdmin) return null;
         return (
             <div className="container mx-auto px-4 py-8">
-                <LockedModuleNotice feature="payroll.use" plan={moduleAccess.plan} upgradeHref={`/jobs/${slug}/subscription`} />
+                <LockedModuleNotice
+                    feature="payroll.use"
+                    plan={moduleAccess.plan}
+                    upgradeHref={moduleAccess.onboardingCompleted ? `/jobs/${slug}/subscription` : `/jobs/${slug}/contact`}
+                    reason={moduleAccess.onboardingCompleted ? 'plan' : 'onboarding'}
+                />
             </div>
         );
     }

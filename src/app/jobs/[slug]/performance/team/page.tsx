@@ -217,7 +217,12 @@ export default function ManagerDashboard() {
     if (!moduleAccess.isAdmin) return null
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 sm:p-6 lg:p-8">
-        <LockedModuleNotice feature="performance.use" plan={moduleAccess.plan} upgradeHref={`/jobs/${companySlug}/subscription`} />
+        <LockedModuleNotice
+          feature="performance.use"
+          plan={moduleAccess.plan}
+          upgradeHref={moduleAccess.onboardingCompleted ? `/jobs/${companySlug}/subscription` : `/jobs/${companySlug}/contact`}
+          reason={moduleAccess.onboardingCompleted ? 'plan' : 'onboarding'}
+        />
       </div>
     )
   }

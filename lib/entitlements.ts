@@ -3,7 +3,13 @@
 // features, and MODULE_GATING_FIX.md for payroll/attendance/absences/
 // performance and the employee seat cap.
 import { createClient } from "@supabase/supabase-js";
-import { FEATURE_RULES, getAddEmployeeLimitMessage, type FeatureKey } from "../src/config/entitlements";
+import {
+  FEATURE_RULES,
+  ONBOARDING_GATED_FEATURES,
+  ONBOARDING_REQUIRED_MESSAGE,
+  getAddEmployeeLimitMessage,
+  type FeatureKey,
+} from "../src/config/entitlements";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,7 +27,8 @@ export type EntitlementReason =
   | "no_subscription"
   | "plan_limit_reached"
   | "not_included_in_plan"
-  | "unknown_plan";
+  | "unknown_plan"
+  | "onboarding_required";
 
 export type EntitlementResult =
   | { allowed: true; plan: string }
@@ -52,12 +59,19 @@ export async function hasFeatureAccess(
 ): Promise<EntitlementResult> {
   const { data: company, error: companyError } = await supabase
     .from("company")
-    .select("forfait")
+    .select("forfait, onboarding_completed")
     .eq("id", companyId)
     .single();
 
   if (companyError || !company) {
     return { allowed: false, reason: "no_subscription", plan: null };
+  }
+
+  // Onboarding gate is checked first and independently of plan: a company
+  // that hasn't had its setup call yet stays locked out of these features
+  // even if it's paying for Momentum/Infinity. See ONBOARDING_GATED_FEATURES.
+  if (ONBOARDING_GATED_FEATURES.has(feature) && !company.onboarding_completed) {
+    return { allowed: false, reason: "onboarding_required", plan: company.forfait };
   }
 
   const planName = company.forfait || FALLBACK_PLAN_NAME;
@@ -192,7 +206,9 @@ export async function resolveCompanyIdForUser(userId: string): Promise<number | 
 /** Standard 403 body for API routes when hasFeatureAccess() denies access. */
 export function entitlementErrorBody(feature: FeatureKey, result: Extract<EntitlementResult, { allowed: false }>) {
   const message =
-    feature === "company.addEmployee" && result.reason === "plan_limit_reached"
+    result.reason === "onboarding_required"
+      ? ONBOARDING_REQUIRED_MESSAGE
+      : feature === "company.addEmployee" && result.reason === "plan_limit_reached"
       ? getAddEmployeeLimitMessage(result.plan)
       : undefined;
 

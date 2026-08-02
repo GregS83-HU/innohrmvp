@@ -505,6 +505,11 @@
       "message": "This wellbeing assessment isn't included in your company's current plan.",
       "messageWithCompany": "This wellbeing assessment isn't included in {{companyName}}'s current plan."
     },
+    "onboardingRequired": {
+      "title": "Available after your onboarding call",
+      "message": "The AI wellbeing chatbot unlocks once your company's onboarding call is complete.",
+      "cta": "Contact us"
+    },
     "loading": "Loading assessment...",
     "header": "Happy Check 😊",
     "inputPlaceholder": "Type your response...",

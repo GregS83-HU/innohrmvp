@@ -507,6 +507,11 @@
       "message": "Cette évaluation de bien-être n'est pas incluse dans le forfait actuel de votre entreprise.",
       "messageWithCompany": "Cette évaluation de bien-être n'est pas incluse dans le forfait actuel de {{companyName}}."
     },
+    "onboardingRequired": {
+      "title": "Disponible après votre appel d'intégration",
+      "message": "Le chatbot IA de bien-être se débloque une fois l'appel d'intégration de votre entreprise terminé.",
+      "cta": "Nous contacter"
+    },
     "loading": "Chargement de l'évaluation...",
     "header": "Happy Check 😊",
     "inputPlaceholder": "Tapez votre réponse...",

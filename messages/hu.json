@@ -507,6 +507,11 @@
       "message": "Ez a jólléti felmérés nem szerepel a vállalata jelenlegi csomagjában.",
       "messageWithCompany": "Ez a jólléti felmérés nem szerepel a(z) {{companyName}} jelenlegi csomagjában."
     },
+    "onboardingRequired": {
+      "title": "A bevezető hívás után lesz elérhető",
+      "message": "Az AI jólléti chatbot azután válik elérhetővé, hogy vállalata bevezető hívása megtörtént.",
+      "cta": "Kapcsolatfelvétel"
+    },
     "loading": "Felmérés betöltése...",
     "header": "Boldogság Ellenőrzés 😊",
     "inputPlaceholder": "Írd be a válaszodat...",
