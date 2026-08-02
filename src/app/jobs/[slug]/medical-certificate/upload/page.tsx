@@ -1,15 +1,20 @@
 // src/app/medical-certificate/upload/page.tsx
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useParams } from 'next/navigation';
 import { Suspense, useEffect, useState, useCallback, useRef } from 'react';
 import UploadCertificateClient from './UploadCertificateClient';
 import { useLocale } from '../../../../../i18n/LocaleProvider';
+import LockedModuleNotice from '../../../../../../components/entitlements/LockedModuleNotice';
 
 function UploadCertificatePageContent() {
   const searchParams = useSearchParams();
+  const params = useParams();
+  const slug = params.slug as string;
   const companyId = searchParams.get('company_id');
   const [canAddCertificate, setCanAddCertificate] = useState<boolean | null>(null);
+  const [accessReason, setAccessReason] = useState<string | null>(null);
+  const [accessPlan, setAccessPlan] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const certificateAccessChecked = useRef(false);
   const { t } = useLocale();
@@ -39,6 +44,8 @@ function UploadCertificatePageContent() {
       const res = await fetch(`/api/entitlements/check?company_id=${companyId}&feature=medicalCertificates.upload`);
       const result = await res.json();
       setCanAddCertificate(res.ok && result.allowed === true);
+      setAccessReason(result.reason ?? null);
+      setAccessPlan(result.plan ?? null);
       setIsLoading(false);
     } catch (error) {
       console.error('Entitlement check error:', error);
@@ -79,6 +86,23 @@ function UploadCertificatePageContent() {
             {t('uploadCertificate.buttons.back')}
           </button>
         </div>
+      </div>
+    );
+  }
+
+  // Onboarding-completion gate: same locked-state component used by the
+  // other five onboarding-gated modules, not the plan-limit card below -
+  // this is a temporary compliance safeguard, not a plan limitation. See
+  // ONBOARDING_GATED_FEATURES in src/config/entitlements.ts.
+  if (canAddCertificate === false && accessReason === 'onboarding_required') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <LockedModuleNotice
+          feature="medicalCertificates.upload"
+          plan={accessPlan}
+          upgradeHref={`/jobs/${slug}/contact`}
+          reason="onboarding"
+        />
       </div>
     );
   }

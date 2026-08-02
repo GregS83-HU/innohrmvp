@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import { Lock } from 'lucide-react';
 import type { FeatureKey } from '../../src/config/entitlements';
-import { FEATURE_COPY } from '../../src/config/entitlements';
+import { FEATURE_COPY, getOnboardingRequiredMessage } from '../../src/config/entitlements';
 
 type Props = {
-  feature: Extract<FeatureKey, 'payroll.use' | 'attendance.use' | 'absences.use' | 'performance.use'>;
+  feature: Extract<FeatureKey, 'payroll.use' | 'attendance.use' | 'absences.use' | 'performance.use' | 'medicalCertificates.upload'>;
   plan: string | null;
   upgradeHref: string;
   /**
@@ -38,7 +38,7 @@ export default function LockedModuleNotice({ feature, plan, upgradeHref, reason 
       </div>
       <h1 className="text-xl font-semibold text-gray-900 mb-2">{copy.title}</h1>
       <p className="text-gray-600 mb-1">
-        {isOnboarding ? 'Available after your onboarding call.' : copy.notIncluded}
+        {isOnboarding ? getOnboardingRequiredMessage(feature) : copy.notIncluded}
       </p>
       {!isOnboarding && plan && <p className="text-sm text-gray-400 mb-6">Current plan: {plan}</p>}
       <Link

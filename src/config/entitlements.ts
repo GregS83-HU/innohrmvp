@@ -33,15 +33,27 @@ export type EntitlementCheck =
 // Features that require company.onboarding_completed = true, on top of
 // whatever plan check applies - regardless of forfait, a company that
 // signed up self-serve stays locked out of these until our team flips the
-// flag after a manual setup call. Recruitment (job postings) and medical
-// certificates are deliberately NOT in this set: those stay usable
-// immediately after self-serve signup, subject only to plan limits.
+// flag after a manual setup call. Recruitment (job postings) is
+// deliberately NOT in this set: it stays usable immediately after
+// self-serve signup, subject only to plan limits.
+//
+// medicalCertificates.upload is here for a different reason than the other
+// five: it's not a training/complexity gate, it's a TEMPORARY compliance
+// safeguard. Certificate uploads send employee health data to third-party
+// AI/OCR services (OCR.Space, OpenRouter) with redaction that's best-effort
+// (not guaranteed) and retention periods that are placeholders, not a legal
+// determination - see Known Limitations in docs/product-brief.md. A
+// self-serve company could otherwise start uploading certificates with
+// zero human contact from our team first. Revisit removing this feature
+// from this set once the pending legal review of retention periods and
+// subprocessor terms is complete.
 export const ONBOARDING_GATED_FEATURES: ReadonlySet<FeatureKey> = new Set([
   "payroll.use",
   "attendance.use",
   "absences.use",
   "performance.use",
   "happiness.chatbot",
+  "medicalCertificates.upload",
 ]);
 
 export const FEATURE_RULES: Record<FeatureKey, EntitlementCheck> = {
@@ -127,6 +139,18 @@ export const FEATURE_COPY: Record<FeatureKey, { title: string; limitReached: str
 // module it is or what plan the company is on, since the reason is always
 // "no setup call yet", not a plan limitation.
 export const ONBOARDING_REQUIRED_MESSAGE = "Available after your onboarding call.";
+
+// medicalCertificates.upload gets an honest, feature-specific reason instead
+// of the generic message above: the checkpoint exists because of third-party
+// AI/OCR processing of health data, not (only) because of feature
+// complexity like the other five onboarding-gated modules. See
+// ONBOARDING_GATED_FEATURES for the full rationale.
+export function getOnboardingRequiredMessage(feature: FeatureKey): string {
+  if (feature === "medicalCertificates.upload") {
+    return "Available after your onboarding call — this checkpoint exists because certificate data is processed using third-party AI/OCR services.";
+  }
+  return ONBOARDING_REQUIRED_MESSAGE;
+}
 
 // Infinity has no higher self-serve tier, so hitting its employee cap isn't
 // a plain "upgrade" prompt - it should route to a custom quote conversation

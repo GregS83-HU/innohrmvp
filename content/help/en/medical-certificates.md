@@ -29,3 +29,7 @@ The number of certificates you can upload **per month** depends on your plan:
 | Infinity | Up to 20 |
 
 If you reach your plan's monthly limit, you'll see a message when trying to upload — visit **Manage Subscription** from the account menu for upgrade options. Certificates you've already uploaded stay accessible regardless of plan changes; the limit only affects new uploads.
+
+## Availability for new (self-serve) companies
+
+Unlike job postings, uploading a medical certificate is currently held behind the same onboarding-completion checkpoint as payroll, time & attendance, absences, performance, and the wellbeing chatbot (see Getting Started) — on any plan, including paid ones. This one is temporary and different in kind from the other five: it's a safeguard while retention periods and third-party AI/OCR provider terms for this health data are still under legal review, not a training gate. If you try to upload before your company's onboarding call is complete, you'll see a message explaining this, with a link to get in touch.

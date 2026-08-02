@@ -6,8 +6,8 @@ import { createClient } from "@supabase/supabase-js";
 import {
   FEATURE_RULES,
   ONBOARDING_GATED_FEATURES,
-  ONBOARDING_REQUIRED_MESSAGE,
   getAddEmployeeLimitMessage,
+  getOnboardingRequiredMessage,
   type FeatureKey,
 } from "../src/config/entitlements";
 
@@ -207,7 +207,7 @@ export async function resolveCompanyIdForUser(userId: string): Promise<number | 
 export function entitlementErrorBody(feature: FeatureKey, result: Extract<EntitlementResult, { allowed: false }>) {
   const message =
     result.reason === "onboarding_required"
-      ? ONBOARDING_REQUIRED_MESSAGE
+      ? getOnboardingRequiredMessage(feature)
       : feature === "company.addEmployee" && result.reason === "plan_limit_reached"
       ? getAddEmployeeLimitMessage(result.plan)
       : undefined;
