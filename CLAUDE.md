@@ -82,10 +82,12 @@ When updating the Product Brief:
 
 1. Read the current `docs/product-brief.md`.
 2. Review all completed work since the previous update.
-3. Update every impacted section.
-4. Remove obsolete information.
-5. Keep the entire document internally consistent.
-6. Save the updated file.
+3. Re-verify any specific factual claim — limits, plan/feature flags, numeric values, and especially any "no distinction"/"identical across plans"/"not differentiated" style claim — directly against the current source code (`lib/`, `src/config/`, `supabase/migrations/`) rather than carrying it forward unverified from the existing document. A claim copied forward without re-checking is how inaccuracies compound across updates.
+4. Update every impacted section.
+5. Remove obsolete information.
+6. Keep the entire document internally consistent.
+7. Save the updated file.
+8. Commit the change and push it to the remote. An update that isn't pushed is invisible to the Growth Officer (and to anyone else reading the file from GitHub) — "update" is not complete until the change is pushed, not just saved locally.
 
 The document must always represent the current product.
 
@@ -153,6 +155,7 @@ Before saving the Product Brief, verify that:
 - launch readiness reflects the current product
 - known limitations are still valid
 - there are no contradictions anywhere in the document
+- every specific claim about limits, plan/feature gating, or "no distinction between plans" has been checked against current source code, not assumed correct because the previous version said so
 
 The document should read as if it had been written today from scratch.
 
@@ -193,4 +196,4 @@ Do not explain the changes.
 
 Do not generate a summary.
 
-Simply update the file.
+Update the file, then commit and push it (see How to Update, step 8). The command is not complete until the change is pushed — do not stop after saving the local file.
