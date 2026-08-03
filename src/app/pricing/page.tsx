@@ -167,6 +167,12 @@ export default function PricingPage() {
           })}
         </div>
 
+        {/* Onboarding-completion note */}
+        <div className="max-w-3xl mx-auto bg-white rounded-xl shadow p-5 flex items-start gap-3 mb-3">
+          <Info className="w-5 h-5 text-brand-600 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-gray-600">{t('pricing.onboardingNote')}</p>
+        </div>
+
         {/* Data retention note */}
         <div className="max-w-3xl mx-auto bg-white rounded-xl shadow p-5 flex items-start gap-3 mb-3">
           <Info className="w-5 h-5 text-brand-600 flex-shrink-0 mt-0.5" />

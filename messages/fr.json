@@ -99,6 +99,7 @@
       "performanceNotIncluded": "Gestion de la performance non incluse"
     },
     "dataNote": "L'annulation ou la rétrogradation ne supprime jamais vos données existantes — vous conservez un accès complet à tout ce que vous avez déjà. Seule la création de nouveaux éléments au-delà de la limite de votre nouvelle formule est suspendue.",
+    "onboardingNote": "La paie, le suivi du temps, les absences, la gestion de la performance, le chatbot de bien-être IA et le téléversement de certificats médicaux sont tous disponibles une fois l'appel d'intégration de votre entreprise terminé — sur chaque formule, y compris Free. Les nouvelles entreprises en libre-service peuvent publier des offres et utiliser le Job Assistant immédiatement ; ces modules se débloquent après un court appel de mise en route avec notre équipe.",
     "priceNote": "Prix affichés en forint hongrois (HUF), facturés mensuellement."
   },
   "contactForm": {
