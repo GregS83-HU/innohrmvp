@@ -99,7 +99,7 @@
       "performanceNotIncluded": "Performance management not included"
     },
     "dataNote": "Canceling or downgrading never deletes your existing data — you keep full access to everything you already have. Only creating new items above your new plan's limit is paused.",
-    "onboardingNote": "Payroll, time & attendance, absences, performance management, the AI wellbeing chatbot, and medical certificate uploads are all available once your company's onboarding call is complete — on every plan, including Free. New self-serve companies can start posting jobs and using the Job Assistant immediately; these modules unlock after a short setup call with our team.",
+    "onboardingNote": "Payroll, time & attendance, absences, performance management, the AI wellbeing chatbot, and medical certificate uploads all require your plan to include them (see plan details above) and your company's onboarding call to be complete — both conditions apply regardless of plan. New self-serve companies can start posting jobs and using the Job Assistant immediately; these other modules unlock once you're on a plan that includes them and your setup call with our team is done.",
     "priceNote": "Prices shown in Hungarian Forint (HUF), billed monthly."
   },
   "contactForm": {

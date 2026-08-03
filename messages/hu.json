@@ -99,7 +99,7 @@
       "performanceNotIncluded": "Teljesítménykezelés nem elérhető"
     },
     "dataNote": "A lemondás vagy visszaminősítés soha nem törli a meglévő adataidat — továbbra is teljes hozzáférésed lesz mindenhez, amid már van. Csak az új csomaglimit fölötti új elemek létrehozása szünetel.",
-    "onboardingNote": "A bérszámfejtés, a munkaidő-nyilvántartás, a távollétek, a teljesítménykezelés, az AI jólléti chatbot és az orvosi igazolások feltöltése mind elérhetővé válik, miután vállalata bevezető hívása megtörtént — minden csomagon, beleértve az Ingyenes csomagot is. Az új, önkiszolgáló módon regisztrált vállalatok azonnal közzétehetnek állásokat és használhatják a Job Assistantet; ezek a modulok egy rövid bevezető hívás után válnak elérhetővé csapatunkkal.",
+    "onboardingNote": "A bérszámfejtéshez, a munkaidő-nyilvántartáshoz, a távollétekhez, a teljesítménykezeléshez, az AI jólléti chatbothoz és az orvosi igazolások feltöltéséhez egyaránt olyan csomagra van szükség, amely tartalmazza az adott funkciót (lásd a csomagrészleteket fent), valamint vállalata bevezető hívásának teljesítésére — mindkét feltétel csomagtól függetlenül érvényes. Az új, önkiszolgáló módon regisztrált vállalatok azonnal közzétehetnek állásokat és használhatják a Job Assistantet; ezek a további modulok akkor válnak elérhetővé, amikor Ön olyan csomagon van, amely tartalmazza őket, és a bevezető hívás csapatunkkal megtörtént.",
     "priceNote": "Az árak magyar forintban (HUF) szerepelnek, havi elszámolással."
   },
   "contactForm": {

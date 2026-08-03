@@ -18,6 +18,6 @@ Each week, goals that need an update prompt you with a "Pulse reminder" banner l
 
 Managers see a team dashboard with Overview, Red Flags, and Pending Approval tabs, stat cards per employee, and an Approve action for goals awaiting sign-off.
 
-## Who can access this
+## Plan limits and availability
 
-Like payroll, time & attendance, and absences, performance management isn't restricted by plan tier — every plan has identical access once your company has completed onboarding (see Getting Started).
+Performance management is included on Infinity only, for up to 100 employees — it's a locked preview on both Free and Momentum. It also requires your company's onboarding call to be complete before use, even on Infinity (see Getting Started).

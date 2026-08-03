@@ -12,7 +12,7 @@ The dashboard's home screen shows a "Welcome back" message and a grid of quick l
 
 - **Admins** see every module, plus account-management options (Manage Subscription, Manage Users, and this User Guide).
 - **Managers** see their team's tools (approvals, team performance, manager time-clock view) in addition to their own.
-- **Regular employees** see their personal tools: their positions/tasks, time clock, absences, performance, and the wellbeing chatbot if your company's plan includes it.
+- **Regular employees** see their personal tools: their positions/tasks, time clock, absences, performance, and the wellbeing chatbot if your company's plan and onboarding status include them.
 
 ## Navigating between modules
 
@@ -21,8 +21,8 @@ Every module is reachable from the top navigation bar or the account menu in the
 - The main nav bar links to modules like Positions, HR Tools, Performance, Time Clock, and Absences.
 - Click your name or avatar in the top-right corner to open the account menu, which has account-level items like Manage Subscription, Manage Users, and this User Guide (admins only).
 
-If a module isn't visible to you, it's because your role doesn't include it, or — for a small number of modules — your company hasn't finished onboarding yet (see the notes on payroll, time & attendance, absences, and performance below) or your plan doesn't include it (see the wellbeing chatbot section).
+If a module isn't visible to you, it's because your role doesn't include it, your company's plan doesn't include it (payroll/time & attendance/absences are Momentum and Infinity only; performance is Infinity only; the wellbeing chatbot is Momentum and Infinity only), or your company hasn't finished onboarding yet (see below).
 
 ## A note on plans and onboarding
 
-HRInno company accounts can be created two ways: through self-serve signup, or set up directly by the HRInno team. A self-serve company can start posting jobs and using the Job Assistant immediately. Payroll, time & attendance, absences, performance management, and the AI wellbeing chatbot stay locked until the HRInno team completes a short onboarding call with you — this is unrelated to which plan you're on, and applies even if you're already a paying customer. If you see a message like "Available after your onboarding call," that's what this refers to — use the contact link on that screen to get in touch.
+HRInno company accounts can be created two ways: through self-serve signup, or set up directly by the HRInno team. A self-serve company can start posting jobs and using the Job Assistant immediately, on any plan. Payroll, time & attendance, absences, and performance management additionally depend on your plan (see the Subscription & Billing section for exact limits) — and even once you're on a plan that includes them, they, the AI wellbeing chatbot, and medical certificate uploads all also stay locked until the HRInno team completes a short onboarding call with you. Both conditions apply regardless of plan: upgrading alone doesn't unlock these without onboarding also being complete. If you see a message like "Available after your onboarding call," use the contact link on that screen to get in touch.

@@ -15,6 +15,6 @@ The time clock screen has two tabs:
 
 Managers have a separate team view showing time-clock activity across their team, so you don't need to check each employee's history individually.
 
-## Who can access this
+## Plan limits and availability
 
-Like payroll, absences, and performance, time & attendance access isn't restricted by plan tier — every plan has identical access once your company has completed onboarding (see Getting Started).
+Like payroll and absences, time & attendance is included on Momentum (up to 20 employees) and Infinity (up to 100 employees) — on Free, it's a locked preview only. It also requires your company's onboarding call to be complete before use, on any plan (see Getting Started).

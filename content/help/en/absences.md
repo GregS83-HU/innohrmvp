@@ -16,6 +16,6 @@ Managers see additional tabs: **My Leave** (their own requests) and **Team Appro
 
 Click **Calendar View** to see absences laid out on a year grid, with a legend showing leave balances. Managers can toggle between their own view and their team's. From here you can also export the calendar as a PDF (via your browser's print function) or as an iCal file for your own calendar app.
 
-## Who can access this
+## Plan limits and availability
 
-Like payroll, time & attendance, and performance, absence tracking isn't restricted by plan tier — every plan has identical access once your company has completed onboarding (see Getting Started).
+Like payroll and time & attendance, absence tracking is included on Momentum (up to 20 employees) and Infinity (up to 100 employees) — on Free, it's a locked preview only. It also requires your company's onboarding call to be complete before use, on any plan (see Getting Started).

@@ -32,7 +32,7 @@ The number of positions you can have **open at the same time** depends on your p
 
 | Plan | Open job positions |
 |---|---|
-| Free | Up to 3 |
+| Free | Up to 2 |
 | Momentum | Up to 5 |
 | Infinity | Up to 10 |
 

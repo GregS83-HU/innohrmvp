@@ -25,6 +25,6 @@ Period status (open, closed, or reopened) and the "Close This Period" action liv
 
 Use the **Export** button in **List View** to generate a payroll export. (Note: the Export button inside Grid View is not yet wired up — use List View's Export for a working export.)
 
-## Who can access this
+## Plan limits and availability
 
-Payroll is an admin-facing module. As with time & attendance, absences, and performance, payroll access itself isn't restricted by your company's plan tier today — Free, Momentum, and Infinity all have identical access to it once your company has completed onboarding (see Getting Started).
+Payroll is an admin-facing module. It's included on Momentum (up to 20 employees) and Infinity (up to 100 employees) — on Free, it's visible as a locked preview only, not usable for real payroll data. Like time & attendance and absences, it also requires your company's onboarding call to be complete before use, on any plan (see Getting Started).
