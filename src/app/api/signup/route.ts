@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { generateUniqueCompanySlug } from '../../../../lib/slug';
+import { sendOnboardingBookingEmail } from '../../../../lib/email-service';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -104,6 +105,41 @@ export async function POST(req: NextRequest) {
       await supabase.from('users').delete().eq('id', userId);
       await supabase.from('company').delete().eq('id', companyId);
       throw new Error(profileError.message || 'Failed to create user profile');
+    }
+
+    // 6. Send the onboarding-call booking email (Calendly link). Best-effort:
+    // a failure here must never fail signup itself - the admin already has
+    // a working account. No need to re-check onboarding_completed here -
+    // the insert above always sets it to false for a brand-new self-serve
+    // company, so this route never needs to skip a grandfathered company.
+    if (process.env.CALENDLY_ONBOARDING_URL) {
+      try {
+        const result = await sendOnboardingBookingEmail({
+          companyId: company.id,
+          to: email,
+          adminFirstName,
+          companyName: companyName.trim(),
+          calendlyUrl: process.env.CALENDLY_ONBOARDING_URL,
+        });
+        if (result.success) {
+          const { error: updateError } = await supabase
+            .from('company')
+            .update({ onboarding_link_sent_at: new Date().toISOString() })
+            .eq('id', company.id);
+          if (updateError) console.error('Failed to record onboarding_link_sent_at:', updateError.message);
+
+          const { error: funnelError } = await supabase.from('funnel_events').insert({
+            event_type: 'onboarding_link_sent',
+            session_id: 'internal_system',
+            metadata: { company_id: company.id, slug: company.slug },
+          });
+          if (funnelError) console.error('Failed to log onboarding_link_sent funnel event:', funnelError.message);
+        }
+      } catch (emailError) {
+        console.error('Failed to send onboarding booking email (signup still succeeded):', emailError);
+      }
+    } else {
+      console.warn('CALENDLY_ONBOARDING_URL is not set - skipping onboarding booking email');
     }
 
     return NextResponse.json({ success: true, slug: company.slug });

@@ -28,7 +28,9 @@ export type FunnelEventType =
   | 'roi_calculator_used'
   | 'signup_started'
   | 'signup_completed'
-  | 'onboarding_marked_complete';
+  | 'onboarding_marked_complete'
+  | 'onboarding_link_sent'
+  | 'onboarding_reminder_sent';
 
 export type FunnelSource = 'homepage' | 'pricing_page' | 'marketing_site';
 export type FunnelPlan = 'free' | 'momentum' | 'infinity';

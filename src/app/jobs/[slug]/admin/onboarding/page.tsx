@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { ClipboardCheck, CheckCircle2, Circle } from 'lucide-react'
+import { ClipboardCheck, CheckCircle2, Circle, Mail } from 'lucide-react'
 
 interface Company {
   id: number
@@ -9,6 +9,19 @@ interface Company {
   slug: string | null
   onboarding_completed: boolean
   created_at: string
+  onboarding_link_sent_at: string | null
+  onboarding_reminder_sent_at: string | null
+}
+
+function EmailStatusBadge({ sentAt }: { sentAt: string | null }) {
+  if (!sentAt) {
+    return <span className="text-gray-400">Not sent</span>
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-gray-600" title={new Date(sentAt).toLocaleString()}>
+      <Mail className="w-3.5 h-3.5" /> Sent
+    </span>
+  )
 }
 
 export default function OnboardingAdminPage() {
@@ -83,6 +96,8 @@ export default function OnboardingAdminPage() {
                   <th className="px-4 py-3 font-medium">Company</th>
                   <th className="px-4 py-3 font-medium">Slug</th>
                   <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Booking Email</th>
+                  <th className="px-4 py-3 font-medium">Reminder</th>
                   <th className="px-4 py-3 font-medium"></th>
                 </tr>
               </thead>
@@ -101,6 +116,12 @@ export default function OnboardingAdminPage() {
                           <Circle className="w-4 h-4" /> Not onboarded
                         </span>
                       )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <EmailStatusBadge sentAt={c.onboarding_link_sent_at} />
+                    </td>
+                    <td className="px-4 py-3">
+                      <EmailStatusBadge sentAt={c.onboarding_reminder_sent_at} />
                     </td>
                     <td className="px-4 py-3 text-right">
                       <button

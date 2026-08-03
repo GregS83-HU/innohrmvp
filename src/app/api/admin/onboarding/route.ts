@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
   const { data, error } = await supabase
     .from('company')
-    .select('id, company_name, slug, onboarding_completed, created_at')
+    .select('id, company_name, slug, onboarding_completed, created_at, onboarding_link_sent_at, onboarding_reminder_sent_at')
     .order('created_at', { ascending: false });
 
   if (error) {

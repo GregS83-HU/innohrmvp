@@ -2,7 +2,7 @@
 
 import { Resend } from 'resend'
 import { generateICS } from './ics-generator'
-import { generateInterviewEmail } from './email-templates'
+import { generateInterviewEmail, generateOnboardingEmail } from './email-templates'
 import { sendEmailWithCompanySMTP } from './smtp-mailer'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -419,4 +419,75 @@ export async function sendInterviewInvitation(params: SendInterviewInvitationPar
     console.error('❌ Failed to send interview invitation emails:', error)
     throw error
   }
+}
+
+interface SendOnboardingEmailParams {
+  companyId: number
+  to: string
+  adminFirstName: string
+  companyName: string
+  calendlyUrl: string
+}
+
+async function sendOnboardingEmail(
+  params: SendOnboardingEmailParams,
+  variant: 'welcome' | 'reminder'
+) {
+  const { companyId, to, adminFirstName, companyName, calendlyUrl } = params
+
+  const subject =
+    variant === 'welcome'
+      ? `Welcome to HRInno, ${adminFirstName} — book your onboarding call`
+      : `Reminder: book your HRInno onboarding call`
+
+  const html = generateOnboardingEmail({ adminFirstName, companyName, calendlyUrl, variant })
+
+  try {
+    // Try to send via company SMTP first (a brand-new self-serve company
+    // will never have this configured yet, so this will normally throw and
+    // fall through to Resend below - kept for consistency with every other
+    // email in this file rather than special-casing it).
+    try {
+      const result = await sendEmailWithCompanySMTP(companyId, { to, subject, html })
+      console.log(`✅ Onboarding ${variant} email sent via company SMTP:`, result)
+      return { success: true, emailId: result.emailId, provider: result.provider }
+    } catch (smtpError) {
+      console.log('⚠️ Company SMTP failed, falling back to Resend')
+
+      const result = await resend.emails.send({
+        from: 'HRInno Onboarding <onboarding@notifications.hrinno.hu>',
+        to,
+        subject,
+        html,
+      })
+
+      // resend-node resolves (doesn't throw) on API-level failures like a
+      // 422 validation error - it only rejects data/error into the same
+      // object. Check result.error explicitly rather than assuming a
+      // non-throwing call means the email was actually accepted, otherwise
+      // this gets recorded as "sent" (both in company.onboarding_link_sent_at
+      // and the funnel_events row) when it never left the building - which
+      // would defeat the whole point of the admin visibility this feature
+      // is for (Requirement 3: seeing who's actually fallen through the gap).
+      if (result.error) {
+        throw new Error(`Resend rejected the email: ${result.error.message}`)
+      }
+
+      console.log(`✅ Onboarding ${variant} email sent via Resend:`, result)
+      return { success: true, emailId: result.data?.id, provider: 'resend' as const }
+    }
+  } catch (error) {
+    console.error(`❌ Failed to send onboarding ${variant} email:`, error)
+    throw error
+  }
+}
+
+/** Sent right after self-serve signup - Calendly link to book the onboarding call. */
+export async function sendOnboardingBookingEmail(params: SendOnboardingEmailParams) {
+  return sendOnboardingEmail(params, 'welcome')
+}
+
+/** One-time nudge if the company hasn't booked within the reminder SLA. */
+export async function sendOnboardingReminderEmail(params: SendOnboardingEmailParams) {
+  return sendOnboardingEmail(params, 'reminder')
 }
