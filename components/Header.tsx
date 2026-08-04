@@ -319,7 +319,7 @@ export default function Header() {
             </nav>
 
             {/* Right section */}
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
               {/* Notifications - only in slug context */}
               {companySlug && user && (
                 <NotificationComponent currentUser={user} companySlug={companySlug} />
@@ -335,14 +335,6 @@ export default function Header() {
                 <button onClick={() => setIsTimeClockOpen(true)} className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors" title={t('header.openTimeClock')}>
                   <Clock className="w-5 h-5 text-gray-600" />
                 </button>
-              )}
-
-              {/* Demo timer for tablet/mobile */}
-              {companySlug && (isDemoMode || isDemoExpired) && (
-                <div className={`xl:hidden flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-medium ${isDemoExpired ? 'bg-red-100 text-red-800' : demoTimeLeft && demoTimeLeft < 300 ? 'bg-red-100 text-red-800' : 'bg-orange-100 text-orange-800'}`}>
-                  <Clock className="w-3 h-3" />
-                  {isDemoExpired ? t('header.expired') : (demoTimeLeft ? formatTime(demoTimeLeft) : '00:00')}
-                </div>
               )}
 
               {/* Contact Us (demo only) */}
