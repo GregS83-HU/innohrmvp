@@ -64,7 +64,7 @@ export default function Header() {
   const showPerformance = !!isAdmin || moduleAccess.performanceEnabled;
 
   const buttonBaseClasses = useMemo(() =>
-    'flex items-center gap-2 px-3 py-2 rounded-xl font-medium text-sm transition-all shadow-sm hover:shadow-md whitespace-nowrap',
+    'flex items-center gap-1.5 px-2.5 py-2 rounded-xl font-medium text-sm transition-all shadow-sm hover:shadow-md whitespace-nowrap',
     []
   );
 
@@ -116,7 +116,7 @@ export default function Header() {
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden 2xl:flex items-center gap-1.5 flex-1 justify-center mx-4 max-w-5xl">
+            <nav className="hidden xl:flex items-center gap-1 flex-1 justify-center mx-2 max-w-5xl">
 
               {/* Available Positions - only in slug context */}
               {companySlug && (
@@ -339,7 +339,7 @@ export default function Header() {
 
               {/* Demo timer for tablet/mobile */}
               {companySlug && (isDemoMode || isDemoExpired) && (
-                <div className={`2xl:hidden flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-medium ${isDemoExpired ? 'bg-red-100 text-red-800' : demoTimeLeft && demoTimeLeft < 300 ? 'bg-red-100 text-red-800' : 'bg-orange-100 text-orange-800'}`}>
+                <div className={`xl:hidden flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-medium ${isDemoExpired ? 'bg-red-100 text-red-800' : demoTimeLeft && demoTimeLeft < 300 ? 'bg-red-100 text-red-800' : 'bg-orange-100 text-orange-800'}`}>
                   <Clock className="w-3 h-3" />
                   {isDemoExpired ? t('header.expired') : (demoTimeLeft ? formatTime(demoTimeLeft) : '00:00')}
                 </div>
@@ -353,15 +353,15 @@ export default function Header() {
                   isDemoExpired={isDemoExpired}
                   isContactUs={true}
                 >
-                  <User className="w-4 h-4" /> {t('header.contactUs')}
+                  <User className="w-4 h-4" /> <span className="hidden 2xl:inline">{t('header.contactUs')}</span>
                 </DemoAwareMenuItem>
               )}
 
               {/* Desktop user area - only in slug context */}
               {companySlug && (
-                <div className="hidden 2xl:flex items-center gap-3 min-w-0 flex-shrink">
+                <div className="hidden xl:flex items-center gap-3 min-w-0 flex-shrink">
                   {user ? (
-                    <div className="relative min-w-0 flex-1 max-w-[180px]" ref={userMenuRef}>
+                    <div className="relative min-w-0 flex-1 max-w-[140px]" ref={userMenuRef}>
                       {isDemoExpired ? (
                         <div className={`${buttonBaseClasses} bg-gray-100 text-gray-400 cursor-not-allowed relative group min-w-0 w-full`}>
                           <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
@@ -419,7 +419,7 @@ export default function Header() {
               )}
 
               {/* Mobile/Tablet menu button */}
-              <button className="2xl:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+              <button className="xl:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                 {isMobileMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
               </button>
             </div>
@@ -428,7 +428,7 @@ export default function Header() {
 
         {/* Mobile/Tablet Menu */}
         {isMobileMenuOpen && (
-          <div className="2xl:hidden bg-white border-t border-gray-200 shadow-lg">
+          <div className="xl:hidden bg-white border-t border-gray-200 shadow-lg">
             <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
 
               <div className="flex justify-end mb-3">
