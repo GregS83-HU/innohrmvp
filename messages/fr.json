@@ -3154,5 +3154,23 @@
       "motivational": "Motivationnel",
       "situational": "Situationnel"
     }
+  },
+  "notificationComponent": {
+    "title": "Notifications",
+    "markAllRead": "Tout marquer comme lu",
+    "noNotifications": "Aucune notification pour le moment",
+    "ticket": {
+      "newTicket": "Nouveau ticket",
+      "user": "Utilisateur",
+      "newMessage": "Nouveau message",
+      "someone": "Quelqu'un",
+      "replied": "a répondu"
+    },
+    "time": {
+      "justNow": "À l'instant",
+      "minutesAgo": "il y a {{count}} min",
+      "hoursAgo": "il y a {{count}} h",
+      "daysAgo": "il y a {{count}} j"
+    }
   }
 }

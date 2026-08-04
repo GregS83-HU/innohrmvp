@@ -1,13 +1,8 @@
 // hooks/useHeaderLogic.ts
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { RefObject } from 'react';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 interface User {
   id: string;
@@ -56,6 +51,16 @@ interface UseHeaderLogicReturn {
 }
 
 export const useHeaderLogic = () : UseHeaderLogicReturn => {
+  // Shared with SessionContextProvider (src/app/ClientProvider.tsx) so a
+  // sign-in here actually sets the auth cookies that server components
+  // (e.g. src/app/jobs/[slug]/stats/page.tsx) and useSession()-based
+  // components (e.g. PositionList.tsx) read. A previous standalone
+  // supabase-js client here only wrote to localStorage, so logging in via
+  // the header never authenticated the rest of the app - manager/admin
+  // role detection silently fell back to "logged out", and server-side
+  // RLS-gated queries saw an anonymous session (42501 permission denied).
+  const supabase = useSupabaseClient();
+
   // All state management
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

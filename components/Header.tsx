@@ -116,7 +116,7 @@ export default function Header() {
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden xl:flex items-center gap-1.5 flex-1 justify-center mx-4 max-w-5xl">
+            <nav className="hidden 2xl:flex items-center gap-1.5 flex-1 justify-center mx-4 max-w-5xl">
 
               {/* Available Positions - only in slug context */}
               {companySlug && (
@@ -339,7 +339,7 @@ export default function Header() {
 
               {/* Demo timer for tablet/mobile */}
               {companySlug && (isDemoMode || isDemoExpired) && (
-                <div className={`xl:hidden flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-medium ${isDemoExpired ? 'bg-red-100 text-red-800' : demoTimeLeft && demoTimeLeft < 300 ? 'bg-red-100 text-red-800' : 'bg-orange-100 text-orange-800'}`}>
+                <div className={`2xl:hidden flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-medium ${isDemoExpired ? 'bg-red-100 text-red-800' : demoTimeLeft && demoTimeLeft < 300 ? 'bg-red-100 text-red-800' : 'bg-orange-100 text-orange-800'}`}>
                   <Clock className="w-3 h-3" />
                   {isDemoExpired ? t('header.expired') : (demoTimeLeft ? formatTime(demoTimeLeft) : '00:00')}
                 </div>
@@ -359,7 +359,7 @@ export default function Header() {
 
               {/* Desktop user area - only in slug context */}
               {companySlug && (
-                <div className="hidden xl:flex items-center gap-3 min-w-0 flex-shrink">
+                <div className="hidden 2xl:flex items-center gap-3 min-w-0 flex-shrink">
                   {user ? (
                     <div className="relative min-w-0 flex-1 max-w-[180px]" ref={userMenuRef}>
                       {isDemoExpired ? (
@@ -419,7 +419,7 @@ export default function Header() {
               )}
 
               {/* Mobile/Tablet menu button */}
-              <button className="xl:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+              <button className="2xl:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                 {isMobileMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
               </button>
             </div>
@@ -428,7 +428,7 @@ export default function Header() {
 
         {/* Mobile/Tablet Menu */}
         {isMobileMenuOpen && (
-          <div className="xl:hidden bg-white border-t border-gray-200 shadow-lg">
+          <div className="2xl:hidden bg-white border-t border-gray-200 shadow-lg">
             <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
 
               <div className="flex justify-end mb-3">

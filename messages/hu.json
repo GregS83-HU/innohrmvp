@@ -2846,5 +2846,23 @@
       "motivational": "Motivációs",
       "situational": "Szituációs"
     }
+  },
+  "notificationComponent": {
+    "title": "Értesítések",
+    "markAllRead": "Összes megjelölése olvasottként",
+    "noNotifications": "Még nincs értesítés",
+    "ticket": {
+      "newTicket": "Új jegy",
+      "user": "Felhasználó",
+      "newMessage": "Új üzenet",
+      "someone": "Valaki",
+      "replied": "válaszolt"
+    },
+    "time": {
+      "justNow": "Éppen most",
+      "minutesAgo": "{{count}} perce",
+      "hoursAgo": "{{count}} órája",
+      "daysAgo": "{{count}} napja"
+    }
   }
 }

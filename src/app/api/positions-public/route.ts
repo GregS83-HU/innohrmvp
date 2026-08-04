@@ -18,7 +18,7 @@ export async function GET(req: Request) {
         position_description_detailed,
         position_end_date,
         manager_id,
-        company:company(
+        company:company!inner(
           company_logo,
           company_name,
           slug
@@ -31,6 +31,14 @@ export async function GET(req: Request) {
       .or(`position_end_date.is.null,position_end_date.gt.${now}`)
 
     // ⚡ Filtre par slug si fourni
+    // NOTE: the embedded `company` relation needs `!inner` above for this
+    // filter to actually restrict rows. Without it, PostgREST performs a
+    // left join: the .eq() below is silently dropped, every company's
+    // positions come back, and the embedded `company` object is always
+    // null (since a plain select doesn't get told which company to embed)
+    // - which then fails the `position.company?.slug === companySlug`
+    // check everywhere this feeds into (PositionList.tsx), always showing
+    // "0 positions available" regardless of what's actually posted.
     if (slug) {
       query = query.eq("company.slug", slug)
     }

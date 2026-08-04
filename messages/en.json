@@ -2844,5 +2844,23 @@
       "motivational": "Motivational",
       "situational": "Situational"
     }
+  },
+  "notificationComponent": {
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "noNotifications": "No notifications yet",
+    "ticket": {
+      "newTicket": "New Ticket",
+      "user": "User",
+      "newMessage": "New Message",
+      "someone": "Someone",
+      "replied": "replied"
+    },
+    "time": {
+      "justNow": "Just now",
+      "minutesAgo": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago"
+    }
   }
 }
