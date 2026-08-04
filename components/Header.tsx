@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { FiMenu, FiX } from 'react-icons/fi';
 import {
   Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown,
-  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users, Users2, BanknoteArrowDown, FileSearch, Tag, Shield, ClipboardCheck, BookOpen
+  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users, Users2, BanknoteArrowDown, FileSearch, Tag, Shield, ClipboardCheck, BookOpen, Mail
 } from 'lucide-react';
 import { useHeaderLogic } from '../hooks/useHeaderLogic';
 import { useModuleAccess } from '../hooks/useModuleAccess';
@@ -345,7 +345,7 @@ export default function Header() {
                   isDemoExpired={isDemoExpired}
                   isContactUs={true}
                 >
-                  <User className="w-4 h-4" /> <span className="hidden 2xl:inline">{t('header.contactUs')}</span>
+                  <Mail className="w-4 h-4" /> <span className="hidden 2xl:inline">{t('header.contactUs')}</span>
                 </DemoAwareMenuItem>
               )}
 
