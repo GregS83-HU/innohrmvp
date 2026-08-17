@@ -2179,7 +2179,7 @@
       },
       "storage": {
         "title": "Adattárolás és megőrzés",
-        "text": "A demóban megadott adatok minden éjjel automatikusan törlésre kerülnek egy ütemezett folyamat részeként. Csak minimális technikai naplóadatokat tárolunk legfeljebb 90 napig biztonsági és hibakeresési célból."
+        "text": "A feltöltött önéletrajzok és orvosi igazolások a feltöltéstől számított 30 nap elteltével automatikusan törlésre kerülnek egy ütemezett folyamat részeként. Csak minimális technikai naplóadatokat tárolunk legfeljebb 90 napig biztonsági és hibakeresési célból."
       },
       "aiProcessing": {
         "title": "Mesterséges intelligencia általi feldolgozás",
@@ -2201,6 +2201,13 @@
             "linkHref": "https://openai.com/privacy",
             "linkText": "Adatvédelmi irányelvek",
             "color": "border-green-500"
+          },
+          "ocrspace": {
+            "name": "OCR.Space (dokumentum-OCR szolgáltatás)",
+            "desc": "Cél: szöveg kinyerése a feltöltött orvosi igazolások képeiből/PDF-jeiből. Székhely: USA. A teljes dokumentumot kapja meg, nem csak a kinyert szöveget.",
+            "linkHref": "https://ocr.space/privacypolicy",
+            "linkText": "Adatvédelmi irányelvek",
+            "color": "border-yellow-500"
           },
           "vercel": {
             "name": "Vercel (tárhelyszolgáltató)",
@@ -2290,7 +2297,7 @@
   },
   "demoBanner": {
     "title": "Demo verzió:",
-    "text": "Ne használj valódi személyes adatokat. Minden demóadat minden éjjel automatikusan törlődik."
+    "text": "Ne használj valódi személyes adatokat. A feltöltött önéletrajzok és orvosi igazolások 30 nap után automatikusan törlődnek."
   },
   "impressumDemo": {
     "title": "Impresszum",

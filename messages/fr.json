@@ -2487,7 +2487,7 @@
       },
       "storage": {
         "title": "Stockage et conservation des données",
-        "text": "Toutes les données de la démo sont automatiquement supprimées chaque nuit dans le cadre d'un processus de nettoyage programmé. Seuls des journaux techniques minimaux peuvent être conservés jusqu'à 90 jours à des fins de sécurité et de débogage."
+        "text": "Les CV et certificats médicaux téléversés sont automatiquement supprimés 30 jours après leur envoi, dans le cadre d'un processus de nettoyage programmé. Seuls des journaux techniques minimaux peuvent être conservés jusqu'à 90 jours à des fins de sécurité et de débogage."
       },
       "aiProcessing": {
         "title": "Traitement par IA",
@@ -2509,6 +2509,13 @@
             "linkHref": "https://openai.com/privacy",
             "linkText": "Politique de confidentialité",
             "color": "border-green-500"
+          },
+          "ocrspace": {
+            "name": "OCR.Space (Service OCR de documents)",
+            "desc": "Finalité : Extraction de texte à partir des images/PDF de certificats médicaux téléversés. Siège : USA. Reçoit le document complet, pas seulement le texte extrait.",
+            "linkHref": "https://ocr.space/privacypolicy",
+            "linkText": "Politique de confidentialité",
+            "color": "border-yellow-500"
           },
           "vercel": {
             "name": "Vercel (Hébergement)",
@@ -2598,7 +2605,7 @@
   },
   "demoBanner": {
     "title": "Version démo :",
-    "text": "N'utilisez pas de données personnelles réelles. Toutes les données de la démo sont automatiquement supprimées chaque nuit."
+    "text": "N'utilisez pas de données personnelles réelles. Les CV et certificats médicaux téléversés sont automatiquement supprimés après 30 jours."
   },
   "impressumDemo": {
     "title": "Impressum",

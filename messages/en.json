@@ -2177,7 +2177,7 @@
       },
       "storage": {
         "title": "Data Storage and Retention",
-        "text": "All demo data is automatically deleted every night as part of a scheduled cleanup process. Only minimal technical logs may be stored for up to 90 days for security and debugging purposes."
+        "text": "Uploaded CVs and medical certificates are automatically deleted 30 days after upload as part of a scheduled cleanup process. Only minimal technical logs may be stored for up to 90 days for security and debugging purposes."
       },
       "aiProcessing": {
         "title": "AI Processing",
@@ -2199,6 +2199,13 @@
             "linkHref": "https://openai.com/privacy",
             "linkText": "Privacy Policy",
             "color": "border-green-500"
+          },
+          "ocrspace": {
+            "name": "OCR.Space (Document OCR Service)",
+            "desc": "Purpose: Text extraction from uploaded medical certificate images/PDFs. Headquarters: USA. Receives the full document, not just extracted text.",
+            "linkHref": "https://ocr.space/privacypolicy",
+            "linkText": "Privacy Policy",
+            "color": "border-yellow-500"
           },
           "vercel": {
             "name": "Vercel (Hosting)",
@@ -2288,7 +2295,7 @@
   },
   "demoBanner": {
     "title": "Demo version:",
-    "text": "Do not use real personal data. All demo data is automatically deleted every night."
+    "text": "Do not use real personal data. Uploaded CVs and medical certificates are automatically deleted after 30 days."
   },
   "impressumDemo": {
     "title": "Impressum",
