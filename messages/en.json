@@ -1,26 +1,42 @@
 {
   "home": {
     "hero": {
-      "title": "HR was never as",
-      "titleHighlight": "easy",
-      "titleEnd": "as now!",
-      "subtitle": "Revolutionize your human resources with AI-powered tools for recruitment, employee wellness, and workplace happiness assessment."
+      "eyebrow": "Free for job seekers — no account needed",
+      "title": "Get your CV scored,",
+      "titleHighlight": "free",
+      "titleEnd": "before you apply.",
+      "subtitle": "Upload your resume and get an instant AI score, a rewritten version, and a mock interview with feedback — in minutes, no sign-up required. HRInno's Job Assistant is free for every candidate.",
+      "cta": "Try the Job Assistant",
+      "ctaNote": "No account needed"
+    },
+    "forEmployers": {
+      "eyebrow": "For employers",
+      "title": "One platform, once you're hiring",
+      "subtitle": "The same AI that helps candidates prepare also powers your hiring pipeline. Try it free — then upgrade to run real payroll, time & attendance, absences, and performance for your team.",
+      "cta": "See pricing"
+    },
+    "dashboard": {
+      "welcomeBack": "Welcome back, {{name}}",
+      "subtitle": "Your company's HR tools, all in one place.",
+      "subtitleCompany": "{{company}}'s HR tools, all in one place.",
+      "defaultTitle": "Welcome",
+      "loginPrompt": "Log in to access your company's HR portal."
     },
     "features": {
       "cvAnalysis": {
-        "title": "AI CV Analysis",
-        "description": "Intelligent resume screening with detailed compatibility scoring and automated candidate evaluation.",
+        "title": "AI Recruitment Pipeline",
+        "description": "AI-scored candidates, job postings, and a full applicant pipeline — from first CV to final offer.",
         "badge": "Smart Matching"
       },
       "wellness": {
         "title": "Workplace Wellness",
-        "description": "Anonymous employee happiness assessment based on the scientific PERMA-W model for better workplace culture.",
-        "badge": "Anonymous & Secure"
+        "description": "Anonymous employee happiness check-ins based on the PERMA-W model, so you can track team wellbeing over time.",
+        "badge": "Anonymous & Confidential"
       },
       "teamManagement": {
-        "title": "HR Team powered",
-        "description": "Streamlined hiring process with position management, applicant tracking, candidates database AI analyze and detailed analytics dashboard.",
-        "badge": "Full Pipeline"
+        "title": "Payroll & Time Tracking",
+        "description": "Run payroll, track time and attendance, and manage absences without spreadsheets — on Momentum and Infinity plans.",
+        "badge": "Momentum & Infinity"
       }
     },
     "cta": {
@@ -42,6 +58,49 @@
         "footer": "By accepting, you acknowledge that this is a demonstration system"
       }
     }
+  },
+  "pricing": {
+    "eyebrow": "Pricing",
+    "title": "Plans for every stage of hiring",
+    "subtitle": "Start free to try HRInno. Upgrade when you're ready to run real payroll, time & attendance, and absences for your team — or unlock performance management too.",
+    "perMonth": "/month",
+    "currentPlanLabel": "Includes",
+    "free": {
+      "name": "Free",
+      "price": "0 Ft",
+      "tagline": "Try the platform before you commit",
+      "cta": "Start free"
+    },
+    "momentum": {
+      "name": "Momentum",
+      "price": "20 000 Ft",
+      "tagline": "Run real HR operations",
+      "cta": "Choose Momentum",
+      "badge": "Most popular"
+    },
+    "infinity": {
+      "name": "Infinity",
+      "price": "45 000 Ft",
+      "tagline": "Everything, at scale",
+      "cta": "Choose Infinity",
+      "contactNote": "More than 100 employees?",
+      "contactLink": "Contact us for a custom quote."
+    },
+    "features": {
+      "positions": "Up to {{count}} open job positions",
+      "certificates": "Up to {{count}} medical certificate uploads / month",
+      "credits": "{{count}} AI credits included",
+      "wellbeingIncluded": "AI wellbeing chatbot included",
+      "wellbeingNotIncluded": "AI wellbeing chatbot not included",
+      "hrOpsIncluded": "Payroll, time & attendance, and absences for up to {{count}} employees",
+      "hrOpsLocked": "Payroll, time & attendance, and absences — preview only, not for real HR operations",
+      "performanceIncluded": "Performance management for up to {{count}} employees",
+      "performanceLocked": "Performance management — preview only",
+      "performanceNotIncluded": "Performance management not included"
+    },
+    "dataNote": "Canceling or downgrading never deletes your existing data — you keep full access to everything you already have. Only creating new items above your new plan's limit is paused.",
+    "onboardingNote": "Payroll, time & attendance, absences, performance management, the AI wellbeing chatbot, and medical certificate uploads all require your plan to include them (see plan details above) and your company's onboarding call to be complete — both conditions apply regardless of plan. New self-serve companies can start posting jobs and using the Job Assistant immediately; these other modules unlock once you're on a plan that includes them and your setup call with our team is done.",
+    "priceNote": "Prices shown in Hungarian Forint (HUF), billed monthly."
   },
   "contactForm": {
     "header": {
@@ -86,10 +145,8 @@
       "companyName": "Company name is required",
       "gdprConsent": "GDPR consent is required"
     }
-  }
-
-
-  ,"feedback": {
+  },
+  "feedback": {
     "header": {
       "title": "How was your demo experience?",
       "subtitle": "Your feedback helps us improve our platform and better serve our users."
@@ -122,10 +179,8 @@
       "subtitle": "Your feedback has been submitted successfully. We appreciate your time and input!",
       "contactUs": "Contact Us"
     }
-  }
-
- 
- , "header": {
+  },
+  "header": {
     "yourPositions": "Your Available Positions",
     "availablePositions": "Available Positions",
     "createPosition": "Create Position",
@@ -145,6 +200,7 @@
     "accountManagement": "Account Management",
     "manageSubscription": "Manage Subscription",
     "manageUsers": "Manage Users",
+    "userGuide": "User Guide",
     "supportTickets": "Support Tickets",
     "openTimeClock": "Open Time Clock",
     "expired": "EXPIRED",
@@ -153,12 +209,11 @@
     "logout": "Logout",
     "login": "Login",
     "demoProfilesHint": "Click here for different profiles",
-     "manageContacts": "Manage Contacts"
-  }
-
-
-
-  ,"positions": {
+    "manageContacts": "Manage Contacts",
+    "pricing": "Pricing",
+    "payroll": "Payroll"
+  },
+  "positions": {
     "availablePositions": "Available Positions",
     "positionsAvailable": "positions available",
     "searchPlaceholder": "Search positions...",
@@ -178,10 +233,8 @@
     "loading": "Loading positions...",
     "error": "Error",
     "errorLoading": "Error loading positions"
-  }
-
-
-,  "analytics": {
+  },
+  "analytics": {
     "header": {
       "title": "Position Analytics"
     },
@@ -248,9 +301,7 @@
         "percentage": "Percentage"
       }
     }
-  }
-
-, 
+  },
   "newPosition": {
     "modal": {
       "title": "Confirm Analysis",
@@ -274,12 +325,37 @@
     "form": {
       "positionName": "Position Name",
       "positionNamePlaceholder": "e.g. Senior Software Developer",
-      "manager": "Manager",
       "positionDescription": "Position Description (for display)",
       "positionDescriptionPlaceholder": "Brief description that will be shown to candidates...",
       "positionDescriptionDetailed": "Position Description Detailed (For AI analyse)",
       "positionDescriptionDetailedPlaceholder": "Detailed requirements, skills, and qualifications for AI matching...",
-      "startingDate": "Starting Date"
+      "startingDate": "Starting Date",
+      "manager": "Who will be the Manager?",
+      "locationTitle": "Location & Work Type",
+      "location": "Location",
+      "locationPlaceholder": "e.g., Budapest, Hungary",
+      "locationType": "Work Location Type",
+      "locationTypes": {
+        "onsite": "On-site",
+        "hybrid": "Hybrid",
+        "remote": "Remote"
+      },
+      "employmentType": "Employment Type",
+      "selectEmploymentType": "Select type...",
+      "employmentTypes": {
+        "fullTime": "Full-time",
+        "partTime": "Part-time",
+        "contract": "Contract",
+        "internship": "Internship",
+        "temporary": "Temporary"
+      },
+      "salaryRange": "Salary Range",
+      "optional": "optional",
+      "showPublicly": "Show publicly",
+      "min": "Min",
+      "max": "Max",
+      "currency": "Currency",
+      "applicationDeadline": "Application Deadline"
     },
     "buttons": {
       "createPosition": "Create Position",
@@ -287,7 +363,12 @@
     },
     "loading": {
       "userInfo": "Loading user info...",
-      "checkingLimits": "Checking position limits..."
+      "checkingLimits": "Checking position limits...",
+      "debug": "Debug: Session:",
+      "yes": "Yes",
+      "no": "No",
+      "none": "None",
+      "access": "Access:"
     },
     "limitReached": {
       "title": "Position Limit Reached",
@@ -295,23 +376,25 @@
       "upgradeButton": "Upgrade Your Plan"
     },
     "messages": {
-      "selectManager": "Please select a manager before creating the position.",
       "errorCreating": "Error creating position",
       "successCreated": "New position successfully created",
       "unexpectedError": "Unexpected error:",
       "errorFetchingCount": "Could not fetch candidate count. Please try again.",
       "noCandidates": "No candidates found in your database. Please add candidates first.",
       "unexpectedErrorRetry": "Unexpected error. Please try again.",
-      "analysisComplete": "Analysis completed:",
+      "analysisComplete": "Analyse completed:",
       "candidatesCorresponding": "candidates are corresponding",
       "serverError": "Unexpected server error during analysis",
-      "createdRunLater": "Position created successfully. You can run the analysis later."
+      "createdRunLater": "Position created successfully. You can run the analysis later.",
+      "aiGenerationFailed": "Failed to generate descriptions. Please try again.",
+      "aiGenerationSuccess": "✨ Descriptions generated successfully! Review them below and make any necessary adjustments.",
+      "positionNameRequired": "Please enter a position name before generating descriptions."
     },
     "analysis": {
       "title": "Candidate Analysis",
       "loading": "Loading...",
-      "running": "Analysis running...",
-      "launchButton": "Launch analysis on the database"
+      "running": "Analyse running...",
+      "launchButton": "Launch analyse on the database"
     },
     "results": {
       "title": "Analysis Results",
@@ -326,11 +409,44 @@
       "errorLoading": "Error loading users. Please contact your admin.",
       "noUsers": "No users found. Please contact your admin.",
       "noUsersFound": "No users found"
+    },
+    "aiSection": {
+      "title": "AI-Powered Description Generator",
+      "description": "Let AI create professional job descriptions for you. Provide a rough draft and get both a marketing version for ads and a detailed version for candidate analysis.",
+      "generateButton": "Generate with AI ✨"
+    },
+    "aiModal": {
+      "title": "Generate Position Descriptions with AI",
+      "instructions": "How it works:",
+      "instruction1": "Describe the position in your own words (key responsibilities, requirements, team)",
+      "instruction2": "AI will create a marketing version (for job ads) and a detailed version (for CV analysis)",
+      "instruction3": "Review and edit the generated descriptions before saving",
+      "generatingFor": "Generating for:",
+      "roughDraftLabel": "Your Draft Description",
+      "roughDraftPlaceholder": "Example: We need a senior frontend developer who knows React and TypeScript. They'll work on our main product, collaborate with designers, and mentor junior devs. Looking for someone with 5+ years experience who can lead technical decisions...",
+      "characters": "characters",
+      "minLengthError": "Please write at least 20 characters",
+      "creditWarning": "This will consume 1 AI credit from your account",
+      "generating": "Generating...",
+      "generateButton": "Generate Descriptions",
+      "cancel": "Cancel"
     }
-  }
-
-,
+  },
   "cvAnalyse": {
+    "badges": {
+      "location": "Location",
+      "remote": "Remote",
+      "hybrid": "Hybrid",
+      "onsite": "On-site",
+      "fulltime": "Full-time",
+      "parttime": "Part-time",
+      "contract": "Contract",
+      "internship": "Internship",
+      "temporary": "Temporary",
+      "salary": "Salary",
+      "deadline": "Apply within",
+      "deadlineToday": "Last day to apply!"
+    },
     "header": {
       "title": "AI CV Analysis",
       "positionAt": "at"
@@ -366,7 +482,7 @@
       "gdprLinkText": "GDPR policy",
       "gdprPost": "",
       "success": "Analysis completed successfully! Your CV has been processed and saved.",
-      "aiConsent": "I agree that my CV will be analyzed by an artificial intelligence model to generate insights and feedback.",
+      "aiConsent": "I agree that my CV will be analyzed by a third-party AI service to generate insights and feedback.",
       "error": {
         "title": "Upload Error"
       },
@@ -377,11 +493,8 @@
       },
       "unableToRead": "Unfortunately, we are not able to read your CV. Can you try to upload a new one?",
       "generic": "An error occurred while processing your request."
-
-   
     }
-  }
-,
+  },
   "app": {
     "title": "Workplace Well-Being Assessment",
     "subtitle": "for {{companyName}}",
@@ -389,6 +502,16 @@
     "startButton": "Start the Assessment",
     "noPersonalData": "No personal data is collected • Only anonymous aggregated results",
     "resultsIncluded": "• Results will be included in {{companyName}}'s wellness insights",
+    "upgradeRequired": {
+      "title": "Not available on your plan",
+      "message": "This wellbeing assessment isn't included in your company's current plan.",
+      "messageWithCompany": "This wellbeing assessment isn't included in {{companyName}}'s current plan."
+    },
+    "onboardingRequired": {
+      "title": "Available after your onboarding call",
+      "message": "The AI wellbeing chatbot unlocks once your company's onboarding call is complete.",
+      "cta": "Contact us"
+    },
     "loading": "Loading assessment...",
     "header": "Happy Check 😊",
     "inputPlaceholder": "Type your response...",
@@ -440,8 +563,7 @@
     "newAssessment": "Start a New Assessment",
     "backTo": "Back to {{companyName}}",
     "backHome": "Back to Home"
-  }
-,
+  },
   "dashboard": {
     "title": "HR Wellbeing Dashboard",
     "subtitle": "Anonymous workplace happiness analytics",
@@ -449,37 +571,31 @@
     "error": "Error",
     "retry": "Retry",
     "refresh": "Refresh",
-    
     "auth": {
       "required": "Authentication Required",
       "description": "You must be logged in to access the HR dashboard.",
       "login": "Log In"
     },
-    
     "errors": {
       "notAuthenticated": "Not authenticated - please log in again",
       "accessDenied": "Access denied - no company associated with your account",
       "loadingData": "Error loading data",
       "unknown": "Unknown error"
     },
-    
     "levels": {
       "excellent": "Excellent",
       "good": "Good",
       "needsImprovement": "Needs Improvement"
     },
-    
     "period": {
       "days": "{{count}} days"
     },
-    
     "metrics": {
       "avgScore": "Average Score",
       "participations": "Participations",
       "strongestArea": "Strongest Area",
       "improvementArea": "Area for Improvement"
     },
-    
     "perma": {
       "positive": "Positive Emotions",
       "engagement": "Engagement",
@@ -488,7 +604,6 @@
       "accomplishment": "Accomplishment",
       "workLifeBalance": "Work-Life Balance"
     },
-    
     "recommendations": {
       "positive": "Organize team events, celebrate successes, improve recognition",
       "engagement": "Offer challenging projects, skill development, increased autonomy",
@@ -497,18 +612,15 @@
       "accomplishment": "Clear goals, regular feedback, growth opportunities",
       "workLifeBalance": "Flexible hours, remote work, disconnection policies"
     },
-    
     "charts": {
       "permaAnalysis": "PERMA-W Analysis",
       "distribution": "Domain Distribution",
       "comparison": "Detailed Comparison",
       "score": "Score"
     },
-    
     "actions": {
       "title": "Recommended Actions"
     },
-    
     "footer": {
       "privacy": "Privacy",
       "privacyText": "All data is fully anonymized. No personal information is stored or displayed.",
@@ -517,9 +629,7 @@
       "export": "Export",
       "exportTodo": "Export functionality to be implemented"
     }
-  }
-,
-
+  },
   "interviewList": {
     "loading": "Loading...",
     "noInterviews": "No interviews yet",
@@ -619,7 +729,8 @@
       "edit": "Edit",
       "save": "Save",
       "saving": "Saving...",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "clearSelection": "Clear selection"
     },
     "column": {
       "unassigned": "Unassigned",
@@ -631,7 +742,11 @@
       "id": "ID",
       "viewCV": "CV",
       "notScored": "Not scored",
-      "new": "New"
+      "new": "New",
+      "viewInterviewSummary": "View interview summary",
+      "interviewSummary": "Interview Summary",
+      "cvScore": "CV Score",
+      "aiInterview": "AI Interview"
     },
     "modal": {
       "candidateInfo": "Candidate Information",
@@ -650,15 +765,16 @@
       "aiAnalysis": "AI Analysis",
       "noAiAnalysis": "No AI analysis available",
       "nextStep": "Next Step",
-      "interviews": "Interviews"
+      "interviews": "Interviews",
+      "aiInterview": "AI Interview",
+      "interviewSummary": "Interview Summary"
     },
     "errors": {
       "updateStepError": "Error updating step",
       "updateCommentError": "Error updating comment",
       "fetchDataError": "Error fetching data"
     }
-  }
-,
+  },
   "medicalCertificates": {
     "title": "Medical Certificates",
     "loading": "Loading certificates...",
@@ -706,8 +822,7 @@
       "userWithoutCompany": "User without company_id",
       "loadCertificates": "Error loading certificates"
     }
-  }
-,
+  },
   "certificateDownload": {
     "title": "Download Medical Certificates",
     "loading": "Loading certificates...",
@@ -748,8 +863,7 @@
     "alerts": {
       "noResults": "No certificate found for the selected dates."
     }
-  }
-,
+  },
   "uploadCertificate": {
     "loading": "Checking permissions...",
     "error": {
@@ -760,7 +874,6 @@
       "title": "Plan Limit Reached",
       "message": "Your company's plan limit has been reached. To continue, please reach out to your company administrator."
     },
-    
     "header": {
       "title": "Upload Medical Certificate",
       "subtitle": "Upload your medical certificate for automatic processing"
@@ -775,7 +888,8 @@
       "dropzoneEmpty": "Click here to select your file",
       "dropzoneHelp": "PDF or Image • Maximum 1MB",
       "uploadButton": "Upload & Process",
-      "processing": "Processing..."
+      "processing": "Processing...",
+      "aiConsent": "🤖 I agree that this document will be processed using AI technology — including third-party OCR and AI analysis services — to automatically extract information."
     },
     "results": {
       "titleSuccess": "Extracted Certificate Details",
@@ -808,8 +922,7 @@
       "uploadError": "Unknown error occurred",
       "saveError": "Unknown error occurred while saving"
     }
-  }
-,
+  },
   "calendarLeaveModal": {
     "title": "Quick Leave Request",
     "fields": {
@@ -840,8 +953,7 @@
       "notificationError": "Error sending leave request notification:",
       "noManager": "No manager found for user, skipping notification"
     }
-  }
-,
+  },
   "calendarLegend": {
     "title": "Legend",
     "myView": {
@@ -863,8 +975,7 @@
       "weekend": "Weekend",
       "hoverHint": "Hover over days to see team member names"
     }
-  }
-,
+  },
   "calendarDay": {
     "holidayIndicator": "H",
     "tooltip": {
@@ -873,15 +984,13 @@
       "statusPending": "⏳ Pending",
       "statusApproved": "✓ Approved"
     }
-  }
-,
+  },
   "managerHeatmapCell": {
     "tooltip": {
       "absent": "{{count}} of {{total}} absent ({{percentage}}%)",
       "pending": "(Pending)"
     }
-  }
-,
+  },
   "yearCalendarGrid": {
     "months": {
       "january": "January",
@@ -909,8 +1018,7 @@
     "defaults": {
       "unknownLeaveType": "Unknown"
     }
-  }
-,
+  },
   "approvalModal": {
     "titles": {
       "approve": "Approve Request",
@@ -932,8 +1040,7 @@
       "approve": "Approve Request",
       "reject": "Reject Request"
     }
-  }
-,
+  },
   "leaveBalances": {
     "title": "Leave Balances ({{year}})",
     "noBalances": "No leave balances found",
@@ -944,8 +1051,7 @@
       "remaining": "Remaining:",
       "days": "days"
     }
-  }
-,
+  },
   "pendingApprovals": {
     "title": "Pending Approvals",
     "noApprovals": "No pending approvals",
@@ -971,8 +1077,7 @@
       "notificationFailed": "Notification failed:",
       "reviewError": "Error in review with notification:"
     }
-  }
-,
+  },
   "recentRequests": {
     "title": "Recent Requests",
     "empty": {
@@ -992,8 +1097,7 @@
     "buttons": {
       "uploadCertificate": "Upload Certificate"
     }
-  }
-,
+  },
   "requestLeaveModal": {
     "title": "Request Leave",
     "fields": {
@@ -1009,7 +1113,7 @@
       "title": "Medical Certificate (Optional)",
       "selectFile": "Click to select certificate",
       "fileHelp": "PDF or Image • Max 1MB",
-      "aiConsent":"🤖 I agree that my medical certificate will be processed using AI technology for automated data extraction and validation.",
+      "aiConsent": "🤖 I agree that my medical certificate will be processed using AI technology — including third-party OCR and AI analysis services — for automated data extraction and validation.",
       "processButton": "Process Certificate",
       "processing": "Processing...",
       "confirmButton": "Confirm Certificate",
@@ -1052,15 +1156,12 @@
       "endDateBeforeStart": "End date must be on or after start date",
       "fileRequired": "Please upload a medical certificate file"
     }
-  }
-,
+  },
   "demoTimer": {
     "expired": "Demo Expired - Contact us to continue",
     "active": "Demonstration Mode - Remaining time: {{time}}",
     "autoCloseWarning": "The application will close automatically at the end of the timer"
-  }
-,
- 
+  },
   "loginModal": {
     "title": "Login",
     "subtitle": {
@@ -1092,17 +1193,13 @@
     },
     "resetTitle": "Reset password",
     "resetDescription": "Enter your email and we’ll send you a password reset link."
-  }
-
-
-,
+  },
   "menuItem": {
     "tooltips": {
       "demoExpired": "Demo expired - Contact us to continue",
       "notAvailable": "Not available in your forfait"
     }
-  }
-,
+  },
   "addUserModal": {
     "header": {
       "title": "Add New User"
@@ -1161,8 +1258,7 @@
       "failedToCreate": "Failed to create user",
       "unexpectedError": "An unexpected error occurred"
     }
-  }
-,
+  },
   "goalDetailPage": {
     "loading": {
       "message": "Loading goal details..."
@@ -1222,8 +1318,7 @@
       "deleteConfirm": "Are you sure you want to delete this goal? This action cannot be undone.",
       "error": "Error: {{message}}"
     }
-  }
-,
+  },
   "newGoalPage": {
     "header": {
       "backButton": "Back to Dashboard",
@@ -1262,8 +1357,7 @@
       "createSuccess": "Goal created and sent for manager approval!",
       "error": "Error: {{message}}"
     }
-  }
-,
+  },
   "weeklyPulsePage": {
     "loading": {
       "message": "Loading pulse check..."
@@ -1310,8 +1404,7 @@
       "submitFailed": "Some updates failed. Please try again.",
       "error": "Error: {{message}}"
     }
-  }
-,
+  },
   "managerDashboard": {
     "loading": {
       "message": "Loading team dashboard..."
@@ -1361,8 +1454,7 @@
       "approveButton": "Approve Goal",
       "viewDetailsButton": "View Details"
     }
-  }
-,
+  },
   "performanceDashboard": {
     "loading": {
       "message": "Loading your performance dashboard..."
@@ -1408,8 +1500,7 @@
         "separator": "•"
       }
     }
-  }
-,
+  },
   "timeClockPage": {
     "header": {
       "title": "Time Clock",
@@ -1468,14 +1559,12 @@
     "error": {
       "title": "Error"
     }
-  }
-,
+  },
   "managerTimeClockPage": {
     "loading": "Loading...",
     "loginRequired": "Please log in to view this page.",
     "defaultManagerName": "Manager"
-  }
-,
+  },
   "managerTimeClockDashboard": {
     "header": {
       "title": "Team Time Clock",
@@ -1531,8 +1620,7 @@
       "updateFailed": "Failed to update entry",
       "unexpectedError": "An unexpected error occurred"
     }
-  }
-,
+  },
   "timeClockModal": {
     "header": {
       "title": "Time Clock"
@@ -1564,8 +1652,7 @@
       "clockInFailed": "Failed to clock in",
       "clockOutFailed": "Failed to clock out"
     }
-  }
-,
+  },
   "confirmAnalysisModal": {
     "header": {
       "title": "Confirm Analysis"
@@ -1591,8 +1678,7 @@
       "createWithout": "Create Position Without Analysis",
       "cancel": "Cancel"
     }
-  }
-,
+  },
   "absenceManagement": {
     "loading": {
       "message": "Loading absence data..."
@@ -1619,8 +1705,7 @@
       "certificateLinkFailed": "Certificate uploaded but failed to link to request",
       "unexpectedError": "An unexpected error occurred"
     }
-  }
-,
+  },
   "certificateStatusBadge": {
     "noCertificate": "No Certificate",
     "certificateConfirmed": "Certificate Confirmed",
@@ -1630,8 +1715,7 @@
   "dateMismatchAlert": {
     "title": "Date Alignment Issue",
     "description": "Certificate dates ({{certificateStart}} to {{certificateEnd}}) don't match leave request dates ({{leaveStart}} to {{leaveEnd}})."
-  }
-,
+  },
   "emailService": {
     "cancellation": {
       "subject": "Interview Cancelled - {{positionTitle}}",
@@ -1657,9 +1741,8 @@
     "from": {
       "interviews": "HRInno Interviews"
     }
-  }
-,
-"emailTemplates": {
+  },
+  "emailTemplates": {
     "candidate": {
       "title": "Interview Invitation",
       "greeting": "Dear {{candidateName}},",
@@ -1686,8 +1769,7 @@
       "goodLuck": "Good luck with the interview!",
       "footer": "Sent via HRInno Interview Scheduler"
     }
-  }
-,
+  },
   "notifications": {
     "header": {
       "title": "Notifications",
@@ -1728,16 +1810,14 @@
       "title": "Notification",
       "message": "You have a new notification"
     }
-  }
-,
+  },
   "statsPage": {
     "error": {
       "missingPositionId": "Position identifier is missing.",
       "loadingError": "Error loading the statistics."
     },
     "noCandidates": "No candidates for this position."
-  }
-,
+  },
   "subscription": {
     "header": {
       "title": "Subscription Management",
@@ -1761,7 +1841,8 @@
       "companyNotAvailable": "Company information not available.",
       "planUnavailable": "This plan is temporarily unavailable due to pricing issues.",
       "unableCheckout": "Unable to start checkout",
-      "unexpectedCheckout": "Unexpected error starting checkout"},
+      "unexpectedCheckout": "Unexpected error starting checkout"
+    },
     "messages": {
       "freePlan": "This is a free plan. No subscription needed.",
       "creditsAdded": "AI credits added successfully!",
@@ -1827,8 +1908,7 @@
       "packDescription": "Perfect for generating extra results or insights.",
       "buyButton": "Buy {{count}} Credits"
     }
-  }
-,
+  },
   "companyUsers": {
     "header": {
       "title": "Company Users",
@@ -1888,9 +1968,7 @@
       "updating": "Updating...",
       "noManagers": "No managers found"
     }
-  }
-  ,
- 
+  },
   "ticketDetail": {
     "loading": "Loading ticket...",
     "errors": {
@@ -1955,10 +2033,7 @@
       "updating": "Updating...",
       "cancel": "Cancel"
     }
-  }
-
-,
-
+  },
   "createTicket": {
     "common": {
       "user": "User"
@@ -2008,8 +2083,7 @@
       "high": "High",
       "urgent": "Urgent"
     }
-  }
-,
+  },
   "ticketsPage": {
     "loading": "Loading tickets...",
     "errors": {
@@ -2076,157 +2150,154 @@
       "messages": "{{count}} message",
       "files": "{{count}} file"
     }
-  }
-
-,
-"footer": {
-  "operatedBy": "Operated by Saussez Grégory, Budapest, Hungary",
-  "privacyLink": "Privacy Policy",
-  "termsLink": "Terms of Use",
-  "cookiesLink": "Cookie Policy",
-  "impressumLink": "Impressum",
-  "contact": "For any privacy inquiries, contact",
-  "aiDisclaimer": "AI features are for demonstration purposes only and should not be used for real HR decisions."
-},
-
-
-"privacyDemo": {
-  "title": "Privacy Notice (Demo Version)",
-  "intro": "This demo application is operated by Saussez Grégory (Budapest, Hungary). The purpose of the demo is to test InnoHR’s features and collect feedback. No commercial activity is conducted, and the service is free of charge.",
-  "sections": {
-    "dataCollected": {
-      "title": "Data Collected",
-      "items": {
-        "0": "Information you voluntarily provide (e.g. name, email, feedback, or test data). Please avoid entering any real or sensitive personal information.",
-        "1": "Technical data (such as browser type, IP address, and approximate geographic region) used for performance and security analysis."
-      }
-    },
-    "purpose": {
-      "title": "Purpose of Data Processing",
-      "text": "The data is used solely to evaluate the usability of the demo, ensure system security, and improve future development of InnoHR."
-    },
-    "storage": {
-      "title": "Data Storage and Retention",
-      "text": "All demo data is automatically deleted every night as part of a scheduled cleanup process. Only minimal technical logs may be stored for up to 90 days for security and debugging purposes."
-    },
-    "aiProcessing": {
-      "title": "AI Processing",
-      "text": "Some demo features use AI-generated responses (via OpenRouter or OpenAI APIs). These responses are for demonstration purposes only and must not be used for decision-making or employment assessments."
-    },
-    "thirdParty": {
-      "title": "Third-Party Services",
-      "items": {
-        "supabase": {
-          "name": "Supabase (BaaS Platform)",
-          "desc": "Purpose: Database hosting and authentication. Headquarters: USA (using EU-based servers).",
-          "linkHref": "https://supabase.com/privacy",
-          "linkText": "Privacy Policy",
-          "color": "border-blue-500"
-        },
-        "openai": {
-          "name": "OpenRouter / OpenAI (AI Service)",
-          "desc": "Purpose: AI-based analysis and responses. Headquarters: USA. Data is not stored long-term.",
-          "linkHref": "https://openai.com/privacy",
-          "linkText": "Privacy Policy",
-          "color": "border-green-500"
-        },
-        "vercel": {
-          "name": "Vercel (Hosting)",
-          "desc": "Purpose: Web hosting and content delivery. Headquarters: USA (EU region enabled).",
-          "linkHref": "https://vercel.com/legal/privacy-policy",
-          "linkText": "Privacy Policy",
-          "color": "border-purple-500"
-        },
-        "stripe": {
-          "name": "Stripe (Payment Service)",
-          "desc": "Purpose: Payment processing. Currently disabled in the demo version. Headquarters: USA (EU data storage).",
-          "linkHref": "https://stripe.com/privacy",
-          "linkText": "Privacy Policy",
-          "color": "border-orange-500"
-        },
-        "resend": {
-          "name": "Resend / Nodemailer (Email Delivery)",
-          "desc": "Purpose: Sending internal notification emails to the developer. No external marketing messages are sent.",
-          "linkHref": "https://resend.com/privacy",
-          "linkText": "Privacy Policy",
-          "color": "border-teal-500"
+  },
+  "footer": {
+    "operatedBy": "Operated by Saussez Grégory, Budapest, Hungary",
+    "privacyLink": "Privacy Policy",
+    "termsLink": "Terms of Use",
+    "cookiesLink": "Cookie Policy",
+    "impressumLink": "Impressum",
+    "contact": "For any privacy inquiries, contact",
+    "aiDisclaimer": "AI features are for demonstration purposes only and should not be used for real HR decisions."
+  },
+  "privacyDemo": {
+    "title": "Privacy Notice (Demo Version)",
+    "intro": "This demo application is operated by Saussez Grégory (Budapest, Hungary). The purpose of the demo is to test InnoHR’s features and collect feedback. No commercial activity is conducted, and the service is free of charge.",
+    "sections": {
+      "dataCollected": {
+        "title": "Data Collected",
+        "items": {
+          "0": "Information you voluntarily provide (e.g. name, email, feedback, or test data). Please avoid entering any real or sensitive personal information.",
+          "1": "Technical data (such as browser type, IP address, and approximate geographic region) used for performance and security analysis."
         }
       },
-      "noticeTitle": "Data Transfer:",
-      "noticeText": "Some data may be transferred outside the European Union. Standard Contractual Clauses (SCCs) are used to ensure adequate protection of personal data."
+      "purpose": {
+        "title": "Purpose of Data Processing",
+        "text": "The data is used solely to evaluate the usability of the demo, ensure system security, and improve future development of InnoHR."
+      },
+      "storage": {
+        "title": "Data Storage and Retention",
+        "text": "Uploaded CVs and medical certificates are automatically deleted 30 days after upload as part of a scheduled cleanup process. Only minimal technical logs may be stored for up to 90 days for security and debugging purposes."
+      },
+      "aiProcessing": {
+        "title": "AI Processing",
+        "text": "Some demo features use AI-generated responses (via OpenRouter or OpenAI APIs). These responses are for demonstration purposes only and must not be used for decision-making or employment assessments."
+      },
+      "thirdParty": {
+        "title": "Third-Party Services",
+        "items": {
+          "supabase": {
+            "name": "Supabase (BaaS Platform)",
+            "desc": "Purpose: Database hosting and authentication. Headquarters: USA (using EU-based servers).",
+            "linkHref": "https://supabase.com/privacy",
+            "linkText": "Privacy Policy",
+            "color": "border-blue-500"
+          },
+          "openai": {
+            "name": "OpenRouter / OpenAI (AI Service)",
+            "desc": "Purpose: AI-based analysis and responses. Headquarters: USA. Data is not stored long-term.",
+            "linkHref": "https://openai.com/privacy",
+            "linkText": "Privacy Policy",
+            "color": "border-green-500"
+          },
+          "ocrspace": {
+            "name": "OCR.Space (Document OCR Service)",
+            "desc": "Purpose: Text extraction from uploaded medical certificate images/PDFs. Headquarters: USA. Receives the full document, not just extracted text.",
+            "linkHref": "https://ocr.space/privacypolicy",
+            "linkText": "Privacy Policy",
+            "color": "border-yellow-500"
+          },
+          "vercel": {
+            "name": "Vercel (Hosting)",
+            "desc": "Purpose: Web hosting and content delivery. Headquarters: USA (EU region enabled).",
+            "linkHref": "https://vercel.com/legal/privacy-policy",
+            "linkText": "Privacy Policy",
+            "color": "border-purple-500"
+          },
+          "stripe": {
+            "name": "Stripe (Payment Service)",
+            "desc": "Purpose: Payment processing. Currently disabled in the demo version. Headquarters: USA (EU data storage).",
+            "linkHref": "https://stripe.com/privacy",
+            "linkText": "Privacy Policy",
+            "color": "border-orange-500"
+          },
+          "resend": {
+            "name": "Resend / Nodemailer (Email Delivery)",
+            "desc": "Purpose: Sending internal notification emails to the developer. No external marketing messages are sent.",
+            "linkHref": "https://resend.com/privacy",
+            "linkText": "Privacy Policy",
+            "color": "border-teal-500"
+          }
+        },
+        "noticeTitle": "Data Transfer:",
+        "noticeText": "Some data may be transferred outside the European Union. Standard Contractual Clauses (SCCs) are used to ensure adequate protection of personal data."
+      },
+      "dataController": {
+        "title": "Data Controller Contact Information",
+        "nameLabel": "Name:",
+        "emailLabel": "Email:",
+        "addressLabel": "Address:",
+        "dpoLabel": "Data Protection Officer:",
+        "name": "Saussez Grégory",
+        "email": "privacy@innohr.hu",
+        "address": "Budapest, Hungary",
+        "dpo": "privacy@innohr.hu"
+      },
+      "userRights": {
+        "title": "Your Rights",
+        "text": "You may request access to or deletion of your data at any time by contacting privacy@innohr.hu. You also have the right to lodge a complaint with the Hungarian National Authority for Data Protection and Freedom of Information (NAIH) at www.naih.hu."
+      },
+      "contact": {
+        "title": "Contact",
+        "text": "Operator: Saussez Grégory, Budapest, Hungary",
+        "email": "privacy@innohr.hu"
+      }
     },
-    "dataController": {
-      "title": "Data Controller Contact Information",
-      "nameLabel": "Name:",
-      "emailLabel": "Email:",
-      "addressLabel": "Address:",
-      "dpoLabel": "Data Protection Officer:",
-      "name": "Saussez Grégory",
-      "email": "privacy@innohr.hu",
-      "address": "Budapest, Hungary",
-      "dpo": "privacy@innohr.hu"
-    },
-    "userRights": {
-      "title": "Your Rights",
-      "text": "You may request access to or deletion of your data at any time by contacting privacy@innohr.hu. You also have the right to lodge a complaint with the Hungarian National Authority for Data Protection and Freedom of Information (NAIH) at www.naih.hu."
-    },
-    "contact": {
-      "title": "Contact",
-      "text": "Operator: Saussez Grégory, Budapest, Hungary",
-      "email": "privacy@innohr.hu"
-    }
+    "lastUpdated": "Last updated: November 2025"
   },
-  "lastUpdated": "Last updated: November 2025"
-}
-
-,
   "cookies": {
     "title": "Cookies & Data",
     "text": "We use cookies to improve the demo experience. No tracking or third-party marketing cookies are used.",
     "accept": "Accept",
     "reject": "Reject"
-  }
-  ,
-  
+  },
   "termsDemo": {
-  "title": "Demo Terms of Service",
-  "lastUpdated": "Last updated: {date}",
-  "sections": {
-    "demoFeatures": {
-      "title": "1. Demo Version Characteristics",
-      "content": "This is a free demo version for testing purposes. System features are limited, and data will be automatically deleted after 30 days."
-    },
-    "liability": {
-      "title": "2. Disclaimer of Liability",
-      "content": "The demo version is provided \"as is\" without any warranties. Do not use real personal data or sensitive information."
-    },
-    "dataProcessing": {
-      "title": "3. Data Processing",
-      "content": "Data provided during demo usage is used solely for system testing purposes.",
-      "detailsLink": "Details:",
-      "privacyPolicy": "Privacy Policy"
-    },
-    "aiContent": {
-      "title": "4. AI Content",
-      "content": "Content generated by AI does not constitute professional advice. Inaccuracies may occur."
-    },
-    "termination": {
-      "title": "5. Access Termination",
-      "content": "We reserve the right to immediately terminate demo access without notice."
-    },
-    "contact": {
-      "title": "6. Contact",
-      "content": "For questions:"
+    "title": "Demo Terms of Service",
+    "lastUpdated": "Last updated: {date}",
+    "sections": {
+      "demoFeatures": {
+        "title": "1. Demo Version Characteristics",
+        "content": "This is a free demo version for testing purposes. System features are limited, and data will be automatically deleted after 30 days."
+      },
+      "liability": {
+        "title": "2. Disclaimer of Liability",
+        "content": "The demo version is provided \"as is\" without any warranties. Do not use real personal data or sensitive information."
+      },
+      "dataProcessing": {
+        "title": "3. Data Processing",
+        "content": "Data provided during demo usage is used solely for system testing purposes.",
+        "detailsLink": "Details:",
+        "privacyPolicy": "Privacy Policy"
+      },
+      "aiContent": {
+        "title": "4. AI Content",
+        "content": "Content generated by AI does not constitute professional advice. Inaccuracies may occur."
+      },
+      "termination": {
+        "title": "5. Access Termination",
+        "content": "We reserve the right to immediately terminate demo access without notice."
+      },
+      "contact": {
+        "title": "6. Contact",
+        "content": "For questions:"
+      }
     }
-  }
-}
-,
+  },
   "demoBanner": {
-  "title": "Demo version:",
-  "text": "Do not use real personal data. All demo data is automatically deleted every night."
-}
-,
-"impressumDemo": {
+    "title": "Demo version:",
+    "text": "Do not use real personal data. Uploaded CVs and medical certificates are automatically deleted after 30 days."
+  },
+  "impressumDemo": {
     "title": "Impressum",
     "intro": "In accordance with EU law, the following legal information applies to this website and demo.",
     "fields": {
@@ -2246,115 +2317,557 @@
       }
     },
     "lastUpdated": "Last updated: October 2025"
-  }
-,
-"cookiesDemo": {
-  "title": "Cookie Notice (Demo Version)",
-  "intro": "This demo application uses minimal cookies and similar technologies to ensure its proper functioning and measure technical performance. No advertising or tracking cookies are used.",
-  "sections": {
-    "whatAreCookies": {
-      "title": "What Are Cookies?",
-      "text": "Cookies are small text files stored on your device when you visit a website. They help websites function properly, remember your preferences, and gather anonymous usage statistics."
-    },
-    "howWeUse": {
-      "title": "How We Use Cookies",
-      "text": "We only use essential cookies that are necessary for authentication and security (via Supabase) and technical analytics (via Vercel). These cookies do not identify you personally and are deleted automatically after your session ends."
-    },
-    "types": {
-      "title": "Types of Cookies Used",
-      "items": {
-        "necessary": "Necessary cookies – required for login, session management, and security.",
-        "analytics": "Analytics cookies – used to monitor technical performance through Vercel Analytics. No personal tracking.",
-        "functional": "Functional cookies – used temporarily to remember your demo language and consent preferences."
+  },
+  "cookiesDemo": {
+    "title": "Cookie Notice (Demo Version)",
+    "intro": "This demo application uses minimal cookies and similar technologies to ensure its proper functioning and measure technical performance. No advertising or tracking cookies are used.",
+    "sections": {
+      "whatAreCookies": {
+        "title": "What Are Cookies?",
+        "text": "Cookies are small text files stored on your device when you visit a website. They help websites function properly, remember your preferences, and gather anonymous usage statistics."
+      },
+      "howWeUse": {
+        "title": "How We Use Cookies",
+        "text": "We only use essential cookies that are necessary for authentication and security (via Supabase) and technical analytics (via Vercel). These cookies do not identify you personally and are deleted automatically after your session ends."
+      },
+      "types": {
+        "title": "Types of Cookies Used",
+        "items": {
+          "necessary": "Necessary cookies – required for login, session management, and security.",
+          "analytics": "Analytics cookies – used to monitor technical performance through Vercel Analytics. No personal tracking.",
+          "functional": "Functional cookies – used temporarily to remember your demo language and consent preferences."
+        }
+      },
+      "manage": {
+        "title": "Managing Cookies",
+        "text": "You can manage or delete cookies through your browser settings. Since this is a demo environment, disabling cookies may prevent some features (e.g., login or language settings) from functioning properly."
+      },
+      "moreInfo": {
+        "title": "More Information",
+        "text": "If you have any questions about this Cookie Notice, please contact us at"
       }
     },
-    "manage": {
-      "title": "Managing Cookies",
-      "text": "You can manage or delete cookies through your browser settings. Since this is a demo environment, disabling cookies may prevent some features (e.g., login or language settings) from functioning properly."
+    "lastUpdated": "Last updated: November 2025"
+  },
+  "resetPage": {
+    "title": "Reset Password",
+    "loading": "Loading...",
+    "fields": {
+      "newPasswordPlaceholder": "New password"
     },
-    "moreInfo": {
-      "title": "More Information",
-      "text": "If you have any questions about this Cookie Notice, please contact us at"
+    "buttons": {
+      "save": "Save new password",
+      "backToHome": "Back to Home",
+      "backToApp": "Back to Application"
+    },
+    "messages": {
+      "passwordUpdated": "Your password has been updated!",
+      "redirecting": "Redirecting..."
+    },
+    "errors": {
+      "missingPassword": "Please enter a new password.",
+      "passwordTooShort": "Password must be at least 6 characters",
+      "noSession": "No valid session found. Please request a new password reset link.",
+      "sessionError": "Session Error"
     }
   },
-  "lastUpdated": "Last updated: November 2025"
-}
-,
-
- "resetPage": {
-  "title": "Reset Password",
-  "loading": "Loading...",
-  "fields": {
-    "newPasswordPlaceholder": "New password"
+  "payroll": {
+    "title": "Payroll Management",
+    "subtitle": "Manage employee payroll data and generate exports",
+    "addEmployeePayroll": "Add Employee Payroll",
+    "loading": "Loading...",
+    "noUser": "No authenticated user found",
+    "fetchError": "Error fetching current user:",
+    "verifySession": "Please wait while we verify your session..."
   },
-  "buttons": {
-    "save": "Save new password",
-    "backToHome": "Back to Home",
-    "backToApp": "Back to Application"
+  "payrollModal": {
+    "title": {
+      "add": "Add Payroll Information",
+      "edit": "Edit Payroll Information"
+    },
+    "loading": "Loading payroll data...",
+    "errorTitle": "Error",
+    "errors": {
+      "fetchError": "Failed to fetch payroll data",
+      "loadError": "Failed to load payroll information",
+      "saveError": "Failed to save payroll data"
+    },
+    "validation": {
+      "positionRequired": "Position title is required",
+      "salaryRequired": "Valid salary amount is required",
+      "tajInvalid": "TAJ number must be exactly 9 digits",
+      "taxIdInvalid": "Tax ID must be exactly 10 characters"
+    },
+    "sections": {
+      "employment": {
+        "title": "Employment Details",
+        "fields": {
+          "employmentType": "Employment Type",
+          "contractType": "Contract Type",
+          "positionTitle": "Position Title",
+          "department": "Department",
+          "workLocation": "Work Location",
+          "contractStartDate": "Contract Start Date",
+          "weeklyHours": "Weekly Hours"
+        },
+        "options": {
+          "fullTime": "Full-time",
+          "partTime": "Part-time",
+          "contract": "Contract",
+          "intern": "Intern",
+          "permanent": "Permanent",
+          "fixedTerm": "Fixed-term",
+          "temporary": "Temporary"
+        },
+        "placeholders": {
+          "positionTitle": "e.g., Software Engineer",
+          "department": "e.g., Engineering",
+          "workLocation": "e.g., Budapest Office"
+        }
+      },
+      "compensation": {
+        "title": "Compensation",
+        "fields": {
+          "salaryAmount": "Salary Amount",
+          "currency": "Currency",
+          "salaryPeriod": "Salary Period",
+          "paymentMethod": "Payment Method"
+        },
+        "options": {
+          "hourly": "Hourly",
+          "monthly": "Monthly",
+          "annually": "Annually",
+          "bankTransfer": "Bank Transfer",
+          "check": "Check",
+          "cash": "Cash"
+        },
+        "placeholders": {
+          "salaryAmount": "e.g., 500000"
+        }
+      },
+      "banking": {
+        "title": "Banking Information",
+        "fields": {
+          "iban": "Bank Account (IBAN)",
+          "bankName": "Bank Name"
+        },
+        "placeholders": {
+          "iban": "e.g., HU42123456789012345678901234",
+          "bankName": "e.g., OTP Bank"
+        }
+      },
+      "hungarianTax": {
+        "title": "Hungarian Tax Information",
+        "fields": {
+          "tajNumber": "TAJ Number",
+          "taxId": "Tax ID (Adóazonosító jel)",
+          "taxBracket": "Tax Bracket",
+          "familyTaxAllowance": "Family Tax Allowance",
+          "pensionFund": "Pension Fund"
+        },
+        "options": {
+          "taxBracket1": "Bracket 1 (Standard)",
+          "taxBracket2": "Bracket 2 (Multiple Jobs)",
+          "government": "Government",
+          "private": "Private"
+        },
+        "placeholders": {
+          "tajNumber": "9 digits",
+          "taxId": "10 characters"
+        },
+        "hints": {
+          "tajNumber": "Social security number (9 digits)",
+          "taxId": "Personal tax identification (10 characters)",
+          "familyTaxAllowance": "Number of dependents"
+        },
+        "rates": {
+          "title": "Tax Rates (2024)",
+          "personalIncomeTax": "Personal Income Tax",
+          "employeeSocialContribution": "Employee Social Contribution",
+          "employerSocialContribution": "Employer Social Contribution"
+        }
+      }
+    },
+    "footer": {
+      "requiredFields": "* Required fields",
+      "buttons": {
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "create": "Create Payroll",
+        "saveChanges": "Save Changes"
+      }
+    }
   },
-  "messages": {
-    "passwordUpdated": "Your password has been updated!",
-    "redirecting": "Redirecting..."
+  "payrollExportModal": {
+    "title": "Export Payroll Data",
+    "advancedOptions": "Advanced Options",
+    "locale": "en-US",
+    "errors": {
+      "exportFailed": "Failed to export payroll data",
+      "genericError": "An error occurred"
+    },
+    "validation": {
+      "blockedTitle": "Payroll cannot be exported"
+    },
+    "sections": {
+      "period": {
+        "title": "Export Period",
+        "fields": {
+          "month": "Month",
+          "year": "Year"
+        }
+      },
+      "format": {
+        "title": "Export Format",
+        "options": {
+          "generic": {
+            "label": "Generic Format",
+            "description": "Human-readable format"
+          },
+          "kulcsSoft": {
+            "label": "Kulcs-Soft",
+            "description": "Kulcs payroll system"
+          },
+          "nexon": {
+            "label": "Nexon",
+            "description": "Nexon payroll system"
+          },
+          "sap": {
+            "label": "SAP HCM",
+            "description": "SAP SuccessFactors"
+          }
+        }
+      },
+      "filters": {
+        "title": "Filters (Optional)",
+        "fields": {
+          "department": "Department",
+          "includeTerminated": "Include terminated employees"
+        },
+        "placeholders": {
+          "department": "e.g., Engineering"
+        }
+      }
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "checking": "Checking payroll…",
+      "fixData": "Fix payroll data",
+      "exportPeriod": "Export your Payroll"
+    },
+    "summary": {
+      "exporting": "Payroll Exporting Month"
+    }
   },
-  "errors": {
-    "missingPassword": "Please enter a new password.",
-    "passwordTooShort": "Password must be at least 6 characters",
-    "noSession": "No valid session found. Please request a new password reset link.",
-    "sessionError": "Session Error"
-  }}
-,
+  "payrollForm": {
+    "title": {
+      "add": "Add New Payroll Data",
+      "edit": "Edit Payroll Data"
+    },
+    "errors": {
+      "saveFailed": "Failed to save payroll data",
+      "genericError": "An error occurred"
+    },
+    "sections": {
+      "employee": {
+        "fields": {
+          "selectEmployee": "Employee"
+        },
+        "placeholders": {
+          "selectEmployee": "Select an employee"
+        }
+      },
+      "employment": {
+        "title": "Employment Details",
+        "fields": {
+          "employmentType": "Employment Type",
+          "contractType": "Contract Type",
+          "contractStartDate": "Contract Start Date",
+          "contractEndDate": "Contract End Date",
+          "positionTitle": "Position Title",
+          "department": "Department",
+          "workLocation": "Work Location",
+          "weeklyHours": "Weekly Hours"
+        },
+        "options": {
+          "fullTime": "Full Time",
+          "partTime": "Part Time",
+          "contractor": "Contractor",
+          "intern": "Intern",
+          "temporary": "Temporary",
+          "permanent": "Permanent",
+          "fixedTerm": "Fixed Term",
+          "probation": "Probation"
+        },
+        "placeholders": {
+          "positionTitle": "e.g., Software Engineer",
+          "department": "e.g., Engineering",
+          "workLocation": "e.g., Budapest Office"
+        }
+      },
+      "compensation": {
+        "title": "Compensation",
+        "fields": {
+          "grossSalary": "Gross Salary",
+          "currency": "Currency",
+          "bankAccount": "Bank Account (IBAN)",
+          "bankName": "Bank Name"
+        },
+        "options": {
+          "huf": "HUF (Hungarian Forint)",
+          "eur": "EUR (Euro)",
+          "usd": "USD (US Dollar)"
+        },
+        "placeholders": {
+          "grossSalary": "e.g., 500000",
+          "bankAccount": "HU42XXXXXXXXXXXXXXXXXXXX",
+          "bankName": "e.g., OTP Bank"
+        }
+      },
+      "hungarianData": {
+        "title": "Hungarian Payroll Data",
+        "fields": {
+          "tajNumber": "TAJ Number (Social Security)",
+          "taxId": "Tax ID (Adóazonosító jel)",
+          "taxBracket": "Tax Bracket",
+          "familyTaxAllowance": "Family Tax Allowance (Children)",
+          "pensionFund": "Pension Fund",
+          "healthInsuranceNumber": "Health Insurance Number"
+        },
+        "options": {
+          "bracket1": "Bracket 1",
+          "bracket2": "Bracket 2",
+          "government": "Government",
+          "private": "Private"
+        },
+        "placeholders": {
+          "tajNumber": "123456789",
+          "taxId": "8012345678",
+          "familyTaxAllowance": "0",
+          "healthInsuranceNumber": "Enter insurance number"
+        },
+        "hints": {
+          "tajNumber": "9 digits",
+          "taxId": "10 digits",
+          "familyTaxAllowance": "Number of dependent children"
+        }
+      }
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "update": "Update",
+      "create": "Create"
+    }
+  },
+  "payrollList": {
+    "title": "Payroll Management",
+    "locale": "hu-HU",
+    "loading": "Loading payroll data...",
+    "errorTitle": "Error",
+    "errors": {
+      "fetchFailed": "Failed to fetch payroll data",
+      "genericError": "An error occurred",
+      "deleteFailed": "Failed to delete payroll record",
+      "deleteError": "Error deleting payroll record",
+      "unknown": "Unknown error"
+    },
+    "confirmations": {
+      "deactivate": "Are you sure you want to deactivate this payroll record?"
+    },
+    "buttons": {
+      "export": "Export to Excel"
+    },
+    "filters": {
+      "title": "Filters",
+      "country": "Country",
+      "allCountries": "All Countries",
+      "hungary": "Hungary",
+      "status": "Status",
+      "all": "All",
+      "active": "Active",
+      "inactive": "Inactive",
+      "department": "Department",
+      "departmentPlaceholder": "Filter by department"
+    },
+    "employmentTypes": {
+      "fullTime": "Full Time",
+      "partTime": "Part Time",
+      "contractor": "Contractor",
+      "intern": "Intern",
+      "temporary": "Temporary"
+    },
+    "table": {
+      "headers": {
+        "employee": "Employee",
+        "position": "Position",
+        "department": "Department",
+        "employmentType": "Employment Type",
+        "salary": "Salary",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "statusLabels": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "actions": {
+        "viewDetails": "View Details",
+        "quickEdit": "Quick Edit",
+        "deactivate": "Deactivate"
+      },
+      "noRecords": "No payroll records found"
+    },
+    "stats": {
+      "totalEmployees": "Total Employees",
+      "activeEmployees": "Active Employees",
+      "totalMonthlyPayroll": "Total Monthly Payroll"
+    }
+  },
+  "interview": {
+    "closing": "Thank you for this virtual interview! Our HR recruiter will carefully review your responses and contact you about potential next steps. We truly appreciate the time you've taken to share your experience with us. 🙏",
+    "cta": {
+      "title": "Virtual Interview Available",
+      "subtitle": "10 personalised questions • ~10 minutes",
+      "description": "Your profile looks great! You're invited to complete a short virtual interview tailored specifically to your background and this position. This is entirely optional, but gives you an extra opportunity to stand out.",
+      "feature1": "Personalised",
+      "feature2": "AI-powered",
+      "feature3": "Instant results",
+      "startButton": "Start Virtual Interview",
+      "optional": "Optional — you can skip this step"
+    },
+    "chat": {
+      "title": "Virtual Interview",
+      "completed": "Completed",
+      "welcome": "Hello{name}! Welcome to your virtual interview. I'll ask you 10 questions tailored to your profile and this position. Take your time with each answer — there are no right or wrong answers, just be yourself.",
+      "questionLabel": "Question",
+      "evaluating": "Evaluating your answers...",
+      "waitingQuestion": "Waiting for next question...",
+      "inputPlaceholder": "Type your answer... (Enter to send, Shift+Enter for new line)",
+      "hint": "Press Enter to send • Shift+Enter for new line",
+      "suggestionsLabel": "Choose an answer or write your own",
+      "writeOwnAnswer": "Write my own answer",
+      "backToSuggestions": "Back to suggestions",
+      "yourAnswer": "Your answer",
+      "sending": "Sending..."
+    }
+  },
+  "jobAssistant": {
+    "header": {
+      "title": "Job Application Assistant",
+      "subtitle": "Score your CV, optimize it, and ace your interview"
+    },
+    "steps": {
+      "upload": "Upload",
+      "score": "Initial Score",
+      "cv": "Improved CV",
+      "interview": "Interview",
+      "coaching": "Coaching"
+    },
+    "errors": {
+      "uploadCv": "Please upload your CV.",
+      "pasteJob": "Please paste the job description.",
+      "analysisFailed": "Analysis failed. Please try again.",
+      "improvementFailed": "CV improvement failed. Please try again.",
+      "interviewFailed": "Failed to generate interview questions. Please try again.",
+      "scoringFailed": "Scoring failed. Please try again.",
+      "reportFailed": "Failed to generate coaching report. Please try again.",
+      "somethingWrong": "Something went wrong"
+    },
+    "upload": {
+      "cvLabel": "Your CV (PDF)",
+      "dropHint": "Drop your CV here or",
+      "browse": "browse",
+      "pdfOnly": "PDF only",
+      "clickToChange": "Click to change",
+      "jobLabel": "Job Description",
+      "jobPlaceholder": "Paste the full job description here...",
+      "characters": "characters",
+      "analyzeButton": "Analyze My Application →",
+      "aiConsent": "I understand and accept that my CV will be processed by a third-party AI service for analysis purposes. No data is stored after the session ends."
+    },
+    "loading": {
+      "analyzing": "Analyzing your CV against the job description...",
+      "improving": "Rewriting and optimizing your CV...",
+      "generatingInterview": "Preparing your personalized interview questions...",
+      "generatingReport": "Generating your personalized coaching report..."
+    },
+    "initialScore": {
+      "title": "Initial CV Score",
+      "topStrengths": "Top Strengths",
+      "topGaps": "Top Gaps",
+      "optimizeButton": "Optimize My CV →",
+      "optimizeSubtitle": "Improve score + download DOCX",
+      "skipButton": "Skip to Interview →",
+      "skipSubtitle": "Already applied? Practice now"
+    },
+    "improvedCv": {
+      "title": "CV Optimization Results",
+      "before": "Before",
+      "after": "After",
+      "gain": "Gain",
+      "keyChanges": "Key Changes Made",
+      "downloadButton": "Download Optimized CV (.docx)",
+      "interviewButton": "Start Interview Training →"
+    },
+    "interview": {
+      "questionOf": "Question {current} of {total}",
+      "whatWeAssess": "What we assess:",
+      "answerPlaceholder": "Type your answer here... Take your time, as you would in a real interview.",
+      "submitButton": "Submit Answer",
+      "scoringButton": "Scoring...",
+      "showHint": "See Hint",
+      "hideHint": "Hide Hint",
+      "hintLabel": "💡 Suggested Answer (Inspiration Only)",
+      "strengthsLabel": "✓ Strengths",
+      "improveLabel": "↗ Improve",
+      "betterPhrasing": "Better phrasing:",
+      "suggestedAnswer": "Suggested answer:",
+      "nextQuestion": "Next Question →",
+      "getReport": "Get Coaching Report →",
+      "recordingPlaceholder": "Listening... speak your answer",
+      "recording": "Listening...",
+      "startRecording": "Answer by voice",
+      "stopRecording": "Stop recording",
+      "voiceUnsupportedTitle": "Voice input not available",
+"voiceUnsupportedText": "Your browser doesn't support voice input. Please use Chrome or Edge to use this feature, or type your answer below."
+    },
+    "coaching": {
+      "overallScore": "Overall Interview Score",
+      "performanceTitle": "Performance by Question Type",
+      "topStrengths": "Top Strengths",
+      "mustImprove": "Must Improve",
+      "coachingPlanTitle": "Your Personal Coaching Plan",
+      "priority": "{level} Priority",
+      "weeklyExercise": "This week's exercise:",
+      "reviewTitle": "Answer-by-Answer Review",
+      "yourAnswer": "Your answer:",
+      "suggestedAnswer": "Suggested answer:",
+      "restartButton": "Start New Application"
+    },
+    "questionTypes": {
+      "behavioral": "Behavioral",
+      "technical": "Technical",
+      "motivational": "Motivational",
+      "situational": "Situational"
+    }
+  },
   "notificationComponent": {
     "title": "Notifications",
-    "markAllRead": "Mark all as read",
+    "markAllRead": "Mark all read",
     "noNotifications": "No notifications yet",
-
     "ticket": {
       "newTicket": "New Ticket",
       "user": "User",
       "newMessage": "New Message",
       "someone": "Someone",
-      "replied": "replied to a ticket"
+      "replied": "replied"
     },
-
-    "leave": {
-      "created": "Leave Request",
-      "approved": "Leave Approved",
-      "rejected": "Leave Rejected"
-    },
-
-    "goal": {
-      "created": "New Goal",
-      "approved": "Goal Approved",
-      "redFlag": "Goal Needs Attention"
-    },
-
-    "pulse": {
-      "reminder": "Pulse Reminder"
-    },
-
-    "oneOnOne": {
-      "scheduled": "1-on-1 Scheduled"
-    },
-
-    "cvUploaded": {
-      "title": "New CV Uploaded",
-      "message": "New CV uploaded for {{role}}"
-    },
-
     "time": {
       "justNow": "Just now",
-      "minutesAgo": "{{count}} minute ago",
-      "minutesAgo_plural": "{{count}} minutes ago",
-      "hoursAgo": "{{count}} hour ago",
-      "hoursAgo_plural": "{{count}} hours ago",
-      "daysAgo": "{{count}} day ago",
-      "daysAgo_plural": "{{count}} days ago"
+      "minutesAgo": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago"
     }
   }
 }
-
-
-
-
-
-

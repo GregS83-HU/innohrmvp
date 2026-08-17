@@ -46,6 +46,8 @@ const HappinessCheckInner: React.FC = () => {
   const [personalizedAdvice, setPersonalizedAdvice] = useState<string[]>([]);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [companyName, setCompanyName] = useState<string>('');
+  const [featureUnavailable, setFeatureUnavailable] = useState(false);
+  const [featureUnavailableReason, setFeatureUnavailableReason] = useState<string | null>(null);
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -138,6 +140,7 @@ const HappinessCheckInner: React.FC = () => {
 
       const data = await response.json();
       if (response.ok) {
+        setFeatureUnavailable(false);
         setSessionToken(data.sessionToken);
 
         const welcomeText = companyName
@@ -158,6 +161,9 @@ const HappinessCheckInner: React.FC = () => {
         setTimeout(() => {
           setSessionStarted(true);
         }, 120);
+      } else if (data.code === 'UPGRADE_REQUIRED') {
+        setFeatureUnavailable(true);
+        setFeatureUnavailableReason(data.reason ?? null);
       } else {
         console.error('Session creation error:', data.error);
       }
@@ -509,14 +515,45 @@ const HappinessCheckInner: React.FC = () => {
               </div>
             </div>
 
-            <button onClick={createSession} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105">
-              {t('app.startButton')}
-            </button>
+            {featureUnavailable ? (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-left">
+                <h3 className="font-semibold text-yellow-800 mb-2">
+                  {featureUnavailableReason === 'onboarding_required'
+                    ? t('app.onboardingRequired.title')
+                    : t('app.upgradeRequired.title')}
+                </h3>
+                <p className="text-yellow-700 text-sm">
+                  {featureUnavailableReason === 'onboarding_required'
+                    ? t('app.onboardingRequired.message')
+                    : companyName
+                    ? t('app.upgradeRequired.messageWithCompany', { companyName })
+                    : t('app.upgradeRequired.message')}
+                </p>
+                {featureUnavailableReason === 'onboarding_required' && (() => {
+                  const slugMatch = pathname?.match(/^\/jobs\/([^/]+)/);
+                  const companySlug = slugMatch ? slugMatch[1] : null;
+                  return companySlug ? (
+                    <a
+                      href={`/jobs/${companySlug}/contact`}
+                      className="inline-block mt-3 text-sm font-medium text-yellow-800 underline hover:text-yellow-900"
+                    >
+                      {t('app.onboardingRequired.cta')}
+                    </a>
+                  ) : null;
+                })()}
+              </div>
+            ) : (
+              <>
+                <button onClick={createSession} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105">
+                  {t('app.startButton')}
+                </button>
 
-            <p className="text-xs text-gray-500 mt-4">
-              {t('app.noPersonalData')}
-              {companyName && ` ${t('app.resultsIncluded', { companyName })}`}
-            </p>
+                <p className="text-xs text-gray-500 mt-4">
+                  {t('app.noPersonalData')}
+                  {companyName && ` ${t('app.resultsIncluded', { companyName })}`}
+                </p>
+              </>
+            )}
           </div>
         </div>
       </div>

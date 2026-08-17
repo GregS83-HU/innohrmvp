@@ -29,6 +29,8 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [aiConsentAccepted, setAiConsentAccepted] = useState(false);
+  const [aiConsentDate, setAiConsentDate] = useState<string | null>(null);
   const [result, setResult] = useState<{
     employee_name?: string;
     absenceDateStart?: string;
@@ -61,6 +63,7 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
 
   const handleUpload = async () => {
     if (!file) return setError(t('uploadCertificate.alerts.selectFile'));
+    if (!aiConsentAccepted) return;
     setLoading(true);
     setError('');
     setResult(null);
@@ -125,6 +128,7 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
       formData.append('comment', comment || '');
       formData.append('file', file);
       formData.append('company_id', companyId);
+      formData.append('employee_ai_consent_date', aiConsentDate || '');
 
       const res = await fetch('/api/medical-certificates/confirm', {
         method: 'POST',
@@ -138,6 +142,8 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
       setResult(null);
       setFile(null);
       setComment('');
+      setAiConsentAccepted(false);
+      setAiConsentDate(null);
       setManualData({
         employee_name: '',
         absenceDateStart: '',
@@ -158,6 +164,8 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
     setComment('');
     setSuccessMessage('');
     setError('');
+    setAiConsentAccepted(false);
+    setAiConsentDate(null);
     setManualData({
       employee_name: '',
       absenceDateStart: '',
@@ -300,10 +308,27 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
                   </div>
                 </div>
 
+                {/* AI Consent Checkbox */}
+                <div className="flex items-start gap-2 bg-gray-50 rounded-lg p-3 sm:p-4">
+                  <input
+                    type="checkbox"
+                    id="cert-ai-consent"
+                    checked={aiConsentAccepted}
+                    onChange={(e) => {
+                      setAiConsentAccepted(e.target.checked);
+                      setAiConsentDate(e.target.checked ? new Date().toISOString() : null);
+                    }}
+                    className="mt-1"
+                  />
+                  <label htmlFor="cert-ai-consent" className="text-xs sm:text-sm text-gray-700 flex-1">
+                    {t('uploadCertificate.upload.aiConsent')}
+                  </label>
+                </div>
+
                 {/* Upload Button */}
                 <button
                   type="submit"
-                  disabled={!file || loading}
+                  disabled={!file || !aiConsentAccepted || loading}
                   className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   {loading ? (

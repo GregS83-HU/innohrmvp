@@ -2,6 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getPrompt, fillPromptVariables, PromptNotFoundError, PromptDatabaseError } from '../../../../../lib/prompts';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -190,33 +191,16 @@ async function analyzeResponseWithAI(
   try {
     const langInstruction = languageInstructions[language];
     
-    const prompt = `You are an experienced and empathetic workplace psychologist. Analyze this response to a question about professional well-being.
-
-${langInstruction}
-
-EVALUATED DIMENSION: ${dimension}
-QUESTION ASKED: "${questionText}"
-EMPLOYEE RESPONSE: "${response}"
-
-Give a score from 1 to 10, being kind but realistic, based on this scale:
-
-9-10: Excellent - Very fulfilled, positive, proactive in this dimension
-7-8: Good - Satisfactory with identifiable positive aspects
-5-6: Fair - Acceptable situation, some normal challenges
-3-4: Developing - Challenges exist but not alarming
-1-2: Difficult - Concerning situation needing attention
-
-KIND PRINCIPLES:
-- Value expressed efforts and positive intentions
-- Acknowledge that temporary challenges are normal at work
-- Self-reflection and honesty are positive signs
-- Do not penalize vulnerability or natural emotions
-- Consider the professional context as inherently improvable
-- Words like "fairly good", "okay", "acceptable" deserve 6-7/10
-- Absence of major issues = minimum 5-6/10
-- Long and thoughtful responses are valued
-
-Respond ONLY with a decimal number (e.g., 6.5):`;
+    // Fetch prompt from database
+    const promptTemplate = await getPrompt('happiness_response_scoring');
+    
+    // Fill in variables
+    const prompt = fillPromptVariables(promptTemplate, {
+      langInstruction,
+      dimension,
+      questionText,
+      response
+    });
 
     const aiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -250,6 +234,11 @@ Respond ONLY with a decimal number (e.g., 6.5):`;
     
   } catch (error) {
     console.error('AI scoring error:', error);
+    
+    // If prompt loading fails, use fallback scoring
+    if (error instanceof PromptNotFoundError || error instanceof PromptDatabaseError) {
+      console.error('Prompt unavailable, using fallback scoring:', error.message);
+    }
     
     const lowerResponse = response.toLowerCase();
     const positiveIndicators = ['good', 'well', 'happy', 'satisfied', 'motivated', 'pleasure', 'team', 'goals', 'progress', 'jó', 'boldog', 'elégedett'];
@@ -300,38 +289,37 @@ async function generatePersonalizedAdvice(
 
     const langInstruction = languageInstructions[language];
 
-    const prompt = `You are an expert and empathetic workplace well-being coach. 
+    // Prepare formatted scores text
+    const permaScoresText = Object.entries(permaScores)
+      .map(([dim, score]) => `- ${dim}: ${score}/10`)
+      .join('\n');
 
-${langInstruction}
+    const sortedScoresText = sortedScores
+      .map(([dim, score]) => `- ${dim}: ${score}/10`)
+      .join('\n');
 
-USER PROFILE:
-- Average score: ${avgScore.toFixed(1)}/10
-${Object.entries(permaScores).map(([dim, score]) => `- ${dim}: ${score}/10`).join('\n')}
+    // Determine tone guidance
+    let toneGuidance = '';
+    if (avgScore >= 7) {
+      toneGuidance = 'Encouraging and optimizing';
+    } else if (avgScore >= 5) {
+      toneGuidance = 'Supportive and constructive';
+    } else {
+      toneGuidance = 'Kind and reassuring';
+    }
 
-PRIORITY AREAS (lowest scores):
-${sortedScores.map(([dim, score]) => `- ${dim}: ${score}/10`).join('\n')}
-
-CONTEXT (sample responses): "${contextResponses.substring(0, 400)}..."
-
-TASK: Create 3 short, encouraging, actionable tips (max 4 lines each). The 3 proposed tips should be different from each other.
-
-TONE: ${avgScore >= 7 ? 'Encouraging and optimizing' : avgScore >= 5 ? 'Supportive and constructive' : 'Kind and reassuring'}
-
-RULES:
-✅ Casual and friendly tone
-✅ Practical and achievable tips
-✅ Focus on weak areas BUT stay positive
-✅ Max 4-5 lines per tip
-✅ Start with an appropriate emoji
-✅ Avoid medical/clinical terms
-✅ Highlight what already works
-
-EXACT FORMAT:
-1. [emoji] [short actionable tip]
-2. [emoji] [short actionable tip]
-3. [emoji] [short actionable tip]
-
-${langInstruction}. Respond ONLY with the 3 numbered tips.`;
+    // Fetch prompt from database
+    const promptTemplate = await getPrompt('happiness_personalized_advice');
+    
+    // Fill in variables
+    const prompt = fillPromptVariables(promptTemplate, {
+      langInstruction,
+      avgScore: avgScore.toFixed(1),
+      permaScoresText,
+      sortedScoresText,
+      contextResponses: contextResponses.substring(0, 400),
+      toneGuidance
+    });
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -388,6 +376,11 @@ ${langInstruction}. Respond ONLY with the 3 numbered tips.`;
 
   } catch (error) {
     console.error('Advice generation error:', error);
+    
+    // If prompt loading fails, provide fallback
+    if (error instanceof PromptNotFoundError || error instanceof PromptDatabaseError) {
+      console.error('Prompt unavailable, using fallback advice:', error.message);
+    }
     
     const avgScore = Object.values(permaScores).reduce((a, b) => a + b, 0) / Object.keys(permaScores).length;
     

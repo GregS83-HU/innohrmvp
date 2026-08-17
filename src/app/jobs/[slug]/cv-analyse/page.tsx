@@ -21,6 +21,15 @@ type PositionData = {
   position_description: string;
   position_description_detailed: string;
   company_id: number;
+  // NEW ENRICHMENT FIELDS
+  location?: string | null;
+  location_type?: string | null;
+  employment_type?: string | null;
+  salary_min?: number | null;
+  salary_max?: number | null;
+  salary_currency?: string | null;
+  salary_public?: boolean | null;
+  application_deadline?: string | null;
   company: {
     company_name: string;
     slug: string;
@@ -28,7 +37,7 @@ type PositionData = {
   } | null;
 };
 
-// Type pour la réponse brute de Supabase (peut être objet ou tableau)
+// Type pour la réponse brute de Supabase
 type SupabaseCompany = {
   company_name: string;
   slug: string;
@@ -41,6 +50,15 @@ type RawSupabaseResponse = {
   position_description: string;
   position_description_detailed: string;
   company_id: number;
+  // NEW ENRICHMENT FIELDS
+  location?: string | null;
+  location_type?: string | null;
+  employment_type?: string | null;
+  salary_min?: number | null;
+  salary_max?: number | null;
+  salary_currency?: string | null;
+  salary_public?: boolean | null;
+  application_deadline?: string | null;
   company: SupabaseCompany | SupabaseCompany[] | null;
 };
 
@@ -85,9 +103,7 @@ export async function generateMetadata({
 // Cached data fetching function
 async function fetchPositionData(positionId: string, companySlug: string): Promise<PositionData | null> {
   try {
-    //console.log('Fetching position data for:', { positionId, companySlug });
-
-    // Single query with join to get all needed data
+    // Single query with join to get all needed data INCLUDING NEW FIELDS
     const { data: position, error } = await supabase
       .from('openedpositions')
       .select(`
@@ -96,6 +112,14 @@ async function fetchPositionData(positionId: string, companySlug: string): Promi
         position_description,
         position_description_detailed,
         company_id,
+        location,
+        location_type,
+        employment_type,
+        salary_min,
+        salary_max,
+        salary_currency,
+        salary_public,
+        application_deadline,
         company:company_id (
           company_name,
           slug,
@@ -110,32 +134,36 @@ async function fetchPositionData(positionId: string, companySlug: string): Promi
       return null;
     }
 
-    //console.log('Raw position data:', position);
-
-    // Cast to our raw response type to handle TypeScript properly
+    // Cast to our raw response type
     const rawPosition = position as RawSupabaseResponse;
 
-    // Normalize company data - handle both object and array cases
+    // Normalize company data
     let company: SupabaseCompany | null = null;
     
     if (rawPosition.company) {
       if (Array.isArray(rawPosition.company)) {
-        // If it's an array, take the first element
         company = rawPosition.company.length > 0 ? rawPosition.company[0] : null;
       } else {
-        // If it's an object, use it directly
         company = rawPosition.company;
       }
     }
 
-
-    // Return the properly typed data
+    // Return the properly typed data WITH NEW FIELDS
     const transformedPosition: PositionData = {
       id: rawPosition.id,
       position_name: rawPosition.position_name,
       position_description: rawPosition.position_description,
       position_description_detailed: rawPosition.position_description_detailed,
       company_id: rawPosition.company_id,
+      // NEW ENRICHMENT FIELDS
+      location: rawPosition.location,
+      location_type: rawPosition.location_type,
+      employment_type: rawPosition.employment_type,
+      salary_min: rawPosition.salary_min,
+      salary_max: rawPosition.salary_max,
+      salary_currency: rawPosition.salary_currency,
+      salary_public: rawPosition.salary_public,
+      application_deadline: rawPosition.application_deadline,
       company: company
     };
 
@@ -218,6 +246,15 @@ export default async function CVAnalysePage({
         positionId={position.id.toString()}
         gdpr_file_url={position.company?.gdpr_file_url || ''}
         companyName={position.company?.company_name || ''}
+        // NEW ENRICHMENT FIELDS - PASS THEM TO CLIENT
+        location={position.location}
+        locationType={position.location_type}
+        employmentType={position.employment_type}
+        salaryMin={position.salary_min}
+        salaryMax={position.salary_max}
+        salaryCurrency={position.salary_currency}
+        salaryPublic={position.salary_public}
+        applicationDeadline={position.application_deadline}
       />
       <Analytics />
     </>

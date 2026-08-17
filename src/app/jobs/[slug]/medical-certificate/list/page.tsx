@@ -16,7 +16,6 @@ type MedicalCertificate = {
   created_at: string
   treated: boolean
   treatment_date: string | null
-  document_url?: string | null
   company_id?: number
 }
 
@@ -27,6 +26,7 @@ export default function MedicalCertificatesPage() {
   const [search, setSearch] = useState<string>('')
   const [showAll, setShowAll] = useState<boolean>(false)
   const [companyId, setCompanyId] = useState<number | null>(null)
+  const [viewingId, setViewingId] = useState<number | null>(null)
 
   const session = useSession()
   const supabase = useSupabaseClient()
@@ -73,38 +73,12 @@ export default function MedicalCertificatesPage() {
         }
 
         const certificatesWithUrl: MedicalCertificate[] = (data || []).map(
-          (cert: MedicalCertificate) => {
-            let documentUrl = null;
-            
-            // Extract file path from certificate_file
-            let filePath = cert.certificate_file;
-            
-            if (typeof cert.certificate_file === 'string' && cert.certificate_file.startsWith('{')) {
-              try {
-                const parsed = JSON.parse(cert.certificate_file);
-                filePath = parsed.path || parsed.signedUrl || cert.certificate_file;
-              } catch (e) {
-                console.error('Error parsing certificate_file:', e);
-              }
-            }
-            
-            // Generate public URL
-            if (filePath) {
-              const { data: publicData } = supabase.storage
-                .from('medical-certificates')
-                .getPublicUrl(filePath);
-              
-              documentUrl = publicData.publicUrl;
-            }
-            
-            return {
-              ...cert,
-              document_url: documentUrl,
-              treated: !!cert.treated,
-              treatment_date: cert.treatment_date,
-            };
-          }
-        );  
+          (cert: MedicalCertificate) => ({
+            ...cert,
+            treated: !!cert.treated,
+            treatment_date: cert.treatment_date,
+          })
+        );
 
         setCertificates(certificatesWithUrl)
       } catch (err) {
@@ -223,6 +197,41 @@ export default function MedicalCertificatesPage() {
     } catch (err) {
       console.error('Network error during update:', err)
       alert(t('medicalCertificates.alerts.networkError'))
+    }
+  }
+
+  const handleViewCertificate = async (certId: number) => {
+    if (!session?.access_token) {
+      alert(t('medicalCertificates.alerts.sessionNotFound'))
+      return
+    }
+
+    setViewingId(certId)
+    try {
+      const res = await fetch('/api/medical-certificates/signed-url', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ certificate_ids: [certId] }),
+      })
+
+      if (!res.ok) throw new Error(await res.text())
+
+      const { urls } = await res.json()
+      const url = urls?.[certId]
+      if (!url) {
+        alert(t('medicalCertificates.alerts.updateError'))
+        return
+      }
+
+      window.open(url, '_blank', 'noopener,noreferrer')
+    } catch (err) {
+      console.error('Error generating certificate view URL:', err)
+      alert(t('medicalCertificates.alerts.updateError'))
+    } finally {
+      setViewingId(null)
     }
   }
 
@@ -409,16 +418,16 @@ export default function MedicalCertificatesPage() {
                       </td>
                       
                       <td className="px-4 py-4 w-32">
-                        {cert.document_url ? (
-                          <a
-                            href={cert.document_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                        {cert.certificate_file ? (
+                          <button
+                            type="button"
+                            onClick={() => handleViewCertificate(cert.id)}
+                            disabled={viewingId === cert.id}
+                            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors disabled:opacity-50"
                           >
                             <Eye className="w-4 h-4" />
                             {t('medicalCertificates.table.actions.view')}
-                          </a>
+                          </button>
                         ) : (
                           <span className="text-gray-500">{t('medicalCertificates.table.noData')}</span>
                         )}

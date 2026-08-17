@@ -34,6 +34,7 @@ interface NotificationData {
     | 'leave_request_created'
     | 'leave_request_approved'
     | 'leave_request_rejected'
+    | 'leave_request_cancelled'
     | 'goal_created'
     | 'goal_approved'
     | 'goal_red_flag'
@@ -331,6 +332,8 @@ export default function NotificationComponent({
       case 'leave_request_approved':
       case 'leave_request_rejected':
         return <Calendar className="w-4 h-4" />;
+      case 'leave_request_cancelled':  // <-- ADD THIS LINE
+      return <Calendar className="w-4 h-4" />;
       case 'goal_created':
       case 'goal_approved':
         return <Target className="w-4 h-4" />;
@@ -360,6 +363,8 @@ export default function NotificationComponent({
         return 'bg-green-100 text-green-600 border-green-200';
       case 'leave_request_rejected':
         return 'bg-red-100 text-red-600 border-red-200';
+      case 'leave_request_cancelled':  // <-- ADD THIS CASE
+      return 'bg-orange-100 text-orange-600 border-orange-200';
       case 'goal_created':
         return 'bg-emerald-100 text-emerald-600 border-emerald-200';
       case 'goal_approved':
@@ -404,7 +409,8 @@ export default function NotificationComponent({
       } else if (
         notification.type === 'leave_request_created' ||
         notification.type === 'leave_request_approved' ||
-        notification.type === 'leave_request_rejected'
+        notification.type === 'leave_request_rejected'  ||
+        notification.type === 'leave_request_cancelled'
       ) {
         router.push(`/jobs/${companySlug}/absences`);
       } else if (

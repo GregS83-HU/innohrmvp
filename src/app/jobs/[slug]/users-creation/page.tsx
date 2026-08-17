@@ -18,8 +18,11 @@ import {
   Calendar,
   Check,
   Edit3,
+  Power,
+  X,
 } from 'lucide-react';
 import { AddUserModal } from '../../../../../components/AddUserModal';
+import PayrollEditModal from '../../../../../components/payroll/PayrollEditModal';
 import { useLocale } from '../../../../i18n/LocaleProvider';
 
 interface CompanyUser {
@@ -34,12 +37,82 @@ interface CompanyUser {
   manager_first_name: string | null;
   manager_last_name: string | null;
   employment_start_date: string | null;
+  is_active: boolean;
 }
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
+
+function ConfirmationModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  userName,
+  isActivating,
+  isLoading,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  userName: string;
+  isActivating: boolean;
+  isLoading: boolean;
+}) {
+  if (!isOpen) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in duration-200">
+        <div className="flex items-start gap-4 mb-4">
+          <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+            isActivating ? 'bg-green-100' : 'bg-red-100'
+          }`}>
+            {isActivating ? (
+              <Power className="w-6 h-6 text-green-600" />
+            ) : (
+              <Power className="w-6 h-6 text-red-600" />
+            )}
+          </div>
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              {isActivating ? 'Activate User' : 'Deactivate User'}
+            </h3>
+            <p className="text-gray-600 text-sm">
+              {isActivating
+                ? `Are you sure you want to activate ${userName}? They will regain access to the system.`
+                : `Are you sure you want to deactivate ${userName}? They will lose access to the system.`}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex gap-3 justify-end">
+          <button
+            onClick={onClose}
+            disabled={isLoading}
+            className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg font-medium transition-colors disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={isLoading}
+            className={`px-4 py-2 text-white rounded-lg font-medium transition-all disabled:opacity-50 flex items-center gap-2 ${
+              isActivating
+                ? 'bg-green-600 hover:bg-green-700'
+                : 'bg-red-600 hover:bg-red-700'
+            }`}
+          >
+            {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+            {isActivating ? 'Activate' : 'Deactivate'}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
 
 function ManagerDropdownPortal({
   open,
@@ -202,12 +275,52 @@ export default function CompanyUsersPage() {
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'user'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('active');
 
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [managerSearch, setManagerSearch] = useState('');
   const [updatingManager, setUpdatingManager] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState<string | null>(null);
   const anchorRef = useRef<HTMLElement | null>(null);
+
+  // Current authenticated user state with proper type
+  const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null);
+
+  // Payroll modal states
+  const [payrollModalOpen, setPayrollModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+
+  // Status update states
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    userId: string | null;
+    userName: string;
+    isActivating: boolean;
+  }>({
+    isOpen: false,
+    userId: null,
+    userName: '',
+    isActivating: false,
+  });
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+
+  // Fetch current authenticated user
+  const fetchCurrentUser = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      setCurrentUser({ id: user.id });
+    } catch (err) {
+      console.error('Error fetching current user:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCurrentUser();
+  }, [fetchCurrentUser]);
 
   const getRoleBadge = (user: CompanyUser) => {
     if (user.is_admin) {
@@ -307,10 +420,49 @@ export default function CompanyUsersPage() {
     }
   };
 
+  const handleStatusToggle = (user: CompanyUser) => {
+    setConfirmModal({
+      isOpen: true,
+      userId: user.user_id,
+      userName: `${user.first_name} ${user.last_name}`,
+      isActivating: !user.is_active,
+    });
+  };
+
+  const confirmStatusUpdate = async () => {
+    if (!confirmModal.userId) return;
+
+    setUpdatingStatus(true);
+    try {
+      const res = await fetch('/api/users/update-status', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: confirmModal.userId,
+          companyId,
+          isActive: confirmModal.isActivating,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Failed to update user status');
+
+      await fetchCompanyUsers();
+      setConfirmModal({ isOpen: false, userId: null, userName: '', isActivating: false });
+    } catch (err) {
+      console.error('Error updating user status:', err);
+      alert(err instanceof Error ? err.message : 'Failed to update user status');
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
   const getFilteredManagers = (excludeUserId: string) => {
     return users.filter(
       (user) =>
         user.user_id !== excludeUserId &&
+        user.is_active &&
         (`${user.first_name} ${user.last_name}`.toLowerCase().includes(managerSearch.toLowerCase()) ||
           user.email.toLowerCase().includes(managerSearch.toLowerCase()))
     );
@@ -342,7 +494,12 @@ export default function CompanyUsersPage() {
       (roleFilter === 'admin' && user.is_admin) ||
       (roleFilter === 'user' && !user.is_admin);
 
-    return matchesSearch && matchesRole;
+    const matchesStatus =
+      statusFilter === 'all' ||
+      (statusFilter === 'active' && user.is_active) ||
+      (statusFilter === 'inactive' && !user.is_active);
+
+    return matchesSearch && matchesRole && matchesStatus;
   });
 
   useEffect(() => {
@@ -426,6 +583,20 @@ export default function CompanyUsersPage() {
                 />
               </div>
 
+              {/* Status Filter */}
+              <div className="flex items-center gap-2 min-w-fit">
+                <Power className="w-4 h-4 text-gray-500" />
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
+                  className="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+                >
+                  <option value="active">Active Users</option>
+                  <option value="inactive">Inactive Users</option>
+                  <option value="all">All Users</option>
+                </select>
+              </div>
+
               {/* Role Filter */}
               <div className="flex items-center gap-2 min-w-fit">
                 <Filter className="w-4 h-4 text-gray-500" />
@@ -450,12 +621,12 @@ export default function CompanyUsersPage() {
               <Users className="w-10 h-10 text-gray-400" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              {searchTerm || roleFilter !== 'all' ? t('companyUsers.empty.noUsersFound') : t('companyUsers.empty.noUsersYet')}
+              {searchTerm || roleFilter !== 'all' || statusFilter !== 'active' ? t('companyUsers.empty.noUsersFound') : t('companyUsers.empty.noUsersYet')}
             </h3>
             <p className="text-gray-600 mb-6">
-              {searchTerm || roleFilter !== 'all' ? t('companyUsers.empty.tryAdjusting') : t('companyUsers.empty.getStarted')}
+              {searchTerm || roleFilter !== 'all' || statusFilter !== 'active' ? t('companyUsers.empty.tryAdjusting') : t('companyUsers.empty.getStarted')}
             </p>
-            {!searchTerm && roleFilter === 'all' && (
+            {!searchTerm && roleFilter === 'all' && statusFilter === 'active' && (
               <button onClick={() => setIsAddUserModalOpen(true)} className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors">
                 {t('companyUsers.empty.addFirstUser')}
               </button>
@@ -469,16 +640,37 @@ export default function CompanyUsersPage() {
                 <table className="min-w-full">
                   <thead>
                     <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{t('companyUsers.table.name')}</th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{t('companyUsers.table.email')}</th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{t('companyUsers.table.manager')}</th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{t('companyUsers.table.startDate')}</th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{t('companyUsers.table.role')}</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Payroll</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {filteredUsers.map((user) => (
-                      <tr key={user.user_id} className="hover:bg-gray-50 transition-colors group">
+                      <tr 
+                        key={user.user_id} 
+                        className={`hover:bg-gray-50 transition-colors group ${!user.is_active ? 'opacity-50' : ''}`}
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <button
+                            onClick={() => handleStatusToggle(user)}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                              user.is_active ? 'bg-green-600' : 'bg-gray-300'
+                            }`}
+                            title={user.is_active ? 'Active' : 'Inactive'}
+                          >
+                            <span
+                              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                user.is_active ? 'translate-x-6' : 'translate-x-1'
+                              }`}
+                            />
+                          </button>
+                        </td>
+
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
@@ -489,6 +681,9 @@ export default function CompanyUsersPage() {
                             </div>
                             <div>
                               <p className="font-semibold text-gray-900">{user.first_name} {user.last_name}</p>
+                              {!user.is_active && (
+                                <span className="text-xs text-red-600 font-medium">Inactive</span>
+                              )}
                             </div>
                           </div>
                         </td>
@@ -509,8 +704,8 @@ export default function CompanyUsersPage() {
                                   setEditingUserId(user.user_id);
                                   setManagerSearch('');
                                 }}
-                                disabled={updatingManager}
-                                className="flex items-center gap-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded-lg transition-colors group/manager"
+                                disabled={updatingManager || !user.is_active}
+                                className="flex items-center gap-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded-lg transition-colors group/manager disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 <UserCircle className="w-4 h-4 text-gray-400 group-hover/manager:text-blue-500" />
                                 <span>{user.manager_first_name} {user.manager_last_name}</span>
@@ -527,8 +722,8 @@ export default function CompanyUsersPage() {
                                   setEditingUserId(user.user_id);
                                   setManagerSearch('');
                                 }}
-                                disabled={updatingManager}
-                                className="text-gray-400 text-sm hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded-lg transition-colors"
+                                disabled={updatingManager || !user.is_active}
+                                className="text-gray-400 text-sm hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 {t('companyUsers.table.addManager')}
                               </button>
@@ -546,6 +741,25 @@ export default function CompanyUsersPage() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           {getRoleBadge(user)}
                         </td>
+
+                        {/* PAYROLL CELL */}
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <button
+                            onClick={() => {
+                              setSelectedUser({
+                                id: user.user_id,
+                                name: `${user.first_name} ${user.last_name}`
+                              });
+                              setPayrollModalOpen(true);
+                            }}
+                            disabled={!user.is_active}
+                            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed group/payroll"
+                            title={user.is_active ? 'Manage payroll data' : 'User must be active'}
+                          >
+                            <Edit3 className="w-4 h-4" />
+                            <span className="hidden xl:inline">Payroll</span>
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -556,7 +770,10 @@ export default function CompanyUsersPage() {
             {/* Mobile/Tablet Card View */}
             <div className="lg:hidden space-y-4">
               {filteredUsers.map((user) => (
-                <div key={user.user_id} className="bg-white rounded-2xl p-4 shadow-lg border border-gray-100">
+                <div 
+                  key={user.user_id} 
+                  className={`bg-white rounded-2xl p-4 shadow-lg border border-gray-100 ${!user.is_active ? 'opacity-60' : ''}`}
+                >
                   <div className="flex items-start gap-3 mb-3">
                     <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
                       <span className="text-white font-semibold">
@@ -567,7 +784,12 @@ export default function CompanyUsersPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <h3 className="font-semibold text-gray-900 truncate">{user.first_name} {user.last_name}</h3>
+                          <h3 className="font-semibold text-gray-900 truncate">
+                            {user.first_name} {user.last_name}
+                            {!user.is_active && (
+                              <span className="ml-2 text-xs text-red-600 font-medium">Inactive</span>
+                            )}
+                          </h3>
                           <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
                             <Mail className="w-3 h-3" />
                             <span className="truncate">{user.email}</span>
@@ -581,6 +803,25 @@ export default function CompanyUsersPage() {
                   <div className="space-y-2 pt-3 border-t border-gray-100">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Power className="w-4 h-4" />
+                        <span>Status</span>
+                      </div>
+                      <button
+                        onClick={() => handleStatusToggle(user)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                          user.is_active ? 'bg-green-600' : 'bg-gray-300'
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            user.is_active ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
                         <UserCircle className="w-4 h-4" />
                         <span>{t('companyUsers.mobile.manager')}</span>
                       </div>
@@ -592,8 +833,8 @@ export default function CompanyUsersPage() {
                               setEditingUserId(user.user_id);
                               setManagerSearch('');
                             }}
-                            disabled={updatingManager}
-                            className="text-sm font-medium text-gray-900 hover:text-blue-600 flex items-center gap-1"
+                            disabled={updatingManager || !user.is_active}
+                            className="text-sm font-medium text-gray-900 hover:text-blue-600 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {user.manager_first_name} {user.manager_last_name}
                             {updateSuccess === user.user_id ? <Check className="w-3 h-3 text-green-500" /> : <Edit3 className="w-3 h-3" />}
@@ -605,8 +846,8 @@ export default function CompanyUsersPage() {
                               setEditingUserId(user.user_id);
                               setManagerSearch('');
                             }}
-                            disabled={updatingManager}
-                            className="text-sm text-blue-600 hover:text-blue-700"
+                            disabled={updatingManager || !user.is_active}
+                            className="text-sm text-blue-600 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {t('companyUsers.mobile.addManager')}
                           </button>
@@ -619,6 +860,24 @@ export default function CompanyUsersPage() {
                       <span className="text-gray-500">{t('companyUsers.mobile.startDate')}</span>
                       <span className="font-medium">{formatDate(user.employment_start_date)}</span>
                     </div>
+
+                    {/* PAYROLL BUTTON FOR MOBILE */}
+                    <div className="pt-2 mt-2 border-t border-gray-100">
+                      <button
+                        onClick={() => {
+                          setSelectedUser({
+                            id: user.user_id,
+                            name: `${user.first_name} ${user.last_name}`
+                          });
+                          setPayrollModalOpen(true);
+                        }}
+                        disabled={!user.is_active}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                        <span>Manage Payroll Data</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -626,6 +885,16 @@ export default function CompanyUsersPage() {
           </>
         )}
       </div>
+
+      {/* EXISTING MODALS */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, userId: null, userName: '', isActivating: false })}
+        onConfirm={confirmStatusUpdate}
+        userName={confirmModal.userName}
+        isActivating={confirmModal.isActivating}
+        isLoading={updatingStatus}
+      />
 
       <ManagerDropdownPortal
         open={!!editingUserId}
@@ -647,7 +916,30 @@ export default function CompanyUsersPage() {
         t={t}
       />
 
-      <AddUserModal isOpen={isAddUserModalOpen} onClose={() => setIsAddUserModalOpen(false)} onSuccess={fetchCompanyUsers} companyId={companyId || ''} />
+      <AddUserModal 
+        isOpen={isAddUserModalOpen} 
+        onClose={() => setIsAddUserModalOpen(false)} 
+        onSuccess={fetchCompanyUsers} 
+        companyId={companyId || ''} 
+      />
+
+      {/* PAYROLL MODAL - FIXED WITH currentUserId */}
+      {payrollModalOpen && selectedUser && currentUser && (
+        <PayrollEditModal
+          isOpen={payrollModalOpen}
+          onClose={() => {
+            setPayrollModalOpen(false);
+            setSelectedUser(null);
+          }}
+          userId={selectedUser.id}
+          userName={selectedUser.name}
+          currentUserId={currentUser.id}
+          onSuccess={() => {
+            console.log('Payroll data saved successfully');
+            // Optionally show a success toast notification here
+          }}
+        />
+      )}
     </div>
   );
 }

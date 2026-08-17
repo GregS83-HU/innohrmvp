@@ -27,6 +27,17 @@ interface LeaveReviewNotificationData {
   reviewNotes?: string;
 }
 
+interface LeaveCancellationNotificationData {
+  leaveRequestId: string;
+  userId: string;
+  userName: string;
+  managerId: string;
+  leaveTypeName: string;
+  startDate: string;
+  endDate: string;
+  totalDays: number;
+}
+
 /**
  * Verify that a user exists in the users table
  */
@@ -146,6 +157,52 @@ export async function createLeaveReviewNotification(data: LeaveReviewNotificatio
     return { success: true };
   } catch (err) {
     console.error('Failed to create leave review notification:', err);
+    return { success: false, error: err };
+  }
+}
+
+/**
+ * Create notification when a user cancels their leave request
+ */
+export async function createLeaveCancellationNotification(data: LeaveCancellationNotificationData) {
+  try {
+    // Verify both sender and recipient exist
+    const [senderExists, recipientExists] = await Promise.all([
+      verifyUserExists(data.userId),
+      verifyUserExists(data.managerId)
+    ]);
+
+    if (!senderExists) {
+      console.error(`Cannot create notification: sender ${data.userId} does not exist`);
+      return { success: false, error: 'Sender user not found' };
+    }
+
+    if (!recipientExists) {
+      console.error(`Cannot create notification: recipient ${data.managerId} does not exist`);
+      return { success: false, error: 'Recipient user not found' };
+    }
+
+    const { error } = await supabase
+      .from('notifications')
+      .insert({
+        type: 'leave_request_cancelled',
+        title: 'Leave Request Cancelled',
+        message: `${data.userName} has cancelled their ${data.leaveTypeName} request from ${data.startDate} to ${data.endDate} (${data.totalDays} day${data.totalDays !== 1 ? 's' : ''})`,
+        leave_request_id: data.leaveRequestId,
+        sender_id: data.userId,
+        recipient_id: data.managerId,
+        read: false,
+        created_at: new Date().toISOString()
+      });
+
+    if (error) {
+      console.error('Error creating cancellation notification:', error);
+      throw error;
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error('Failed to create cancellation notification:', err);
     return { success: false, error: err };
   }
 }

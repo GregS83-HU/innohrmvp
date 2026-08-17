@@ -2,6 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { hasFeatureAccess, entitlementErrorBody, resolveCompanyIdForUser } from '../../../../../lib/entitlements';
 
 const supabase: SupabaseClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -239,6 +240,15 @@ export async function POST(request: NextRequest) {
       const teamMembers = await getTeamMembers(managerId);
       if (!teamMembers.some((m) => m.user_id === entry.user_id)) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+      }
+
+      const companyId = await resolveCompanyIdForUser(entry.user_id);
+      if (!companyId) {
+        return NextResponse.json({ error: 'Company not found' }, { status: 400 });
+      }
+      const entitlement = await hasFeatureAccess(companyId, 'attendance.use');
+      if (!entitlement.allowed) {
+        return NextResponse.json(entitlementErrorBody('attendance.use', entitlement), { status: 403 });
       }
 
       const { data, error } = await supabase

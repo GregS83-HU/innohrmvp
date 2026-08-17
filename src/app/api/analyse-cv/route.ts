@@ -1,18 +1,20 @@
 // src/app/api/analyse-cv/route.ts
+// CHANGE FROM ORIGINAL: return candidateId, cvText, and candidateFirstName in the response
+// so the client can pass them to the InterviewChat component.
+// Search for "// NEW:" comments to find all changes.
+
 export const runtime = "nodejs";
 import { NextRequest, NextResponse } from 'next/server';
 import parsePdfBuffer from '../../../../lib/parsePdfSafe';
 import { createClient } from '@supabase/supabase-js';
 import { consumeCredit } from '../../../../lib/credit';
+import { getPrompt, fillPromptVariables, PromptNotFoundError, PromptDatabaseError } from '../../../../lib/prompts';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-/**
- * Create notifications for all admins in the company when a CV is uploaded
- */
 async function notifyAdminsOfNewCV(
   positionId: string,
   positionName: string,
@@ -77,9 +79,6 @@ async function notifyAdminsOfNewCV(
   }
 }
 
-/**
- * Create notification for the position manager when a CV is uploaded
- */
 async function notifyManagerOfNewCV(
   positionId: string,
   positionName: string,
@@ -118,10 +117,9 @@ async function notifyManagerOfNewCV(
   }
 }
 
-// Optimized API call with faster model and timeout
-async function callOpenRouterAPI(prompt: string, context = '', model = 'openai/gpt-3.5-turbo') {
+async function callOpenRouterAPI(prompt: string, context = '', model = '  ') {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout (increased for longer response)
+  const timeoutId = setTimeout(() => controller.abort(), 60000);
 
   try {
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -137,7 +135,7 @@ async function callOpenRouterAPI(prompt: string, context = '', model = 'openai/g
         model: model,
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.1,
-        max_tokens: 3000, // Increased for combined analysis
+        max_tokens: 3000,
       }),
     });
 
@@ -171,41 +169,44 @@ async function callOpenRouterAPI(prompt: string, context = '', model = 'openai/g
   }
 }
 
-// Fallback API call with different model
 async function callFallbackAPI(prompt: string, context = '') {
   try {
-    // Try Claude Haiku first (fast and reliable)
     return await callOpenRouterAPI(prompt, context, 'anthropic/claude-3-haiku');
   } catch {
-    // Then try Mistral Small (faster than 7b-instruct)
     return await callOpenRouterAPI(prompt, context, 'mistralai/mistral-small');
   }
 }
 
-// Robust JSON extraction
 function extractAndParseJSON(rawResponse: string, context = '') {
   const trimmed = rawResponse.trim();
-  
+
   try {
     return JSON.parse(trimmed);
   } catch {}
 
-  // Extract first complete JSON object
   const match = trimmed.match(/\{(?:[^{}]|(?:\{[^{}]*\}))*\}/);
   if (!match) {
-    console.error(`No JSON found in ${context} response:`, rawResponse);
+    // Don't log the full AI response — it's derived from the candidate's CV
+    // and the job description, so it can contain candidate-identifying
+    // text. A short snippet + length is enough to spot a malformed-output
+    // pattern (e.g. the model wrapping JSON in markdown fences); if that's
+    // not enough to diagnose a recurring failure, revisit this rather than
+    // going back to logging the full text.
+    console.error(`No JSON found in ${context} response (length ${rawResponse.length}): "${rawResponse.slice(0, 80)}..."`);
     throw new Error(`No valid JSON found in ${context} response`);
   }
 
   try {
     return JSON.parse(match[0]);
   } catch (parseError) {
-    console.error(`Invalid JSON in ${context} response:`, match[0]);
+    console.error(
+      `Invalid JSON in ${context} response (length ${match[0].length}): "${match[0].slice(0, 80)}..."`,
+      parseError instanceof Error ? parseError.message : parseError
+    );
     throw new Error(`Invalid JSON structure in ${context} response`);
   }
 }
 
-// Sanitize filenames
 function sanitizeFileName(filename: string) {
   return filename
     .normalize('NFD')
@@ -221,8 +222,7 @@ export async function POST(req: NextRequest) {
     const jobDescription = formData.get('jobDescription') as string;
     const positionId = formData.get('positionId') as string;
     const source = formData.get('source') as string || 'Candidate Upload';
-    
-    // Fetch position details for notifications
+
     const { data: positionData, error: positionError } = await supabase
       .from('openedpositions')
       .select('position_name, company_id, manager_id')
@@ -233,90 +233,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Fichier PDF requis.' }, { status: 400 });
     }
 
-    // Convert File to Buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    
-    // Parse PDF
+
     const fullCvText = await parsePdfBuffer(buffer);
     console.log("Parsed CV length:", fullCvText.length);
-    
-    // Optimize PDF text length for faster processing
+
     const MAX_CV_LENGTH = 8000;
-    const cvText = fullCvText.length > MAX_CV_LENGTH 
+    const cvText = fullCvText.length > MAX_CV_LENGTH
       ? fullCvText.substring(0, MAX_CV_LENGTH) + '...[truncated]'
       : fullCvText;
 
-    // Start file upload in parallel
     const safeFileName = sanitizeFileName(file.name);
     const filePath = `cvs/${Date.now()}_${safeFileName}`;
-    
+
     const uploadPromise = supabase.storage
       .from('cvs')
       .upload(filePath, buffer, { contentType: 'application/pdf' });
 
-    // ===  SINGLE COMBINED AI PROMPT ===
-    const combinedPrompt = `
-You are an expert recruiter and career consultant. Analyze this CV against the job requirements and provide BOTH a recruiter analysis AND candidate feedback.
-
-CV: ${cvText}
-
-Job Requirements: ${jobDescription}
-
-IMPORTANT: Respond in the SAME LANGUAGE as the CV (detect the language from the CV text).
-
-Provide your response as JSON with this EXACT structure:
-{
-  "score": number,
-  "analysis": "string",
-  "candidateFeedback": "string",
-  "candidat_firstname": "string",
-  "candidat_lastname": "string",
-  "candidat_email": "string",
-  "candidat_phone": "string"
-}
-
-SCORING RULES (be strict and critical):
-- 9-10: Perfect match, all requirements met excellently
-- 7-8: Strong fit, most requirements met well
-- 5-6: Marginal fit, some key gaps
-- <5: Unsuitable, missing core requirements
-
-FOR "analysis" FIELD (Recruiter perspective - STRICT and CRITICAL tone):
-Write a professional analysis for the recruiter covering:
-1. Key strengths relevant to the position (be specific)\\n\\n
-2. Critical gaps or concerns (be honest about weaknesses)\\n\\n
-3. Overall fit assessment (realistic evaluation)\\n\\n
-4. THREE KEY INTERVIEW QUESTIONS the recruiter should ask to validate the match\\n\\n
-
-Use \\n\\n to separate paragraphs for readability.
-Be direct, critical, and focus on job fit. Don't sugarcoat weaknesses.
-
-FOR "candidateFeedback" FIELD (Candidate perspective - ENCOURAGING and CONSTRUCTIVE tone):
-Write a supportive message for the candidate with:
-1. Personal greeting using their first and last name\\n\\n
-2. Strengths paragraph highlighting their relevant experience and skills\\n\\n
-3. Development areas with specific, actionable improvement suggestions\\n\\n
-4. Career advice mentioning alternative suitable roles if relevant\\n\\n
-5. Next steps with concrete recommendations\\n\\n
-Finish only with "Best regards." 
-
-Use \\n\\n to separate paragraphs for readability.
-Be kind, professional, encouraging, and actionable. Focus on growth and opportunity.
-
-CANDIDATE DATA EXTRACTION:
-Extract the candidate's first name, last name, email, and phone number from the CV.
-If any field is not found, use empty string "".
-
-Remember: Write EVERYTHING in the same language as the CV!
-`;
-   
-
-    // === CHECK AI CREDITS BEFORE ANALYSIS ===
     const companySlug = formData.get('companySlug')?.toString();
     console.log('FormData keys:', Array.from(formData.keys()));
 
-    // === Fetch company_id from Supabase ===
     const { data: company, error: companyError } = await supabase
       .from('company')
       .select('id')
@@ -340,32 +277,48 @@ Remember: Write EVERYTHING in the same language as the CV!
       return NextResponse.json({ error: 'You have no remaining AI credits this month.' }, { status: 402 });
     }
 
-    // === SINGLE AI CALL ===
+    console.log('Fetching CV analysis prompt from database...');
+
+    let promptTemplate: string;
+    try {
+      promptTemplate = await getPrompt('cv_analysis_combined');
+    } catch (error) {
+      if (error instanceof PromptNotFoundError || error instanceof PromptDatabaseError) {
+        console.error('Failed to load prompt:', error.message);
+        return NextResponse.json({
+          error: 'AI tool is currently unavailable. Please try again later.'
+        }, { status: 503 });
+      }
+      throw error;
+    }
+
+    const combinedPrompt = fillPromptVariables(promptTemplate, {
+      cvText,
+      jobDescription
+    });
+
     console.log('Starting combined AI analysis...');
-    
+
     const rawResponse = await callOpenRouterAPI(combinedPrompt, 'combined analysis')
       .catch(() => callFallbackAPI(combinedPrompt, 'combined analysis'));
 
     console.log('AI analysis completed');
 
-    // Parse response
     const aiData = extractAndParseJSON(rawResponse, 'combined analysis');
-    const { 
-      score, 
-      analysis, 
+    const {
+      score,
+      analysis,
       candidateFeedback,
-      candidat_firstname, 
-      candidat_lastname, 
-      candidat_email, 
-      candidat_phone 
+      candidat_firstname,
+      candidat_lastname,
+      candidat_email,
+      candidat_phone
     } = aiData;
 
-    // Validate required fields
     if (!score || !analysis || !candidateFeedback) {
       throw new Error('Missing required fields in AI response');
     }
 
-    // Wait for file upload to complete
     const { error: uploadError } = await uploadPromise;
 
     if (uploadError) {
@@ -373,26 +326,13 @@ Remember: Write EVERYTHING in the same language as the CV!
       return NextResponse.json({ error: 'Échec upload CV' }, { status: 500 });
     }
 
-    // Signed URL valid for 1 hour (3600 seconds)
-    const { data: signedUrlData, error: signedUrlError } = await supabase
-      .storage
-      .from('cvs')
-      .createSignedUrl(filePath, 60 * 60);
-
-    if (signedUrlError || !signedUrlData) {
-      throw new Error("Failed to create signed URL for CV");
-    }
-
-    const cvFileUrl = signedUrlData.signedUrl;
-
-    // === Database Operations ===
     const { data: candidate, error: insertError } = await supabase
       .from('candidats')
       .insert({
         candidat_firstname,
         candidat_lastname,
         cv_text: fullCvText,
-        cv_file: cvFileUrl,
+        cv_file: filePath,
         candidat_email,
         candidat_phone,
         candidat_gdpr_consent_date: new Date().toISOString(),
@@ -422,16 +362,13 @@ Remember: Write EVERYTHING in the same language as the CV!
       return NextResponse.json({ error: 'Échec liaison position/candidat' }, { status: 500 });
     }
 
-    // Notify admins and manager of new CV upload
     if (positionData) {
-      // Notify all admins
       await notifyAdminsOfNewCV(
         positionId,
         positionData.position_name,
         positionData.company_id.toString()
       );
 
-      // Notify the position manager
       await notifyManagerOfNewCV(
         positionId,
         positionData.position_name,
@@ -442,7 +379,11 @@ Remember: Write EVERYTHING in the same language as the CV!
     return NextResponse.json({
       score,
       analysis,
-      candidateFeedback
+      candidateFeedback,
+      // NEW: return candidate data needed for the interview chat
+      candidateId: candidate.id,
+      cvText: fullCvText,
+      candidateFirstName: candidat_firstname ?? '',
     });
 
   } catch (aiError: unknown) {

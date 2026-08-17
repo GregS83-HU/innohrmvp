@@ -1,26 +1,42 @@
 {
   "home": {
     "hero": {
-      "title": "Az HR soha nem volt még ilyen",
-      "titleHighlight": "egyszerű",
-      "titleEnd": "mint most!",
-      "subtitle": "Forradalmasítsd a humán erőforrás menedzsmentet AI-alapú eszközökkel a toborzáshoz, az alkalmazottak jóllétéhez és a munkahelyi boldogság méréséhez."
+      "eyebrow": "Ingyenes álláskeresőknek — nincs szükség fiókra",
+      "title": "Értékeltesd az önéletrajzodat",
+      "titleHighlight": "ingyen,",
+      "titleEnd": "mielőtt jelentkezel.",
+      "subtitle": "Töltsd fel az önéletrajzodat, és percek alatt kapj AI pontszámot, átírt verziót és próbainterjút visszajelzéssel — regisztráció nélkül. A HRInno Állásasszisztense minden jelentkező számára ingyenes.",
+      "cta": "Kipróbálom az Állásasszisztenst",
+      "ctaNote": "Nincs szükség fiókra"
+    },
+    "forEmployers": {
+      "eyebrow": "Munkáltatóknak",
+      "title": "Egy platform, amint toborzol",
+      "subtitle": "Ugyanaz az AI, amely a jelölteket segíti a felkészülésben, működteti a toborzási folyamatodat is. Próbáld ki ingyen — majd válts magasabb csomagra, hogy valódi bérszámfejtést, munkaidő-nyilvántartást, távollét-kezelést és teljesítménykezelést futtass a csapatodnak.",
+      "cta": "Árak megtekintése"
+    },
+    "dashboard": {
+      "welcomeBack": "Üdvözlünk újra, {{name}}",
+      "subtitle": "A vállalatod HR eszközei, egy helyen.",
+      "subtitleCompany": "A(z) {{company}} HR eszközei, egy helyen.",
+      "defaultTitle": "Üdvözlünk",
+      "loginPrompt": "Jelentkezz be a vállalatod HR portáljának eléréséhez."
     },
     "features": {
       "cvAnalysis": {
-        "title": "AI Önéletrajz Elemzés",
-        "description": "Intelligens önéletrajz szűrés részletes kompatibilitási pontozással és automatizált jelölt értékeléssel.",
+        "title": "AI Toborzási Folyamat",
+        "description": "AI által pontozott jelöltek, álláshirdetések és teljes jelentkezői folyamat — az első önéletrajztól a végső ajánlatig.",
         "badge": "Intelligens Párosítás"
       },
       "wellness": {
         "title": "Munkahelyi Jóllét",
-        "description": "Anonim alkalmazotti boldogság mérés a tudományos PERMA-W modell alapján a jobb munkahelyi kultúráért.",
-        "badge": "Anonim és Biztonságos"
+        "description": "Anonim alkalmazotti boldogság-mérés a PERMA-W modell alapján, hogy nyomon követhesd a csapat jóllétét az idő során.",
+        "badge": "Anonim és Bizalmas"
       },
       "teamManagement": {
-        "title": "HR Csapat Támogatás",
-        "description": "Egyszerűsített toborzási folyamat pozíciókezeléssel, pályázókövetéssel, jelölt adatbázis AI elemzéssel és részletes elemző irányítópulttal.",
-        "badge": "Teljes Folyamat"
+        "title": "Bérszámfejtés & Munkaidő-nyilvántartás",
+        "description": "Kezeld a bérszámfejtést, kövesd a munkaidőt és a jelenlétet, és kezeld a távolléteket táblázatok nélkül — Momentum és Infinity csomagban.",
+        "badge": "Momentum & Infinity"
       }
     },
     "cta": {
@@ -42,6 +58,49 @@
         "footer": "Az elfogadással Ön elismeri, hogy ez egy demonstrációs rendszer"
       }
     }
+  },
+  "pricing": {
+    "eyebrow": "Árak",
+    "title": "Csomagok a toborzás minden szakaszához",
+    "subtitle": "Kezdje ingyen, hogy kipróbálja a HRInno-t. Váltson magasabb csomagra, ha készen áll a valódi bérszámfejtésre, munkaidő-nyilvántartásra és távollét-kezelésre — vagy oldja fel a teljesítménykezelést is.",
+    "perMonth": "/hó",
+    "currentPlanLabel": "Tartalmazza",
+    "free": {
+      "name": "Free",
+      "price": "0 Ft",
+      "tagline": "Ismerje meg a platformot elköteleződés előtt",
+      "cta": "Ingyenes kezdés"
+    },
+    "momentum": {
+      "name": "Momentum",
+      "price": "20 000 Ft",
+      "tagline": "Valódi HR-műveletek",
+      "cta": "Momentum választása",
+      "badge": "Legnépszerűbb"
+    },
+    "infinity": {
+      "name": "Infinity",
+      "price": "45 000 Ft",
+      "tagline": "Minden, nagy léptékben",
+      "cta": "Infinity választása",
+      "contactNote": "Több mint 100 alkalmazott?",
+      "contactLink": "Kérjen egyedi árajánlatot."
+    },
+    "features": {
+      "positions": "Legfeljebb {{count}} nyitott álláshely",
+      "certificates": "Legfeljebb {{count}} orvosi igazolás feltöltés / hó",
+      "credits": "{{count}} AI kredit",
+      "wellbeingIncluded": "AI jólléti chatbot elérhető",
+      "wellbeingNotIncluded": "AI jólléti chatbot nem elérhető",
+      "hrOpsIncluded": "Bérszámfejtés, munkaidő-nyilvántartás és távollétek legfeljebb {{count}} alkalmazottig",
+      "hrOpsLocked": "Bérszámfejtés, munkaidő-nyilvántartás és távollétek — csak előnézet, valódi HR-műveletekre nem használható",
+      "performanceIncluded": "Teljesítménykezelés legfeljebb {{count}} alkalmazottig",
+      "performanceLocked": "Teljesítménykezelés — csak előnézet",
+      "performanceNotIncluded": "Teljesítménykezelés nem elérhető"
+    },
+    "dataNote": "A lemondás vagy visszaminősítés soha nem törli a meglévő adataidat — továbbra is teljes hozzáférésed lesz mindenhez, amid már van. Csak az új csomaglimit fölötti új elemek létrehozása szünetel.",
+    "onboardingNote": "A bérszámfejtéshez, a munkaidő-nyilvántartáshoz, a távollétekhez, a teljesítménykezeléshez, az AI jólléti chatbothoz és az orvosi igazolások feltöltéséhez egyaránt olyan csomagra van szükség, amely tartalmazza az adott funkciót (lásd a csomagrészleteket fent), valamint vállalata bevezető hívásának teljesítésére — mindkét feltétel csomagtól függetlenül érvényes. Az új, önkiszolgáló módon regisztrált vállalatok azonnal közzétehetnek állásokat és használhatják a Job Assistantet; ezek a további modulok akkor válnak elérhetővé, amikor Ön olyan csomagon van, amely tartalmazza őket, és a bevezető hívás csapatunkkal megtörtént.",
+    "priceNote": "Az árak magyar forintban (HUF) szerepelnek, havi elszámolással."
   },
   "contactForm": {
     "header": {
@@ -86,9 +145,8 @@
       "companyName": "A cég neve kötelező",
       "gdprConsent": "A GDPR hozzájárulás kötelező"
     }
-  }
-
-,  "feedback": {
+  },
+  "feedback": {
     "header": {
       "title": "Milyen volt a demó élményed?",
       "subtitle": "Visszajelzésed segít nekünk fejleszteni a platformot és jobban kiszolgálni felhasználóinkat."
@@ -121,10 +179,8 @@
       "subtitle": "A visszajelzésed sikeresen elküldve. Nagyra értékeljük az idődet és a véleményedet!",
       "contactUs": "Kapcsolatfelvétel"
     }
-  }
-
-  
-  ,"header": {
+  },
+  "header": {
     "yourPositions": "Pozícióim",
     "availablePositions": "Elérhető pozíciók",
     "createPosition": "Pozíció létrehozása",
@@ -144,6 +200,7 @@
     "accountManagement": "Fiókkezelés",
     "manageSubscription": "Előfizetés kezelése",
     "manageUsers": "Felhasználók kezelése",
+    "userGuide": "Felhasználói útmutató",
     "supportTickets": "Támogatási jegyek",
     "openTimeClock": "Munkaidő megnyitása",
     "expired": "LEJÁRT",
@@ -152,10 +209,11 @@
     "logout": "Kijelentkezés",
     "login": "Bejelentkezés",
     "demoProfilesHint": "Kattints ide a különböző profilokhoz",
-    "manageContacts": "Kapcsolatok Kezelése"
-  }
-
- , "positions": {
+    "manageContacts": "Kapcsolatok Kezelése",
+    "pricing": "Árak",
+    "payroll": "Bérszámfejtés"
+  },
+  "positions": {
     "availablePositions": "Elérhető pozíciók",
     "positionsAvailable": "pozíció elérhető",
     "searchPlaceholder": "Pozíció keresése...",
@@ -175,10 +233,8 @@
     "loading": "Pozíciók betöltése...",
     "error": "Hiba",
     "errorLoading": "Hiba a pozíciók betöltése közben"
-  }
-
-
-,  "analytics": {
+  },
+  "analytics": {
     "header": {
       "title": "Pozíció-analitika"
     },
@@ -245,20 +301,18 @@
         "percentage": "Arány (%)"
       }
     }
-  }
-
-,  
+  },
   "newPosition": {
     "modal": {
       "title": "Elemzés megerősítése",
-      "message": "Az adatbázisában lévő összes jelöltet elemezni fogja ehhez a pozícióhoz.",
+      "message": "Minden jelöltet elemezni fog az adatbázisában ehhez a pozícióhoz.",
       "candidates": "Jelöltek",
-      "aiCredits": "AI kreditek",
+      "aiCredits": "AI Kreditek",
       "estimatedTime": "Becsült idő:",
       "seconds": "másodperc",
       "minute": "perc",
       "willConsume": "Ez felhasznál",
-      "fromAccount": "kreditet a fiókjából.",
+      "fromAccount": "a fiókjából.",
       "processing": "Feldolgozás...",
       "confirmStart": "Megerősítés és elemzés indítása",
       "createWithoutAnalysis": "Pozíció létrehozása elemzés nélkül",
@@ -266,17 +320,42 @@
     },
     "header": {
       "title": "Új pozíció létrehozása",
-      "subtitle": "Töltse ki az alábbi űrlapot új munkakör létrehozásához"
+      "subtitle": "Töltse ki az űrlapot egy új álláslehetőség létrehozásához"
     },
     "form": {
       "positionName": "Pozíció neve",
       "positionNamePlaceholder": "pl. Senior szoftverfejlesztő",
-      "manager": "Menedzser",
       "positionDescription": "Pozíció leírása (megjelenítéshez)",
-      "positionDescriptionPlaceholder": "Rövid leírás, amely megjelenik a jelöltek számára...",
+      "positionDescriptionPlaceholder": "Rövid leírás, amelyet a jelöltek látni fognak...",
       "positionDescriptionDetailed": "Részletes pozícióleírás (AI elemzéshez)",
       "positionDescriptionDetailedPlaceholder": "Részletes követelmények, készségek és képesítések az AI párosításhoz...",
-      "startingDate": "Kezdés dátuma"
+      "startingDate": "Kezdési dátum",
+      "manager": "Ki lesz a vezetője?",
+      "locationTitle": "Helyszín és munkavégzés típusa",
+      "location": "Helyszín",
+      "locationPlaceholder": "pl: Budapest, Magyarország",
+      "locationType": "Munkavégzés helyszíne",
+      "locationTypes": {
+        "onsite": "Irodában",
+        "hybrid": "Hibrid",
+        "remote": "Távmunka"
+      },
+      "employmentType": "Foglalkoztatás típusa",
+      "selectEmploymentType": "Válasszon típust...",
+      "employmentTypes": {
+        "fullTime": "Teljes munkaidő",
+        "partTime": "Részmunkaidő",
+        "contract": "Szerződéses",
+        "internship": "Gyakornok",
+        "temporary": "Ideiglenes"
+      },
+      "salaryRange": "Fizetési sáv",
+      "optional": "opcionális",
+      "showPublicly": "Nyilvánosan megjelenítés",
+      "min": "Min",
+      "max": "Max",
+      "currency": "Pénznem",
+      "applicationDeadline": "Jelentkezési határidő"
     },
     "buttons": {
       "createPosition": "Pozíció létrehozása",
@@ -284,25 +363,34 @@
     },
     "loading": {
       "userInfo": "Felhasználói adatok betöltése...",
-      "checkingLimits": "Pozíció korlátok ellenőrzése..."
+      "checkingLimits": "Pozíció korlátok ellenőrzése...",
+      "debug": "Hibakeresés: Munkamenet:",
+      "yes": "Igen",
+      "no": "Nem",
+      "none": "Nincs",
+      "access": "Hozzáférés:"
     },
     "limitReached": {
       "title": "Pozíció limit elérve",
-      "message": "Sajnáljuk, elérte a csomagja korlátját. További pozíciók létrehozásához kérjük, frissítse előfizetését.",
+      "message": "Sajnáljuk, elérte a csomagja korlátját. További pozíciók létrehozásához kérjük, frissítse csomagját.",
       "upgradeButton": "Csomag frissítése"
     },
     "messages": {
-      "selectManager": "Kérjük, válasszon menedzsert a pozíció létrehozása előtt.",
       "errorCreating": "Hiba a pozíció létrehozása során",
       "successCreated": "Új pozíció sikeresen létrehozva",
       "unexpectedError": "Váratlan hiba:",
-      "errorFetchingCount": "Nem sikerült lekérni a jelöltek számát. Kérjük, próbálja újra.",
-      "noCandidates": "Nem található jelölt az adatbázisban. Kérjük, először adjon hozzá jelölteket.",
+      "errorFetchingCount": "A jelöltek számának lekérése sikertelen. Kérjük, próbálja újra.",
+      "noCandidates": "Nincs jelölt az adatbázisában. Kérjük, először adjon hozzá jelölteket.",
       "unexpectedErrorRetry": "Váratlan hiba. Kérjük, próbálja újra.",
       "analysisComplete": "Elemzés befejezve:",
-      "candidatesCorresponding": "jelölt felel meg",
+      "candidatesCorresponding": "megfelelő jelölt",
       "serverError": "Váratlan szerverhiba az elemzés során",
-      "createdRunLater": "Pozíció sikeresen létrehozva. Az elemzést később is futtathatja."
+      "createdRunLater": "Pozíció sikeresen létrehozva. Az elemzést később futtathatja.",
+      "errorCompanyId": "Cégazonosító nem található. Kérjük, frissítse az oldalt.",
+      "noCredits": "Nincs több AI kreditje ebben a hónapban. Kérjük, frissítse csomagját.",
+      "aiGenerationFailed": "A leírások generálása sikertelen. Kérjük, próbálja újra.",
+      "aiGenerationSuccess": "✨ Leírások sikeresen generálva! Ellenőrizze őket alább, és végezze el a szükséges módosításokat.",
+      "positionNameRequired": "Kérjük, adjon meg egy pozíciónevet a leírások generálása előtt."
     },
     "analysis": {
       "title": "Jelöltek elemzése",
@@ -316,18 +404,51 @@
       "viewDetails": "Részletek megtekintése"
     },
     "managerDropdown": {
-      "selectManager": "Válasszon menedzsert...",
+      "selectManager": "Válassz vezetőt...",
       "searchPlaceholder": "Keresés név alapján...",
       "loading": "Betöltés...",
-      "loadingManagers": "Menedzserek betöltése...",
-      "errorLoading": "Hiba a felhasználók betöltése során. Kérjük, lépjen kapcsolatba az adminisztrátorral.",
-      "noUsers": "Nem található felhasználó. Kérjük, lépjen kapcsolatba az adminisztrátorral.",
+      "loadingManagers": "Vezetők betöltése...",
+      "errorLoading": "Hiba a felhasználók betöltésekor. Kérlek, lépj kapcsolatba az adminisztrátorral.",
+      "noUsers": "Nem található felhasználó. Kérlek, lépj kapcsolatba az adminisztrátorral.",
       "noUsersFound": "Nem található felhasználó"
+    },
+    "aiSection": {
+      "title": "AI-Alapú Pozícióleírás Generátor",
+      "description": "Hagyja, hogy az AI professzionális állásleírásokat készítsen Önnek. Adjon meg egy vázlatot, és kapjon egy marketing verziót a hirdetésekhez és egy részletes verziót a jelölt elemzéshez.",
+      "generateButton": "Generálás AI-val ✨"
+    },
+    "aiModal": {
+      "title": "Pozícióleírások Generálása AI-val",
+      "instructions": "Hogyan működik:",
+      "instruction1": "Írja le a pozíciót saját szavaival (kulcsfontosságú feladatok, követelmények, csapat)",
+      "instruction2": "Az AI létrehoz egy marketing verziót (álláshirdetésekhez) és egy részletes verziót (önéletrajz-elemzéshez)",
+      "instruction3": "Ellenőrizze és szerkessze a generált leírásokat mentés előtt",
+      "generatingFor": "Generálás ehhez:",
+      "roughDraftLabel": "Az Ön Vázlata",
+      "roughDraftPlaceholder": "Példa: Keresünk egy senior frontend fejlesztőt, aki ismeri a React-et és a TypeScript-et. A fő termékünkön fog dolgozni, együttműködik a tervezőkkel és mentorál junior fejlesztőket. Olyan valakit keresünk, aki 5+ év tapasztalattal rendelkezik és képes technikai döntéseket hozni...",
+      "characters": "karakter",
+      "minLengthError": "Kérjük, írjon legalább 20 karaktert",
+      "creditWarning": "Ez 1 AI kreditet fog felhasználni a fiókjából",
+      "generating": "Generálás folyamatban...",
+      "generateButton": "Leírások Generálása",
+      "cancel": "Mégse"
     }
-  }
-
-,
+  },
   "cvAnalyse": {
+    "badges": {
+      "location": "Helyszín",
+      "remote": "Távmunka",
+      "hybrid": "Hibrid",
+      "onsite": "Irodában",
+      "fulltime": "Teljes munkaidő",
+      "parttime": "Részmunkaidő",
+      "contract": "Szerződéses",
+      "internship": "Gyakornok",
+      "temporary": "Ideiglenes",
+      "salary": "Fizetés",
+      "deadline": "Jelentkezz",
+      "deadlineToday": "Utolsó nap a jelentkezésre!"
+    },
     "header": {
       "title": "AI Önéletrajz-analízis",
       "positionAt": "helyen"
@@ -363,7 +484,7 @@
       "gdprLinkText": "GDPR szabályzatot",
       "gdprPost": "",
       "success": "Az elemzés sikeresen befejeződött! Az önéletrajzát feldolgoztuk és elmentettük.",
-      "aiConsent": "Hozzájárulok ahhoz, hogy az önéletrajzomat egy mesterséges intelligencia modell elemezze, hogy visszajelzéseket és értékelést készítsen róla.",
+      "aiConsent": "Hozzájárulok ahhoz, hogy az önéletrajzomat egy harmadik fél mesterséges intelligencia szolgáltatása elemezze, hogy visszajelzéseket és értékelést készítsen róla.",
       "error": {
         "title": "Feltöltési hiba"
       },
@@ -375,8 +496,7 @@
         "high": "Köszönjük jelentkezését! Az önéletrajza jól illik a pozícióhoz. HR munkatárs hamarosan felveszi Önnel a kapcsolatot."
       }
     }
-  }
-,
+  },
   "app": {
     "title": "Munkahelyi Jóllét Felmérés",
     "subtitle": "{{companyName}} számára",
@@ -384,6 +504,16 @@
     "startButton": "Felmérés indítása",
     "noPersonalData": "Nem gyűjtünk személyes adatokat • Csak anonim, összesített eredmények",
     "resultsIncluded": "• Az eredmények szerepelni fognak a(z) {{companyName}} jólléti összesítésében",
+    "upgradeRequired": {
+      "title": "Az Ön csomagjában nem elérhető",
+      "message": "Ez a jólléti felmérés nem szerepel a vállalata jelenlegi csomagjában.",
+      "messageWithCompany": "Ez a jólléti felmérés nem szerepel a(z) {{companyName}} jelenlegi csomagjában."
+    },
+    "onboardingRequired": {
+      "title": "A bevezető hívás után lesz elérhető",
+      "message": "Az AI jólléti chatbot azután válik elérhetővé, hogy vállalata bevezető hívása megtörtént.",
+      "cta": "Kapcsolatfelvétel"
+    },
     "loading": "Felmérés betöltése...",
     "header": "Boldogság Ellenőrzés 😊",
     "inputPlaceholder": "Írd be a válaszodat...",
@@ -435,8 +565,7 @@
     "newAssessment": "Új felmérés indítása",
     "backTo": "Vissza ide: {{companyName}}",
     "backHome": "Vissza a főoldalra"
-  }
-,
+  },
   "dashboard": {
     "title": "HR Jóllét Irányítópult",
     "subtitle": "Anonim munkahelyi boldogság elemzések",
@@ -444,37 +573,31 @@
     "error": "Hiba",
     "retry": "Újra",
     "refresh": "Frissítés",
-    
     "auth": {
       "required": "Hitelesítés szükséges",
       "description": "Be kell jelentkezned, hogy hozzáférj a HR irányítópulthoz.",
       "login": "Bejelentkezés"
     },
-    
     "errors": {
       "notAuthenticated": "Nincs hitelesítve - kérlek jelentkezz be újra",
       "accessDenied": "Hozzáférés megtagadva - nincs cég hozzárendelve a fiókodhoz",
       "loadingData": "Hiba az adatok betöltésekor",
       "unknown": "Ismeretlen hiba"
     },
-    
     "levels": {
       "excellent": "Kiváló",
       "good": "Jó",
       "needsImprovement": "Fejlesztésre szorul"
     },
-    
     "period": {
       "days": "{{count}} nap"
     },
-    
     "metrics": {
       "avgScore": "Átlagos pontszám",
       "participations": "Részvételek",
       "strongestArea": "Legerősebb terület",
       "improvementArea": "Fejlesztendő terület"
     },
-    
     "perma": {
       "positive": "Pozitív érzelmek",
       "engagement": "Elkötelezettség",
@@ -483,7 +606,6 @@
       "accomplishment": "Teljesítmény",
       "workLifeBalance": "Munka-magánélet egyensúly"
     },
-    
     "recommendations": {
       "positive": "Csapatrendezvények szervezése, sikerek ünneplése, elismerés javítása",
       "engagement": "Kihívást jelentő projektek, készségfejlesztés, nagyobb autonómia",
@@ -492,18 +614,15 @@
       "accomplishment": "Világos célok, rendszeres visszajelzés, növekedési lehetőségek",
       "workLifeBalance": "Rugalmas munkaidő, távmunka, kikapcsolódási szabályok"
     },
-    
     "charts": {
       "permaAnalysis": "PERMA-W elemzés",
       "distribution": "Területi eloszlás",
       "comparison": "Részletes összehasonlítás",
       "score": "Pontszám"
     },
-    
     "actions": {
       "title": "Javasolt intézkedések"
     },
-    
     "footer": {
       "privacy": "Adatvédelem",
       "privacyText": "Minden adat teljesen anonimizált. Személyes információk nem kerülnek tárolásra vagy megjelenítésre.",
@@ -512,9 +631,7 @@
       "export": "Exportálás",
       "exportTodo": "Az exportálás funkció hamarosan elérhető lesz"
     }
-  }
-,
-  
+  },
   "interviewList": {
     "loading": "Betöltés...",
     "noInterviews": "Még nincsenek interjúk",
@@ -614,7 +731,8 @@
       "edit": "Szerkesztés",
       "save": "Mentés",
       "saving": "Mentés folyamatban...",
-      "cancel": "Mégse"
+      "cancel": "Mégse",
+      "clearSelection": "Kijelölés törlése"
     },
     "column": {
       "unassigned": "Nincs hozzárendelve",
@@ -626,7 +744,11 @@
       "id": "Azonosító",
       "viewCV": "Önéletrajz",
       "notScored": "Nincs értékelve",
-      "new": "Új"
+      "new": "Új",
+      "viewInterviewSummary": "Interjú összefoglaló megtekintése",
+      "interviewSummary": "Interjú összefoglaló",
+      "cvScore": "Önéletrajz pontszám",
+      "aiInterview": "AI Interjú"
     },
     "modal": {
       "candidateInfo": "Jelölt információk",
@@ -645,15 +767,16 @@
       "aiAnalysis": "AI elemzés",
       "noAiAnalysis": "Nincs elérhető AI elemzés",
       "nextStep": "Következő lépés",
-      "interviews": "Interjúk"
+      "interviews": "Interjúk",
+      "aiInterview": "MI interjú",
+      "interviewSummary": "Interjú összefoglaló"
     },
     "errors": {
       "updateStepError": "Hiba a lépés frissítésekor",
       "updateCommentError": "Hiba a megjegyzés frissítésekor",
       "fetchDataError": "Hiba az adatok lekérésekor"
     }
-  }
-,
+  },
   "medicalCertificates": {
     "title": "Orvosi igazolások",
     "loading": "Igazolások betöltése...",
@@ -701,8 +824,7 @@
       "userWithoutCompany": "A felhasználónak nincs company_id-ja",
       "loadCertificates": "Hiba az igazolások betöltésekor"
     }
-  }
-,
+  },
   "certificateDownload": {
     "title": "Orvosi igazolások letöltése",
     "loading": "Igazolások betöltése...",
@@ -743,8 +865,7 @@
     "alerts": {
       "noResults": "A kiválasztott dátumokra nem található igazolás."
     }
-  }
-,
+  },
   "uploadCertificate": {
     "loading": "Jogosultságok ellenőrzése...",
     "error": {
@@ -755,7 +876,6 @@
       "title": "Elérte a csomag korlátját",
       "message": "A vállalata csomagkorlátja elérte a maximumot. A folytatáshoz kérjük, vegye fel a kapcsolatot a vállalat rendszergazdájával."
     },
-    
     "header": {
       "title": "Orvosi igazolás feltöltése",
       "subtitle": "Töltsd fel az orvosi igazolásodat automatikus feldolgozáshoz"
@@ -770,7 +890,8 @@
       "dropzoneEmpty": "Kattints ide a fájl kiválasztásához",
       "dropzoneHelp": "PDF vagy kép • Maximum 1 MB",
       "uploadButton": "Feltöltés és feldolgozás",
-      "processing": "Feldolgozás..."
+      "processing": "Feldolgozás...",
+      "aiConsent": "🤖 Hozzájárulok ahhoz, hogy ezt a dokumentumot mesterséges intelligencia — beleértve harmadik fél OCR- és AI-elemző szolgáltatásait — dolgozza fel az adatok automatikus kinyerése céljából."
     },
     "results": {
       "titleSuccess": "Kinyert igazolás adatai",
@@ -803,8 +924,7 @@
       "uploadError": "Ismeretlen hiba történt",
       "saveError": "Ismeretlen hiba történt mentés közben"
     }
-  }
-,
+  },
   "calendarLeaveModal": {
     "title": "Gyors távolléti kérelem",
     "fields": {
@@ -835,8 +955,7 @@
       "notificationError": "Hiba a távolléti kérelem értesítésének küldésekor:",
       "noManager": "Nem található vezető a felhasználóhoz, értesítés kihagyva"
     }
-  }
-,
+  },
   "calendarLegend": {
     "title": "Jelmagyarázat",
     "myView": {
@@ -858,8 +977,7 @@
       "weekend": "Hétvége",
       "hoverHint": "Vidd az egeret a napok fölé a csapattagok nevének megtekintéséhez"
     }
-  }
-,
+  },
   "calendarDay": {
     "holidayIndicator": "M",
     "tooltip": {
@@ -868,15 +986,13 @@
       "statusPending": "⏳ Függőben",
       "statusApproved": "✓ Jóváhagyva"
     }
-  }
-,
+  },
   "managerHeatmapCell": {
     "tooltip": {
       "absent": "{{count}} / {{total}} hiányzik ({{percentage}}%)",
       "pending": "(Függőben)"
     }
-  }
-,
+  },
   "yearCalendarGrid": {
     "months": {
       "january": "Január",
@@ -904,8 +1020,7 @@
     "defaults": {
       "unknownLeaveType": "Ismeretlen"
     }
-  }
-,
+  },
   "approvalModal": {
     "titles": {
       "approve": "Kérelem jóváhagyása",
@@ -927,8 +1042,7 @@
       "approve": "Kérelem jóváhagyása",
       "reject": "Kérelem elutasítása"
     }
-  }
-,
+  },
   "leaveBalances": {
     "title": "Szabadságegyenleg ({{year}})",
     "noBalances": "Nem található szabadságegyenleg",
@@ -939,8 +1053,7 @@
       "remaining": "Hátralévő:",
       "days": "nap"
     }
-  }
-,
+  },
   "pendingApprovals": {
     "title": "Függő jóváhagyások",
     "noApprovals": "Nincsenek függő jóváhagyások",
@@ -966,8 +1079,7 @@
       "notificationFailed": "Értesítés sikertelen:",
       "reviewError": "Hiba az ellenőrzés során az értesítéssel kapcsolatban:"
     }
-  }
-,
+  },
   "recentRequests": {
     "title": "Legutóbbi kérelmek",
     "empty": {
@@ -987,8 +1099,7 @@
     "buttons": {
       "uploadCertificate": "Igazolás feltöltése"
     }
-  }
-,
+  },
   "requestLeaveModal": {
     "title": "Szabadságkérelem",
     "fields": {
@@ -1004,7 +1115,7 @@
       "title": "Orvosi igazolás (nem kötelező)",
       "selectFile": "Kattintson az igazolás kiválasztásához",
       "fileHelp": "PDF vagy kép • Max. 1 MB",
-      "aiConsent":"🤖 Beleegyezem, hogy az orvosi igazolásomat mesterséges intelligencia segítségével dolgozzák fel az adatok automatikus kinyerése és ellenőrzése céljából.",
+      "aiConsent": "🤖 Beleegyezem, hogy az orvosi igazolásomat mesterséges intelligencia — beleértve harmadik fél OCR- és AI-elemző szolgáltatásait — segítségével dolgozzák fel az adatok automatikus kinyerése és ellenőrzése céljából.",
       "processButton": "Igazolás feldolgozása",
       "processing": "Feldolgozás...",
       "confirmButton": "Igazolás megerősítése",
@@ -1047,15 +1158,12 @@
       "endDateBeforeStart": "A befejező dátum nem lehet korábbi a kezdő dátumnál",
       "fileRequired": "Kérjük, töltsön fel egy orvosi igazolást"
     }
-  }
-,
+  },
   "demoTimer": {
     "expired": "A demó lejárt – Lépjen kapcsolatba velünk a folytatáshoz",
     "active": "Demó üzemmód – Hátralévő idő: {{time}}",
     "autoCloseWarning": "Az alkalmazás automatikusan bezárul az időzítő lejártakor"
-  }
-,
- 
+  },
   "loginModal": {
     "title": "Bejelentkezés",
     "subtitle": {
@@ -1087,17 +1195,13 @@
     },
     "resetTitle": "Jelszó visszaállítása",
     "resetDescription": "Add meg az email címed, és elküldjük a jelszó-visszaállító linket."
-  }
-
-
-,
+  },
   "menuItem": {
     "tooltips": {
       "demoExpired": "A demó lejárt – Lépjen kapcsolatba velünk a folytatáshoz",
       "notAvailable": "Nem érhető el az Ön csomagjában"
     }
-  }
-,
+  },
   "addUserModal": {
     "header": {
       "title": "Új felhasználó hozzáadása"
@@ -1156,8 +1260,7 @@
       "failedToCreate": "A felhasználó létrehozása nem sikerült",
       "unexpectedError": "Váratlan hiba történt"
     }
-  }
-,
+  },
   "goalDetailPage": {
     "loading": {
       "message": "Cél részleteinek betöltése..."
@@ -1217,8 +1320,7 @@
       "deleteConfirm": "Biztosan törölni szeretné ezt a célt? Ez a művelet nem vonható vissza.",
       "error": "Hiba: {{message}}"
     }
-  }
-,
+  },
   "newGoalPage": {
     "header": {
       "backButton": "Vissza a vezérlőpultra",
@@ -1257,8 +1359,7 @@
       "createSuccess": "A cél létrehozva és elküldve a vezető jóváhagyására!",
       "error": "Hiba: {{message}}"
     }
-  }
-,
+  },
   "weeklyPulsePage": {
     "loading": {
       "message": "Heti státusz ellenőrzés betöltése..."
@@ -1305,8 +1406,7 @@
       "submitFailed": "Néhány frissítés nem sikerült. Kérjük, próbálja meg újra.",
       "error": "Hiba: {{message}}"
     }
-  }
-,
+  },
   "managerDashboard": {
     "loading": {
       "message": "Csapat irányítópult betöltése..."
@@ -1356,8 +1456,7 @@
       "approveButton": "Cél jóváhagyása",
       "viewDetailsButton": "Részletek megtekintése"
     }
-  }
-,
+  },
   "performanceDashboard": {
     "loading": {
       "message": "Teljesítmény irányítópult betöltése..."
@@ -1403,8 +1502,7 @@
         "separator": "•"
       }
     }
-  }
-,
+  },
   "timeClockPage": {
     "header": {
       "title": "Munkaidő-nyilvántartás",
@@ -1463,14 +1561,12 @@
     "error": {
       "title": "Hiba"
     }
-  }
-,
+  },
   "managerTimeClockPage": {
     "loading": "Betöltés...",
     "loginRequired": "A megtekintéshez kérjük, jelentkezzen be.",
     "defaultManagerName": "Vezető"
-  }
-,
+  },
   "managerTimeClockDashboard": {
     "header": {
       "title": "Csapat munkaidő-nyilvántartás",
@@ -1526,8 +1622,7 @@
       "updateFailed": "A bejegyzés frissítése nem sikerült",
       "unexpectedError": "Váratlan hiba történt"
     }
-  }
-,
+  },
   "timeClockModal": {
     "header": {
       "title": "Munkaidő-nyilvántartás"
@@ -1559,8 +1654,7 @@
       "clockInFailed": "A bejelentkezés nem sikerült",
       "clockOutFailed": "A kijelentkezés nem sikerült"
     }
-  }
-,
+  },
   "confirmAnalysisModal": {
     "header": {
       "title": "Elemzés megerősítése"
@@ -1586,8 +1680,7 @@
       "createWithout": "Pozíció létrehozása elemzés nélkül",
       "cancel": "Mégse"
     }
-  }
-,
+  },
   "absenceManagement": {
     "loading": {
       "message": "Távolléti adatok betöltése..."
@@ -1614,8 +1707,7 @@
       "certificateLinkFailed": "Az igazolás feltöltve, de nem sikerült a kérelemhez kapcsolni",
       "unexpectedError": "Váratlan hiba történt"
     }
-  }
-,
+  },
   "certificateStatusBadge": {
     "noCertificate": "Nincs igazolás",
     "certificateConfirmed": "Igazolás megerősítve",
@@ -1625,8 +1717,7 @@
   "dateMismatchAlert": {
     "title": "Dátumeltérés",
     "description": "Az igazolás dátumai ({{certificateStart}} – {{certificateEnd}}) nem egyeznek a szabadságkérelem dátumaival ({{leaveStart}} – {{leaveEnd}})."
-  }
-,
+  },
   "emailService": {
     "cancellation": {
       "subject": "Interjú lemondva - {{positionTitle}}",
@@ -1652,9 +1743,7 @@
     "from": {
       "interviews": "HRInno Interjúk"
     }
-  }
-,
-  
+  },
   "emailTemplates": {
     "candidate": {
       "title": "Interjú meghívó",
@@ -1682,8 +1771,7 @@
       "goodLuck": "Sok sikert az interjúhoz!",
       "footer": "Üzenetet az HRInno Interjú Ütemező küldte"
     }
-  }
-,
+  },
   "notifications": {
     "header": {
       "title": "Értesítések",
@@ -1724,16 +1812,14 @@
       "title": "Értesítés",
       "message": "Új értesítésed érkezett"
     }
-  }
-,
+  },
   "statsPage": {
     "error": {
       "missingPositionId": "Hiányzik a pozíció azonosító.",
       "loadingError": "Hiba történt a statisztika betöltése közben."
     },
     "noCandidates": "Ehhez a pozícióhoz nincs jelentkező."
-  }
-,
+  },
   "subscription": {
     "header": {
       "title": "Előfizetés kezelése",
@@ -1824,8 +1910,7 @@
       "packDescription": "Tökéletes extra eredmények vagy elemzések generálásához.",
       "buyButton": "{{count}} kredit vásárlása"
     }
-  }
-,
+  },
   "companyUsers": {
     "header": {
       "title": "Vállalati felhasználók",
@@ -1885,8 +1970,7 @@
       "updating": "Frissítés...",
       "noManagers": "Nem található menedzser"
     }
-  }
-,
+  },
   "ticketDetail": {
     "loading": "Jegy betöltése...",
     "errors": {
@@ -1951,8 +2035,7 @@
       "updating": "Frissítés...",
       "cancel": "Mégse"
     }
-  }
-,
+  },
   "createTicket": {
     "common": {
       "user": "Felhasználó"
@@ -2002,8 +2085,7 @@
       "high": "Magas",
       "urgent": "Sürgős"
     }
-  }
-,
+  },
   "ticketsPage": {
     "loading": "Jegyek betöltése...",
     "errors": {
@@ -2070,115 +2152,117 @@
       "messages": "{{count}} üzenet",
       "files": "{{count}} fájl"
     }
-  }
-,"footer": {
-   "operatedBy": "Üzemeltető: Saussez Grégory, Budapest, Magyarország",
-  "privacyLink": "Adatvédelmi tájékoztató",
-  "termsLink": "Felhasználási feltételek",
-  "cookiesLink": "Süti szabályzat",
-  "impressumLink": "Impresszum",
-  "contact": "Adatvédelmi megkeresés esetén írjon a következő címre:",
-  "aiDisclaimer": "Az AI funkciók kizárólag bemutató jellegűek, és nem alkalmasak valódi HR-döntések meghozatalára."
-}
-,
-"privacyDemo": {
-  "title": "Adatvédelmi tájékoztató (Demó verzió)",
-  "intro": "Ezt a demóalkalmazást Saussez Grégory (Budapest, Magyarország) üzemelteti. A demó célja az InnoHR funkcióinak tesztelése és visszajelzések gyűjtése. Kereskedelmi tevékenység nem történik, a szolgáltatás ingyenes.",
-  "sections": {
-    "dataCollected": {
-      "title": "Gyűjtött adatok",
-      "items": {
-        "0": "Az Ön által önként megadott információk (pl. név, e-mail, visszajelzés vagy tesztadat). Kérjük, ne adjon meg valódi vagy érzékeny személyes adatokat.",
-        "1": "Technikai adatok (pl. böngésző típusa, IP-cím, hozzávetőleges földrajzi régió), amelyeket teljesítmény- és biztonsági elemzés céljából használunk."
-      }
-    },
-    "purpose": {
-      "title": "Az adatkezelés célja",
-      "text": "Az adatok kizárólag a demó használhatóságának értékelésére, a rendszer biztonságának biztosítására és az InnoHR fejlesztésének javítására szolgálnak."
-    },
-    "storage": {
-      "title": "Adattárolás és megőrzés",
-      "text": "A demóban megadott adatok minden éjjel automatikusan törlésre kerülnek egy ütemezett folyamat részeként. Csak minimális technikai naplóadatokat tárolunk legfeljebb 90 napig biztonsági és hibakeresési célból."
-    },
-    "aiProcessing": {
-      "title": "Mesterséges intelligencia általi feldolgozás",
-      "text": "A demó egyes funkciói mesterséges intelligenciát (OpenRouter vagy OpenAI API-kat) használnak. Ezek a válaszok kizárólag bemutatási célokat szolgálnak, és nem alkalmasak döntéshozatalra vagy munkavállalói értékelésre."
-    },
-    "thirdParty": {
-      "title": "Külső szolgáltatók",
-      "items": {
-        "supabase": {
-          "name": "Supabase (adatbázis-szolgáltatás)",
-          "desc": "Cél: adatbázis-kezelés és hitelesítés. Székhely: USA (EU-alapú szerverekkel).",
-          "linkHref": "https://supabase.com/privacy",
-          "linkText": "Adatvédelmi irányelvek",
-          "color": "border-blue-500"
-        },
-        "openai": {
-          "name": "OpenRouter / OpenAI (MI-szolgáltatás)",
-          "desc": "Cél: mesterséges intelligencián alapuló elemzés és válaszgenerálás. Székhely: USA. Az adatok nem kerülnek hosszú távú tárolásra.",
-          "linkHref": "https://openai.com/privacy",
-          "linkText": "Adatvédelmi irányelvek",
-          "color": "border-green-500"
-        },
-        "vercel": {
-          "name": "Vercel (tárhelyszolgáltató)",
-          "desc": "Cél: webtárhely és tartalomszolgáltatás. Székhely: USA (EU régió engedélyezve).",
-          "linkHref": "https://vercel.com/legal/privacy-policy",
-          "linkText": "Adatvédelmi irányelvek",
-          "color": "border-purple-500"
-        },
-        "stripe": {
-          "name": "Stripe (fizetési szolgáltató)",
-          "desc": "Cél: fizetések kezelése. A fizetési funkció jelenleg le van tiltva a demó verzióban. Székhely: USA (EU-alapú adattárolás).",
-          "linkHref": "https://stripe.com/privacy",
-          "linkText": "Adatvédelmi irányelvek",
-          "color": "border-orange-500"
-        },
-        "resend": {
-          "name": "Resend / Nodemailer (e-mail küldés)",
-          "desc": "Cél: belső értesítő e-mailek küldése a fejlesztőnek. Külső marketing-üzeneteket nem küldünk.",
-          "linkHref": "https://resend.com/privacy",
-          "linkText": "Adatvédelmi irányelvek",
-          "color": "border-teal-500"
+  },
+  "footer": {
+    "operatedBy": "Üzemeltető: Saussez Grégory, Budapest, Magyarország",
+    "privacyLink": "Adatvédelmi tájékoztató",
+    "termsLink": "Felhasználási feltételek",
+    "cookiesLink": "Süti szabályzat",
+    "impressumLink": "Impresszum",
+    "contact": "Adatvédelmi megkeresés esetén írjon a következő címre:",
+    "aiDisclaimer": "Az AI funkciók kizárólag bemutató jellegűek, és nem alkalmasak valódi HR-döntések meghozatalára."
+  },
+  "privacyDemo": {
+    "title": "Adatvédelmi tájékoztató (Demó verzió)",
+    "intro": "Ezt a demóalkalmazást Saussez Grégory (Budapest, Magyarország) üzemelteti. A demó célja az InnoHR funkcióinak tesztelése és visszajelzések gyűjtése. Kereskedelmi tevékenység nem történik, a szolgáltatás ingyenes.",
+    "sections": {
+      "dataCollected": {
+        "title": "Gyűjtött adatok",
+        "items": {
+          "0": "Az Ön által önként megadott információk (pl. név, e-mail, visszajelzés vagy tesztadat). Kérjük, ne adjon meg valódi vagy érzékeny személyes adatokat.",
+          "1": "Technikai adatok (pl. böngésző típusa, IP-cím, hozzávetőleges földrajzi régió), amelyeket teljesítmény- és biztonsági elemzés céljából használunk."
         }
       },
-      "noticeTitle": "Adattovábbítás:",
-      "noticeText": "Egyes adatok az Európai Unión kívülre kerülhetnek továbbításra. Az adattovábbítás az Európai Bizottság által jóváhagyott Általános Szerződési Feltételek (SCC) alapján történik, amelyek biztosítják az adatok megfelelő védelmét."
+      "purpose": {
+        "title": "Az adatkezelés célja",
+        "text": "Az adatok kizárólag a demó használhatóságának értékelésére, a rendszer biztonságának biztosítására és az InnoHR fejlesztésének javítására szolgálnak."
+      },
+      "storage": {
+        "title": "Adattárolás és megőrzés",
+        "text": "A feltöltött önéletrajzok és orvosi igazolások a feltöltéstől számított 30 nap elteltével automatikusan törlésre kerülnek egy ütemezett folyamat részeként. Csak minimális technikai naplóadatokat tárolunk legfeljebb 90 napig biztonsági és hibakeresési célból."
+      },
+      "aiProcessing": {
+        "title": "Mesterséges intelligencia általi feldolgozás",
+        "text": "A demó egyes funkciói mesterséges intelligenciát (OpenRouter vagy OpenAI API-kat) használnak. Ezek a válaszok kizárólag bemutatási célokat szolgálnak, és nem alkalmasak döntéshozatalra vagy munkavállalói értékelésre."
+      },
+      "thirdParty": {
+        "title": "Külső szolgáltatók",
+        "items": {
+          "supabase": {
+            "name": "Supabase (adatbázis-szolgáltatás)",
+            "desc": "Cél: adatbázis-kezelés és hitelesítés. Székhely: USA (EU-alapú szerverekkel).",
+            "linkHref": "https://supabase.com/privacy",
+            "linkText": "Adatvédelmi irányelvek",
+            "color": "border-blue-500"
+          },
+          "openai": {
+            "name": "OpenRouter / OpenAI (MI-szolgáltatás)",
+            "desc": "Cél: mesterséges intelligencián alapuló elemzés és válaszgenerálás. Székhely: USA. Az adatok nem kerülnek hosszú távú tárolásra.",
+            "linkHref": "https://openai.com/privacy",
+            "linkText": "Adatvédelmi irányelvek",
+            "color": "border-green-500"
+          },
+          "ocrspace": {
+            "name": "OCR.Space (dokumentum-OCR szolgáltatás)",
+            "desc": "Cél: szöveg kinyerése a feltöltött orvosi igazolások képeiből/PDF-jeiből. Székhely: USA. A teljes dokumentumot kapja meg, nem csak a kinyert szöveget.",
+            "linkHref": "https://ocr.space/privacypolicy",
+            "linkText": "Adatvédelmi irányelvek",
+            "color": "border-yellow-500"
+          },
+          "vercel": {
+            "name": "Vercel (tárhelyszolgáltató)",
+            "desc": "Cél: webtárhely és tartalomszolgáltatás. Székhely: USA (EU régió engedélyezve).",
+            "linkHref": "https://vercel.com/legal/privacy-policy",
+            "linkText": "Adatvédelmi irányelvek",
+            "color": "border-purple-500"
+          },
+          "stripe": {
+            "name": "Stripe (fizetési szolgáltató)",
+            "desc": "Cél: fizetések kezelése. A fizetési funkció jelenleg le van tiltva a demó verzióban. Székhely: USA (EU-alapú adattárolás).",
+            "linkHref": "https://stripe.com/privacy",
+            "linkText": "Adatvédelmi irányelvek",
+            "color": "border-orange-500"
+          },
+          "resend": {
+            "name": "Resend / Nodemailer (e-mail küldés)",
+            "desc": "Cél: belső értesítő e-mailek küldése a fejlesztőnek. Külső marketing-üzeneteket nem küldünk.",
+            "linkHref": "https://resend.com/privacy",
+            "linkText": "Adatvédelmi irányelvek",
+            "color": "border-teal-500"
+          }
+        },
+        "noticeTitle": "Adattovábbítás:",
+        "noticeText": "Egyes adatok az Európai Unión kívülre kerülhetnek továbbításra. Az adattovábbítás az Európai Bizottság által jóváhagyott Általános Szerződési Feltételek (SCC) alapján történik, amelyek biztosítják az adatok megfelelő védelmét."
+      },
+      "dataController": {
+        "title": "Adatkezelő elérhetőségei",
+        "nameLabel": "Név:",
+        "emailLabel": "E-mail:",
+        "addressLabel": "Cím:",
+        "dpoLabel": "Adatvédelmi tisztviselő:",
+        "name": "Saussez Grégory",
+        "email": "privacy@innohr.hu",
+        "address": "Budapest, Magyarország",
+        "dpo": "privacy@innohr.hu"
+      },
+      "userRights": {
+        "title": "Az Ön jogai",
+        "text": "Ön bármikor kérheti adataihoz való hozzáférést vagy azok törlését a privacy@innohr.hu e-mail címen. Jogában áll panaszt tenni a Nemzeti Adatvédelmi és Információszabadság Hatóságnál (NAIH) – www.naih.hu."
+      },
+      "contact": {
+        "title": "Kapcsolat",
+        "text": "Üzemeltető: Saussez Grégory, Budapest, Magyarország",
+        "email": "privacy@innohr.hu"
+      }
     },
-    "dataController": {
-      "title": "Adatkezelő elérhetőségei",
-      "nameLabel": "Név:",
-      "emailLabel": "E-mail:",
-      "addressLabel": "Cím:",
-      "dpoLabel": "Adatvédelmi tisztviselő:",
-      "name": "Saussez Grégory",
-      "email": "privacy@innohr.hu",
-      "address": "Budapest, Magyarország",
-      "dpo": "privacy@innohr.hu"
-    },
-    "userRights": {
-      "title": "Az Ön jogai",
-      "text": "Ön bármikor kérheti adataihoz való hozzáférést vagy azok törlését a privacy@innohr.hu e-mail címen. Jogában áll panaszt tenni a Nemzeti Adatvédelmi és Információszabadság Hatóságnál (NAIH) – www.naih.hu."
-    },
-    "contact": {
-      "title": "Kapcsolat",
-      "text": "Üzemeltető: Saussez Grégory, Budapest, Magyarország",
-      "email": "privacy@innohr.hu"
-    }
+    "lastUpdated": "Utolsó frissítés: 2025. november"
   },
-  "lastUpdated": "Utolsó frissítés: 2025. november"
-}
-
-
-,
-"cookies": {
-  "title": "Sütik és adatok",
-  "text": "A sütiket a bemutató élményének javítása érdekében használjuk. Harmadik fél által használt nyomkövető sütiket nem alkalmazunk.",
-  "accept": "Elfogadom",
-  "reject": "Elutasítom"
-}
-,
+  "cookies": {
+    "title": "Sütik és adatok",
+    "text": "A sütiket a bemutató élményének javítása érdekében használjuk. Harmadik fél által használt nyomkövető sütiket nem alkalmazunk.",
+    "accept": "Elfogadom",
+    "reject": "Elutasítom"
+  },
   "termsDemo": {
     "title": "Demo Felhasználási Feltételek",
     "lastUpdated": "Utolsó frissítés: {date}",
@@ -2212,143 +2296,580 @@
     }
   },
   "demoBanner": {
-  "title": "Demo verzió:",
-  "text": "Ne használj valódi személyes adatokat. Minden demóadat minden éjjel automatikusan törlődik."
-}
-,
-"impressumDemo": {
-  "title": "Impresszum",
-  "intro": "Az uniós jogszabályoknak megfelelően az alábbi jogi információk vonatkoznak erre a weboldalra és a demóra.",
-  "fields": {
-    "operator": "Üzemeltető",
-    "address": "Cím",
-    "email": "E-mail",
-    "website": "Weboldal"
+    "title": "Demo verzió:",
+    "text": "Ne használj valódi személyes adatokat. A feltöltött önéletrajzok és orvosi igazolások 30 nap után automatikusan törlődnek."
   },
-  "sections": {
-    "liability": {
-      "title": "Felelősség kizárása",
-      "text": "A tartalom gondos ellenőrzése ellenére sem vállalunk felelősséget a külső hivatkozások tartalmáért. A hivatkozott oldalak tartalmáért kizárólag azok üzemeltetői felelősek."
+  "impressumDemo": {
+    "title": "Impresszum",
+    "intro": "Az uniós jogszabályoknak megfelelően az alábbi jogi információk vonatkoznak erre a weboldalra és a demóra.",
+    "fields": {
+      "operator": "Üzemeltető",
+      "address": "Cím",
+      "email": "E-mail",
+      "website": "Weboldal"
     },
-    "copyright": {
-      "title": "Szerzői jogi nyilatkozat",
-      "text": "Minden szöveg, kép és forráskód szerzői jogvédelem alatt áll. A szerzői jogi törvény határain kívüli bármilyen másolás vagy felhasználás előzetes írásbeli engedélyhez kötött."
-    }
-  },
-  "lastUpdated": "Utoljára frissítve: 2025. október"
-}
-,
-"cookiesDemo": {
-  "title": "Süti tájékoztató (Demó verzió)",
-  "intro": "Ez a demóalkalmazás minimális sütiket és hasonló technológiákat használ a megfelelő működés és a technikai teljesítmény mérésének biztosítása érdekében. Nem használunk reklám- vagy követő sütiket.",
-  "sections": {
-    "whatAreCookies": {
-      "title": "Mik azok a sütik?",
-      "text": "A sütik kis szöveges fájlok, amelyeket a weboldal helyez el az Ön eszközén. Segítenek a webhely megfelelő működésében, megjegyzik a beállításait, és anonim statisztikai adatokat gyűjtenek a használatról."
-    },
-    "howWeUse": {
-      "title": "Hogyan használjuk a sütiket",
-      "text": "Csak azokat a sütiket használjuk, amelyek elengedhetetlenek az alkalmazás működéséhez, például a hitelesítéshez és biztonsághoz (Supabase), valamint a technikai teljesítmény méréséhez (Vercel). Ezek a sütik nem azonosítják Önt személyesen, és a munkamenet végeztével automatikusan törlődnek."
-    },
-    "types": {
-      "title": "A használt sütik típusai",
-      "items": {
-        "necessary": "Szükséges sütik – az alkalmazás alapvető működéséhez (bejelentkezés, munkamenet-kezelés, biztonság) szükségesek.",
-        "analytics": "Analitikai sütik – a technikai teljesítmény és hibák figyelésére szolgálnak a Vercel Analytics segítségével. Ezek nem tartalmaznak személyes azonosítót.",
-        "functional": "Funkcionális sütik – ideiglenesen megőrzik a demó nyelvi beállításait és a hozzájárulási döntéseket."
+    "sections": {
+      "liability": {
+        "title": "Felelősség kizárása",
+        "text": "A tartalom gondos ellenőrzése ellenére sem vállalunk felelősséget a külső hivatkozások tartalmáért. A hivatkozott oldalak tartalmáért kizárólag azok üzemeltetői felelősek."
+      },
+      "copyright": {
+        "title": "Szerzői jogi nyilatkozat",
+        "text": "Minden szöveg, kép és forráskód szerzői jogvédelem alatt áll. A szerzői jogi törvény határain kívüli bármilyen másolás vagy felhasználás előzetes írásbeli engedélyhez kötött."
       }
     },
-    "manage": {
-      "title": "Sütik kezelése",
-      "text": "A sütiket a böngésző beállításaiban kezelheti vagy törölheti. Mivel ez egy demó környezet, a sütik letiltása bizonyos funkciók (például a bejelentkezés vagy a nyelvi beállítások) működését korlátozhatja."
+    "lastUpdated": "Utoljára frissítve: 2025. október"
+  },
+  "cookiesDemo": {
+    "title": "Süti tájékoztató (Demó verzió)",
+    "intro": "Ez a demóalkalmazás minimális sütiket és hasonló technológiákat használ a megfelelő működés és a technikai teljesítmény mérésének biztosítása érdekében. Nem használunk reklám- vagy követő sütiket.",
+    "sections": {
+      "whatAreCookies": {
+        "title": "Mik azok a sütik?",
+        "text": "A sütik kis szöveges fájlok, amelyeket a weboldal helyez el az Ön eszközén. Segítenek a webhely megfelelő működésében, megjegyzik a beállításait, és anonim statisztikai adatokat gyűjtenek a használatról."
+      },
+      "howWeUse": {
+        "title": "Hogyan használjuk a sütiket",
+        "text": "Csak azokat a sütiket használjuk, amelyek elengedhetetlenek az alkalmazás működéséhez, például a hitelesítéshez és biztonsághoz (Supabase), valamint a technikai teljesítmény méréséhez (Vercel). Ezek a sütik nem azonosítják Önt személyesen, és a munkamenet végeztével automatikusan törlődnek."
+      },
+      "types": {
+        "title": "A használt sütik típusai",
+        "items": {
+          "necessary": "Szükséges sütik – az alkalmazás alapvető működéséhez (bejelentkezés, munkamenet-kezelés, biztonság) szükségesek.",
+          "analytics": "Analitikai sütik – a technikai teljesítmény és hibák figyelésére szolgálnak a Vercel Analytics segítségével. Ezek nem tartalmaznak személyes azonosítót.",
+          "functional": "Funkcionális sütik – ideiglenesen megőrzik a demó nyelvi beállításait és a hozzájárulási döntéseket."
+        }
+      },
+      "manage": {
+        "title": "Sütik kezelése",
+        "text": "A sütiket a böngésző beállításaiban kezelheti vagy törölheti. Mivel ez egy demó környezet, a sütik letiltása bizonyos funkciók (például a bejelentkezés vagy a nyelvi beállítások) működését korlátozhatja."
+      },
+      "moreInfo": {
+        "title": "További információ",
+        "text": "Ha kérdése van ezzel a süti tájékoztatóval kapcsolatban, kérjük, vegye fel velünk a kapcsolatot a következő címen:"
+      }
     },
-    "moreInfo": {
-      "title": "További információ",
-      "text": "Ha kérdése van ezzel a süti tájékoztatóval kapcsolatban, kérjük, vegye fel velünk a kapcsolatot a következő címen:"
+    "lastUpdated": "Utolsó frissítés: 2025. november"
+  },
+  "resetPage": {
+    "title": "Jelszó visszaállítása",
+    "loading": "Betöltés...",
+    "fields": {
+      "newPasswordPlaceholder": "Új jelszó"
+    },
+    "buttons": {
+      "save": "Új jelszó mentése",
+      "backToHome": "Vissza a főoldalra",
+      "backToApp": "Vissza az alkalmazáshoz"
+    },
+    "messages": {
+      "passwordUpdated": "A jelszavad frissítve lett!",
+      "redirecting": "Átirányítás..."
+    },
+    "errors": {
+      "missingPassword": "Kérlek add meg az új jelszót.",
+      "passwordTooShort": "A jelszónak legalább 6 karakternek kell lennie",
+      "noSession": "Nincs érvényes munkamenet. Kérj új jelszó-visszaállítási linket.",
+      "sessionError": "Munkamenet hiba"
     }
   },
-  "lastUpdated": "Utolsó frissítés: 2025. november"
-}
-
-,
-  "resetPage": {
-  "title": "Jelszó visszaállítása",
-  "loading": "Betöltés...",
-  "fields": {
-    "newPasswordPlaceholder": "Új jelszó"
+  "payroll": {
+    "title": "Bérszámfejtés kezelése",
+    "subtitle": "Kezelje a munkavállalók béradatait és készítsen exportokat",
+    "addEmployeePayroll": "Bér hozzáadása munkavállalónak",
+    "loading": "Betöltés...",
+    "noUser": "Nincs hitelesített felhasználó",
+    "fetchError": "Hiba a jelenlegi felhasználó lekérésekor:",
+    "verifySession": "Kérjük, várjon, amíg ellenőrizzük a munkamenetet..."
   },
-  "buttons": {
-    "save": "Új jelszó mentése",
-    "backToHome": "Vissza a főoldalra",
-    "backToApp": "Vissza az alkalmazáshoz"
+  "payrollModal": {
+    "title": {
+      "add": "Béradat hozzáadása",
+      "edit": "Béradat módosítása"
+    },
+    "loading": "Béradatok betöltése...",
+    "errorTitle": "Hiba",
+    "errors": {
+      "fetchError": "A béradatok lekérése sikertelen",
+      "loadError": "A bérinformációk betöltése sikertelen",
+      "saveError": "A béradatok mentése sikertelen"
+    },
+    "validation": {
+      "positionRequired": "A pozíció megadása kötelező",
+      "salaryRequired": "Érvényes bérösszeg megadása kötelező",
+      "tajInvalid": "A TAJ számnak pontosan 9 számjegyből kell állnia",
+      "taxIdInvalid": "Az adóazonosító jelnek pontosan 10 karakterből kell állnia"
+    },
+    "sections": {
+      "employment": {
+        "title": "Munkaviszony részletei",
+        "fields": {
+          "employmentType": "Munkaviszony típusa",
+          "contractType": "Szerződés típusa",
+          "positionTitle": "Pozíció megnevezése",
+          "department": "Osztály",
+          "workLocation": "Munkahely",
+          "contractStartDate": "Szerződés kezdete",
+          "weeklyHours": "Heti óraszám"
+        },
+        "options": {
+          "fullTime": "Teljes munkaidő",
+          "partTime": "Részmunkaidő",
+          "contract": "Szerződéses",
+          "intern": "Gyakornok",
+          "permanent": "Állandó",
+          "fixedTerm": "Határozott idejű",
+          "temporary": "Időszakos"
+        },
+        "placeholders": {
+          "positionTitle": "pl. Szoftvermérnök",
+          "department": "pl. Mérnökség",
+          "workLocation": "pl. Budapest irodája"
+        }
+      },
+      "compensation": {
+        "title": "Javadalmazás",
+        "fields": {
+          "salaryAmount": "Bérösszeg",
+          "currency": "Pénznem",
+          "salaryPeriod": "Béridőszak",
+          "paymentMethod": "Fizetési mód"
+        },
+        "options": {
+          "hourly": "Órabér",
+          "monthly": "Havi",
+          "annually": "Éves",
+          "bankTransfer": "Banki átutalás",
+          "check": "Csekk",
+          "cash": "Készpénz"
+        },
+        "placeholders": {
+          "salaryAmount": "pl. 500000"
+        }
+      },
+      "banking": {
+        "title": "Banki adatok",
+        "fields": {
+          "iban": "Bankszámla (IBAN)",
+          "bankName": "Bank neve"
+        },
+        "placeholders": {
+          "iban": "pl. HU42123456789012345678901234",
+          "bankName": "pl. OTP Bank"
+        }
+      },
+      "hungarianTax": {
+        "title": "Magyar adóadatok",
+        "fields": {
+          "tajNumber": "TAJ szám",
+          "taxId": "Adóazonosító jel",
+          "taxBracket": "Adósáv",
+          "familyTaxAllowance": "Családi adókedvezmény",
+          "pensionFund": "Nyugdíjpénztár"
+        },
+        "options": {
+          "taxBracket1": "1. sáv (alap)",
+          "taxBracket2": "2. sáv (több állás)",
+          "government": "Állami",
+          "private": "Magán"
+        },
+        "placeholders": {
+          "tajNumber": "9 számjegy",
+          "taxId": "10 karakter"
+        },
+        "hints": {
+          "tajNumber": "Társadalombiztosítási szám (9 számjegy)",
+          "taxId": "Személyi adóazonosító (10 karakter)",
+          "familyTaxAllowance": "Eltartottak száma"
+        },
+        "rates": {
+          "title": "Adókulcsok (2024)",
+          "personalIncomeTax": "Személyi jövedelemadó",
+          "employeeSocialContribution": "Munkavállalói társadalombiztosítási járulék",
+          "employerSocialContribution": "Munkáltatói társadalombiztosítási járulék"
+        }
+      }
+    },
+    "footer": {
+      "requiredFields": "* Kötelező mezők",
+      "buttons": {
+        "cancel": "Mégse",
+        "saving": "Mentés...",
+        "create": "Bér létrehozása",
+        "saveChanges": "Változtatások mentése"
+      }
+    }
   },
-  "messages": {
-    "passwordUpdated": "A jelszavad frissítve lett!",
-    "redirecting": "Átirányítás..."
+  "payrollExportModal": {
+    "title": "Béradatok exportálása",
+    "advancedOptions": "Speciális beállítások",
+    "locale": "hu-HU",
+    "errors": {
+      "exportFailed": "A béradatok exportálása sikertelen",
+      "genericError": "Hiba történt"
+    },
+    "validation": {
+      "blockedTitle": "A béradatok nem exportálhatók"
+    },
+    "sections": {
+      "period": {
+        "title": "Exportálási időszak",
+        "fields": {
+          "month": "Hónap",
+          "year": "Év"
+        }
+      },
+      "format": {
+        "title": "Exportálási formátum",
+        "options": {
+          "generic": {
+            "label": "Általános formátum",
+            "description": "Ember által olvasható formátum"
+          },
+          "kulcsSoft": {
+            "label": "Kulcs-Soft",
+            "description": "Kulcs bérszámfejtő rendszer"
+          },
+          "nexon": {
+            "label": "Nexon",
+            "description": "Nexon bérszámfejtő rendszer"
+          },
+          "sap": {
+            "label": "SAP HCM",
+            "description": "SAP SuccessFactors"
+          }
+        }
+      },
+      "filters": {
+        "title": "Szűrők (opcionális)",
+        "fields": {
+          "department": "Részleg",
+          "includeTerminated": "Kilépett munkavállalók 포함"
+        },
+        "placeholders": {
+          "department": "pl. Mérnökség"
+        }
+      }
+    },
+    "buttons": {
+      "cancel": "Mégse",
+      "checking": "Béradatok ellenőrzése…",
+      "fixData": "Béradatok javítása",
+      "exportPeriod": "Bér exportálása"
+    },
+    "summary": {
+      "exporting": "Bérek exportálása a kiválasztott hónapra"
+    }
   },
-  "errors": {
-    "missingPassword": "Kérlek add meg az új jelszót.",
-    "passwordTooShort": "A jelszónak legalább 6 karakternek kell lennie",
-    "noSession": "Nincs érvényes munkamenet. Kérj új jelszó-visszaállítási linket.",
-    "sessionError": "Munkamenet hiba"
-  }
-}
-
-,
-
+  "payrollForm": {
+    "title": {
+      "add": "Új béradat hozzáadása",
+      "edit": "Béradat módosítása"
+    },
+    "errors": {
+      "saveFailed": "A béradat mentése sikertelen",
+      "genericError": "Hiba történt"
+    },
+    "sections": {
+      "employee": {
+        "fields": {
+          "selectEmployee": "Alkalmazott"
+        },
+        "placeholders": {
+          "selectEmployee": "Válasszon alkalmazottat"
+        }
+      },
+      "employment": {
+        "title": "Munkaviszony részletei",
+        "fields": {
+          "employmentType": "Munkaviszony típusa",
+          "contractType": "Szerződés típusa",
+          "contractStartDate": "Szerződés kezdete",
+          "contractEndDate": "Szerződés vége",
+          "positionTitle": "Pozíció megnevezése",
+          "department": "Osztály",
+          "workLocation": "Munkahely",
+          "weeklyHours": "Heti óraszám"
+        },
+        "options": {
+          "fullTime": "Teljes munkaidő",
+          "partTime": "Részmunkaidő",
+          "contractor": "Vállalkozó",
+          "intern": "Gyakornok",
+          "temporary": "Időszakos",
+          "permanent": "Állandó",
+          "fixedTerm": "Határozott idejű",
+          "probation": "Próbaidő"
+        },
+        "placeholders": {
+          "positionTitle": "pl. Szoftvermérnök",
+          "department": "pl. Mérnökség",
+          "workLocation": "pl. Budapest irodája"
+        }
+      },
+      "compensation": {
+        "title": "Javadalmazás",
+        "fields": {
+          "grossSalary": "Bruttó bér",
+          "currency": "Pénznem",
+          "bankAccount": "Bankszámla (IBAN)",
+          "bankName": "Bank neve"
+        },
+        "options": {
+          "huf": "HUF (Magyar forint)",
+          "eur": "EUR (Euro)",
+          "usd": "USD (US Dollar)"
+        },
+        "placeholders": {
+          "grossSalary": "pl. 500000",
+          "bankAccount": "HU42XXXXXXXXXXXXXXXXXXXX",
+          "bankName": "pl. OTP Bank"
+        }
+      },
+      "hungarianData": {
+        "title": "Magyar béradatok",
+        "fields": {
+          "tajNumber": "TAJ szám (Társadalombiztosítás)",
+          "taxId": "Adóazonosító jel",
+          "taxBracket": "Adósáv",
+          "familyTaxAllowance": "Családi adókedvezmény (Gyermekek)",
+          "pensionFund": "Nyugdíjpénztár",
+          "healthInsuranceNumber": "Egészségbiztosítási szám"
+        },
+        "options": {
+          "bracket1": "1. sáv",
+          "bracket2": "2. sáv",
+          "government": "Állami",
+          "private": "Magán"
+        },
+        "placeholders": {
+          "tajNumber": "123456789",
+          "taxId": "8012345678",
+          "familyTaxAllowance": "0",
+          "healthInsuranceNumber": "Adja meg a biztosítási számot"
+        },
+        "hints": {
+          "tajNumber": "9 számjegy",
+          "taxId": "10 számjegy",
+          "familyTaxAllowance": "Eltartott gyermekek száma"
+        }
+      }
+    },
+    "buttons": {
+      "cancel": "Mégse",
+      "saving": "Mentés...",
+      "update": "Frissítés",
+      "create": "Létrehozás"
+    }
+  },
+  "payrollList": {
+    "title": "Bérszámfejtés kezelése",
+    "locale": "hu-HU",
+    "loading": "Béradatok betöltése...",
+    "errorTitle": "Hiba",
+    "errors": {
+      "fetchFailed": "A béradatok lekérése sikertelen",
+      "genericError": "Hiba történt",
+      "deleteFailed": "A béradat törlése sikertelen",
+      "deleteError": "Hiba a béradat törlése közben",
+      "unknown": "Ismeretlen hiba"
+    },
+    "confirmations": {
+      "deactivate": "Biztos benne, hogy deaktiválni szeretné ezt a béradatot?"
+    },
+    "buttons": {
+      "export": "Exportálás Excel-be"
+    },
+    "filters": {
+      "title": "Szűrők",
+      "country": "Ország",
+      "allCountries": "Minden ország",
+      "hungary": "Magyarország",
+      "status": "Státusz",
+      "all": "Mind",
+      "active": "Aktív",
+      "inactive": "Inaktív",
+      "department": "Osztály",
+      "departmentPlaceholder": "Szűrés osztály szerint"
+    },
+    "employmentTypes": {
+      "fullTime": "Teljes munkaidő",
+      "partTime": "Részmunkaidő",
+      "contractor": "Vállalkozó",
+      "intern": "Gyakornok",
+      "temporary": "Időszakos"
+    },
+    "table": {
+      "headers": {
+        "employee": "Alkalmazott",
+        "position": "Pozíció",
+        "department": "Osztály",
+        "employmentType": "Munkaviszony típusa",
+        "salary": "Bér",
+        "status": "Státusz",
+        "actions": "Műveletek"
+      },
+      "statusLabels": {
+        "active": "Aktív",
+        "inactive": "Inaktív"
+      },
+      "actions": {
+        "viewDetails": "Részletek megtekintése",
+        "quickEdit": "Gyors szerkesztés",
+        "deactivate": "Deaktiválás"
+      },
+      "noRecords": "Nincs béradat"
+    },
+    "stats": {
+      "totalEmployees": "Összes alkalmazott",
+      "activeEmployees": "Aktív alkalmazottak",
+      "totalMonthlyPayroll": "Összes havi bér"
+    }
+  },
+  "interview": {
+    "closing": "Köszönjük ezt a virtuális interjút! HR toborzónk gondosan átnézi válaszait, és értesíti Önt a lehetséges következő lépésekről. Nagyra értékeljük az időt, amelyet megosztott velünk tapasztalatairól. 🙏",
+    "cta": {
+      "title": "Virtuális Interjú Elérhető",
+      "subtitle": "10 személyre szabott kérdés • ~10 perc",
+      "description": "Profilja nagyon ígéretes! Meghívjuk, hogy töltse ki ezt a rövid virtuális interjút, amely kifejezetten az Ön háttere és az adott pozíció alapján készült. Ez teljesen opcionális, de extra lehetőséget ad a kiemelkedésre.",
+      "feature1": "Személyre szabott",
+      "feature2": "MI-alapú",
+      "feature3": "Azonnali eredmény",
+      "startButton": "Virtuális Interjú Indítása",
+      "optional": "Opcionális — ezt a lépést kihagyhatja"
+    },
+    "chat": {
+      "title": "Virtuális Interjú",
+      "completed": "Befejezve",
+      "welcome": "Üdvözlöm{name}! Üdvözöljük a virtuális interjún. 10 kérdést fogok feltenni, amelyek az Ön profiljához és ehhez a pozícióhoz igazodnak. Szánjon időt minden válaszra — nincsenek jó vagy rossz válaszok, csak legyen önmaga.",
+      "questionLabel": "Kérdés",
+      "evaluating": "Válaszok értékelése...",
+      "waitingQuestion": "Következő kérdésre várva...",
+      "inputPlaceholder": "Írja be válaszát... (Enter a küldéshez, Shift+Enter új sorhoz)",
+      "hint": "Enter a küldéshez • Shift+Enter új sorhoz",
+      "suggestionsLabel": "Válasszon egy választ vagy írja meg a sajátját",
+      "writeOwnAnswer": "Saját válasz írása",
+      "backToSuggestions": "← Vissza a javaslatokhoz",
+      "yourAnswer": "Az Ön válasza",
+      "sending": "Küldés..."
+    }
+  },
+  "jobAssistant": {
+    "header": {
+      "title": "Állásjelentkezési Asszisztens",
+      "subtitle": "Pontozd az önéletrajzod, optimalizáld, és készülj az interjúra"
+    },
+    "steps": {
+      "upload": "Feltöltés",
+      "score": "Kezdeti Pont",
+      "cv": "Jobb ÖÉ",
+      "interview": "Interjú",
+      "coaching": "Coaching"
+    },
+    "errors": {
+      "uploadCv": "Kérjük, töltsd fel az önéletrajzod.",
+      "pasteJob": "Kérjük, illeszd be az álláshirdetést.",
+      "analysisFailed": "Az elemzés sikertelen. Kérjük, próbáld újra.",
+      "improvementFailed": "Az önéletrajz javítása sikertelen. Kérjük, próbáld újra.",
+      "interviewFailed": "Nem sikerült interjúkérdéseket generálni. Kérjük, próbáld újra.",
+      "scoringFailed": "A pontozás sikertelen. Kérjük, próbáld újra.",
+      "reportFailed": "Nem sikerült coaching-jelentést generálni. Kérjük, próbáld újra.",
+      "somethingWrong": "Valami hiba történt"
+    },
+    "upload": {
+      "cvLabel": "Önéletrajzod (PDF)",
+      "dropHint": "Húzd ide az önéletrajzod vagy",
+      "browse": "böngéssz",
+      "pdfOnly": "Csak PDF",
+      "clickToChange": "Kattints a módosításhoz",
+      "jobLabel": "Álláshirdetés",
+      "jobPlaceholder": "Illeszd be ide a teljes álláshirdetést...",
+      "characters": "karakter",
+      "analyzeButton": "Pályázatom Elemzése →",
+      "aiConsent": "Tudomásul veszem és elfogadom, hogy önéletrajzomat egy harmadik fél mesterséges intelligencia szolgáltatása dolgozza fel elemzési célból. A munkamenet végén semmilyen adat nem kerül tárolásra."
+    },
+    "loading": {
+      "analyzing": "Az önéletrajz elemzése az álláshirdetés alapján...",
+      "improving": "Az önéletrajz átírása és optimalizálása...",
+      "generatingInterview": "Személyre szabott interjúkérdések előkészítése...",
+      "generatingReport": "Személyre szabott coaching-jelentés generálása..."
+    },
+    "initialScore": {
+      "title": "Kezdeti Önéletrajz Pontszám",
+      "topStrengths": "Fő Erősségek",
+      "topGaps": "Fő Hiányosságok",
+      "optimizeButton": "Önéletrajzom Optimalizálása →",
+      "optimizeSubtitle": "Pontszám javítása + DOCX letöltés",
+      "skipButton": "Ugrás az Interjúra →",
+      "skipSubtitle": "Már jelentkeztél? Gyakorolj most"
+    },
+    "improvedCv": {
+      "title": "Önéletrajz Optimalizálás Eredménye",
+      "before": "Előtte",
+      "after": "Utána",
+      "gain": "Nyereség",
+      "keyChanges": "Fő Változtatások",
+      "downloadButton": "Optimalizált ÖÉ Letöltése (.docx)",
+      "interviewButton": "Interjú Tréning Indítása →"
+    },
+    "interview": {
+      "questionOf": "{current}. kérdés / {total}",
+      "whatWeAssess": "Mit értékelünk:",
+      "answerPlaceholder": "Írd ide a válaszod... Gondolkodj, mintha valódi interjún lennél.",
+      "submitButton": "Válasz Elküldése",
+      "scoringButton": "Pontozás...",
+      "showHint": "Tipp Mutatása",
+      "hideHint": "Tipp Elrejtése",
+      "hintLabel": "💡 Javasolt Válasz (Csak Inspiráció)",
+      "strengthsLabel": "✓ Erősségek",
+      "improveLabel": "↗ Fejlesztendő",
+      "betterPhrasing": "Jobb megfogalmazás:",
+      "suggestedAnswer": "Javasolt válasz:",
+      "nextQuestion": "Következő Kérdés →",
+      "getReport": "Coaching Jelentés →",
+      "recordingPlaceholder": "Figyelek... mondja el a választ",
+      "recording": "Felvétel...",
+      "startRecording": "Válasz hanggal",
+      "stopRecording": "Felvétel leállítása",
+      "voiceUnsupportedTitle": "Hangbevitel nem elérhető",
+"voiceUnsupportedText": "A böngésződ nem támogatja a hangbevitelt. Használd a Chrome-ot vagy az Edge-et ehhez a funkcióhoz, vagy írd be a választ az alábbi mezőbe."
+    },
+    "coaching": {
+      "overallScore": "Összesített Interjú Pontszám",
+      "performanceTitle": "Teljesítmény Kérdéstípusonként",
+      "topStrengths": "Fő Erősségek",
+      "mustImprove": "Fejlesztendő Területek",
+      "coachingPlanTitle": "Személyes Coaching Terved",
+      "priority": "{level} Prioritás",
+      "weeklyExercise": "Heti gyakorlat:",
+      "reviewTitle": "Kérdésenkénti Áttekintés",
+      "yourAnswer": "A te válaszod:",
+      "suggestedAnswer": "Javasolt válasz:",
+      "restartButton": "Új Pályázat Indítása"
+    },
+    "questionTypes": {
+      "behavioral": "Viselkedési",
+      "technical": "Szakmai",
+      "motivational": "Motivációs",
+      "situational": "Szituációs"
+    }
+  },
   "notificationComponent": {
     "title": "Értesítések",
     "markAllRead": "Összes megjelölése olvasottként",
-    "noNotifications": "Nincs új értesítés",
-
+    "noNotifications": "Még nincs értesítés",
     "ticket": {
       "newTicket": "Új jegy",
       "user": "Felhasználó",
       "newMessage": "Új üzenet",
       "someone": "Valaki",
-      "replied": "válaszolt a jegyre"
+      "replied": "válaszolt"
     },
-
-    "leave": {
-      "created": "Szabadság igénylés",
-      "approved": "Szabadság jóváhagyva",
-      "rejected": "Szabadság elutasítva"
-    },
-
-    "goal": {
-      "created": "Új cél",
-      "approved": "Cél jóváhagyva",
-      "redFlag": "A cél figyelmet igényel"
-    },
-
-    "pulse": {
-      "reminder": "Pulse emlékeztető"
-    },
-
-    "oneOnOne": {
-      "scheduled": "1-on-1 megbeszélés ütemezve"
-    },
-
-    "cvUploaded": {
-      "title": "Új önéletrajz feltöltve",
-      "message": "Új önéletrajz érkezett a(z) {{role}} pozícióra"
-    },
-
     "time": {
-      "justNow": "Épp most",
+      "justNow": "Éppen most",
       "minutesAgo": "{{count}} perce",
-      "minutesAgo_plural": "{{count}} perce",
       "hoursAgo": "{{count}} órája",
-      "hoursAgo_plural": "{{count}} órája",
-      "daysAgo": "{{count}} napja",
-      "daysAgo_plural": "{{count}} napja"
+      "daysAgo": "{{count}} napja"
     }
   }
-
 }
-
-
-
-
-
-  

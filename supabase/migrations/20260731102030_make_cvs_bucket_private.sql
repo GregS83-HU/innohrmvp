@@ -1,0 +1,17 @@
+-- The 'cvs' bucket was public, so any candidate PDF was permanently
+-- fetchable by anyone with (or guessing) its storage path, independent of
+-- the short-lived signed URL the app separately generated.
+--
+-- Verified uploads happen only via src/app/api/analyse-cv/route.ts using the
+-- service_role key (bypasses RLS/bucket-public entirely) - the candidate's
+-- browser never talks to Supabase Storage directly, so making the bucket
+-- private does not affect the public upload flow.
+--
+-- Reads now go exclusively through
+-- src/app/api/candidates/signed-cv-url/route.ts, which mints a 10-minute
+-- signed URL after checking the requesting user's company owns the position
+-- the candidate applied to. That route also uses the service_role key, so no
+-- storage.objects RLS policy is required for it to work - the bucket had 0
+-- pre-existing policies at the time of this migration (confirmed via the
+-- Supabase dashboard), so none need to be dropped here.
+UPDATE storage.buckets SET public = false WHERE id = 'cvs';

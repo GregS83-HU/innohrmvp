@@ -5,6 +5,73 @@ import { formatLocation } from './ics-generator'
 // Translation function type
 type TranslationFunction = (key: string, params?: Record<string, string | number>) => string
 
+interface OnboardingEmailData {
+  adminFirstName: string
+  companyName: string
+  calendlyUrl: string
+  variant: 'welcome' | 'reminder'
+}
+
+/**
+ * Sent to a self-serve signup's admin: a Calendly link to book the
+ * onboarding call needed to unlock payroll/time & attendance/absences/
+ * performance/the wellbeing chatbot/medical certificates. 'welcome' goes
+ * out right at signup; 'reminder' is the one-time nudge if they haven't
+ * booked within the SLA window (see lib/businessDays.ts).
+ */
+export function generateOnboardingEmail(data: OnboardingEmailData): string {
+  const isReminder = data.variant === 'reminder'
+
+  const heading = isReminder ? "Don't forget to book your onboarding call" : 'Welcome to HRInno!'
+  const intro = isReminder
+    ? `Just a quick reminder — <strong>${data.companyName}</strong> hasn't booked its onboarding call yet.`
+    : `<strong>${data.companyName}</strong> is set up and ready to go.`
+  const body = isReminder
+    ? `Payroll, time & attendance, absences, performance management, the AI wellbeing chatbot, and medical certificate uploads are all waiting for a short setup call with our team before they unlock.`
+    : `You can start posting jobs and using the AI Job Assistant right away — no setup needed. Payroll, time & attendance, absences, performance management, the AI wellbeing chatbot, and medical certificate uploads unlock after a short onboarding call with our team.`
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+
+  <div style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+    <h1 style="color: white; margin: 0; font-size: 24px;">${heading}</h1>
+  </div>
+
+  <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
+
+    <p style="font-size: 16px; margin-top: 0;">Hi ${data.adminFirstName},</p>
+
+    <p style="font-size: 16px;">${intro}</p>
+
+    <p style="font-size: 16px;">${body}</p>
+
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${data.calendlyUrl}" style="display: inline-block; background: #4f46e5; color: white; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+        Book your onboarding call
+      </a>
+    </div>
+
+    <p style="font-size: 14px; color: #6b7280; margin-bottom: 0;">
+      Questions in the meantime? Just reply to this email.
+    </p>
+
+  </div>
+
+  <div style="text-align: center; padding: 20px; color: #6b7280; font-size: 12px;">
+    <p style="margin: 0;">Sent via HRInno</p>
+  </div>
+
+</body>
+</html>
+`
+}
+
 interface InterviewEmailData {
   candidateName: string
   recruiterName: string

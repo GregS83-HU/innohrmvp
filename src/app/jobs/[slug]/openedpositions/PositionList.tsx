@@ -325,7 +325,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
                     )}
                   </div>
 
-                  <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 leading-relaxed">
+                  <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 leading-relaxed whitespace-pre-wrap">
                     {position.position_description}
                   </p>
 
