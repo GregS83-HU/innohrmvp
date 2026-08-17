@@ -219,6 +219,7 @@ export default function JobAssistantPage() {
   const [jobDescription, setJobDescription] = useState('');
   const [error, setError] = useState('');
   const [isDragging, setIsDragging] = useState(false);
+  const [aiConsentAccepted, setAiConsentAccepted] = useState(false);
 
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [improvementResult, setImprovementResult] = useState<ImprovementResult | null>(null);
@@ -318,6 +319,7 @@ export default function JobAssistantPage() {
   const handleAnalyze = async () => {
     if (!cvFile) return setError(t('jobAssistant.errors.uploadCv'));
     if (!jobDescription.trim()) return setError(t('jobAssistant.errors.pasteJob'));
+    if (!aiConsentAccepted) return;
     setError('');
     setStep('analyzing');
     trackFunnelEvent('job_assistant_started');
@@ -497,6 +499,7 @@ export default function JobAssistantPage() {
     setCurrentScore(null);
     setUserAnswer('');
     setError('');
+    setAiConsentAccepted(false);
   };
 
   return (
@@ -576,9 +579,19 @@ export default function JobAssistantPage() {
               <p className="text-xs text-gray-400 mt-1">{jobDescription.length} {t('jobAssistant.upload.characters')}</p>
             </div>
 
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={aiConsentAccepted}
+                onChange={e => setAiConsentAccepted(e.target.checked)}
+                className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 text-emerald-600 focus:ring-emerald-400"
+              />
+              <span className="text-sm text-gray-600">{t('jobAssistant.upload.aiConsent')}</span>
+            </label>
+
             <button
               onClick={handleAnalyze}
-              disabled={!cvFile || !jobDescription.trim()}
+              disabled={!cvFile || !jobDescription.trim() || !aiConsentAccepted}
               className="w-full py-3.5 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"
             >
               {t('jobAssistant.upload.analyzeButton')}
