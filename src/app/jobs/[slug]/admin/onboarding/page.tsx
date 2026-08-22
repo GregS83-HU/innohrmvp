@@ -76,7 +76,7 @@ export default function OnboardingAdminPage() {
           <h1 className="text-2xl font-bold text-gray-800">Onboarding</h1>
         </div>
         <p className="text-gray-500 mb-6 text-sm">
-          Payroll, time &amp; attendance, absences, performance management, and the AI wellbeing chatbot stay
+          Time &amp; attendance, absences, performance management, and the AI wellbeing chatbot stay
           locked for a company until its onboarding call is done and you flip it on here - regardless of plan.
         </p>
 

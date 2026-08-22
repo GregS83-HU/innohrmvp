@@ -9,8 +9,8 @@ import { trackFunnelEvent } from '../../../lib/funnelTracking';
 type PlanKey = 'free' | 'momentum' | 'infinity';
 
 // Job postings/certificates/credits/wellbeing are still simple quantity or
-// on-off limits. Payroll/attendance/absences and performance are now
-// capability gates with an employee-count cap (see MODULE_GATING_FIX.md) -
+// on-off limits. Attendance/absences and performance are now capability
+// gates with an employee-count cap (see MODULE_GATING_FIX.md) -
 // hrOps/performance below drive which icon+copy each plan shows for them:
 // "locked" (Free - preview only, not usable), "included" (usable up to the
 // cap), or plain not-included (Momentum's missing performance - a real
@@ -108,7 +108,7 @@ export default function PricingPage() {
                     {limits.wellbeing ? t('pricing.features.wellbeingIncluded') : t('pricing.features.wellbeingNotIncluded')}
                   </li>
 
-                  {/* Payroll / time & attendance / absences */}
+                  {/* Time & attendance / absences */}
                   <li className={`flex items-start gap-2 text-sm pt-2 border-t border-gray-100 ${limits.hrOps === 'included' ? 'text-gray-700' : 'text-gray-400'}`}>
                     {limits.hrOps === 'included' ? (
                       <Check className="w-4 h-4 text-accent-600 flex-shrink-0 mt-0.5" />

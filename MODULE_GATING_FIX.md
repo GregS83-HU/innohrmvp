@@ -1,9 +1,17 @@
-# Module Gating Fix: Payroll, Attendance, Absences, Performance
+# Module Gating Fix: Attendance, Absences, Performance
 
 Extends plan-based feature gating (previously: job posting count, medical
-certificate upload count, wellbeing chatbot access) to payroll, time &
-attendance, absences, and performance management, plus a new employee seat
-cap. Verified end-to-end against production — see "Verification" below.
+certificate upload count, wellbeing chatbot access) to time & attendance,
+absences, and performance management, plus a new employee seat cap.
+Verified end-to-end against production — see "Verification" below.
+
+Originally also covered payroll, gated together with attendance/absences on
+the same flag. Payroll was decommissioned afterward (see
+`docs/product-brief.md` and `supabase/migrations/*_decommission_payroll.sql`)
+— attendance and absences kept the shared flag, renamed to drop the
+"payroll" wording (`access_payroll_attendance_absences` →
+`access_attendance_absences`); their gating behavior is unchanged by that
+rename.
 
 ## New tiering, as implemented
 
@@ -12,7 +20,7 @@ cap. Verified end-to-end against production — see "Verification" below.
 | Job postings | **2** (was 3) | 5 | 10 |
 | Medical certificates | 5/month | 10/month | 20/month |
 | Wellbeing chatbot | No | Yes | Yes |
-| Payroll / attendance / absences | **Locked** | Usable, capped at 20 employees | Usable, capped at 100 employees |
+| Time & attendance / absences | **Locked** | Usable, capped at 20 employees | Usable, capped at 100 employees |
 | Performance management | **Locked** | **Locked** | Usable, capped at 100 employees |
 
 Job posting/medical certificate/chatbot logic itself was not touched — only
@@ -26,10 +34,11 @@ three columns to `forfait`, read live by the app exactly like the existing
 `max_opened_position`/`max_medical_certificates`/`access_happy_check` —
 changing a plan's values in Supabase takes effect with no code deploy:
 
-- `access_payroll_attendance_absences boolean` — one flag for all three
-  modules (they're always enabled/disabled together in every tier
-  described above, so three separate columns would just be redundant and
-  able to drift out of sync).
+- `access_attendance_absences boolean` (originally `access_payroll_attendance_absences`,
+  renamed when payroll was decommissioned) — one flag for both modules
+  (they're always enabled/disabled together in every tier described above,
+  so two separate columns would just be redundant and able to drift out of
+  sync).
 - `access_performance boolean`
 - `max_employees integer`, nullable = **no cap**. Free is `null` — its
   modules are locked outright regardless of headcount, so a seat cap isn't
@@ -50,26 +59,26 @@ definition — worth knowing if it's ever questioned later.
 ## Where the seat cap actually applies (and where it doesn't)
 
 The task describes the employee-count check as applying "to
-payroll/attendance/absences/performance routes," but also requires that a
+attendance/absences/performance routes," but also requires that a
 company over its cap keep full access to **existing** data and only be
 blocked from **adding new employees**. Implemented as: the cap is enforced
 **only** at the point a new employee is added
 (`company_to_users` insert — `users-creation` and `import-users`), not on
-every payroll/timeclock/absence/performance action. Once an employee
-exists, every one of those modules' actions is gated purely by the module
-flag (`access_payroll_attendance_absences` / `access_performance`), never
-by re-checking headcount. This is the only reading that's consistent with
+every timeclock/absence/performance action. Once an employee exists, every
+one of those modules' actions is gated purely by the module flag
+(`access_attendance_absences` / `access_performance`), never by
+re-checking headcount. This is the only reading that's consistent with
 "never punish existing data" — checking the cap on every action would mean
 a company that's one employee over its cap (e.g. after a downgrade) would
-have payroll suddenly break for everyone, which is exactly what the
-"existing data" principle rules out.
+have attendance tracking suddenly break for everyone, which is exactly what
+the "existing data" principle rules out.
 
 ## Server-side enforcement (the actual gate)
 
 `lib/entitlements.ts`'s `hasFeatureAccess()` — the same function used for
 the original three features — now also handles:
-- `payroll.use`, `attendance.use`, `absences.use` → flag check against
-  `access_payroll_attendance_absences`
+- `attendance.use`, `absences.use` → flag check against
+  `access_attendance_absences`
 - `performance.use` → flag check against `access_performance`
 - `company.addEmployee` → capacity check against `max_employees` (with a
   `null` max meaning "no cap," not "fail closed" — the opposite of what
@@ -80,10 +89,6 @@ the original three features — now also handles:
 Applied to every write handler (POST/PUT/PATCH/DELETE — never GET; reads
 are never gated, same principle as the original three features) across:
 
-- **Payroll**: `POST /api/payroll`, `PUT`/`DELETE /api/payroll/[id]`,
-  `POST /api/payroll/bulk`, `POST /api/payroll/allowances`,
-  `PUT`/`DELETE /api/payroll/allowances/[id]`, `POST /api/payroll/deductions`,
-  `POST`/`PUT /api/payroll/periods/close`.
 - **Attendance**: `POST /api/timeclock` (clock in/out),
   `POST /api/timeclock/manager` (approve-entry).
 - **Performance**: `POST /api/performance/goals/create`,
@@ -115,11 +120,11 @@ that already existed.
 ## Locked (admin) vs hidden (everyone else)
 
 Role check reused as instructed: `users.is_admin`, the exact same flag
-already gating payroll/positions/user-management links in the header and
+already gating positions/user-management links in the header and
 dashboard — not a new role concept, and specifically not `is_manager`
 (managers are *not* treated as admins for this purpose; see below).
 
-- **Admins**: the four modules always appear in navigation (dashboard grid
+- **Admins**: the three modules always appear in navigation (dashboard grid
   in `Home/page.tsx`, and the header's HR Tools dropdown, desktop + mobile).
   Opening a locked one shows `<LockedModuleNotice>` — an upgrade card, not
   a 403 — instead of the real feature UI. New component:
@@ -131,10 +136,10 @@ dashboard — not a new role concept, and specifically not `is_manager`
   upgrade, not for employees who have no purchasing role"). Applied
   consistently to managers too, not just regular employees, since managers
   have no purchasing role either.
-- Each destination page (`payroll`, `time-clock/manager`, `absences`,
-  `performance`, `performance/team`) also checks this itself and shows the
-  same locked notice (or returns nothing for non-admins) if reached
-  directly by URL rather than through nav.
+- Each destination page (`time-clock/manager`, `absences`, `performance`,
+  `performance/team`) also checks this itself and shows the same locked
+  notice (or returns nothing for non-admins) if reached directly by URL
+  rather than through nav.
 
 New shared pieces: `GET /api/entitlements/status?userId=X` (resolves
 `is_admin` + both module flags for a user in one call — not itself an
@@ -142,7 +147,7 @@ enforcement point, just what the UI reads to decide what to show) and the
 `useModuleAccess()` hook wrapping it, used by the header, dashboard grid,
 and all five pages so this logic exists once, not five times.
 
-**Note on `absences`/`performance` specifically**: unlike payroll, these
+**Note on `absences`/`performance` specifically**: unlike attendance, these
 two pages are used by every role today (an employee requests their own
 leave or views their own goals on the same page an admin would). So on
 Free tier, a regular employee genuinely loses the ability to request leave
@@ -176,11 +181,11 @@ real employee counts already in the database — not mocks:
 1. Confirmed the migration applied: `forfait` has the 3 new columns with
    the seeded values shown in the table above.
 2. Temporarily flipped company 3 ("HRInno Demo," 3 real active employees)
-   to **Free**: `payroll.use` and `performance.use` → `not_included_in_plan`
+   to **Free**: `attendance.use` and `performance.use` → `not_included_in_plan`
    as expected; `company.addEmployee` → `allowed` (Free is uncapped);
    `recruitment.openPosition` (an untouched, original feature) still
    worked, confirming this change didn't disturb it.
-3. Flipped the same company to **Momentum**: `payroll.use` → allowed;
+3. Flipped the same company to **Momentum**: `attendance.use` → allowed;
    `performance.use` → still `not_included_in_plan` (correct — Momentum
    doesn't include it); `company.addEmployee` → allowed (3 used of 20).
 4. **Boundary test**: temporarily lowered Momentum's `max_employees` from
@@ -208,11 +213,11 @@ and reading through the logic, not by clicking through it live.
 ## Constraints carried over from the task, restated for whoever reads this later
 
 - **Re-verify before shipping**: the task's premise was "no real Free-tier
-  customers exist yet on payroll/attendance/absences," so no
+  customers exist yet on attendance/absences," so no
   grandfathering/migration logic was built. Confirmed no live Free-tier
   company is currently *using* these modules isn't something this session
   checked beyond confirming all 3 real companies are on Infinity — if that
-  changes before this ships, re-check for real Free-tier payroll/timeclock/
+  changes before this ships, re-check for real Free-tier timeclock/
   leave-request/goal data before relying on "no punishment needed" logic.
 - Reducing Free's job-posting cap from 3→2 could affect a real Free-tier
   company that currently has exactly 2 or 3 open positions — existing

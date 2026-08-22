@@ -1,8 +1,8 @@
 // Lightweight status endpoint for the client-side locked/hidden UI split
-// used by the payroll/attendance/absences/performance pages and the
-// dashboard nav grid. Not itself an enforcement point - the real
-// enforcement is server-side in each write route (see MODULE_GATING_FIX.md).
-// This just tells the UI what to show.
+// used by the attendance/absences/performance pages and the dashboard nav
+// grid. Not itself an enforcement point - the real enforcement is
+// server-side in each write route (see MODULE_GATING_FIX.md). This just
+// tells the UI what to show.
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
@@ -40,8 +40,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Company not found for this user' }, { status: 404 });
     }
 
-    const [payroll, performance, companyRow] = await Promise.all([
-      hasFeatureAccess(companyLink.company_id, 'payroll.use'),
+    const [attendanceAbsences, performance, companyRow] = await Promise.all([
+      hasFeatureAccess(companyLink.company_id, 'attendance.use'),
       hasFeatureAccess(companyLink.company_id, 'performance.use'),
       supabase.from('company').select('onboarding_completed').eq('id', companyLink.company_id).single(),
     ]);
@@ -49,13 +49,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       isAdmin: !!userData.is_admin,
       companyId: companyLink.company_id,
-      plan: payroll.plan ?? performance.plan ?? null,
+      plan: attendanceAbsences.plan ?? performance.plan ?? null,
       // These already fold in the onboarding gate (hasFeatureAccess checks
       // it first) - a company that's on Momentum/Infinity but not yet
       // onboarded gets `false` here just like a company on Free would.
       // `onboardingCompleted` is exposed separately so the UI can tell
       // "not in your plan" apart from "not onboarded yet" for messaging.
-      payrollAttendanceAbsencesEnabled: payroll.allowed,
+      attendanceAbsencesEnabled: attendanceAbsences.allowed,
       performanceEnabled: performance.allowed,
       onboardingCompleted: !!companyRow.data?.onboarding_completed,
     });

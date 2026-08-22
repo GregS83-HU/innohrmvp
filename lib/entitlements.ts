@@ -1,7 +1,7 @@
 // Server-side feature-gating helper. See src/config/entitlements.ts for the
 // feature -> DB check mapping, GATING_SUMMARY.md for the original three
-// features, and MODULE_GATING_FIX.md for payroll/attendance/absences/
-// performance and the employee seat cap.
+// features, and MODULE_GATING_FIX.md for attendance/absences/performance
+// and the employee seat cap.
 import { createClient } from "@supabase/supabase-js";
 import {
   FEATURE_RULES,
@@ -39,7 +39,7 @@ type ForfaitRow = {
   max_opened_position: number | null;
   max_medical_certificates: number | null;
   access_happy_check: boolean | null;
-  access_payroll_attendance_absences: boolean | null;
+  access_attendance_absences: boolean | null;
   access_performance: boolean | null;
   max_employees: number | null;
 };
@@ -79,7 +79,7 @@ export async function hasFeatureAccess(
   const { data: forfait, error: forfaitError } = await supabase
     .from("forfait")
     .select(
-      "forfait_name, max_opened_position, max_medical_certificates, access_happy_check, access_payroll_attendance_absences, access_performance, max_employees"
+      "forfait_name, max_opened_position, max_medical_certificates, access_happy_check, access_attendance_absences, access_performance, max_employees"
     )
     .eq("forfait_name", planName)
     .single<ForfaitRow>();
@@ -98,8 +98,8 @@ export async function hasFeatureAccess(
     const flagValue =
       rule.rpc === "can_access_happy_check"
         ? forfait.access_happy_check
-        : rule.rpc === "can_use_payroll_attendance_absences"
-        ? forfait.access_payroll_attendance_absences
+        : rule.rpc === "can_use_attendance_absences"
+        ? forfait.access_attendance_absences
         : forfait.access_performance;
 
     if (flagValue) {
@@ -188,9 +188,9 @@ async function countExistingForCapacityCheck(
 }
 
 /**
- * Resolves a user's company_id via company_to_users, for routes (payroll,
- * timeclock, performance, etc.) that receive a user id but not an explicit
- * company id. Returns null if the user has no company link.
+ * Resolves a user's company_id via company_to_users, for routes (timeclock,
+ * performance, etc.) that receive a user id but not an explicit company id.
+ * Returns null if the user has no company link.
  */
 export async function resolveCompanyIdForUser(userId: string): Promise<number | null> {
   const { data, error } = await supabase

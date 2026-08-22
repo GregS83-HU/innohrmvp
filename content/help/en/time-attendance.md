@@ -17,4 +17,4 @@ Managers have a separate team view showing time-clock activity across their team
 
 ## Plan limits and availability
 
-Like payroll and absences, time & attendance is included on Momentum (up to 20 employees) and Infinity (up to 100 employees) — on Free, it's a locked preview only. It also requires your company's onboarding call to be complete before use, on any plan (see Getting Started).
+Like absences, time & attendance is included on Momentum (up to 20 employees) and Infinity (up to 100 employees) — on Free, it's a locked preview only. It also requires your company's onboarding call to be complete before use, on any plan (see Getting Started).

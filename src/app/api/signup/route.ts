@@ -1,7 +1,7 @@
 // Self-serve signup: creates a brand-new company + its first admin account,
 // unassisted. New companies land on Free (forfait = null) with
-// onboarding_completed = false - payroll/attendance/absences/performance/
-// the wellbeing chatbot stay gated until our team flips that flag after a
+// onboarding_completed = false - attendance/absences/performance/the
+// wellbeing chatbot stay gated until our team flips that flag after a
 // setup call (see lib/entitlements.ts). Recruitment/Job Assistant are NOT
 // gated by onboarding, so this route is all a new company needs to start
 // using them immediately.

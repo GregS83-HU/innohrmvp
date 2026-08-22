@@ -89,7 +89,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Feature 2 - Payroll & time tracking */}
+            {/* Feature 2 - Time & attendance tracking */}
             <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
               <div className="text-center">
                 <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">

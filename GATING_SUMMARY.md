@@ -64,21 +64,20 @@ function returns false) — this work makes that behavior actually enforced
 server-side and consistent, rather than inventing new behavior.
 
 Everything else a company already has — existing job postings, existing
-medical certificates, payroll records, time entries, performance data,
-candidate pipelines — remains fully readable and editable. Nothing in this
-change makes existing data read-only, because the task's "read-only, no new
-actions" recommendation only applies to the three features that actually have
+medical certificates, time entries, performance data, candidate pipelines —
+remains fully readable and editable. Nothing in this change makes existing
+data read-only, because the task's "read-only, no new actions"
+recommendation only applies to the three features that actually have
 plan-based capacity/flags. See below for why the rest isn't touched.
 
 ## What's intentionally left ungated, and why
 
-The task's assumed structure (starter = payroll + attendance, pro = +
-performance + wellbeing, etc.) does not match reality: **the `forfait` table
-has no column distinguishing plans for these features at all** — every
-company, regardless of plan or even with `forfait IS NULL`, has identical
+The task's assumed structure (starter = attendance, pro = + performance +
+wellbeing, etc.) does not match reality: **the `forfait` table has no
+column distinguishing plans for these features at all** — every company,
+regardless of plan or even with `forfait IS NULL`, has identical
 database-level access to:
 
-- **Payroll** (`api/payroll/*`)
 - **Time & attendance** (`api/timeclock/*`)
 - **Absences** (no API — client queries `leave_requests` directly via RLS)
 - **Performance management** (`api/performance/*`)

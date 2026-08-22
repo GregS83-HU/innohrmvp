@@ -132,7 +132,7 @@ export default function SignupPage() {
         </form>
 
         <p className="text-xs text-gray-400 mt-6 text-center">
-          Payroll, time &amp; attendance, absences, performance management, and the AI wellbeing chatbot unlock
+          Time &amp; attendance, absences, performance management, and the AI wellbeing chatbot unlock
           after a short onboarding call with our team.
         </p>
       </div>

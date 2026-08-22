@@ -417,7 +417,7 @@ const AbsenceManagement: React.FC = () => {
   // Non-admins (regular employees, plain managers) get nothing here at
   // all rather than a locked preview - a deliberate product decision, see
   // MODULE_GATING_FIX.md.
-  if (!moduleAccess.loading && !moduleAccess.payrollAttendanceAbsencesEnabled) {
+  if (!moduleAccess.loading && !moduleAccess.attendanceAbsencesEnabled) {
     if (!moduleAccess.isAdmin) return null;
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-6 lg:p-8">
