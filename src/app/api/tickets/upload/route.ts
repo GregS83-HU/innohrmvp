@@ -1,6 +1,7 @@
 // app/api/tickets/upload/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { requireAuthenticatedUser } from '../../../../../lib/authz';
 import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
@@ -23,17 +24,11 @@ interface Ticket {
 export async function POST(req: NextRequest) {
   try {
     // Get the current user
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json({ error: 'Missing authorization header' }, { status: 401 });
+    const identity = await requireAuthenticatedUser(req);
+    if (!identity.authorized) {
+      return NextResponse.json({ error: identity.error }, { status: identity.status });
     }
-
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
+    const user = { id: identity.userId };
 
     // Parse form data
     const formData = await req.formData();

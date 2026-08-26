@@ -44,5 +44,5 @@ next-env.d.ts
 node_modules/
 .env.local
 
-#test ParsePDF
-test/
+#test ParsePDF fixture data (kept out of git; large/binary, not needed to run the suite)
+test/data/

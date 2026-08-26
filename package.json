@@ -8,6 +8,8 @@
     "start": "next start",
     "postinstall": "patch-package",
     "lint": "next lint",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "test-env": "node -e \"console.log('URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)\""
   },
   "dependencies": {
@@ -73,6 +75,7 @@
     "snyk": "^1.1299.0",
     "tailwindcss": "^4.1.13",
     "tw-animate-css": "^1.3.7",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.11"
   }
 }

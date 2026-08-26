@@ -4,7 +4,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { verifySuperAdmin } from '../../../../../../lib/verifySuperAdmin';
+import { requireSuperAdmin } from '../../../../../../lib/authz';
 import { getRetentionSettings, getRetentionHistory, updateRetentionSetting, DataType } from '../../../../../../lib/dataRetention';
 import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
@@ -34,7 +34,7 @@ async function withUserNames<T extends { updated_by?: string | null; changed_by?
 }
 
 export async function GET(request: NextRequest) {
-  const authCheck = await verifySuperAdmin(request);
+  const authCheck = await requireSuperAdmin(request);
   if (!authCheck.authorized) {
     return NextResponse.json({ error: authCheck.error || 'Unauthorized access' }, { status: 403 });
   }
@@ -50,8 +50,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  const authCheck = await verifySuperAdmin(request);
-  if (!authCheck.authorized || !authCheck.userId) {
+  const authCheck = await requireSuperAdmin(request);
+  if (!authCheck.authorized) {
     return NextResponse.json({ error: authCheck.error || 'Unauthorized access' }, { status: 403 });
   }
 

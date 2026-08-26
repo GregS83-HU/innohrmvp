@@ -2,12 +2,12 @@
 // sweep would delete, based on the CURRENTLY configured retention_days.
 
 import { NextRequest, NextResponse } from 'next/server';
-import { verifySuperAdmin } from '../../../../../../lib/verifySuperAdmin';
+import { requireSuperAdmin } from '../../../../../../lib/authz';
 import { previewDeletions } from '../../../../../../lib/dataRetention';
 import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
 export async function GET(request: NextRequest) {
-  const authCheck = await verifySuperAdmin(request);
+  const authCheck = await requireSuperAdmin(request);
   if (!authCheck.authorized) {
     return NextResponse.json({ error: authCheck.error || 'Unauthorized access' }, { status: 403 });
   }

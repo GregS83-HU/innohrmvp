@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getPrompt, fillPromptVariables, PromptNotFoundError, PromptDatabaseError } from '../../../../../lib/prompts';
+import { requireSessionToken } from '../../../../../lib/authz';
 import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
@@ -483,29 +484,20 @@ export async function POST(request: NextRequest) {
     
     console.log('Received language:', language);
     
-    if (!sessionToken) {
-      return NextResponse.json(
-        { error: 'Missing session token' },
-        { status: 401 }
-      );
-    }
-
     // Get questions for current language
     const permaQuestions = permaQuestionsMap[language];
 
-    const { data: session, error: sessionError } = await supabase
-      .from('happiness_sessions')
-      .select('*')
-      .eq('session_token', sessionToken)
-      .single();
-    
-    if (sessionError || !session) {
-      console.error('Session fetch error:', sessionError);
-      return NextResponse.json(
-        { error: 'Session not found' },
-        { status: 404 }
-      );
+    const authCheck = await requireSessionToken<{
+      id: number;
+      timeout_at: string | null;
+      status: string;
+      current_step: number | null;
+      perma_scores: unknown;
+    }>(request, 'happiness_sessions', { noToken: 'Missing session token', notFound: 'Session not found' });
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }
+    const session = authCheck.session;
 
     if (session.timeout_at && new Date() > new Date(session.timeout_at)) {
       await supabase
@@ -578,7 +570,11 @@ export async function POST(request: NextRequest) {
         : 6;
 
       // Generate personalized advice with language support
-      personalizedAdvice = await generatePersonalizedAdvice(permaScores, session.id, language);
+      // session.id is numeric in the DB; generatePersonalizedAdvice's param is
+      // typed as string but only ever uses it in an .eq() filter, so this
+      // matches the implicit `any` it received before this file had a typed
+      // session — no runtime value change, just satisfying strict typing.
+      personalizedAdvice = await generatePersonalizedAdvice(permaScores, session.id as unknown as string, language);
       console.log('Generated advice in route, count:', personalizedAdvice.length);
 
       // Get language-specific end messages

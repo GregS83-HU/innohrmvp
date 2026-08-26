@@ -5,6 +5,7 @@
 // delegating the actual work).
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { requireServiceSecret } from '../../../../../lib/authz';
 import { addBusinessDays } from '../../../../../lib/businessDays';
 import { sendOnboardingReminderEmail } from '../../../../../lib/email-service';
 import { safeErrorInfo } from '../../../../../lib/logSafe';
@@ -21,9 +22,9 @@ const supabase = createClient(
 const ONBOARDING_REMINDER_THRESHOLD_BUSINESS_DAYS = 3;
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get('authorization');
-  if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const authCheck = requireServiceSecret(request, 'CRON_SECRET');
+  if (!authCheck.authorized) {
+    return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
   }
 
   const calendlyUrl = process.env.CALENDLY_ONBOARDING_URL;

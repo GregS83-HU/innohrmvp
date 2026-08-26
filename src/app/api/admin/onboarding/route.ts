@@ -4,7 +4,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { verifySuperAdmin } from '../../../../../lib/verifySuperAdmin';
+import { requireSuperAdmin } from '../../../../../lib/authz';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,7 +12,7 @@ const supabase = createClient(
 );
 
 export async function GET(request: NextRequest) {
-  const authCheck = await verifySuperAdmin(request);
+  const authCheck = await requireSuperAdmin(request);
   if (!authCheck.authorized) {
     return NextResponse.json({ error: authCheck.error || 'Unauthorized access' }, { status: 403 });
   }
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  const authCheck = await verifySuperAdmin(request);
+  const authCheck = await requireSuperAdmin(request);
   if (!authCheck.authorized) {
     return NextResponse.json({ error: authCheck.error || 'Unauthorized access' }, { status: 403 });
   }

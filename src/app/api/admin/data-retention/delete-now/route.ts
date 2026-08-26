@@ -3,15 +3,15 @@
 // before automated retention would otherwise catch it.
 
 import { NextRequest, NextResponse } from 'next/server';
-import { verifySuperAdmin } from '../../../../../../lib/verifySuperAdmin';
+import { requireSuperAdmin } from '../../../../../../lib/authz';
 import { deleteRecordNow, DataType } from '../../../../../../lib/dataRetention';
 import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
 const DELETABLE_DATA_TYPES: DataType[] = ['medical_certificate', 'cv_company_pipeline'];
 
 export async function POST(request: NextRequest) {
-  const authCheck = await verifySuperAdmin(request);
-  if (!authCheck.authorized || !authCheck.userId) {
+  const authCheck = await requireSuperAdmin(request);
+  if (!authCheck.authorized) {
     return NextResponse.json({ error: authCheck.error || 'Unauthorized access' }, { status: 403 });
   }
 

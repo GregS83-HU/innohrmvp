@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { hasFeatureAccess, entitlementErrorBody, resolveCompanyIdForUser } from '../../../../../../lib/entitlements';
+import { ownerOrManagerRowFilter } from '../../../../../../lib/authz';
 
 interface GoalUpdatePayload {
   updated_at: string;
@@ -69,7 +70,7 @@ export async function PATCH(request: Request) {
       .from('performance_goals')
       .update(updates)
       .eq('id', goal_id)
-      .or(`employee_id.eq.${user_id},manager_id.eq.${user_id}`) // Ensure user owns or manages this goal
+      .or(ownerOrManagerRowFilter(user_id)) // Ensure user owns or manages this goal
       .select();
 
     if (updateError) {
