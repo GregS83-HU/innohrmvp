@@ -21,13 +21,14 @@ export type FeatureKey =
   | "attendance.use"
   | "absences.use"
   | "performance.use"
-  | "company.addEmployee";
+  | "company.addEmployee"
+  | "support.tickets";
 
 export type EntitlementCheck =
   // Capacity check: compares a live count against a per-plan max column.
   | { kind: "capacity"; rpc: "can_open_new_position" | "can_add_medical_certificate" | "can_add_employee" }
   // Boolean flag check: reads a per-plan boolean column.
-  | { kind: "flag"; rpc: "can_access_happy_check" | "can_use_attendance_absences" | "can_use_performance" };
+  | { kind: "flag"; rpc: "can_access_happy_check" | "can_use_attendance_absences" | "can_use_performance" | "can_use_support_tickets" };
 
 // Features that require company.onboarding_completed = true, on top of
 // whatever plan check applies - regardless of forfait, a company that
@@ -46,6 +47,9 @@ export type EntitlementCheck =
 // zero human contact from our team first. Revisit removing this feature
 // from this set once the pending legal review of retention periods and
 // subprocessor terms is complete.
+// support.tickets is deliberately NOT in this set: unlike the five features
+// above, it's usable immediately after self-serve signup (same treatment as
+// recruitment.openPosition), subject only to the plan check below.
 export const ONBOARDING_GATED_FEATURES: ReadonlySet<FeatureKey> = new Set([
   "attendance.use",
   "absences.use",
@@ -73,6 +77,10 @@ export const FEATURE_RULES: Record<FeatureKey, EntitlementCheck> = {
   // (e.g. after a downgrade), matching the same "never punish existing
   // data" principle used for job postings. See MODULE_GATING_FIX.md.
   "company.addEmployee": { kind: "capacity", rpc: "can_add_employee" },
+  // Support tickets are gated by their own flag, not shared with any other
+  // module - unlike attendance/absences, ticket access doesn't naturally
+  // pair with another feature's plan boundary.
+  "support.tickets": { kind: "flag", rpc: "can_use_support_tickets" },
 };
 
 // Copy shown in upgrade prompts / paywall states. Plan names must match
@@ -122,6 +130,12 @@ export const FEATURE_COPY: Record<FeatureKey, { title: string; limitReached: str
     limitReached: "You've reached your plan's included employee count. Upgrade to add more employees.",
     notIncluded: "Adding employees isn't included in your current plan.",
     noSubscription: "Your company doesn't have an active plan. Subscribe to a plan to add employees.",
+  },
+  "support.tickets": {
+    title: "Support tickets",
+    limitReached: "Submitting new support tickets isn't usable on your current plan.",
+    notIncluded: "Submitting support tickets is available on Momentum and Infinity plans.",
+    noSubscription: "Your company doesn't have an active plan. Subscribe to Momentum or Infinity to submit support tickets.",
   },
 };
 

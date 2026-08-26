@@ -8,6 +8,7 @@ export type ModuleAccessState = {
   plan: string | null;
   attendanceAbsencesEnabled: boolean;
   performanceEnabled: boolean;
+  supportTicketsEnabled: boolean;
   onboardingCompleted: boolean;
 };
 
@@ -17,16 +18,17 @@ const DEFAULT_STATE: ModuleAccessState = {
   plan: null,
   attendanceAbsencesEnabled: false,
   performanceEnabled: false,
+  supportTicketsEnabled: false,
   onboardingCompleted: false,
 };
 
 /**
  * Client-side read of plan-based access to attendance/absences (one flag,
- * shared) and performance management, plus whether the current user is a
- * company admin. Used to decide locked-preview (admin) vs hidden (everyone
- * else) in nav and page-level gating. Not itself an enforcement point - see
- * lib/entitlements.ts / MODULE_GATING_FIX.md for the real server-side
- * checks.
+ * shared), performance management, and support tickets, plus whether the
+ * current user is a company admin. Used to decide locked-preview (admin) vs
+ * hidden (everyone else) in nav and page-level gating. Not itself an
+ * enforcement point - see lib/entitlements.ts / MODULE_GATING_FIX.md for the
+ * real server-side checks.
  */
 export function useModuleAccess(userId: string | null | undefined): ModuleAccessState {
   const [state, setState] = useState<ModuleAccessState>(DEFAULT_STATE);
@@ -54,6 +56,7 @@ export function useModuleAccess(userId: string | null | undefined): ModuleAccess
           plan: data.plan ?? null,
           attendanceAbsencesEnabled: !!data.attendanceAbsencesEnabled,
           performanceEnabled: !!data.performanceEnabled,
+          supportTicketsEnabled: !!data.supportTicketsEnabled,
           onboardingCompleted: !!data.onboardingCompleted,
         });
       })

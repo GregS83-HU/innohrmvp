@@ -6,7 +6,7 @@ import type { FeatureKey } from '../../src/config/entitlements';
 import { FEATURE_COPY, getOnboardingRequiredMessage } from '../../src/config/entitlements';
 
 type Props = {
-  feature: Extract<FeatureKey, 'attendance.use' | 'absences.use' | 'performance.use' | 'medicalCertificates.upload'>;
+  feature: Extract<FeatureKey, 'attendance.use' | 'absences.use' | 'performance.use' | 'medicalCertificates.upload' | 'support.tickets'>;
   plan: string | null;
   upgradeHref: string;
   /**
@@ -20,12 +20,12 @@ type Props = {
 
 /**
  * Shown to company admins/HR managers when a module (attendance, absences,
- * performance) isn't accessible yet - either because it isn't included in
- * the plan, or because the company hasn't completed its onboarding call yet
- * (see ONBOARDING_GATED_FEATURES). Admins still see the module in
- * navigation and can open it - this is what they see instead of the real
- * feature UI. Non-admins never reach this: the nav hides the module
- * entirely for them. See MODULE_GATING_FIX.md.
+ * performance, medical certificates, support tickets) isn't accessible yet -
+ * either because it isn't included in the plan, or because the company
+ * hasn't completed its onboarding call yet (see ONBOARDING_GATED_FEATURES).
+ * Admins still see the module in navigation and can open it - this is what
+ * they see instead of the real feature UI. Non-admins never reach this: the
+ * nav hides the module entirely for them. See MODULE_GATING_FIX.md.
  */
 export default function LockedModuleNotice({ feature, plan, upgradeHref, reason = 'plan' }: Props) {
   const copy = FEATURE_COPY[feature];

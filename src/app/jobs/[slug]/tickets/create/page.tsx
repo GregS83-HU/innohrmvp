@@ -14,6 +14,8 @@ import {
   Check
 } from 'lucide-react';
 import { useLocale } from '../../../../../i18n/LocaleProvider';
+import { useModuleAccess } from '../../../../../../hooks/useModuleAccess';
+import LockedModuleNotice from '../../../../../../components/entitlements/LockedModuleNotice';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -49,6 +51,7 @@ export default function CreateTicketPage() {
   const [success, setSuccess] = useState(false);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const moduleAccess = useModuleAccess(currentUser?.id);
 
   // Categories for the dropdown
   const categories = [
@@ -176,34 +179,39 @@ export default function CreateTicketPage() {
     setError(null);
 
     try {
-      // Create ticket
-      const { data: ticketData, error: ticketError } = await supabase
-        .from('tickets')
-        .insert({
+      // Create ticket via the server-side route, which enforces plan
+      // entitlement before inserting (see api/tickets/create/route.ts) -
+      // this can no longer be a direct client insert.
+      const createResponse = await fetch('/api/tickets/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: currentUser.id,
           title: formData.title,
           description: formData.description,
           priority: formData.priority,
           category: formData.category || null,
-          company_id: companyId,
-          user_id: currentUser.id,
-          user_email: currentUser.email,
-          user_name: `${currentUser.user_firstname} ${currentUser.user_lastname}`
-        })
-        .select()
-        .single();
+        }),
+      });
+
+      const createResult = await createResponse.json();
+
+      if (!createResponse.ok) {
+        throw new Error(createResult.message || createResult.error || t('createTicket.errors.createTicket'));
+      }
+
+      const ticketData = createResult.data;
 
       await supabase.from('notifications').insert({
         type: 'ticket_created',
         title: t('createTicket.notifications.newTicket'),
-        message: t('createTicket.notifications.ticketCreated', { 
+        message: t('createTicket.notifications.ticketCreated', {
           user: currentUser.user_firstname || t('createTicket.common.user'),
-          title: ticketData.title 
+          title: ticketData.title
         }),
         ticket_id: ticketData.id,
         sender_id: currentUser.id
       });
-
-      if (ticketError) throw ticketError;
 
       // Upload attachments if any
       if (attachments.length > 0) {
@@ -252,6 +260,25 @@ export default function CreateTicketPage() {
           </p>
           <div className="animate-pulse text-blue-600">{t('createTicket.success.redirecting')}</div>
         </div>
+      </div>
+    );
+  }
+
+  // Locked preview for admins on a plan that doesn't include support
+  // tickets. Non-admins get nothing here at all rather than a locked
+  // preview - same split used for absences/performance/attendance. This
+  // only gates creating a NEW ticket: the ticket list and existing tickets
+  // stay fully readable regardless of plan (see tickets/page.tsx and
+  // tickets/[ticketId]/page.tsx, both untouched by this check).
+  if (!moduleAccess.loading && !moduleAccess.supportTicketsEnabled) {
+    if (!moduleAccess.isAdmin) return null;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-6 lg:p-8">
+        <LockedModuleNotice
+          feature="support.tickets"
+          plan={moduleAccess.plan}
+          upgradeHref={`/jobs/${companySlug}/subscription`}
+        />
       </div>
     );
   }

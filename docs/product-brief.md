@@ -178,7 +178,7 @@ No native mobile app identified; the product is a responsive web application (Ne
 
 Based on the most recent commit and work history (not a formally stated roadmap):
 
-- Time & attendance, absences, and performance management already have plan-based (Free vs. Momentum vs. Infinity) gating (see Section 11) — support tickets are the one remaining module with no plan-based distinction, and extending gating there is not in progress.
+- Time & attendance, absences, and performance management already have plan-based (Free vs. Momentum vs. Infinity) gating (see Section 11) — support tickets were the one remaining module with no plan-based distinction. A Momentum/Infinity-only gate on submitting a *new* ticket (matching the existing gating pattern; Free and no-active-plan companies treated identically) has now been built and is awaiting code review before merge and deployment — existing tickets remain fully readable and repliable regardless of plan. Not yet live, so still listed here rather than in Section 5 or reflected in Section 11's pricing table.
 
 Expected value and priority are not documented for the above or for anything else; there is no formally stated in-development feature list beyond what can be inferred from recent work.
 

@@ -41,6 +41,7 @@ type ForfaitRow = {
   access_happy_check: boolean | null;
   access_attendance_absences: boolean | null;
   access_performance: boolean | null;
+  access_support_tickets: boolean | null;
   max_employees: number | null;
 };
 
@@ -79,7 +80,7 @@ export async function hasFeatureAccess(
   const { data: forfait, error: forfaitError } = await supabase
     .from("forfait")
     .select(
-      "forfait_name, max_opened_position, max_medical_certificates, access_happy_check, access_attendance_absences, access_performance, max_employees"
+      "forfait_name, max_opened_position, max_medical_certificates, access_happy_check, access_attendance_absences, access_performance, access_support_tickets, max_employees"
     )
     .eq("forfait_name", planName)
     .single<ForfaitRow>();
@@ -100,6 +101,8 @@ export async function hasFeatureAccess(
         ? forfait.access_happy_check
         : rule.rpc === "can_use_attendance_absences"
         ? forfait.access_attendance_absences
+        : rule.rpc === "can_use_support_tickets"
+        ? forfait.access_support_tickets
         : forfait.access_performance;
 
     if (flagValue) {
