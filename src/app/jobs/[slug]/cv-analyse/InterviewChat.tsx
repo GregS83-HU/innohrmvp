@@ -13,6 +13,7 @@ import {
   PenLine,
 } from 'lucide-react'
 import { useLocale } from 'i18n/LocaleProvider'
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 interface Message {
   role: 'interviewer' | 'candidate'
@@ -170,7 +171,7 @@ export default function InterviewChat({
         const data = await res.json()
         if (!res.ok) throw new Error(data.error || 'Failed to conclude')
       } catch (err) {
-        console.error('Conclude error:', err)
+        console.error('Conclude error:', safeErrorInfo(err))
       } finally {
         setIsConcluding(false)
         setInterviewDone(true)

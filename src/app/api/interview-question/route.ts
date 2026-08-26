@@ -1,6 +1,7 @@
 // src/app/api/interview-question/route.ts
 export const runtime = "nodejs";
 import { NextRequest, NextResponse } from 'next/server';
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 interface Message {
   role: 'interviewer' | 'candidate';
@@ -115,7 +116,7 @@ Respond ONLY with valid JSON in this exact format, no markdown, no backticks:
       suggestions: parsed.suggestions.map((s: string) => s.trim()).slice(0, 3),
     });
   } catch (error) {
-    console.error('Interview question error:', error);
+    console.error('Interview question error:', safeErrorInfo(error));
     return NextResponse.json({ error: 'Failed to generate question' }, { status: 500 });
   }
 }

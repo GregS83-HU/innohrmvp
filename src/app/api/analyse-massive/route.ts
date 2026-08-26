@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { consumeCredit } from "../../../../lib/credit";
 import { getPrompt, fillPromptVariables, PromptNotFoundError, PromptDatabaseError } from "../../../../lib/prompts";
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -127,7 +128,7 @@ export async function GET(req: NextRequest) {
         );
 
         if (candErr) {
-          console.error("Erreur RPC get_company_candidates:", candErr);
+          console.error("Erreur RPC get_company_candidates:", safeErrorInfo(candErr));
           controller.enqueue(
             encoder.encode(
               `data: ${JSON.stringify({
@@ -210,7 +211,7 @@ export async function GET(req: NextRequest) {
               )
             );
           } catch (err) {
-            console.error(`Erreur analyse CV ${candidat.id}:`, err);
+            console.error(`Erreur analyse CV ${candidat.id}:`, safeErrorInfo(err));
             
             // Check if it's a prompt error
             if (err instanceof PromptNotFoundError || err instanceof PromptDatabaseError) {
@@ -249,7 +250,7 @@ export async function GET(req: NextRequest) {
         );
         controller.close();
       } catch (err) {
-        console.error("Erreur serveur analyse massive:", err);
+        console.error("Erreur serveur analyse massive:", safeErrorInfo(err));
         controller.enqueue(
           encoder.encode(
             `data: ${JSON.stringify({

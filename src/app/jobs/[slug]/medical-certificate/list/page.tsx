@@ -5,6 +5,7 @@ import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useLocale } from 'i18n/LocaleProvider'
 import * as Popover from '@radix-ui/react-popover'
 import { Search, FileText, User, Calendar, MessageCircle, CheckCircle, Clock, Filter, Eye, Upload } from 'lucide-react'
+import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
 type MedicalCertificate = {
   id: number
@@ -82,7 +83,7 @@ export default function MedicalCertificatesPage() {
 
         setCertificates(certificatesWithUrl)
       } catch (err) {
-        console.error('Erreur réseau', err)
+        console.error('Erreur réseau', safeErrorInfo(err))
         setCertificates([])
       } finally {
         setLoading(false)
@@ -132,7 +133,7 @@ export default function MedicalCertificatesPage() {
       console.log('Leave requests found:', leaveRequests?.length || 0)
 
       if (leaveCheckError) {
-        console.error('Error checking leave requests:', leaveCheckError)
+        console.error('Error checking leave requests:', safeErrorInfo(leaveCheckError))
         // Rollback the medical certificate update
         await supabase
           .from('medical_certificates')
@@ -159,10 +160,10 @@ export default function MedicalCertificatesPage() {
             validated_at_time: newValue ? new Date().toISOString() : null
           })
 
-        console.log('Leave request update completed, error:', leaveUpdateError)
+        console.log('Leave request update completed, hadError:', !!leaveUpdateError)
 
         if (leaveUpdateError) {
-          console.error('Error updating leave request:', leaveUpdateError)
+          console.error('Error updating leave request:', safeErrorInfo(leaveUpdateError))
           // Rollback the medical certificate update
           await supabase
             .from('medical_certificates')
@@ -195,7 +196,7 @@ export default function MedicalCertificatesPage() {
 
       console.log('=== Checkbox change completed successfully ===')
     } catch (err) {
-      console.error('Network error during update:', err)
+      console.error('Network error during update:', safeErrorInfo(err))
       alert(t('medicalCertificates.alerts.networkError'))
     }
   }
@@ -228,7 +229,7 @@ export default function MedicalCertificatesPage() {
 
       window.open(url, '_blank', 'noopener,noreferrer')
     } catch (err) {
-      console.error('Error generating certificate view URL:', err)
+      console.error('Error generating certificate view URL:', safeErrorInfo(err))
       alert(t('medicalCertificates.alerts.updateError'))
     } finally {
       setViewingId(null)

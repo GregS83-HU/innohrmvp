@@ -1,6 +1,7 @@
 // app/api/users/update-manager/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -62,7 +63,7 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (err: unknown) {
-    console.error('Error updating manager:', err);
+    console.error('Error updating manager:', safeErrorInfo(err));
 
     if (err instanceof Error) {
       return NextResponse.json({ error: err.message }, { status: 400 });

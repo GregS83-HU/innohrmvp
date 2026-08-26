@@ -1,6 +1,7 @@
 // app/api/positions/analytics/route.ts
 import { NextRequest } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -71,7 +72,7 @@ export async function GET(req: NextRequest) {
     const { data: candidateData, error: candidateError } = await query
 
     if (candidateError) {
-      console.error('Erreur lors de la récupération des candidats:', candidateError)
+      console.error('Erreur lors de la récupération des candidats:', safeErrorInfo(candidateError))
       return new Response(JSON.stringify({ error: 'Erreur lors de la récupération des candidats' }), { status: 500 })
     }
 
@@ -90,7 +91,7 @@ export async function GET(req: NextRequest) {
     }), { status: 200 })
 
   } catch (err) {
-    console.error('Erreur API:', err)
+    console.error('Erreur API:', safeErrorInfo(err))
     return new Response(JSON.stringify({ error: 'Erreur serveur interne' }), { status: 500 })
   }
 }

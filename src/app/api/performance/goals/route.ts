@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 export async function GET(request: Request) {
   try {
@@ -49,7 +50,7 @@ export async function GET(request: Request) {
         .eq('manager_id', user_id)
       
       if (teamError) {
-        console.error('Team fetch error:', teamError)
+        console.error('Team fetch error:', safeErrorInfo(teamError))
         return NextResponse.json({ error: 'Failed to fetch team' }, { status: 500 })
       }
       
@@ -73,7 +74,7 @@ export async function GET(request: Request) {
         .order('created_at', { ascending: false })
       
       if (goalsError) {
-        console.error('Goals fetch error:', goalsError)
+        console.error('Goals fetch error:', safeErrorInfo(goalsError))
         return NextResponse.json({ error: goalsError.message }, { status: 500 })
       }
       
@@ -89,14 +90,14 @@ export async function GET(request: Request) {
         .order('created_at', { ascending: false })
       
       if (goalsError) {
-        console.error('Goals fetch error:', goalsError)
+        console.error('Goals fetch error:', safeErrorInfo(goalsError))
         return NextResponse.json({ error: goalsError.message }, { status: 500 })
       }
       
       return NextResponse.json({ goals: goals || [] })
     }
   } catch (error) {
-    console.error('Get goals error:', error)
+    console.error('Get goals error:', safeErrorInfo(error))
     return NextResponse.json({ error: (error as Error).message }, { status: 500 })
   }
 }

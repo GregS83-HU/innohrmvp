@@ -9,6 +9,7 @@ import parsePdfBuffer from '../../../../lib/parsePdfSafe';
 import { createClient } from '@supabase/supabase-js';
 import { consumeCredit } from '../../../../lib/credit';
 import { getPrompt, fillPromptVariables, PromptNotFoundError, PromptDatabaseError } from '../../../../lib/prompts';
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -164,7 +165,7 @@ async function callOpenRouterAPI(prompt: string, context = '', model = '  ') {
     return completion.choices[0].message.content;
   } catch (error) {
     clearTimeout(timeoutId);
-    console.error(`Error in callOpenRouterAPI for ${context}:`, error);
+    console.error(`Error in callOpenRouterAPI for ${context}:`, safeErrorInfo(error));
     throw error;
   }
 }
@@ -322,7 +323,7 @@ export async function POST(req: NextRequest) {
     const { error: uploadError } = await uploadPromise;
 
     if (uploadError) {
-      console.error('Supabase upload error:', uploadError);
+      console.error('Supabase upload error:', safeErrorInfo(uploadError));
       return NextResponse.json({ error: 'Échec upload CV' }, { status: 500 });
     }
 
@@ -342,7 +343,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (insertError || !candidate) {
-      console.error('Database insert error:', insertError);
+      console.error('Database insert error:', safeErrorInfo(insertError));
       return NextResponse.json({ error: 'Échec enregistrement candidat' }, { status: 500 });
     }
 
@@ -358,7 +359,7 @@ export async function POST(req: NextRequest) {
       });
 
     if (relationError) {
-      console.error('Relation insert error:', relationError);
+      console.error('Relation insert error:', safeErrorInfo(relationError));
       return NextResponse.json({ error: 'Échec liaison position/candidat' }, { status: 500 });
     }
 
@@ -387,7 +388,7 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (aiError: unknown) {
-    console.error('AI processing error:', aiError);
+    console.error('AI processing error:', safeErrorInfo(aiError));
     const errorMessage = aiError instanceof Error ? aiError.message : 'Unknown AI processing error';
     return NextResponse.json({ error: `AI processing failed: ${errorMessage}` }, { status: 500 });
   }

@@ -4,6 +4,7 @@ import {
   Document, Packer, Paragraph, TextRun, HeadingLevel,
   AlignmentType, LevelFormat, BorderStyle
 } from 'docx';
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const openai = new OpenAI({
   baseURL: 'https://openrouter.ai/api/v1',
@@ -176,7 +177,7 @@ Respond ONLY with a valid JSON object in this exact format:
 
     return NextResponse.json({ ...result, docxBase64: base64 });
   } catch (error) {
-    console.error('Job assistant improve error:', error);
+    console.error('Job assistant improve error:', safeErrorInfo(error));
     return NextResponse.json({ error: 'CV improvement failed. Please try again.' }, { status: 500 });
   }
 }

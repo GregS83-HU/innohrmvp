@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { useLocale } from 'i18n/LocaleProvider'
 import InterviewChat from './InterviewChat'
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 export default function CVAnalyseClient({
   positionName,
@@ -160,7 +161,7 @@ export default function CVAnalyseClient({
         setShowSuccessMessage(true)
       }, 100)
     } catch (err: unknown) {
-      console.error('CV Analysis Error:', err)
+      console.error('CV Analysis Error:', safeErrorInfo(err))
 
       setFile(null)
       setGdprAccepted(false)

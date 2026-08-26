@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getPrompts, fillPromptVariables, PromptNotFoundError, PromptDatabaseError } from '../../../../lib/prompts'
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (candErr || !candidat) {
-      console.error('[Interview Assistant] Candidate not found', candErr)
+      console.error('[Interview Assistant] Candidate not found', safeErrorInfo(candErr))
       return NextResponse.json({ error: 'Candidate not found' }, { status: 404 })
     }
 
@@ -60,7 +61,7 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (pcErr || !positionCandidat || !positionCandidat.candidat_next_step) {
-      console.error('[Interview Assistant] Recruitment step not found', pcErr)
+      console.error('[Interview Assistant] Recruitment step not found', safeErrorInfo(pcErr))
       return NextResponse.json({ error: 'Recruitment step not found' }, { status: 404 })
     }
 
@@ -164,7 +165,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(parsed)
   } catch (error) {
-    console.error('[Interview Assistant] Error occurred:', error)
+    console.error('[Interview Assistant] Error occurred:', safeErrorInfo(error))
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }

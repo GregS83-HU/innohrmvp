@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -21,7 +22,7 @@ export async function GET(request: Request) {
       .rpc('get_recruitment_steps_for_user', { user_id })
 
     if (error) {
-      console.error('Supabase RPC error:', error)
+      console.error('Supabase RPC error:', safeErrorInfo(error))
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
@@ -35,7 +36,7 @@ export async function GET(request: Request) {
     if (error instanceof Error) {
       console.error('Unexpected error:', error.message)
     } else {
-      console.error('Unexpected error:', error)
+      console.error('Unexpected error:', safeErrorInfo(error))
     }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }

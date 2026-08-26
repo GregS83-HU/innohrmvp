@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServerClient } from '../../../../lib/supabaseServerClient'
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 export async function POST(request: Request) {
   try {
@@ -20,15 +21,15 @@ export async function POST(request: Request) {
       .select();
 
     if (error) {
-      console.error('Supabase update error:', error)
+      console.error('Supabase update error:', safeErrorInfo(error))
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    console.log("Rows Updated:", data)
+    console.log("Rows updated count:", data?.length ?? 0)
 
     return NextResponse.json({ message: 'Position closed' })
   } catch (error) {
-    console.error('Unexpected error:', error)
+    console.error('Unexpected error:', safeErrorInfo(error))
     return NextResponse.json({ error: (error as Error).message }, { status: 500 })
   }
 }

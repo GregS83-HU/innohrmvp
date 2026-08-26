@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
 const openai = new OpenAI({
   baseURL: 'https://openrouter.ai/api/v1',
@@ -63,7 +64,7 @@ Respond ONLY with a valid JSON object in this exact format:
 
     return NextResponse.json(JSON.parse(jsonMatch[0]));
   } catch (error) {
-    console.error('Interview generate error:', error);
+    console.error('Interview generate error:', safeErrorInfo(error));
     return NextResponse.json({ error: 'Failed to generate interview questions. Please try again.' }, { status: 500 });
   }
 }

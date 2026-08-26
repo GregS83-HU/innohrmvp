@@ -2,12 +2,13 @@ import { NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { hasFeatureAccess, entitlementErrorBody, resolveCompanyIdForUser } from '../../../../../../lib/entitlements'
+import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
     const { goal_id, status, progress_comment, blockers, employee_id } = body
-    console.log('Pulse submit body:', body)
+    console.log('Pulse submit request for goal:', body.goal_id)
 
     // --- Input validation ---
     if (!goal_id || !status) {
@@ -51,7 +52,7 @@ export async function POST(request: Request) {
     // --- Get current week start ---
     const { data: weekStart, error: weekError } = await supabase.rpc('get_week_start')
     if (weekError) {
-      console.error('Week start error:', weekError)
+      console.error('Week start error:', safeErrorInfo(weekError))
       return NextResponse.json({ error: 'Failed to get week start' }, { status: 500 })
     }
     console.log('Week start:', weekStart)
@@ -78,7 +79,7 @@ export async function POST(request: Request) {
         .select('id, goal_id, employee_id, status, progress_comment, blockers, week_start_date')
 
       if (updateError) {
-        console.error('Update error:', updateError)
+        console.error('Update error:', safeErrorInfo(updateError))
         throw new Error(updateError.message)
       }
 
@@ -104,7 +105,7 @@ export async function POST(request: Request) {
       .select('id, goal_id, employee_id, status, progress_comment, blockers, week_start_date')
 
     if (insertError) {
-      console.error('Insert error:', insertError)
+      console.error('Insert error:', safeErrorInfo(insertError))
       throw new Error(insertError.message)
     }
 
@@ -113,7 +114,7 @@ export async function POST(request: Request) {
       update: insertedData?.[0],
     })
   } catch (error) {
-    console.error('Pulse submission error:', error)
+    console.error('Pulse submission error:', safeErrorInfo(error))
     return NextResponse.json({ error: (error as Error).message }, { status: 500 })
   }
 }

@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { AddUserModal } from '../../../../../components/AddUserModal';
 import { useLocale } from '../../../../i18n/LocaleProvider';
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 interface CompanyUser {
   user_id: string;
@@ -387,7 +388,7 @@ export default function CompanyUsersPage() {
       setEditingUserId(null);
       setManagerSearch('');
     } catch (err) {
-      console.error('Error updating manager:', err);
+      console.error('Error updating manager:', safeErrorInfo(err));
       alert(err instanceof Error ? err.message : t('companyUsers.errors.updateManager'));
     } finally {
       setUpdatingManager(false);
@@ -425,7 +426,7 @@ export default function CompanyUsersPage() {
       await fetchCompanyUsers();
       setConfirmModal({ isOpen: false, userId: null, userName: '', isActivating: false });
     } catch (err) {
-      console.error('Error updating user status:', err);
+      console.error('Error updating user status:', safeErrorInfo(err));
       alert(err instanceof Error ? err.message : 'Failed to update user status');
     } finally {
       setUpdatingStatus(false);

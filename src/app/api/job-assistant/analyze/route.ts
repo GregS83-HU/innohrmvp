@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import pdfParse from 'pdf-parse';
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const openai = new OpenAI({
   baseURL: 'https://openrouter.ai/api/v1',
@@ -72,7 +73,7 @@ Respond ONLY with a valid JSON object in this exact format:
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Job assistant analyze error:', error);
+    console.error('Job assistant analyze error:', safeErrorInfo(error));
     return NextResponse.json({ error: 'Analysis failed. Please try again.' }, { status: 500 });
   }
 }

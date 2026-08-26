@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifySuperAdmin } from '../../../../../../lib/verifySuperAdmin';
 import { previewDeletions } from '../../../../../../lib/dataRetention';
+import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
 export async function GET(request: NextRequest) {
   const authCheck = await verifySuperAdmin(request);
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest) {
     const preview = await previewDeletions();
     return NextResponse.json({ preview });
   } catch (err) {
-    console.error('Failed to build retention preview:', err);
+    console.error('Failed to build retention preview:', safeErrorInfo(err));
     return NextResponse.json({ error: 'Failed to build retention preview' }, { status: 500 });
   }
 }

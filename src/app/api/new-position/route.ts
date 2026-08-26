@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { hasFeatureAccess, entitlementErrorBody } from '../../../../lib/entitlements'
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 export async function POST(request: Request) {
   try {
@@ -76,13 +77,13 @@ export async function POST(request: Request) {
       .select()
 
     if (insertError || !insertedData || insertedData.length === 0) {
-      console.error('Insert error:', insertError)
+      console.error('Insert error:', safeErrorInfo(insertError))
       return NextResponse.json({ error: insertError?.message || 'Failed to create position' }, { status: 500 })
     }
 
     return NextResponse.json({ message: 'Position created successfully', id: insertedData[0].id })
   } catch (error) {
-    console.error('Route error:', error)
+    console.error('Route error:', safeErrorInfo(error))
     return NextResponse.json({ error: (error as Error).message }, { status: 500 })
   }
 }

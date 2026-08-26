@@ -18,6 +18,7 @@ import {
   Shield
 } from 'lucide-react';
 import { useLocale } from '../../../../../i18n/LocaleProvider';
+import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -138,7 +139,7 @@ export default function TicketDetailPage() {
         .maybeSingle();
       
       if (companyUserError) {
-        console.error('Company user error:', companyUserError);
+        console.error('Company user error:', safeErrorInfo(companyUserError));
         setError(t('ticketDetail.errors.userCompanyNotFound'));
         return null;
       }
@@ -158,7 +159,7 @@ export default function TicketDetailPage() {
           .single();
         
         if (companyError) {
-          console.error('Company fetch error:', companyError);
+          console.error('Company fetch error:', safeErrorInfo(companyError));
         } else {
           companyData = company;
         }
@@ -171,7 +172,7 @@ export default function TicketDetailPage() {
         .single();
 
       if (userProfileError) {
-        console.error('User profile error:', userProfileError);
+        console.error('User profile error:', safeErrorInfo(userProfileError));
         setError(t('ticketDetail.errors.userProfileNotFound'));
         return null;
       }
@@ -190,7 +191,7 @@ export default function TicketDetailPage() {
       setIsHrinnoAdmin(companyData?.slug === 'hrinno' || companyData?.slug === 'innohr');
       return mergedUser;
     } catch (err) {
-      console.error('Failed to load user data:', err);
+      console.error('Failed to load user data:', safeErrorInfo(err));
       const errorMessage = err instanceof Error ? err.message : t('ticketDetail.errors.loadUserData');
       setError(errorMessage);
       return null;
@@ -231,7 +232,7 @@ export default function TicketDetailPage() {
       setMessages(data || []);
       return data;
     } catch (err) {
-      console.error('Failed to load messages:', err);
+      console.error('Failed to load messages:', safeErrorInfo(err));
       return [];
     }
   }, [params.ticketId]);
@@ -248,7 +249,7 @@ export default function TicketDetailPage() {
       setAttachments(data || []);
       return data;
     } catch (err) {
-      console.error('Failed to load attachments:', err);
+      console.error('Failed to load attachments:', safeErrorInfo(err));
       return [];
     }
   }, [params.ticketId]);
@@ -286,7 +287,7 @@ export default function TicketDetailPage() {
       });
 
       if (error) {
-        console.error("Insert error:", error);
+        console.error("Insert error:", safeErrorInfo(error));
         throw error;
       }
 
@@ -294,7 +295,7 @@ export default function TicketDetailPage() {
       scrollToBottom();
 
     } catch (err) {
-      console.error("Send message error:", err);
+      console.error("Send message error:", safeErrorInfo(err));
       const errorMessage = err instanceof Error ? err.message : t('ticketDetail.errors.sendMessage');
       setError(errorMessage);
     } finally {

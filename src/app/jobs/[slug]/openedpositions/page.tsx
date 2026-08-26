@@ -2,6 +2,7 @@
 import PositionsList from "./PositionList";
 import { Analytics } from "@vercel/analytics/next"
 import { Metadata } from 'next'
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 type Position = {
   id: number;
@@ -65,7 +66,7 @@ export default async function JobPage({
       positions = data.positions ?? [];
     }
   } catch (err) {
-    console.error('Error fetching positions:', err);
+    console.error('Error fetching positions:', safeErrorInfo(err));
     // Continue with empty array
   }
 

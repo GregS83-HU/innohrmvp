@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { sendInterviewInvitation, sendInterviewCancellation } from '../../../../lib/email-service'
 import { getServerTranslation } from '../../../i18n/server-translations' 
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -38,7 +39,7 @@ export async function POST(req: Request) {
       locale
     } = body
 
-    console.log('[Interviews API] Creating interview:', body)
+    console.log('[Interviews API] Creating interview for position:', position_id)
 
     // Fetch the current recruitment step for this candidate/position
     let recruitment_step_id: number | null = null
@@ -73,11 +74,11 @@ export async function POST(req: Request) {
       .single()
 
     if (insertError) {
-      console.error('[Interviews API] Insert error:', insertError)
+      console.error('[Interviews API] Insert error:', safeErrorInfo(insertError))
       return NextResponse.json({ error: insertError.message, details: insertError.details }, { status: 400 })
     }
 
-    console.log('[Interviews API] Interview created:', interview)
+    console.log('[Interviews API] Interview created, id:', interview.id)
 
     // Fetch candidate details
     const { data: candidate, error: candidateError } = await supabase
@@ -87,7 +88,7 @@ export async function POST(req: Request) {
       .single()
 
     if (candidateError || !candidate) {
-      console.error('[Interviews API] Candidate not found:', candidateError)
+      console.error('[Interviews API] Candidate not found:', safeErrorInfo(candidateError))
       return NextResponse.json({ 
         error: 'Interview created but candidate not found for email',
         interview 
@@ -98,7 +99,7 @@ export async function POST(req: Request) {
     const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(recruiter_id)
 
     if (authError || !authUser) {
-      console.error('[Interviews API] Recruiter auth not found:', authError)
+      console.error('[Interviews API] Recruiter auth not found:', safeErrorInfo(authError))
       return NextResponse.json({ 
         error: 'Interview created but recruiter not found for email',
         interview 
@@ -113,7 +114,7 @@ export async function POST(req: Request) {
       .single()
 
     if (recruiterError || !recruiterData) {
-      console.error('[Interviews API] Recruiter data not found:', recruiterError)
+      console.error('[Interviews API] Recruiter data not found:', safeErrorInfo(recruiterError))
       return NextResponse.json({ 
         error: 'Interview created but recruiter data not found',
         interview 
@@ -171,7 +172,7 @@ export async function POST(req: Request) {
 
       console.log('[Interviews API] ✅ Invitation emails sent successfully')
     } catch (emailError) {
-      console.error('[Interviews API] ❌ Failed to send emails:', emailError)
+      console.error('[Interviews API] ❌ Failed to send emails:', safeErrorInfo(emailError))
       // Interview is still created, just email failed
       return NextResponse.json({ 
         warning: 'Interview created but failed to send emails',
@@ -183,7 +184,7 @@ export async function POST(req: Request) {
     return NextResponse.json(interview)
 
   } catch (err: unknown) {
-    console.error('[Interviews API] Exception:', err)
+    console.error('[Interviews API] Exception:', safeErrorInfo(err))
 
     // Narrow unknown to Error safely
     const message = err instanceof Error ? err.message : 'Unknown error'
@@ -293,7 +294,7 @@ export async function PATCH(req: Request) {
 
       console.log('[Interviews API] ✅ Cancellation email sent successfully')
     } catch (emailError) {
-      console.error('[Interviews API] ❌ Failed to send cancellation email:', emailError)
+      console.error('[Interviews API] ❌ Failed to send cancellation email:', safeErrorInfo(emailError))
       // Interview is still cancelled, just email failed
     }
   }

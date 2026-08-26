@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { hasFeatureAccess } from '../../../../../lib/entitlements';
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -60,7 +61,7 @@ export async function GET(request: NextRequest) {
       onboardingCompleted: !!companyRow.data?.onboarding_completed,
     });
   } catch (error) {
-    console.error('Entitlement status error:', error);
+    console.error('Entitlement status error:', safeErrorInfo(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

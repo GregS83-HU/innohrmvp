@@ -24,6 +24,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Users, FileText, Mail, Phone, Edit3, Save, XCircle, Eye, EyeOff, Workflow, Check, MessageSquare, X } from 'lucide-react'
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 type Candidat = {
   candidat_firstname: string
@@ -525,7 +526,7 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
         
         setRows(normalizedRows)
       } catch (err) {
-        console.error(t('trelloBoard.errors.fetchDataError'), err)
+        console.error(t('trelloBoard.errors.fetchDataError'), safeErrorInfo(err))
       } finally {
         setLoading(false)
       }
@@ -598,7 +599,7 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
 
       setSelectedCandidates(new Set())
     } catch (err) {
-      console.error(t('trelloBoard.errors.updateStepError'), err)
+      console.error(t('trelloBoard.errors.updateStepError'), safeErrorInfo(err))
       setRows(originalRows)
       alert(t('trelloBoard.errors.updateStepError'))
     }
@@ -626,7 +627,7 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
 
       if (!response.ok) throw new Error('Failed to update step')
     } catch (err) {
-      console.error(t('trelloBoard.errors.updateStepError'), err)
+      console.error(t('trelloBoard.errors.updateStepError'), safeErrorInfo(err))
       setRows(originalRows)
       alert(t('trelloBoard.errors.updateStepError'))
     }
@@ -664,7 +665,7 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
       
       setIsEditingComment(false)
     } catch (err) {
-      console.error(t('trelloBoard.errors.updateCommentError'), err)
+      console.error(t('trelloBoard.errors.updateCommentError'), safeErrorInfo(err))
       setRows(originalRows)
       setSelectedCandidate(originalRows.find(r => r.candidat_id === selectedCandidate.candidat_id) || null)
       alert(t('trelloBoard.errors.updateCommentError'))
@@ -788,7 +789,7 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
       const url = data.urls?.[candidateId]
       if (url) window.open(url, '_blank', 'noopener,noreferrer')
     } catch (err) {
-      console.error('Failed to get CV link:', err)
+      console.error('Failed to get CV link:', safeErrorInfo(err))
     }
   }
 

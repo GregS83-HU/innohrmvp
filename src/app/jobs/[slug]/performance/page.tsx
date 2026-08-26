@@ -9,6 +9,7 @@ import { createClient } from '@supabase/supabase-js'
 import { useLocale } from 'i18n/LocaleProvider'
 import { useModuleAccess } from '../../../../../hooks/useModuleAccess'
 import LockedModuleNotice from '../../../../../components/entitlements/LockedModuleNotice'
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -65,7 +66,7 @@ export default function PerformanceDashboard() {
       setCurrentQuarter(quarter as string || '')
       setWeekStart(week as string || '')
     } catch (error) {
-      console.error('Error fetching quarter/week:', error)
+      console.error('Error fetching quarter/week:', safeErrorInfo(error))
     }
   }
 
@@ -86,7 +87,7 @@ export default function PerformanceDashboard() {
         console.error('Error fetching goals:', data.error)
       }
     } catch (error) {
-      console.error('Error fetching goals:', error)
+      console.error('Error fetching goals:', safeErrorInfo(error))
     }
     setLoading(false)
   }

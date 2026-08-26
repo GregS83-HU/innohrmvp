@@ -1,6 +1,7 @@
 // src/app/api/candidates/signed-cv-url/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -88,7 +89,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ urls });
   } catch (err) {
-    console.error("CV signed URL generation error:", err);
+    console.error("CV signed URL generation error:", safeErrorInfo(err));
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

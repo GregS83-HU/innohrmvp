@@ -3,11 +3,12 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { hasFeatureAccess, entitlementErrorBody } from '../../../../../../lib/entitlements'
+import { safeErrorInfo } from '../../../../../../lib/logSafe'
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    console.log('📥 Request body:', body)
+    console.log('📥 Create-goal request received')
     
     const {
       employee_id,
@@ -95,7 +96,7 @@ export async function POST(request: Request) {
       created_by
     }
 
-    console.log('📝 Attempting insert with data:', goalData)
+    console.log('📝 Attempting insert for employee:', employee_id, 'quarter:', quarter)
 
     // Insert the goal using service role (bypasses RLS)
     const { data: insertedData, error: insertError } = await supabaseAdmin
@@ -104,12 +105,7 @@ export async function POST(request: Request) {
       .select()
 
     if (insertError) {
-      console.error('❌ Insert failed:', {
-        message: insertError.message,
-        details: insertError.details,
-        hint: insertError.hint,
-        code: insertError.code
-      })
+      console.error('❌ Insert failed:', insertError.code)
       return NextResponse.json({ 
         error: insertError.message || 'Failed to create goal'
       }, { status: 500 })
@@ -129,7 +125,7 @@ export async function POST(request: Request) {
     })
 
   } catch (error) {
-    console.error('💥 Unexpected error:', error)
+    console.error('💥 Unexpected error:', safeErrorInfo(error))
     return NextResponse.json({ 
       error: (error as Error).message 
     }, { status: 500 })

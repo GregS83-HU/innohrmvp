@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { ArrowLeft, Target, Calendar, TrendingUp, CheckCircle, AlertCircle, Trash2 } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { useLocale } from 'i18n/LocaleProvider'
+import { safeErrorInfo } from '../../../../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -72,7 +73,7 @@ export default function GoalDetailPage() {
         .single()
 
       if (goalError || !goalData) {
-        console.error('Error fetching goal:', goalError)
+        console.error('Error fetching goal:', safeErrorInfo(goalError))
         setLoading(false)
         return
       }
@@ -91,7 +92,7 @@ export default function GoalDetailPage() {
         setUpdates(updatesData)
       }
     } catch (error) {
-      console.error('Error fetching goal details:', error)
+      console.error('Error fetching goal details:', safeErrorInfo(error))
     }
     setLoading(false)
   }

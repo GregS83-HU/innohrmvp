@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { verifySuperAdmin } from '../../../../../../lib/verifySuperAdmin';
 import { getRetentionSettings, getRetentionHistory, updateRetentionSetting, DataType } from '../../../../../../lib/dataRetention';
+import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -43,7 +44,7 @@ export async function GET(request: NextRequest) {
     const [settings, history] = await Promise.all([withUserNames(rawSettings), withUserNames(rawHistory)]);
     return NextResponse.json({ settings, history });
   } catch (err) {
-    console.error('Failed to load retention settings:', err);
+    console.error('Failed to load retention settings:', safeErrorInfo(err));
     return NextResponse.json({ error: 'Failed to load retention settings' }, { status: 500 });
   }
 }
@@ -79,7 +80,7 @@ export async function PATCH(request: NextRequest) {
     const settings = await withUserNames(rawSettings);
     return NextResponse.json({ success: true, settings });
   } catch (err) {
-    console.error('Failed to update retention setting:', err);
+    console.error('Failed to update retention setting:', safeErrorInfo(err));
     return NextResponse.json({ error: 'Failed to update retention setting' }, { status: 500 });
   }
 }

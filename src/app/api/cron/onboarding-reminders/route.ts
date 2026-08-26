@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { addBusinessDays } from '../../../../../lib/businessDays';
 import { sendOnboardingReminderEmail } from '../../../../../lib/email-service';
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -107,16 +108,16 @@ export async function GET(request: NextRequest) {
           sent++;
         }
       } catch (err) {
-        console.error(`Failed to send onboarding reminder for company ${company.id}:`, err);
+        console.error(`Failed to send onboarding reminder for company ${company.id}:`, safeErrorInfo(err));
         failures.push({ company_id: company.id, error: err instanceof Error ? err.message : 'Unknown error' });
       }
     }
 
     const summary = { success: true, checked: due.length, sent, failures };
-    console.log('Onboarding reminder sweep completed:', JSON.stringify(summary));
+    console.log('Onboarding reminder sweep completed:', { checked: due.length, sent, failedCount: failures.length });
     return NextResponse.json(summary);
   } catch (err) {
-    console.error('Onboarding reminder sweep failed:', err);
+    console.error('Onboarding reminder sweep failed:', safeErrorInfo(err));
     return NextResponse.json({ error: 'Onboarding reminder sweep failed' }, { status: 500 });
   }
 }

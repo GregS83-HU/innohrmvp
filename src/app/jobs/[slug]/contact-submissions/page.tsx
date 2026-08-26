@@ -3,12 +3,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Search, Filter, Mail, Phone, Building2, 
+import {
+  Search, Filter, Mail, Phone, Building2,
   Calendar, MessageSquare, CheckCircle, Clock,
   AlertCircle, Ban, User, Trash2, ExternalLink,
   StickyNote, X, Save
 } from 'lucide-react';
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 interface ContactSubmission {
   id: string;
@@ -75,7 +76,7 @@ export default function ContactSubmissionsPage({ params }: ContactSubmissionsPag
         setSubmissions(result.data);
       }
     } catch (error) {
-      console.error('Error fetching submissions:', error);
+      console.error('Error fetching submissions:', safeErrorInfo(error));
     } finally {
       setLoading(false);
     }
@@ -118,7 +119,7 @@ export default function ContactSubmissionsPage({ params }: ContactSubmissionsPag
         }
       }
     } catch (error) {
-      console.error('Error updating status:', error);
+      console.error('Error updating status:', safeErrorInfo(error));
     }
   };
 
@@ -140,7 +141,7 @@ export default function ContactSubmissionsPage({ params }: ContactSubmissionsPag
         setSelectedSubmission({ ...selectedSubmission, notes: noteText });
       }
     } catch (error) {
-      console.error('Error saving note:', error);
+      console.error('Error saving note:', safeErrorInfo(error));
     } finally {
       setIsSavingNote(false);
     }
@@ -159,7 +160,7 @@ export default function ContactSubmissionsPage({ params }: ContactSubmissionsPag
         setIsModalOpen(false);
       }
     } catch (error) {
-      console.error('Error deleting submission:', error);
+      console.error('Error deleting submission:', safeErrorInfo(error));
     }
   };
 

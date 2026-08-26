@@ -2,6 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -26,13 +27,13 @@ export async function POST(req: NextRequest) {
       .eq('email', email.toLowerCase());
 
     if (error) {
-      console.error('Unsubscribe error:', error);
+      console.error('Unsubscribe error:', safeErrorInfo(error));
       return NextResponse.json({ error: 'Failed to unsubscribe' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Unsubscribe error:', error);
+    console.error('Unsubscribe error:', safeErrorInfo(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -1,6 +1,7 @@
 // app/api/users/update-status/route.ts
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -30,7 +31,7 @@ export async function PATCH(request: NextRequest) {
       .select();
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error('Supabase error:', safeErrorInfo(error));
       return NextResponse.json(
         { 
           error: 'Failed to update user status',
@@ -50,7 +51,7 @@ export async function PATCH(request: NextRequest) {
       message: `User ${isActive ? 'activated' : 'deactivated'} successfully` 
     });
   } catch (error) {
-    console.error('Error updating user status:', error);
+    console.error('Error updating user status:', safeErrorInfo(error));
     return NextResponse.json(
       { 
         error: 'Internal server error',

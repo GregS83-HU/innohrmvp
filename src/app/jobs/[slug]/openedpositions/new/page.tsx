@@ -10,6 +10,7 @@ import { useLocale } from 'i18n/LocaleProvider'
 import { PositionForm, PositionFormData } from '../../../../../../components/newposition/PositionForm'
 import { AIGenerateModal } from '../../../../../../components/newposition/AIGenerateModal'
 import { ConfirmAnalysisModal } from '../../../../../../components/newposition//ConfirmAnalysisModal'
+import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -77,7 +78,7 @@ export default function NewOpenedPositionPage() {
         .single()
       if (!error && data?.company_id) setCompanyId(data.company_id)
     } catch (e) {
-      console.error('Error in fetchUserCompanyId:', e)
+      console.error('Error in fetchUserCompanyId:', safeErrorInfo(e))
     }
   }, [])
 

@@ -6,6 +6,7 @@ import { Suspense, useEffect, useState, useCallback, useRef } from 'react';
 import UploadCertificateClient from './UploadCertificateClient';
 import { useLocale } from '../../../../../i18n/LocaleProvider';
 import LockedModuleNotice from '../../../../../../components/entitlements/LockedModuleNotice';
+import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
 function UploadCertificatePageContent() {
   const searchParams = useSearchParams();
@@ -48,7 +49,7 @@ function UploadCertificatePageContent() {
       setAccessPlan(result.plan ?? null);
       setIsLoading(false);
     } catch (error) {
-      console.error('Entitlement check error:', error);
+      console.error('Entitlement check error:', safeErrorInfo(error));
       setCanAddCertificate(false);
       setIsLoading(false);
     }

@@ -31,6 +31,7 @@ import PendingApprovals from '../../../../../components/absence/PendingApprovals
 import RequestLeaveModal from '../../../../../components/absence/RequestLeaveModal2';
 import { useModuleAccess } from '../../../../../hooks/useModuleAccess';
 import LockedModuleNotice from '../../../../../components/entitlements/LockedModuleNotice';
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 // Type for certificate data (matching what CertificateUploadModal returns)
 interface CertificateData {
@@ -103,7 +104,7 @@ const AbsenceManagement: React.FC = () => {
       if (!user) return;
 
 
-      console.log('Fetched user object:', user);
+      console.log('Fetched current user, id:', user.id);
       console.log('User ID:', user.id);
       setCurrentUser(user);
 
@@ -130,7 +131,7 @@ const AbsenceManagement: React.FC = () => {
 
       setIsManager((directReports?.length || 0) > 0);
     } catch (err) {
-      console.error('Error fetching user:', err);
+      console.error('Error fetching user:', safeErrorInfo(err));
     }
   }, []);
 
@@ -145,7 +146,7 @@ const AbsenceManagement: React.FC = () => {
       if (error) throw error;
       setLeaveTypes(data || []);
     } catch (err) {
-      console.error('Error fetching leave types:', err);
+      console.error('Error fetching leave types:', safeErrorInfo(err));
     }
   }, []);
 
@@ -192,7 +193,7 @@ const AbsenceManagement: React.FC = () => {
       const approvals = typeof data === 'string' ? JSON.parse(data) : data;
       setPendingApprovals(approvals || []);
     } catch (err) {
-      console.error('Error fetching pending approvals:', err);
+      console.error('Error fetching pending approvals:', safeErrorInfo(err));
     }
   }, [currentUser, isManager]);
 
@@ -221,7 +222,7 @@ const AbsenceManagement: React.FC = () => {
         await fetchLeaveOverview();
         alert(t('absenceManagement.messages.certificateLinked'));
       } catch (err) {
-        console.error('Error linking certificate:', err);
+        console.error('Error linking certificate:', safeErrorInfo(err));
         alert(t('absenceManagement.messages.certificateLinkFailed'));
       }
     } else {
