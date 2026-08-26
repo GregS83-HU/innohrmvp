@@ -84,16 +84,18 @@ export default function NewOpenedPositionPage() {
 
   // Check position creation quota
   const checkPositionCreationAccess = useCallback(async () => {
-    if (!companyId || positionAccessChecked.current) return
+    if (!companyId || positionAccessChecked.current || !session?.access_token) return
     positionAccessChecked.current = true
     try {
-      const res = await fetch(`/api/entitlements/check?company_id=${companyId}&feature=recruitment.openPosition`)
+      const res = await fetch(`/api/entitlements/check?feature=recruitment.openPosition`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
       const result = await res.json()
       setCanCreatePosition(res.ok && result.allowed === true)
     } catch {
       setCanCreatePosition(false)
     }
-  }, [companyId])
+  }, [companyId, session?.access_token])
 
   useEffect(() => {
     if (session?.user?.id) fetchUserCompanyId(session.user.id)

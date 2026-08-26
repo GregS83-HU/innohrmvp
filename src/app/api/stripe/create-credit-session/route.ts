@@ -1,17 +1,31 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
+import { requireCompanyAdmin } from "../../../../../lib/authz";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
-    const { company_id, price_id, credits, return_url } = await req.json();
+    const { price_id, credits, return_url } = await req.json();
 
-    if (!company_id || !price_id || !credits) {
+    if (!price_id || !credits) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
+
+    // company_id is derived from the caller's own session/membership below -
+    // never trusted from the request body. Buying AI credits charges the
+    // target company's Stripe customer, so this requires the caller to be
+    // an admin of that company.
+    const authCheck = await requireCompanyAdmin(req);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+    }
+    if (authCheck.companyId === undefined) {
+      return NextResponse.json({ error: "Company not found" }, { status: 500 });
+    }
+    const company_id = authCheck.companyId;
 
     // Fetch Stripe customer ID for this company
     const supabase = createClient(

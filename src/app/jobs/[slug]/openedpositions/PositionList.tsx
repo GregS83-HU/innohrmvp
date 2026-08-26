@@ -57,13 +57,15 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
   // Fetch user role when logged in
   useEffect(() => {
     async function fetchUserRole() {
-      if (!isLoggedIn || !userId) {
+      if (!isLoggedIn || !userId || !session?.access_token) {
         setUserRoleLoading(false)
         return
       }
 
       try {
-        const res = await fetch(`/api/user-role?userId=${userId}`)
+        const res = await fetch(`/api/user-role?userId=${userId}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
         if (res.ok) {
           const data = await res.json()
           setIsManager(data.is_manager || false)
@@ -77,7 +79,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
     }
 
     fetchUserRole()
-  }, [isLoggedIn, userId])
+  }, [isLoggedIn, userId, session?.access_token])
 
   useEffect(() => {
     if (!companySlug) {

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useSession } from '@supabase/auth-helpers-react'
 import { useLocale } from 'i18n/LocaleProvider'
 
 type InterviewQuestion = {
@@ -28,6 +29,7 @@ export default function InterviewAssistantModal({
   onClose: () => void
 }) {
   const { t } = useLocale()
+  const session = useSession()
   const [interviewQuestions, setInterviewQuestions] = useState<InterviewQuestion[] | null>(null)
   const [interviewNotes, setInterviewNotes] = useState('')
   const [interviewSummary, setInterviewSummary] = useState<InterviewSummary | null>(null)
@@ -35,12 +37,19 @@ export default function InterviewAssistantModal({
   const [step, setStep] = useState<'questions' | 'summary'>('questions')
 
   async function handleGenerateQuestions() {
+    if (!session?.access_token) {
+      console.error('No active session; cannot call interview-assistant')
+      return
+    }
     setIsLoading(true)
     setStep('questions')
     try {
       const res = await fetch('/api/interview-assistant', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({
           mode: 'questions',
           candidat_id: candidatId,
@@ -57,12 +66,19 @@ export default function InterviewAssistantModal({
   }
 
   async function handleGenerateSummary() {
+    if (!session?.access_token) {
+      console.error('No active session; cannot call interview-assistant')
+      return
+    }
     setIsLoading(true)
     setStep('summary')
     try {
       const res = await fetch('/api/interview-assistant', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({
           mode: 'summary',
           candidat_id: candidatId,

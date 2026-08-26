@@ -867,7 +867,8 @@
     "loading": "Checking permissions...",
     "error": {
       "title": "Error",
-      "noCompanyId": "No company ID provided. Please access this page via the appropriate link."
+      "noCompanyId": "No company ID provided. Please access this page via the appropriate link.",
+      "loginRequired": "Please sign in to your HRInno account to upload a medical certificate."
     },
     "planLimit": {
       "title": "Plan Limit Reached",

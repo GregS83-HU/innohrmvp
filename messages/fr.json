@@ -869,7 +869,8 @@
     "loading": "Vérification des permissions...",
     "error": {
       "title": "Erreur",
-      "noCompanyId": "Aucun ID d'entreprise fourni. Veuillez accéder à cette page via le lien approprié."
+      "noCompanyId": "Aucun ID d'entreprise fourni. Veuillez accéder à cette page via le lien approprié.",
+      "loginRequired": "Veuillez vous connecter à votre compte HRInno pour téléverser un certificat médical."
     },
     "planLimit": {
       "title": "Limite du Plan Atteinte",

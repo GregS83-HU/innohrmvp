@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js"
 import * as XLSX from "xlsx"
 import { hasFeatureAccess } from "../../../../lib/entitlements"
 import { getAddEmployeeLimitMessage } from "../../../../src/config/entitlements"
+import { requireSuperAdmin } from "../../../../lib/authz"
 import { safeErrorInfo } from '../../../../lib/logSafe';
 
 const supabase = createClient(
@@ -32,6 +33,11 @@ interface ImportResult {
 
 export async function POST(req: NextRequest) {
   try {
+    const authCheck = await requireSuperAdmin(req)
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status })
+    }
+
     const formData = await req.formData()
     const file = formData.get("file") as File
 

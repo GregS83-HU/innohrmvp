@@ -1,14 +1,25 @@
 import Stripe from "stripe"
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { requireCompanyAdmin } from "../../../../../lib/authz"
 
 export const runtime = "nodejs"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 export async function POST(req: Request) {
-  const { company_id } = await req.json()
-  if (!company_id) return NextResponse.json({ error: "Missing company_id" }, { status: 400 })
+  // company_id is derived from the caller's own session/membership below -
+  // never trusted from the request body. This is a destructive action
+  // (immediately cancels a live subscription), so it requires the caller to
+  // be an admin of the company being acted on, not just any member.
+  const authCheck = await requireCompanyAdmin(req)
+  if (!authCheck.authorized) {
+    return NextResponse.json({ error: authCheck.error }, { status: authCheck.status })
+  }
+  if (authCheck.companyId === undefined) {
+    return NextResponse.json({ error: "Company not found" }, { status: 500 })
+  }
+  const company_id = authCheck.companyId
 
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { Analytics } from "@vercel/analytics/next"
 import { getPrompt, fillPromptVariables, PromptNotFoundError, PromptDatabaseError } from "../../../../../lib/prompts";
 import { hasFeatureAccess, entitlementErrorBody } from "../../../../../lib/entitlements";
+import { requireCompanyAdmin } from "../../../../../lib/authz";
 import { redactDirectIdentifiers } from "../../../../../lib/piiRedaction";
 import { safeErrorInfo } from '../../../../../lib/logSafe';
 
@@ -69,15 +70,24 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
-    const companyId = formData.get("company_id") as string | null;
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    if (!companyId) {
-      return NextResponse.json({ error: "Company ID is required" }, { status: 400 });
+    // The company this upload is scoped to is derived from the caller's own
+    // session/membership below - never trusted from the form field. This
+    // OCR/extraction step handles the same sensitive health-data upload as
+    // medical-certificates/confirm, so it requires the same admin-of-company
+    // check, matching medical-certificates/signed-url's model.
+    const authCheck = await requireCompanyAdmin(req);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }
+    if (authCheck.companyId === undefined) {
+      return NextResponse.json({ error: "Company not found" }, { status: 500 });
+    }
+    const companyId = authCheck.companyId;
 
     const entitlement = await hasFeatureAccess(companyId, "medicalCertificates.upload");
     if (!entitlement.allowed) {

@@ -129,11 +129,22 @@ export default function ManageSubscription() {
     cancelUrlObj.searchParams.set('canceled_credit', '1')
     cancelUrlObj.searchParams.set('company_id', companyId)
     const cancelUrl = cancelUrlObj.toString()
+      const {
+        data: { session: freshSession },
+      } = await supabase.auth.getSession()
+      if (!freshSession?.access_token) {
+        addToast(t('subscription.errors.startPayment'), "error")
+        setIsProcessingPayment(false)
+        return
+      }
+
       const res = await fetch("/api/stripe/create-credit-session", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${freshSession.access_token}`,
+        },
         body: JSON.stringify({
-          company_id: companyId,
           price_id: priceId,
           credits,
           return_url: returnUrl,
@@ -367,11 +378,21 @@ const fetchCompanyDetails = useCallback(async (companyId: string) => {
     }
 
     try {
+      const {
+        data: { session: freshSession },
+      } = await supabase.auth.getSession()
+      if (!freshSession?.access_token) {
+        addToast(t('subscription.errors.unableCheckout'), "error")
+        return
+      }
+
       const res = await fetch('/api/stripe/create-subscription', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${freshSession.access_token}`,
+        },
         body: JSON.stringify({
-          company_id: companyId,
           price_id: plan.priceId,
           return_url: window.location.href
         }),

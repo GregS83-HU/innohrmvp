@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getPrompts, fillPromptVariables, PromptNotFoundError, PromptDatabaseError } from '../../../../lib/prompts'
+import { requireCompanyMember } from '../../../../lib/authz'
 import { safeErrorInfo } from '../../../../lib/logSafe';
 
 const supabase = createClient(
@@ -26,6 +27,23 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const { mode, candidat_id, position_id, interview_id, notes, locale = 'en' } = body
+
+    // Verify the caller belongs to the company that owns this position
+    // before touching any candidate/interview data tied to it.
+    const { data: positionForAuth, error: positionAuthErr } = await supabase
+      .from('openedpositions')
+      .select('company_id')
+      .eq('id', position_id)
+      .single()
+
+    if (positionAuthErr || !positionForAuth) {
+      return NextResponse.json({ error: 'Position not found' }, { status: 404 })
+    }
+
+    const authCheck = await requireCompanyMember(req, positionForAuth.company_id)
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status })
+    }
 
     // Get the language name for the AI prompt
     const languageName = languageNames[locale] || 'English'

@@ -1,18 +1,26 @@
 // src/app/medical-certificate/upload/page.tsx
 'use client';
 
-import { useSearchParams, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { Suspense, useEffect, useState, useCallback, useRef } from 'react';
+import { createClient } from '@supabase/supabase-js';
+import { useSession } from '@supabase/auth-helpers-react';
 import UploadCertificateClient from './UploadCertificateClient';
 import { useLocale } from '../../../../../i18n/LocaleProvider';
 import LockedModuleNotice from '../../../../../../components/entitlements/LockedModuleNotice';
 import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
 function UploadCertificatePageContent() {
-  const searchParams = useSearchParams();
   const params = useParams();
   const slug = params.slug as string;
-  const companyId = searchParams.get('company_id');
+  const session = useSession();
+  const [companyId, setCompanyId] = useState<number | null>(null);
+  const [companyIdLoading, setCompanyIdLoading] = useState(true);
   const [canAddCertificate, setCanAddCertificate] = useState<boolean | null>(null);
   const [accessReason, setAccessReason] = useState<string | null>(null);
   const [accessPlan, setAccessPlan] = useState<string | null>(null);
@@ -20,29 +28,50 @@ function UploadCertificatePageContent() {
   const certificateAccessChecked = useRef(false);
   const { t } = useLocale();
 
+  // This page previously derived company_id from a plain ?company_id= URL
+  // query param, reachable with no login at all. It now requires a session
+  // and derives the company from that session's own membership - matching
+  // how the backend (medical-certificates/confirm and /upload) has
+  // required an authenticated company admin since the Group 3 fix.
+  const fetchUserCompanyId = useCallback(async () => {
+    if (!session?.user?.id) {
+      setCompanyIdLoading(false);
+      return;
+    }
+    try {
+      const { data, error } = await supabase
+        .from('company_to_users')
+        .select('company_id')
+        .eq('user_id', session.user.id)
+        .single();
+      if (!error && data?.company_id) setCompanyId(data.company_id);
+    } catch (error) {
+      console.error('Error fetching company id:', safeErrorInfo(error));
+    } finally {
+      setCompanyIdLoading(false);
+    }
+  }, [session?.user?.id]);
+
+  useEffect(() => {
+    fetchUserCompanyId();
+  }, [fetchUserCompanyId]);
+
   // Check if user can add medical certificate
   const checkCertificateAccess = useCallback(async () => {
-    console.log('🎯 checkCertificateAccess called with:', {
-      companyId,
-      alreadyChecked: certificateAccessChecked.current
-    });
-    
-    if (!companyId) {
-      console.log('❌ No companyId available, cannot check access');
+    if (!companyId || !session?.access_token) {
       setIsLoading(false);
       return;
     }
-    
+
     if (certificateAccessChecked.current) {
-      console.log('❌ Access already checked, skipping');
       return;
     }
-    
-    console.log('🔍 Checking certificate access for company_id:', companyId);
     certificateAccessChecked.current = true;
-    
+
     try {
-      const res = await fetch(`/api/entitlements/check?company_id=${companyId}&feature=medicalCertificates.upload`);
+      const res = await fetch(`/api/entitlements/check?feature=medicalCertificates.upload`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
       const result = await res.json();
       setCanAddCertificate(res.ok && result.allowed === true);
       setAccessReason(result.reason ?? null);
@@ -53,14 +82,14 @@ function UploadCertificatePageContent() {
       setCanAddCertificate(false);
       setIsLoading(false);
     }
-  }, [companyId]);
+  }, [companyId, session?.access_token]);
 
   useEffect(() => {
     checkCertificateAccess();
   }, [checkCertificateAccess]);
 
   // Show loading state
-  if (isLoading) {
+  if (session === undefined || companyIdLoading || isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex items-center justify-center">
         <div className="text-center">
@@ -71,7 +100,26 @@ function UploadCertificatePageContent() {
     );
   }
 
-  // Show error if no company ID
+  // Require a logged-in session before anything else - this page (and the
+  // API routes it calls) used to be reachable with no login at all.
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 p-4 flex items-center justify-center">
+        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">{t('uploadCertificate.error.title')}</h1>
+          <p className="text-gray-700 mb-4">{t('uploadCertificate.error.loginRequired')}</p>
+          <a
+            href={`/jobs/${slug}`}
+            className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium"
+          >
+            {t('uploadCertificate.buttons.back')}
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if the session has no associated company
   if (!companyId) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 p-4 flex items-center justify-center">
@@ -80,7 +128,7 @@ function UploadCertificatePageContent() {
           <p className="text-gray-700 mb-4">
             {t('uploadCertificate.error.noCompanyId')}
           </p>
-          <button 
+          <button
             onClick={() => window.history.back()}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium"
           >
@@ -122,7 +170,7 @@ function UploadCertificatePageContent() {
           <p className="text-gray-700 mb-6">
             {t('uploadCertificate.planLimit.message')}
           </p>
-          <button 
+          <button
             onClick={() => window.history.back()}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium"
           >
@@ -134,12 +182,12 @@ function UploadCertificatePageContent() {
   }
 
   // Show the upload component if access is granted
-  return <UploadCertificateClient companyId={companyId} />;
+  return <UploadCertificateClient />;
 }
 
 export default function UploadCertificatePage() {
   const { t } = useLocale();
-  
+
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex items-center justify-center">

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabaseClient';
 
 export type ModuleAccessState = {
   loading: boolean;
@@ -42,8 +43,18 @@ export function useModuleAccess(userId: string | null | undefined): ModuleAccess
     let cancelled = false;
     setState((s) => ({ ...s, loading: true }));
 
-    fetch(`/api/entitlements/status?userId=${encodeURIComponent(userId)}`)
-      .then((res) => (res.ok ? res.json() : null))
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        if (!session?.access_token) {
+          if (!cancelled) setState({ ...DEFAULT_STATE, loading: false });
+          return null;
+        }
+        return fetch(`/api/entitlements/status?userId=${encodeURIComponent(userId)}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+      })
+      .then((res) => (res && res.ok ? res.json() : null))
       .then((data) => {
         if (cancelled) return;
         if (!data) {

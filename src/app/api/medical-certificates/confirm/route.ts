@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { hasFeatureAccess, entitlementErrorBody } from '../../../../../lib/entitlements'
+import { requireCompanyAdmin } from '../../../../../lib/authz'
 import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
@@ -18,25 +19,29 @@ export async function POST(request: Request) {
     const absenceDateEnd = formData.get('absenceDateEnd') as string | null
     const employee_comment = formData.get('comment') as string | null
     const file = formData.get('file') as File | null
-    const company_id = formData.get('company_id') as string | null
     const leave_request_id = formData.get('leave_request_id') as string | null
     const employee_ai_consent_date = formData.get('employee_ai_consent_date') as string | null
 
-
-    if (!company_id || !file) {
+    if (!file) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       )
     }
 
-    const companyIdNumber = parseInt(company_id, 10)
-    if (isNaN(companyIdNumber)) {
-      return NextResponse.json(
-        { error: 'Invalid company_id format' },
-        { status: 400 }
-      )
+    // The company this certificate is filed under is derived from the
+    // caller's own session/membership below - never trusted from the form
+    // field. Uploading a medical certificate is sensitive health-data
+    // handling restricted to an admin of the caller's own company, matching
+    // medical-certificates/signed-url's model for this same feature.
+    const authCheck = await requireCompanyAdmin(request)
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status })
     }
+    if (authCheck.companyId === undefined) {
+      return NextResponse.json({ error: 'Company not found' }, { status: 500 })
+    }
+    const companyIdNumber = authCheck.companyId
 
     const entitlement = await hasFeatureAccess(companyIdNumber, 'medicalCertificates.upload')
     if (!entitlement.allowed) {
@@ -45,7 +50,7 @@ export async function POST(request: Request) {
 
     // Upload file to Supabase Storage
     const fileBuffer = Buffer.from(await file.arrayBuffer())
-    const filePath = `certificates/${company_id}/${Date.now()}-${file.name}`
+    const filePath = `certificates/${companyIdNumber}/${Date.now()}-${file.name}`
 
     const { error: uploadError } = await supabase.storage
       .from('medical-certificates')

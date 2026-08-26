@@ -2,16 +2,14 @@
 
 import { useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { useSession } from '@supabase/auth-helpers-react';
 import { useLocale } from 'i18n/LocaleProvider';
 import { Upload, FileText, User, Calendar, Stethoscope, MessageCircle, Check, X, AlertTriangle, CheckCircle } from 'lucide-react';
 
-type UploadCertificateClientProps = {
-  companyId: string;
-};
-
-export default function UploadCertificateClient({ companyId }: UploadCertificateClientProps) {
+export default function UploadCertificateClient() {
   const { t } = useLocale();
-  
+  const session = useSession();
+
   const pathname = usePathname();
   const segments = pathname.split('/').filter(Boolean);
   
@@ -64,6 +62,7 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
   const handleUpload = async () => {
     if (!file) return setError(t('uploadCertificate.alerts.selectFile'));
     if (!aiConsentAccepted) return;
+    if (!session?.access_token) return setError(t('uploadCertificate.error.loginRequired'));
     setLoading(true);
     setError('');
     setResult(null);
@@ -71,10 +70,10 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
     try {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('company_id', companyId);
 
       const res = await fetch('/api/medical-certificates/upload', {
         method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
         body: formData,
       });
 
@@ -112,26 +111,27 @@ export default function UploadCertificateClient({ companyId }: UploadCertificate
 
   const handleConfirm = async () => {
     if (!result || !file) return setError(t('uploadCertificate.alerts.cannotSave'));
+    if (!session?.access_token) return setError(t('uploadCertificate.error.loginRequired'));
 
     setSaving(true);
     setError('');
 
     try {
       const formData = new FormData();
-      
+
       // Use manual data for unrecognised fields, otherwise use result data
       formData.append('employee_name', isFieldUnrecognised(result.employee_name) ? manualData.employee_name : (result.employee_name || ''));
       formData.append('absenceDateStart', isFieldUnrecognised(result.absenceDateStart) ? manualData.absenceDateStart : (result.absenceDateStart || ''));
       formData.append('absenceDateEnd', isFieldUnrecognised(result.absenceDateEnd) ? manualData.absenceDateEnd : (result.absenceDateEnd || ''));
      // formData.append('doctor_name', isFieldUnrecognised(result.doctor_name) ? manualData.doctor_name : (result.doctor_name || ''));
-      
+
       formData.append('comment', comment || '');
       formData.append('file', file);
-      formData.append('company_id', companyId);
       formData.append('employee_ai_consent_date', aiConsentDate || '');
 
       const res = await fetch('/api/medical-certificates/confirm', {
         method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
         body: formData,
       });
 

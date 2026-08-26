@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { hasFeatureAccess, entitlementErrorBody } from '../../../../../lib/entitlements';
+import { requireCompanyAdmin } from '../../../../../lib/authz';
 import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
@@ -17,7 +18,6 @@ export async function POST(req: NextRequest) {
       password,
       firstName,
       lastName,
-      companyId,
       managerId,
       employmentStartDate,
       isManager = false, // ✅ New field with default false
@@ -38,14 +38,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!companyId) {
-      return NextResponse.json({ error: 'Company ID is required' }, { status: 400 });
+    // The company being created into is derived from the caller's own
+    // session/membership - never trusted from the request body. Creating a
+    // user is a company-admin action.
+    const authCheck = await requireCompanyAdmin(req);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }
+    if (authCheck.companyId === undefined) {
+      return NextResponse.json({ error: 'Company not found' }, { status: 500 });
+    }
+    const companyId = authCheck.companyId;
 
     // Seat cap: block adding a new employee past the plan's max_employees.
     // Existing employees are never affected by this check - see
     // MODULE_GATING_FIX.md.
-    const entitlement = await hasFeatureAccess(parseInt(companyId, 10), 'company.addEmployee');
+    const entitlement = await hasFeatureAccess(companyId, 'company.addEmployee');
     if (!entitlement.allowed) {
       return NextResponse.json(entitlementErrorBody('company.addEmployee', entitlement), { status: 403 });
     }
@@ -80,7 +88,7 @@ export async function POST(req: NextRequest) {
     // 3️⃣ Link user to company
     const { error: linkError } = await supabase.from('company_to_users').insert({
       user_id: userId,
-      company_id: parseInt(companyId, 10),
+      company_id: companyId,
     });
 
     if (linkError) {

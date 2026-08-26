@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession } from '@supabase/auth-helpers-react';
 import {
   Clock,
   Users,
@@ -55,6 +56,7 @@ export default function ManagerTimeClockDashboard({
   managerName,
 }: ManagerTimeClockDashboardProps) {
   const { t } = useLocale();
+  const session = useSession();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [pendingEntries, setPendingEntries] = useState<PendingEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,7 +68,7 @@ export default function ManagerTimeClockDashboard({
 
   useEffect(() => {
     fetchTeamData();
-  }, [managerId]);
+  }, [managerId, session?.access_token]);
 
   useEffect(() => {
     if (activeTab === 'pending') {
@@ -75,10 +77,12 @@ export default function ManagerTimeClockDashboard({
   }, [activeTab]);
 
   const fetchTeamData = async () => {
+    if (!session?.access_token) return;
     try {
       setLoading(true);
       const response = await fetch(
-        `/api/timeclock/manager?managerId=${managerId}&action=team-today`
+        `/api/timeclock/manager?managerId=${managerId}&action=team-today`,
+        { headers: { Authorization: `Bearer ${session.access_token}` } }
       );
       const data = await response.json();
 
@@ -96,9 +100,11 @@ export default function ManagerTimeClockDashboard({
   };
 
   const fetchPendingEntries = async () => {
+    if (!session?.access_token) return;
     try {
       const response = await fetch(
-        `/api/timeclock/manager?managerId=${managerId}&action=pending-approvals`
+        `/api/timeclock/manager?managerId=${managerId}&action=pending-approvals`,
+        { headers: { Authorization: `Bearer ${session.access_token}` } }
       );
       const data = await response.json();
 
@@ -134,11 +140,15 @@ export default function ManagerTimeClockDashboard({
     status: 'approved' | 'rejected',
     notes?: string
   ) => {
+    if (!session?.access_token) return;
     try {
       setActionLoading(entryId);
       const response = await fetch('/api/timeclock/manager', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({
           managerId,
           action: 'approve-entry',

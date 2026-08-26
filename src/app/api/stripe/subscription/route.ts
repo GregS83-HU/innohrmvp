@@ -1,14 +1,20 @@
 import { createClient } from "@supabase/supabase-js"
 import { NextResponse } from "next/server"
+import { requireCompanyMember } from "../../../../../lib/authz"
 
 export async function GET(request: Request) {
   try {
-    const url = new URL(request.url)
-    const company_id = url.searchParams.get("company_id")
-    
-    if (!company_id) {
-      return NextResponse.json({ error: "Missing company_id" }, { status: 400 })
+    // company_id is derived from the caller's own session/membership below -
+    // never trusted from the query string. Read-only, so any authenticated
+    // member of the company (not just an admin) may view its plan/status.
+    const authCheck = await requireCompanyMember(request)
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status })
     }
+    if (authCheck.companyId === undefined) {
+      return NextResponse.json({ error: "Company not found" }, { status: 500 })
+    }
+    const company_id = authCheck.companyId
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,

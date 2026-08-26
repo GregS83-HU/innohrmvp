@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { requireAuthenticatedUser } from '../../../../lib/authz';
 import { safeErrorInfo } from '../../../../lib/logSafe';
 
 const supabase = createClient(
@@ -17,6 +18,16 @@ export async function GET(request: NextRequest) {
         { error: 'User ID is required' },
         { status: 400 }
       );
+    }
+
+    // Restricted to the caller's own role - never another user's, which the
+    // userId query param previously allowed by itself.
+    const identity = await requireAuthenticatedUser(request);
+    if (!identity.authorized) {
+      return NextResponse.json({ error: identity.error }, { status: identity.status });
+    }
+    if (identity.userId !== userId) {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
     // Fetch user information from the database

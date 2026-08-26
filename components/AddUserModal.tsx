@@ -124,11 +124,21 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
     }
 
     try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error(t('addUserModal.errors.failedToCreate'));
+      }
+
       const res = await fetch('/api/users/users-creation', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          ...formData, 
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          ...formData,
           companyId,
         }),
       });

@@ -1,6 +1,7 @@
 // app/api/users/update-status/route.ts
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
+import { requireCompanyAdmin } from '../../../../../lib/authz';
 import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
@@ -11,7 +12,7 @@ const supabase = createClient(
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { userId,companyId, isActive } = body;
+    const { userId, isActive } = body;
 
     console.log('Update status request:', { userId, isActive });
 
@@ -20,6 +21,30 @@ export async function PATCH(request: NextRequest) {
         { error: 'User ID and active status are required' },
         { status: 400 }
       );
+    }
+
+    // The admin's own company is derived from their session below - never
+    // trusted from the request body. The target user must also actually
+    // belong to that company, or an admin of company A could deactivate a
+    // user in company B just by supplying their userId.
+    const authCheck = await requireCompanyAdmin(request);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+    }
+    if (authCheck.companyId === undefined) {
+      return NextResponse.json({ error: 'Company not found' }, { status: 500 });
+    }
+    const companyId = authCheck.companyId;
+
+    const { data: targetMembership, error: targetError } = await supabase
+      .from('company_to_users')
+      .select('company_id')
+      .eq('user_id', userId)
+      .eq('company_id', companyId)
+      .single();
+
+    if (targetError || !targetMembership) {
+      return NextResponse.json({ error: 'User not found in your company' }, { status: 404 });
     }
 
     // Update the user's active status in company_to_users table

@@ -224,11 +224,27 @@ export async function POST(req: NextRequest) {
     const positionId = formData.get('positionId') as string;
     const source = formData.get('source') as string || 'Candidate Upload';
 
+    if (!positionId) {
+      return NextResponse.json({ error: 'Position ID requis.' }, { status: 400 });
+    }
+
+    // Public, unauthenticated endpoint (candidates apply without logging
+    // in) - there is no caller identity to check. The fix here is instead:
+    // verify positionId refers to a real position at all (previously this
+    // was never checked - a bogus positionId still created a candidate and
+    // a position_to_candidat row), and derive the company being billed for
+    // AI credits from THAT position's own company_id, rather than trusting
+    // a separately-supplied companySlug that could name a different
+    // company than positionId actually belongs to.
     const { data: positionData, error: positionError } = await supabase
       .from('openedpositions')
       .select('position_name, company_id, manager_id')
       .eq('id', positionId)
       .single();
+
+    if (positionError || !positionData) {
+      return NextResponse.json({ error: 'Position introuvable.' }, { status: 404 });
+    }
 
     if (!file || file.type !== 'application/pdf') {
       return NextResponse.json({ error: 'Fichier PDF requis.' }, { status: 400 });
@@ -252,26 +268,10 @@ export async function POST(req: NextRequest) {
       .from('cvs')
       .upload(filePath, buffer, { contentType: 'application/pdf' });
 
-    const companySlug = formData.get('companySlug')?.toString();
-    console.log('FormData keys:', Array.from(formData.keys()));
-
-    const { data: company, error: companyError } = await supabase
-      .from('company')
-      .select('id')
-      .eq('slug', companySlug)
-      .single();
-
-    if (companyError) {
-      console.error('Error fetching company_id:', companyError);
-      return new Response(JSON.stringify({ error: 'Could not find company.' }), { status: 400 });
-    }
-
-    const companyId = company.id;
-    console.log('Resolved company_id:', companyId);
-
-    if (!companyId) {
-      return NextResponse.json({ error: 'Missing company ID (needed to check AI credits).' }, { status: 400 });
-    }
+    // companyId comes from the position record fetched above, not from a
+    // separately client-supplied companySlug (see comment above).
+    const companyId = positionData.company_id;
+    console.log('Resolved company_id from position:', companyId);
 
     const ok = await consumeCredit(companyId);
     if (!ok) {

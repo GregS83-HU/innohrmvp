@@ -869,7 +869,8 @@
     "loading": "Jogosultságok ellenőrzése...",
     "error": {
       "title": "Hiba",
-      "noCompanyId": "Nincs megadva céges azonosító. Kérjük, ezen az oldalon a megfelelő linken keresztül lépjen be."
+      "noCompanyId": "Nincs megadva céges azonosító. Kérjük, ezen az oldalon a megfelelő linken keresztül lépjen be.",
+      "loginRequired": "Kérjük, jelentkezzen be a HRInno fiókjába az orvosi igazolás feltöltéséhez."
     },
     "planLimit": {
       "title": "Elérte a csomag korlátját",

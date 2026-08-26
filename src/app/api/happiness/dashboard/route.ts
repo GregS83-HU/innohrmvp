@@ -1,6 +1,7 @@
 // src/app/api/happiness/dashboard/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { requireCompanyMember } from '../../../../../lib/authz'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -87,50 +88,47 @@ export async function GET(req: NextRequest) {
     
     const url = new URL(req.url)
     const days = parseInt(url.searchParams.get('days') || '30', 10)
-    const user_id = url.searchParams.get('user_id')
 
-    if (!user_id) {
-      return NextResponse.json(
-        { error: t.errors.missingUserId }, 
-        { status: 400 }
-      )
+    // Caller identity and company are derived from the authenticated
+    // session below - never trusted from the (now-removed) user_id query
+    // param, which any caller could previously set to any other user's id
+    // to pull that user's company's data.
+    const authCheck = await requireCompanyMember(req)
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status })
     }
+    if (authCheck.companyId === undefined) {
+      return NextResponse.json({ error: t.errors.serverError }, { status: 500 })
+    }
+    const companyId = authCheck.companyId
 
     const startDate = new Date()
     startDate.setDate(startDate.getDate() - days)
-    
-    // Get company_id from user
-    const { data: company, error: companyError } = await supabase
-      .from('company_to_users')
-      .select('company_id')
-      .eq('user_id', user_id)
-      .single()
 
-    if (companyError) {
-      console.error('Company error:', companyError)
-    }
-
-    // Get recent metrics
+    // Company-scoped as of the migration adding happiness_daily_metrics.company_id
+    // (supabase/migrations/20260826170000_add_company_scoping_to_happiness_metrics.sql).
     const { data: metrics, error: metricsError } = await supabase
       .from('happiness_daily_metrics')
       .select('*')
+      .eq('company_id', companyId)
       .gte('metric_date', startDate.toISOString().split('T')[0])
       .order('metric_date', { ascending: false })
 
     if (metricsError) {
       console.error('Metrics error:', metricsError)
       return NextResponse.json(
-        { error: t.errors.metricsError }, 
+        { error: t.errors.metricsError },
         { status: 500 }
       )
     }
 
-    // Get current period stats
+    // Get current period stats - scoped to the caller's own company
     const { data: currentStats, error: statsError } = await supabase
       .from('happiness_sessions')
       .select('overall_happiness_score, perma_scores, status, created_at')
       .gte('created_at', startDate.toISOString())
       .eq('status', 'completed')
+      .eq('company_id', companyId)
 
     if (statsError) {
       console.error('Stats error:', statsError)
