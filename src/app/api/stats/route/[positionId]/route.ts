@@ -1,6 +1,7 @@
 // src/app/api/stats/[positionId]/route.ts
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -76,7 +77,7 @@ export async function GET(
     .eq('position_id', positionId)
 
   if (error) {
-    console.error(error)
+    console.error('Erreur récupération stats:', safeErrorInfo(error))
     return NextResponse.json({ error: 'Erreur récupération stats' }, { status: 500 })
   }
 

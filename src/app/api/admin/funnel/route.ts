@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -37,7 +38,7 @@ async function verifySuperAdmin(request: NextRequest): Promise<{ authorized: boo
 
     return { authorized: true };
   } catch (error) {
-    console.error('Authorization error:', error);
+    console.error('Authorization error:', safeErrorInfo(error));
     return { authorized: false, error: 'Authorization check failed' };
   }
 }

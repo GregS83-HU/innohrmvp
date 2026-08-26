@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { hasFeatureAccess, entitlementErrorBody, resolveCompanyIdForUser } from '../../../../../lib/entitlements';
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -60,7 +61,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data }, { status: 201 });
   } catch (error) {
-    console.error('Leave request creation error:', error);
+    console.error('Leave request creation error:', safeErrorInfo(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

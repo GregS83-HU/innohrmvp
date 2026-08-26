@@ -14,7 +14,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "sw
 
 export const metadata: Metadata = {
   title: "HRInno",
-  description: "Get your CV scored free with AI — no account needed. HRInno also runs recruitment, payroll, time & attendance, absences, and performance for growing teams.",
+  description: "Get your CV scored free with AI — no account needed. HRInno also runs recruitment, time & attendance, absences, and performance for growing teams.",
 };
 
 export default function RootLayout({

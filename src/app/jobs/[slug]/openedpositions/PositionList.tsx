@@ -6,6 +6,7 @@ import { useEffect, useState, useCallback, useMemo } from "react"
 import { Search, Briefcase, BarChart3, X, Building2, FileText, Copy, Workflow } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useLocale } from 'i18n/LocaleProvider'
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 type Position = {
   id: number
@@ -69,7 +70,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
           setIsAdmin(data.is_admin || false)
         }
       } catch (err) {
-        console.error('Error fetching user role:', err)
+        console.error('Error fetching user role:', safeErrorInfo(err))
       } finally {
         setUserRoleLoading(false)
       }

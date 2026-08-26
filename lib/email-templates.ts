@@ -14,7 +14,7 @@ interface OnboardingEmailData {
 
 /**
  * Sent to a self-serve signup's admin: a Calendly link to book the
- * onboarding call needed to unlock payroll/time & attendance/absences/
+ * onboarding call needed to unlock time & attendance/absences/
  * performance/the wellbeing chatbot/medical certificates. 'welcome' goes
  * out right at signup; 'reminder' is the one-time nudge if they haven't
  * booked within the SLA window (see lib/businessDays.ts).
@@ -27,8 +27,8 @@ export function generateOnboardingEmail(data: OnboardingEmailData): string {
     ? `Just a quick reminder — <strong>${data.companyName}</strong> hasn't booked its onboarding call yet.`
     : `<strong>${data.companyName}</strong> is set up and ready to go.`
   const body = isReminder
-    ? `Payroll, time & attendance, absences, performance management, the AI wellbeing chatbot, and medical certificate uploads are all waiting for a short setup call with our team before they unlock.`
-    : `You can start posting jobs and using the AI Job Assistant right away — no setup needed. Payroll, time & attendance, absences, performance management, the AI wellbeing chatbot, and medical certificate uploads unlock after a short onboarding call with our team.`
+    ? `Time & attendance, absences, performance management, the AI wellbeing chatbot, and medical certificate uploads are all waiting for a short setup call with our team before they unlock.`
+    : `You can start posting jobs and using the AI Job Assistant right away — no setup needed. Time & attendance, absences, performance management, the AI wellbeing chatbot, and medical certificate uploads unlock after a short onboarding call with our team.`
 
   return `
 <!DOCTYPE html>

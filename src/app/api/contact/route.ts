@@ -2,6 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -136,13 +137,11 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Database error:', error);
+      console.error('Database error:', safeErrorInfo(error));
       return NextResponse.json({ error: 'Failed to save contact information' }, { status: 500 });
     }
 
-    console.log(
-      `New contact submission: ID ${data.id}, Email: ${sanitizedData.email}, Company: ${sanitizedData.company_name}`
-    );
+    console.log(`New contact submission created: ID ${data.id}`);
 
     return NextResponse.json(
       {
@@ -153,7 +152,7 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Contact form error:', error);
+    console.error('Contact form error:', safeErrorInfo(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

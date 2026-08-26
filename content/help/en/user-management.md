@@ -8,7 +8,7 @@ summary: "Adding a user one at a time, bulk import, and admin-gated actions."
 
 From the Users screen, add a new user with their email, first name, last name, employment start date, and a password, plus an optional manager (searchable dropdown). This is the simplest way to add a single employee.
 
-The Users screen also lets you search, filter by active/inactive status or role, activate or deactivate a user (with a confirmation step), reassign a manager, and jump to an employee's payroll record.
+The Users screen also lets you search, filter by active/inactive status or role, activate or deactivate a user (with a confirmation step), and reassign a manager.
 
 ## Bulk import
 
@@ -18,4 +18,4 @@ Because each row must include your company's internal ID, bulk import is better 
 
 ## Who can access this
 
-Adding, editing, and importing users are admin-only actions. Adding a new user is also subject to your plan's included employee count: up to 20 employees on Momentum, up to 100 on Infinity. Free doesn't have a numeric seat cap of its own, since the modules that seat count matters most for (payroll, time & attendance, absences, performance) are locked on Free regardless. Beyond 100 employees on Infinity isn't self-serve — you'll see a message directing you to contact us for a custom quote rather than a plan upgrade button.
+Adding, editing, and importing users are admin-only actions. Adding a new user is also subject to your plan's included employee count: up to 20 employees on Momentum, up to 100 on Infinity. Free doesn't have a numeric seat cap of its own, since the modules that seat count matters most for (time & attendance, absences, performance) are locked on Free regardless. Beyond 100 employees on Infinity isn't self-serve — you'll see a message directing you to contact us for a custom quote rather than a plan upgrade button.

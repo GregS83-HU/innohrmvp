@@ -18,4 +18,4 @@ Click **Calendar View** to see absences laid out on a year grid, with a legend s
 
 ## Plan limits and availability
 
-Like payroll and time & attendance, absence tracking is included on Momentum (up to 20 employees) and Infinity (up to 100 employees) — on Free, it's a locked preview only. It also requires your company's onboarding call to be complete before use, on any plan (see Getting Started).
+Like time & attendance, absence tracking is included on Momentum (up to 20 employees) and Infinity (up to 100 employees) — on Free, it's a locked preview only. It also requires your company's onboarding call to be complete before use, on any plan (see Getting Started).

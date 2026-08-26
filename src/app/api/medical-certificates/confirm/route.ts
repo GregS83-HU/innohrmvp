@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { hasFeatureAccess, entitlementErrorBody } from '../../../../../lib/entitlements'
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -109,7 +110,7 @@ const secureUrl = signedUrlData.signedUrl;
       insertedData
     })
   } catch (e) {
-    console.error('Server error:', e)
+    console.error('Server error:', safeErrorInfo(e))
     return NextResponse.json(
       { error: 'Server error', details: (e as Error).message },
       { status: 500 }

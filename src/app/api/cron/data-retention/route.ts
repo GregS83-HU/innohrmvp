@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { runRetentionSweep } from '../../../../../lib/dataRetention';
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest) {
     console.log('Data retention sweep completed:', JSON.stringify(summary));
     return NextResponse.json({ success: true, summary });
   } catch (err) {
-    console.error('Data retention sweep failed:', err);
+    console.error('Data retention sweep failed:', safeErrorInfo(err));
     return NextResponse.json({ error: 'Retention sweep failed' }, { status: 500 });
   }
 }

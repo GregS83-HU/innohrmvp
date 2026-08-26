@@ -1,6 +1,7 @@
 // src/app/api/candidate-count/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -26,7 +27,7 @@ export async function GET(req: NextRequest) {
     );
 
     if (error) {
-      console.error("Error fetching candidates:", error);
+      console.error("Error fetching candidates:", safeErrorInfo(error));
       return NextResponse.json(
         { error: "Failed to fetch candidate count" },
         { status: 500 }
@@ -37,7 +38,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ count });
   } catch (error) {
-    console.error("Unexpected error:", error);
+    console.error("Unexpected error:", safeErrorInfo(error));
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

@@ -18,4 +18,4 @@ Individual employee responses are never shown — only aggregated, anonymized re
 
 The AI wellbeing chatbot is included on **Momentum and Infinity** plans. It is **not included on Free**. If your company is on Free, employees will see a message that this feature isn't part of your current plan when they try to start a session — visit **Manage Subscription** from the account menu to see upgrade options.
 
-Note that even on Momentum or Infinity, this feature (like payroll, time & attendance, absences, and performance) also requires your company to have completed onboarding — see Getting Started.
+Note that even on Momentum or Infinity, this feature (like time & attendance, absences, and performance) also requires your company to have completed onboarding — see Getting Started.

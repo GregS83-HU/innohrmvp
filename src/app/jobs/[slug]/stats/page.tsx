@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { getServerTranslation } from '../../../../i18n/server-translations'
 import { cookies } from 'next/headers'
 import { LOCALE_COOKIE } from '../../../../i18n/config'
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 type Candidat = {
   candidat_firstname: string
@@ -79,7 +80,7 @@ export default async function StatsPage({
 
  
   if (error) {
-    console.error(error)
+    console.error('Erreur chargement stats:', safeErrorInfo(error))
     return (
       <div className="w-full max-w-7xl mx-auto px-4 py-8">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
@@ -95,7 +96,7 @@ export default async function StatsPage({
   .single()
 
 console.log('positionData:', positionData)
-console.log('positionError:', positionError)
+console.log('positionData fetch hadError:', !!positionError)
 
   if (!data || data.length === 0) {
     return (

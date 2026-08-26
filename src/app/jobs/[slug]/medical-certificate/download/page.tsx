@@ -6,6 +6,7 @@ import { useLocale } from 'i18n/LocaleProvider';
 import * as XLSX from 'xlsx';
 import JSZip from 'jszip';
 import { Download, Search, Calendar, FileText, Users, AlertCircle, CheckCircle, User, Clock } from 'lucide-react';
+import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
 // Define the type for one row of medical_certificates
 interface MedicalCertificate {
@@ -64,7 +65,7 @@ export default function CertificateDownloadPage() {
         setCertificates(data);
       }
     } catch (e) {
-      console.error(e);
+      console.error('fetchCertificates failed:', safeErrorInfo(e));
       setError(t('certificateDownload.errors.fetchFailed'));
     } finally {
       setLoading(false);
@@ -153,7 +154,7 @@ export default function CertificateDownloadPage() {
 
           zip.file(filename, blob);
         } catch (err) {
-          console.warn(`Failed to fetch certificate ${c.id}`, err);
+          console.warn(`Failed to fetch certificate ${c.id}`, safeErrorInfo(err));
         }
       }
 
@@ -161,7 +162,7 @@ export default function CertificateDownloadPage() {
       const content = await zip.generateAsync({ type: 'blob' });
       downloadBlob(content, `medical_certificates_${startDate}_${endDate}.zip`);
     } catch (e) {
-      console.error(e);
+      console.error('handleDownload failed:', safeErrorInfo(e));
       setError(t('certificateDownload.errors.downloadFailed'));
     } finally {
       setLoading(false);

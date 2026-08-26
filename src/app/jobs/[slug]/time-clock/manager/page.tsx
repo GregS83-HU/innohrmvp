@@ -34,7 +34,7 @@ export default function Page() {
   // Locked preview for admins on a plan that doesn't include attendance.
   // Non-admins should never reach this page (hidden from their nav), but
   // the same check applies defensively either way. See MODULE_GATING_FIX.md.
-  if (!moduleAccess.payrollAttendanceAbsencesEnabled) {
+  if (!moduleAccess.attendanceAbsencesEnabled) {
     if (!moduleAccess.isAdmin) return null;
     return (
       <div className="min-h-screen p-8">

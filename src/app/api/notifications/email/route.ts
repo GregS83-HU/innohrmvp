@@ -75,7 +75,7 @@ const emailTemplates = {
 
 // Mock email service
 async function sendEmail(to: string, subject: string, html: string) {
-  console.log('Sending email:', { to, subject, html });
+  console.log('Sending email, subject length:', subject.length);
   return { success: true };
 }
 

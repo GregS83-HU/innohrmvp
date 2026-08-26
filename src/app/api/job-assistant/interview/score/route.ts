@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
 const openai = new OpenAI({
   baseURL: 'https://openrouter.ai/api/v1',
@@ -121,7 +122,7 @@ Respond ONLY with valid JSON:
 
     return NextResponse.json(parsed);
   } catch (error) {
-    console.error('Interview score error:', error);
+    console.error('Interview score error:', safeErrorInfo(error));
     return NextResponse.json(
       { error: 'Scoring failed. Please try again.' },
       { status: 500 }

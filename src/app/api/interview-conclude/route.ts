@@ -2,6 +2,7 @@
 export const runtime = "nodejs";
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -122,13 +123,13 @@ Example: {"score": 7, "summary": "The candidate demonstrated..."}`;
       .eq('position_id', positionId);
 
     if (updateError) {
-      console.error('DB update error:', updateError);
+      console.error('DB update error:', safeErrorInfo(updateError));
       return NextResponse.json({ error: 'Failed to save interview results' }, { status: 500 });
     }
 
     return NextResponse.json({ score, summary });
   } catch (error) {
-    console.error('Interview conclude error:', error);
+    console.error('Interview conclude error:', safeErrorInfo(error));
     return NextResponse.json({ error: 'Failed to conclude interview' }, { status: 500 });
   }
 }

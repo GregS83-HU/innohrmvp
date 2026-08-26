@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { hasFeatureAccess, entitlementErrorBody, resolveCompanyIdForUser } from '../../../../../lib/entitlements';
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase: SupabaseClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -51,7 +52,7 @@ async function getTeamMembers(managerId: string): Promise<TeamMember[]> {
     .rpc('get_team_members_by_manager', { manager_uuid: managerId });
 
   if (error) {
-    console.error('Error fetching team members:', error);
+    console.error('Error fetching team members:', safeErrorInfo(error));
     return [];
   }
 
@@ -205,7 +206,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error) {
-    console.error('GET /api/timeclock/manager error:', error);
+    console.error('GET /api/timeclock/manager error:', safeErrorInfo(error));
     return NextResponse.json({ error: 'Failed to fetch manager data' }, { status: 500 });
   }
 }
@@ -270,7 +271,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error) {
-    console.error('POST /api/timeclock/manager error:', error);
+    console.error('POST /api/timeclock/manager error:', safeErrorInfo(error));
     return NextResponse.json({ error: 'Failed to process manager action' }, { status: 500 });
   }
 }

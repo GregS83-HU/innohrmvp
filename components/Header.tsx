@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { FiMenu, FiX } from 'react-icons/fi';
 import {
   Heart, BarChart3, Smile, Stethoscope, Briefcase, Plus, ChevronDown,
-  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users, Users2, BanknoteArrowDown, FileSearch, Tag, Shield, ClipboardCheck, BookOpen, Mail
+  User, LogOut, Clock, CreditCard, UserCog, TicketPlus, CalendarClock, Target, Users, Users2, FileSearch, Tag, Shield, ClipboardCheck, BookOpen, Mail
 } from 'lucide-react';
 import { useHeaderLogic } from '../hooks/useHeaderLogic';
 import { useModuleAccess } from '../hooks/useModuleAccess';
@@ -55,12 +55,12 @@ export default function Header() {
   const isManager = useMemo(() => user && user.is_manager && !user.is_admin, [user]);
   const isAdmin = useMemo(() => user && user.is_admin, [user]);
   const isSuperAdmin = useMemo(() => user && user.is_super_admin === true, [user]);
-  // Admins always see payroll/attendance/absences/performance nav items
-  // (locked preview at the destination page if the plan doesn't include
-  // them); everyone else only sees them when the plan actually includes
-  // them - see MODULE_GATING_FIX.md.
+  // Admins always see attendance/absences/performance nav items (locked
+  // preview at the destination page if the plan doesn't include them);
+  // everyone else only sees them when the plan actually includes them -
+  // see MODULE_GATING_FIX.md.
   const moduleAccess = useModuleAccess(user?.id);
-  const showPayrollAttendanceAbsences = !!isAdmin || moduleAccess.payrollAttendanceAbsencesEnabled;
+  const showAttendanceAbsences = !!isAdmin || moduleAccess.attendanceAbsencesEnabled;
   const showPerformance = !!isAdmin || moduleAccess.performanceEnabled;
 
   const buttonBaseClasses = useMemo(() =>
@@ -83,7 +83,6 @@ export default function Header() {
   const funnelDashboardLink = useMemo(() => buildLink('/admin/funnel'), [buildLink]);
   const dataRetentionLink = useMemo(() => buildLink('/admin/data-retention'), [buildLink]);
   const onboardingDashboardLink = useMemo(() => buildLink('/admin/onboarding'), [buildLink]);
-  const payRoll = useMemo(() => buildLink('/payroll'), [buildLink]);
 
   return (
     <>
@@ -225,12 +224,12 @@ export default function Header() {
                               <Users className="w-4 h-4" /> {t('header.teamPerformance')}
                             </Link>
                           )}
-                          {(isManager || isAdmin) && showPayrollAttendanceAbsences && (
+                          {(isManager || isAdmin) && showAttendanceAbsences && (
                             <Link href={timeclockmanager} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-indigo-50 text-indigo-700 w-full px-4 py-3 border-b border-gray-100`}>
                               <CalendarClock className="w-4 h-4" /> {t('header.timeClockCheck')}
                             </Link>
                           )}
-                          {showPayrollAttendanceAbsences && (
+                          {showAttendanceAbsences && (
                             <Link href={manageabsencesLink} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-indigo-50 text-indigo-700 w-full px-4 py-3`}>
                               <CalendarClock className="w-4 h-4" /> {t('header.absences')}
                             </Link>
@@ -298,11 +297,6 @@ export default function Header() {
                           {isSuperAdmin && (
                             <Link href={onboardingDashboardLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}>
                               <ClipboardCheck className="w-4 h-4" /> {'Onboarding'}
-                            </Link>
-                          )}
-                          {isAdmin && (
-                            <Link href={payRoll} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}>
-                              <BanknoteArrowDown className="w-4 h-4" /> {t('header.payroll')}
                             </Link>
                           )}
                           {companySlug !== 'demo' && (
@@ -532,12 +526,12 @@ export default function Header() {
                           <Users className="w-4 h-4" /> {t('header.teamPerformance')}
                         </DemoAwareMenuItem>
                       )}
-                      {(isManager || isAdmin) && showPayrollAttendanceAbsences && (
+                      {(isManager || isAdmin) && showAttendanceAbsences && (
                         <DemoAwareMenuItem href={timeclockmanager} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-indigo-50 hover:bg-indigo-100 text-indigo-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
                           <CalendarClock className="w-4 h-4" /> {t('header.timeClockCheck')}
                         </DemoAwareMenuItem>
                       )}
-                      {showPayrollAttendanceAbsences && (
+                      {showAttendanceAbsences && (
                         <DemoAwareMenuItem href={manageabsencesLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-indigo-50 hover:bg-indigo-100 text-indigo-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
                           <CalendarClock className="w-4 h-4" /> {t('header.absences')}
                         </DemoAwareMenuItem>

@@ -12,7 +12,7 @@
     "forEmployers": {
       "eyebrow": "Munkáltatóknak",
       "title": "Egy platform, amint toborzol",
-      "subtitle": "Ugyanaz az AI, amely a jelölteket segíti a felkészülésben, működteti a toborzási folyamatodat is. Próbáld ki ingyen — majd válts magasabb csomagra, hogy valódi bérszámfejtést, munkaidő-nyilvántartást, távollét-kezelést és teljesítménykezelést futtass a csapatodnak.",
+      "subtitle": "Ugyanaz az AI, amely a jelölteket segíti a felkészülésben, működteti a toborzási folyamatodat is. Próbáld ki ingyen — majd válts magasabb csomagra, hogy valódi munkaidő-nyilvántartást, távollét-kezelést és teljesítménykezelést futtass a csapatodnak.",
       "cta": "Árak megtekintése"
     },
     "dashboard": {
@@ -34,8 +34,8 @@
         "badge": "Anonim és Bizalmas"
       },
       "teamManagement": {
-        "title": "Bérszámfejtés & Munkaidő-nyilvántartás",
-        "description": "Kezeld a bérszámfejtést, kövesd a munkaidőt és a jelenlétet, és kezeld a távolléteket táblázatok nélkül — Momentum és Infinity csomagban.",
+        "title": "Munkaidő-nyilvántartás",
+        "description": "Kövesd a munkaidőt és a jelenlétet, és kezeld a távolléteket táblázatok nélkül — Momentum és Infinity csomagban.",
         "badge": "Momentum & Infinity"
       }
     },
@@ -62,7 +62,7 @@
   "pricing": {
     "eyebrow": "Árak",
     "title": "Csomagok a toborzás minden szakaszához",
-    "subtitle": "Kezdje ingyen, hogy kipróbálja a HRInno-t. Váltson magasabb csomagra, ha készen áll a valódi bérszámfejtésre, munkaidő-nyilvántartásra és távollét-kezelésre — vagy oldja fel a teljesítménykezelést is.",
+    "subtitle": "Kezdje ingyen, hogy kipróbálja a HRInno-t. Váltson magasabb csomagra, ha készen áll a valódi munkaidő-nyilvántartásra és távollét-kezelésre — vagy oldja fel a teljesítménykezelést is.",
     "perMonth": "/hó",
     "currentPlanLabel": "Tartalmazza",
     "free": {
@@ -92,14 +92,14 @@
       "credits": "{{count}} AI kredit",
       "wellbeingIncluded": "AI jólléti chatbot elérhető",
       "wellbeingNotIncluded": "AI jólléti chatbot nem elérhető",
-      "hrOpsIncluded": "Bérszámfejtés, munkaidő-nyilvántartás és távollétek legfeljebb {{count}} alkalmazottig",
-      "hrOpsLocked": "Bérszámfejtés, munkaidő-nyilvántartás és távollétek — csak előnézet, valódi HR-műveletekre nem használható",
+      "hrOpsIncluded": "Munkaidő-nyilvántartás és távollétek legfeljebb {{count}} alkalmazottig",
+      "hrOpsLocked": "Munkaidő-nyilvántartás és távollétek — csak előnézet, valódi HR-műveletekre nem használható",
       "performanceIncluded": "Teljesítménykezelés legfeljebb {{count}} alkalmazottig",
       "performanceLocked": "Teljesítménykezelés — csak előnézet",
       "performanceNotIncluded": "Teljesítménykezelés nem elérhető"
     },
     "dataNote": "A lemondás vagy visszaminősítés soha nem törli a meglévő adataidat — továbbra is teljes hozzáférésed lesz mindenhez, amid már van. Csak az új csomaglimit fölötti új elemek létrehozása szünetel.",
-    "onboardingNote": "A bérszámfejtéshez, a munkaidő-nyilvántartáshoz, a távollétekhez, a teljesítménykezeléshez, az AI jólléti chatbothoz és az orvosi igazolások feltöltéséhez egyaránt olyan csomagra van szükség, amely tartalmazza az adott funkciót (lásd a csomagrészleteket fent), valamint vállalata bevezető hívásának teljesítésére — mindkét feltétel csomagtól függetlenül érvényes. Az új, önkiszolgáló módon regisztrált vállalatok azonnal közzétehetnek állásokat és használhatják a Job Assistantet; ezek a további modulok akkor válnak elérhetővé, amikor Ön olyan csomagon van, amely tartalmazza őket, és a bevezető hívás csapatunkkal megtörtént.",
+    "onboardingNote": "A munkaidő-nyilvántartáshoz, a távollétekhez, a teljesítménykezeléshez, az AI jólléti chatbothoz és az orvosi igazolások feltöltéséhez egyaránt olyan csomagra van szükség, amely tartalmazza az adott funkciót (lásd a csomagrészleteket fent), valamint vállalata bevezető hívásának teljesítésére — mindkét feltétel csomagtól függetlenül érvényes. Az új, önkiszolgáló módon regisztrált vállalatok azonnal közzétehetnek állásokat és használhatják a Job Assistantet; ezek a további modulok akkor válnak elérhetővé, amikor Ön olyan csomagon van, amely tartalmazza őket, és a bevezető hívás csapatunkkal megtörtént.",
     "priceNote": "Az árak magyar forintban (HUF) szerepelnek, havi elszámolással."
   },
   "contactForm": {
@@ -210,8 +210,7 @@
     "login": "Bejelentkezés",
     "demoProfilesHint": "Kattints ide a különböző profilokhoz",
     "manageContacts": "Kapcsolatok Kezelése",
-    "pricing": "Árak",
-    "payroll": "Bérszámfejtés"
+    "pricing": "Árak"
   },
   "positions": {
     "availablePositions": "Elérhető pozíciók",
@@ -2371,359 +2370,6 @@
       "passwordTooShort": "A jelszónak legalább 6 karakternek kell lennie",
       "noSession": "Nincs érvényes munkamenet. Kérj új jelszó-visszaállítási linket.",
       "sessionError": "Munkamenet hiba"
-    }
-  },
-  "payroll": {
-    "title": "Bérszámfejtés kezelése",
-    "subtitle": "Kezelje a munkavállalók béradatait és készítsen exportokat",
-    "addEmployeePayroll": "Bér hozzáadása munkavállalónak",
-    "loading": "Betöltés...",
-    "noUser": "Nincs hitelesített felhasználó",
-    "fetchError": "Hiba a jelenlegi felhasználó lekérésekor:",
-    "verifySession": "Kérjük, várjon, amíg ellenőrizzük a munkamenetet..."
-  },
-  "payrollModal": {
-    "title": {
-      "add": "Béradat hozzáadása",
-      "edit": "Béradat módosítása"
-    },
-    "loading": "Béradatok betöltése...",
-    "errorTitle": "Hiba",
-    "errors": {
-      "fetchError": "A béradatok lekérése sikertelen",
-      "loadError": "A bérinformációk betöltése sikertelen",
-      "saveError": "A béradatok mentése sikertelen"
-    },
-    "validation": {
-      "positionRequired": "A pozíció megadása kötelező",
-      "salaryRequired": "Érvényes bérösszeg megadása kötelező",
-      "tajInvalid": "A TAJ számnak pontosan 9 számjegyből kell állnia",
-      "taxIdInvalid": "Az adóazonosító jelnek pontosan 10 karakterből kell állnia"
-    },
-    "sections": {
-      "employment": {
-        "title": "Munkaviszony részletei",
-        "fields": {
-          "employmentType": "Munkaviszony típusa",
-          "contractType": "Szerződés típusa",
-          "positionTitle": "Pozíció megnevezése",
-          "department": "Osztály",
-          "workLocation": "Munkahely",
-          "contractStartDate": "Szerződés kezdete",
-          "weeklyHours": "Heti óraszám"
-        },
-        "options": {
-          "fullTime": "Teljes munkaidő",
-          "partTime": "Részmunkaidő",
-          "contract": "Szerződéses",
-          "intern": "Gyakornok",
-          "permanent": "Állandó",
-          "fixedTerm": "Határozott idejű",
-          "temporary": "Időszakos"
-        },
-        "placeholders": {
-          "positionTitle": "pl. Szoftvermérnök",
-          "department": "pl. Mérnökség",
-          "workLocation": "pl. Budapest irodája"
-        }
-      },
-      "compensation": {
-        "title": "Javadalmazás",
-        "fields": {
-          "salaryAmount": "Bérösszeg",
-          "currency": "Pénznem",
-          "salaryPeriod": "Béridőszak",
-          "paymentMethod": "Fizetési mód"
-        },
-        "options": {
-          "hourly": "Órabér",
-          "monthly": "Havi",
-          "annually": "Éves",
-          "bankTransfer": "Banki átutalás",
-          "check": "Csekk",
-          "cash": "Készpénz"
-        },
-        "placeholders": {
-          "salaryAmount": "pl. 500000"
-        }
-      },
-      "banking": {
-        "title": "Banki adatok",
-        "fields": {
-          "iban": "Bankszámla (IBAN)",
-          "bankName": "Bank neve"
-        },
-        "placeholders": {
-          "iban": "pl. HU42123456789012345678901234",
-          "bankName": "pl. OTP Bank"
-        }
-      },
-      "hungarianTax": {
-        "title": "Magyar adóadatok",
-        "fields": {
-          "tajNumber": "TAJ szám",
-          "taxId": "Adóazonosító jel",
-          "taxBracket": "Adósáv",
-          "familyTaxAllowance": "Családi adókedvezmény",
-          "pensionFund": "Nyugdíjpénztár"
-        },
-        "options": {
-          "taxBracket1": "1. sáv (alap)",
-          "taxBracket2": "2. sáv (több állás)",
-          "government": "Állami",
-          "private": "Magán"
-        },
-        "placeholders": {
-          "tajNumber": "9 számjegy",
-          "taxId": "10 karakter"
-        },
-        "hints": {
-          "tajNumber": "Társadalombiztosítási szám (9 számjegy)",
-          "taxId": "Személyi adóazonosító (10 karakter)",
-          "familyTaxAllowance": "Eltartottak száma"
-        },
-        "rates": {
-          "title": "Adókulcsok (2024)",
-          "personalIncomeTax": "Személyi jövedelemadó",
-          "employeeSocialContribution": "Munkavállalói társadalombiztosítási járulék",
-          "employerSocialContribution": "Munkáltatói társadalombiztosítási járulék"
-        }
-      }
-    },
-    "footer": {
-      "requiredFields": "* Kötelező mezők",
-      "buttons": {
-        "cancel": "Mégse",
-        "saving": "Mentés...",
-        "create": "Bér létrehozása",
-        "saveChanges": "Változtatások mentése"
-      }
-    }
-  },
-  "payrollExportModal": {
-    "title": "Béradatok exportálása",
-    "advancedOptions": "Speciális beállítások",
-    "locale": "hu-HU",
-    "errors": {
-      "exportFailed": "A béradatok exportálása sikertelen",
-      "genericError": "Hiba történt"
-    },
-    "validation": {
-      "blockedTitle": "A béradatok nem exportálhatók"
-    },
-    "sections": {
-      "period": {
-        "title": "Exportálási időszak",
-        "fields": {
-          "month": "Hónap",
-          "year": "Év"
-        }
-      },
-      "format": {
-        "title": "Exportálási formátum",
-        "options": {
-          "generic": {
-            "label": "Általános formátum",
-            "description": "Ember által olvasható formátum"
-          },
-          "kulcsSoft": {
-            "label": "Kulcs-Soft",
-            "description": "Kulcs bérszámfejtő rendszer"
-          },
-          "nexon": {
-            "label": "Nexon",
-            "description": "Nexon bérszámfejtő rendszer"
-          },
-          "sap": {
-            "label": "SAP HCM",
-            "description": "SAP SuccessFactors"
-          }
-        }
-      },
-      "filters": {
-        "title": "Szűrők (opcionális)",
-        "fields": {
-          "department": "Részleg",
-          "includeTerminated": "Kilépett munkavállalók 포함"
-        },
-        "placeholders": {
-          "department": "pl. Mérnökség"
-        }
-      }
-    },
-    "buttons": {
-      "cancel": "Mégse",
-      "checking": "Béradatok ellenőrzése…",
-      "fixData": "Béradatok javítása",
-      "exportPeriod": "Bér exportálása"
-    },
-    "summary": {
-      "exporting": "Bérek exportálása a kiválasztott hónapra"
-    }
-  },
-  "payrollForm": {
-    "title": {
-      "add": "Új béradat hozzáadása",
-      "edit": "Béradat módosítása"
-    },
-    "errors": {
-      "saveFailed": "A béradat mentése sikertelen",
-      "genericError": "Hiba történt"
-    },
-    "sections": {
-      "employee": {
-        "fields": {
-          "selectEmployee": "Alkalmazott"
-        },
-        "placeholders": {
-          "selectEmployee": "Válasszon alkalmazottat"
-        }
-      },
-      "employment": {
-        "title": "Munkaviszony részletei",
-        "fields": {
-          "employmentType": "Munkaviszony típusa",
-          "contractType": "Szerződés típusa",
-          "contractStartDate": "Szerződés kezdete",
-          "contractEndDate": "Szerződés vége",
-          "positionTitle": "Pozíció megnevezése",
-          "department": "Osztály",
-          "workLocation": "Munkahely",
-          "weeklyHours": "Heti óraszám"
-        },
-        "options": {
-          "fullTime": "Teljes munkaidő",
-          "partTime": "Részmunkaidő",
-          "contractor": "Vállalkozó",
-          "intern": "Gyakornok",
-          "temporary": "Időszakos",
-          "permanent": "Állandó",
-          "fixedTerm": "Határozott idejű",
-          "probation": "Próbaidő"
-        },
-        "placeholders": {
-          "positionTitle": "pl. Szoftvermérnök",
-          "department": "pl. Mérnökség",
-          "workLocation": "pl. Budapest irodája"
-        }
-      },
-      "compensation": {
-        "title": "Javadalmazás",
-        "fields": {
-          "grossSalary": "Bruttó bér",
-          "currency": "Pénznem",
-          "bankAccount": "Bankszámla (IBAN)",
-          "bankName": "Bank neve"
-        },
-        "options": {
-          "huf": "HUF (Magyar forint)",
-          "eur": "EUR (Euro)",
-          "usd": "USD (US Dollar)"
-        },
-        "placeholders": {
-          "grossSalary": "pl. 500000",
-          "bankAccount": "HU42XXXXXXXXXXXXXXXXXXXX",
-          "bankName": "pl. OTP Bank"
-        }
-      },
-      "hungarianData": {
-        "title": "Magyar béradatok",
-        "fields": {
-          "tajNumber": "TAJ szám (Társadalombiztosítás)",
-          "taxId": "Adóazonosító jel",
-          "taxBracket": "Adósáv",
-          "familyTaxAllowance": "Családi adókedvezmény (Gyermekek)",
-          "pensionFund": "Nyugdíjpénztár",
-          "healthInsuranceNumber": "Egészségbiztosítási szám"
-        },
-        "options": {
-          "bracket1": "1. sáv",
-          "bracket2": "2. sáv",
-          "government": "Állami",
-          "private": "Magán"
-        },
-        "placeholders": {
-          "tajNumber": "123456789",
-          "taxId": "8012345678",
-          "familyTaxAllowance": "0",
-          "healthInsuranceNumber": "Adja meg a biztosítási számot"
-        },
-        "hints": {
-          "tajNumber": "9 számjegy",
-          "taxId": "10 számjegy",
-          "familyTaxAllowance": "Eltartott gyermekek száma"
-        }
-      }
-    },
-    "buttons": {
-      "cancel": "Mégse",
-      "saving": "Mentés...",
-      "update": "Frissítés",
-      "create": "Létrehozás"
-    }
-  },
-  "payrollList": {
-    "title": "Bérszámfejtés kezelése",
-    "locale": "hu-HU",
-    "loading": "Béradatok betöltése...",
-    "errorTitle": "Hiba",
-    "errors": {
-      "fetchFailed": "A béradatok lekérése sikertelen",
-      "genericError": "Hiba történt",
-      "deleteFailed": "A béradat törlése sikertelen",
-      "deleteError": "Hiba a béradat törlése közben",
-      "unknown": "Ismeretlen hiba"
-    },
-    "confirmations": {
-      "deactivate": "Biztos benne, hogy deaktiválni szeretné ezt a béradatot?"
-    },
-    "buttons": {
-      "export": "Exportálás Excel-be"
-    },
-    "filters": {
-      "title": "Szűrők",
-      "country": "Ország",
-      "allCountries": "Minden ország",
-      "hungary": "Magyarország",
-      "status": "Státusz",
-      "all": "Mind",
-      "active": "Aktív",
-      "inactive": "Inaktív",
-      "department": "Osztály",
-      "departmentPlaceholder": "Szűrés osztály szerint"
-    },
-    "employmentTypes": {
-      "fullTime": "Teljes munkaidő",
-      "partTime": "Részmunkaidő",
-      "contractor": "Vállalkozó",
-      "intern": "Gyakornok",
-      "temporary": "Időszakos"
-    },
-    "table": {
-      "headers": {
-        "employee": "Alkalmazott",
-        "position": "Pozíció",
-        "department": "Osztály",
-        "employmentType": "Munkaviszony típusa",
-        "salary": "Bér",
-        "status": "Státusz",
-        "actions": "Műveletek"
-      },
-      "statusLabels": {
-        "active": "Aktív",
-        "inactive": "Inaktív"
-      },
-      "actions": {
-        "viewDetails": "Részletek megtekintése",
-        "quickEdit": "Gyors szerkesztés",
-        "deactivate": "Deaktiválás"
-      },
-      "noRecords": "Nincs béradat"
-    },
-    "stats": {
-      "totalEmployees": "Összes alkalmazott",
-      "activeEmployees": "Aktív alkalmazottak",
-      "totalMonthlyPayroll": "Összes havi bér"
     }
   },
   "interview": {

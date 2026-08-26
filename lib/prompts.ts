@@ -176,12 +176,12 @@ export async function getPrompts(promptNames: string[]): Promise<Record<string, 
 }
 
 /**
- * Replaces ${variable} placeholders in a prompt template with actual values
- * 
- * @param template - The prompt template with ${variable} placeholders
+ * Replaces ${variable} or {{variable}} placeholders in a prompt template with actual values
+ *
+ * @param template - The prompt template with ${variable} and/or {{variable}} placeholders
  * @param variables - Object containing variable values
  * @returns Prompt with all variables replaced
- * 
+ *
  * @example
  * const prompt = await getPrompt('cv_analysis_combined');
  * const filled = fillPromptVariables(prompt, {
@@ -194,11 +194,16 @@ export function fillPromptVariables(
   variables: Record<string, string | number>
 ): string {
   let result = template;
-  
-  // Replace each ${variable} with its value
+
+  // Replace each ${variable} and {{variable}} with its value.
+  // Prompts stored in the database are not consistent about which
+  // placeholder style they use, so both are supported.
   Object.entries(variables).forEach(([key, value]) => {
-    const placeholder = `\${${key}}`;
-    result = result.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), String(value));
+    const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const dollarPattern = new RegExp(`\\$\\{${escapedKey}\\}`, 'g');
+    const curlyPattern = new RegExp(`\\{\\{${escapedKey}\\}\\}`, 'g');
+    const stringValue = String(value);
+    result = result.replace(dollarPattern, stringValue).replace(curlyPattern, stringValue);
   });
 
   return result;

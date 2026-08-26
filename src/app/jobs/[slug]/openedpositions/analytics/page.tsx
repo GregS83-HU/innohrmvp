@@ -8,6 +8,7 @@ import {
 import { Users, TrendingUp, Award, Clock } from 'lucide-react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useLocale } from 'i18n/LocaleProvider';
+import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
 interface Position {
   id: number;
@@ -135,7 +136,7 @@ const PositionAnalytics: React.FC = () => {
       setPositions(data);
       setError(null);
     } catch (err: unknown) {
-      console.error('Error loading positions:', err);
+      console.error('Error loading positions:', safeErrorInfo(err));
       setError(err instanceof Error ? err.message : t('analytics.errors.generic'));
     }
   };
@@ -185,7 +186,7 @@ const PositionAnalytics: React.FC = () => {
       setError(null);
       generateAnalytics(formattedCandidates);
     } catch (err: unknown) {
-      console.error('Error loading candidates:', err);
+      console.error('Error loading candidates:', safeErrorInfo(err));
       setError(getErrorMessage(err));
     } finally {
       setLoading(false);

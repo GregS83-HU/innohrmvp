@@ -1,6 +1,7 @@
 // pages/api/positions/list.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import { supabase } from '../../../../lib/supabaseClient';
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 interface Position {
   id: number;
@@ -37,7 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
 
     if (companyError) {
-      console.error('Error getting company:', companyError);
+      console.error('Error getting company:', safeErrorInfo(companyError));
       return res.status(403).json({ error: 'No company associated with user' });
     }
 
@@ -57,7 +58,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .order('created_at', { ascending: false });
 
     if (positionsError) {
-      console.error('Error fetching positions:', positionsError);
+      console.error('Error fetching positions:', safeErrorInfo(positionsError));
       return res.status(500).json({ error: 'Error fetching positions' });
     }
 
@@ -66,7 +67,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
   } catch (error) {
-    console.error('API error:', error);
+    console.error('API error:', safeErrorInfo(error));
     return res.status(500).json({ error: 'Internal server error' });
   }
 }

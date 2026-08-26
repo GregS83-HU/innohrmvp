@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createServerClient } from "../../../../lib/supabaseServerClient"
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 export async function GET(req: Request) {
   try {
@@ -46,13 +47,13 @@ export async function GET(req: Request) {
     const { data, error } = await query
 
     if (error) {
-      console.error("Supabase error:", error)
+      console.error("Supabase error:", safeErrorInfo(error))
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json({ positions: data }, { status: 200 })
   } catch (e) {
-    console.error("API error:", e)
+    console.error("API error:", safeErrorInfo(e))
     return NextResponse.json(
       { error: "Erreur serveur interne" },
       { status: 500 }

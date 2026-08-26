@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { Analytics } from "@vercel/analytics/next"
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 // Server-side Supabase client
 const supabase = createClient(
@@ -90,7 +91,7 @@ export async function generateMetadata({
         };
       }
     } catch (error) {
-      console.error('Error generating metadata:', error);
+      console.error('Error generating metadata:', safeErrorInfo(error));
     }
   }
 
@@ -130,7 +131,7 @@ async function fetchPositionData(positionId: string, companySlug: string): Promi
       .single();
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error('Supabase error:', safeErrorInfo(error));
       return null;
     }
 
@@ -169,7 +170,7 @@ async function fetchPositionData(positionId: string, companySlug: string): Promi
 
     return transformedPosition;
   } catch (error) {
-    console.error('Error fetching position data:', error);
+    console.error('Error fetching position data:', safeErrorInfo(error));
     return null;
   }
 }

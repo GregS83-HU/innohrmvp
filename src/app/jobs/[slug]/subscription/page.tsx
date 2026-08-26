@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { Check, X, Star, Zap, Shield, Crown } from 'lucide-react'
 import { loadStripe } from "@stripe/stripe-js"
 import { useLocale } from '../../../../i18n/LocaleProvider'
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -93,7 +94,7 @@ export default function ManageSubscription() {
         .from('ai_credit_packs')
         .select('*')
         .order('credits')
-        console.log("AI credit packs data:", creditPacks, "Error:", error)
+        console.log("AI credit packs fetched, count:", creditPacks?.length ?? 0, "hadError:", !!error)
 
 
       if (error || !creditPacks) {
@@ -108,7 +109,7 @@ export default function ManageSubscription() {
 
       setAICreditPacks(mappedPacks)
     } catch (err) {
-      console.error(err)
+      console.error(safeErrorInfo(err))
       addToast(t('subscription.errors.unexpectedCreditPacks'), "error")
     }
   }, [t])
@@ -149,7 +150,7 @@ export default function ManageSubscription() {
         addToast(data.error || t('subscription.errors.startPayment'), "error")
       }
     } catch (err) {
-      console.error(err)
+      console.error(safeErrorInfo(err))
       addToast(t('subscription.errors.createCheckout'), "error")
     } finally {
       setIsProcessingPayment(false)
@@ -185,7 +186,7 @@ export default function ManageSubscription() {
       if (companyData?.forfait) setCurrentPlan(companyData.forfait)
       setCurrentAICredits(companyData?.used_ai_credits ?? 0)
     } catch (err) {
-      console.error('Error fetching company ID:', err)
+      console.error('Error fetching company ID:', safeErrorInfo(err))
       addToast(t('subscription.errors.unexpectedCompany'))
     } finally {
       setLoadingSubscription(false)
@@ -239,7 +240,7 @@ const fetchCompanyDetails = useCallback(async (companyId: string) => {
       setIncludedAICredits(0)
     }
   } catch (err) {
-    console.error('Error fetching company details:', err)
+    console.error('Error fetching company details:', safeErrorInfo(err))
     addToast(t('subscription.errors.unexpectedCompany'))
   } finally {
     setLoadingSubscription(false)
@@ -312,7 +313,7 @@ const fetchCompanyDetails = useCallback(async (companyId: string) => {
       
       setPlans(updatedPlans)
     } catch (err) {
-      console.error("Error fetching Stripe prices:", err)
+      console.error("Error fetching Stripe prices:", safeErrorInfo(err))
       addToast(t('subscription.errors.stripeConnect'), "error")
       const freePlansOnly = plansToUpdate.filter(plan => plan.priceId === null)
       setPlans(freePlansOnly)
@@ -347,7 +348,7 @@ const fetchCompanyDetails = useCallback(async (companyId: string) => {
         await fetchStripePrices(formattedPlans)
       }
     } catch (err) {
-      console.error(err)
+      console.error(safeErrorInfo(err))
       addToast(t('subscription.errors.fetchPlans'))
     } finally {
       setLoadingPlans(false)
@@ -385,7 +386,7 @@ const fetchCompanyDetails = useCallback(async (companyId: string) => {
         addToast(data.error || t('subscription.errors.unableCheckout'), "error")
       }
     } catch (err) {
-      console.error(err)
+      console.error(safeErrorInfo(err))
       addToast(t('subscription.errors.unexpectedCheckout'), "error")
     }
   }

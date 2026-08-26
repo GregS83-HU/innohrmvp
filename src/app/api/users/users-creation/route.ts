@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { hasFeatureAccess, entitlementErrorBody } from '../../../../../lib/entitlements';
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -105,7 +106,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, userId });
   } catch (err: unknown) {
-    console.error('Error creating user:', err);
+    console.error('Error creating user:', safeErrorInfo(err));
     if (err instanceof Error) {
       return NextResponse.json({ error: err.message }, { status: 400 });
     }

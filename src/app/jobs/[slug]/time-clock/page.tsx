@@ -14,6 +14,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { useLocale } from 'i18n/LocaleProvider';
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 // --------------------
 // Types
@@ -143,7 +144,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
       const data: SummaryResponse = await res.json();
       if (data.success) setWeeklySummary(data.summary);
     } catch (err) {
-      console.error(err);
+      console.error(safeErrorInfo(err));
     }
   };
 
@@ -504,7 +505,7 @@ export default function TimeClockPage({ params }: PageProps) {
         setCurrentUser(userData);
       } catch (err) {
         setError(t('timeClockPage.messages.loadUserFailed'));
-        console.error(err);
+        console.error(safeErrorInfo(err));
       } finally {
         setLoading(false);
       }

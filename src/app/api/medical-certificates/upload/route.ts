@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { getPrompt, fillPromptVariables, PromptNotFoundError, PromptDatabaseError } from "../../../../../lib/prompts";
 import { hasFeatureAccess, entitlementErrorBody } from "../../../../../lib/entitlements";
 import { redactDirectIdentifiers } from "../../../../../lib/piiRedaction";
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 export const dynamic = "force-dynamic"; // évite le cache
 export const maxDuration = 60; // Vercel: laisse le temps à l'OCR
@@ -211,7 +212,7 @@ export async function POST(req: NextRequest) {
       extracted_data: structured,
     });
   } catch (err) {
-    console.error(err);
+    console.error(safeErrorInfo(err));
     return NextResponse.json(
       { error: "Server error", details: (err as Error)?.message ?? "unknown" },
       { status: 500 }

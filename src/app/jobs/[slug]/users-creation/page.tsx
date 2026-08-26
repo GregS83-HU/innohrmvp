@@ -22,8 +22,8 @@ import {
   X,
 } from 'lucide-react';
 import { AddUserModal } from '../../../../../components/AddUserModal';
-import PayrollEditModal from '../../../../../components/payroll/PayrollEditModal';
 import { useLocale } from '../../../../i18n/LocaleProvider';
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 interface CompanyUser {
   user_id: string;
@@ -283,16 +283,6 @@ export default function CompanyUsersPage() {
   const [updateSuccess, setUpdateSuccess] = useState<string | null>(null);
   const anchorRef = useRef<HTMLElement | null>(null);
 
-  // Current authenticated user state with proper type
-  const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null);
-
-  // Payroll modal states
-  const [payrollModalOpen, setPayrollModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
-
   // Status update states
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
@@ -306,21 +296,6 @@ export default function CompanyUsersPage() {
     isActivating: false,
   });
   const [updatingStatus, setUpdatingStatus] = useState(false);
-
-  // Fetch current authenticated user
-  const fetchCurrentUser = useCallback(async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      setCurrentUser({ id: user.id });
-    } catch (err) {
-      console.error('Error fetching current user:', err);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchCurrentUser();
-  }, [fetchCurrentUser]);
 
   const getRoleBadge = (user: CompanyUser) => {
     if (user.is_admin) {
@@ -413,7 +388,7 @@ export default function CompanyUsersPage() {
       setEditingUserId(null);
       setManagerSearch('');
     } catch (err) {
-      console.error('Error updating manager:', err);
+      console.error('Error updating manager:', safeErrorInfo(err));
       alert(err instanceof Error ? err.message : t('companyUsers.errors.updateManager'));
     } finally {
       setUpdatingManager(false);
@@ -451,7 +426,7 @@ export default function CompanyUsersPage() {
       await fetchCompanyUsers();
       setConfirmModal({ isOpen: false, userId: null, userName: '', isActivating: false });
     } catch (err) {
-      console.error('Error updating user status:', err);
+      console.error('Error updating user status:', safeErrorInfo(err));
       alert(err instanceof Error ? err.message : 'Failed to update user status');
     } finally {
       setUpdatingStatus(false);
@@ -646,7 +621,6 @@ export default function CompanyUsersPage() {
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{t('companyUsers.table.manager')}</th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{t('companyUsers.table.startDate')}</th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{t('companyUsers.table.role')}</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Payroll</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
@@ -740,25 +714,6 @@ export default function CompanyUsersPage() {
 
                         <td className="px-6 py-4 whitespace-nowrap">
                           {getRoleBadge(user)}
-                        </td>
-
-                        {/* PAYROLL CELL */}
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <button
-                            onClick={() => {
-                              setSelectedUser({
-                                id: user.user_id,
-                                name: `${user.first_name} ${user.last_name}`
-                              });
-                              setPayrollModalOpen(true);
-                            }}
-                            disabled={!user.is_active}
-                            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed group/payroll"
-                            title={user.is_active ? 'Manage payroll data' : 'User must be active'}
-                          >
-                            <Edit3 className="w-4 h-4" />
-                            <span className="hidden xl:inline">Payroll</span>
-                          </button>
                         </td>
                       </tr>
                     ))}
@@ -861,23 +816,6 @@ export default function CompanyUsersPage() {
                       <span className="font-medium">{formatDate(user.employment_start_date)}</span>
                     </div>
 
-                    {/* PAYROLL BUTTON FOR MOBILE */}
-                    <div className="pt-2 mt-2 border-t border-gray-100">
-                      <button
-                        onClick={() => {
-                          setSelectedUser({
-                            id: user.user_id,
-                            name: `${user.first_name} ${user.last_name}`
-                          });
-                          setPayrollModalOpen(true);
-                        }}
-                        disabled={!user.is_active}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                        <span>Manage Payroll Data</span>
-                      </button>
-                    </div>
                   </div>
                 </div>
               ))}
@@ -922,24 +860,6 @@ export default function CompanyUsersPage() {
         onSuccess={fetchCompanyUsers} 
         companyId={companyId || ''} 
       />
-
-      {/* PAYROLL MODAL - FIXED WITH currentUserId */}
-      {payrollModalOpen && selectedUser && currentUser && (
-        <PayrollEditModal
-          isOpen={payrollModalOpen}
-          onClose={() => {
-            setPayrollModalOpen(false);
-            setSelectedUser(null);
-          }}
-          userId={selectedUser.id}
-          userName={selectedUser.name}
-          currentUserId={currentUser.id}
-          onSuccess={() => {
-            console.log('Payroll data saved successfully');
-            // Optionally show a success toast notification here
-          }}
-        />
-      )}
     </div>
   );
 }

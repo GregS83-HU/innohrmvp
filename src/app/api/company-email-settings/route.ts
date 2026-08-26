@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { encryptPassword } from '../../../../lib/encryption'
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 export async function POST(request: Request) {
   try {
@@ -128,7 +129,7 @@ export async function POST(request: Request) {
       })
     }
   } catch (error) {
-    console.error('Error saving company email settings:', error)
+    console.error('Error saving company email settings:', safeErrorInfo(error))
     return NextResponse.json(
       { error: (error as Error).message },
       { status: 500 }
@@ -172,7 +173,7 @@ export async function GET(request: Request) {
     // Don't return the encrypted password
     return NextResponse.json({ data })
   } catch (error) {
-    console.error('Error fetching company email settings:', error)
+    console.error('Error fetching company email settings:', safeErrorInfo(error))
     return NextResponse.json(
       { error: (error as Error).message },
       { status: 500 }
@@ -210,7 +211,7 @@ export async function DELETE(request: Request) {
       message: 'Email settings deleted successfully',
     })
   } catch (error) {
-    console.error('Error deleting company email settings:', error)
+    console.error('Error deleting company email settings:', safeErrorInfo(error))
     return NextResponse.json(
       { error: (error as Error).message },
       { status: 500 }

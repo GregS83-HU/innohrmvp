@@ -8,6 +8,7 @@ import YearCalendarGrid from '../../../../../../components/absence/Calendar/year
 import CalendarLegend from '../../../../../../components/absence/Calendar/calendar_legend';
 import CalendarLeaveModal from '../../../../../../components/absence/Calendar/calendar_leave_modal';
 import { LeaveBalance, LeaveRequest } from '../../../../../../types/absence';
+import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -95,7 +96,7 @@ const CalendarPage: React.FC = () => {
         .single();
       setCompanyId(companyData?.company_id?.toString() || undefined);
     } catch (err) {
-      console.error('Error fetching current user:', err);
+      console.error('Error fetching current user:', safeErrorInfo(err));
     }
   }, []);
 
@@ -124,7 +125,7 @@ const CalendarPage: React.FC = () => {
         setTeamData(parsed);
       }
     } catch (err) {
-      console.error('Error fetching calendar data:', err);
+      console.error('Error fetching calendar data:', safeErrorInfo(err));
     } finally {
       setLoading(false);
     }

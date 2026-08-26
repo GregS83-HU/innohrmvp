@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifySuperAdmin } from '../../../../../../lib/verifySuperAdmin';
 import { deleteRecordNow, DataType } from '../../../../../../lib/dataRetention';
+import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
 const DELETABLE_DATA_TYPES: DataType[] = ['medical_certificate', 'cv_company_pipeline'];
 
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
     }
     return NextResponse.json({ success: true, deleted: deletedCount });
   } catch (err) {
-    console.error('Manual deletion failed:', err);
+    console.error('Manual deletion failed:', safeErrorInfo(err));
     return NextResponse.json({ error: (err as Error).message || 'Deletion failed' }, { status: 500 });
   }
 }

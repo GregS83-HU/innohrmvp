@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js"
 import * as XLSX from "xlsx"
 import { hasFeatureAccess } from "../../../../lib/entitlements"
 import { getAddEmployeeLimitMessage } from "../../../../src/config/entitlements"
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -131,7 +132,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ results })
   } catch (err) {
-    console.error("Import error:", err)
+    console.error("Import error:", safeErrorInfo(err))
     return NextResponse.json(
       { error: "Failed to import users" },
       { status: 500 }

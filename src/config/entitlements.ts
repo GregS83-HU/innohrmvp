@@ -2,7 +2,7 @@
 //
 // The actual limits/flags per plan are NOT duplicated here - they live in
 // the `forfait` table (columns: max_opened_position, max_medical_certificates,
-// access_happy_check, access_payroll_attendance_absences, access_performance,
+// access_happy_check, access_attendance_absences, access_performance,
 // max_employees) and are evaluated live by hasFeatureAccess() in
 // lib/entitlements.ts. Hardcoding the numeric limits into this file would
 // create a second source of truth that drifts the moment someone edits a
@@ -11,14 +11,13 @@
 // What this file DOES own: the mapping from a feature key used in app code
 // to the DB column(s) that decide access, plus display copy for paywall UI.
 // See GATING_SUMMARY.md for the original three features, and
-// MODULE_GATING_FIX.md for payroll/attendance/absences/performance and the
+// MODULE_GATING_FIX.md for attendance/absences/performance and the
 // employee seat cap added afterward.
 
 export type FeatureKey =
   | "recruitment.openPosition"
   | "medicalCertificates.upload"
   | "happiness.chatbot"
-  | "payroll.use"
   | "attendance.use"
   | "absences.use"
   | "performance.use"
@@ -28,7 +27,7 @@ export type EntitlementCheck =
   // Capacity check: compares a live count against a per-plan max column.
   | { kind: "capacity"; rpc: "can_open_new_position" | "can_add_medical_certificate" | "can_add_employee" }
   // Boolean flag check: reads a per-plan boolean column.
-  | { kind: "flag"; rpc: "can_access_happy_check" | "can_use_payroll_attendance_absences" | "can_use_performance" };
+  | { kind: "flag"; rpc: "can_access_happy_check" | "can_use_attendance_absences" | "can_use_performance" };
 
 // Features that require company.onboarding_completed = true, on top of
 // whatever plan check applies - regardless of forfait, a company that
@@ -48,7 +47,6 @@ export type EntitlementCheck =
 // from this set once the pending legal review of retention periods and
 // subprocessor terms is complete.
 export const ONBOARDING_GATED_FEATURES: ReadonlySet<FeatureKey> = new Set([
-  "payroll.use",
   "attendance.use",
   "absences.use",
   "performance.use",
@@ -60,21 +58,20 @@ export const FEATURE_RULES: Record<FeatureKey, EntitlementCheck> = {
   "recruitment.openPosition": { kind: "capacity", rpc: "can_open_new_position" },
   "medicalCertificates.upload": { kind: "capacity", rpc: "can_add_medical_certificate" },
   "happiness.chatbot": { kind: "flag", rpc: "can_access_happy_check" },
-  // Payroll, time & attendance, and absences are gated together by a single
-  // forfait column (access_payroll_attendance_absences) - they're always
-  // enabled/disabled as a set in every plan tier described in
-  // MODULE_GATING_FIX.md, so three FeatureKeys share one DB flag rather than
-  // three redundant columns that could drift out of sync.
-  "payroll.use": { kind: "flag", rpc: "can_use_payroll_attendance_absences" },
-  "attendance.use": { kind: "flag", rpc: "can_use_payroll_attendance_absences" },
-  "absences.use": { kind: "flag", rpc: "can_use_payroll_attendance_absences" },
+  // Time & attendance and absences are gated together by a single forfait
+  // column (access_attendance_absences) - they're always enabled/disabled
+  // as a set in every plan tier described in MODULE_GATING_FIX.md, so two
+  // FeatureKeys share one DB flag rather than two redundant columns that
+  // could drift out of sync.
+  "attendance.use": { kind: "flag", rpc: "can_use_attendance_absences" },
+  "absences.use": { kind: "flag", rpc: "can_use_attendance_absences" },
   "performance.use": { kind: "flag", rpc: "can_use_performance" },
   // Gates ADDING a new employee (company_to_users insert) against the
   // plan's max_employees seat cap. Deliberately NOT checked on every
-  // payroll/attendance/absences/performance action - existing employees
-  // keep full access to those modules even if the company is later over
-  // its cap (e.g. after a downgrade), matching the same "never punish
-  // existing data" principle used for job postings. See MODULE_GATING_FIX.md.
+  // attendance/absences/performance action - existing employees keep full
+  // access to those modules even if the company is later over its cap
+  // (e.g. after a downgrade), matching the same "never punish existing
+  // data" principle used for job postings. See MODULE_GATING_FIX.md.
   "company.addEmployee": { kind: "capacity", rpc: "can_add_employee" },
 };
 
@@ -99,12 +96,6 @@ export const FEATURE_COPY: Record<FeatureKey, { title: string; limitReached: str
     limitReached: "This plan doesn't include the AI wellbeing chatbot.",
     notIncluded: "The AI wellbeing chatbot isn't included in your current plan (Momentum and Infinity only).",
     noSubscription: "Your company doesn't have an active plan. Subscribe to a plan that includes the AI wellbeing chatbot.",
-  },
-  "payroll.use": {
-    title: "Payroll",
-    limitReached: "Payroll isn't usable on your current plan.",
-    notIncluded: "Payroll is available on Momentum and Infinity, for up to your plan's included employee count.",
-    noSubscription: "Your company doesn't have an active plan. Subscribe to Momentum or Infinity to use payroll.",
   },
   "attendance.use": {
     title: "Time & attendance",

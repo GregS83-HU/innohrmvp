@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -49,7 +50,7 @@ async function verifySuperAdmin(request: NextRequest): Promise<{ authorized: boo
 
     return { authorized: true, userId: userData.id };
   } catch (error) {
-    console.error('Authorization error:', error);
+    console.error('Authorization error:', safeErrorInfo(error));
     return { authorized: false, error: 'Authorization check failed' };
   }
 }
@@ -60,11 +61,10 @@ export async function GET(request: NextRequest) {
     // Verify super_admin access
     const authCheck = await verifySuperAdmin(request);
     if (!authCheck.authorized) {
-    /*  return NextResponse.json(
-        { error: authCheck.error || 'Unauthorized access' }, 
+      return NextResponse.json(
+        { error: authCheck.error || 'Unauthorized access' },
         { status: 403 }
-      );*/
-    console.warn('Skipping auth check temporarily for testing');
+      );
     }
 
     const { searchParams } = new URL(request.url);
@@ -93,13 +93,13 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query;
 
     if (error) {
-      console.error('Database error:', error);
+      console.error('Database error:', safeErrorInfo(error));
       return NextResponse.json({ error: 'Failed to fetch submissions' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, data }, { status: 200 });
   } catch (error) {
-    console.error('Error fetching submissions:', error);
+    console.error('Error fetching submissions:', safeErrorInfo(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -109,12 +109,11 @@ export async function PATCH(request: NextRequest) {
   try {
     // Verify super_admin access
     const authCheck = await verifySuperAdmin(request);
-   if (!authCheck.authorized) {
-      /*return NextResponse.json(
-        { error: authCheck.error || 'Unauthorized access' }, 
+    if (!authCheck.authorized) {
+      return NextResponse.json(
+        { error: authCheck.error || 'Unauthorized access' },
         { status: 403 }
-      );*/
-      console.warn('Skipping auth check temporarily for testing');
+      );
     }
 
     const body = await request.json();
@@ -139,13 +138,13 @@ export async function PATCH(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Database error:', error);
+      console.error('Database error:', safeErrorInfo(error));
       return NextResponse.json({ error: 'Failed to update submission' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, data }, { status: 200 });
   } catch (error) {
-    console.error('Error updating submission:', error);
+    console.error('Error updating submission:', safeErrorInfo(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -175,13 +174,13 @@ export async function DELETE(request: NextRequest) {
       .eq('id', id);
 
     if (error) {
-      console.error('Database error:', error);
+      console.error('Database error:', safeErrorInfo(error));
       return NextResponse.json({ error: 'Failed to delete submission' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
-    console.error('Error deleting submission:', error);
+    console.error('Error deleting submission:', safeErrorInfo(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HRInno
 
-## Getting Started
+HRInno is a multi-tenant HR platform built with Next.js 15 (App Router) and Supabase (Postgres,
+Auth, Storage). Each company is a tenant scoped by `company_id`/RLS. Core modules: recruitment
+(job postings, AI-assisted CV scoring and candidate interview generation), an AI wellbeing
+chatbot (PERMA-based happiness check-ins), time & attendance, absences (including medical
+certificate upload with OCR extraction), and performance management (goals and pulse
+check-ins). Access to plan-gated modules is enforced server-side per request, not just hidden in
+the UI. Billing runs through Stripe; plan limits and feature flags live in the `forfait` table
+and are read live on every check, not cached at deploy time.
 
-First, run the development server:
+For product-level details (target audience, pricing, roadmap, known limitations), see
+[`docs/product-brief.md`](docs/product-brief.md). For how the plan-gating layer, the
+onboarding gate, and the data retention job actually work, see
+[`ARCHITECTURE.md`](ARCHITECTURE.md).
+
+## Running locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+You'll need a `.env.local` with the environment variables listed below, pointing at a Supabase
+project with this app's schema and RLS policies applied. `npm run lint` runs ESLint;
+`npx tsc --noEmit` type-checks the project.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment variables
 
-## Learn More
+Names only — see your team's secrets manager for values. Grouped by what they configure:
 
-To learn more about Next.js, take a look at the following resources:
+**Supabase**
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**App URLs**
+- `NEXT_PUBLIC_SITE_URL`
+- `NEXT_PUBLIC_APP_ORIGIN`
+- `NEXT_PUBLIC_APP_URL`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**AI / OCR providers**
+- `OPENROUTER_API_KEY`
+- `OCRSPACE_API_KEY`
 
-## Deploy on Vercel
+**Stripe (billing)**
+- `STRIPE_SECRET_KEY`
+- `STRIPE_SECRET_KEY_TEST` (optional — the webhook route accepts both live and test-mode events if set)
+- `STRIPE_WEBHOOK_SECRET`
+- `STRIPE_WEBHOOK_SECRET_TEST` (optional, pairs with the above)
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Email**
+- `RESEND_API_KEY`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Security / misc**
+- `ENCRYPTION_KEY` (encrypts per-company SMTP credentials at rest — see `lib/encryption.ts`)
+- `IP_SALT` (hashes visitor IPs for the anonymous happiness-session flow)
+- `CRON_SECRET` (authenticates Vercel Cron requests to the scheduled jobs — see ARCHITECTURE.md)
+- `CALENDLY_ONBOARDING_URL` (booking link sent in onboarding emails)
+
+`VERCEL_URL` and `VERCEL_OIDC_TOKEN` are provisioned automatically by Vercel and don't need to be
+set locally.

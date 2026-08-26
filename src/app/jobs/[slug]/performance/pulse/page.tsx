@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { Calendar, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { useLocale } from 'i18n/LocaleProvider'
+import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -80,7 +81,7 @@ export default function WeeklyPulsePage() {
         setPulseData(initialData)
       }
     } catch (error) {
-      console.error('Error fetching goals:', error)
+      console.error('Error fetching goals:', safeErrorInfo(error))
     }
     setLoading(false)
   }

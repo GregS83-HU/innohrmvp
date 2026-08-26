@@ -9,6 +9,7 @@ import { createClient } from '@supabase/supabase-js'
 import { useLocale } from 'i18n/LocaleProvider'
 import { useModuleAccess } from '../../../../../../hooks/useModuleAccess'
 import LockedModuleNotice from '../../../../../../components/entitlements/LockedModuleNotice'
+import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -77,7 +78,7 @@ export default function ManagerDashboard() {
       const { data: week } = await supabase.rpc('get_week_start')
       setWeekStart(week as string || '')
     } catch (error) {
-      console.error('Error fetching week:', error)
+      console.error('Error fetching week:', safeErrorInfo(error))
     }
   }
 
@@ -101,7 +102,7 @@ export default function ManagerDashboard() {
         console.error('Error fetching team goals:', data.error)
       }
     } catch (error) {
-      console.error('Error fetching team goals:', error)
+      console.error('Error fetching team goals:', safeErrorInfo(error))
     }
     setLoading(false)
   }
@@ -162,7 +163,7 @@ export default function ManagerDashboard() {
         fetchTeamGoals()
       }
     } catch (error) {
-      console.error('Error approving goal:', error)
+      console.error('Error approving goal:', safeErrorInfo(error))
     }
   }
 

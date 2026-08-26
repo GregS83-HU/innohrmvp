@@ -1,7 +1,7 @@
 // Self-serve signup: creates a brand-new company + its first admin account,
 // unassisted. New companies land on Free (forfait = null) with
-// onboarding_completed = false - payroll/attendance/absences/performance/
-// the wellbeing chatbot stay gated until our team flips that flag after a
+// onboarding_completed = false - attendance/absences/performance/the
+// wellbeing chatbot stay gated until our team flips that flag after a
 // setup call (see lib/entitlements.ts). Recruitment/Job Assistant are NOT
 // gated by onboarding, so this route is all a new company needs to start
 // using them immediately.
@@ -13,6 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { generateUniqueCompanySlug } from '../../../../lib/slug';
 import { sendOnboardingBookingEmail } from '../../../../lib/email-service';
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -136,7 +137,7 @@ export async function POST(req: NextRequest) {
           if (funnelError) console.error('Failed to log onboarding_link_sent funnel event:', funnelError.message);
         }
       } catch (emailError) {
-        console.error('Failed to send onboarding booking email (signup still succeeded):', emailError);
+        console.error('Failed to send onboarding booking email (signup still succeeded):', safeErrorInfo(emailError));
       }
     } else {
       console.warn('CALENDLY_ONBOARDING_URL is not set - skipping onboarding booking email');
@@ -144,7 +145,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, slug: company.slug });
   } catch (err: unknown) {
-    console.error('Error during signup:', err);
+    console.error('Error during signup:', safeErrorInfo(err));
     if (err instanceof Error) {
       return NextResponse.json({ error: err.message }, { status: 400 });
     }

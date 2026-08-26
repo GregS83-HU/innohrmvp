@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import {
   Briefcase, Plus, Smile, BarChart3, Stethoscope, Target, Users, CalendarClock,
-  CreditCard, UserCog, TicketPlus, BanknoteArrowDown, AlertTriangle, CheckCircle, LogIn,
+  CreditCard, UserCog, TicketPlus, AlertTriangle, CheckCircle, LogIn,
 } from 'lucide-react';
 import { useLocale } from '../../../../i18n/LocaleProvider';
 import { useParams } from 'next/navigation';
@@ -48,7 +48,7 @@ export default function HomePage() {
   const isAdmin = useMemo(() => !!user && user.is_admin, [user]);
   const isManager = useMemo(() => !!user && user.is_manager && !user.is_admin, [user]);
   const isManagerOrAdmin = useMemo(() => !!user && (user.is_manager || user.is_admin), [user]);
-  // Admins always see payroll/attendance/absences/performance tiles (locked
+  // Admins always see attendance/absences/performance tiles (locked
   // preview at the destination page if the plan doesn't include them);
   // everyone else only sees them when the plan actually includes them -
   // see MODULE_GATING_FIX.md.
@@ -114,14 +114,13 @@ export default function HomePage() {
     if (isManagerOrAdmin && (isAdmin || moduleAccess.performanceEnabled)) {
       items.push({ href: buildLink('/performance/team'), label: t('header.teamPerformance'), icon: Users, color: 'orange' });
     }
-    if (isManagerOrAdmin && (isAdmin || moduleAccess.payrollAttendanceAbsencesEnabled)) {
+    if (isManagerOrAdmin && (isAdmin || moduleAccess.attendanceAbsencesEnabled)) {
       items.push({ href: buildLink('/time-clock/manager'), label: t('header.timeClockCheck'), icon: CalendarClock, color: 'indigo' });
     }
-    if (isAdmin || moduleAccess.payrollAttendanceAbsencesEnabled) {
+    if (isAdmin || moduleAccess.attendanceAbsencesEnabled) {
       items.push({ href: buildLink('/absences'), label: t('header.absences'), icon: CalendarClock, color: 'indigo' });
     }
     if (isAdmin) {
-      items.push({ href: buildLink('/payroll'), label: t('header.payroll'), icon: BanknoteArrowDown, color: 'teal' });
       items.push({ href: buildLink('/subscription'), label: t('header.manageSubscription'), icon: CreditCard, color: 'teal' });
       items.push({ href: buildLink('/users-creation'), label: t('header.manageUsers'), icon: UserCog, color: 'teal' });
       if (companySlug !== 'demo') {
@@ -129,7 +128,7 @@ export default function HomePage() {
       }
     }
     return items;
-  }, [user, isAdmin, isManagerOrAdmin, companyId, companySlug, buildLink, t, moduleAccess.performanceEnabled, moduleAccess.payrollAttendanceAbsencesEnabled]);
+  }, [user, isAdmin, isManagerOrAdmin, companyId, companySlug, buildLink, t, moduleAccess.performanceEnabled, moduleAccess.attendanceAbsencesEnabled]);
 
   const colorClasses: Record<string, string> = {
     purple: 'bg-purple-50 text-purple-700 hover:bg-purple-100',

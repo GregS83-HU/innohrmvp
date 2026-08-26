@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getPrompt, fillPromptVariables, PromptNotFoundError, PromptDatabaseError } from '../../../../../lib/prompts';
+import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -228,12 +229,12 @@ async function analyzeResponseWithAI(
       finalScore = Math.max(4, finalScore);
     }
     
-    console.log(`AI Scoring - Dimension: ${dimension}, Response: "${response.substring(0, 100)}...", Score: ${finalScore}`);
+    console.log(`AI Scoring - Dimension: ${dimension}, Score: ${finalScore}`);
     
     return finalScore;
     
   } catch (error) {
-    console.error('AI scoring error:', error);
+    console.error('AI scoring error:', safeErrorInfo(error));
     
     // If prompt loading fails, use fallback scoring
     if (error instanceof PromptNotFoundError || error instanceof PromptDatabaseError) {
@@ -274,7 +275,7 @@ async function generatePersonalizedAdvice(
       .order('created_at', { ascending: true });
 
     if (error) {
-      console.error('Error fetching messages:', error);
+      console.error('Error fetching messages:', safeErrorInfo(error));
     }
 
     const sortedScores = Object.entries(permaScores)
@@ -371,11 +372,11 @@ async function generatePersonalizedAdvice(
       }
     }
 
-    console.log('Generated advice:', adviceLines);
+    console.log('Generated advice, count:', adviceLines.length);
     return adviceLines;
 
   } catch (error) {
-    console.error('Advice generation error:', error);
+    console.error('Advice generation error:', safeErrorInfo(error));
     
     // If prompt loading fails, provide fallback
     if (error instanceof PromptNotFoundError || error instanceof PromptDatabaseError) {
@@ -557,7 +558,7 @@ export async function POST(request: NextRequest) {
         [currentQuestion.dimension]: score
       };
       
-      console.log(`Step ${currentStep}: AI Score for ${currentQuestion.dimension}: ${score}`);
+      console.log(`Step ${currentStep}: AI score recorded for dimension ${currentQuestion.dimension}`);
     }
 
     currentStep += 1;
@@ -578,7 +579,7 @@ export async function POST(request: NextRequest) {
 
       // Generate personalized advice with language support
       personalizedAdvice = await generatePersonalizedAdvice(permaScores, session.id, language);
-      console.log('Generated advice in route:', personalizedAdvice);
+      console.log('Generated advice in route, count:', personalizedAdvice.length);
 
       // Get language-specific end messages
       const langEndMessages = endMessages[language];
@@ -624,7 +625,7 @@ export async function POST(request: NextRequest) {
       updateData.overall_happiness_score = Math.round(avgScore);
     }
 
-    console.log('Session update:', { sessionId: session.id, currentStep, scores: permaScores });
+    console.log('Session update:', { sessionId: session.id, currentStep, scoreCount: Object.keys(permaScores).length });
 
     const { error: updateError } = await supabase
       .from('happiness_sessions')
@@ -632,7 +633,7 @@ export async function POST(request: NextRequest) {
       .eq('session_token', sessionToken);
 
     if (updateError) {
-      console.error('Session update error:', updateError);
+      console.error('Session update error:', safeErrorInfo(updateError));
       return NextResponse.json(
         { error: 'Session update error' },
         { status: 500 }
@@ -666,11 +667,11 @@ export async function POST(request: NextRequest) {
       personalizedAdvice: completed ? personalizedAdvice : undefined
     };
 
-    console.log('Response sent to frontend:', sessionUpdate);
+    console.log('Response sent to frontend:', { step: sessionUpdate.step, completed: sessionUpdate.completed });
     return NextResponse.json(sessionUpdate);
 
   } catch (error) {
-    console.error('Error in POST /api/happiness/chat:', error);
+    console.error('Error in POST /api/happiness/chat:', safeErrorInfo(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { hasFeatureAccess, entitlementErrorBody } from '../../../../lib/entitlements';
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 // -------------------
 // Types
@@ -81,7 +82,7 @@ async function getUserActiveShift(userId: string): Promise<WorkShift> {
     .maybeSingle();
 
   if (error) {
-    console.error('Error fetching user shift:', error);
+    console.error('Error fetching user shift:', safeErrorInfo(error));
     return DEFAULT_SHIFT;
   }
 
@@ -228,7 +229,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
 
   } catch (error) {
-    console.error('GET /api/timeclock error:', error);
+    console.error('GET /api/timeclock error:', safeErrorInfo(error));
     return NextResponse.json(
       { error: 'Failed to fetch time clock data' },
       { status: 500 }
@@ -325,7 +326,7 @@ export async function POST(request: NextRequest) {
     );
 
   } catch (error) {
-    console.error('POST /api/timeclock error:', error);
+    console.error('POST /api/timeclock error:', safeErrorInfo(error));
     return NextResponse.json(
       { error: 'Failed to process time clock action' },
       { status: 500 }

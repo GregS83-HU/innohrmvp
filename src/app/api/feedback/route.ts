@@ -1,6 +1,7 @@
 // app/api/feedback/route.js
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse,NextRequest } from 'next/server'
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
       .select()
 
     if (error) {
-      console.error('Supabase error:', error)
+      console.error('Supabase error:', safeErrorInfo(error))
       return NextResponse.json(
         { error: 'Failed to save feedback' },
         { status: 500 }
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
     )
 
   } catch (error) {
-    console.error('API error:', error)
+    console.error('API error:', safeErrorInfo(error))
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -76,7 +77,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ data }, { status: 200 })
 
   } catch (error) {
-    console.error('API error:', error)
+    console.error('API error:', safeErrorInfo(error))
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

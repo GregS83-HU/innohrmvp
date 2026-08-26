@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { safeErrorInfo } from '../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -20,13 +21,13 @@ export async function POST(request: Request) {
       .eq('candidat_id', candidat_id)
 
     if (error) {
-      console.error(error)
+      console.error('Erreur mise à jour:', safeErrorInfo(error))
       return NextResponse.json({ error: 'Erreur mise à jour' }, { status: 500 })
     }
 
     return NextResponse.json({ message: 'Mise à jour réussie' })
   } catch (e) {
-    console.error(e)
+    console.error('Erreur serveur:', safeErrorInfo(e))
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }
