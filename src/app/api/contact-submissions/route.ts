@@ -61,11 +61,10 @@ export async function GET(request: NextRequest) {
     // Verify super_admin access
     const authCheck = await verifySuperAdmin(request);
     if (!authCheck.authorized) {
-    /*  return NextResponse.json(
-        { error: authCheck.error || 'Unauthorized access' }, 
+      return NextResponse.json(
+        { error: authCheck.error || 'Unauthorized access' },
         { status: 403 }
-      );*/
-    console.warn('Skipping auth check temporarily for testing');
+      );
     }
 
     const { searchParams } = new URL(request.url);
@@ -110,12 +109,11 @@ export async function PATCH(request: NextRequest) {
   try {
     // Verify super_admin access
     const authCheck = await verifySuperAdmin(request);
-   if (!authCheck.authorized) {
-      /*return NextResponse.json(
-        { error: authCheck.error || 'Unauthorized access' }, 
+    if (!authCheck.authorized) {
+      return NextResponse.json(
+        { error: authCheck.error || 'Unauthorized access' },
         { status: 403 }
-      );*/
-      console.warn('Skipping auth check temporarily for testing');
+      );
     }
 
     const body = await request.json();
