@@ -218,22 +218,10 @@ Rough Draft: {{roughDraft}}
       }
     }
     // Fill in the variables
-    // Note: fillPromptVariables seems to not be working, so we do manual replacement as backup
-    let prompt = fillPromptVariables(promptTemplate, {
+    const prompt = fillPromptVariables(promptTemplate, {
       positionName: positionName || 'Position',
       roughDraft: roughDraft.trim()
     });
-
-    // MANUAL REPLACEMENT as backup (in case fillPromptVariables fails)
-    prompt = prompt.replace(/\{\{positionName\}\}/g, positionName || 'Position');
-    prompt = prompt.replace(/\{\{roughDraft\}\}/g, roughDraft.trim());
-
-    console.log('=== DEBUG INFO ===');
-    console.log('Position Name INPUT:', positionName);
-    console.log('Rough Draft INPUT:', roughDraft.trim());
-    console.log('Prompt after variable replacement (first 500 chars):', prompt.substring(0, 500));
-    console.log('Checking if {{positionName}} was replaced:', prompt.includes('{{positionName}}') ? 'NO - STILL HAS PLACEHOLDER!' : 'YES - replaced');
-    console.log('==================');
 
     // === CALL AI ===
     console.log('Generating position descriptions with AI...');
