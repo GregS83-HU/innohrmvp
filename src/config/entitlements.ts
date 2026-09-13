@@ -37,16 +37,17 @@ export type EntitlementCheck =
 // deliberately NOT in this set: it stays usable immediately after
 // self-serve signup, subject only to plan limits.
 //
-// medicalCertificates.upload is here for a different reason than the other
-// five: it's not a training/complexity gate, it's a TEMPORARY compliance
-// safeguard. Certificate uploads send employee health data to third-party
-// AI/OCR services (OCR.Space, OpenRouter) with redaction that's best-effort
-// (not guaranteed) and retention periods that are placeholders, not a legal
-// determination - see Known Limitations in docs/product-brief.md. A
-// self-serve company could otherwise start uploading certificates with
-// zero human contact from our team first. Revisit removing this feature
-// from this set once the pending legal review of retention periods and
-// subprocessor terms is complete.
+// medicalCertificates.upload was originally placed here as a TEMPORARY
+// compliance safeguard rather than a training/complexity gate: certificate
+// uploads used to send employee health data to third-party AI/OCR services
+// (OCR.Space, OpenRouter) for automated extraction, with only best-effort
+// redaction and unreviewed subprocessor terms. That AI/OCR step has since
+// been removed entirely - a certificate is now stored and its details
+// entered manually by a company admin, with no third-party AI/OCR service
+// ever seeing the document or its contents. The original rationale for
+// gating this specific feature on onboarding no longer applies; it remains
+// in this set for now only because removing it is a separate product
+// decision that hasn't been made, not because of any current AI/OCR risk.
 // support.tickets is deliberately NOT in this set: unlike the five features
 // above, it's usable immediately after self-serve signup (same treatment as
 // recruitment.openPosition), subject only to the plan check below.
@@ -145,15 +146,11 @@ export const FEATURE_COPY: Record<FeatureKey, { title: string; limitReached: str
 // "no setup call yet", not a plan limitation.
 export const ONBOARDING_REQUIRED_MESSAGE = "Available after your onboarding call.";
 
-// medicalCertificates.upload gets an honest, feature-specific reason instead
-// of the generic message above: the checkpoint exists because of third-party
-// AI/OCR processing of health data, not (only) because of feature
-// complexity like the other five onboarding-gated modules. See
-// ONBOARDING_GATED_FEATURES for the full rationale.
+// medicalCertificates.upload no longer has a feature-specific reason to
+// show here: certificate review is manual-entry-only now (see
+// ONBOARDING_GATED_FEATURES), so the generic message applies to it the same
+// as the other onboarding-gated modules.
 export function getOnboardingRequiredMessage(feature: FeatureKey): string {
-  if (feature === "medicalCertificates.upload") {
-    return "Available after your onboarding call — this checkpoint exists because certificate data is processed using third-party AI/OCR services.";
-  }
   return ONBOARDING_REQUIRED_MESSAGE;
 }
 

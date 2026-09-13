@@ -39,10 +39,10 @@ const Footer: React.FC = () => {
       <p className="mt-2">
         {t('footer.contact')}{' '}
         <a
-          href="mailto:privacy@innohr.hu"
+          href="mailto:privacy@hrinno.hu"
           className="underline hover:text-blue-600"
         >
-          privacy@innohr.hu
+          privacy@hrinno.hu
         </a>
       </p>
 

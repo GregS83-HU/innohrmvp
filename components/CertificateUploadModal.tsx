@@ -23,14 +23,6 @@ interface CertificateData {
   medical_certificate_id: number;
 }
 
-interface ExtractedData {
-  employee_name?: string;
-  sickness_start_date?: string;
-  sickness_end_date?: string;
-  storage_path?: string;
-  public_url?: string;
-}
-
 const CertificateUploadModal: React.FC<CertificateUploadModalProps> = ({
   isOpen,
   onClose,
@@ -40,28 +32,22 @@ const CertificateUploadModal: React.FC<CertificateUploadModalProps> = ({
   prefilledData
 }) => {
   const [file, setFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
   const [comment, setComment] = useState('');
   const [saving, setSaving] = useState(false);
-  const [aiConsentAccepted, setAiConsentAccepted] = useState(false);
 
-
-  // Manual correction state
-  const [manualData, setManualData] = useState({
-    employee_name: '',
-    sickness_start_date: '',
-    sickness_end_date: ''
+  const [formData, setFormData] = useState({
+    employee_name: prefilledData?.employee_name || '',
+    sickness_start_date: prefilledData?.start_date || '',
+    sickness_end_date: prefilledData?.end_date || ''
   });
 
   const MAX_SIZE = 1 * 1024 * 1024; // 1MB
 
   const handleFileChange = (selectedFile: File | null) => {
     setError('');
-     setAiConsentAccepted(false);
     if (!selectedFile) return setFile(null);
-    
+
     if (selectedFile.size > MAX_SIZE) {
       setError('File is too large. Maximum allowed size is 1MB.');
       setFile(null);
@@ -70,150 +56,66 @@ const CertificateUploadModal: React.FC<CertificateUploadModalProps> = ({
     }
   };
 
-  const isFieldUnrecognised = (value?: string) => {
-    return value && ['non recognised', 'not recognised'].some(v => value.trim().toLowerCase().includes(v));
-  };
-
-  const handleUpload = async () => {
+  const handleConfirm = async () => {
     if (!file) return setError('Please select a file');
-    
-    setLoading(true);
+    if (!formData.employee_name.trim()) return setError('Please enter the employee name');
+    if (!formData.sickness_start_date) return setError('Please enter the start date');
+    if (!formData.sickness_end_date) return setError('Please enter the end date');
+
+    setSaving(true);
     setError('');
-    setExtractedData(null);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('company_id', companyId);
-      formData.append(
-  'employee_ai_consent_date',
-  aiConsentAccepted ? new Date().toISOString() : ''
-);
+      const body = new FormData();
+      body.append('employee_name', formData.employee_name);
+      body.append('absenceDateStart', formData.sickness_start_date);
+      body.append('absenceDateEnd', formData.sickness_end_date);
+      body.append('comment', comment || '');
+      body.append('file', file);
+      body.append('company_id', companyId);
 
-      const res = await fetch('/api/medical-certificates/upload', {
+      if (existingLeaveRequestId) {
+        body.append('leave_request_id', existingLeaveRequestId);
+      }
+
+      const res = await fetch('/api/medical-certificates/confirm', {
         method: 'POST',
-        body: formData,
+        body,
       });
 
       if (!res.ok) throw new Error(await res.text());
 
       const data = await res.json();
-      const extracted = data.extracted_data || {};
-      
-      // Pre-fill with logged-in user data or OCR data
-      const resultData = {
-        employee_name: prefilledData?.employee_name || extracted.employee_name,
-        sickness_start_date: extracted.sickness_start_date,
-        sickness_end_date: extracted.sickness_end_date,
-        storage_path: data.storage_path,
-        public_url: data.public_url
-      };
-      
-      setExtractedData(resultData);
-      
-      // Initialize manual data for unrecognised fields
-      setManualData({
-        employee_name: isFieldUnrecognised(resultData.employee_name) ? (prefilledData?.employee_name || '') : resultData.employee_name || '',
-        sickness_start_date: isFieldUnrecognised(resultData.sickness_start_date) ? '' : resultData.sickness_start_date || '',
-        sickness_end_date: isFieldUnrecognised(resultData.sickness_end_date) ? '' : resultData.sickness_end_date || '',
+
+      onSuccess({
+        employee_name: formData.employee_name,
+        sickness_start_date: formData.sickness_start_date,
+        sickness_end_date: formData.sickness_end_date,
+        comment: comment,
+        certificate_file: data.insertedData?.[0]?.certificate_file ?? '',
+        medical_certificate_id: data.insertedData?.[0]?.id ?? 0,
       });
+
+      handleClose();
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
-      else setError('Unknown error occurred');
+      else setError('Unknown error occurred while saving');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
-
-  const handleConfirm = async () => {
-  if (!extractedData || !file) return setError('Cannot save: missing file or extracted data.');
-
-  setSaving(true);
-  setError('');
-
-  try {
-    const formData = new FormData();
-
-    // Use manual data for unrecognised fields, otherwise fallback to extracted values
-    formData.append(
-      'employee_name',
-      isFieldUnrecognised(extractedData.employee_name)
-        ? manualData.employee_name
-        : extractedData.employee_name ?? ''
-    );
-
-    formData.append(
-      'absenceDateStart',
-      isFieldUnrecognised(extractedData.sickness_start_date)
-        ? manualData.sickness_start_date
-        : extractedData.sickness_start_date ?? ''
-    );
-
-    formData.append(
-      'absenceDateEnd',
-      isFieldUnrecognised(extractedData.sickness_end_date)
-        ? manualData.sickness_end_date
-        : extractedData.sickness_end_date ?? ''
-    );
-
-    formData.append('comment', comment || '');
-    formData.append('file', file);
-    formData.append('company_id', companyId);
-
-    if (existingLeaveRequestId) {
-      formData.append('leave_request_id', existingLeaveRequestId);
-    }
-
-    const res = await fetch('/api/medical-certificates/confirm', {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!res.ok) throw new Error(await res.text());
-
-    const data = await res.json();
-
-    // Return certificate data to parent
-    onSuccess({
-      employee_name: isFieldUnrecognised(extractedData.employee_name)
-        ? manualData.employee_name
-        : extractedData.employee_name ?? '',
-      sickness_start_date: isFieldUnrecognised(extractedData.sickness_start_date)
-        ? manualData.sickness_start_date
-        : extractedData.sickness_start_date ?? '',
-      sickness_end_date: isFieldUnrecognised(extractedData.sickness_end_date)
-        ? manualData.sickness_end_date
-        : extractedData.sickness_end_date ?? '',
-      comment: comment,
-      certificate_file: extractedData.public_url ?? '',
-      medical_certificate_id: data.insertedData?.[0]?.id ?? 0,
-    });
-
-    handleClose();
-  } catch (err: unknown) {
-    if (err instanceof Error) setError(err.message);
-    else setError('Unknown error occurred while saving');
-  } finally {
-    setSaving(false);
-  }
-};
-
 
   const handleClose = () => {
     setFile(null);
-    setExtractedData(null);
     setComment('');
     setError('');
-    setManualData({ employee_name: '', sickness_start_date: '', sickness_end_date: '' });
-    setAiConsentAccepted(false);
+    setFormData({
+      employee_name: prefilledData?.employee_name || '',
+      sickness_start_date: prefilledData?.start_date || '',
+      sickness_end_date: prefilledData?.end_date || ''
+    });
     onClose();
   };
-
-  const hasUnrecognised = extractedData && [
-    extractedData.employee_name,
-    extractedData.sickness_start_date,
-    extractedData.sickness_end_date
-  ].some(val => isFieldUnrecognised(val));
 
   if (!isOpen) return null;
 
@@ -255,212 +157,137 @@ const CertificateUploadModal: React.FC<CertificateUploadModalProps> = ({
             </div>
           )}
 
-          {/* Processing Failed Warning */}
-          {extractedData && hasUnrecognised && (
-            <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <AlertTriangle className="w-5 h-5 text-orange-600" />
-                <h3 className="font-semibold text-orange-800">OCR Processing Incomplete</h3>
-              </div>
-              <p className="text-sm text-orange-700">
-                Some information could not be recognized. Please fill in the missing fields below.
-              </p>
-            </div>
-          )}
-
           {/* Upload Section */}
-         {/* Upload Section */}
-{!extractedData && (
-  <div className="space-y-4">
-    <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-3">
-        Select Medical Certificate
-      </label>
-      <div 
-        className={`border-2 border-dashed rounded-xl p-6 text-center transition-all ${
-          file 
-            ? 'border-green-300 bg-green-50' 
-            : 'border-gray-300 bg-gray-50 hover:border-blue-300 hover:bg-blue-50'
-        }`}
-      >
-        <input
-          type="file"
-          accept=".pdf,image/*"
-          onChange={(e) => {
-            const selected = e.target.files?.[0] ?? null;
-            e.target.value = '';
-            handleFileChange(selected);
-          }}
-          className="hidden"
-          id="cert-upload"
-        />
-        <label htmlFor="cert-upload" className="block cursor-pointer">
-          {file ? (
-            <div className="flex items-center justify-center gap-3">
-              <CheckCircle className="w-6 h-6 text-green-600" />
-              <span className="font-medium text-green-800 text-sm break-all">{file.name}</span>
-            </div>
-          ) : (
-            <div>
-              <Upload className="w-10 h-10 text-gray-400 mx-auto mb-3" />
-              <p className="text-blue-600 font-medium hover:text-blue-700">
-                Click to select certificate
-              </p>
-              <p className="text-xs text-gray-500 mt-2">
-                PDF or Image • Maximum 1MB
-              </p>
-            </div>
-          )}
-        </label>
-      </div>
-    </div>
-
-    {/* ✅ AI Consent Checkbox */}
-    {file && !extractedData && (
-      <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 flex items-start gap-3">
-        <input
-          id="ai-consent"
-          type="checkbox"
-          checked={aiConsentAccepted}
-          onChange={(e) => setAiConsentAccepted(e.target.checked)}
-          className="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded flex-shrink-0"
-        />
-        <label htmlFor="ai-consent" className="text-sm text-gray-700">
-          🤖 I agree that my medical certificate will be processed using AI technology for automated data extraction and validation.
-        </label>
-      </div>
-    )}
-
-    <button
-      onClick={handleUpload}
-      disabled={!file || loading || !aiConsentAccepted}
-      className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      {loading ? (
-        <>
-          <Loader2 className="w-5 h-5 animate-spin" />
-          Processing...
-        </>
-      ) : (
-        <>
-          <Upload className="w-5 h-5" />
-          Process Certificate
-        </>
-      )}
-    </button>
-  </div>
-)}
-
-
-
-          {/* Extracted Data Form */}
-          {extractedData && (
-            <div className="space-y-4">
-              {/* Employee Name */}
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                  <User className="w-4 h-4" />
-                  Employee Name
-                </label>
-                {isFieldUnrecognised(extractedData.employee_name) ? (
-                  <input
-                    type="text"
-                    value={manualData.employee_name}
-                    onChange={(e) => setManualData({...manualData, employee_name: e.target.value})}
-                    placeholder="Enter employee name"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Select Medical Certificate
+            </label>
+            <div
+              className={`border-2 border-dashed rounded-xl p-6 text-center transition-all ${
+                file
+                  ? 'border-green-300 bg-green-50'
+                  : 'border-gray-300 bg-gray-50 hover:border-blue-300 hover:bg-blue-50'
+              }`}
+            >
+              <input
+                type="file"
+                accept=".pdf,image/*"
+                onChange={(e) => {
+                  const selected = e.target.files?.[0] ?? null;
+                  e.target.value = '';
+                  handleFileChange(selected);
+                }}
+                className="hidden"
+                id="cert-upload"
+              />
+              <label htmlFor="cert-upload" className="block cursor-pointer">
+                {file ? (
+                  <div className="flex items-center justify-center gap-3">
+                    <CheckCircle className="w-6 h-6 text-green-600" />
+                    <span className="font-medium text-green-800 text-sm break-all">{file.name}</span>
+                  </div>
                 ) : (
-                  <div className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl">
-                    <p className="text-gray-900 font-medium">{extractedData.employee_name}</p>
+                  <div>
+                    <Upload className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+                    <p className="text-blue-600 font-medium hover:text-blue-700">
+                      Click to select certificate
+                    </p>
+                    <p className="text-xs text-gray-500 mt-2">
+                      PDF or Image • Maximum 1MB
+                    </p>
                   </div>
                 )}
-              </div>
+              </label>
+            </div>
+          </div>
 
-              {/* Dates */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                    <Calendar className="w-4 h-4" />
-                    Start Date
-                  </label>
-                  {isFieldUnrecognised(extractedData.sickness_start_date) ? (
-                    <input
-                      type="date"
-                      value={manualData.sickness_start_date}
-                      onChange={(e) => setManualData({...manualData, sickness_start_date: e.target.value})}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  ) : (
-                    <div className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl">
-                      <p className="text-gray-900 font-medium">{extractedData.sickness_start_date}</p>
-                    </div>
-                  )}
-                </div>
+          {/* Manual Entry Form */}
+          <div className="space-y-4">
+            {/* Employee Name */}
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                <User className="w-4 h-4" />
+                Employee Name
+              </label>
+              <input
+                type="text"
+                value={formData.employee_name}
+                onChange={(e) => setFormData({ ...formData, employee_name: e.target.value })}
+                placeholder="Enter employee name"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
 
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                    <Calendar className="w-4 h-4" />
-                    End Date
-                  </label>
-                  {isFieldUnrecognised(extractedData.sickness_end_date) ? (
-                    <input
-                      type="date"
-                      value={manualData.sickness_end_date}
-                      onChange={(e) => setManualData({...manualData, sickness_end_date: e.target.value})}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  ) : (
-                    <div className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl">
-                      <p className="text-gray-900 font-medium">{extractedData.sickness_end_date}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Comment */}
+            {/* Dates */}
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Additional Comment (Optional)
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                  <Calendar className="w-4 h-4" />
+                  Start Date
                 </label>
-                <textarea
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  placeholder="Add any additional information..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  rows={3}
+                <input
+                  type="date"
+                  value={formData.sickness_start_date}
+                  onChange={(e) => setFormData({ ...formData, sickness_start_date: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
-             
 
-              {/* Action Buttons */}
-              <div className="flex gap-3 pt-4">
-                <button
-                  onClick={handleClose}
-                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-medium transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleConfirm}
-                  disabled={saving || !aiConsentAccepted}
-                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-6 rounded-xl font-medium hover:from-green-700 hover:to-emerald-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {saving ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle className="w-5 h-5" />
-                      Confirm & Save
-                    </>
-                  )}
-                </button>
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                  <Calendar className="w-4 h-4" />
+                  End Date
+                </label>
+                <input
+                  type="date"
+                  value={formData.sickness_end_date}
+                  onChange={(e) => setFormData({ ...formData, sickness_end_date: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
               </div>
             </div>
-          )}
+
+            {/* Comment */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Additional Comment (Optional)
+              </label>
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Add any additional information..."
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                rows={3}
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-4">
+              <button
+                onClick={handleClose}
+                className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirm}
+                disabled={saving}
+                className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-6 rounded-xl font-medium hover:from-green-700 hover:to-emerald-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-5 h-5" />
+                    Confirm & Save
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

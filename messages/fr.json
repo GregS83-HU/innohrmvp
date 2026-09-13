@@ -878,7 +878,7 @@
     },
     "header": {
       "title": "Télécharger un Certificat Médical",
-      "subtitle": "Téléchargez votre certificat médical pour un traitement automatique"
+      "subtitle": "Téléversez votre certificat médical et saisissez ses informations"
     },
     "demo": {
       "downloadButton": "Télécharger un faux certificat",
@@ -888,18 +888,12 @@
       "fileLabel": "Sélectionner le Fichier du Certificat",
       "dropzoneSelected": "Fichier sélectionné",
       "dropzoneEmpty": "Cliquez ici pour sélectionner votre fichier",
-      "dropzoneHelp": "PDF ou Image • Maximum 1 Mo",
-      "uploadButton": "Télécharger et Traiter",
-      "processing": "Traitement...",
-      "aiConsent": "🤖 J'accepte que ce document soit traité par une technologie d'IA — y compris des services tiers d'OCR et d'analyse par IA — afin d'en extraire automatiquement les informations."
+      "dropzoneHelp": "PDF ou Image • Maximum 1 Mo"
     },
     "results": {
-      "titleSuccess": "Détails du Certificat Extraits",
-      "titleManual": "Détails du Certificat - Veuillez Compléter les Informations Manquantes",
       "employeeName": "Nom de l'Employé",
       "startDate": "Date de Début",
       "endDate": "Date de Fin",
-      "doctorName": "Nom du Médecin",
       "comment": "Commentaire Supplémentaire (Optionnel)",
       "commentPlaceholder": "Ajoutez toute information ou commentaire supplémentaire...",
       "employeeNamePlaceholder": "Entrez le nom de l'employé",
@@ -909,7 +903,6 @@
       "confirmSave": "Confirmer et Enregistrer",
       "saving": "Enregistrement...",
       "cancel": "Annuler",
-      "tryAgain": "Réessayer",
       "uploadAnother": "Télécharger un autre certificat",
       "back": "Retour",
       "home": "Accueil"
@@ -1115,9 +1108,6 @@
       "title": "Certificat Médical (Optionnel)",
       "selectFile": "Cliquer pour sélectionner le certificat",
       "fileHelp": "PDF ou Image • Max 1 Mo",
-      "aiConsent": "🤖 J'accepte que mon certificat médical soit traité par une technologie d'IA — y compris des services tiers d'OCR et d'analyse par IA — pour l'extraction et la validation automatisées des données.",
-      "processButton": "Traiter le Certificat",
-      "processing": "Traitement...",
       "confirmButton": "Confirmer le Certificat",
       "saving": "Enregistrement...",
       "confirmed": "Certificat Confirmé",
@@ -1125,15 +1115,14 @@
       "employeeName": "Nom de l'Employé",
       "employeeNamePlaceholder": "Entrez le nom de l'employé",
       "additionalComment": "Commentaire Supplémentaire (Optionnel)",
-      "commentPlaceholder": "Ajoutez toute information supplémentaire..."
+      "commentPlaceholder": "Ajoutez toute information supplémentaire...",
+      "uploadFile": "Fichier du certificat"
     },
     "errors": {
       "fileTooLarge": "Le fichier est trop volumineux. La taille maximale autorisée est de 1 Mo.",
       "selectFile": "Veuillez sélectionner un fichier",
-      "cannotSave": "Impossible d'enregistrer : fichier ou données extraites manquants.",
-      "confirmBeforeSubmit": "Veuillez confirmer le certificat avant de soumettre la demande de congé.",
-      "ocrIncomplete": "Traitement OCR Incomplet",
-      "ocrIncompleteDesc": "Certaines informations n'ont pas pu être reconnues. Veuillez remplir les champs manquants ci-dessous."
+      "cannotSave": "Impossible d'enregistrer : fichier ou informations requises manquants.",
+      "confirmBeforeSubmit": "Veuillez confirmer le certificat avant de soumettre la demande de congé."
     },
     "buttons": {
       "cancel": "Annuler",
@@ -2473,99 +2462,137 @@
     "aiDisclaimer": "Les fonctionnalités d'IA sont uniquement à des fins de démonstration et ne doivent pas être utilisées pour de réelles décisions RH."
   },
   "privacyDemo": {
-    "title": "Avis de confidentialité (Version Démo)",
-    "intro": "Cette application de démonstration est exploitée par Saussez Grégory (Budapest, Hongrie). Le but de la démo est de tester les fonctionnalités d'InnoHR et de collecter des retours. Aucune activité commerciale n'est réalisée et le service est gratuit.",
+    "title": "Avis de confidentialité",
+    "lastUpdated": "Dernière mise à jour : 13 septembre 2026",
+    "intro": "Cet avis de confidentialité explique comment HRInno (« HRInno », « nous ») traite les données personnelles via la plateforme HRInno (app.hrinno.hu et les pages publiques de hrinno.hu), y compris l'outil public et gratuit Job Assistant. HRInno est une plateforme RH commerciale et payante, utilisée par de vraies entreprises pour gérer de vrais employés, candidats et, le cas échéant, des documents liés à la santé tels que des certificats médicaux — ce n'est pas un environnement de démonstration ou de test. Cet avis s'applique aux visiteurs de notre site public, aux utilisateurs du Job Assistant gratuit, aux candidats qui postulent via les offres d'emploi de nos clients, ainsi qu'aux employés, managers et administrateurs qui utilisent le compte HRInno d'une entreprise cliente.",
     "sections": {
+      "scope": {
+        "title": "Qui est responsable de vos données",
+        "text": "Pour la majorité des données personnelles traitées dans le compte HRInno d'une entreprise cliente — dossiers des employés, données de performance et de présence, demandes d'absence et données de recrutement/candidats — cette entreprise est le responsable du traitement, et HRInno agit en tant que sous-traitant, ne traitant les données que sur instructions documentées de cette entreprise. Si vous êtes employé, manager ou candidat et avez une question sur l'utilisation de vos données, veuillez d'abord contacter l'entreprise qui vous a invité à utiliser HRInno ou auprès de laquelle vous avez postulé ; HRInno ne décide pas des finalités de cette collecte. Pour les données collectées directement par HRInno — visiteurs de notre site public, utilisateurs du Job Assistant gratuit, contacts de facturation/compte, et soumissions marketing ou via formulaire de contact — HRInno est le responsable du traitement. Un accord de sous-traitance décrivant les obligations de HRInno en tant que sous-traitant est disponible sur demande pour les entreprises clientes."
+      },
       "dataCollected": {
-        "title": "Données collectées",
-        "items": {
-          "0": "Informations que vous fournissez volontairement (ex. nom, e-mail, retours ou données de test). Veuillez éviter de saisir des informations personnelles réelles ou sensibles.",
-          "1": "Données techniques (comme le type de navigateur, l'adresse IP et la région géographique approximative) utilisées pour l'analyse des performances et la sécurité."
+        "title": "Données que nous collectons",
+        "categories": {
+          "account": {
+            "title": "Données de compte et d'entreprise",
+            "text": "Nom de l'entreprise, nom de l'administrateur, e-mail professionnel et mot de passe lors de l'inscription d'une entreprise, ainsi que les noms, e-mails professionnels, rôles et rattachements hiérarchiques des utilisateurs ajoutés ensuite par un administrateur."
+          },
+          "employee": {
+            "title": "Données RH et opérationnelles des employés",
+            "text": "Pointages, demandes et soldes de congés/absences, objectifs de performance et mises à jour hebdomadaires (« pulse »), et réponses aux bilans de bien-être (enregistrées de manière anonyme — voir « Traitement par IA » ci-dessous), saisies par ou pour le compte des employés d'une entreprise cliente."
+          },
+          "candidate": {
+            "title": "Données de candidature et de recrutement",
+            "text": "Nom, coordonnées, contenu et fichier du CV, et réponses d'évaluation ou d'entretien générées par IA, soumis lors d'une candidature à une offre publiée par l'un de nos clients, ou lors de l'utilisation de l'outil public Job Assistant."
+          },
+          "health": {
+            "title": "Données de santé (certificats médicaux)",
+            "text": "Lorsqu'une entreprise cliente utilise la fonctionnalité des certificats médicaux, le contenu des certificats d'arrêt maladie téléversés — une catégorie particulière de données au sens de l'article 9 du RGPD — est stocké de manière sécurisée, et ses informations clés (nom de l'employé, dates de début/fin de l'arrêt) sont saisies manuellement par un administrateur de l'entreprise. Aucun service d'IA ou d'OCR n'est utilisé pour lire ou traiter un certificat : le document n'est jamais envoyé à un prestataire d'IA tiers."
+          },
+          "billing": {
+            "title": "Données de facturation",
+            "text": "Coordonnées de facturation de l'entreprise et statut de l'abonnement/paiement. Les données de paiement elles-mêmes sont collectées et traitées directement par notre prestataire de paiement, Stripe — HRInno ne reçoit ni ne stocke jamais les numéros de carte complets."
+          },
+          "technical": {
+            "title": "Données techniques et d'utilisation",
+            "text": "Adresse IP, type de navigateur, informations sur l'appareil, et statistiques d'utilisation/de conversion, comme décrit dans notre Politique de cookies."
+          }
         }
+      },
+      "legalBasis": {
+        "title": "Bases juridiques du traitement",
+        "text": "Lorsque HRInno est responsable du traitement, nous traitons les données personnelles sur les bases suivantes : l'exécution d'un contrat (gestion de votre compte et des services souscrits), votre consentement explicite (le traitement par IA/OCR des certificats médicaux, les bilans de bien-être et l'outil public Job Assistant nécessitent chacun une case de consentement spécifique avant l'envoi de tout fichier ou réponse à un prestataire d'IA), notre intérêt légitime (sécuriser la plateforme, prévenir les abus et améliorer le produit), et nos obligations légales. Lorsque HRInno agit comme sous-traitant pour le compte d'une entreprise cliente, cette entreprise est responsable de disposer de sa propre base légale pour les données personnelles qu'elle saisit dans HRInno — par exemple, sa base légale pour traiter les données de ses propres employés dans le cadre de la relation de travail."
       },
       "purpose": {
         "title": "Finalité du traitement des données",
-        "text": "Les données sont utilisées uniquement pour évaluer la convivialité de la démo, assurer la sécurité du système et améliorer le développement futur d'InnoHR."
-      },
-      "storage": {
-        "title": "Stockage et conservation des données",
-        "text": "Les CV et certificats médicaux téléversés sont automatiquement supprimés 30 jours après leur envoi, dans le cadre d'un processus de nettoyage programmé. Seuls des journaux techniques minimaux peuvent être conservés jusqu'à 90 jours à des fins de sécurité et de débogage."
+        "text": "Nous utilisons les données personnelles pour fournir la plateforme HRInno et ses fonctionnalités (recrutement, temps et présence, absences, certificats médicaux, gestion de la performance, chatbot de bien-être IA et tickets d'assistance), pour gérer la facturation et les abonnements, pour sécuriser la plateforme contre les abus, pour répondre aux demandes d'assistance, et — uniquement avec votre consentement lorsque celui-ci est requis — pour fournir des fonctionnalités assistées par IA telles que l'évaluation de CV, la génération de descriptions de poste, l'assistance aux entretiens et les bilans de bien-être."
       },
       "aiProcessing": {
-        "title": "Traitement par IA",
-        "text": "Certaines fonctionnalités de la démo utilisent des réponses générées par l'IA (via OpenRouter ou les API OpenAI). Ces réponses sont uniquement à des fins de démonstration et ne doivent pas être utilisées pour la prise de décision ou l'évaluation des employés."
+        "title": "Traitement par IA et décisions automatisées",
+        "text": "Plusieurs fonctionnalités envoient des données à des prestataires d'IA tiers pour générer un résultat : l'évaluation des CV et leur correspondance avec un poste, la génération de descriptions de poste par IA, les questions, résumés et notations d'entretien par IA, et le chatbot de bien-être IA. Lorsqu'une fonctionnalité est optionnelle et soumise à consentement (chatbot de bien-être, Job Assistant public), nous demandons un consentement explicite avant l'envoi de tout fichier ou message à un prestataire d'IA. Les certificats médicaux font l'objet d'une exception délibérée : leur contenu n'est jamais envoyé à un service d'IA ou d'OCR (voir « Données de santé » ci-dessus). Les candidats postulant à une offre doivent noter qu'un score de CV initial est généré automatiquement et peut, selon le parcours d'évaluation, faire passer automatiquement une candidature faiblement notée à une étape « non retenue » sans examen humain préalable ; un candidat peut à tout moment contacter l'entreprise recruteuse pour demander un examen humain de cette évaluation automatisée. Cette utilisation particulière de l'IA pour évaluer des candidats pouvant relever de la catégorie à haut risque du règlement européen sur l'intelligence artificielle, nous travaillons avec nos clients à la mise en œuvre des obligations supplémentaires de transparence et de supervision humaine qu'implique cette classification ; ce sujet fait l'objet d'un examen juridique actif et n'est pas encore pleinement mis en œuvre."
+      },
+      "storage": {
+        "title": "Conservation et stockage des données",
+        "text": "Les certificats médicaux et les CV soumis via le pipeline de recrutement d'une entreprise sont automatiquement supprimés 30 jours après leur téléversement, selon un calendrier de conservation configurable ; un administrateur ou la personne concernée peut également demander la suppression anticipée d'un enregistrement précis. Les données de CV soumises via l'outil public Job Assistant ne sont jamais stockées — elles n'existent que pendant la session du navigateur et sont supprimées dès que la réponse de l'IA est renvoyée. Les autres données opérationnelles (employés, performance, présence, absences, tickets d'assistance) sont conservées tant que le compte de l'entreprise concernée reste actif, et leur suppression ou anonymisation peut être demandée après la fermeture du compte."
       },
       "thirdParty": {
         "title": "Services tiers",
         "items": {
           "supabase": {
-            "name": "Supabase (Plateforme BaaS)",
-            "desc": "Finalité : Hébergement de base de données et authentification. Siège : USA (serveurs basés dans l'UE).",
+            "name": "Supabase (base de données, authentification et stockage de fichiers)",
+            "desc": "Finalité : héberge notre base de données, l'authentification des utilisateurs et le stockage privé des fichiers (CV, certificats médicaux), accessibles uniquement via des liens signés à durée de vie très courte. Supabase, Inc. a son siège aux États-Unis.",
             "linkHref": "https://supabase.com/privacy",
             "linkText": "Politique de confidentialité",
             "color": "border-blue-500"
           },
           "openai": {
-            "name": "OpenRouter / OpenAI (Service IA)",
-            "desc": "Finalité : Analyse et réponses basées sur l'IA. Siège : USA. Les données ne sont pas stockées à long terme.",
+            "name": "OpenRouter, OpenAI et Anthropic (traitement par IA)",
+            "desc": "Finalité : génère les descriptions de poste par IA, l'évaluation et le retour sur les CV, les questions et résumés d'entretien, et les réponses du chatbot de bien-être. Siège aux États-Unis. Nous n'envoyons à ces prestataires que les données strictement nécessaires à chaque fonctionnalité.",
             "linkHref": "https://openai.com/privacy",
             "linkText": "Politique de confidentialité",
             "color": "border-green-500"
           },
-          "ocrspace": {
-            "name": "OCR.Space (Service OCR de documents)",
-            "desc": "Finalité : Extraction de texte à partir des images/PDF de certificats médicaux téléversés. Siège : USA. Reçoit le document complet, pas seulement le texte extrait.",
-            "linkHref": "https://ocr.space/privacypolicy",
-            "linkText": "Politique de confidentialité",
-            "color": "border-yellow-500"
-          },
           "vercel": {
-            "name": "Vercel (Hébergement)",
-            "desc": "Finalité : Hébergement web et distribution de contenu. Siège : USA (région UE activée).",
+            "name": "Vercel (hébergement et analyse de performance)",
+            "desc": "Finalité : héberge l'application HRInno et fournit des statistiques d'utilisation et de performance agrégées et sans cookies (Vercel Analytics, Speed Insights). Siège aux États-Unis.",
             "linkHref": "https://vercel.com/legal/privacy-policy",
             "linkText": "Politique de confidentialité",
             "color": "border-purple-500"
           },
           "stripe": {
-            "name": "Stripe (Service de paiement)",
-            "desc": "Finalité : Traitement des paiements. Actuellement désactivé dans la version démo. Siège : USA (stockage des données dans l'UE).",
+            "name": "Stripe (traitement des paiements)",
+            "desc": "Finalité : traite les paiements d'abonnement et conserve directement votre moyen de paiement. HRInno ne reçoit ni ne stocke jamais les numéros de carte complets. Siège aux États-Unis, certifié PCI-DSS.",
             "linkHref": "https://stripe.com/privacy",
             "linkText": "Politique de confidentialité",
             "color": "border-orange-500"
           },
           "resend": {
-            "name": "Resend / Nodemailer (Envoi d'e-mails)",
-            "desc": "Finalité : Envoi d'e-mails de notification interne au développeur. Aucun message marketing externe n'est envoyé.",
+            "name": "Resend et Nodemailer (e-mails transactionnels)",
+            "desc": "Finalité : envoie les e-mails de compte, de facturation, d'intégration et de notification que vous ou votre entreprise attendez (par exemple, des invitations à un entretien ou des rappels d'intégration). Non utilisé pour des e-mails marketing non sollicités.",
             "linkHref": "https://resend.com/privacy",
             "linkText": "Politique de confidentialité",
             "color": "border-teal-500"
+          },
+          "calendly": {
+            "name": "Calendly (prise de rendez-vous d'intégration)",
+            "desc": "Finalité : permet à l'administrateur d'une nouvelle entreprise de réserver un appel d'intégration après l'inscription. Seuls votre e-mail professionnel et le créneau choisi sont partagés avec Calendly à cette fin.",
+            "linkHref": "https://calendly.com/privacy",
+            "linkText": "Politique de confidentialité",
+            "color": "border-pink-500"
           }
         },
-        "noticeTitle": "Transfert de données :",
-        "noticeText": "Certaines données peuvent être transférées en dehors de l'Union européenne. Des clauses contractuelles standard (SCC) sont utilisées pour assurer une protection adéquate des données personnelles."
-      },
-      "dataController": {
-        "title": "Informations du responsable du traitement",
-        "nameLabel": "Nom :",
-        "emailLabel": "E-mail :",
-        "addressLabel": "Adresse :",
-        "dpoLabel": "Délégué à la protection des données :",
-        "name": "Saussez Grégory",
-        "email": "privacy@innohr.hu",
-        "address": "Budapest, Hongrie",
-        "dpo": "privacy@innohr.hu"
+        "noticeTitle": "Transferts internationaux de données :",
+        "noticeText": "Plusieurs des prestataires ci-dessus ont leur siège en dehors de l'Union européenne. Lorsque des données personnelles sont transférées hors de l'UE/EEE, nous nous appuyons sur des clauses contractuelles types ou une garantie équivalente reconnue afin d'assurer un niveau de protection adéquat."
       },
       "userRights": {
         "title": "Vos droits",
-        "text": "Vous pouvez demander l'accès à vos données ou leur suppression à tout moment en contactant privacy@innohr.hu. Vous avez également le droit de déposer une plainte auprès de l'Autorité nationale hongroise de protection des données et de la liberté d'information (NAIH) sur www.naih.hu."
+        "text": "Sous réserve du droit applicable, et lorsque HRInno est responsable du traitement de vos données (voir « Qui est responsable de vos données » ci-dessus), vous avez le droit de : demander l'accès aux données personnelles que nous détenons sur vous ; demander la rectification de données inexactes ; demander l'effacement de vos données ; demander la limitation ou vous opposer à certains traitements ; recevoir une copie de vos données dans un format portable ; et retirer votre consentement à tout moment lorsque le traitement est fondé sur celui-ci, sans affecter les traitements déjà effectués. Lorsqu'une évaluation automatisée vous concerne — comme un score de CV généré par IA — vous pouvez demander qu'elle soit examinée par une personne. Pour exercer l'un de ces droits, contactez-nous à privacy@hrinno.hu. Si HRInno traite vos données en tant que sous-traitant pour le compte d'une entreprise cliente, veuillez d'abord adresser votre demande à cette entreprise ; nous l'aiderons à y répondre. Vous avez également le droit d'introduire une réclamation auprès de l'autorité hongroise de protection des données (NAIH), www.naih.hu, ou auprès de l'autorité de contrôle de votre propre État membre de l'UE."
+      },
+      "security": {
+        "title": "Mesures de sécurité",
+        "text": "Nous appliquons des contrôles d'accès basés sur les rôles afin que les données d'une entreprise ne soient visibles que par les membres de cette entreprise ; les CV et certificats médicaux sont stockés de manière privée et accessibles uniquement via des liens signés à usage unique et à durée de vie très courte, jamais via des URL publiques ; les configurations sensibles, comme les identifiants d'envoi d'e-mails d'une entreprise, sont chiffrées au repos ; et les certificats médicaux sont examinés et saisis manuellement par un administrateur de l'entreprise plutôt que traités par un service d'IA ou d'OCR tiers. Aucun système n'est totalement sécurisé et nous ne pouvons garantir la sécurité absolue des informations transmises sur Internet."
+      },
+      "dataController": {
+        "title": "Coordonnées du responsable du traitement",
+        "nameLabel": "Nom :",
+        "emailLabel": "E-mail :",
+        "addressLabel": "Adresse :",
+        "dpoLabel": "Délégué à la protection des données :",
+        "name": "Saussez Grégory",
+        "email": "privacy@hrinno.hu",
+        "address": "Budapest, Hongrie",
+        "dpo": "Aucun délégué à la protection des données n'a été formellement désigné à ce jour ; les demandes relatives à la protection des données sont traitées directement à privacy@hrinno.hu"
+      },
+      "changes": {
+        "title": "Modifications du présent avis",
+        "text": "Nous pouvons mettre à jour cet avis à mesure que le produit évolue. Nous informerons les administrateurs des entreprises clientes de tout changement significatif par e-mail ou notification dans l'application au moins 15 jours avant son entrée en vigueur. La date « Dernière mise à jour » en haut de cette page reflète toujours la version en vigueur."
       },
       "contact": {
         "title": "Contact",
-        "text": "Exploitant : Saussez Grégory, Budapest, Hongrie",
-        "email": "privacy@innohr.hu"
+        "text": "Responsable du traitement : Saussez Grégory, Budapest, Hongrie",
+        "email": "privacy@hrinno.hu"
       }
-    },
-    "lastUpdated": "Dernière mise à jour : novembre 2025"
+    }
   },
   "cookies": {
     "title": "Cookies et Données",
@@ -2574,34 +2601,66 @@
     "reject": "Refuser"
   },
   "termsDemo": {
-    "title": "Conditions d'utilisation de la Démo",
-    "lastUpdated": "Dernière mise à jour : {date}",
+    "title": "Conditions générales d'utilisation",
+    "lastUpdated": "Dernière mise à jour : 13 septembre 2026",
     "sections": {
-      "demoFeatures": {
-        "title": "1. Caractéristiques de la version démo",
-        "content": "Il s'agit d'une version démo gratuite à des fins de test. Les fonctionnalités du système sont limitées et les données seront automatiquement supprimées après 30 jours."
+      "service": {
+        "title": "1. Le Service",
+        "content": "HRInno est une plateforme RH commerciale proposée sous forme d'abonnement (SaaS), couvrant le recrutement et le suivi des candidatures, le temps et la présence, la gestion des absences, les certificats médicaux, la gestion de la performance, un chatbot de bien-être par IA, et des tickets d'assistance, proposée sous les formules Free, Momentum et Infinity décrites sur notre page tarifs. HRInno est destiné aux entreprises et organisations gérant leur propre personnel, et non à un usage personnel ou de consommateur."
       },
-      "liability": {
-        "title": "2. Clause de non-responsabilité",
-        "content": "La version démo est fournie « telle quelle » sans aucune garantie. N'utilisez pas de données personnelles réelles ou d'informations sensibles."
+      "accounts": {
+        "title": "2. Comptes et données d'entreprise",
+        "content": "L'inscription crée un compte pour votre entreprise, la personne inscrite en devenant le premier administrateur. Les administrateurs sont responsables de l'exactitude des informations saisies par leur équipe, de la gestion des accès, et de disposer d'une base légale pour traiter les données personnelles des employés et candidats qu'ils ajoutent dans HRInno. HRInno traite ces données en tant que sous-traitant, sur vos instructions ; un accord de sous-traitance décrivant cette relation est disponible sur demande."
       },
-      "dataProcessing": {
-        "title": "3. Traitement des données",
-        "content": "Les données fournies lors de l'utilisation de la démo sont utilisées uniquement pour les tests du système.",
-        "detailsLink": "Détails :",
-        "privacyPolicy": "Politique de confidentialité"
+      "subscriptions": {
+        "title": "3. Formules, facturation et résiliation",
+        "content": "Chaque entreprise démarre sur la formule Free. Les formules payantes (Momentum, Infinity) sont facturées mensuellement via notre prestataire de paiement, Stripe, et se renouvellent automatiquement jusqu'à résiliation. Vous pouvez résilier à tout moment depuis votre page d'abonnement ; la résiliation prend effet immédiatement et arrête la facturation future, et nous ne remboursons pas au prorata la partie non utilisée d'une période de facturation, sauf lorsque la loi l'exige. Rétrograder ou résilier ne supprime jamais les données déjà existantes — seule la création de nouveaux éléments au-delà des limites de la nouvelle formule est suspendue jusqu'à une nouvelle montée en gamme. Les crédits IA mensuels inclus dans votre formule ne sont pas reportés au mois suivant."
+      },
+      "onboarding": {
+        "title": "4. Intégration pour certains modules",
+        "content": "Le recrutement et le Job Assistant sont disponibles immédiatement après l'inscription, quelle que soit la formule. Le temps et la présence, les absences, la gestion de la performance, le chatbot de bien-être IA et, pour le moment, le téléversement de certificats médicaux, nécessitent en outre un court appel d'intégration avec notre équipe avant la première utilisation, quelle que soit la formule ; nous vous contacterons pour le planifier peu après votre inscription."
+      },
+      "acceptableUse": {
+        "title": "5. Utilisation acceptable",
+        "content": "Vous vous engagez à ne pas utiliser HRInno pour traiter des données personnelles que vous n'êtes pas légalement autorisé à traiter, à ne pas tenter d'accéder aux données d'une autre entreprise, à ne pas décompiler la plateforme ni en revendre l'accès, et à ne pas utiliser le service d'une manière contraire au droit applicable, y compris le droit du travail et de la protection des données applicable à votre propre utilisation de la plateforme pour gérer votre personnel ou vos candidats."
       },
       "aiContent": {
-        "title": "4. Contenu généré par IA",
-        "content": "Le contenu généré par l'IA ne constitue pas un conseil professionnel. Des inexactitudes peuvent survenir."
+        "title": "6. Fonctionnalités d'IA et leurs limites",
+        "content": "Le contenu généré par IA — descriptions de poste, scores et retours sur les CV, questions et résumés d'entretien, réponses du chatbot de bien-être — est fourni pour vous aider dans votre prise de décision, et non pour la remplacer, et peut être inexact ou incomplet. Ne considérez pas un score ou un résumé généré par IA comme le seul fondement d'une décision de recrutement, disciplinaire ou d'emploi ; nous recommandons une étape documentée de vérification humaine, en particulier pour l'évaluation des candidats assistée par IA, qui peut être soumise à des obligations supplémentaires au titre du règlement européen sur l'intelligence artificielle. HRInno ne garantit pas l'exactitude du contenu généré par IA."
+      },
+      "dataProcessing": {
+        "title": "7. Protection des données",
+        "content": "Notre avis de confidentialité décrit quelles données personnelles nous traitons et pourquoi.",
+        "detailsLink": "Pour en savoir plus, consultez notre",
+        "privacyPolicy": "avis de confidentialité"
+      },
+      "intellectualProperty": {
+        "title": "8. Propriété intellectuelle",
+        "content": "HRInno et son logiciel sous-jacent demeurent notre propriété. Vous conservez tous les droits sur les données que vous et vos utilisateurs saisissez dans la plateforme (les « données client »), et nous accordez uniquement les droits nécessaires à leur hébergement et traitement afin de fournir le service."
+      },
+      "availability": {
+        "title": "9. Disponibilité et assistance",
+        "content": "Nous nous efforcons de maintenir HRInno disponible et performant, mais ne garantissons actuellement aucun niveau de disponibilité contractuel spécifique. L'assistance est disponible via le système de tickets intégré ; la création d'un nouveau ticket est disponible sur les formules Momentum et Infinity, et les tickets existants restent accessibles quelle que soit la formule."
+      },
+      "liability": {
+        "title": "10. Limitation de responsabilité",
+        "content": "Dans la mesure maximale permise par la loi, la responsabilité totale de HRInno découlant des présentes conditions est limitée aux montants que vous nous avez versés au cours des 12 mois précédant la réclamation, et nous ne sommes pas responsables des dommages indirects, accessoires ou consécutifs. Rien dans les présentes conditions ne limite une responsabilité qui ne peut être limitée en vertu du droit applicable."
       },
       "termination": {
-        "title": "5. Résiliation de l'accès",
-        "content": "Nous nous réservons le droit de mettre fin immédiatement à l'accès à la démo sans préavis."
+        "title": "11. Suspension et résiliation",
+        "content": "Nous pouvons suspendre ou résilier un compte en cas de violation substantielle des présentes conditions, de défaut de paiement ou d'utilisation illégale, et donnerons un préavis lorsque cela sera raisonnablement possible plutôt que de résilier sans avertissement. Lorsqu'un compte est fermé, nous conservons les données client pendant une période limitée afin d'en permettre l'export, conformément à notre avis de confidentialité, avant de pouvoir les supprimer."
+      },
+      "changes": {
+        "title": "12. Modifications des présentes conditions",
+        "content": "Nous pouvons mettre à jour ces conditions à mesure que le produit évolue. Nous informerons les administrateurs de tout changement significatif par e-mail ou notification dans l'application au moins 15 jours avant son entrée en vigueur ; la poursuite de l'utilisation de HRInno après cette date vaut acceptation."
+      },
+      "governingLaw": {
+        "title": "13. Droit applicable",
+        "content": "Les présentes conditions sont régies par le droit hongrois. Tout litige découlant des présentes conditions ou de votre utilisation de HRInno relève de la compétence exclusive des tribunaux compétents de Hongrie, sans préjudice des droits impératifs de protection des consommateurs dont vous pourriez bénéficier en vertu du droit de votre propre pays."
       },
       "contact": {
-        "title": "6. Contact",
-        "content": "Pour toute question :"
+        "title": "14. Contact",
+        "content": "Pour toute question concernant ces conditions :"
       }
     }
   },
@@ -2610,13 +2669,24 @@
     "text": "N'utilisez pas de données personnelles réelles. Les CV et certificats médicaux téléversés sont automatiquement supprimés après 30 jours."
   },
   "impressumDemo": {
-    "title": "Impressum",
-    "intro": "Conformément au droit européen, les informations légales suivantes s'appliquent à ce site web et à cette version démo.",
+    "title": "Mentions légales (Impressum)",
+    "lastUpdated": "Dernière mise à jour : 13 septembre 2026",
+    "intro": "Ces mentions légales sont fournies conformément au droit hongrois et européen, notamment à l'article 4 de la loi hongroise CVIII de 2001 relative à certains aspects des services de commerce électronique. Les champs indiqués comme à compléter n'ont pas encore été confirmés et doivent être renseignés avec des informations d'immatriculation exactes avant que ces mentions puissent être considérées comme complètes.",
     "fields": {
-      "operator": "Opérateur",
-      "address": "Adresse",
+      "operator": "Prestataire de service",
+      "legalForm": "Forme juridique",
+      "registrationNumber": "Numéro d'immatriculation",
+      "taxNumber": "Numéro fiscal",
+      "address": "Adresse enregistrée",
       "email": "E-mail",
-      "website": "Site web"
+      "website": "Site web",
+      "hosting": "Hébergeur"
+    },
+    "values": {
+      "legalForm": "[À COMPLÉTER — confirmer la forme juridique enregistrée, par ex. entrepreneur individuel (egyéni vállalkozó) ou société immatriculée]",
+      "registrationNumber": "[À COMPLÉTER — numéro d'immatriculation de la société ou de l'entrepreneur individuel]",
+      "taxNumber": "[À COMPLÉTER — numéro fiscal / adószám]",
+      "address": "[À COMPLÉTER — adresse enregistrée complète, avec code postal et rue]"
     },
     "sections": {
       "liability": {
@@ -2626,40 +2696,90 @@
       "copyright": {
         "title": "Avis de droit d'auteur",
         "text": "Tous les textes, images et codes sources sont protégés par le droit d'auteur. Toute reproduction ou utilisation en dehors des limites du droit d'auteur nécessite une autorisation écrite préalable."
+      },
+      "dataProtection": {
+        "title": "Protection des données",
+        "text": "Pour savoir comment les données personnelles sont traitées, consultez l'avis de confidentialité accessible depuis le pied de page de ce site."
       }
-    },
-    "lastUpdated": "Dernière mise à jour : octobre 2025"
+    }
   },
   "cookiesDemo": {
-    "title": "Avis relatif aux cookies (Version Démo)",
-    "intro": "Cette application de démonstration utilise un minimum de cookies et de technologies similaires afin d'assurer son bon fonctionnement et de mesurer les performances techniques. Aucun cookie publicitaire ou de suivi n'est utilisé.",
+    "title": "Politique de cookies",
+    "lastUpdated": "Dernière mise à jour : 13 septembre 2026",
+    "intro": "HRInno est un produit commercial en exploitation, et cet avis explique les cookies et technologies similaires — y compris le stockage local de votre navigateur — réellement utilisés par notre site et notre application. Nous gardons cette liste aussi courte que possible : nous n'utilisons pas de cookies publicitaires ou de suivi intersites, et nous ne vendons aucune donnée collectée de cette manière.",
     "sections": {
       "whatAreCookies": {
-        "title": "Que sont les cookies ?",
-        "text": "Les cookies sont de petits fichiers texte stockés sur votre appareil lorsque vous visitez un site web. Ils permettent aux sites de fonctionner correctement, de mémoriser vos préférences et de collecter des statistiques d'utilisation anonymes."
+        "title": "Que sont les cookies ?",
+        "text": "Les cookies sont de petits fichiers texte stockés sur votre appareil lorsque vous visitez un site web. Des technologies similaires, comme le stockage local de votre navigateur, fonctionnent de manière comparable mais sont gérées un peu différemment ; nous les regroupons dans le présent avis."
       },
       "howWeUse": {
-        "title": "Comment nous utilisons les cookies",
-        "text": "Nous utilisons uniquement des cookies essentiels nécessaires à l'authentification et à la sécurité (via Supabase), ainsi qu'à l'analyse technique (via Vercel). Ces cookies ne vous identifient pas personnellement et sont automatiquement supprimés à la fin de votre session."
+        "title": "Comment nous utilisons les cookies et le stockage local",
+        "text": "Nous utilisons un petit nombre d'éléments strictement nécessaires pour vous maintenir connecté, mémoriser votre langue, et mémoriser votre choix en matière de cookies, ainsi qu'un élément optionnel soumis à consentement qui nous aide à comprendre le parcours des visiteurs sur nos pages marketing. Vercel Analytics et Speed Insights, que nous utilisons également, sont conçus pour fonctionner sans cookies ni identifiants personnels."
       },
       "types": {
-        "title": "Types de cookies utilisés",
+        "title": "Types de cookies et de stockage utilisés",
         "items": {
-          "necessary": "Cookies nécessaires — requis pour la connexion, la gestion de session et la sécurité.",
-          "analytics": "Cookies d'analyse — utilisés pour surveiller les performances techniques via Vercel Analytics. Aucun suivi personnel.",
-          "functional": "Cookies fonctionnels — utilisés temporairement pour mémoriser votre langue de démo et vos préférences de consentement."
+          "necessary": "Nécessaires — un cookie de session/connexion (via Supabase) qui vous maintient connecté, et un enregistrement de votre propre choix en matière de cookies. Ils ne peuvent pas être désactivés sans casser des fonctionnalités essentielles comme rester connecté.",
+          "functional": "Fonctionnels — un cookie qui mémorise votre langue choisie (anglais, français ou hongrois) d'une visite à l'autre.",
+          "analytics": "Analytiques, uniquement avec votre consentement — un identifiant anonyme stocké dans votre navigateur, utilisé uniquement pour comprendre comment les visiteurs passent de nos pages marketing à l'inscription. Il n'est créé que lorsque vous cliquez sur « Accepter » dans la bannière de cookies, et rien n'est stocké si vous refusez."
+        }
+      },
+      "specificStorage": {
+        "title": "Ce que nous stockons réellement",
+        "columns": {
+          "name": "Nom",
+          "type": "Type",
+          "purpose": "Finalité",
+          "duration": "Durée",
+          "consent": "Consentement requis ?"
+        },
+        "items": {
+          "session": {
+            "name": "Session d'authentification Supabase",
+            "type": "Cookie",
+            "purpose": "Vous maintient connecté à votre compte",
+            "duration": "Session, jusqu'à la déconnexion",
+            "consent": "Non — strictement nécessaire"
+          },
+          "locale": {
+            "name": "NEXT_LOCALE",
+            "type": "Cookie",
+            "purpose": "Mémorise votre langue choisie",
+            "duration": "1 an",
+            "consent": "Non — fonctionnel"
+          },
+          "consentChoice": {
+            "name": "cookieConsent",
+            "type": "Stockage local",
+            "purpose": "Mémorise si vous avez accepté ou refusé les analyses optionnelles",
+            "duration": "Jusqu'à suppression par vos soins",
+            "consent": "Non — nécessaire pour respecter votre propre choix"
+          },
+          "funnelId": {
+            "name": "hrinno_funnel_sid",
+            "type": "Stockage local",
+            "purpose": "Identifiant anonyme reliant les étapes de votre propre visite (ex. : consultation des tarifs puis inscription)",
+            "duration": "Jusqu'à suppression par vos soins",
+            "consent": "Oui — créé uniquement après acceptation"
+          },
+          "vercel": {
+            "name": "Vercel Analytics / Speed Insights",
+            "type": "Aucun (sans cookies)",
+            "purpose": "Statistiques agrégées et anonymisées de performance et d'utilisation du site",
+            "duration": "Non applicable",
+            "consent": "Non applicable — aucun cookie ni identifiant d'appareil n'est utilisé"
+          }
         }
       },
       "manage": {
-        "title": "Gestion des cookies",
-        "text": "Vous pouvez gérer ou supprimer les cookies via les paramètres de votre navigateur. Comme il s'agit d'un environnement de démonstration, la désactivation des cookies peut empêcher certaines fonctionnalités (ex. connexion ou paramètres de langue) de fonctionner correctement."
+        "title": "Gérer votre choix",
+        "text": "Vous pouvez accepter ou refuser les analyses optionnelles à tout moment via la bannière de cookies, et changer d'avis en effaçant le stockage local de votre navigateur pour ce site. Les éléments strictement nécessaires — connexion, langue, et votre propre choix — ne peuvent pas être désactivés sans affecter des fonctionnalités essentielles comme rester connecté."
       },
       "moreInfo": {
         "title": "Plus d'informations",
         "text": "Si vous avez des questions concernant cet avis relatif aux cookies, veuillez nous contacter à "
       }
-    },
-    "lastUpdated": "Dernière mise à jour : novembre 2025"
+    }
   },
   "resetPage": {
     "title": "Réinitialiser le mot de passe",
@@ -2789,7 +2909,7 @@
       "startRecording": "Répondre par la voix",
       "stopRecording": "Arrêter l'enregistrement",
       "voiceUnsupportedTitle": "Saisie vocale non disponible",
-"voiceUnsupportedText": "Votre navigateur ne prend pas en charge la saisie vocale. Utilisez Chrome ou Edge pour cette fonctionnalité, ou tapez votre réponse ci-dessous."
+      "voiceUnsupportedText": "Votre navigateur ne prend pas en charge la saisie vocale. Utilisez Chrome ou Edge pour cette fonctionnalité, ou tapez votre réponse ci-dessous."
     },
     "coaching": {
       "overallScore": "Score Global de l'Entretien",

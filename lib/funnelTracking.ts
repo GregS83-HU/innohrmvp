@@ -18,6 +18,22 @@ const supabase = createClient(
 );
 
 const SESSION_STORAGE_KEY = 'hrinno_funnel_sid';
+const CONSENT_STORAGE_KEY = 'cookieConsent';
+
+/**
+ * Funnel tracking is optional, consent-gated analytics (see the Cookie
+ * Notice) - it must not create or read hrinno_funnel_sid, and must not fire
+ * any event, unless the visitor has explicitly accepted via the cookie
+ * banner. Declining, or not having answered yet, means no tracking.
+ */
+function hasTrackingConsent(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return window.localStorage.getItem(CONSENT_STORAGE_KEY) === 'accepted';
+  } catch {
+    return false;
+  }
+}
 
 export type FunnelEventType =
   | 'job_assistant_started'
@@ -62,6 +78,8 @@ export function trackFunnelEvent(
   eventType: FunnelEventType,
   options?: { source?: FunnelSource; plan?: FunnelPlan; metadata?: Record<string, unknown> }
 ): void {
+  if (!hasTrackingConsent()) return;
+
   const sessionId = getFunnelSessionId();
 
   // Fire-and-forget: never block or throw into the caller's UI flow over an

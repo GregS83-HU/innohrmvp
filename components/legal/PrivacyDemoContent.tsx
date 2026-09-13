@@ -15,12 +15,16 @@ const PrivacyDemoContent: React.FC = () => {
       <p className="mb-4">{t('privacyDemo.intro')}</p>
 
       <h2 className="text-xl font-semibold mt-8 mb-3">
-        {t('privacyDemo.sections.dataCollected.title')}
+        {t('privacyDemo.sections.scope.title')}
       </h2>
-      <ul className="list-disc list-inside space-y-1 mb-4">
-        <li>{t('privacyDemo.sections.dataCollected.items.0')}</li>
-        <li>{t('privacyDemo.sections.dataCollected.items.1')}</li>
-      </ul>
+      <p className="mb-4">{t('privacyDemo.sections.scope.text')}</p>
+
+      <DataCollected />
+
+      <h2 className="text-xl font-semibold mt-8 mb-3">
+        {t('privacyDemo.sections.legalBasis.title')}
+      </h2>
+      <p className="mb-4">{t('privacyDemo.sections.legalBasis.text')}</p>
 
       <h2 className="text-xl font-semibold mt-8 mb-3">
         {t('privacyDemo.sections.purpose.title')}
@@ -28,14 +32,14 @@ const PrivacyDemoContent: React.FC = () => {
       <p className="mb-4">{t('privacyDemo.sections.purpose.text')}</p>
 
       <h2 className="text-xl font-semibold mt-8 mb-3">
-        {t('privacyDemo.sections.storage.title')}
-      </h2>
-      <p className="mb-4">{t('privacyDemo.sections.storage.text')}</p>
-
-      <h2 className="text-xl font-semibold mt-8 mb-3">
         {t('privacyDemo.sections.aiProcessing.title')}
       </h2>
       <p className="mb-4">{t('privacyDemo.sections.aiProcessing.text')}</p>
+
+      <h2 className="text-xl font-semibold mt-8 mb-3">
+        {t('privacyDemo.sections.storage.title')}
+      </h2>
+      <p className="mb-4">{t('privacyDemo.sections.storage.text')}</p>
 
       <ThirdPartyServices />
 
@@ -45,12 +49,22 @@ const PrivacyDemoContent: React.FC = () => {
       <p className="mb-4">{t('privacyDemo.sections.userRights.text')}</p>
 
       <h2 className="text-xl font-semibold mt-8 mb-3">
+        {t('privacyDemo.sections.security.title')}
+      </h2>
+      <p className="mb-4">{t('privacyDemo.sections.security.text')}</p>
+
+      <h2 className="text-xl font-semibold mt-8 mb-3">
+        {t('privacyDemo.sections.changes.title')}
+      </h2>
+      <p className="mb-4">{t('privacyDemo.sections.changes.text')}</p>
+
+      <h2 className="text-xl font-semibold mt-8 mb-3">
         {t('privacyDemo.sections.contact.title')}
       </h2>
       <p className="mb-2">{t('privacyDemo.sections.contact.text')}</p>
 
       <a
-        href="mailto:privacy@innohr.hu"
+        href="mailto:privacy@hrinno.hu"
         className="text-blue-600 underline hover:text-blue-800"
       >
         {t('privacyDemo.sections.contact.email')}
@@ -59,6 +73,30 @@ const PrivacyDemoContent: React.FC = () => {
       <p className="text-sm text-gray-500 mt-8">
         {t('privacyDemo.lastUpdated')}
       </p>
+    </div>
+  );
+};
+
+const DataCollected = () => {
+  const { t } = useLocale();
+
+  return (
+    <div className="mt-8">
+      <h2 className="text-xl font-semibold mb-3">
+        {t('privacyDemo.sections.dataCollected.title')}
+      </h2>
+      <div className="space-y-3">
+        {['account', 'employee', 'candidate', 'health', 'billing', 'technical'].map((key) => (
+          <div key={key} className="border-l-4 border-gray-300 pl-4">
+            <h3 className="font-semibold">
+              {t(`privacyDemo.sections.dataCollected.categories.${key}.title`)}
+            </h3>
+            <p className="text-sm text-gray-600">
+              {t(`privacyDemo.sections.dataCollected.categories.${key}.text`)}
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
@@ -72,7 +110,7 @@ const ThirdPartyServices = () => {
         {t('privacyDemo.sections.thirdParty.title')}
       </h2>
       <div className="space-y-3">
-        {['supabase', 'openai', 'ocrspace', 'vercel', 'stripe', 'resend'].map((key) => (
+        {['supabase', 'openai', 'vercel', 'stripe', 'resend', 'calendly'].map((key) => (
           <div
             key={key}
             className={`border-l-4 pl-4 ${t(

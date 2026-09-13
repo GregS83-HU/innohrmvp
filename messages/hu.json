@@ -878,7 +878,7 @@
     },
     "header": {
       "title": "Orvosi igazolás feltöltése",
-      "subtitle": "Töltsd fel az orvosi igazolásodat automatikus feldolgozáshoz"
+      "subtitle": "Töltsd fel az orvosi igazolásodat, és add meg az adatait"
     },
     "demo": {
       "downloadButton": "Hamis igazolás letöltése",
@@ -888,18 +888,12 @@
       "fileLabel": "Igazolásfájl kiválasztása",
       "dropzoneSelected": "Fájl kiválasztva",
       "dropzoneEmpty": "Kattints ide a fájl kiválasztásához",
-      "dropzoneHelp": "PDF vagy kép • Maximum 1 MB",
-      "uploadButton": "Feltöltés és feldolgozás",
-      "processing": "Feldolgozás...",
-      "aiConsent": "🤖 Hozzájárulok ahhoz, hogy ezt a dokumentumot mesterséges intelligencia — beleértve harmadik fél OCR- és AI-elemző szolgáltatásait — dolgozza fel az adatok automatikus kinyerése céljából."
+      "dropzoneHelp": "PDF vagy kép • Maximum 1 MB"
     },
     "results": {
-      "titleSuccess": "Kinyert igazolás adatai",
-      "titleManual": "Igazolás adatai – Kérlek, töltsd ki a hiányzó információkat",
       "employeeName": "Dolgozó neve",
       "startDate": "Kezdő dátum",
       "endDate": "Záró dátum",
-      "doctorName": "Orvos neve",
       "comment": "További megjegyzés (opcionális)",
       "commentPlaceholder": "Adj meg bármilyen további információt vagy megjegyzést...",
       "employeeNamePlaceholder": "Add meg a dolgozó nevét",
@@ -909,7 +903,6 @@
       "confirmSave": "Megerősítés és mentés",
       "saving": "Mentés...",
       "cancel": "Mégse",
-      "tryAgain": "Próbáld újra",
       "uploadAnother": "Tölts fel egy másik igazolást",
       "back": "Vissza",
       "home": "Kezdőlap"
@@ -1115,9 +1108,6 @@
       "title": "Orvosi igazolás (nem kötelező)",
       "selectFile": "Kattintson az igazolás kiválasztásához",
       "fileHelp": "PDF vagy kép • Max. 1 MB",
-      "aiConsent": "🤖 Beleegyezem, hogy az orvosi igazolásomat mesterséges intelligencia — beleértve harmadik fél OCR- és AI-elemző szolgáltatásait — segítségével dolgozzák fel az adatok automatikus kinyerése és ellenőrzése céljából.",
-      "processButton": "Igazolás feldolgozása",
-      "processing": "Feldolgozás...",
       "confirmButton": "Igazolás megerősítése",
       "saving": "Mentés...",
       "confirmed": "Igazolás megerősítve",
@@ -1125,15 +1115,14 @@
       "employeeName": "Munkavállaló neve",
       "employeeNamePlaceholder": "Adja meg a munkavállaló nevét",
       "additionalComment": "További megjegyzés (nem kötelező)",
-      "commentPlaceholder": "Adjon meg további információt vagy megjegyzést..."
+      "commentPlaceholder": "Adjon meg további információt vagy megjegyzést...",
+      "uploadFile": "Igazolásfájl"
     },
     "errors": {
       "fileTooLarge": "A fájl túl nagy. A maximális méret 1 MB.",
       "selectFile": "Kérjük, válasszon ki egy fájlt",
-      "cannotSave": "Nem lehet menteni: hiányzik a fájl vagy a feldolgozott adat.",
-      "confirmBeforeSubmit": "Kérjük, erősítse meg az igazolást a szabadságkérelem benyújtása előtt.",
-      "ocrIncomplete": "Az OCR feldolgozás nem teljes",
-      "ocrIncompleteDesc": "Néhány információt nem sikerült felismerni. Kérjük, töltse ki az alábbi hiányzó mezőket."
+      "cannotSave": "Nem menthető: hiányzó fájl vagy szükséges adatok.",
+      "confirmBeforeSubmit": "Kérjük, erősítse meg az igazolást a szabadságkérelem benyújtása előtt."
     },
     "buttons": {
       "cancel": "Mégse",
@@ -2165,76 +2154,115 @@
     "aiDisclaimer": "Az AI funkciók kizárólag bemutató jellegűek, és nem alkalmasak valódi HR-döntések meghozatalára."
   },
   "privacyDemo": {
-    "title": "Adatvédelmi tájékoztató (Demó verzió)",
-    "intro": "Ezt a demóalkalmazást Saussez Grégory (Budapest, Magyarország) üzemelteti. A demó célja az InnoHR funkcióinak tesztelése és visszajelzések gyűjtése. Kereskedelmi tevékenység nem történik, a szolgáltatás ingyenes.",
+    "title": "Adatkezelési tájékoztató",
+    "lastUpdated": "Utoljára frissítve: 2026. szeptember 13.",
+    "intro": "Ez az adatkezelési tájékoztató bemutatja, hogyan kezeli a HRInno („HRInno”, „mi”) a személyes adatokat a HRInno plattformon (app.hrinno.hu és a hrinno.hu nyilvános oldalai) keresztül, beleértve az ingyenes, nyilvános Job Assistant eszközt is. A HRInno élő, kereskedelmi, előfizetéses HR-platform, amelyet valódi vállalatok használnak valódi munkavállalóik, jelöltjeik és — adott esetben — egészségüggyel összefüggő dokumentumaik, például orvosi igazolásaik kezelésére; nem demo- vagy tesztkörnyezet. A tájékoztató vonatkozik nyilvános oldalunk látogatóira, az ingyenes Job Assistant felhasználóira, az ügyfeleink által meghirdetett állásokra jelentkező pályázókra, valamint azokra a munkavállalókra, vezetőkre és adminisztrátorokra, akik egy előfizető vállalat HRInno-fiókját használják.",
     "sections": {
+      "scope": {
+        "title": "Ki felel az Ön adataiból",
+        "text": "Az előfizető vállalat HRInno-fiókjában kezelt személyes adatok többségéért — munkavállalói nyilvántartások, teljesítmény- és jelenléti adatok, távolléti kérelmek, valamint toborzási/jelölti adatok — az adott vállalat az adatkezelő, a HRInno pedig adatfeldolgozóként jár el, kizárólag a vállalat dokumentált utasításai alapján. Ha munkavállaló, vezető vagy pályázó ként kérdése van adatai felhasználásáról, kérjük, először azt a vállalatot keresse, amely meghívta a HRInno használatára, vagy amelyhez pályázott; a HRInno nem dönt arról, miért gyűjtik ezeket az adatokat. A HRInno által közvetlenül gyűjtött adatok esetében — nyilvános weboldalunk látogatói, az ingyenes Job Assistant felhasználói, számlázási/fiók kapcsolattartók, valamint marketing- vagy kapcsolatfelvételi űrlapon beérkezett adatok — a HRInno az adatkezelő. A HRInno adatfeldolgozói kötelezettségeit részletező adatfeldolgozási megbízási szerződés (DPA) az előfizető vállalatok számára kérésre elérhető."
+      },
       "dataCollected": {
-        "title": "Gyűjtött adatok",
-        "items": {
-          "0": "Az Ön által önként megadott információk (pl. név, e-mail, visszajelzés vagy tesztadat). Kérjük, ne adjon meg valódi vagy érzékeny személyes adatokat.",
-          "1": "Technikai adatok (pl. böngésző típusa, IP-cím, hozzávetőleges földrajzi régió), amelyeket teljesítmény- és biztonsági elemzés céljából használunk."
+        "title": "Az általunk gyűjtött adatok",
+        "categories": {
+          "account": {
+            "title": "Fiók- és vállalati adatok",
+            "text": "Vállalatnév, adminisztrátor neve, munkahelyi e-mail cím és jelszó a vállalat regisztrációjakor, valamint a később hozzáadott felhasználók neve, munkahelyi e-mail címe, szerepköre és vezetői hozzárendelése."
+          },
+          "employee": {
+            "title": "Munkavállalói és HR-működési adatok",
+            "text": "Munkaidő-nyilvántartási bejegyzések, távolléti kérelmek és keretek, teljesítménycélok és heti állapotjelentések, valamint javállapot-felmérési válaszok (anonim módon rögzítve — lásd az „MI-alapú feldolgozás” pontot lentebb), amelyeket az előfizető vállalat munkavállalói vagy nevükben mások rögzítenek."
+          },
+          "candidate": {
+            "title": "Pályázati és toborzási adatok",
+            "text": "Név, elérhetőségi adatok, önéletrajz tartalma és fájlja, valamint MI által generált értékelési vagy interjú válaszok, amelyeket egy ügyfelünk által meghirdetett állásra történő jelentkezéskor, vagy az ingyenes Job Assistant eszköz használatakor ad meg."
+          },
+          "health": {
+            "title": "Egészségügyi adatok (orvosi igazolások)",
+            "text": "Ha egy ügyfélvállalat használja az orvosi igazolás funkciót, a feltöltött táppénzes igazolások tartalma — a GDPR 9. cikke szerinti különleges adatkategória — biztonságosan kerül tárolásra, kulcsfontosságú adatait (munkavállaló neve, táppénz kezdő/záró dátuma) pedig egy vállalati adminisztrátor manuálisan rögzíti. Semmilyen MI- vagy OCR-szolgáltatás nem olvassa vagy dolgozza fel az igazolást: a dokumentum soha nem kerül elküldésre semmilyen harmadik fél MI-szolgáltatónak."
+          },
+          "billing": {
+            "title": "Számlázási adatok",
+            "text": "A vállalat számlázási kapcsolattartói adatai és előfizetési/fizetési státusza. Magát a fizetési adatot közvetlenül fizetési szolgáltatónk, a Stripe gyűjti és kezeli — a HRInno soha nem kapja meg vagy tárolja a teljes bankkártyaszámot."
+          },
+          "technical": {
+            "title": "Műszaki és használati adatok",
+            "text": "IP-cím, böngésző típusa, eszközinformációk, valamint termékhasználati/konverziós statisztikák, a Sütikezelési tájékoztatóban leírtak szerint."
+          }
         }
+      },
+      "legalBasis": {
+        "title": "Az adatkezelés jogalapjai",
+        "text": "Amikor a HRInno az adatkezelő, a személyes adatokat a következő jogalapokon kezeljük: szerződés teljesítése (fiókja és az Ön által igénybe vett szolgáltatások működtetése), Ön kifejezett hozzájárulása (az orvosi igazolások MI/OCR-feldolgozása, a javállapot-felmérések és az ingyenes Job Assistant eszköz mindegyike külön hozzájárulási jelölőnégyzetet igényel, mielőtt bármilyen fájlt vagy választ egy MI-szolgáltatónak elküldenénk), jogos érdekünk (a platform biztonságának fenntartása, visszaelések megelőzése, a termék fejlesztése), valamint jogi kötelezettségeink. Amikor a HRInno egy előfizető vállalat nevében adatfeldolgozóként jár el, az adott vállalat felelős annék biztosításáért, hogy saját jogalapja legyen a HRInnoba felvitt személyes adatokra — például saját munkavállalói adatainak kezelésére a munkaviszony alapján."
       },
       "purpose": {
         "title": "Az adatkezelés célja",
-        "text": "Az adatok kizárólag a demó használhatóságának értékelésére, a rendszer biztonságának biztosítására és az InnoHR fejlesztésének javítására szolgálnak."
+        "text": "A személyes adatokat a HRInno plattform és funkciói biztosítására használjuk (toborzás, munkaidő- és jelenlét-nyilvántartás, távollétek, orvosi igazolások, teljesítménymenedzsment, MI-alapú javállapot-chatbot és támogatási jegyek), a számlázás és előfizetések kezelésére, a platform biztonságának fenntartására, a támogatási megkeresések megválaszolására, valamint — kizárólag ott, ahol szükséges hozzájárulás esetén — MI-alapú funkciók, például önéletrajz-értékelés, MI által generált álláshirdetés-leírások, interjú-támogatás és javállapot-felmérések biztosítására."
+      },
+      "aiProcessing": {
+        "title": "MI-alapú feldolgozás és automatizált döntések",
+        "text": "Több funkció is adatokat küld harmadik fél MI-szolgáltatóknak eredmény generálásához: önéletrajz-értékelés és állásilleszkedés, MI által generált álláshirdetés-leírások, MI-interjúkérdések, -összefoglalók és -értékelések, valamint a javállapot-chatbot. Ahol egy funkció opcionális és hozzájáruláshoz kötött (javállapot-chatbot, nyilvános Job Assistant), kifejezett hozzájárulást kérünk, mielőtt bármilyen fájlt vagy üzenetet egy MI-szolgáltatónak elküldünk. Az orvosi igazolások tudatos kivételt képeznek: tartalmuk soha nem kerül elküldésre semmilyen MI- vagy OCR-szolgáltatásnak (lásd az „Egészségügyi adatok” pontot fentebb). Az álláshirdetésre jelentkező pályázóknak tudniuk kell, hogy a kezdeti önéletrajz-pontszám automatikusan készül, és bizonyos értékelési folyamatokban egy alacsony pontszámú jelentkezést automatikusan „elutasítva” státuszba helyezhet, előzetes emberi áttekintés nélkül; a pályázó bármikor felveheti a kapcsolatot a toborzó vállalattal, hogy kérje ezen automatizált értékelés emberi felülvizsgálatát. Mivel az MI ezen konkrét, pályázók értékelésére történő használata az EU mesterséges intelligenciáról szóló rendeletének magas kockázatú kategóriája alá tartozhat, ügyfeleinkkel együtt dolgozunk az ebből eredő további átláthatósági és emberi felügyeleti kötelezettségeken; ez a téma jelenleg aktív jogi felülvizsgálat alatt áll, és még nincs teljes körűen megvalósítva."
       },
       "storage": {
         "title": "Adattárolás és megőrzés",
-        "text": "A feltöltött önéletrajzok és orvosi igazolások a feltöltéstől számított 30 nap elteltével automatikusan törlésre kerülnek egy ütemezett folyamat részeként. Csak minimális technikai naplóadatokat tárolunk legfeljebb 90 napig biztonsági és hibakeresési célból."
-      },
-      "aiProcessing": {
-        "title": "Mesterséges intelligencia általi feldolgozás",
-        "text": "A demó egyes funkciói mesterséges intelligenciát (OpenRouter vagy OpenAI API-kat) használnak. Ezek a válaszok kizárólag bemutatási célokat szolgálnak, és nem alkalmasak döntéshozatalra vagy munkavállalói értékelésre."
+        "text": "A vállalat toborzási folyamatán keresztül benyújtott orvosi igazolások és önéletrajzok feltöltés után 30 napon belül automatikusan törlõdnek, egy futás közben állítható megőrzési ütemezés alapján; egy vállalati adminisztrátor vagy az érintett személy is kérheti egy adott bejegyzés korábbi törlését. Az ingyenes Job Assistant eszközön beküldött önéletrajz-adatok soha nem kerülnek tárolásra — csak a böngészési munkamenet idejéig léteznek, és az MI-válasz megérkezése után azonnal törlődnek. Más működési adatokat (munkavállalói, teljesítmény-, jelenléti, távolléti és támogatásijegy-adatok) az adott vállalat fiókjának aktív állapota alatt őrizzük meg, és a fiók lezárása után kérhető azok törlése vagy anonimizálása."
       },
       "thirdParty": {
-        "title": "Külső szolgáltatók",
+        "title": "Harmadik fél szolgáltatások",
         "items": {
           "supabase": {
-            "name": "Supabase (adatbázis-szolgáltatás)",
-            "desc": "Cél: adatbázis-kezelés és hitelesítés. Székhely: USA (EU-alapú szerverekkel).",
+            "name": "Supabase (adatbázis, hitelesítés és fájltárolás)",
+            "desc": "Cél: adatbázisunk, a felhasználói hitelesítés és a privát fájltárolás (önéletrajzok, orvosi igazolások) üzemeltetése, amelyekhez kizárólag rövid élettartamú, aláírt linkeken keresztül férhető hozzá. A Supabase, Inc. székhelye az Egyesült Államokban van.",
             "linkHref": "https://supabase.com/privacy",
-            "linkText": "Adatvédelmi irányelvek",
+            "linkText": "Adatvédelmi tájékoztató",
             "color": "border-blue-500"
           },
           "openai": {
-            "name": "OpenRouter / OpenAI (MI-szolgáltatás)",
-            "desc": "Cél: mesterséges intelligencián alapuló elemzés és válaszgenerálás. Székhely: USA. Az adatok nem kerülnek hosszú távú tárolásra.",
+            "name": "OpenRouter, OpenAI és Anthropic (MI-feldolgozás)",
+            "desc": "Cél: MI által generált álláshirdetés-leírások, önéletrajz-értékelés és visszajelzés, interjúkérdések és -összefoglalók, valamint a javállapot-chatbot válaszainak előállítása. Székhely az Egyesült Államokban. Ezeknek a szolgáltatóknak kizárólag az adott funkció működéséhez szükséges adatokat küldjük.",
             "linkHref": "https://openai.com/privacy",
-            "linkText": "Adatvédelmi irányelvek",
+            "linkText": "Adatvédelmi tájékoztató",
             "color": "border-green-500"
           },
-          "ocrspace": {
-            "name": "OCR.Space (dokumentum-OCR szolgáltatás)",
-            "desc": "Cél: szöveg kinyerése a feltöltött orvosi igazolások képeiből/PDF-jeiből. Székhely: USA. A teljes dokumentumot kapja meg, nem csak a kinyert szöveget.",
-            "linkHref": "https://ocr.space/privacypolicy",
-            "linkText": "Adatvédelmi irányelvek",
-            "color": "border-yellow-500"
-          },
           "vercel": {
-            "name": "Vercel (tárhelyszolgáltató)",
-            "desc": "Cél: webtárhely és tartalomszolgáltatás. Székhely: USA (EU régió engedélyezve).",
+            "name": "Vercel (tárhely és teljesítményelemzés)",
+            "desc": "Cél: a HRInno alkalmazás üzemeltetése, valamint sütimentes, aggregált teljesítmény- és használati statisztikák biztosítása (Vercel Analytics, Speed Insights). Székhely az Egyesült Államokban.",
             "linkHref": "https://vercel.com/legal/privacy-policy",
-            "linkText": "Adatvédelmi irányelvek",
+            "linkText": "Adatvédelmi tájékoztató",
             "color": "border-purple-500"
           },
           "stripe": {
-            "name": "Stripe (fizetési szolgáltató)",
-            "desc": "Cél: fizetések kezelése. A fizetési funkció jelenleg le van tiltva a demó verzióban. Székhely: USA (EU-alapú adattárolás).",
+            "name": "Stripe (fizetésfeldolgozás)",
+            "desc": "Cél: előfizetési fizetések feldolgozása és a fizetési mód közvetlen tárolása. A HRInno soha nem kapja meg vagy tárolja a teljes bankkártyaszámot. Székhely az Egyesült Államokban, PCI-DSS tanúsítvánnyal.",
             "linkHref": "https://stripe.com/privacy",
-            "linkText": "Adatvédelmi irányelvek",
+            "linkText": "Adatvédelmi tájékoztató",
             "color": "border-orange-500"
           },
           "resend": {
-            "name": "Resend / Nodemailer (e-mail küldés)",
-            "desc": "Cél: belső értesítő e-mailek küldése a fejlesztőnek. Külső marketing-üzeneteket nem küldünk.",
+            "name": "Resend és Nodemailer (tranzakciós e-mailek)",
+            "desc": "Cél: az Ön vagy vállalata által várt fiók-, számlázási, bevezetési és értesítő e-mailek kézbesítése (például interjúmeghivók vagy bevezetési emlékeztetők). Nem használjuk kéretlen marketing e-mailekhez.",
             "linkHref": "https://resend.com/privacy",
-            "linkText": "Adatvédelmi irányelvek",
+            "linkText": "Adatvédelmi tájékoztató",
             "color": "border-teal-500"
+          },
+          "calendly": {
+            "name": "Calendly (bevezető hívás időpontfoglalás)",
+            "desc": "Cél: lehetővé teszi egy új vállalat adminisztrátorának, hogy regisztráció után bevezető hívást foglaljon. Kizárólag munkahelyi e-mail címét és a kiválasztott időpontot osztjuk meg a Calendlyvel e célból.",
+            "linkHref": "https://calendly.com/privacy",
+            "linkText": "Adatvédelmi tájékoztató",
+            "color": "border-pink-500"
           }
         },
-        "noticeTitle": "Adattovábbítás:",
-        "noticeText": "Egyes adatok az Európai Unión kívülre kerülhetnek továbbításra. Az adattovábbítás az Európai Bizottság által jóváhagyott Általános Szerződési Feltételek (SCC) alapján történik, amelyek biztosítják az adatok megfelelő védelmét."
+        "noticeTitle": "Nemzetközi adattovábbítás:",
+        "noticeText": "A fenti szolgáltatók többségének székhelye az Európai Unión kívül van. Amennyiben személyes adatot továbbítunk az EU/EGT területén kívülre, általános adatvédelmi szerződési feltételekre (SCC) vagy azzal egyenértékű, elismert garanciára támaszkodunk a megfelelő szintű védelem biztosítása érdekében."
+      },
+      "userRights": {
+        "title": "Az Ön jogai",
+        "text": "Az alkalmazandó jog keretein belül, és amennyiben a HRInno az Ön adatainak kezelője (lásd „Ki felel az Ön adataiból” fentebb), Önnek joga van: hozzáférést kérni az Önről tárolt személyes adatokhoz; pontatlan adatok helyesbítését kérni; adatai törlését kérni; kérni bizonyos adatkezelések korlátozását vagy tiltakozni ellenük; adatait hordozható formátumban megkapni; és bármikor visszavonni hozzájárulását, ha az adatkezelés azon alapul, anélkül, hogy ez befolyásolná a már elvégzett adatkezelést. Ha egy automatizált értékelés — például egy MI által generált önéletrajz-pontszám — érinti Önt, kérheti annak emberi felülvizsgálatát. E jogok gyakorlásához írjon nekünk a privacy@hrinno.hu címre. Ha a HRInno egy előfizető vállalat nevében adatfeldolgozóként kezeli adatait, kérjük, kérését először ahhoz a vállalathoz nyújtsa be; mi segítséget nyújtunk a válasz elkészítésében. Jogában áll panaszt tenni a Nemzeti Adatvédelmi és Információszabadság Hatóságnál (NAIH), www.naih.hu, vagy saját EU-tagállama felügyeleti hatóságánál."
+      },
+      "security": {
+        "title": "Biztonsági intézkedések",
+        "text": "Szerepkör-alapú hozzáférés-vezérlést alkalmazunk, hogy egy vállalat adatait kizárólag az adott vállalat tagjai láthassák; az önéletrajzokat és orvosi igazolásokat privát módon tároljuk, és kizárólag rövid élettartamú, egyszer használatos, aláírt linkeken keresztül férhető hozzájuk, soha nem nyilvános URL-eken; az érzékeny beállításokat, például egy vállalat kimenő e-mail hitelesítő adatait, titkosítva tároljuk; az orvosi igazolásokat pedig egy vállalati adminisztrátor tekinti át és rögzíti manuálisan, nem pedig harmadik fél MI- vagy OCR-szolgáltatása dolgozza fel. Egyetlen rendszer sem teljesen biztonságos, és nem tudjuk garantálni az interneten továbbított információk abszolút biztonságát."
       },
       "dataController": {
         "title": "Adatkezelő elérhetőségei",
@@ -2243,21 +2271,20 @@
         "addressLabel": "Cím:",
         "dpoLabel": "Adatvédelmi tisztviselő:",
         "name": "Saussez Grégory",
-        "email": "privacy@innohr.hu",
+        "email": "privacy@hrinno.hu",
         "address": "Budapest, Magyarország",
-        "dpo": "privacy@innohr.hu"
+        "dpo": "Adatvédelmi tisztviselő hivatalosan még nincs kijelölve; az adatvédelmi megkereséseket közvetlenül a privacy@hrinno.hu címen kezeljük"
       },
-      "userRights": {
-        "title": "Az Ön jogai",
-        "text": "Ön bármikor kérheti adataihoz való hozzáférést vagy azok törlését a privacy@innohr.hu e-mail címen. Jogában áll panaszt tenni a Nemzeti Adatvédelmi és Információszabadság Hatóságnál (NAIH) – www.naih.hu."
+      "changes": {
+        "title": "A tájékoztató változásai",
+        "text": "A tájékoztatót a termék fejlődésével frissíthetjük. A lényeges változásokról a vállalati adminisztrátorokat e-mailben vagy az alkalmazáson belüli értesítéssel, azok hatályba lépése előtt legalább 15 nappal értesítjük. Az oldal tetején lévő „Utoljára frissítve” dátum mindig a jelenleg hatályos verziót tükrözi."
       },
       "contact": {
         "title": "Kapcsolat",
-        "text": "Üzemeltető: Saussez Grégory, Budapest, Magyarország",
-        "email": "privacy@innohr.hu"
+        "text": "Adatkezelő: Saussez Grégory, Budapest, Magyarország",
+        "email": "privacy@hrinno.hu"
       }
-    },
-    "lastUpdated": "Utolsó frissítés: 2025. november"
+    }
   },
   "cookies": {
     "title": "Sütik és adatok",
@@ -2266,34 +2293,66 @@
     "reject": "Elutasítom"
   },
   "termsDemo": {
-    "title": "Demo Felhasználási Feltételek",
-    "lastUpdated": "Utolsó frissítés: {date}",
+    "title": "Általános szerződési feltételek",
+    "lastUpdated": "Utoljára frissítve: 2026. szeptember 13.",
     "sections": {
-      "demoFeatures": {
-        "title": "1. Demó Verzió Jellemzői",
-        "content": "Ez egy ingyenes demó verzió tesztelési célokra. A rendszer funkciói korlátozottak, és az adatok 30 nap után automatikusan törlésre kerülnek."
+      "service": {
+        "title": "1. A szolgáltatás",
+        "content": "A HRInno egy kereskedelmi, előfizetés-alapú (SaaS) HR-platform, amely lefedi a toborzást és a pályázatkezelést, a munkaidő- és jelenlét-nyilvántartást, a távollétkezelést, az orvosi igazolások kezelését, a teljesítménymenedzsmentet, egy MI-alapú javállapot-chatbotot, valamint támogatási jegyeket, Free, Momentum és Infinity csomagokban, az árak oldalon részletezettek szerint. A HRInno vállalatok és szervezetek saját munkaerő-állományának kezelésére szolgál, nem személyes vagy fogyasztói használatra."
       },
-      "liability": {
-        "title": "2. Felelősség Kizárása",
-        "content": "A demó verzió \"ahogy van\" állapotban kerül biztosításra, mindenféle garancia nélkül. Ne használjon valós személyes adatokat vagy érzékeny információkat."
+      "accounts": {
+        "title": "2. Fiókok és vállalati adatok",
+        "content": "A regisztráció létrehozza vállalata fiókját, a regisztráló személy első adminisztrátoraként. A vállalati adminisztrátorok felelősek az általuk és csapatuk által megadott adatok pontosságáért, a hozzáférések kezeléséért, valamint azért, hogy jogalappal rendelkezzenek a HRInnoba felvitt munkavállalói és pályázói személyes adatok kezelésére. A HRInno ezeket az adatokat adatfeldolgozóként, az Ön utasításai alapján kezeli; az ezt leíró adatfeldolgozási megbízási szerződés kérésre elérhető."
       },
-      "dataProcessing": {
-        "title": "3. Adatkezelés",
-        "content": "A demó használata során megadott adatokat kizárólag a rendszer teszteléséhez használjuk fel.",
-        "detailsLink": "Részletek:",
-        "privacyPolicy": "Adatvédelmi Tájékoztató"
+      "subscriptions": {
+        "title": "3. Csomagok, számlázás és lemondás",
+        "content": "Minden vállalat a Free csomaggal kezdi. A fizetős csomagok (Momentum, Infinity) havonta kerülnek számlázásra fizetési szolgáltatónkon, a Stripe-on keresztül, és lemondásig automatikusan megújúlóak. Bármikor lemondhatja előfizetését az előfizetési oldaláról; a lemondás azonnal hatályba lép és leállítja a jövőbeli számlázást, és nem biztosítunk időarányos visszatérítést a fel nem használt időszakra, kivéve, ha ezt jogszabály írja elő. A lefokézás vagy lemondás soha nem törli a már meglévő adatokat — csak az új csomag korlátain túlnüli új elemek létrehozása áll le új előfizetésig. A csomagban foglalt havi MI-kreditek nem viteldiek át a következő hónapra."
+      },
+      "onboarding": {
+        "title": "4. Bevezetés bizonyos modulokhoz",
+        "content": "A toborzás és a Job Assistant minden csomagban azonnal elérhető a regisztráció után. A munkaidő- és jelenlét-nyilvántartás, a távollétek, a teljesítménymenedzsment, az MI-alapú javállapot-chatbot, valamint egyelőre az orvosi igazolások feltöltése emellett egy rövid bevezető hívást igényel csapatunkkal az első használat előtt, függetlenül a csomagtól; a regisztráció után rövidesen felvesszük Önnel a kapcsolatot ennek egyeztetésére."
+      },
+      "acceptableUse": {
+        "title": "5. Elfogadható használat",
+        "content": "Vállalja, hogy nem használja a HRInnót olyan személyes adatok kezelésére, amelyekre nincs jogi felhatalmazása, nem kísérli meg más vállalat adataihoz való hozzáférést, nem fejti vissza és nem értékesíti tovább a platformhoz való hozzáférést, és nem használja a szolgáltatást az alkalmazandó joggal — beleértve a saját munkavállalói vagy pályázói kezelésére vonatkozó munkajogi és adatvédelmi jogot — ellentétes módon."
       },
       "aiContent": {
-        "title": "4. AI Tartalom",
-        "content": "Az AI által generált tartalom nem minősül szakmai tanácsadásnak. Pontatlanságok előfordulhatnak."
+        "title": "6. MI-funkciók és korlátaik",
+        "content": "Az MI által generált tartalom — álláshirdetés-leírások, önéletrajz-pontszámok és visszajelzések, interjúkérdések és -összefoglalók, javállapot-chatbot válaszok — az Ön döntéshozatalának támogatására szolgál, nem annak helyettesítésére, és pontatlan vagy hiányos lehet. Ne tekintse egy MI által generált pontszámot vagy összefoglalót egy felvételi, fegyelmi vagy egyéb munkaügyi döntés egyetlen alapjának; dokumentált emberi felülvizsgálati lépést javaslunk, különösen az MI-alapú pályázói értékelés esetén, amely az EU mesterséges intelligenciáról szóló rendelete alapján további kötelezettségek alá eshet. A HRInno nem vállal szavatosságot az MI által generált tartalom pontosságáért."
+      },
+      "dataProcessing": {
+        "title": "7. Adatvédelem",
+        "content": "Adatkezelési tájékoztatónk részletezi, milyen személyes adatokat kezelünk és miért.",
+        "detailsLink": "Részletekért lásd",
+        "privacyPolicy": "adatkezelési tájékoztatónkat"
+      },
+      "intellectualProperty": {
+        "title": "8. Szellemi tulajdon",
+        "content": "A HRInno és az alatta álló szoftver a mi tulajdonunkban marad. Ön megtartja minden jogát az Ön és felhasználói által a platformra felvitt adatokra („Fügyféladatok”), és kizárólag azokat a jogokat biztosítja számunkra, amelyek a szolgáltatás nyújtásához szükséges tároláshoz és feldolgozáshoz kellenek."
+      },
+      "availability": {
+        "title": "9. Elérhetőség és támogatás",
+        "content": "Törekszünk arra, hogy a HRInno elérhető és jól teljesítő legyen, de jelenleg nem garantálunk konkrét szolgáltatási szintet (SLA). Támogatás az alkalmazáson belüli támogatásijegy-rendszeren keresztül érhető el; új jegy létrehozása a Momentum és Infinity csomagokban érhető el, a meglévő jegyek pedig csomagtól függetlenül elérhetők maradnak."
+      },
+      "liability": {
+        "title": "10. Felelősségkorlátozás",
+        "content": "A jog által megengedett legnagyobb mértékben a HRInno jelen feltételekből eredő teljes felelőssége a követelést megelőző 12 hónapban Ön által megfizetett díjak összegére korlátozódik, és nem vagyunk felelősek közvetett, véletlenszerű vagy következményes károkért. Jelen feltételek semmi olyat nem korlátoznak, ami az alkalmazandó jog szerint nem korlátozható."
       },
       "termination": {
-        "title": "5. Hozzáférés Megszüntetése",
-        "content": "Fenntartjuk a jogot a demó hozzáférés azonnali megszüntetésére indoklás nélkül."
+        "title": "11. Felfüggesztés és megszüntetés",
+        "content": "Felfügeszthetjük vagy megszüntethetjük a fiókot jelen feltételek lényeges megsértése, fizetési elmaradás vagy jogellenes használat esetén, és amennyiben ésszerűen lehetséges, előzetes értesítést adunk, ahelyett hogy figyelmeztetés nélkül szüntetnénk meg a fiókot. A fiók lezárásakor a fügyféladatokat korlátozott ideig megőrizzük, hogy lehetővé tegyük azok exportálását, az adatkezelési tájékoztatónkkal összhangban, ezután azok törlésre kerülhetnek."
+      },
+      "changes": {
+        "title": "12. Jelen feltételek változásai",
+        "content": "Jelen feltételeket a termék fejlődésével frissíthetjük. A lényeges változásokról az adminisztrátorokat e-mailben vagy az alkalmazáson belüli értesítéssel, azok hatályba lépése előtt legalább 15 nappal értesítjük; a HRInno további használata ezen időpont után az elfogadást jelenti."
+      },
+      "governingLaw": {
+        "title": "13. Irányadó jog",
+        "content": "Jelen feltételekre Magyarország joga irányadó. A jelen feltételekből vagy a HRInno használatából eredő minden jogvita a magyar hatáskörrel és illetékességgel rendelkező bíróságok kizárólagos hatáskörébe tartozik, az Ön saját országának joga szerint Önt esetlegesen megillető kötelező fogyasztóvédelmi jogok sérelme nélkül."
       },
       "contact": {
-        "title": "6. Kapcsolat",
-        "content": "Kérdés esetén:"
+        "title": "14. Kapcsolat",
+        "content": "Jelen feltételekkel kapcsolatos kérdések esetén:"
       }
     }
   },
@@ -2302,56 +2361,117 @@
     "text": "Ne használj valódi személyes adatokat. A feltöltött önéletrajzok és orvosi igazolások 30 nap után automatikusan törlődnek."
   },
   "impressumDemo": {
-    "title": "Impresszum",
-    "intro": "Az uniós jogszabályoknak megfelelően az alábbi jogi információk vonatkoznak erre a weboldalra és a demóra.",
+    "title": "Jogi közlemény (Impresszum)",
+    "lastUpdated": "Utoljára frissítve: 2026. szeptember 13.",
+    "intro": "Ez a jogi közlemény a magyar és európai uniós joggal, különösen az elektronikus kereskedelmi szolgáltatások egyes kérdéseiről szóló 2001. évi CVIII. törvény 4. §-ával összhangban került közzétételre. A kiegészítendőként jelölt mezők még nincsenek megerősítve, és pontos cégjegyzék-/nyilvántartási adatokkal kell kitölteni őket, mielőtt ez a közlemény teljesnek tekinthető.",
     "fields": {
-      "operator": "Üzemeltető",
-      "address": "Cím",
+      "operator": "Szolgáltató",
+      "legalForm": "Jogi forma",
+      "registrationNumber": "Nyilvántartási szám",
+      "taxNumber": "Adószám",
+      "address": "Székhely / bejegyzett cím",
       "email": "E-mail",
-      "website": "Weboldal"
+      "website": "Weboldal",
+      "hosting": "Tárhelyszolgáltató"
+    },
+    "values": {
+      "legalForm": "[KIEGÉSZÍTENDŐ — a bejegyzett jogi forma megerősítése, pl. egyéni vállalkozó vagy bejegyzett társaság]",
+      "registrationNumber": "[KIEGÉSZÍTENDŐ — cégjegyzékszám vagy egyéni vállalkozói nyilvántartási szám]",
+      "taxNumber": "[KIEGÉSZÍTENDŐ — adószám]",
+      "address": "[KIEGÉSZÍTENDŐ — teljes bejegyzett cím, irányítószámmal és utcával]"
     },
     "sections": {
       "liability": {
         "title": "Felelősség kizárása",
-        "text": "A tartalom gondos ellenőrzése ellenére sem vállalunk felelősséget a külső hivatkozások tartalmáért. A hivatkozott oldalak tartalmáért kizárólag azok üzemeltetői felelősek."
+        "text": "Gondos tartalomellenőrzés ellenére nem vállalunk felelősséget a külső linkek tartalmáért. A hivatkozott oldalak üzemeltetői kizárólagosan felelősek saját tartalmukért."
       },
       "copyright": {
-        "title": "Szerzői jogi nyilatkozat",
-        "text": "Minden szöveg, kép és forráskód szerzői jogvédelem alatt áll. A szerzői jogi törvény határain kívüli bármilyen másolás vagy felhasználás előzetes írásbeli engedélyhez kötött."
+        "title": "Szerzői jogi közlemény",
+        "text": "Minden szöveg, kép és forráskód szerzői jogi védelem alatt áll. Bármilyen, a szerzői jogi törvény által megengedett kereteket meghaéladó sokszorosítás vagy felhasználás előzetes írásbeli hozzájárulást igényel."
+      },
+      "dataProtection": {
+        "title": "Adatvédelem",
+        "text": "A személyes adatok kezeléséről az oldal láblécéből elérhető Adatkezelési tájékoztatóban talál részletes információt."
       }
-    },
-    "lastUpdated": "Utoljára frissítve: 2025. október"
+    }
   },
   "cookiesDemo": {
-    "title": "Süti tájékoztató (Demó verzió)",
-    "intro": "Ez a demóalkalmazás minimális sütiket és hasonló technológiákat használ a megfelelő működés és a technikai teljesítmény mérésének biztosítása érdekében. Nem használunk reklám- vagy követő sütiket.",
+    "title": "Sütikezelési tájékoztató",
+    "lastUpdated": "Utoljára frissítve: 2026. szeptember 13.",
+    "intro": "A HRInno élő, kereskedelmi termék, és ez a tájékoztató bemutatja azokat a sütiket és hasonló technológiákat — beleértve a böngésző helyi tárolóját (local storage) — amelyeket weboldalunk és alkalmazásunk ténylegesen használ. Ezt a listát a lehető legrövidebben tartjuk: nem használunk hirdetési vagy oldalak közötti követő sütiket, és nem értékesítünk így gyűjtött adatot.",
     "sections": {
       "whatAreCookies": {
-        "title": "Mik azok a sütik?",
-        "text": "A sütik kis szöveges fájlok, amelyeket a weboldal helyez el az Ön eszközén. Segítenek a webhely megfelelő működésében, megjegyzik a beállításait, és anonim statisztikai adatokat gyűjtenek a használatról."
+        "title": "Mi a süti?",
+        "text": "A sütik kis szövegfájlok, amelyeket egy weboldal látogatásakor az Ön eszközén tárolunk. A hasonló technológiák, például a böngésző helyi tárolója, hasonló módon működnek, de kissé másként kezelendők; jelen tájékoztatóban együtt említjük őket."
       },
       "howWeUse": {
-        "title": "Hogyan használjuk a sütiket",
-        "text": "Csak azokat a sütiket használjuk, amelyek elengedhetetlenek az alkalmazás működéséhez, például a hitelesítéshez és biztonsághoz (Supabase), valamint a technikai teljesítmény méréséhez (Vercel). Ezek a sütik nem azonosítják Önt személyesen, és a munkamenet végeztével automatikusan törlődnek."
+        "title": "Hogyan használjuk a sütiket és a helyi tárolót",
+        "text": "Kis számú, feltétlenül szükséges elemet használunk, hogy bejelentkezve tartsuk, megjegyezzük a nyelvi beállítását, valamint magát a sütikkel kapcsolatos választását, valamint egy opcionális, hozzájáruláshoz kötött elemet, amely segít megérteni, hogyan mozognak a látogatók marketingoldalainkon. A szintén használt Vercel Analytics és Speed Insights sütik és személyes azonosítók nélkül működnek."
       },
       "types": {
-        "title": "A használt sütik típusai",
+        "title": "Az általunk használt süti- és tárolástípusok",
         "items": {
-          "necessary": "Szükséges sütik – az alkalmazás alapvető működéséhez (bejelentkezés, munkamenet-kezelés, biztonság) szükségesek.",
-          "analytics": "Analitikai sütik – a technikai teljesítmény és hibák figyelésére szolgálnak a Vercel Analytics segítségével. Ezek nem tartalmaznak személyes azonosítót.",
-          "functional": "Funkcionális sütik – ideiglenesen megőrzik a demó nyelvi beállításait és a hozzájárulási döntéseket."
+          "necessary": "Szükséges — egy bejelentkezési/munkamenet-süti (Supabase-en keresztül), amely bejelentkezve tartja, valamint a sütikkel kapcsolatos saját választásának nyilvántartása. Ezek nem tilthatók le anélkül, hogy alapvető funkciók, például a bejelentkezés, meghibásodjanak.",
+          "functional": "Funkcionális — egy süti, amely megjegyzi a kiválasztott nyelvet (angol, francia vagy magyar) látogatásról látogatásra.",
+          "analytics": "Analízis, kizárólag hozzájárulás esetén — egy anónim azonosító, amelyet a böngészőjében tárolunk, kizárólag annak megértésére, hogyan jutnak el a látogatók marketingoldalainkról a regisztrációig. Csak akkor jön létre, ha az „Elfogadom” gombra kattint a süti-banneren, és elutasítás esetén semmi nem kerül tárolásra."
+        }
+      },
+      "specificStorage": {
+        "title": "Amit ténylegesen tárolunk",
+        "columns": {
+          "name": "Név",
+          "type": "Típus",
+          "purpose": "Cél",
+          "duration": "Időtartam",
+          "consent": "Hozzájárulás szükséges?"
+        },
+        "items": {
+          "session": {
+            "name": "Supabase hitelesítési munkamenet",
+            "type": "Süti",
+            "purpose": "Bejelentkezve tartja fiókjába",
+            "duration": "Munkamenet, kijelentkezésig",
+            "consent": "Nem — feltétlenül szükséges"
+          },
+          "locale": {
+            "name": "NEXT_LOCALE",
+            "type": "Süti",
+            "purpose": "Megjegyzi a kiválasztott nyelvet",
+            "duration": "1 év",
+            "consent": "Nem — funkcionális"
+          },
+          "consentChoice": {
+            "name": "cookieConsent",
+            "type": "Helyi tároló",
+            "purpose": "Megjegyzi, hogy elfogadta vagy elutasította-e az opcionális analízist",
+            "duration": "Törlésig",
+            "consent": "Nem — saját választásának tiszteletben tartásához szükséges"
+          },
+          "funnelId": {
+            "name": "hrinno_funnel_sid",
+            "type": "Helyi tároló",
+            "purpose": "Anónim azonosító, amely összeköti látogatása lépéseit (pl. árak megtekintése, majd regisztráció)",
+            "duration": "Törlésig",
+            "consent": "Igen — csak elfogadás után jön létre"
+          },
+          "vercel": {
+            "name": "Vercel Analytics / Speed Insights",
+            "type": "Nincs (sütimentes)",
+            "purpose": "Aggregált, anonimizált oldalteljesítmény- és használati statisztikák",
+            "duration": "Nem értelmezhető",
+            "consent": "Nem értelmezhető — nem használ sütit vagy eszközazonosítót"
+          }
         }
       },
       "manage": {
-        "title": "Sütik kezelése",
-        "text": "A sütiket a böngésző beállításaiban kezelheti vagy törölheti. Mivel ez egy demó környezet, a sütik letiltása bizonyos funkciók (például a bejelentkezés vagy a nyelvi beállítások) működését korlátozhatja."
+        "title": "Saját választása kezelése",
+        "text": "Bármikor elfogadhatja vagy elutasíthatja az opcionális analízist a süti-banneren keresztül, és meggondolhatja magát a böngésző helyi tárolójának törlésével. A feltétlenül szükséges elemek — bejelentkezés, nyelv, valamint saját hozzájárulási nyilvántartása — nem tilthatók le anélkül, hogy alapvető funkciók, például a bejelentkezés megőrzése, meghibásodjanak."
       },
       "moreInfo": {
         "title": "További információ",
-        "text": "Ha kérdése van ezzel a süti tájékoztatóval kapcsolatban, kérjük, vegye fel velünk a kapcsolatot a következő címen:"
+        "text": "Ha bármilyen kérdése van ezzel a sütikezelési tájékoztatóval kapcsolatban, kérjük, vegye fel velünk a kapcsolatot a "
       }
-    },
-    "lastUpdated": "Utolsó frissítés: 2025. november"
+    }
   },
   "resetPage": {
     "title": "Jelszó visszaállítása",
@@ -2481,7 +2601,7 @@
       "startRecording": "Válasz hanggal",
       "stopRecording": "Felvétel leállítása",
       "voiceUnsupportedTitle": "Hangbevitel nem elérhető",
-"voiceUnsupportedText": "A böngésződ nem támogatja a hangbevitelt. Használd a Chrome-ot vagy az Edge-et ehhez a funkcióhoz, vagy írd be a választ az alábbi mezőbe."
+      "voiceUnsupportedText": "A böngésződ nem támogatja a hangbevitelt. Használd a Chrome-ot vagy az Edge-et ehhez a funkcióhoz, vagy írd be a választ az alábbi mezőbe."
     },
     "coaching": {
       "overallScore": "Összesített Interjú Pontszám",

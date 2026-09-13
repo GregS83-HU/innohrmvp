@@ -1,14 +1,14 @@
 ---
 title: "Medical Certificates"
 order: 4
-summary: "Uploading certificates, the AI-consent requirement, and how viewing/downloading works."
+summary: "Uploading certificates and entering their details, and how viewing/downloading works."
 ---
 
 ## Uploading a certificate
 
-From the medical certificate upload screen, choose a file (PDF or image, up to 1MB) and check the **AI-processing consent** box — this is required before the Upload button becomes active, since the certificate's text is read using AI-assisted OCR (optical character recognition) to pull out details automatically.
+From the medical certificate upload screen, choose a file (PDF or image, up to 1MB), then manually enter the employee's name and the certificate's start/end dates. No AI or OCR service reads the document — the certificate is stored as-is, and its key details are typed in by whoever uploads it.
 
-After upload, the system extracts fields like the employee's name and the certificate's start/end dates. Any field the AI couldn't confidently read is left as an editable box for you to fill in by hand. You can add a comment, then confirm or cancel before it's saved.
+You can add a comment, then confirm to save it (or cancel to discard it).
 
 ## Viewing and downloading certificates
 
@@ -32,4 +32,4 @@ If you reach your plan's monthly limit, you'll see a message when trying to uplo
 
 ## Availability for new (self-serve) companies
 
-Unlike job postings, uploading a medical certificate is currently held behind the same onboarding-completion checkpoint as time & attendance, absences, performance, and the wellbeing chatbot (see Getting Started) — on any plan, including paid ones. This one is temporary and different in kind from the other four: it's a safeguard while retention periods and third-party AI/OCR provider terms for this health data are still under legal review, not a training gate. If you try to upload before your company's onboarding call is complete, you'll see a message explaining this, with a link to get in touch.
+Uploading a medical certificate is currently held behind the same onboarding-completion checkpoint as time & attendance, absences, performance, and the wellbeing chatbot (see Getting Started) — on any plan, including paid ones. If you try to upload before your company's onboarding call is complete, you'll see a message explaining this, with a link to get in touch.
