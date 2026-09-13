@@ -2361,7 +2361,7 @@
   "impressumDemo": {
     "title": "Legal Notice (Impressum)",
     "lastUpdated": "Last updated: 13 September 2026",
-    "intro": "This legal notice is provided in accordance with Hungarian and EU law, including Section 4 of Hungarian Act CVIII of 2001 on certain aspects of electronic commerce services. Fields marked as to be completed have not yet been confirmed and must be filled in with accurate registration details before this notice can be considered complete.",
+    "intro": "This legal notice is provided in accordance with Hungarian and EU law, including Section 4 of Hungarian Act CVIII of 2001 on certain aspects of electronic commerce services. HRInno is currently operated by a private individual who has not yet registered a business entity (sole trader or company); the fields below reflect that current status and should be updated if and when a business entity is registered.",
     "fields": {
       "operator": "Service Provider",
       "legalForm": "Legal Form",
@@ -2373,10 +2373,10 @@
       "hosting": "Hosting Provider"
     },
     "values": {
-      "legalForm": "[TO BE COMPLETED — confirm registered legal form, e.g. sole trader (egyéni vállalkozó) or registered company]",
-      "registrationNumber": "[TO BE COMPLETED — company or sole-trader registration number]",
-      "taxNumber": "[TO BE COMPLETED — tax number / adószám]",
-      "address": "[TO BE COMPLETED — full registered address, including postal code and street]"
+      "legalForm": "Private individual — no registered business entity (sole trader or company) at this time",
+      "registrationNumber": "Not applicable — no business registration exists yet",
+      "taxNumber": "Not applicable — no business tax number exists yet",
+      "address": "1031 Budapest, Csikovar utca 1, Hungary"
     },
     "sections": {
       "liability": {

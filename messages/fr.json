@@ -2671,7 +2671,7 @@
   "impressumDemo": {
     "title": "Mentions légales (Impressum)",
     "lastUpdated": "Dernière mise à jour : 13 septembre 2026",
-    "intro": "Ces mentions légales sont fournies conformément au droit hongrois et européen, notamment à l'article 4 de la loi hongroise CVIII de 2001 relative à certains aspects des services de commerce électronique. Les champs indiqués comme à compléter n'ont pas encore été confirmés et doivent être renseignés avec des informations d'immatriculation exactes avant que ces mentions puissent être considérées comme complètes.",
+    "intro": "Ces mentions légales sont fournies conformément au droit hongrois et européen, notamment à l'article 4 de la loi hongroise CVIII de 2001 relative à certains aspects des services de commerce électronique. HRInno est actuellement exploité par un particulier n'ayant pas encore immatriculé d'entité commerciale (entrepreneur individuel ou société) ; les champs ci-dessous reflètent cet état actuel et devront être mis à jour si une entité commerciale est immatriculée.",
     "fields": {
       "operator": "Prestataire de service",
       "legalForm": "Forme juridique",
@@ -2683,10 +2683,10 @@
       "hosting": "Hébergeur"
     },
     "values": {
-      "legalForm": "[À COMPLÉTER — confirmer la forme juridique enregistrée, par ex. entrepreneur individuel (egyéni vállalkozó) ou société immatriculée]",
-      "registrationNumber": "[À COMPLÉTER — numéro d'immatriculation de la société ou de l'entrepreneur individuel]",
-      "taxNumber": "[À COMPLÉTER — numéro fiscal / adószám]",
-      "address": "[À COMPLÉTER — adresse enregistrée complète, avec code postal et rue]"
+      "legalForm": "Particulier — aucune entité commerciale enregistrée (entrepreneur individuel ou société) à ce jour",
+      "registrationNumber": "Non applicable — aucune immatriculation d'entreprise n'existe encore",
+      "taxNumber": "Non applicable — aucun numéro fiscal professionnel n'existe encore",
+      "address": "1031 Budapest, Csikovar utca 1, Hongrie"
     },
     "sections": {
       "liability": {

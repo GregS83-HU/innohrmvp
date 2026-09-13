@@ -2363,7 +2363,7 @@
   "impressumDemo": {
     "title": "Jogi közlemény (Impresszum)",
     "lastUpdated": "Utoljára frissítve: 2026. szeptember 13.",
-    "intro": "Ez a jogi közlemény a magyar és európai uniós joggal, különösen az elektronikus kereskedelmi szolgáltatások egyes kérdéseiről szóló 2001. évi CVIII. törvény 4. §-ával összhangban került közzétételre. A kiegészítendőként jelölt mezők még nincsenek megerősítve, és pontos cégjegyzék-/nyilvántartási adatokkal kell kitölteni őket, mielőtt ez a közlemény teljesnek tekinthető.",
+    "intro": "Ez a jogi közlemény a magyar és európai uniós joggal, különösen az elektronikus kereskedelmi szolgáltatások egyes kérdéseiről szóló 2001. évi CVIII. törvény 4. §-ával összhangban került közzétételre. A HRInno-t jelenleg egy magánszemély üzemelteti, aki még nem jegyeztetett be vállalkozási formát (egyéni vállalkozó vagy társaság); az alábbi mezők ezt a jelenlegi állapotot tükrözik, és frissítendők, amint vállalkozási forma bejegyzésre kerül.",
     "fields": {
       "operator": "Szolgáltató",
       "legalForm": "Jogi forma",
@@ -2375,10 +2375,10 @@
       "hosting": "Tárhelyszolgáltató"
     },
     "values": {
-      "legalForm": "[KIEGÉSZÍTENDŐ — a bejegyzett jogi forma megerősítése, pl. egyéni vállalkozó vagy bejegyzett társaság]",
-      "registrationNumber": "[KIEGÉSZÍTENDŐ — cégjegyzékszám vagy egyéni vállalkozói nyilvántartási szám]",
-      "taxNumber": "[KIEGÉSZÍTENDŐ — adószám]",
-      "address": "[KIEGÉSZÍTENDŐ — teljes bejegyzett cím, irányítószámmal és utcával]"
+      "legalForm": "Magánszemély — jelenleg nincs bejegyzett vállalkozási forma (egyéni vállalkozó vagy társaság)",
+      "registrationNumber": "Nem alkalmazható — még nincs vállalkozói nyilvántartási szám",
+      "taxNumber": "Nem alkalmazható — még nincs vállalkozói adószám",
+      "address": "1031 Budapest, Csikovar utca 1."
     },
     "sections": {
       "liability": {
