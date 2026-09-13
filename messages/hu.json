@@ -1357,6 +1357,7 @@
     "messages": {
       "createError": "Hiba történt a cél létrehozásakor",
       "createSuccess": "A cél létrehozva és elküldve a vezető jóváhagyására!",
+      "noSession": "Kérjük, jelentkezzen be egy cél létrehozásához.",
       "error": "Hiba: {{message}}"
     }
   },
@@ -2046,6 +2047,7 @@
       "loadInitialData": "Nem sikerült betölteni a kezdeti adatokat",
       "fileTooLarge": "A(z) „{{fileName}}” fájl túl nagy. A maximális méret 5 MB.",
       "userNotLoaded": "A felhasználó nem lett betöltve",
+      "noSession": "Kérjük, jelentkezzen be egy jegy létrehozásához.",
       "createTicket": "Nem sikerült létrehozni a jegyet"
     },
     "notifications": {

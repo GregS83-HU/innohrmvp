@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { hasFeatureAccess, entitlementErrorBody, resolveCompanyIdForUser } from '../../../../../../lib/entitlements'
+import { requireSelfOrManagerOf } from '../../../../../../lib/authz'
 import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
 export async function POST(request: Request) {
@@ -19,6 +20,14 @@ export async function POST(request: Request) {
     }
     if (!['green', 'yellow', 'red'].includes(status)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
+    }
+
+    // Caller must be the employee, that employee's manager, or a company
+    // admin - previously anyone could submit a pulse update "as" any
+    // employee_id.
+    const authCheck = await requireSelfOrManagerOf(request, employee_id)
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status })
     }
 
     const companyId = await resolveCompanyIdForUser(employee_id)

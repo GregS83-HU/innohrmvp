@@ -96,6 +96,13 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  const getAuthHeaders = async (): Promise<Record<string, string>> => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    return session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {};
+  };
+
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -113,7 +120,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
   const fetchClockStatus = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`/api/timeclock?userId=${userId}&action=status`);
+      const res = await fetch(`/api/timeclock?userId=${userId}&action=status`, { headers: await getAuthHeaders() });
       const data: ClockStatusResponse = await res.json();
       if (data.success) {
         setClockedIn(data.clockedIn);
@@ -130,7 +137,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
 
   const fetchHistory = async () => {
     try {
-      const res = await fetch(`/api/timeclock?userId=${userId}&action=history`);
+      const res = await fetch(`/api/timeclock?userId=${userId}&action=history`, { headers: await getAuthHeaders() });
       const data: HistoryResponse = await res.json();
       if (data.success) setTimeEntries(data.entries);
     } catch {
@@ -140,7 +147,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
 
   const fetchWeeklySummary = async () => {
     try {
-      const res = await fetch(`/api/timeclock?userId=${userId}&action=summary`);
+      const res = await fetch(`/api/timeclock?userId=${userId}&action=summary`, { headers: await getAuthHeaders() });
       const data: SummaryResponse = await res.json();
       if (data.success) setWeeklySummary(data.summary);
     } catch (err) {
@@ -153,7 +160,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
       setActionLoading(true);
       const res = await fetch('/api/timeclock', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
         body: JSON.stringify({ userId, action: 'clock_in' }),
       });
       const data: ActionResponse = await res.json();
@@ -177,7 +184,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
       setActionLoading(true);
       const res = await fetch('/api/timeclock', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
         body: JSON.stringify({ userId, action: 'clock_out' }),
       });
       const data: ActionResponse = await res.json();

@@ -10,6 +10,7 @@ import {
   Bot,
   ChevronRight,
   Mic,
+  Square,
   PenLine,
 } from 'lucide-react'
 import { useLocale } from 'i18n/LocaleProvider'
@@ -41,7 +42,7 @@ export default function InterviewChat({
   language,
   candidateFirstName,
 }: InterviewChatProps) {
-  const { t } = useLocale()
+  const { t, locale } = useLocale()
 
   const [started, setStarted] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
@@ -58,8 +59,78 @@ export default function InterviewChat({
   const [showCustomInput, setShowCustomInput] = useState(false)
   const [customInput, setCustomInput] = useState('')
 
+  // Voice input state — same Web Speech API approach as the public Job Assistant's
+  // mock interview, so candidates get the same voice-answer experience here.
+  const [isRecording, setIsRecording] = useState(false)
+  interface SpeechRecognitionInstance {
+    continuous: boolean
+    interimResults: boolean
+    lang: string
+    start: () => void
+    stop: () => void
+    onstart: (() => void) | null
+    onend: (() => void) | null
+    onerror: (() => void) | null
+    onresult: ((event: { resultIndex: number; results: { isFinal: boolean; 0: { transcript: string } }[] }) => void) | null
+  }
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null)
+  const isSpeechSupported = typeof window !== 'undefined' &&
+    ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const customInputRef = useRef<HTMLTextAreaElement>(null)
+
+  const handleToggleRecording = useCallback(() => {
+    if (isRecording) {
+      recognitionRef.current?.stop()
+      return
+    }
+
+    type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance
+    const w = window as Window & { SpeechRecognition?: SpeechRecognitionConstructor; webkitSpeechRecognition?: SpeechRecognitionConstructor }
+    const SpeechRecognitionAPI = w.SpeechRecognition || w.webkitSpeechRecognition
+
+    if (!SpeechRecognitionAPI) return
+
+    const recognition = new SpeechRecognitionAPI()
+    recognition.continuous = true
+    recognition.interimResults = true
+    recognition.lang = locale === 'hu' ? 'hu-HU' : locale === 'fr' ? 'fr-FR' : 'en-US'
+
+    let baseText = customInput
+
+    recognition.onstart = () => setIsRecording(true)
+
+    recognition.onresult = (event: { resultIndex: number; results: { isFinal: boolean; 0: { transcript: string } }[] }) => {
+      let interim = ''
+      let final = ''
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript
+        if (event.results[i].isFinal) {
+          final += transcript
+        } else {
+          interim += transcript
+        }
+      }
+      if (final) {
+        baseText = (baseText ? baseText + ' ' : '') + final.trim()
+      }
+      setCustomInput(baseText + (interim ? (baseText ? ' ' : '') + interim : ''))
+    }
+
+    recognition.onend = () => {
+      setIsRecording(false)
+      recognitionRef.current = null
+    }
+
+    recognition.onerror = () => {
+      setIsRecording(false)
+      recognitionRef.current = null
+    }
+
+    recognitionRef.current = recognition
+    recognition.start()
+  }, [isRecording, customInput, locale])
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -72,13 +143,21 @@ export default function InterviewChat({
   useEffect(() => {
     if (showCustomInput) {
       setTimeout(() => customInputRef.current?.focus(), 100)
+    } else {
+      recognitionRef.current?.stop()
     }
   }, [showCustomInput])
+
+  // Stop any in-progress recording if the component unmounts mid-interview
+  useEffect(() => {
+    return () => recognitionRef.current?.stop()
+  }, [])
 
   // ─── Send an answer (suggestion or custom) ──────────────────────────────────
   const sendAnswer = useCallback(async (answer: string) => {
     if (!answer.trim() || isSending || isLoadingQuestion || interviewDone) return
 
+    recognitionRef.current?.stop()
     setIsSending(true)
     setCurrentSuggestions([])
     setShowCustomInput(false)
@@ -470,20 +549,57 @@ export default function InterviewChat({
                 </button>
               </div>
 
-              <div className="flex gap-2 items-end">
+              {!isSpeechSupported && (
+                <div className="flex items-start gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-xs text-amber-700">
+                    {t('jobAssistant.interview.voiceUnsupportedText') || "Your browser doesn't support voice input. Please use Chrome or Edge to use this feature, or type your answer below."}
+                  </p>
+                </div>
+              )}
+
+              <div className="relative">
                 <textarea
                   ref={customInputRef}
                   value={customInput}
                   onChange={e => setCustomInput(e.target.value)}
                   onKeyDown={handleCustomKeyDown}
-                  placeholder={t('interview.chat.inputPlaceholder') || 'Type your answer... (Enter to send, Shift+Enter for new line)'}
+                  placeholder={isRecording
+                    ? (t('jobAssistant.interview.recordingPlaceholder') || 'Listening... speak your answer')
+                    : (t('interview.chat.inputPlaceholder') || 'Type your answer... (Enter to send, Shift+Enter for new line)')}
                   disabled={isSending}
                   rows={3}
-                  className="flex-1 resize-none rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-400"
+                  className={`w-full resize-none rounded-xl border px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-400 ${
+                    isRecording ? 'border-red-300 focus:ring-red-300 bg-red-50/30' : 'border-gray-200 focus:ring-violet-400'
+                  }`}
                 />
+                {isRecording && (
+                  <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1.5 bg-red-50 border border-red-200 rounded-lg px-2 py-1">
+                    <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                    <span className="text-xs text-red-600 font-medium">{t('jobAssistant.interview.recording') || 'Listening...'}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-2 items-end">
+                {isSpeechSupported && (
+                  <button
+                    onClick={handleToggleRecording}
+                    disabled={isSending}
+                    title={isRecording
+                      ? (t('jobAssistant.interview.stopRecording') || 'Stop recording')
+                      : (t('jobAssistant.interview.startRecording') || 'Answer by voice')}
+                    className={`w-10 h-10 flex-shrink-0 rounded-xl flex items-center justify-center transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+                      isRecording
+                        ? 'bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-200'
+                        : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+                    }`}
+                  >
+                    {isRecording ? <Square className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                  </button>
+                )}
                 <button
                   onClick={() => sendAnswer(customInput)}
-                  disabled={!customInput.trim() || isSending}
+                  disabled={!customInput.trim() || isSending || isRecording}
                   className="w-10 h-10 flex-shrink-0 rounded-xl bg-gradient-to-br from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 flex items-center justify-center transition-all shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed transform enabled:hover:scale-105"
                 >
                   {isSending

@@ -3,6 +3,7 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { hasFeatureAccess, entitlementErrorBody } from '../../../../../../lib/entitlements'
+import { requireSelfOrManagerOf } from '../../../../../../lib/authz'
 import { safeErrorInfo } from '../../../../../../lib/logSafe'
 
 export async function POST(request: Request) {
@@ -20,6 +21,13 @@ export async function POST(request: Request) {
 
     if (!employee_id || !goal_title || !created_by) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    // Caller must be the employee, that employee's manager, or a company
+    // admin - previously anyone could create a goal "for" any employee_id.
+    const authCheck = await requireSelfOrManagerOf(request, employee_id)
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status })
     }
 
     // Use service role client (like your openedpositions route)

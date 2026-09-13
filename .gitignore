@@ -46,3 +46,6 @@ node_modules/
 
 #test ParsePDF fixture data (kept out of git; large/binary, not needed to run the suite)
 test/data/
+
+# Claude Code local settings (machine-specific permissions, may contain local secrets)
+.claude/settings.local.json

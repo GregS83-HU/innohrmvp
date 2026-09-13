@@ -5,7 +5,23 @@ const ROUTE_PATH = '../../../src/app/api/tickets/upload/route';
 
 const OWNER_USER_ID = 'owner-uuid';
 const COWORKER_USER_ID = 'coworker-uuid';
+const ADMIN_USER_ID = 'admin-uuid';
+const OTHER_COMPANY_ADMIN_ID = 'other-company-admin-uuid';
 const STRANGER_USER_ID = 'stranger-uuid';
+
+const TICKET_COMPANY_ID = 100;
+const OTHER_COMPANY_ID = 200;
+
+const USER_COMPANY: Record<string, number> = {
+  [OWNER_USER_ID]: TICKET_COMPANY_ID,
+  [COWORKER_USER_ID]: TICKET_COMPANY_ID,
+  [ADMIN_USER_ID]: TICKET_COMPANY_ID,
+  [OTHER_COMPANY_ADMIN_ID]: OTHER_COMPANY_ID,
+};
+const IS_ADMIN: Record<string, boolean> = {
+  [ADMIN_USER_ID]: true,
+  [OTHER_COMPANY_ADMIN_ID]: true,
+};
 
 async function loadRoute() {
   vi.resetModules();
@@ -13,18 +29,22 @@ async function loadRoute() {
     auth: (token: string) => {
       if (token === 'owner-token') return { data: { user: { id: OWNER_USER_ID } }, error: null };
       if (token === 'coworker-token') return { data: { user: { id: COWORKER_USER_ID } }, error: null };
+      if (token === 'admin-token') return { data: { user: { id: ADMIN_USER_ID } }, error: null };
+      if (token === 'other-company-admin-token') return { data: { user: { id: OTHER_COMPANY_ADMIN_ID } }, error: null };
       if (token === 'stranger-token') return { data: { user: { id: STRANGER_USER_ID } }, error: null };
       return { data: { user: null }, error: new Error('invalid token') };
     },
     tables: {
-      tickets: () => ({
-        data: {
-          id: 'ticket-1',
-          user_id: OWNER_USER_ID,
-          company: { company_to_users: [{ user_id: OWNER_USER_ID }, { user_id: COWORKER_USER_ID }] },
-        },
-        error: null,
-      }),
+      tickets: () => ({ data: { id: 'ticket-1', user_id: OWNER_USER_ID, company_id: TICKET_COMPANY_ID }, error: null }),
+      users: (state) => {
+        const id = state.filters['id'] as string;
+        return { data: { is_admin: !!IS_ADMIN[id], is_super_admin: false }, error: null };
+      },
+      company_to_users: (state) => {
+        const id = state.filters['user_id'] as string;
+        const companyId = USER_COMPANY[id];
+        return companyId !== undefined ? { data: { company_id: companyId }, error: null } : { data: null, error: new Error('not found') };
+      },
       ticket_attachments: (state) => ({
         data: { id: 'attach-1', ticket_id: 'ticket-1', file_name: 'f.txt', ...(state.payload as object) },
         error: null,
@@ -73,15 +93,30 @@ describe('POST /api/tickets/upload', () => {
     expect(res.status).toBe(403);
   });
 
+  it(
+    'rejects with 403 for a coworker in the same company who is not the owner or an admin (access scope tightened per explicit decision)',
+    async () => {
+      const { POST } = await loadRoute();
+      const res = await POST(req('coworker-token'));
+      expect(res.status).toBe(403);
+    }
+  );
+
+  it("rejects with 403 for an admin of a different company (cross-tenant attempt)", async () => {
+    const { POST } = await loadRoute();
+    const res = await POST(req('other-company-admin-token'));
+    expect(res.status).toBe(403);
+  });
+
   it('allows the ticket owner to upload', async () => {
     const { POST } = await loadRoute();
     const res = await POST(req('owner-token'));
     expect(res.status).toBe(200);
   });
 
-  it('allows a coworker in the same company (preserves the existing, over-broad access grant)', async () => {
+  it("allows an admin of the ticket's own company to upload", async () => {
     const { POST } = await loadRoute();
-    const res = await POST(req('coworker-token'));
+    const res = await POST(req('admin-token'));
     expect(res.status).toBe(200);
   });
 });

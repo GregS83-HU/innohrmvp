@@ -182,9 +182,21 @@ export default function CreateTicketPage() {
       // Create ticket via the server-side route, which enforces plan
       // entitlement before inserting (see api/tickets/create/route.ts) -
       // this can no longer be a direct client insert.
+      const {
+        data: { session: freshSession },
+      } = await supabase.auth.getSession();
+      if (!freshSession?.access_token) {
+        setError(t('createTicket.errors.noSession'));
+        setLoading(false);
+        return;
+      }
+
       const createResponse = await fetch('/api/tickets/create', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${freshSession.access_token}`,
+        },
         body: JSON.stringify({
           user_id: currentUser.id,
           title: formData.title,

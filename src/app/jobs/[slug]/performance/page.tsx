@@ -73,13 +73,15 @@ export default function PerformanceDashboard() {
   const fetchGoals = async () => {
     setLoading(true)
     try {
-      if (!session?.user?.id) {
+      if (!session?.user?.id || !session?.access_token) {
         console.error('No session found')
         setLoading(false)
         return
       }
-      
-      const res = await fetch(`/api/performance/goals?view=employee&user_id=${session.user.id}`)
+
+      const res = await fetch(`/api/performance/goals?view=employee&user_id=${session.user.id}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
       const data = await res.json()
       if (res.ok) {
         setGoals(data.goals || [])

@@ -1355,6 +1355,7 @@
     "messages": {
       "createError": "Error creating goal",
       "createSuccess": "Goal created and sent for manager approval!",
+      "noSession": "Please sign in to create a goal.",
       "error": "Error: {{message}}"
     }
   },
@@ -2044,6 +2045,7 @@
       "loadInitialData": "Failed to load initial data",
       "fileTooLarge": "File \"{{fileName}}\" is too large. Maximum size is 5MB.",
       "userNotLoaded": "User not loaded",
+      "noSession": "Please sign in to create a ticket.",
       "createTicket": "Failed to create ticket"
     },
     "notifications": {

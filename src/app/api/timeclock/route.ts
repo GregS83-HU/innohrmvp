@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { hasFeatureAccess, entitlementErrorBody } from '../../../../lib/entitlements';
+import { requireSelf } from '../../../../lib/authz';
 import { safeErrorInfo } from '../../../../lib/logSafe';
 
 // -------------------
@@ -164,6 +165,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User ID required' }, { status: 400 });
     }
 
+    // This is the general (self-service) time-clock route - a dedicated
+    // manager route (timeclock/manager) already exists for viewing a
+    // team's data, so this one is deliberately self-only, not
+    // self-or-manager.
+    const authCheck = await requireSelf(request, userId);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+    }
+
     if (action === 'status') {
       const todayEntry = await getTodayTimeEntry(userId);
       const shift = await getUserActiveShift(userId);
@@ -250,6 +260,12 @@ export async function POST(request: NextRequest) {
         { error: 'userId and action are required' },
         { status: 400 }
       );
+    }
+
+    // Self-only, same as GET above.
+    const authCheck = await requireSelf(request, userId);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }
 
     const companyId = await getUserCompany(userId);

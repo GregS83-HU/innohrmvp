@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { hasFeatureAccess, entitlementErrorBody, resolveCompanyIdForUser } from '../../../../../../lib/entitlements';
-import { ownerOrManagerRowFilter } from '../../../../../../lib/authz';
+import { ownerOrManagerRowFilter, requireSelfOrManagerOf, requireSelf } from '../../../../../../lib/authz';
 
 interface GoalUpdatePayload {
   updated_at: string;
@@ -24,6 +24,14 @@ export async function PATCH(request: Request) {
 
     if (!user_id) {
       return NextResponse.json({ error: 'User ID required' }, { status: 400 });
+    }
+
+    // Caller must be the goal's employee, that employee's manager, or a
+    // company admin - matches the existing employee-or-manager DB filter
+    // below, which previously trusted user_id with no identity check.
+    const authCheck = await requireSelfOrManagerOf(request, user_id);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }
 
     const companyId = await resolveCompanyIdForUser(user_id);
@@ -102,6 +110,13 @@ export async function DELETE(request: Request) {
 
     if (!user_id) {
       return NextResponse.json({ error: 'User ID required' }, { status: 400 });
+    }
+
+    // Self-only, matching the existing rule below: "Only employee can
+    // delete their own draft goals" - no manager fallback for delete.
+    const authCheck = await requireSelf(request, user_id);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }
 
     const companyId = await resolveCompanyIdForUser(user_id);

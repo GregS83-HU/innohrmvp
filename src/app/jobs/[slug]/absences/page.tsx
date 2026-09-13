@@ -292,9 +292,19 @@ const AbsenceManagement: React.FC = () => {
       // Goes through a server route (not a direct client insert) so plan
       // gating (absences.use) is actually enforced - see
       // src/app/api/leave-requests/create/route.ts and MODULE_GATING_FIX.md.
+      const {
+        data: { session: freshSession },
+      } = await supabase.auth.getSession();
+      if (!freshSession?.access_token) {
+        throw new Error(t('absenceManagement.messages.unexpectedError'));
+      }
+
       const res = await fetch('/api/leave-requests/create', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${freshSession.access_token}`,
+        },
         body: JSON.stringify(insertData),
       });
 

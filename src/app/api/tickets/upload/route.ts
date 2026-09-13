@@ -1,25 +1,13 @@
 // app/api/tickets/upload/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { requireAuthenticatedUser } from '../../../../../lib/authz';
+import { requireAuthenticatedUser, requireCompanyAdmin } from '../../../../../lib/authz';
 import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
-
-interface CompanyUser {
-  user_id: string;
-}
-
-interface Ticket {
-  id: string;
-  user_id: string;
-  company: {
-    company_to_users: CompanyUser[];
-  };
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,15 +32,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'File too large. Maximum size is 5MB.' }, { status: 400 });
     }
 
-    // Verify user has access to this ticket
+    // Verify the ticket exists and get its owner + company
     const { data: ticket, error: ticketError } = await supabase
       .from('tickets')
-      .select(`
-        *,
-        company:company_id(
-          company_to_users(user_id)
-        )
-      `)
+      .select('id, user_id, company_id')
       .eq('id', ticketId)
       .single();
 
@@ -60,10 +43,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
     }
 
-    // Check if user has access to this ticket
-    const hasAccess = ticket.user_id === user.id || 
-    ticket.company.company_to_users.some((cu: CompanyUser) => cu.user_id === user.id);
-
+    // Restricted to the ticket's own creator or an admin of the ticket's
+    // company - previously any coworker in the same company could act on
+    // any ticket, regardless of role, which could expose potentially
+    // sensitive ticket content company-wide.
+    let hasAccess = ticket.user_id === user.id;
+    if (!hasAccess) {
+      const adminCheck = await requireCompanyAdmin(req);
+      hasAccess = adminCheck.authorized && adminCheck.companyId === ticket.company_id;
+    }
 
     if (!hasAccess) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });

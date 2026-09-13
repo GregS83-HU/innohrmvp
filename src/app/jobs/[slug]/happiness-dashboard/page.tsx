@@ -10,7 +10,6 @@ import {
   BarChart3, 
   AlertTriangle,
   Calendar,
-  Download,
   RefreshCw,
   ChevronDown,
   Smile,
@@ -458,7 +457,7 @@ const HRDashboard = () => {
         </div>
 
         {/* Footer */}
-        <div className="mt-8 bg-gray-100 rounded-xl p-6 flex items-center justify-between">
+        <div className="mt-8 bg-gray-100 rounded-xl p-6">
           <div>
             <p className="text-sm text-gray-600">
               <strong>{t('dashboard.footer.privacy')}:</strong> {t('dashboard.footer.privacyText')}
@@ -468,13 +467,6 @@ const HRDashboard = () => {
               <p className="text-xs text-blue-600 mt-1">{t('dashboard.footer.filteredFor')}: {data.companyName}</p>
             )}
           </div>
-          <button
-            onClick={()=>alert(t('dashboard.footer.exportTodo'))}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-          >
-            <Download className="w-4 h-4"/>
-            {t('dashboard.footer.export')}
-          </button>
         </div>
       </div>
     </div>

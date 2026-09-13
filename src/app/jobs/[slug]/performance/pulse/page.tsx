@@ -61,7 +61,14 @@ export default function WeeklyPulsePage() {
       const { data: week } = await supabase.rpc('get_week_start')
       setWeekStart((week as string) || '')
 
-      const res = await fetch(`/api/performance/goals?view=employee&user_id=${userId}`)
+      if (!session?.access_token) {
+        setLoading(false)
+        return
+      }
+
+      const res = await fetch(`/api/performance/goals?view=employee&user_id=${userId}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
       const data: ApiGoalsResponse = await res.json()
       
       if (res.ok) {
@@ -102,7 +109,7 @@ export default function WeeklyPulsePage() {
     setMessage(null)
 
     try {
-      if (!session?.user?.id) {
+      if (!session?.user?.id || !session?.access_token) {
         setMessage({ text: t('weeklyPulsePage.messages.noSession'), type: 'error' })
         return
       }
@@ -110,7 +117,10 @@ export default function WeeklyPulsePage() {
       const promises = goals.map(goal =>
         fetch('/api/performance/pulse/submit', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
           body: JSON.stringify({
             goal_id: goal.id,
             employee_id: session.user.id,

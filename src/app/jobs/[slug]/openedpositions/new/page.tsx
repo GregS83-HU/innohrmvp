@@ -299,12 +299,6 @@ export default function NewOpenedPositionPage() {
               </div>
               <h3 className="text-xl font-bold text-red-800 mb-2">{t('newPosition.limitReached.title')}</h3>
               <p className="text-red-700 mb-6">{t('newPosition.limitReached.message')}</p>
-              <button
-                className="bg-gradient-to-r from-red-600 to-rose-600 text-white py-3 px-8 rounded-lg font-medium hover:from-red-700 hover:to-rose-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
-                onClick={() => console.log('Redirect to upgrade page')}
-              >
-                {t('newPosition.limitReached.upgradeButton')}
-              </button>
             </div>
           </div>
         )}

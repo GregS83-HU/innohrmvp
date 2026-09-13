@@ -98,7 +98,7 @@ export default function GoalDetailPage() {
   }
 
   const handleApprove = async () => {
-    if (!session?.user?.id) {
+    if (!session?.user?.id || !session?.access_token) {
       setMessage({ text: t('goalDetailPage.messages.noSession'), type: 'error' })
       return
     }
@@ -106,7 +106,10 @@ export default function GoalDetailPage() {
     try {
       const res = await fetch('/api/performance/goals/update', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({
           goal_id: goalId,
           status: 'active',
@@ -131,14 +134,15 @@ export default function GoalDetailPage() {
       return
     }
 
-    if (!session?.user?.id) {
+    if (!session?.user?.id || !session?.access_token) {
       setMessage({ text: t('goalDetailPage.messages.noSession'), type: 'error' })
       return
     }
 
     try {
       const res = await fetch(`/api/performance/goals/update?goal_id=${goalId}&user_id=${session.user.id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${session.access_token}` },
       })
 
       if (res.ok) {

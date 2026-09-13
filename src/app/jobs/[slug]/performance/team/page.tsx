@@ -85,13 +85,15 @@ export default function ManagerDashboard() {
   const fetchTeamGoals = async () => {
     setLoading(true)
     try {
-      if (!session?.user?.id) {
+      if (!session?.user?.id || !session?.access_token) {
         console.error('No session found')
         setLoading(false)
         return
       }
-      
-      const res = await fetch(`/api/performance/goals?view=manager&user_id=${session.user.id}`)
+
+      const res = await fetch(`/api/performance/goals?view=manager&user_id=${session.user.id}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
       const data = await res.json()
       if (res.ok) {
         const teamGoals = data.goals || []
@@ -149,13 +151,18 @@ export default function ManagerDashboard() {
   }
 
   const handleApproveGoal = async (goalId: string) => {
+    if (!session?.user?.id || !session?.access_token) return
     try {
       const res = await fetch('/api/performance/goals/update', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({
           goal_id: goalId,
-          status: 'active'
+          status: 'active',
+          user_id: session.user.id
         })
       })
 

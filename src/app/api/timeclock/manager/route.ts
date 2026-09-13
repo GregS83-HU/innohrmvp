@@ -3,8 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { hasFeatureAccess, entitlementErrorBody, resolveCompanyIdForUser } from '../../../../../lib/entitlements';
-import { requireAuthenticatedUser, requireCompanyAdmin } from '../../../../../lib/authz';
-import type { AuthzResult } from '../../../../../lib/authz/types';
+import { requireSelfOrCompanyAdminOf } from '../../../../../lib/authz';
 import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase: SupabaseClient = createClient(
@@ -14,24 +13,10 @@ const supabase: SupabaseClient = createClient(
 
 // Verifies the caller is either the manager they claim to be, or an admin
 // of that manager's own company (for HR oversight of a team's timeclock
-// data). Previously neither GET nor POST verified the caller's identity
-// matched managerId at all - GET trusted it outright, and POST's
-// approve-entry only checked the target entry's owner was on the claimed
-// manager's team, never that the caller *was* that manager.
-async function verifyManagerAccess(request: Request, managerId: string): Promise<AuthzResult> {
-  const identity = await requireAuthenticatedUser(request);
-  if (!identity.authorized) return identity;
-  if (identity.userId === managerId) return identity;
-
-  const adminCheck = await requireCompanyAdmin(request);
-  if (!adminCheck.authorized) return { authorized: false, status: 403, error: 'Access denied' };
-
-  const managerCompanyId = await resolveCompanyIdForUser(managerId);
-  if (!managerCompanyId || managerCompanyId !== adminCheck.companyId) {
-    return { authorized: false, status: 403, error: 'Access denied' };
-  }
-  return adminCheck;
-}
+// data). Promoted to lib/authz's requireSelfOrCompanyAdminOf so the same
+// relationship check can be reused by the Medium/Low-severity fixes
+// elsewhere instead of being rewritten per route.
+const verifyManagerAccess = requireSelfOrCompanyAdminOf;
 
 // -------------------
 // TypeScript types

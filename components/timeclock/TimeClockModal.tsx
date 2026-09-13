@@ -1,5 +1,6 @@
 // TimeClockModal.tsx
 import { useState, useEffect, useCallback } from 'react';
+import { createClient } from '@supabase/supabase-js';
 import {
   Clock,
   X,
@@ -11,6 +12,18 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useLocale } from 'i18n/LocaleProvider';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+async function getAuthHeaders(): Promise<Record<string, string>> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  return session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {};
+}
 
 interface WeeklySummary {
   totalHours: number;
@@ -82,7 +95,7 @@ export default function TimeClockModal({
   const fetchClockStatus = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/timeclock?userId=${userId}&action=status`);
+      const response = await fetch(`/api/timeclock?userId=${userId}&action=status`, { headers: await getAuthHeaders() });
       const data: ClockStatusResponse = await response.json();
 
       if (data.success) {
@@ -101,7 +114,7 @@ export default function TimeClockModal({
   // Fetch weekly summary
   const fetchWeeklySummary = useCallback(async () => {
     try {
-      const response = await fetch(`/api/timeclock?userId=${userId}&action=summary`);
+      const response = await fetch(`/api/timeclock?userId=${userId}&action=summary`, { headers: await getAuthHeaders() });
       const data: WeeklySummaryResponse = await response.json();
 
       if (data.success) {
@@ -127,7 +140,7 @@ export default function TimeClockModal({
 
       const response = await fetch('/api/timeclock', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
         body: JSON.stringify({ userId, action: 'clock_in' })
       });
 
@@ -164,7 +177,7 @@ export default function TimeClockModal({
 
       const response = await fetch('/api/timeclock', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
         body: JSON.stringify({ userId, action: 'clock_out' })
       });
 

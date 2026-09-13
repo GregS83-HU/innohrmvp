@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { hasFeatureAccess, entitlementErrorBody, resolveCompanyIdForUser } from '../../../../../lib/entitlements';
+import { requireSelfOrManagerOf } from '../../../../../lib/authz';
 import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
@@ -29,6 +30,14 @@ export async function POST(request: NextRequest) {
 
     if (!user_id || !leave_type_id || !start_date || !end_date) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Caller must be the requester, that requester's manager, or a company
+    // admin - previously anyone could create a leave request "as" any
+    // user_id, assigned to any manager_id.
+    const authCheck = await requireSelfOrManagerOf(request, user_id);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }
 
     const companyId = await resolveCompanyIdForUser(user_id);

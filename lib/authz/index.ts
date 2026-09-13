@@ -2,6 +2,17 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import type { AuthzResult, SessionTokenResult } from './types';
 
+// lib/entitlements.ts constructs its own Supabase client eagerly at module
+// scope (unlike this file's lazy getSupabase()). Importing
+// resolveCompanyIdForUser statically at the top of this file would force
+// that eager construction on every consumer of lib/authz, not just the two
+// functions below that actually need it - so it's imported dynamically,
+// inside those functions only, instead.
+async function resolveCompanyIdForUser(userId: string): Promise<number | null> {
+  const entitlements = await import('../entitlements');
+  return entitlements.resolveCompanyIdForUser(userId);
+}
+
 // Lazily instantiated so shapes that don't need a Supabase client (e.g.
 // requireServiceSecret) don't pay for/depend on one at module-load time.
 let _supabase: SupabaseClient | null = null;
@@ -237,4 +248,80 @@ export async function requireCompanyMemberSession(
     return { authorized: false, status: 403, error: 'Access denied' };
   }
   return { authorized: true, userId: user.id, companyId: (membership as { company_id: number }).company_id };
+}
+
+/**
+ * Shape 7 (self only): caller must literally be the user they're claiming
+ * to act as. The most basic identity check, but a recurring gap across the
+ * Medium/Low audit — several routes take a "which user is this for" param
+ * from the request body/query and never verify the caller actually is that
+ * user.
+ */
+export async function requireSelf(request: Request, claimedUserId: string): Promise<AuthzResult> {
+  const identity = await requireAuthenticatedUser(request);
+  if (!identity.authorized) return identity;
+  if (identity.userId !== claimedUserId) {
+    return { authorized: false, status: 403, error: 'Access denied' };
+  }
+  return identity;
+}
+
+/**
+ * Shape 8 (self, or company admin of that person): caller is the named
+ * user themselves, or an admin of that user's own company (oversight).
+ * Originally built as a private, unexported verifyManagerAccess() inside
+ * timeclock/manager/route.ts to check "is the caller this specific
+ * manager, or an admin who may act on their behalf" — promoted here so the
+ * same relationship check isn't rewritten per route. Distinct from
+ * requireSelfOrManagerOf below: this checks "is the caller this person
+ * (or their company's admin)", not "is the caller this person's manager".
+ */
+export async function requireSelfOrCompanyAdminOf(request: Request, targetUserId: string): Promise<AuthzResult> {
+  const identity = await requireAuthenticatedUser(request);
+  if (!identity.authorized) return identity;
+  if (identity.userId === targetUserId) return identity;
+
+  const adminCheck = await requireCompanyAdmin(request);
+  if (!adminCheck.authorized) return { authorized: false, status: 403, error: 'Access denied' };
+
+  const targetCompanyId = await resolveCompanyIdForUser(targetUserId);
+  if (!targetCompanyId || targetCompanyId !== adminCheck.companyId) {
+    return { authorized: false, status: 403, error: 'Access denied' };
+  }
+  return adminCheck;
+}
+
+/**
+ * Shape 9 (self, the employee's real manager, or a company admin): caller
+ * is the named employee themselves, is that employee's manager of record
+ * (via user_profiles.manager_id — resolved server-side, never trusted from
+ * the request), or is an admin of the employee's own company. Covers the
+ * "employee acts for themselves, or their manager acts on their behalf"
+ * pattern used by performance goals, pulse updates, leave requests, and
+ * ticket creation.
+ */
+export async function requireSelfOrManagerOf(request: Request, employeeId: string): Promise<AuthzResult> {
+  const identity = await requireAuthenticatedUser(request);
+  if (!identity.authorized) return identity;
+  if (identity.userId === employeeId) return identity;
+
+  const supabase = getSupabase();
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('manager_id')
+    .eq('user_id', employeeId)
+    .single();
+
+  if (profile && (profile as { manager_id: string | null }).manager_id === identity.userId) {
+    return identity;
+  }
+
+  const adminCheck = await requireCompanyAdmin(request);
+  if (!adminCheck.authorized) return { authorized: false, status: 403, error: 'Access denied' };
+
+  const employeeCompanyId = await resolveCompanyIdForUser(employeeId);
+  if (!employeeCompanyId || employeeCompanyId !== adminCheck.companyId) {
+    return { authorized: false, status: 403, error: 'Access denied' };
+  }
+  return adminCheck;
 }

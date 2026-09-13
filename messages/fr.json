@@ -1357,6 +1357,7 @@
     "messages": {
       "createError": "Erreur lors de la création de l'objectif",
       "createSuccess": "Objectif créé et envoyé pour approbation du responsable !",
+      "noSession": "Veuillez vous connecter pour créer un objectif.",
       "error": "Erreur : {{message}}"
     }
   },
@@ -2354,6 +2355,7 @@
       "loadInitialData": "Échec du chargement des données initiales",
       "fileTooLarge": "Le fichier \"{{fileName}}\" est trop volumineux. La taille maximale est de 5 Mo.",
       "userNotLoaded": "Utilisateur non chargé",
+      "noSession": "Veuillez vous connecter pour créer un ticket.",
       "createTicket": "Échec de la création du ticket"
     },
     "notifications": {

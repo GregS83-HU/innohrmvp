@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { hasFeatureAccess, entitlementErrorBody, resolveCompanyIdForUser } from '../../../../../lib/entitlements';
+import { requireSelfOrManagerOf } from '../../../../../lib/authz';
 import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
@@ -29,6 +30,15 @@ export async function POST(request: NextRequest) {
 
     if (!user_id || !title || !description) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Caller must be the ticket's owner, that owner's manager, or a company
+    // admin - never an arbitrary user_id, which previously let anyone open
+    // a ticket "as" any user (including the impersonation risk of another
+    // person's name/email being attached to it below).
+    const authCheck = await requireSelfOrManagerOf(request, user_id);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }
 
     const companyId = await resolveCompanyIdForUser(user_id);

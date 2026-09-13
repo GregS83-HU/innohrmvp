@@ -24,7 +24,7 @@ HRInno
 
 ## Last Updated
 
-2026-08-25
+2026-09-12
 
 ## Status
 - Idea
@@ -34,11 +34,11 @@ HRInno
 - Production
 - Growth
 
-Assessment based on evidence in the codebase: multiple functional modules exist end-to-end, the most severe data-exposure gaps (medical certificates, CVs, candidate records) have since been closed, plan-based feature gating is real and substantial (job postings, medical certificates, the wellbeing chatbot, time & attendance/absences, performance management, and total employee seats all differ by plan — only support tickets don't), a real public homepage, pricing page, and minimal design system are in place, and a prospect can now sign up and reach a working dashboard entirely unassisted. The Payroll module, previously part of the platform, has been removed entirely as a business decision (see Section 19). Still consistent with an active MVP rather than a production-hardened product: no internal/developer documentation beyond this brief and the in-app user manual, ad hoc per-route admin checks instead of a centralized authorization layer, a newly-documented EU AI Act compliance gap on the candidate-scoring feature (Section 8), and known unresolved workarounds remain.
+Assessment based on evidence in the codebase: the product now covers a genuinely broad set of end-to-end HR workflows (recruitment/ATS with two distinct AI interview mechanisms, a standalone public candidate-coaching tool, time & attendance, absences, medical certificates, performance management, an AI employee-wellbeing chatbot, and support tickets), all six of the plan-gateable modules (job postings, medical certificates, the wellbeing chatbot, attendance/absences, performance management, and now support tickets) enforce real plan limits, a self-serve signup flow lets a prospect reach a working dashboard unassisted, and authorization has just undergone a substantial, centralized hardening pass (`lib/authz/`) closing 16 confirmed critical/high-severity access-control vulnerabilities. Still consistent with an active MVP rather than a production-hardened product: the four public legal pages are explicitly named "-demo" (placeholder legal content, not reviewed/finalized copy), several smaller features are visibly half-wired (a "limit reached" upgrade button that only logs to the console, ticket-notification emails that are mocked and never actually sent, a happiness-dashboard export button that just shows an alert), a documented EU AI Act compliance gap remains open on the candidate-scoring feature, and there is still no internal/developer documentation beyond this brief and the in-app user manual.
 
 ## Short Description
 
-HRInno is a multi-tenant HR platform that combines AI-assisted recruitment (job postings, AI-generated job descriptions, AI-driven first-round interviews with voice recognition) with core HR operations (time & attendance, absences, performance, medical certificates) and an AI employee-wellbeing chatbot — plus a free, public, candidate-facing tool that scores and improves a CV and runs a mock AI interview. A separate marketing site (`hrinno-marketing`, www.hrinno.hu) carries the same pitch plus an interactive ROI calculator, with CTAs pointing back into this app.
+HRInno is a multi-tenant HR platform that combines AI-assisted recruitment (job postings, AI-generated job descriptions, a Trello-style applicant pipeline, AI CV scoring at both individual and bulk-database scale, and two distinct AI-driven interview mechanisms) with core HR operations (time & attendance, absence management, medical certificates, performance management with weekly pulse check-ins), an AI employee-wellbeing chatbot, a support-ticket helpdesk, and a free, public, candidate-facing tool that scores a CV, rewrites it, and runs a voice-enabled AI mock interview with a coaching report. A separate marketing site (`hrinno-marketing`, www.hrinno.hu) carries the same pitch plus an interactive ROI calculator, with CTAs pointing back into this app.
 
 ---
 
@@ -62,15 +62,15 @@ Not documented in the codebase.
 
 ## Primary Audience
 
-HR administrators / company owners. Inferred from the codebase: the app is multi-tenant (organized around a company/org slug), with admin-gated routes for positions and user management. Not stated explicitly in any README or doc — no such document exists.
+HR administrators / company owners. Inferred from the codebase: the app is multi-tenant (organized around a company/org slug), with admin-gated routes for positions, user management, billing, and all higher-complexity HR modules.
 
 ## Secondary Audience
 
-Recruiters and people managers (candidate pipeline, team performance) and employees (time clock, absences, wellbeing check-ins). Inferred from role-gated features in the code, not from explicit documentation.
+Recruiters and people managers (candidate pipeline, team performance, timeclock/leave approvals) and employees (time clock, absence requests, performance goals/pulse, wellbeing check-ins, support tickets). Inferred from role-gated features in the code, not from explicit documentation.
 
 ## Ideal Customer Profile
 
-Not documented in the codebase. Company size, industry vertical, and geography are not stated anywhere. Weak, non-authoritative signal only: French-language commit messages and built-in French/English/Hungarian i18n suggest a possible French-speaking/EU market, but this is not confirmed.
+Not documented in the codebase. Company size, industry vertical, and geography are not stated anywhere. Weak, non-authoritative signals only: French-language code comments, Hungarian-specific OCR/business-day logic, and built-in English/French/Hungarian localization suggest a possible Hungarian/French-speaking EU market, but this is not confirmed by any explicit statement.
 
 ## Customer Problems
 
@@ -80,6 +80,7 @@ Inferred from the features that were built (not from any stated problem statemen
 - Fragmented HR tooling across time tracking, absences, and performance
 - Difficulty monitoring employee engagement/wellbeing on an ongoing basis
 - Manual handling of employee medical certificates
+- No structured way to track and follow up on individual employee goals week to week
 
 ---
 
@@ -87,18 +88,18 @@ Inferred from the features that were built (not from any stated problem statemen
 
 ## Why customers choose this product
 
-Not documented as a stated value proposition. Based on the feature set, the apparent pitch is: AI-assisted recruitment and interviewing combined with core HR administration in a single platform, plus a free candidate-facing tool that can serve as a differentiator versus other ATS/HR tools.
+Not documented as a stated value proposition. Based on the feature set, the apparent pitch is: AI-assisted recruitment and interviewing combined with core HR administration in a single platform, plus a free candidate-facing tool that can serve as an acquisition channel.
 
 ## Main Benefits
 
-- Benefit 1: AI-assisted job descriptions, CV screening, and first-round interviewing reduce manual recruiter workload
-- Benefit 2: One platform covers recruitment, time/attendance, absences, and performance instead of separate point tools
-- Benefit 3: A free, public, self-serve CV-scoring and mock-interview tool gives candidates direct value and can function as an acquisition channel
-- Benefit 4: A new company can sign up and start posting jobs immediately with no sales call and no waiting — while the higher-complexity modules (time & attendance, absences, performance, AI wellbeing chatbot) and, temporarily, medical certificate uploads are deliberately held behind a short guided onboarding call rather than left for the customer to configure alone, trading a small amount of friction for a safer first experience with those modules
+- Benefit 1: AI-assisted job descriptions, CV screening (single and bulk-database re-scoring against a new opening), and two distinct AI interview mechanisms reduce manual recruiter workload
+- Benefit 2: One platform covers recruitment, time/attendance, absences, medical certificates, performance management, and employee wellbeing instead of separate point tools
+- Benefit 3: A free, public, self-serve CV-scoring, CV-rewriting, and voice-based mock-interview tool gives candidates direct value and functions as a top-of-funnel acquisition channel (it is explicitly instrumented for funnel tracking, not just a goodwill feature)
+- Benefit 4: A new company can sign up and start posting jobs immediately with no sales call and no waiting — while the higher-complexity modules (time & attendance, absences, performance, the AI wellbeing chatbot) and, temporarily, medical certificate uploads are deliberately held behind a short guided onboarding call rather than left for the customer to configure alone, trading a small amount of friction for a safer first experience with those modules
 
 ## Competitive Advantages
 
-The clearest differentiator found in the code is the public, candidate-facing Job Assistant (free CV scoring, AI-rewritten CV, voice-based mock interview, AI coaching report) — most HR/ATS tools build AI screening only for the employer side, not as a free tool for candidates. No competitor comparison exists in the repo to confirm this is unique in the market (see Section 12).
+The clearest differentiator found in the code is the public, candidate-facing Job Assistant (free CV scoring, AI-rewritten CV with a downloadable .docx, a genuinely voice-enabled mock interview using the browser's native speech recognition, and an AI coaching report) — most HR/ATS tools build AI screening only for the employer side, not as a free, unauthenticated tool for candidates. No competitor comparison exists in the repo to confirm this is unique in the market (see Section 12).
 
 ---
 
@@ -106,81 +107,160 @@ The clearest differentiator found in the code is the public, candidate-facing Jo
 
 List ONLY completed features, based on what exists in the code.
 
-## Authentication
+## Authentication & Account Model
 
-- Supabase-based authentication
-- Multi-tenant company/organization accounts (org slug-based)
-- Self-serve signup (`/signup`): a prospect creates a brand-new company and its first admin account in one step — company name, admin name, work email, and password — and is logged straight into their dashboard immediately, with no manual step from the team. The new company starts on the Free plan.
-- Admin-gated routes for positions and user management
+- Supabase-based authentication (email/password), with a standard password-reset/recovery-link flow.
+- Multi-tenant company/organization accounts (org slug-based), one admin per newly created company.
+- Self-serve signup (`/signup`): a prospect creates a brand-new company and its first admin account in one step — company name, admin name, work email, and password — and is logged straight into their dashboard immediately, with no manual step from the team and no email-verification wait. The new company always starts on the Free plan with onboarding marked incomplete; the signup page itself tells the prospect upfront that time & attendance, absences, performance management, and the wellbeing chatbot unlock only after a short onboarding call.
+- Admin-gated routes for positions, user management, billing, and every higher-complexity HR module.
 
 ## Dashboard
 
 - Per-company SaaS entry point at `/jobs/[slug]` — reached only by someone who knows their company's slug (not discoverable/indexed). Not logged in: company branding (logo/name) and a login prompt. Logged in: "Welcome back" plus a role-aware grid of quick links to the company's HR tools (positions, HR tools, performance, time clock, absences, and for admins: subscription, users, tickets).
-- Distinct from the public homepage at `/` (see Marketing/Public Site below), which the previous version of this brief mistakenly conflated with this dashboard.
+- Distinct from the public homepage at `/` (see Marketing/Public Site below).
 
 ## Marketing / Public Site
 
-- Public homepage (`/`, no company slug) leads with the free Job Assistant (AI CV scoring, no account needed) as the primary hook, with a "For employers" section below introducing the full platform and a link to the new pricing page.
-- Pricing page (`/pricing`): three columns (Free / Momentum / Infinity) with real limits and prices pulled from Stripe/the `forfait` table, a note that downgrading never deletes existing data, a note that time & attendance/absences/performance/the wellbeing chatbot/medical certificate uploads all additionally require a completed onboarding call regardless of plan, and every plan's button now leads to the self-serve signup flow rather than a contact form or demo request — including Momentum and Infinity, since every new company starts on Free and upgrades afterward from inside the dashboard (see Pricing, Section 11).
-- A separate repository/site, `hrinno-marketing` (www.hrinno.hu), also exists and carries an aligned pitch: the Job Assistant, a "Full HR Platform" section, and the same pricing data, plus an interactive ROI calculator. Its pricing buttons (Free/Momentum/Infinity) now also lead straight to this app's self-serve signup flow, each with its own plan-specific label, matching this app's own pricing page — previously they led to a contact form and stated self-serve sign-up was "coming soon." It carries the same onboarding-completion disclaimer as this app's pricing page. A separate, unrelated "want this automation in your company" contact CTA elsewhere on that site is unchanged.
-- Legal pages (privacy notice, terms, cookies, impressum) are now reachable from every public-site page: the footer's links to them previously 404'd for any visitor on the homepage or the public Job Assistant (only company-scoped versions of these pages existed). Root-level versions now exist and render the same content. The privacy notice itself was also completed: it previously omitted OCR.Space (used for medical certificate text extraction) from its list of third-party services, and stated data is deleted "automatically every night" while the terms of service already said "after 30 days" — both now say 30 days consistently, matching the actual retention configuration (see Settings below).
-- Lightweight funnel tracking now exists across this app and `hrinno-marketing`: Job Assistant start/completion, pricing views and per-plan CTA clicks, contact form submissions, ROI calculator use, signup started/completed, and onboarding-marked-complete are logged (with an anonymous session id, no CV/interview content) to a shared Supabase table, viewable in a super-admin funnel dashboard (`/admin/funnel`). A manual field on the `company` record can still link a company onboarded before self-serve signup existed back to the contact submission that led to it — see `FUNNEL_TRACKING.md`.
+- Public homepage (`/`, no company slug) leads with the free Job Assistant (AI CV scoring, no account needed) as the primary hook, with a "For employers" section below introducing the full platform and a link to the pricing page.
+- Pricing page (`/pricing`): three columns (Free / Momentum / Infinity) with limits and prices pulled from Stripe/the `forfait` table, a note that downgrading never deletes existing data, a note that time & attendance/absences/performance/the wellbeing chatbot/medical certificate uploads all additionally require a completed onboarding call regardless of plan, and every plan's button leads to the self-serve signup flow rather than a contact form or demo request.
+- A separate repository/site, `hrinno-marketing` (www.hrinno.hu), also exists and carries an aligned pitch: the Job Assistant, a "Full HR Platform" section, the same pricing data, and an interactive ROI calculator, with its own pricing buttons leading straight into this app's signup flow.
+- Legal pages exist at the root level (privacy, terms, cookies, impressum) and are reachable from every public-site page's footer. **All four are explicitly named with a "-demo" suffix in the codebase** (`/privacy-demo`, `/terms-demo`, `/impressum-demo`; `/cookies` is the one exception in naming) — a strong signal that this is placeholder legal content pending final legal review, not approved, production-ready legal copy. This should factor into any "commercial readiness" claim.
+- Lightweight, privacy-respecting funnel tracking exists across this app and `hrinno-marketing`: Job Assistant start/completion, pricing views and per-plan CTA clicks, contact-form submissions, ROI calculator use, signup started/completed, and onboarding-marked-complete are logged (with an anonymous, client-generated, non-identifying session id — no CV/interview content, no account link) to a shared Supabase table, viewable in a super-admin funnel dashboard (`/admin/funnel`) used internally by the HRInno team to inform go-to-market decisions.
 
-## AI Features
+## Recruitment & Applicant Tracking
 
-- AI-generated job descriptions (with a known workaround for a broken prompt-variable helper — see Section 8)
-- AI CV scoring and CV improvement (Job Assistant, public/candidate-facing). The public Job Assistant's CV upload now requires checking an AI-processing consent box before the file is sent to the third-party AI service (previously the checkbox copy existed in the translation files but wasn't wired into the page, so no consent was actually collected). This flow has no database persistence layer at all — the CV is parsed and scored in memory and never stored — so there is nothing to log a consent timestamp against; the checkbox is purely a client-side gate on whether the request is sent.
-- AI-driven first-round interviews, including voice recognition, for both internal recruitment and the public Job Assistant
-- AI interview scoring and coaching reports
-- AI employee happiness/wellbeing chatbot with pulse check-ins — now gated to companies whose plan includes it (Momentum and Infinity; not Free)
-- AI-based candidate scoring/ranking (company-side recruitment pipeline, `/api/analyse-cv` and `/api/analyse-massive`) is now documented as falling under the EU AI Act's high-risk classification (Annex III, point 4(a): recruitment/candidate evaluation) — see Known Limitations for what that means and what's currently unmet.
+- **Job posting management**: an admin or recruiter creates a position with a name, a short public description, a longer "detailed" description used specifically to improve AI CV matching, a start date, employment type, and (on newer postings) location/location-type, salary range with an optional "make salary public" toggle, and an application deadline. Creating a new open position is capped per the company's plan (Free = 2 open positions; Momentum/Infinity allow more, with the possibility of an "unlimited" tier). There is currently no way to edit a live posting's text after creation — only closing it (which stops it accepting applications but keeps all its history) is supported.
+- **Public job board**: candidates browse a company's open positions with no account needed; the public list currently shows the posting name and descriptions but not yet the richer fields (salary, location, deadline) — those only appear once a candidate opens a specific posting's apply page.
+- **AI-generated job descriptions**: from a short rough draft, one click generates both the public-facing description and the longer AI-matching description, consuming one metered AI credit per generation.
+- **Per-position analytics**: a dedicated analytics view per posting shows total candidates, average/median AI score, days open, applications per day, a timeline chart, a score-distribution histogram, and a breakdown of where candidates came from (direct upload vs. re-surfaced from the company's own historical candidate database).
+- **Customizable applicant pipeline (Trello-style board)**: each company can order its own named pipeline stages (e.g. Unassigned, Screening, Interview, Offer, Rejected); recruiters drag and drop one or many candidates between stages, leave free-text comments on a candidate, and view each candidate's CV via a short-lived (10-minute) signed link — never a permanent public URL.
+- **AI CV scoring — single candidate**: when a candidate applies, their CV is automatically scored 0–10 against the specific position's detailed description, producing both an internal recruiter-facing analysis and separate, softer feedback shown to the candidate themselves. Candidates scoring below the pass threshold are automatically routed into the pipeline's "Rejected" stage with no human step required; everyone else lands in "Unassigned" for a recruiter to triage. Company admins and the position's assigned manager are notified in-app the moment a new CV comes in.
+- **AI CV re-scoring at database scale ("Analyse Massive")**: when opening a brand-new position, a recruiter can instantly re-score every candidate in the company's entire historical applicant database against the new opening — surfacing good-fit past applicants without asking anyone to reapply — with a live progress indicator as it works through the batch.
+- **Two distinct AI interview mechanisms** exist and both ultimately show up as an "AI Interview" score on a candidate's pipeline card, which is worth being precise about when describing the feature externally:
+  1. **Recruiter-run assisted interview**: a recruiter schedules a real, human-conducted interview (with an automatic calendar invite — compatible with Google/Outlook/Apple Calendar — sent to the candidate, including reminder and cancellation emails). Before the interview, the recruiter can ask the AI to suggest interview questions based on the candidate's CV and the job. After the interview, the recruiter types their own free-text notes, and the AI turns those into a structured summary (strengths, weaknesses, cultural fit, a recommendation, and a score). There is no audio/voice capture in this flow — the AI works only from what the recruiter types.
+  2. **Automated interview taken directly by the candidate**: offered inline to strong applicants (CV score above a threshold) as an explicitly optional "Virtual Interview" — ten AI-generated questions, each with three suggested sample answers the candidate can pick from or override by typing their own. On completion, the AI scores the full transcript and writes a short HR-style summary automatically, with no recruiter involvement needed to generate the score. This flow is text/tap-based only — despite "Virtual Interview" branding, it does not use voice recognition (that capability exists only in the separate, standalone public Job Assistant tool below).
+
+## Public Job Assistant (free, standalone candidate tool)
+
+- A completely free, anonymous, no-account, no-employer-affiliation career-coaching tool (`/job-assistant`), independent from applying to any specific job — built and instrumented as a top-of-funnel acquisition asset, not a monetized feature.
+- **CV scoring**: a candidate pastes any job description and uploads their CV; receives an overall 0–100 score plus a five-way breakdown (skills, experience, education, keyword match, presentation) with top strengths and gaps.
+- **CV rewriting**: on request, the AI rewrites the CV to better match the target job — explicitly instructed not to invent experience, only to rephrase/restructure — producing an improved score and a ready-to-download Word (.docx) file.
+- **AI mock interview with genuine voice input**: ten tailored questions mixing behavioral, technical, motivational, and situational styles, each with an "ideal answer" reference; the candidate can answer by typing or by speaking (using the browser's own speech-to-text, supporting English, French, and Hungarian dictation, with a clear fallback message on unsupported browsers). Each answer is scored 0–100 with a model example of a stronger phrasing.
+- **Final coaching report**: aggregates per-category performance into an overall verdict (from "Strongly Recommend" to "Not Recommended"), a prioritized coaching plan, and an interview-readiness assessment.
+- **Fully stateless by design**: nothing typed or uploaded in this tool is ever saved to the database — the candidate is told explicitly that "no data is stored after the session ends," and this matches the code (no database writes exist anywhere in this flow). It is also not subject to any company's metered AI-credit pool.
+
+## Time & Attendance
+
+- **Employee self-service**: a simple clock-in/clock-out screen with a live running "time worked" counter, a weekly summary (total hours, on-time days, overtime hours), and a 30-day history with per-entry Late/Overtime/On-Time status, computed against the employee's assigned work shift (or a sensible default if none is assigned). Every clock-in/out is strictly self-service — an employee can only see and act on their own record.
+- **Manager view**: a live "today" roster of the manager's direct reports (Working / Finished / Not Started, clock times, lateness, weekly hours) plus a "Pending Approvals" queue of completed entries awaiting sign-off, with one-click approve/reject and visibility into flags like lateness or overtime. Every clock-in starts in a "pending" state awaiting this manager review.
+- Company admins get built-in oversight of any manager's team data through this same manager view (not a separate admin dashboard) — there is no distinct company-wide "everyone regardless of manager" attendance view today.
+- Plan-gated: locked on Free; usable on Momentum for up to 20 employees and on Infinity for up to 100. Also requires the company's onboarding call to be marked complete on every plan, including paid ones.
+
+## Absences / Leave Management
+
+- **Employee self-service**: request leave by type and date range from a modal; the number of working days is calculated automatically. A running leave balance and a list of past requests are shown on the same page.
+- **Manager approvals**: managers see a "Team Approvals" tab with a pending-count badge and approve or reject each direct report's request.
+- **Calendar view**: a year-grid calendar (toggle between "my leave" and "my team's leave") with print/PDF export and an iCal (.ics) download so approved leave can be added to any external calendar.
+- **Medical-certificate linkage**: sick leave can be tied directly to an uploaded medical certificate, either pre-filling a new request or attaching to an existing one.
+- Shares the same plan gate as Time & Attendance (locked on Free; Momentum up to 20 employees; Infinity up to 100) and the same mandatory onboarding-completion requirement on every plan. Non-admin users simply don't see the module at all when it's locked; company admins see an explicit upgrade/locked notice.
+
+## Medical Certificates
+
+- **Upload with AI-assisted data extraction**: an admin uploads a scanned certificate (PDF or image, up to 1MB); the system runs OCR and then AI extraction to prefill the employee's name and sickness start/end dates, leaving any field the AI couldn't confidently read as an editable manual-entry box rather than guessing silently.
+- **Mandatory AI-processing consent**: the upload cannot proceed until the user checks a box explicitly consenting to AI/OCR processing of the document, and that consent is timestamped and stored.
+- **Confirm & save, with optional leave linkage**: after review, the certificate is saved permanently and can be linked to an existing or new leave request, automatically marking that leave as medically confirmed.
+- **Certificate list & tracking**: a searchable, company-wide list of all certificates with a "hide treated" filter and a manual "treated" toggle (which also updates any linked leave request).
+- **Private storage, on-demand access only**: files are never given a permanent public URL — every view goes through a freshly generated, short-lived (10-minute) signed link, scoped to the caller's own company.
+- Capped per plan per calendar month (Free 5, Momentum 10, Infinity 20), and — uniquely among the plan-gated modules — held behind the mandatory onboarding-completion gate on every plan (including paid ones) as a deliberate, temporary compliance safeguard rather than a training gate, because certificate data is sent to third-party AI/OCR services with only best-effort redaction (see Known Limitations).
+
+## Performance Management
+
+- **Goal setting**: any employee can create their own goal (title, description, success criteria, quarter). A goal an employee creates themselves starts as a draft awaiting their manager's approval; a goal a manager or admin creates for someone starts active immediately. Creating a goal requires the employee to already have an assigned manager, tying the feature to the org chart.
+- **Weekly pulse check-ins**: for every active goal, the employee gives a weekly status update — "On Track," "Some Issues," or "Blocked" — with a free-text progress comment (and a required explanation if blocked). One update per goal per calendar week; resubmitting the same week updates it in place.
+- **Employee dashboard**: at-a-glance counts of active goals, goals needing this week's pulse update, red-flagged (blocked) goals, and goals awaiting the manager's approval.
+- **Manager/team view**: a per-employee rollup across the whole team (active/red/yellow/green/needs-pulse/pending-approval counts), a dedicated "Red Flags" view listing every blocked goal across the team with its blockers, and a "Pending Approval" queue with inline one-click approval of employee-created draft goals.
+- Available on the **Infinity plan only** (not included on Free or Momentum), and additionally requires the company's onboarding call to be marked complete.
+
+## AI Employee Wellbeing Chatbot
+
+- A conversational, PERMA-model-based wellbeing check-in (positive emotion, engagement, relationships, meaning, accomplishment, and work-life balance — two questions per dimension, twelve questions total), available in English and Hungarian.
+- Each answer is scored by AI in real time; on completion the employee receives an overall wellbeing score plus three personalized pieces of AI-generated advice, with the tone of the closing message adapting to how well they scored.
+- Sessions are anonymous by design (a random session token, not a personal account record).
+- **Admin/manager dashboard**: shows only company-wide, aggregated results — average score, number of completed check-ins, a participation trend, and PERMA-dimension breakdowns with suggested areas for improvement. No individual employee's answers or identity are ever surfaced — this is stated explicitly in the in-app help documentation and matches how the underlying data is queried. Any authenticated member of the company (not only admins/managers) can view this aggregate dashboard.
+- Available on **Momentum and Infinity** (not Free), and additionally requires the company's onboarding call to be marked complete.
+
+## Support Tickets
+
+- A helpdesk channel through which a company's employees and admins reach the HRInno support team directly (not a peer-to-peer or department-routed internal ticketing system) — company admins from HRInno's own operating companies get a cross-tenant support-agent view of every customer's tickets, i.e. HRInno's own support staff use this same interface.
+- Creating a ticket captures a title, description, priority (low/medium/high/urgent), an optional category (technical support, bug report, feature request, account issue, billing, general inquiry, other), and file attachments (multiple files, 5MB each).
+- **Plan-gated**: creating a *new* ticket now requires the Momentum or Infinity plan (a Free-plan or no-active-plan company sees an upgrade prompt instead of the create form); this gate does not require the onboarding call to be complete, so it's available immediately after self-serve signup on a paid plan. Existing tickets remain fully viewable and repliable regardless of plan — the gate only applies to opening new ones.
+- In-app notifications alert relevant users when a ticket is created; a separate, planned email-notification path (new ticket / new message / status change) exists as message templates but is not currently wired to actually send email (see Known Limitations).
+
+## General Feedback
+
+- A lightweight 1–5 star rating plus free-text comment widget attached to the public marketing/demo experience (not tied to a company's employees) — a visitor's overall impression of the demo, distinct from the internal support-ticket system above.
+
+## Contact / Lead Capture
+
+- A public contact form (first/last name, email, phone, company name, comment, GDPR consent required, marketing-consent opt-in) with basic rate-limiting and input sanitization, feeding an internal "contact submissions" list.
+- Submissions are reviewed exclusively by HRInno's own internal team (not by any customer), who can search, filter, update status, add notes, and delete entries — this is the internal sales/lead-qualification tool that sits upstream of a company's decision to sign up.
+- A functioning unsubscribe link lets a contact opt out of future marketing email, which is recorded against their submission record.
 
 ## Documents
 
-- Medical certificate upload, listing, and download, with AI-based OCR text extraction. Files are stored in a private bucket and viewed via short-lived signed URLs generated on demand (previously a public URL was also generated for every upload); monthly upload volume is capped per the company's plan. Before the OCR'd text is sent to the AI provider for extraction, a best-effort regex redaction pass now strips likely national ID numbers, phone numbers, and addresses (dates are protected so extraction still works); this is not a guarantee of complete PII removal. The upload flow now also requires an AI-processing consent checkbox before any document is sent to OCR/AI — previously this page had no consent UI at all, so the consent-date field was never populated. Uploading (listing and downloading are unaffected) now additionally requires the company's onboarding call to be complete, on any plan — see Settings below for why.
-- CV upload and parsing (Job Assistant, and separately for company-side recruitment pipelines). Company-side CVs are stored privately and viewed via short-lived signed URLs, generated only for users confirmed to belong to the company that owns the position the candidate applied to. CV content sent to the AI provider was audited and found already minimal (CV text/job description only, no extra PII fields) — no redaction applied here, since name/contact info is needed for the product to function (candidate-to-job matching).
-
-## Settings
-
-- Stripe-based subscription management page (view plan status, manage billing via Stripe customer portal)
-- Plan-based feature gating: a single server-side helper checks a company's plan (`company.forfait`) before allowing new job postings, new medical certificate uploads, wellbeing-chatbot sessions, time & attendance/absences actions, performance-management actions, and adding a new employee (seat cap), using per-plan limits/flags stored in the `forfait` table. Time & attendance/absences and performance are "locked preview" on plans that don't include them — admins can see the module but not enter real data; everyone else simply doesn't see it in navigation. A company with no active plan permanently behaves like the Free plan for every one of these checks, rather than being blocked outright. See Section 11 for the actual plan tiers and Section 8 for what is and isn't covered by this.
-- Onboarding-completion gate: separate from and on top of the plan-based check above, time & attendance, absences, performance management, the AI wellbeing chatbot, and medical certificate uploads are unavailable to any company — including one already paying for Momentum or Infinity — until the team manually marks that company's onboarding as complete. A company admin who hits one of these modules before then sees a clear "available after your onboarding call" message with a contact link, not a broken page. Every company onboarded manually before this feature existed was grandfathered in as already complete, so no existing customer was retroactively locked out. Recruitment/job postings and the Job Assistant are explicitly not subject to this gate.
-  - Medical certificate uploads were added to this gate for a different reason than the other four: not because the feature is complex to learn, but as a temporary compliance safeguard. Certificate uploads send employee health data to third-party AI/OCR services with best-effort (not guaranteed) redaction, and while the retention period itself is now formally set (30 days, matching the privacy notice), the providers' own subprocessor terms for health data haven't been legally reviewed — see Known Limitations. The locked-state message for this specific module says so explicitly, rather than implying a training gate. Intent is to remove this one from the gate once that pending legal review is complete — the other four modules are not expected to be removed from the gate on the same timeline.
-- Automated onboarding-call booking: right after self-serve signup, the new admin automatically gets an email with a Calendly link to book the onboarding call (skipped for companies already grandfathered as onboarded). If they haven't booked within 3 business days, a one-time reminder email goes out automatically with the same link. This only automates getting the prospect to book — actually running the call and flipping the company to onboarded is still a fully manual step (see Administration below); nothing marks a company onboarded automatically based on a booked or completed call.
-- Data retention settings (super-admin only, `/admin/data-retention`): retention periods for medical certificates and company-pipeline CV data are stored in a database table and editable from this page with zero code change or redeploy, with a visible audit trail (who changed what, when) and a live preview of what the next scheduled deletion run would delete. A daily scheduled job (03:00 UTC) deletes data older than whatever is currently configured. The configured period is now 30 days for both data types, a deliberate product decision that aligns the actual sweep behavior with what the published privacy notice and terms of service already stated — replacing the 365-day placeholder used to first demonstrate the mechanism. This changes the configured number and logs it to the audit trail; it does not itself delete anything retroactively — deletion happens on the next scheduled run. See Section 8 for what's still open (the scheduled job's required `CRON_SECRET` environment variable, and whether the AI/OCR providers' own data-handling terms are acceptable for health data).
+- Medical certificate upload, listing, and download, with AI-based OCR text extraction (see Medical Certificates above for the full workflow). Before OCR'd text is sent to the AI provider for extraction, a best-effort regex redaction pass strips likely national ID numbers, phone numbers, and addresses (dates are protected so extraction still works); this is not a guarantee of complete PII removal.
+- CV upload and parsing, both for the company-side recruitment pipeline (stored privately, viewed via short-lived signed URLs scoped to the company that owns the position applied to) and for the standalone public Job Assistant (never stored at all — see above).
 
 ## Help & Documentation
 
-- In-app user manual, reachable from the logged-in admin's account menu ("User Guide"). A browsable, searchable guide covering every currently-live feature — recruitment/job postings, AI job descriptions, medical certificates, time & attendance, absences, performance, the wellbeing chatbot, user management, subscription & billing, and support tickets — written in plain customer-facing language with accurate plan limits and role restrictions for each. Content is stored as Markdown files rather than hardcoded in the app, so updating it going forward is a text edit, not a code change. English only today; the content structure is ready for French/Hungarian translation later but that hasn't been done yet.
+- In-app user manual, reachable from the logged-in admin's account menu ("User Guide"). A browsable guide covering every currently-live customer-facing feature — recruitment/job postings, AI job descriptions, medical certificates, time & attendance, absences, performance management, the wellbeing chatbot, user management, subscription & billing, and support tickets — written in plain customer-facing language with accurate plan limits and role restrictions for each. Content is stored as Markdown files rather than hardcoded in the app, so updating it is a text edit, not a code change. **English only today** — despite the rest of the product supporting French and Hungarian, no French or Hungarian help content exists yet.
 
 ## Notifications
 
-Not confirmed in the codebase.
+- Automated transactional email exists for: the onboarding-call booking invitation sent immediately at signup (with a Calendly link), a one-time onboarding-call reminder if the prospect hasn't booked within a few business days, and interview invitation/cancellation emails (with a calendar-file attachment) sent to recruitment candidates.
+- In-app notifications (a bell/notification feed, distinct from email) exist for new CV submissions on a position and for new support tickets.
+- Support-ticket email notifications (new ticket, new reply, status change) are defined as message templates but are not currently wired to send real email — see Known Limitations.
 
 ## Mobile
 
 No native mobile app identified; the product is a responsive web application (Next.js).
 
-## Administration
+## User & Role Management
 
-- Manual onboarding-completion toggle (super-admin only, `/jobs/[slug]/admin/onboarding`): a simple per-company list with current status and a one-click toggle, used by the team to unlock a self-serve company's higher-complexity modules once its setup call is done. The list also shows, per company, whether the automated booking email and reminder have been sent (see Settings), so the team can see who hasn't engaged yet without checking Calendly by hand. Marking a company onboarded itself is still purely manual — nothing about the toggle or the trigger to flip it is automated.
-- Bulk user import and user creation
-- Job posting / position management (public and private postings) — creating a new open position is capped per the company's plan. The public job board now excludes positions whose `position_end_date` has passed (previously showed every position ever created, closed or not); RLS on `openedpositions` was verified directly against production and confirmed already correctly scoped (company-scoped insert/update, intentionally public read for the job board). Separately, the public job board endpoint itself was found silently ignoring its own company filter (a query bug, not an RLS gap) and returning every company's positions regardless of which company's job board was requested, with the company attribution blanked out on every result — this also meant a company's own recruiting dashboard showed zero open positions instead of its real ones. Now fixed: each company's job board and recruiting dashboard correctly show only that company's own positions — see Section 19.
-- Recruitment pipeline / applicant tracking, restricted so a user can only view or edit candidates for positions owned by their own company
-- Time & attendance (time clock, employee and manager views)
-- Absence tracking (calendar-based)
-- Performance management (goals, pulse surveys, team performance)
-- Internal support tickets / feedback forms
+- **Roles**: Employee (default, acts only on their own records), Manager (also acts on behalf of their direct reports, resolved from the org chart, never trusted from the client), Company Admin (full control within their own company — billing, user management, settings — but confined to that company), and Super Admin (a global, internal HRInno-team role, not available to any customer, used for cross-company tooling).
+- **Adding employees**: a company admin adds employees one at a time (assigning a manager and a start date) from inside the app; this is capped by the plan's employee-seat limit before the new account is created.
+- **Bulk import**: uploading a CSV/XLSX of many users at once, spanning multiple companies if needed, exists as an internal HRInno-team tool (not self-serve for customers) — each new row is checked individually against that company's seat cap.
+- **Manager assignment and activation status**: an admin can reassign an employee's manager at any time, and can activate/deactivate an employee's account (there is no separate "suspended" state beyond active/inactive); a deactivated employee no longer counts against the plan's seat cap.
+
+## Billing & Subscription
+
+- Three real plan tiers — **Free**, **Momentum**, and **Infinity** — with live prices and limits read from Stripe/the `forfait` table (not hardcoded), so changing a plan's limits in the database takes effect without a code deploy.
+- Subscribing/upgrading is a self-serve Stripe Checkout flow from inside the dashboard's subscription page; canceling can be done in-app (an immediate, not end-of-period, cancellation clearing the plan right away) and is also correctly synced if a customer cancels directly through Stripe rather than through the app.
+- **AI credits**: a monthly, metered allowance (Free 50 / Momentum 100 / Infinity 250) consumed specifically by AI job-description generation and by CV scoring (both single-candidate and bulk re-scoring); running out blocks that specific action with a clear "no credits remaining" message until the monthly reset, or the admin can buy an additional one-time top-up pack through Stripe. The AI wellbeing chatbot and medical-certificate OCR are not metered by this credit pool — they're separately capped by their own plan flags/monthly limits.
+- **Downgrade/cancellation promise, enforced architecturally, not just stated**: canceling or downgrading never deletes or hides any data the company already has — plan checks only ever run at the moment of *creating* something new (a job posting, a certificate upload, a new employee), never on reading or editing existing records. A company with no active subscription (never subscribed, or canceled/expired) permanently behaves exactly like the Free plan for every gated feature rather than being blocked outright.
+- **Per-company outbound email**: a company admin can configure their own outbound SMTP relay so platform emails are sent from the company's own domain; the stored password is encrypted at rest and never redisplayed.
+
+## Settings
+
+- Plan-based feature gating: a single, centrally-defined entitlements layer checks a company's plan before allowing new job postings, new medical certificate uploads, wellbeing-chatbot sessions, time & attendance/absences actions, performance-management actions, new support tickets, and adding a new employee (seat cap), using per-plan limits/flags stored in the `forfait` table and read live (not cached/hardcoded). See Section 11 for the actual plan tiers.
+- Onboarding-completion gate: separate from and layered on top of the plan-based check above, time & attendance, absences, performance management, and the AI wellbeing chatbot, plus medical certificate uploads, are unavailable to any company — including one already paying for Momentum or Infinity — until the HRInno team manually marks that company's onboarding as complete. A company admin who hits one of these modules before then sees a clear "available after your onboarding call" message with a contact link, not a broken page. Recruitment/job postings and support tickets are explicitly not subject to this gate, so a self-serve company can start recruiting and asking for help immediately.
+- Automated onboarding-call booking: right after self-serve signup, the new admin automatically gets an email with a Calendly link to book the onboarding call. If they haven't booked within a few business days, a one-time reminder email goes out automatically with the same link. Actually running the call and flipping the company to onboarded remains a fully manual step by the HRInno team.
+- Data retention settings (super-admin only): retention periods for medical certificates and company-pipeline CV data are stored in a database table and editable with zero code change or redeploy, with a visible audit trail and a live preview of what the next scheduled deletion run would delete. A daily scheduled job deletes data older than whatever is currently configured (30 days today for both data types, matching the public privacy notice). A one-off "delete now" tool also exists to fulfil an individual data-subject deletion request ahead of the scheduled sweep.
+
+## Administration (Internal, HRInno-team-only)
+
+- Manual onboarding-completion toggle: a simple per-company list with current status and a one-click toggle, used by the team to unlock a self-serve company's higher-complexity modules once its setup call is done, plus visibility into whether the automated booking/reminder emails have already been sent to that company.
+- Marketing/sales funnel dashboard: Job Assistant usage, pricing-page views and per-plan CTA clicks, contact-form submissions (with source), and onboarded-company counts, including how many companies trace back to a specific contact-form submission.
+- Bulk user import (see User & Role Management above).
+- Job posting / position management, applicant tracking, time & attendance, absences, performance management, and support tickets are otherwise the customer-facing administration surface described in their own sections above.
 
 ---
 
 # 6. Features In Development
 
-Based on the most recent commit and work history (not a formally stated roadmap):
+Based on the most recent commit and work history (not a formally stated roadmap): no net-new customer-facing feature is currently mid-flight. The most recent body of work (per commit history and the current uncommitted working tree) has been a security-hardening pass centralizing authorization checks into a single `lib/authz/` layer and closing 16 confirmed critical/high-severity access-control vulnerabilities across leave requests, performance goals/pulse, timeclock, and support tickets, and shipping plan-based gating for support-ticket creation (now live and reflected in Section 5 and Section 11, not listed here as pending).
 
-- Time & attendance, absences, and performance management already have plan-based (Free vs. Momentum vs. Infinity) gating (see Section 11) — support tickets were the one remaining module with no plan-based distinction. A Momentum/Infinity-only gate on submitting a *new* ticket (matching the existing gating pattern; Free and no-active-plan companies treated identically) has now been built and is awaiting code review before merge and deployment — existing tickets remain fully readable and repliable regardless of plan. Not yet live, so still listed here rather than in Section 5 or reflected in Section 11's pricing table.
-
-Expected value and priority are not documented for the above or for anything else; there is no formally stated in-development feature list beyond what can be inferred from recent work.
+Expected value and priority are not documented for anything else; there is no formally stated in-development feature list beyond what can be inferred from recent work.
 
 ---
 
@@ -192,15 +272,22 @@ Not documented in the codebase.
 
 # 8. Known Limitations
 
-- Plan-based feature gating (Free vs. Momentum vs. Infinity) is real and substantial, covering opening a new job position, medical certificate uploads, the AI wellbeing chatbot, time & attendance/absences (locked on Free; usable on Momentum up to 20 employees; usable on Infinity up to 100), performance management (locked on Free and Momentum; usable on Infinity up to 100 employees), and total employee seats (20 on Momentum, 100 on Infinity, beyond which it's not self-serve — a "contact us for a custom quote" state). Support tickets are the one module with no plan-based distinction today.
-- Customers now have an in-app user manual (Section 5, Help & Documentation), but internal/developer-facing documentation is still absent — the README remains unmodified Next.js boilerplate, and this brief is still the only business-facing document in the repo.
-- Self-serve signup is scoped, not full-platform: a brand-new company can sign up and use recruitment/Job Assistant completely unassisted, but time & attendance, absences, performance, the AI wellbeing chatbot, and medical certificate uploads all stay locked behind a manual onboarding-completion toggle regardless of plan (Section 5, Settings). Getting the prospect to book a call is now automated (Calendly link at signup, one-time reminder after 3 business days), but everything after that — actually running the call and flipping the toggle — is still a manual, one-at-a-time action with no capacity-planning tooling attached. If self-serve signups grow faster than the team's ability to run setup calls, new customers will have booked a call but still have no visibility into when it'll actually happen or when the modules will unlock.
-- Medical certificate and CV data are still sent to third-party services (OCR.Space, OpenRouter/OpenAI). A best-effort regex redaction pass (national ID/phone/address) now runs on medical certificate text before that AI call, and a missing AI-consent checkbox on the certificate upload page was fixed — but this redaction is not a guarantee (fixed regex patterns, not an ML PII detector, so unusual/non-Hungarian formats can still get through). The privacy notice previously omitted OCR.Space from its list of third-party services entirely; that omission is now fixed (OCR.Space is listed in all three locales), but whether OCR.Space's/OpenRouter's own data-handling terms are acceptable for health data, or whether a formal Data Processing Agreement is needed with either, still has not been reviewed (see `REDACTION_RETENTION_FIX.md`). As an interim mitigation for this specific gap, medical certificate uploads for brand-new self-serve companies are now held behind the onboarding-completion gate (Section 5, Settings) until this review is done — this doesn't reduce the underlying exposure for already-onboarded companies, who can upload today as they always could.
-- A runtime-adjustable data retention mechanism now exists (`data_retention_settings` table, admin UI, daily scheduled deletion job) for medical certificates and company-pipeline CV data, verified end-to-end against production. Job Assistant CV data still has no persistence layer at all (confirmed, not just unconfirmed, by tracing every route — nothing touches Supabase), so there's nothing for that data type to delete. The configured retention period is now 30 days for every data type, a deliberate product decision that replaces the earlier 365-day placeholder and matches what the privacy notice and terms of service publicly state — no longer an arbitrary number, though it has not been independently legally reviewed as a compliance-correct figure. The daily deletion job also depends on a `CRON_SECRET` environment variable being set in the production deployment; as of the most recent change touching this area, that had not yet been confirmed set, which would leave the sweep silently not running even though the configured period is now correct.
-- AI-based candidate scoring/ranking (`/api/analyse-cv`, `/api/analyse-massive`) has been documented as falling under the EU AI Act's high-risk classification (Annex III, point 4(a) — recruitment/candidate evaluation systems), whose obligations became applicable 2 August 2026. None of the associated requirements currently exist: a documented risk-management process, data-governance review of the scoring prompts/data for bias, technical documentation of the scoring logic, structured logging of individual scoring events for audit purposes, documented human-oversight measures, a candidate-facing "AI is used to evaluate you" notice, or a conformity assessment. This is a documentation-only finding so far (no behavior change) — final compliance determination and remediation priority require legal review (see `COMPLIANCE.md`).
-- Leftover debug `console.log` statements remain in roughly 30 files across `src/app` (two instances that logged raw AI-extracted content — one in the medical certificate OCR flow, one in `analyse-cv/route.ts`'s JSON-parse failure path — have been fixed; the rest of the ~30 files were not audited). A few remaining `console.error` calls in `analyse-cv/route.ts` log raw Supabase error objects on insert/upload failure, which could in principle include a candidate's field value via Postgres's constraint-violation error detail — not fixed, flagged in `RLS_JOBBOARD_LOG_FIX.md`.
-- Known unresolved bug in job description generation: a prompt-variable helper ("fillPromptVariables") does not work correctly, worked around with manual replacement rather than fixed.
-- Admin/permission checks are implemented ad hoc per route rather than through a centralized authorization layer. Explicitly not addressed by the recent security and gating work, which added company/plan checks alongside the existing ad hoc pattern rather than replacing it. A concrete instance of this pattern's risk materialized in the public job board endpoint, which silently returned every company's positions instead of just the requested one's due to a missing join-scoping detail (now fixed, see Section 19) — a reminder that per-route scoping can silently regress without a centralized layer enforcing it.
+- Plan-based feature gating (Free vs. Momentum vs. Infinity) is real and substantial, covering opening a new job position, medical certificate uploads, the AI wellbeing chatbot, time & attendance/absences, performance management, total employee seats, and — as of the most recent work — support ticket creation. No module remains entirely ungated by plan today.
+- The public legal pages (privacy notice, terms of service, impressum) are explicitly named as "-demo" pages in the codebase — a strong signal this is placeholder content pending final legal sign-off, not finished, production-ready legal copy. This should be resolved before any campaign leans on these pages as authoritative.
+- Several smaller pieces of UI are visibly stubbed rather than functional: the "limit reached, upgrade" button on the new-position page does nothing but log to the browser console instead of navigating anywhere; support-ticket notification emails (new ticket / new reply / status change) have message templates defined but the underlying send function is a mock that only logs and never delivers actual email; the wellbeing dashboard's "Export" button shows a plain alert instead of exporting anything; and the anti-abuse cooldown on starting a new wellbeing chatbot session has a logic bug that makes it effectively inert.
+- There is no way to edit a live job posting's text after it's created — only closing it is supported, which stops new applications but keeps its history.
+- The AI auto-rejection threshold is inconsistent between the two CV-scoring paths: a single freshly-submitted candidate is auto-rejected below a 5/10 score, while the bulk "re-score my whole candidate database against this new job" tool uses a 7/10 threshold — the same scoring model applying two different pass bars depending on which button triggered it.
+- Medical certificate upload is gated at the API level to company admins only, while the upload control itself is surfaced on the ordinary employee-facing absence page with no visible restriction — a non-admin employee attempting to use it as pictured in the UI would be rejected by the server. Certificate upload should currently be described as an HR-admin-mediated workflow, not employee self-service.
+- Customers now have an in-app user manual, but it exists in English only; French and Hungarian customers get no localized help content despite the product itself being fully trilingual. Internal/developer-facing documentation is still absent — the README remains unmodified Next.js boilerplate, and this brief is still the only business-facing document in the repo.
+- Self-serve signup is scoped, not full-platform: a brand-new company can sign up and use recruitment/Job Assistant and support tickets (on a paid plan) completely unassisted, but time & attendance, absences, performance, and the AI wellbeing chatbot, plus medical certificate uploads, all stay locked behind a manual onboarding-completion toggle regardless of plan. Getting the prospect to book a call is automated, but everything after that — actually running the call and flipping the toggle — is a manual, one-at-a-time action with no capacity-planning tooling attached.
+- Medical certificate and CV data are still sent to third-party services (OCR.Space, OpenRouter/OpenAI). A best-effort regex redaction pass (national ID/phone/address) runs on medical certificate text before that AI call, but this redaction is not a guarantee (fixed regex patterns, not an ML PII detector, so unusual/non-Hungarian formats can still get through), and whether the providers' own data-handling terms are acceptable for health data, or whether a formal Data Processing Agreement is needed, has not been reviewed. As an interim mitigation, medical certificate uploads for self-serve companies are held behind the onboarding-completion gate until this review is complete.
+- A runtime-adjustable data retention mechanism exists for medical certificates and company-pipeline CV data (30-day period today, matching the public privacy notice), with a full audit trail and an on-demand single-record deletion tool for individual data-subject requests. The retention module's own internal documentation is explicit that this makes the retention period an editable, auditable parameter — it does not, by itself, make the product GDPR/HIPAA compliant. Job Assistant CV data has no persistence layer at all, so there is nothing to delete for that data type by design.
+- AI-based candidate scoring/ranking (single and bulk) has been documented as falling under the EU AI Act's high-risk classification (Annex III, point 4(a): recruitment/candidate evaluation), whose obligations became applicable 2 August 2026. None of the associated requirements currently exist: a documented risk-management process, data-governance review of the scoring prompts/data for bias, technical documentation of the scoring logic, structured logging of individual scoring events for audit purposes, documented human-oversight measures, a candidate-facing "AI is used to evaluate you" notice, or a conformity assessment. This is a documentation-only finding so far (no behavior change) — final compliance determination and remediation priority require legal review.
+- Leave-request approval/rejection is not backed by an explicit server-side authorization check the way leave-request *creation* now is — it is a direct database update from the browser relying entirely on database-level row security, rather than the app-level identity checks used elsewhere in the recent hardening pass. Not confirmed to be exploitable, but architecturally inconsistent with the rest of the newly centralized authorization model.
+- A public feedback-listing endpoint (used for the marketing demo's star-rating widget) returns every submitted rating/comment with no authorization check at all, despite being commented as intended for internal/admin use only — low sensitivity (demo feedback, not employee or candidate data), but a gap.
+- There is no dedicated company-wide admin view for time & attendance — oversight is folded into the manager approval screen (an admin can act on any manager's team through it), not a separate "everyone regardless of manager" dashboard.
+- Known unresolved bug in job description generation: a prompt-variable helper does not work correctly, worked around with manual replacement rather than fixed.
+- Admin/permission checks have recently been centralized into a single authorization module (`lib/authz/`) closing 16 confirmed critical/high-severity issues, replacing the previous ad hoc per-route pattern for most of the surfaces reviewed. This is a meaningful maturity improvement, though it was not confirmed to cover every single route in the app exhaustively.
 - Obsolete/backup code and folders (e.g., an "ObsoleteHome" folder) remain in the codebase.
 
 ---
@@ -215,12 +302,13 @@ Web (responsive), Next.js application. No native mobile app.
 
 Frontend
 
-- Next.js 15, React 19, Tailwind CSS v4 with a minimal custom theme (`@theme` block in `globals.css`: brand indigo/accent emerald color scales, formalizing colors already used ad hoc throughout the app) and a Sora/Inter font pairing via `next/font/google`, replacing the previous default black/white/Arial. Explicitly a starting point, not a full rebrand — applied only to the homepage and pricing page so far.
+- Next.js 15, React 19, Tailwind CSS v4 with a minimal custom theme (brand indigo/accent emerald color scales) and a Sora/Inter font pairing, applied so far mainly to the homepage and pricing page.
 
 Backend
 
 - Next.js API routes
-- `lib/entitlements.ts` + `src/config/entitlements.ts`: server-side plan/feature-gating layer (see Section 5, Settings)
+- A centralized authorization module (`lib/authz/`) providing reusable identity/permission checks (self, manager-of, company-admin, super-admin, service-secret for cron jobs, session-token for anonymous flows)
+- A centralized entitlements/plan-gating layer (`lib/entitlements.ts` + `src/config/entitlements.ts`) that maps feature keys to live database checks rather than hardcoding limits in code
 
 Database
 
@@ -236,8 +324,9 @@ Authentication
 
 AI
 
-- OpenAI SDK and OpenRouter (models used include gpt-3.5-turbo and mistral-7b-instruct)
+- OpenAI SDK and OpenRouter (models used include Claude 3.5 Sonnet and Claude 3 Haiku for recruitment scoring/generation, GPT-4o-mini for the public Job Assistant, GPT-3.5-turbo and Mistral for various interview/assistant flows, with automatic fallback chains between providers on failure)
 - OCR.Space (document OCR for medical certificates)
+- Browser-native speech recognition (Web Speech API) for the public Job Assistant's voice-enabled mock interview
 - Tesseract.js and pdf-parse (document/CV parsing)
 
 Storage
@@ -246,9 +335,10 @@ Storage
 
 Other
 
-- Stripe (billing/subscriptions)
-- Resend and Nodemailer (email)
+- Stripe (billing/subscriptions, one-time AI-credit top-up purchases)
+- Resend and Nodemailer (email), with optional per-company outbound SMTP configuration (encrypted credentials)
 - next-intl (internationalization — English, French, and Hungarian)
+- AES-256-GCM encryption (used currently for company SMTP credentials at rest)
 
 ---
 
@@ -256,41 +346,42 @@ Other
 
 Current integrations found in the codebase:
 
-- Stripe (billing, subscriptions, customer portal)
+- Stripe (billing, subscriptions, customer portal, one-time credit purchases)
 - Supabase (auth, database, storage)
-- OpenAI / OpenRouter (AI text generation and analysis)
+- OpenAI / OpenRouter (AI text generation and analysis, multiple models with fallback chains)
 - OCR.Space (document OCR)
 - Resend / Nodemailer (transactional email)
+- Calendly (onboarding-call booking link)
 - Vercel Analytics / Speed Insights
 
 ---
 
 # 11. Pricing
 
-Current pricing strategy, confirmed against the live `forfait` table (not inferred).
+Current pricing strategy, confirmed against the live `forfait` table and its seeding migrations (not inferred).
 
 Free
 
-- No Stripe price attached (default/no-payment tier). Grants: up to 2 open job positions, up to 5 medical certificate uploads/month, no AI wellbeing chatbot access, 50 included AI credits. Time & attendance and absences are visible to admins as a locked preview only (not usable for real data entry); performance management is likewise locked.
+- No Stripe price attached (default/no-payment tier). Grants: up to 2 open job positions, up to 5 medical certificate uploads/month, no AI wellbeing chatbot access, 50 included AI credits/month, no support-ticket creation. Time & attendance/absences and performance management are locked (visible to admins as a locked preview only, not usable for real data entry). Employee seats are uncapped on Free.
 
 Momentum
 
-- Paid tier (Stripe price `price_1S9ezYBqOCxgBpW2elkKzqUB`, live-mode "HR Inno - Momentum" — 20 000 HUF/month). Grants: up to 5 open job positions, up to 10 medical certificate uploads/month, AI wellbeing chatbot access, 100 included AI credits. Time & attendance and absences are usable for up to 20 employees. Performance management is still locked (same as Free).
+- Paid tier (~20 000 HUF/month). Grants: up to 5 open job positions, up to 10 medical certificate uploads/month, AI wellbeing chatbot access, 100 included AI credits/month, support-ticket creation. Time & attendance and absences are usable for up to 20 employees. Performance management is still locked (same as Free).
 
 Infinity
 
-- Paid tier (Stripe price `price_1S9ezpBqOCxgBpW26j6WvxOE`, live-mode "HR Inno - Infinity" — 45 000 HUF/month). Grants: up to 10 open job positions, up to 20 medical certificate uploads/month, AI wellbeing chatbot access, 250 included AI credits. Time & attendance, absences, and performance management are all usable, for up to 100 employees. Adding an employee beyond 100 isn't self-serve — the app shows a "contact us for a custom quote" state rather than a hard block.
+- Paid tier (~45 000 HUF/month). Grants: up to 10 open job positions, up to 20 medical certificate uploads/month, AI wellbeing chatbot access, 250 included AI credits/month, support-ticket creation. Time & attendance, absences, and performance management are all usable, for up to 100 employees. Adding an employee beyond 100 isn't self-serve — the app shows a "contact us for a custom quote" state rather than a hard block.
 
 Notes
 
-- Plan names are Free / Momentum / Infinity — not the Starter/Pro/Enterprise naming previously assumed in this document before the actual `forfait` table was inspected.
-- A company with no active plan (`forfait` is null — the state both before ever subscribing and immediately after canceling/expiry) permanently behaves like the Free plan for every gated feature, not blocked outright. This is not a temporary grace period — "no plan" and "Free plan" are treated as identical going forward. A company that had more items than Free's caps allow before downgrading (e.g. 8 open positions on Infinity, dropping to Free's cap of 2) keeps full read/edit/close access to everything it already has; only creating new items beyond the cap is blocked.
-- A Stripe subscription canceled directly on Stripe's side (not through the app's own cancel button) is now correctly synced back to the company record via a `customer.subscription.deleted` webhook handler (plus a narrower `customer.subscription.updated` handler for cancellations reported that way), clearing the plan to the same null/Free-fallback state as an in-app cancellation.
+- Plan names are Free / Momentum / Infinity.
+- A company with no active plan (the state both before ever subscribing and immediately after canceling/expiry) permanently behaves like the Free plan for every gated feature, not blocked outright. A company that had more items than Free's caps allow before downgrading keeps full read/edit/close access to everything it already has; only creating new items beyond the cap is blocked.
+- A Stripe subscription canceled directly on Stripe's side (not through the app's own cancel button) is correctly synced back to the company record via webhook, clearing the plan to the same null/Free-fallback state as an in-app cancellation. A failed renewal payment triggers a 7-day grace period before the plan is downgraded.
 - Per-plan limits/flags live in the `forfait` table and are read live by the app, not hardcoded — changing a plan's limits in Supabase takes effect without a code deploy.
-- AI credits (`included_ai_credits` / `used_ai_credits`) are metered per API call (e.g. CV analysis, medical certificate OCR) independently of the gated features above; this metering was already implemented before the recent gating work and is unchanged.
-- Plan-tier gating (Free vs. Momentum vs. Infinity) covers job posting creation, medical certificate uploads, the AI wellbeing chatbot, time & attendance/absences, performance management, and total employee seat count. Support tickets are the only module with no plan-based distinction in the data model (see Section 8).
-- Every new company created through self-serve signup starts on Free automatically (no plan is selected during signup itself, even if the visitor clicked a Momentum or Infinity button on the pricing page). Upgrading to a paid plan is a separate step taken afterward from inside the dashboard's existing subscription page, unchanged by this update. On Free, this means attendance/absences/performance are locked by plan tier in addition to the onboarding gate below — upgrading alone isn't enough to unlock them without also completing onboarding.
-- Time & attendance, absences, performance, the AI wellbeing chatbot, and medical certificate uploads are additionally withheld from every self-serve company — on any plan, including paid ones — until the team manually marks that company's onboarding as complete (Section 5, Settings). This onboarding gate is independent of, and layered on top of, the plan-tier limits described above. Medical certificate uploads are in this list as a temporary compliance safeguard, not a training gate like the other four — see Known Limitations.
+- AI credits are metered per AI-generation call (job-description generation, single CV analysis, bulk CV re-scoring) independently of the boolean/capacity gates above; a top-up pack can be purchased one-time via Stripe if a company's monthly allowance runs out.
+- Plan-tier gating now covers job posting creation, medical certificate uploads, the AI wellbeing chatbot, time & attendance/absences, performance management, total employee seat count, and support ticket creation. Every module that can be plan-differentiated now is.
+- Every new company created through self-serve signup starts on Free automatically (no plan is selected during signup itself, even if the visitor clicked a Momentum or Infinity button on the pricing page). Upgrading to a paid plan is a separate step taken afterward from inside the dashboard's existing subscription page.
+- Time & attendance, absences, performance, and the AI wellbeing chatbot, plus medical certificate uploads, are additionally withheld from every self-serve company — on any plan, including paid ones — until the team manually marks that company's onboarding as complete. Support ticket creation and recruitment/job postings are not subject to this onboarding gate.
 
 ---
 
@@ -306,9 +397,9 @@ Not documented in the codebase. No competitor names, comparisons, or market rese
 
 # 13. Positioning
 
-Not formally defined as a written statement, but the homepage hero now states a clear positioning: lead with the free, no-account Job Assistant as the candidate-facing hook ("Get your CV scored, free before you apply"), with the full HR platform (recruitment, time & attendance, absences, performance) positioned as what a company gets once a candidate becomes a lead. The `hrinno-marketing` site carries an aligned version of this pitch. The `<meta name="description">` (`src/app/layout.tsx`) is also already aligned with this pitch (leads with the free CV scoring hook) — the previous generic tagline ("HR was never as easy as now!") only survives in an unused backup file, not anywhere live.
+Not formally defined as a written statement, but the homepage hero states a clear positioning: lead with the free, no-account Job Assistant as the candidate-facing hook, with the full HR platform (recruitment, time & attendance, absences, performance, wellbeing) positioned as what a company gets once a candidate becomes a lead. The `hrinno-marketing` site carries an aligned version of this pitch.
 
-With self-serve signup now live, the product's access model is a deliberate hybrid rather than pure product-led growth: recruitment/Job Assistant is instant and fully unassisted, while time & attendance, absences, performance, the wellbeing chatbot, and (temporarily) medical certificate uploads require a short human-guided onboarding call before first use, on any plan. The pitch this supports is "start free in minutes for recruiting, get white-glove setup for the harder HR operations" rather than "buy and self-configure the whole platform."
+With self-serve signup now live, the product's access model is a deliberate hybrid rather than pure product-led growth: recruitment/Job Assistant and (on a paid plan) support tickets are instant and fully unassisted, while time & attendance, absences, performance, and the wellbeing chatbot, plus (temporarily) medical certificate uploads, require a short human-guided onboarding call before first use, on any plan. The pitch this supports is "start free in minutes for recruiting, get white-glove setup for the harder HR operations" rather than "buy and self-configure the whole platform."
 
 ---
 
@@ -317,16 +408,17 @@ With self-serve signup now live, the product's access model is a deliberate hybr
 Important information for Marketing.
 
 - Use the real plan names — Free, Momentum, Infinity — not generic tier names like "Starter/Pro/Enterprise."
-- Plan-based gating is real and substantial: number of open job postings, number of medical certificate uploads per month, AI wellbeing chatbot access (Momentum/Infinity only, not Free), time & attendance/absences (locked on Free; usable on Momentum up to 20 employees; usable on Infinity up to 100), performance management (locked on Free and Momentum; usable on Infinity up to 100 employees), and total employee seats (20 on Momentum, 100 on Infinity). All of these are safe to market as plan differentiators. Support tickets are the one module with no plan-based distinction today.
-- Storage access control for medical certificates and CVs was significantly hardened (private storage, short-lived signed URLs, company-scoped database access), a best-effort PII redaction pass now runs on medical certificate text before it's sent to the AI provider, and the data retention period is now formally set to 30 days (matching the public privacy notice/terms of service, replacing an earlier 365-day placeholder) — but do NOT claim full compliance (e.g. GDPR/HIPAA) yet: the redaction is best-effort (not an ML PII detector, can miss things), and whether the AI/OCR providers' own terms are acceptable for health data hasn't been reviewed.
+- Plan-based gating is now real and complete across every gateable module: number of open job postings, number of medical certificate uploads per month, AI wellbeing chatbot access (Momentum/Infinity only, not Free), time & attendance/absences (locked on Free; usable on Momentum up to 20 employees; usable on Infinity up to 100), performance management (Infinity only), total employee seats, and support ticket creation (Momentum/Infinity only). All of these are safe to market as plan differentiators.
+- The public Job Assistant (free CV scoring + AI-rewritten CV with a downloadable .docx + genuinely voice-enabled mock interview + coaching report) is the strongest, most differentiated feature in the product and requires no company account — it is the best candidate for a dedicated acquisition campaign, distinct from and not to be confused with the "AI Interview" features that live inside a company's own recruitment pipeline.
+- Be precise about the recruitment pipeline's two different "AI interview" mechanisms when writing copy: one is an AI *assistant* that helps a human recruiter prepare questions and summarize their own notes after a real interview; the other is a fully automated interview the candidate takes alone, with no voice component. Only the free, public Job Assistant tool uses actual voice recognition — do not imply the in-pipeline "Virtual Interview" is voice-based.
+- Storage access control for medical certificates and CVs is hardened (private storage, short-lived signed URLs, company-scoped database access), a best-effort PII redaction pass runs on medical certificate text before it's sent to the AI provider, and the data retention period is formally set to 30 days — but do NOT claim full compliance (e.g. GDPR/HIPAA) yet: the redaction is best-effort (not an ML PII detector, can miss things), and whether the AI/OCR providers' own terms are acceptable for health data hasn't been reviewed.
 - Do NOT present the AI job-description generator as fully polished — it has a known, unresolved bug worked around manually rather than fixed.
 - Do NOT claim the AI candidate-scoring feature is EU AI Act compliant. It has been documented as high-risk under the Act (recruitment/candidate evaluation), and none of the associated obligations are currently met — this is a legal-review item, not a marketing claim to make either way, positive or reassuring.
-- Do NOT make guarantees about candidate CV data privacy or retention beyond what the privacy notice/terms of service now state (30-day retention) — no further documented policy exists.
-- The public site's legal pages (privacy notice, terms, cookies, impressum) previously 404'd from the homepage and public Job Assistant footer; they're now reachable everywhere, so it's safe to link them in campaign landing pages without risk of a broken link.
-- The public Job Assistant (free CV scoring + AI-rewritten CV + voice-based mock interview + coaching report) is the strongest, most differentiated feature in the product — it is the best candidate for a dedicated campaign, and is unaffected by the plan gating described above since it requires no company account.
-- A minimal brand (indigo/emerald color palette, Sora/Inter fonts) now exists on the homepage and pricing page — usable as a starting point for campaign creative, but not yet a full brand system (no logo refresh, no broader style guide).
-- Self-serve sign-up is now real and can be marketed as such on both properties — it is safe to say a company can sign up and start posting jobs / using the Job Assistant in minutes, with no sales call required. Both this app's own `/pricing` page and the separate `hrinno-marketing` site (www.hrinno.hu) now send every plan button (Free/Momentum/Infinity) straight to signup (a Momentum/Infinity click still creates a Free account first; upgrading happens afterward inside the dashboard).
-- Do NOT imply that time & attendance, absences, performance, the AI wellbeing chatbot, or medical certificate uploads are available immediately after self-serve signup — all five require a manual onboarding call with the team first, regardless of plan, even on Momentum or Infinity. Marketing copy for self-serve signup should frame this honestly (e.g. "get started free with recruiting today; the full HR suite unlocks after a quick setup call") rather than promising instant access to the whole platform. Both this app's `/pricing` page and `hrinno-marketing` now carry a shared disclaimer saying so — keep any new marketing copy consistent with it.
+- Do NOT treat the current privacy notice, terms of service, or impressum as final, reviewed legal copy — they are explicitly named as "-demo" pages in the product and should not be cited as authoritative in customer-facing or contractual contexts until legal sign-off happens.
+- Do NOT make guarantees about candidate CV data privacy or retention beyond what the privacy notice/terms of service currently state (30-day retention) — no further documented policy exists.
+- Self-serve sign-up is real and can be marketed as such: a company can sign up and start posting jobs / using the Job Assistant in minutes, with no sales call required, and (on a paid plan) can also open a support ticket immediately. Do NOT imply that time & attendance, absences, performance, or the AI wellbeing chatbot, or medical certificate uploads, are available immediately after self-serve signup — all five require a manual onboarding call with the team first, regardless of plan, even on Momentum or Infinity.
+- Avoid describing medical certificate upload as an "employee self-service" feature in copy — the backend restricts it to company admins even though it is currently surfaced on an employee-facing screen; describe it as an HR-admin-managed workflow instead until that's resolved.
+- A minimal brand (indigo/emerald color palette, Sora/Inter fonts) exists on the homepage and pricing page — usable as a starting point for campaign creative, but not yet a full brand system.
 
 ---
 
@@ -334,15 +426,16 @@ Important information for Marketing.
 
 Current readiness (0–100%)
 
-- Not formally assessed; no scoring exists in the repo. The most severe pre-launch data-exposure risks identified in the prior version of this brief (public storage URLs for health documents and CVs, unauthenticated candidate-data access) have since been fixed, monetization is functional across most of the product (see Section 11), and a prospective customer can now sign up and reach a working dashboard entirely unassisted. Still not production-hardened — see Section 8 for what remains.
+- Not formally assessed; no scoring exists in the repo. Every plan-gateable module (recruitment, medical certificates, wellbeing chatbot, attendance/absences, performance, seats, and now support tickets) enforces real limits, a prospective customer can sign up and reach a working dashboard entirely unassisted, and authorization has just gone through a substantial, centralized hardening pass. Still not production-hardened — see Section 8 for what remains, most notably the placeholder ("-demo") legal pages and a handful of visibly stubbed UI affordances.
 
 Major blockers
 
-- Self-serve signup now exists and closes the biggest previous gap (a prospect can create an account and start recruiting without any manual step), but it only covers recruitment: time & attendance, absences, performance, the wellbeing chatbot, and medical certificate uploads still require a manual onboarding call before a self-serve company can use them. Getting the prospect to book that call is now automated (a Calendly-link email at signup plus a one-time reminder), but running the call and flipping the toggle remains manual with no capacity planning behind it. At scale, this still makes the onboarding-call team a potential bottleneck between signup and full product value.
-- Monetization is functional and covers most of the product: job posting creation, medical certificate uploads, the wellbeing chatbot, time & attendance/absences, performance management, and total employee seats all enforce real plan limits. Support tickets are the one module available identically regardless of plan.
-- Medical certificate and CV data is still sent to third-party AI/OCR services. Best-effort redaction and a runtime-adjustable retention mechanism now exist and the retention period has been formally set to 30 days to match the public privacy notice (see Section 8), but the AI/OCR providers' own data-handling terms for health data still haven't been reviewed, and the daily deletion job's environment dependency (`CRON_SECRET`) had not been confirmed set as of the most recent related change — still a compliance gap, just a narrower one than before.
-- The AI candidate-scoring feature (core to the recruitment pitch) has been documented as high-risk under the EU AI Act, with an applicability date that has already passed and none of the associated obligations (risk management, data governance, technical documentation, logging, human oversight, candidate transparency notice, conformity assessment) currently met. This is a new, EU-market-relevant legal-risk item that didn't exist in the prior version of this brief — see Section 8 and `COMPLIANCE.md`.
-- Customers now have an in-app user manual, closing the "new admin has nothing to reference" gap; internal/developer documentation (README, architecture) is still absent, though that's a lower-priority gap for launch readiness than customer-facing docs were.
+- Self-serve signup covers recruitment and (on a paid plan) support tickets unassisted; time & attendance, absences, performance, and the wellbeing chatbot, plus medical certificate uploads, still require a manual onboarding call before a self-serve company can use them, with running the call and flipping the toggle remaining a fully manual, uncapacity-planned step.
+- The public legal pages are explicitly placeholder ("-demo") content pending legal review — a real blocker for any launch messaging that references privacy, terms, or compliance claims.
+- Medical certificate and CV data is still sent to third-party AI/OCR services; best-effort redaction and a runtime-adjustable 30-day retention mechanism exist, but the providers' own data-handling terms for health data still haven't been reviewed.
+- The AI candidate-scoring feature (core to the recruitment pitch) has been documented as high-risk under the EU AI Act, with an applicability date that has already passed and none of the associated obligations currently met.
+- A few customer-visible features are only partially wired (non-functional "upgrade" CTA on the position-limit banner, ticket-notification emails that don't actually send, a non-functional wellbeing-dashboard export button) — small individually, but each is a moment where a real customer would hit a dead end.
+- Customers have an in-app user manual, but it's English-only; internal/developer documentation (README, architecture) is still absent.
 
 Recommended launch timing
 
@@ -354,7 +447,7 @@ Recommended launch timing
 
 Current metrics (if known)
 
-- Not available. Vercel Analytics and Speed Insights are integrated in the codebase, and lightweight funnel-event tracking (Job Assistant usage, pricing views/clicks, contact form submissions, ROI calculator use, signup started/completed, onboarding marked complete) now exists in a Supabase table with a super-admin dashboard, but no actual usage numbers are accessible from the repository itself — this is instrumentation only, not reported results.
+- Not available. Vercel Analytics and Speed Insights are integrated, and lightweight funnel-event tracking (Job Assistant usage, pricing views/clicks, contact form submissions, ROI calculator use, signup started/completed, onboarding marked complete) exists in a Supabase table with a super-admin dashboard, but no actual usage numbers are accessible from the repository itself — this is instrumentation only, not reported results.
 
 Users
 
@@ -410,11 +503,13 @@ Not documented in the codebase.
 
 Business questions still unresolved, based on gaps found in the codebase:
 
-- Should support tickets also be plan-differentiated? It's the one module with no plan-based distinction today; time & attendance, absences, and performance already are (see Section 11).
-- Retention periods for medical certificates and CV data are now formally set to 30 days, matching the published privacy notice and terms of service (Section 8) — but are OCR.Space's and OpenRouter's own data-handling terms acceptable for health data, and is a formal Data Processing Agreement needed with either? Also: has the `CRON_SECRET` environment variable actually been confirmed set in production, without which the daily deletion job would not run despite the correct configured period?
-- What is the realistic remediation plan and timeline for the AI candidate-scoring feature's EU AI Act high-risk obligations, given the applicability date (2 August 2026) has already passed? Should a candidate-facing "AI is used to evaluate you" notice be added to the application flow, and is a lighter-weight interim risk-management/logging measure feasible before full technical documentation and a conformity assessment are built out (see `COMPLIANCE.md`)?
-- What is the target market (company size, industry, geography)? Nothing in the repo confirms this beyond a weak i18n/commit-language signal.
-- Now that a prospect gets an automated Calendly-link email at signup plus a reminder after 3 business days if they haven't booked, what turnaround target (if any) should the team hold itself to for actually running the call and flipping a new company's onboarding toggle? Getting someone to book is now automated; completing the call and the flag-flip itself is still entirely manual with no queue or capacity tooling — worth deciding before self-serve volume grows.
+- Now that every gateable module (including support tickets) has plan-based differentiation, is the current split (which modules require Momentum vs. Infinity, and which require the onboarding call) the intended long-term packaging, or should it be revisited now that the picture is complete?
+- Are OCR.Space's and OpenRouter's own data-handling terms acceptable for health data, and is a formal Data Processing Agreement needed with either? Has the daily deletion job's required environment configuration been confirmed correctly set in production?
+- What is the realistic remediation plan and timeline for the AI candidate-scoring feature's EU AI Act high-risk obligations, given the applicability date (2 August 2026) has already passed? Should a candidate-facing "AI is used to evaluate you" notice be added to the application flow?
+- When will the four public legal pages move from their current "-demo" placeholder status to final, legally reviewed copy, and does that block any planned marketing campaign that links to them?
+- What is the target market (company size, industry, geography)? Nothing in the repo confirms this beyond weak i18n/code-comment signals.
+- What turnaround target (if any) should the team hold itself to for actually running the onboarding call and flipping a new company's toggle, now that booking itself is automated? This remains a fully manual step with no queue or capacity tooling.
+- Should the two "AI interview" mechanisms inside the recruitment pipeline be renamed or otherwise disambiguated in the product itself, given they're functionally quite different (assistant-for-a-human-interviewer vs. fully automated candidate-run interview) but currently look like one feature to an end user?
 
 ---
 
@@ -422,28 +517,29 @@ Business questions still unresolved, based on gaps found in the codebase:
 
 Brief summary (maximum 10 bullet points). Based on the most recent completed work:
 
-- Decommissioned the Payroll module entirely (business decision: ongoing Hungarian tax/contribution compliance maintenance, not differentiated versus dedicated payroll providers, diluted the AI-first positioning). All payroll UI, API routes, and application code are removed — the customer-facing product no longer has a Payroll feature. The accompanying database migration archives existing payroll data into a locked-down schema (not exposed via the API) before dropping the live payroll tables. Time & attendance, absences, and performance management are unaffected; only the internal name of the entitlement flag they share changed (`access_payroll_attendance_absences` → `access_attendance_absences`), not its gating behavior
-- Documented that the AI-based candidate scoring/ranking feature falls under the EU AI Act's high-risk classification (recruitment/candidate evaluation), with several associated obligations currently unmet. Documentation-only so far, no behavior change — see Section 8 and `COMPLIANCE.md`
-- Formally set the data retention period to 30 days for medical certificates and company-pipeline CV data, replacing the earlier 365-day placeholder, to match what the privacy notice and terms of service already publicly stated
-- Completed the privacy notice: added OCR.Space (previously missing) to the list of third-party services that process data, and corrected the stated retention wording to match the terms of service and the actual 30-day configuration
-- Added a missing AI-processing consent checkbox to the public, no-account Job Assistant CV demo (the checkbox copy existed in the translations but wasn't wired into the page, so no consent was actually being collected before a CV was sent to the AI provider)
-- Fixed the public site's legal pages (privacy notice, terms, cookies, impressum): footer links to them 404'd from the homepage and the public Job Assistant, since only company-scoped versions of these pages existed. Root-level versions now exist and render identical content
-- Added lightweight funnel tracking (Job Assistant usage → pricing views/clicks → contact form submissions → manually onboarded companies) across this app and `hrinno-marketing`, with a super-admin dashboard, to inform a future self-serve-signup decision
-- Added best-effort PII redaction on medical certificate text before it reaches the AI provider, fixed a missing AI-consent checkbox on the certificate upload flow, and built a runtime-adjustable data retention system (settings table, admin UI, daily scheduled deletion) for medical certificates and company-pipeline CVs, verified end-to-end against production
-- Fixed the public job board (`positions-public/route.ts`) to exclude positions with a past `position_end_date`, and separately fixed it to actually honor its own company filter — a missing join-scoping detail meant it silently returned every company's positions regardless of which company's job board was requested, with company attribution blanked out on every result; this also made every company's own recruiting dashboard show zero open positions instead of its real ones
-- Fixed a login/session bug that made a manager's or admin's role randomly fail to register right after signing in until they logged out and back in: the header's login form authenticated against its own disconnected client instance instead of the one the rest of the app reads session state from. Login now goes through a single shared client app-wide
-- Shipped self-serve signup (`/signup`): a prospect can now create a company and admin account and land in their dashboard unassisted, on Free by default. Recruitment and the Job Assistant work immediately; time & attendance, absences, performance, the AI wellbeing chatbot, and medical certificate uploads are additionally gated behind a manual "onboarding complete" toggle (super-admin page) that applies regardless of paid plan
+- Centralized authorization into a single `lib/authz/` module (self, manager-of, company-admin, super-admin, service-secret, session-token, and composite "self-or-manager"/"self-or-company-admin" checks), replacing the previous ad hoc per-route pattern across most of the app's sensitive surfaces
+- Closed 16 confirmed critical/high-severity authorization vulnerabilities as part of that centralization — including previously possible impersonation risks (creating a leave request, performance goal, pulse update, or support ticket "as" an arbitrary other user) and a timeclock manager route that didn't verify the caller actually managed the team being viewed
+- Shipped plan-based gating for creating a new support ticket (Momentum/Infinity only, not onboarding-gated), the one module previously available identically regardless of plan — support tickets are now consistent with every other plan-differentiated module
+- Decommissioned the Payroll module entirely (business decision: ongoing Hungarian tax/contribution compliance maintenance, not differentiated versus dedicated payroll providers, diluted the AI-first positioning); existing payroll data was archived to a locked-down schema before the live tables were dropped
+- Documented that the AI-based candidate scoring/ranking feature falls under the EU AI Act's high-risk classification, with several associated obligations currently unmet (documentation-only so far, no behavior change)
+- Formally set the data retention period to 30 days for medical certificates and company-pipeline CV data, matching the public privacy notice and terms of service, and added a one-off "delete now" tool for individual data-subject deletion requests ahead of the scheduled sweep
+- Added best-effort PII redaction on medical certificate text before it reaches the AI provider, and a mandatory AI-processing consent checkbox on both the certificate upload flow and the public Job Assistant CV flow
+- Fixed the public job board's company-scoping bug (it was silently returning every company's positions rather than just the requested company's) and added exclusion of positions whose end date has passed
+- Fixed a login/session bug that made a manager's or admin's role randomly fail to register right after signing in until they logged out and back in
+- Shipped self-serve signup: a prospect can create a company and admin account and land in their dashboard unassisted, on Free by default, with recruitment and the Job Assistant usable immediately and the higher-complexity modules gated behind a manual onboarding-completion toggle
 
 ---
 
 # 20. Last Marketing Recommendations
 
-- Lead campaigns with the public Job Assistant (free CV scoring + AI mock interview) as the primary differentiator and top-of-funnel acquisition tool, rather than the table-stakes HR modules (time tracking, absences, performance).
+- Lead campaigns with the public Job Assistant (free CV scoring + AI rewrite + genuinely voice-enabled AI mock interview) as the primary differentiator and top-of-funnel acquisition tool, rather than the table-stakes HR modules (time tracking, absences, performance).
 - Use a two-sided funnel: attract candidates for free via the Job Assistant, convert HR buyers who encounter it through job postings.
-- Job posting limits, medical certificate limits, AI wellbeing chatbot access, time & attendance/absences, performance management, and total employee seats can all be marketed as real plan differentiators (Free / Momentum / Infinity). Support tickets are the one module not plan-gated.
-- Continue to hold off on claiming full data-privacy/compliance for medical certificates and CVs — access control, best-effort redaction, and a formally-set 30-day retention period are now in place, but the AI/OCR providers' own terms for health data haven't been legally reviewed (see Section 18).
-- Do not make any compliance claim about the AI candidate-scoring feature. It has been documented as high-risk under the EU AI Act with most obligations currently unmet — this is a legal-review and remediation item, not something to reference in marketing either as a risk or as a reassurance, until legal review is complete (see Section 18).
-- It is now accurate to advertise instant, self-serve signup for recruitment ("start free in minutes, no sales call") on both this app's own pricing page and the `hrinno-marketing` site — both now route every plan button to the same signup flow. Do not extend that promise to time & attendance, absences, performance, the wellbeing chatbot, or medical certificate uploads — those require a manual onboarding call regardless of plan, and overselling instant access there would set the wrong expectation right after signup.
+- Job posting limits, medical certificate limits, AI wellbeing chatbot access, time & attendance/absences, performance management, total employee seats, and now support ticket access can all be marketed as real plan differentiators (Free / Momentum / Infinity) — every gateable module now differentiates.
+- Continue to hold off on claiming full data-privacy/compliance for medical certificates and CVs — access control, best-effort redaction, and a formally-set 30-day retention period are in place, but the AI/OCR providers' own terms for health data haven't been legally reviewed.
+- Do not make any compliance claim about the AI candidate-scoring feature. It has been documented as high-risk under the EU AI Act with most obligations currently unmet.
+- Do not cite the current privacy notice, terms, or impressum pages as final legal copy in any campaign material — they are internally marked as placeholder ("-demo") content pending legal review.
+- It is accurate to advertise instant, self-serve signup for recruitment ("start free in minutes, no sales call") and, on a paid plan, for opening a support ticket. Do not extend that promise to time & attendance, absences, performance, or the wellbeing chatbot, or medical certificate uploads — those require a manual onboarding call regardless of plan.
+- When describing the recruitment AI interview capability, be careful to distinguish the assistant that helps a human recruiter (question suggestions + notes-to-summary) from the fully automated candidate-run "Virtual Interview" — conflating them overstates what either one alone does, and neither of them uses voice (only the separate public Job Assistant tool does).
 
 ---
 
@@ -451,13 +547,14 @@ Brief summary (maximum 10 bullet points). Based on the most recent completed wor
 
 Maximum 10 bullet points.
 
-- HRInno is an AI-assisted, multi-tenant HR platform covering recruitment, time & attendance, absences, performance, and employee wellbeing.
+- HRInno is an AI-assisted, multi-tenant HR platform covering recruitment/applicant tracking, time & attendance, absences, medical certificates, performance management, and employee wellbeing, plus a support-ticket helpdesk.
 - Primary audience (inferred): HR administrators/company owners; secondary: recruiters, managers, employees; tertiary: job candidates via a free public tool.
-- Current maturity: MVP — the most severe data-exposure risks have been fixed, monetization is functional across most of the product, the product has a real homepage, pricing page, and minimal design system, and a new prospect can now sign up and reach a working dashboard entirely unassisted — but it's still not production-hardened.
-- Biggest strength: the public, free Job Assistant (AI CV scoring/rewriting + voice-based mock interview) is a genuine differentiator versus typical employer-only ATS AI tools, and is now the lead hook on both the app's homepage and the separate `hrinno-marketing` site.
-- Real plan tiers are Free, Momentum, and Infinity, now correctly priced (a stale test-mode Stripe price ID was found and fixed) and enforced substantially: job postings, medical certificate uploads, wellbeing-chatbot access, time & attendance/absences, performance management, and total employee seats all differ meaningfully by plan — including a company with no active subscription, which now permanently behaves like the Free plan instead of being blocked. Infinity's differentiation from Momentum isn't just bigger numbers: it's the only plan with performance management and the only one usable past 20 employees, up to 100 (beyond which it's a custom-quote conversation, not self-serve).
-- Self-serve signup now exists on this app's own pricing page: a new company can create an account and start recruiting immediately, with no manual step. It's deliberately scoped rather than full-platform — time & attendance, absences, performance, the wellbeing chatbot, and (temporarily, for compliance reasons) medical certificate uploads stay locked behind a manual, per-company onboarding-call toggle regardless of plan. Getting the prospect to book that call is now automated (an immediate Calendly-link email plus a one-time reminder), but actually running the call and flipping the toggle is still a fully manual step with no capacity tooling behind it.
-- Other remaining weaknesses: support tickets are the one module with no plan differentiation at all; medical certificate/CV data still goes to third-party AI/OCR services, and while best-effort redaction now exists and the retention period is formally set to 30 days (matching the public privacy notice), the providers' own terms for health data haven't been legally reviewed. A newly-documented weakness: the AI candidate-scoring feature (a core recruitment differentiator) has been found to fall under the EU AI Act's high-risk classification, with most of the associated legal obligations currently unmet and the applicability date already passed.
-- Launch readiness has not been formally assessed; major blockers have shifted from wide-open data exposure and a missing signup path (both now fixed) to partial monetization coverage, the operational scalability of manual onboarding calls, and now the AI Act compliance gap on candidate scoring.
-- Customers now have an in-app user manual covering every live feature, closing the "new admin has nothing to reference" gap this brief previously flagged; internal/developer documentation (README, architecture docs) remains absent.
+- Current maturity: MVP — every plan-gateable module now enforces real limits, a new prospect can sign up and reach a working dashboard entirely unassisted, and authorization has just been substantially centralized and hardened (16 confirmed vulnerabilities closed) — but the public legal pages remain explicit placeholders and several smaller UI affordances are visibly stubbed, so it's not yet production-hardened.
+- Biggest strength: the public, free Job Assistant (AI CV scoring/rewriting with a downloadable .docx, plus a genuinely voice-enabled mock interview and coaching report) is a real differentiator versus typical employer-only ATS AI tools, requires no account, and is explicitly instrumented as a top-of-funnel acquisition asset.
+- The recruitment pipeline itself is now feature-rich: customizable per-company pipeline stages, AI CV scoring both for individual applicants and for instantly re-scoring the entire historical candidate database against a new opening, per-position analytics, and two functionally distinct AI interview mechanisms (an assistant for human-run interviews, and a separate fully automated candidate-run interview) that both surface as a single "AI Interview" score.
+- Real plan tiers are Free, Momentum, and Infinity, and every gateable module — job postings, medical certificate uploads, the wellbeing chatbot, time & attendance/absences, performance management (Infinity only), total employee seats, and now support ticket creation — differs meaningfully by plan, including a company with no active subscription, which permanently behaves like Free rather than being blocked outright.
+- Self-serve signup exists and is deliberately scoped: a new company can create an account and start recruiting (and, on a paid plan, open support tickets) immediately, while time & attendance, absences, performance, and the wellbeing chatbot, plus (temporarily, for compliance reasons) medical certificate uploads, stay locked behind a manual, per-company onboarding-call toggle regardless of plan.
+- Remaining weaknesses: the public legal pages are explicit "-demo" placeholders, not final legal copy; medical certificate/CV data still goes to third-party AI/OCR services with only best-effort redaction and unreviewed provider terms for health data; the AI candidate-scoring feature has been found to fall under the EU AI Act's high-risk classification with most obligations unmet and the applicability date already passed; and a handful of smaller features (upgrade CTA, ticket email notifications, wellbeing-dashboard export) are visibly stubbed rather than functional.
+- Launch readiness has not been formally assessed; major blockers have shifted from wide-open data exposure and missing authorization checks (both substantially addressed by the recent hardening pass) toward legal-copy finalization, third-party data-processing review, the AI Act compliance gap, and the operational scalability of manual onboarding calls.
+- Customers have an in-app user manual covering every live feature, but it's English-only; internal/developer documentation (README, architecture docs) remains absent.
 - No competitor research, market sizing, or formal positioning statement exists in the repo.
