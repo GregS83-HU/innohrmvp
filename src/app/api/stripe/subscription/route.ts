@@ -23,7 +23,7 @@ export async function GET(request: Request) {
 
     const { data: company, error: supabaseError } = await supabase
       .from("company")
-      .select("forfait, stripe_subscription_id")
+      .select("forfait, stripe_subscription_id, billing_interval, onboarding_fee_paid_at")
       .eq("id", company_id)
       .single()
 
@@ -42,10 +42,20 @@ export async function GET(request: Request) {
       status = company.stripe_subscription_id ? "Active" : "Pending"
     }
 
+    const { count: employeeCount } = await supabase
+      .from("company_to_users")
+      .select("id", { count: "exact", head: true })
+      .eq("company_id", company_id)
+      .eq("is_active", true)
+
     return NextResponse.json({
       subscription: {
         plan: company.forfait || "None",
         status,
+        billingInterval: company.billing_interval,
+        hasStripeSubscription: !!company.stripe_subscription_id,
+        onboardingFeePaid: !!company.onboarding_fee_paid_at,
+        employeeCount: employeeCount ?? 0,
       }
     })
 

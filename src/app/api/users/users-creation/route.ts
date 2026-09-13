@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { hasFeatureAccess, entitlementErrorBody } from '../../../../../lib/entitlements';
 import { requireCompanyAdmin } from '../../../../../lib/authz';
 import { safeErrorInfo } from '../../../../../lib/logSafe';
+import { syncEmployeeSeats } from '../../../../../lib/billing/syncEmployeeSeats';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -111,6 +112,8 @@ export async function POST(req: NextRequest) {
       await supabase.from('users').delete().eq('id', userId);
       throw new Error(profileError.message || 'Failed to create user profile');
     }
+
+    await syncEmployeeSeats(companyId);
 
     return NextResponse.json({ success: true, userId });
   } catch (err: unknown) {

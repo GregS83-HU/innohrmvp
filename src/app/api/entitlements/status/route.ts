@@ -52,27 +52,29 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Company not found for this user' }, { status: 404 });
     }
 
-    const [attendanceAbsences, performance, supportTickets, companyRow] = await Promise.all([
+    const [attendanceAbsences, performance, supportTickets, advancedReporting, companyRow] = await Promise.all([
       hasFeatureAccess(companyLink.company_id, 'attendance.use'),
       hasFeatureAccess(companyLink.company_id, 'performance.use'),
       hasFeatureAccess(companyLink.company_id, 'support.tickets'),
+      hasFeatureAccess(companyLink.company_id, 'reporting.advanced'),
       supabase.from('company').select('onboarding_completed').eq('id', companyLink.company_id).single(),
     ]);
 
     return NextResponse.json({
       isAdmin: !!userData.is_admin,
       companyId: companyLink.company_id,
-      plan: attendanceAbsences.plan ?? performance.plan ?? supportTickets.plan ?? null,
+      plan: attendanceAbsences.plan ?? performance.plan ?? supportTickets.plan ?? advancedReporting.plan ?? null,
       // These already fold in the onboarding gate (hasFeatureAccess checks
-      // it first) - a company that's on Momentum/Infinity but not yet
-      // onboarded gets `false` here just like a company on Free would.
+      // it first) - a company that's on Core/Growth but not yet onboarded
+      // gets `false` here just like a company on Free would.
       // `onboardingCompleted` is exposed separately so the UI can tell
       // "not in your plan" apart from "not onboarded yet" for messaging.
-      // support.tickets is NOT onboarding-gated, so supportTicketsEnabled
-      // reflects the plan check only.
+      // support.tickets and reporting.advanced are NOT onboarding-gated, so
+      // their *Enabled fields reflect the plan check only.
       attendanceAbsencesEnabled: attendanceAbsences.allowed,
       performanceEnabled: performance.allowed,
       supportTicketsEnabled: supportTickets.allowed,
+      advancedReportingEnabled: advancedReporting.allowed,
       onboardingCompleted: !!companyRow.data?.onboarding_completed,
     });
   } catch (error) {

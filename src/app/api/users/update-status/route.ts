@@ -3,6 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { requireCompanyAdmin } from '../../../../../lib/authz';
 import { safeErrorInfo } from '../../../../../lib/logSafe';
+import { syncEmployeeSeats } from '../../../../../lib/billing/syncEmployeeSeats';
+import { hasFeatureAccess, entitlementErrorBody } from '../../../../../lib/entitlements';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -47,6 +49,17 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'User not found in your company' }, { status: 404 });
     }
 
+    // Reactivating a previously-deactivated employee increases the active
+    // headcount exactly like adding a brand-new one, so it's subject to the
+    // same seat-cap check (Core's hard 30-employee limit) - deactivating is
+    // never gated, since it only ever reduces headcount.
+    if (isActive) {
+      const entitlement = await hasFeatureAccess(companyId, 'company.addEmployee');
+      if (!entitlement.allowed) {
+        return NextResponse.json(entitlementErrorBody('company.addEmployee', entitlement), { status: 403 });
+      }
+    }
+
     // Update the user's active status in company_to_users table
     const { data, error } = await supabase
       .from('company_to_users')
@@ -70,7 +83,11 @@ export async function PATCH(request: NextRequest) {
 
     console.log('Update successful:', data);
 
-    return NextResponse.json({ 
+    // Deactivating/reactivating an employee changes the company's billable
+    // seat count - keep the Stripe subscription's per-seat item in sync.
+    await syncEmployeeSeats(companyId);
+
+    return NextResponse.json({
       success: true, 
       data,
       message: `User ${isActive ? 'activated' : 'deactivated'} successfully` 

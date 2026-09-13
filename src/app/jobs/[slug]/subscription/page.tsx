@@ -15,20 +15,27 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-type Plan = { 
+type Plan = {
   id: string
   name: string
-  price: number
+  isFree: boolean
+  baseFeeHuf: number | null
+  perSeatFeeHuf: number | null
+  minEmployees: number | null
+  maxEmployees: number | null
   description: string
   features: string[]
   popular?: boolean
-  priceId?: string | null
   includedAICredits?: number
 }
 
-type Subscription = { 
+type Subscription = {
   plan: string
   status: string
+  billingInterval: 'month' | 'year' | null
+  hasStripeSubscription: boolean
+  onboardingFeePaid: boolean
+  employeeCount: number
 }
 
 type Toast = { 
@@ -44,14 +51,13 @@ interface ForfaitData {
   max_opened_position?: number
   max_medical_certificates?: number
   access_happy_check?: boolean
-  stripe_price_id?: string | null
+  access_performance?: boolean
+  access_advanced_reporting?: boolean
+  base_fee_huf?: number | null
+  per_seat_fee_huf?: number | null
+  min_employees?: number | null
+  max_employees?: number | null
   included_ai_credits?: number
-}
-
-interface StripePriceData {
-  id: string
-  name: string
-  price?: number
 }
 
 interface AICreditPack {
@@ -78,6 +84,8 @@ export default function ManageSubscription() {
   const [currentAICredits, setCurrentAICredits] = useState<number | null>(null)
   const [aiCreditPacks, setAICreditPacks] = useState<AICreditPack[]>([])
   const [includedAICredits, setIncludedAICredits] = useState<number>(0)
+  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month')
+  const [isManagingBilling, setIsManagingBilling] = useState(false)
 
 
   const addToast = (message: string, type: 'success' | 'error' = 'error') => {
@@ -259,77 +267,92 @@ const fetchCompanyDetails = useCallback(async (companyId: string) => {
 }, [t])
 
 
-  const generateDescription = (forfait: ForfaitData) => {
-    const features: string[] = []
-    if (forfait.max_opened_position) features.push(t('subscription.plan.positions', { count: forfait.max_opened_position }))
-    if (forfait.max_medical_certificates) features.push(t('subscription.plan.certificates', { count: forfait.max_medical_certificates }))
-    if (forfait.access_happy_check) features.push(t('subscription.plan.happyCheckAccess'))
-    return features.length > 0 ? t('subscription.plan.description', { features: features.join(', ') }) : t('subscription.plan.defaultDescription')
+  // Employee count, active billing interval, and whether a Stripe
+  // subscription already exists - none of this is available from the
+  // direct company_to_users/company Supabase reads above, so it's fetched
+  // from the authenticated /api/stripe/subscription endpoint instead.
+  const fetchSubscriptionDetails = useCallback(async () => {
+    try {
+      const {
+        data: { session: freshSession },
+      } = await supabase.auth.getSession()
+      if (!freshSession?.access_token) return
+
+      const res = await fetch('/api/stripe/subscription', {
+        headers: { Authorization: `Bearer ${freshSession.access_token}` },
+      })
+      if (!res.ok) return
+      const data = await res.json()
+      if (data?.subscription) setSubscription(data.subscription as Subscription)
+    } catch (err) {
+      console.error('Error fetching subscription details:', safeErrorInfo(err))
+    }
+  }, [])
+
+  const handleManageBilling = async () => {
+    setIsManagingBilling(true)
+    try {
+      const {
+        data: { session: freshSession },
+      } = await supabase.auth.getSession()
+      if (!freshSession?.access_token) {
+        addToast(t('subscription.errors.unableCheckout'), "error")
+        return
+      }
+
+      const res = await fetch('/api/stripe/create-portal-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${freshSession.access_token}`,
+        },
+        body: JSON.stringify({ return_url: window.location.href }),
+      })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        addToast(data.error || t('subscription.errors.unableCheckout'), "error")
+      }
+    } catch (err) {
+      console.error(safeErrorInfo(err))
+      addToast(t('subscription.errors.unexpectedCheckout'), "error")
+    } finally {
+      setIsManagingBilling(false)
+    }
   }
 
+  const generateDescription = (forfait: ForfaitData) => {
+    if (!forfait.base_fee_huf) return t('subscription.plan.defaultDescription')
+    return t('subscription.plan.paidDescription')
+  }
+
+  // Core and Growth share recruitment, time & attendance, absences, and
+  // medical certificate uploads - Growth additionally includes performance
+  // management, the AI wellbeing chatbot, and advanced reporting. Free's
+  // feature list stays as-is (untouched by this pricing overhaul).
   const generateFeatures = (forfait: ForfaitData) => {
-    const features: string[] = []
-    if (forfait.max_opened_position) {
-      features.push(forfait.max_opened_position === 999999 
-        ? t('subscription.features.unlimitedPositions') 
-        : t('subscription.features.maxPositions', { count: forfait.max_opened_position }))
+    if (!forfait.base_fee_huf) {
+      const features: string[] = []
+      if (forfait.max_opened_position) {
+        features.push(t('subscription.features.maxPositions', { count: forfait.max_opened_position }))
+      }
+      if (forfait.max_medical_certificates) {
+        features.push(t('subscription.features.maxCertificates', { count: forfait.max_medical_certificates }))
+      }
+      return features
     }
-    if (forfait.max_medical_certificates) {
-      features.push(forfait.max_medical_certificates === 999999 
-        ? t('subscription.features.unlimitedCertificates') 
-        : t('subscription.features.maxCertificates', { count: forfait.max_medical_certificates }))
-    }
+
+    const features: string[] = [
+      t('subscription.features.recruitment'),
+      t('subscription.features.attendanceAbsences'),
+      t('subscription.features.medicalCertificates'),
+    ]
+    if (forfait.access_performance) features.push(t('subscription.features.performance'))
     if (forfait.access_happy_check) features.push(t('subscription.features.happyCheck'))
-    features.push(
-      t('subscription.features.emailSupport'),
-      t('subscription.features.analytics'),
-      t('subscription.features.secureStorage')
-    )
+    if (forfait.access_advanced_reporting) features.push(t('subscription.features.advancedReporting'))
     return features
   }
-
-  const fetchStripePrices = useCallback(async (plansToUpdate: Plan[]) => {
-    const paidPlans = plansToUpdate.filter(plan => plan.priceId !== null)
-    if (paidPlans.length === 0) return
-
-    try {
-      const res = await fetch('/api/stripe/prices')
-      if (!res.ok) {
-        addToast(t('subscription.errors.stripePricing'), "error")
-        const freePlansOnly = plansToUpdate.filter(plan => plan.priceId === null)
-        setPlans(freePlansOnly)
-        return
-      }
-      
-      const data = await res.json()
-      if (!data.prices || !Array.isArray(data.prices)) {
-        addToast(t('subscription.errors.invalidPricing'), "error")
-        const freePlansOnly = plansToUpdate.filter(plan => plan.priceId === null)
-        setPlans(freePlansOnly)
-        return
-      }
-
-      let hasStripePricingIssues = false
-      const updatedPlans = plansToUpdate
-        .map(plan => {
-          if (plan.priceId === null) return plan
-          const stripePrice = data.prices.find((p: StripePriceData) => p.id === plan.priceId)
-          if (stripePrice && typeof stripePrice.price === 'number') return { ...plan, price: stripePrice.price }
-          hasStripePricingIssues = true
-          return null
-        })
-        .filter(plan => plan !== null) as Plan[]
-
-      if (hasStripePricingIssues) addToast(t('subscription.errors.somePlansUnavailable'), "error")
-      
-      setPlans(updatedPlans)
-    } catch (err) {
-      console.error("Error fetching Stripe prices:", safeErrorInfo(err))
-      addToast(t('subscription.errors.stripeConnect'), "error")
-      const freePlansOnly = plansToUpdate.filter(plan => plan.priceId === null)
-      setPlans(freePlansOnly)
-    }
-  }, [t])
 
   const fetchPlans = useCallback(async () => {
     setLoadingPlans(true)
@@ -348,15 +371,17 @@ const fetchCompanyDetails = useCallback(async (companyId: string) => {
         const formattedPlans: Plan[] = forfaits.map((forfait: ForfaitData, index: number) => ({
           id: forfait.id?.toString() || `forfait_${forfait.id}`,
           name: forfait.forfait_name || t('subscription.plan.defaultName', { id: forfait.id }),
-          price: 0,
+          isFree: !forfait.base_fee_huf,
+          baseFeeHuf: forfait.base_fee_huf ?? null,
+          perSeatFeeHuf: forfait.per_seat_fee_huf ?? null,
+          minEmployees: forfait.min_employees ?? null,
+          maxEmployees: forfait.max_employees ?? null,
           description: forfait.description || generateDescription(forfait),
           features: generateFeatures(forfait),
           popular: index === 1,
-          priceId: forfait.stripe_price_id || null,
           includedAICredits: forfait.included_ai_credits ?? 0,
         }))
         setPlans(formattedPlans)
-        await fetchStripePrices(formattedPlans)
       }
     } catch (err) {
       console.error(safeErrorInfo(err))
@@ -364,17 +389,33 @@ const fetchCompanyDetails = useCallback(async (companyId: string) => {
     } finally {
       setLoadingPlans(false)
     }
-  }, [fetchStripePrices, t])
+  }, [t])
 
   const handleSubscribe = async (plan: Plan) => {
     if (!companyId) return addToast(t('subscription.errors.companyNotAvailable'), "error")
-    if (plan.priceId === null) {
+    if (plan.isFree) {
       addToast(t('subscription.messages.freePlan'), "success")
       return
     }
-    if (plan.price === 0 && plan.priceId !== null) {
-      addToast(t('subscription.errors.planUnavailable'), "error")
+    // Switching tier/interval on an already-subscribed company isn't
+    // supported yet - create-subscription would create a second, duplicate
+    // Stripe subscription rather than modifying the existing one. Direct
+    // those companies to the billing portal instead (see handleManageBilling).
+    if (subscription?.hasStripeSubscription) {
+      addToast(t('subscription.errors.alreadySubscribed'), "error")
       return
+    }
+    // Defense in depth - the button is already disabled for this case, but
+    // create-subscription/route.ts is the real enforcement point regardless.
+    if (subscription != null) {
+      if (plan.maxEmployees !== null && subscription.employeeCount > plan.maxEmployees) {
+        addToast(t('subscription.errors.tooManyEmployeesForPlan', { plan: plan.name, max: plan.maxEmployees, count: subscription.employeeCount }), "error")
+        return
+      }
+      if (plan.minEmployees !== null && subscription.employeeCount < plan.minEmployees) {
+        addToast(t('subscription.errors.tooFewEmployeesForPlan', { plan: plan.name, min: plan.minEmployees, count: subscription.employeeCount }), "error")
+        return
+      }
     }
 
     try {
@@ -393,7 +434,8 @@ const fetchCompanyDetails = useCallback(async (companyId: string) => {
           Authorization: `Bearer ${freshSession.access_token}`,
         },
         body: JSON.stringify({
-          price_id: plan.priceId,
+          tier: plan.name,
+          interval: billingInterval,
           return_url: window.location.href
         }),
       })
@@ -421,7 +463,15 @@ const fetchCompanyDetails = useCallback(async (companyId: string) => {
     }
   }
 
-  const formatPrice = (price: number) => price === 0 ? t('subscription.pricing.free') : (price/100).toLocaleString()
+  const formatPrice = (price: number) => price === 0 ? t('subscription.pricing.free') : price.toLocaleString()
+
+  // Cached forfait amounts (base_fee_huf, per_seat_fee_huf) are always the
+  // MONTHLY figures - annual pricing is 15% off the annualized monthly
+  // total, computed the same way scripts/stripe-setup-pricing.mjs computes
+  // the real annual Stripe Price amounts, so this display always matches
+  // what gets billed.
+  const annualizedIfNeeded = (monthlyHuf: number, interval: 'month' | 'year') =>
+    interval === 'year' ? Math.round(monthlyHuf * 12 * 0.85) : monthlyHuf
 
   useEffect(() => {
     if (session?.user?.id) {
@@ -437,7 +487,8 @@ const fetchCompanyDetails = useCallback(async (companyId: string) => {
     }
     fetchPlans()
     fetchAICreditPacks()
-  }, [session?.user?.id, fetchUserCompanyId, getCompanyIdFromUrl, fetchCompanyDetails, fetchPlans, fetchAICreditPacks])
+    fetchSubscriptionDetails()
+  }, [session?.user?.id, fetchUserCompanyId, getCompanyIdFromUrl, fetchCompanyDetails, fetchPlans, fetchAICreditPacks, fetchSubscriptionDetails])
 
   useEffect(() => {
     const successCredit = searchParams.get("success_credit")
@@ -459,13 +510,14 @@ const fetchCompanyDetails = useCallback(async (companyId: string) => {
       addToast(t('subscription.messages.paymentSuccess'), "success")
       setTimeout(async () => {
         await fetchCompanyDetails(companyId)
+        await fetchSubscriptionDetails()
         setIsProcessingPayment(false)
         addToast(t('subscription.messages.subscriptionUpdated'), "success")
       }, 2000)
     }
 
     if (canceled) addToast(t('subscription.messages.paymentCanceled'), "error")
-  }, [searchParams, companyId, fetchCompanyDetails, t])
+  }, [searchParams, companyId, fetchCompanyDetails, fetchSubscriptionDetails, t])
 
 const remainingAICredits = (includedAICredits ?? 0) - (currentAICredits ?? 0)
 
@@ -506,13 +558,40 @@ const remainingAICredits = (includedAICredits ?? 0) - (currentAICredits ?? 0)
                   <span className="font-bold">{currentPlan}</span> {t('subscription.current.plan')}
                   <span className="ml-4 px-3 py-1 bg-white/20 rounded-full text-sm">{t('subscription.current.active')}</span>
                 </p>
+                {subscription?.hasStripeSubscription && (() => {
+                  const plan = plans.find(p => p.name.toLowerCase() === currentPlan?.toLowerCase())
+                  if (!plan || plan.baseFeeHuf === null || plan.perSeatFeeHuf === null) return null
+                  const total = plan.baseFeeHuf + plan.perSeatFeeHuf * subscription.employeeCount
+                  return (
+                    <p className="text-lg mb-2">
+                      {t('subscription.current.costBreakdown', {
+                        base: plan.baseFeeHuf.toLocaleString(),
+                        count: subscription.employeeCount,
+                        perSeat: plan.perSeatFeeHuf.toLocaleString(),
+                        total: total.toLocaleString(),
+                        interval: subscription.billingInterval === 'year' ? t('subscription.pricing.perYear') : t('subscription.pricing.perMonth'),
+                      })}
+                    </p>
+                  )
+                })()}
                 {remainingAICredits !== null && (
                   <p className="text-lg">
                     <span className="font-bold">{remainingAICredits}</span> {t('subscription.current.creditsRemaining')}
                   </p>
                 )}
               </div>
-              <Shield className="w-12 h-12 text-white/80 mt-4 md:mt-0" />
+              <div className="flex flex-col items-center gap-3 mt-4 md:mt-0">
+                <Shield className="w-12 h-12 text-white/80" />
+                {subscription?.hasStripeSubscription && (
+                  <button
+                    onClick={handleManageBilling}
+                    disabled={isManagingBilling}
+                    className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
+                  >
+                    {t('subscription.buttons.manageBilling')}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         ) : (
@@ -526,6 +605,24 @@ const remainingAICredits = (includedAICredits ?? 0) - (currentAICredits ?? 0)
             </div>
           </div>
         )}
+
+        {/* Billing interval toggle */}
+        <div className="flex justify-center mb-8">
+          <div className="bg-white rounded-full shadow-sm p-1 inline-flex">
+            <button
+              onClick={() => setBillingInterval('month')}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${billingInterval === 'month' ? 'bg-blue-600 text-white' : 'text-gray-600'}`}
+            >
+              {t('subscription.toggle.monthly')}
+            </button>
+            <button
+              onClick={() => setBillingInterval('year')}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${billingInterval === 'year' ? 'bg-blue-600 text-white' : 'text-gray-600'}`}
+            >
+              {t('subscription.toggle.annual')}
+            </button>
+          </div>
+        </div>
 
         {/* Plans Grid */}
         {loadingPlans ? (
@@ -550,10 +647,31 @@ const remainingAICredits = (includedAICredits ?? 0) - (currentAICredits ?? 0)
                 <div className="p-8">
                   <div className="flex items-center mb-4">{getPlanIcon(plan.name)}<h3 className="text-2xl font-bold text-gray-900 ml-3">{plan.name}</h3></div>
                   <p className="text-gray-600 mb-6">{plan.description}</p>
-                  <div className="mb-8">
-                    {plan.price === 0 ? <span className="text-4xl font-bold text-green-600">{t('subscription.pricing.free')}</span> : <span className="text-4xl font-bold text-gray-900">{formatPrice(plan.price)}</span>}
-                    {plan.price !== 0 && <span className="text-gray-600"> {t('subscription.pricing.perMonth')}</span>}
+                  <div className="mb-2">
+                    {plan.isFree || plan.baseFeeHuf === null ? (
+                      <span className="text-4xl font-bold text-green-600">{t('subscription.pricing.free')}</span>
+                    ) : (
+                      <>
+                        <span className="text-4xl font-bold text-gray-900">{formatPrice(annualizedIfNeeded(plan.baseFeeHuf, billingInterval))}</span>
+                        <span className="text-gray-600"> {t('subscription.pricing.baseFee')} {billingInterval === 'year' ? t('subscription.pricing.perYear') : t('subscription.pricing.perMonth')}</span>
+                      </>
+                    )}
                   </div>
+                  {!plan.isFree && plan.perSeatFeeHuf !== null && (
+                    <p className="text-sm text-gray-500 mb-1">
+                      {t('subscription.pricing.perSeat', {
+                        price: formatPrice(annualizedIfNeeded(plan.perSeatFeeHuf, billingInterval)),
+                        interval: billingInterval === 'year' ? t('subscription.pricing.perYear') : t('subscription.pricing.perMonth'),
+                      })}
+                    </p>
+                  )}
+                  {plan.maxEmployees !== null && (
+                    <p className="text-xs text-gray-400 mb-8">{t('subscription.employeeRangeMax', { count: plan.maxEmployees })}</p>
+                  )}
+                  {plan.minEmployees !== null && (
+                    <p className="text-xs text-gray-400 mb-8">{t('subscription.employeeRangeMin', { count: plan.minEmployees })}</p>
+                  )}
+                  {(plan.isFree || plan.perSeatFeeHuf === null) && plan.minEmployees === null && plan.maxEmployees === null && <div className="mb-8" />}
                   <ul className="space-y-3 mb-8">
                     {plan.features.map((feature, idx) => <li key={idx} className="flex items-center text-gray-700"><Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />{feature}</li>)}
                     {plan.includedAICredits !== undefined && (
@@ -563,27 +681,48 @@ const remainingAICredits = (includedAICredits ?? 0) - (currentAICredits ?? 0)
                     </li>
                   )}
                   </ul>
-                  <button
-                    onClick={() => handleSubscribe(plan)}
-                    className={`w-full py-3 px-4 rounded-lg font-semibold transition-all ${
-                      plan.priceId === null 
-                        ? 'bg-green-100 text-green-800 cursor-default' 
-                        : (plan.price === 0 && plan.priceId !== null)
-                        ? 'bg-red-100 text-red-800 cursor-not-allowed'
-                        : plan.name.toLowerCase() === currentPlan?.toLowerCase() 
-                        ? 'bg-blue-100 text-blue-800' 
-                        : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl'
-                    }`}
-                    disabled={plan.price === 0 && plan.priceId !== null}
-                  >
-                    {plan.priceId === null 
-                      ? t('subscription.buttons.freePlan')
-                      : (plan.price === 0 && plan.priceId !== null)
-                      ? t('subscription.buttons.unavailable')
-                      : plan.name.toLowerCase() === currentPlan?.toLowerCase()
-                      ? t('subscription.buttons.currentPlan')
-                      : t('subscription.buttons.subscribe', { plan: plan.name })}
-                  </button>
+                  {(() => {
+                    const isCurrent = plan.name.toLowerCase() === currentPlan?.toLowerCase()
+                    const blockedByExistingSubscription = !plan.isFree && !isCurrent && !!subscription?.hasStripeSubscription
+                    // Core's per-seat formula crosses over to cost more than
+                    // Growth's past a certain headcount despite Growth
+                    // including strictly more features - self-serve
+                    // subscribing into that zone is blocked here (mirrors
+                    // the hard check in create-subscription/route.ts).
+                    const ineligibleByHeadcount =
+                      !plan.isFree &&
+                      !isCurrent &&
+                      !blockedByExistingSubscription &&
+                      subscription != null &&
+                      ((plan.maxEmployees !== null && subscription.employeeCount > plan.maxEmployees) ||
+                        (plan.minEmployees !== null && subscription.employeeCount < plan.minEmployees))
+                    const disabled = plan.isFree || isCurrent || blockedByExistingSubscription || ineligibleByHeadcount
+                    return (
+                      <button
+                        onClick={() => handleSubscribe(plan)}
+                        className={`w-full py-3 px-4 rounded-lg font-semibold transition-all ${
+                          plan.isFree
+                            ? 'bg-green-100 text-green-800 cursor-default'
+                            : isCurrent
+                            ? 'bg-blue-100 text-blue-800 cursor-default'
+                            : blockedByExistingSubscription || ineligibleByHeadcount
+                            ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                            : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl'
+                        }`}
+                        disabled={disabled}
+                      >
+                        {plan.isFree
+                          ? t('subscription.buttons.freePlan')
+                          : isCurrent
+                          ? t('subscription.buttons.currentPlan')
+                          : blockedByExistingSubscription
+                          ? t('subscription.buttons.manageBillingToChange')
+                          : ineligibleByHeadcount
+                          ? t('subscription.buttons.notEligible')
+                          : t('subscription.buttons.subscribe', { plan: plan.name })}
+                      </button>
+                    )
+                  })()}
                 </div>
               </div>
             ))}

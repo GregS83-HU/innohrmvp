@@ -62,8 +62,9 @@
   "pricing": {
     "eyebrow": "Pricing",
     "title": "Plans for every stage of hiring",
-    "subtitle": "Start free to try HRInno. Upgrade when you're ready to run real time & attendance and absences for your team — or unlock performance management too.",
+    "subtitle": "Start free to try HRInno. Upgrade to Core or Growth when you're ready to run real time & attendance and absences for your team — or unlock performance management, the AI wellbeing chatbot, and advanced reporting too.",
     "perMonth": "/month",
+    "perEmployee": "+ {{price}} Ft / employee / month",
     "currentPlanLabel": "Includes",
     "free": {
       "name": "Free",
@@ -71,20 +72,16 @@
       "tagline": "Try the platform before you commit",
       "cta": "Start free"
     },
-    "momentum": {
-      "name": "Momentum",
-      "price": "20 000 Ft",
+    "core": {
+      "name": "Core",
       "tagline": "Run real HR operations",
-      "cta": "Choose Momentum",
+      "cta": "Choose Core",
       "badge": "Most popular"
     },
-    "infinity": {
-      "name": "Infinity",
-      "price": "45 000 Ft",
-      "tagline": "Everything, at scale",
-      "cta": "Choose Infinity",
-      "contactNote": "More than 100 employees?",
-      "contactLink": "Contact us for a custom quote."
+    "growth": {
+      "name": "Growth",
+      "tagline": "Everything, plus performance & insights",
+      "cta": "Choose Growth"
     },
     "features": {
       "positions": "Up to {{count}} open job positions",
@@ -92,15 +89,20 @@
       "credits": "{{count}} AI credits included",
       "wellbeingIncluded": "AI wellbeing chatbot included",
       "wellbeingNotIncluded": "AI wellbeing chatbot not included",
-      "hrOpsIncluded": "Time & attendance and absences for up to {{count}} employees",
+      "hrOpsIncluded": "Time & attendance and absences included",
       "hrOpsLocked": "Time & attendance and absences — preview only, not for real HR operations",
-      "performanceIncluded": "Performance management for up to {{count}} employees",
+      "performanceIncluded": "Performance management included",
       "performanceLocked": "Performance management — preview only",
-      "performanceNotIncluded": "Performance management not included"
+      "performanceNotIncluded": "Performance management not included",
+      "advancedReportingIncluded": "Advanced reporting included",
+      "advancedReportingNotIncluded": "Advanced reporting not included"
     },
+    "employeeRangeMax": "For accounts with up to {{count}} employees",
+    "employeeRangeMin": "For accounts with {{count}}+ employees",
     "dataNote": "Canceling or downgrading never deletes your existing data — you keep full access to everything you already have. Only creating new items above your new plan's limit is paused.",
+    "onboardingFeeNote": "A one-time {{fee}} Ft onboarding fee applies at signup for Core and Growth, billed alongside your first invoice. Annual billing is also available at 15% off the annualized total, paid upfront.",
     "onboardingNote": "Time & attendance, absences, performance management, the AI wellbeing chatbot, and medical certificate uploads all require your plan to include them (see plan details above) and your company's onboarding call to be complete — both conditions apply regardless of plan. New self-serve companies can start posting jobs and using the Job Assistant immediately; these other modules unlock once you're on a plan that includes them and your setup call with our team is done.",
-    "priceNote": "Prices shown in Hungarian Forint (HUF), billed monthly."
+    "priceNote": "Prices shown in Hungarian Forint (HUF), billed monthly unless annual billing is chosen."
   },
   "contactForm": {
     "header": {
@@ -1831,7 +1833,10 @@
       "companyNotAvailable": "Company information not available.",
       "planUnavailable": "This plan is temporarily unavailable due to pricing issues.",
       "unableCheckout": "Unable to start checkout",
-      "unexpectedCheckout": "Unexpected error starting checkout"
+      "unexpectedCheckout": "Unexpected error starting checkout",
+      "alreadySubscribed": "This company already has an active subscription. Use \"Manage billing\" to make changes.",
+      "tooManyEmployeesForPlan": "{{plan}} is only available for accounts with up to {{max}} employees. Your company has {{count}}.",
+      "tooFewEmployeesForPlan": "{{plan}} is only available for accounts with at least {{min}} employees. Your company has {{count}}."
     },
     "messages": {
       "freePlan": "This is a free plan. No subscription needed.",
@@ -1849,7 +1854,8 @@
       "title": "Current Subscription",
       "plan": "Plan",
       "active": "Active",
-      "creditsRemaining": "AI Credits remaining"
+      "creditsRemaining": "AI Credits remaining",
+      "costBreakdown": "{{base}} base fee + {{count}} employees × {{perSeat}} = {{total}} {{interval}}"
     },
     "noSubscription": {
       "title": "No Active Subscription",
@@ -1868,6 +1874,7 @@
       "happyCheckAccess": "Happy Check access",
       "description": "Perfect for businesses needing {{features}}",
       "defaultDescription": "A great plan for your business needs",
+      "paidDescription": "A base fee plus a per-employee fee that scales with your team",
       "defaultName": "Plan {{id}}"
     },
     "features": {
@@ -1875,21 +1882,38 @@
       "maxPositions": "Up to {{count}} open positions",
       "unlimitedCertificates": "Unlimited medical certificates",
       "maxCertificates": "Up to {{count}} medical certificates",
-      "happyCheck": "Happy Check feature included",
+      "happyCheck": "AI wellbeing chatbot",
       "emailSupport": "Email support",
       "analytics": "Basic analytics",
       "secureStorage": "Secure data storage",
-      "aiCreditsIncluded": "{{count}} AI Credits included"
+      "aiCreditsIncluded": "{{count}} AI Credits included",
+      "recruitment": "Recruitment & job postings",
+      "attendanceAbsences": "Time & attendance and absence management",
+      "medicalCertificates": "Medical certificate uploads",
+      "performance": "Performance management",
+      "advancedReporting": "Advanced reporting"
     },
     "pricing": {
       "free": "Free",
-      "perMonth": "HUF/month"
+      "perMonth": "HUF/month",
+      "perYear": "HUF/year",
+      "baseFee": "base fee",
+      "perSeat": "+ {{price}} {{interval}} per employee"
+    },
+    "employeeRangeMax": "For accounts with up to {{count}} employees",
+    "employeeRangeMin": "For accounts with {{count}}+ employees",
+    "toggle": {
+      "monthly": "Monthly",
+      "annual": "Annual (save 15%)"
     },
     "buttons": {
       "freePlan": "Free Plan",
       "unavailable": "Temporarily Unavailable",
       "currentPlan": "Current Plan",
-      "subscribe": "Subscribe to {{plan}}"
+      "subscribe": "Subscribe to {{plan}}",
+      "manageBilling": "Manage billing",
+      "manageBillingToChange": "Manage via billing portal",
+      "notEligible": "Not available for your headcount"
     },
     "credits": {
       "title": "Buy AI Credits",
@@ -2149,7 +2173,7 @@
     "cookiesLink": "Cookie Policy",
     "impressumLink": "Impressum",
     "contact": "For any privacy inquiries, contact",
-    "aiDisclaimer": "AI features are for demonstration purposes only and should not be used for real HR decisions."
+    "aiDisclaimer": "AI-generated outputs are provided for informational purposes only and may contain errors — you remain responsible for all hiring decisions and for complying with applicable employment law."
   },
   "privacyDemo": {
     "title": "Privacy Notice",
@@ -2256,7 +2280,7 @@
       },
       "userRights": {
         "title": "Your Rights",
-        "text": "Subject to applicable law, and where HRInno is the controller of your data (see ‘Who Is Responsible for Your Data’ above), you have the right to: request access to the personal data we hold about you; request correction of inaccurate data; request erasure of your data; request that we restrict or object to certain processing; receive a copy of your data in a portable format; and withdraw consent at any time where processing is based on consent, without affecting processing already carried out. Where an automated assessment affects you — such as an AI-generated CV score — you may request human review of it. To exercise any of these rights, contact us at privacy@hrinno.hu. If HRInno processes your data as a processor on behalf of a subscribing company, please direct your request to that company first; we will assist them in responding to it. You also have the right to lodge a complaint with the Hungarian National Authority for Data Protection and Freedom of Information (NAIH), www.naih.hu, or with the supervisory authority in your own EU member state."
+        "text": "Subject to applicable law, and where HRInno is the controller of your data (see ‘Who Is Responsible for Your Data’ above), you have the right to: request access to the personal data we hold about you; request correction of inaccurate data; request erasure of your data; request that we restrict or object to certain processing; receive a copy of your data in a portable format; and withdraw consent at any time where processing is based on consent, without affecting processing already carried out. Where an automated assessment affects you — such as an AI-generated CV score — you may request human review of it. To exercise any of these rights, contact us at info@hrinno.hu. If HRInno processes your data as a processor on behalf of a subscribing company, please direct your request to that company first; we will assist them in responding to it. You also have the right to lodge a complaint with the Hungarian National Authority for Data Protection and Freedom of Information (NAIH), www.naih.hu, or with the supervisory authority in your own EU member state."
       },
       "security": {
         "title": "Security Measures",
@@ -2269,9 +2293,9 @@
         "addressLabel": "Address:",
         "dpoLabel": "Data Protection Officer:",
         "name": "Saussez Grégory",
-        "email": "privacy@hrinno.hu",
+        "email": "info@hrinno.hu",
         "address": "Budapest, Hungary",
-        "dpo": "No Data Protection Officer has been formally appointed at this time; data protection enquiries are handled directly at privacy@hrinno.hu"
+        "dpo": "No Data Protection Officer has been formally appointed at this time; data protection enquiries are handled directly at info@hrinno.hu"
       },
       "changes": {
         "title": "Changes to This Notice",
@@ -2280,13 +2304,13 @@
       "contact": {
         "title": "Contact",
         "text": "Data controller: Saussez Grégory, Budapest, Hungary",
-        "email": "privacy@hrinno.hu"
+        "email": "info@hrinno.hu"
       }
     }
   },
   "cookies": {
     "title": "Cookies & Data",
-    "text": "We use cookies to improve the demo experience. No tracking or third-party marketing cookies are used.",
+    "text": "We use cookies to improve your experience. No tracking or third-party marketing cookies are used.",
     "accept": "Accept",
     "reject": "Reject"
   },

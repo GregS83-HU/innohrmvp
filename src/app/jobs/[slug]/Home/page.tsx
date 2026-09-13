@@ -101,7 +101,7 @@ export default function HomePage() {
     if (companyId) {
       items.push({ href: buildLink('/happiness-check'), label: t('header.happyCheck'), icon: Smile, color: 'yellow' });
     }
-    if (isManagerOrAdmin) {
+    if (isManagerOrAdmin && (isAdmin || moduleAccess.advancedReportingEnabled)) {
       items.push({ href: buildLink('/openedpositions/analytics'), label: t('header.recruitmentDashboard'), icon: BarChart3, color: 'blue' });
     }
     if (isAdmin) {
@@ -128,7 +128,7 @@ export default function HomePage() {
       }
     }
     return items;
-  }, [user, isAdmin, isManagerOrAdmin, companyId, companySlug, buildLink, t, moduleAccess.performanceEnabled, moduleAccess.attendanceAbsencesEnabled]);
+  }, [user, isAdmin, isManagerOrAdmin, companyId, companySlug, buildLink, t, moduleAccess.performanceEnabled, moduleAccess.attendanceAbsencesEnabled, moduleAccess.advancedReportingEnabled]);
 
   const colorClasses: Record<string, string> = {
     purple: 'bg-purple-50 text-purple-700 hover:bg-purple-100',

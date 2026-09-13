@@ -62,6 +62,7 @@ export default function Header() {
   const moduleAccess = useModuleAccess(user?.id);
   const showAttendanceAbsences = !!isAdmin || moduleAccess.attendanceAbsencesEnabled;
   const showPerformance = !!isAdmin || moduleAccess.performanceEnabled;
+  const showAdvancedReporting = !!isAdmin || (!!isManager && moduleAccess.advancedReportingEnabled);
 
   const buttonBaseClasses = useMemo(() =>
     'flex items-center gap-1.5 px-2.5 py-2 rounded-xl font-medium text-sm transition-all shadow-sm hover:shadow-md whitespace-nowrap',
@@ -83,6 +84,7 @@ export default function Header() {
   const funnelDashboardLink = useMemo(() => buildLink('/admin/funnel'), [buildLink]);
   const dataRetentionLink = useMemo(() => buildLink('/admin/data-retention'), [buildLink]);
   const onboardingDashboardLink = useMemo(() => buildLink('/admin/onboarding'), [buildLink]);
+  const billingDashboardLink = useMemo(() => buildLink('/admin/billing'), [buildLink]);
 
   return (
     <>
@@ -99,7 +101,7 @@ export default function Header() {
 
             {/* Logo + Forfait + Language */}
             <div className="flex-shrink-0 flex flex-col items-start gap-1 -ml-2">
-              <Link href={companySlug === 'demo' ? `/jobs/demo/contact` : buildLink('/')}>
+              <Link href={companySlug === 'demo' ? `/jobs/demo/contact` : companySlug ? buildLink('/') : '/'}>
                 <img
                   src={companySlug && companyLogo ? companyLogo : '/HRInnoLogo.jpeg'}
                   alt="Logo"
@@ -194,7 +196,7 @@ export default function Header() {
                           <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
                             <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">{t('header.hrTools')}</p>
                           </div>
-                          {(isManager || isAdmin) && (
+                          {showAdvancedReporting && (
                             <Link href={buildLink('/openedpositions/analytics')} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
                               <BarChart3 className="w-4 h-4" /> {t('header.recruitmentDashboard')}
                             </Link>
@@ -297,6 +299,11 @@ export default function Header() {
                           {isSuperAdmin && (
                             <Link href={onboardingDashboardLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}>
                               <ClipboardCheck className="w-4 h-4" /> {'Onboarding'}
+                            </Link>
+                          )}
+                          {isSuperAdmin && (
+                            <Link href={billingDashboardLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}>
+                              <CreditCard className="w-4 h-4" /> {'Billing'}
                             </Link>
                           )}
                           {companySlug !== 'demo' && (
@@ -496,7 +503,7 @@ export default function Header() {
 
                   {isMobileHRToolsOpen && !isDemoExpired && (
                     <div className="mt-2 ml-4 space-y-2 pb-2">
-                      {(isManager || isAdmin) && (
+                      {showAdvancedReporting && (
                         <DemoAwareMenuItem href={buildLink('/openedpositions/analytics')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
                           <BarChart3 className="w-4 h-4" /> {t('header.recruitmentDashboard')}
                         </DemoAwareMenuItem>

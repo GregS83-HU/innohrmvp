@@ -1,11 +1,9 @@
-import Stripe from "stripe"
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { requireCompanyAdmin } from "../../../../../lib/authz"
+import { stripe } from "../../../../../lib/stripe/client"
 
 export const runtime = "nodejs"
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 export async function POST(req: Request) {
   // company_id is derived from the caller's own session/membership below -
@@ -41,10 +39,17 @@ export async function POST(req: Request) {
   try {
     const canceledSubscription = await stripe.subscriptions.cancel(company.stripe_subscription_id)
 
-    // 3) Update Supabase
+    // 3) Update Supabase - also clears the per-seat/base subscription item
+    // ids and billing interval, same fields
+    // clearCompanyPlanForSubscription() nulls in the webhook for a
+    // Stripe-side cancellation, so both cancellation paths converge on the
+    // same "no active subscription" state.
     await supabase.from("company").update({
       stripe_subscription_id: null,
       forfait: null,
+      stripe_base_item_id: null,
+      stripe_seat_item_id: null,
+      billing_interval: null,
     }).eq("id", company_id)
 
     return NextResponse.json({

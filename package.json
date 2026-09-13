@@ -8,6 +8,7 @@
     "start": "next start",
     "postinstall": "patch-package",
     "lint": "next lint",
+    "stripe:setup-pricing": "node scripts/stripe-setup-pricing.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test-env": "node -e \"console.log('URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)\""

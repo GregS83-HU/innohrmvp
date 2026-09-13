@@ -10,6 +10,7 @@ export type ModuleAccessState = {
   attendanceAbsencesEnabled: boolean;
   performanceEnabled: boolean;
   supportTicketsEnabled: boolean;
+  advancedReportingEnabled: boolean;
   onboardingCompleted: boolean;
 };
 
@@ -20,6 +21,7 @@ const DEFAULT_STATE: ModuleAccessState = {
   attendanceAbsencesEnabled: false,
   performanceEnabled: false,
   supportTicketsEnabled: false,
+  advancedReportingEnabled: false,
   onboardingCompleted: false,
 };
 
@@ -68,6 +70,7 @@ export function useModuleAccess(userId: string | null | undefined): ModuleAccess
           attendanceAbsencesEnabled: !!data.attendanceAbsencesEnabled,
           performanceEnabled: !!data.performanceEnabled,
           supportTicketsEnabled: !!data.supportTicketsEnabled,
+          advancedReportingEnabled: !!data.advancedReportingEnabled,
           onboardingCompleted: !!data.onboardingCompleted,
         });
       })

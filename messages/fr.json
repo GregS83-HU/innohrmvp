@@ -62,8 +62,9 @@
   "pricing": {
     "eyebrow": "Tarifs",
     "title": "Des formules pour chaque étape du recrutement",
-    "subtitle": "Commencez gratuitement pour découvrir HRInno. Passez à un forfait supérieur quand vous êtes prêt à gérer le suivi du temps et les absences de votre équipe — ou pour débloquer la gestion de la performance.",
+    "subtitle": "Commencez gratuitement pour découvrir HRInno. Passez à Core ou Growth quand vous êtes prêt à gérer le suivi du temps et les absences de votre équipe — ou pour débloquer la gestion de la performance, le chatbot de bien-être IA et les rapports avancés.",
     "perMonth": "/mois",
+    "perEmployee": "+ {{price}} Ft / employé / mois",
     "currentPlanLabel": "Inclus",
     "free": {
       "name": "Free",
@@ -71,20 +72,16 @@
       "tagline": "Découvrez la plateforme avant de vous engager",
       "cta": "Commencer gratuitement"
     },
-    "momentum": {
-      "name": "Momentum",
-      "price": "20 000 Ft",
+    "core": {
+      "name": "Core",
       "tagline": "Gérez de vraies opérations RH",
-      "cta": "Choisir Momentum",
+      "cta": "Choisir Core",
       "badge": "Le plus populaire"
     },
-    "infinity": {
-      "name": "Infinity",
-      "price": "45 000 Ft",
-      "tagline": "Tout, à grande échelle",
-      "cta": "Choisir Infinity",
-      "contactNote": "Plus de 100 employés ?",
-      "contactLink": "Contactez-nous pour un devis personnalisé."
+    "growth": {
+      "name": "Growth",
+      "tagline": "Tout, plus la performance et les analyses",
+      "cta": "Choisir Growth"
     },
     "features": {
       "positions": "Jusqu'à {{count}} offres d'emploi ouvertes",
@@ -92,15 +89,20 @@
       "credits": "{{count}} crédits IA inclus",
       "wellbeingIncluded": "Chatbot de bien-être IA inclus",
       "wellbeingNotIncluded": "Chatbot de bien-être IA non inclus",
-      "hrOpsIncluded": "Suivi du temps et absences pour jusqu'à {{count}} employés",
+      "hrOpsIncluded": "Suivi du temps et absences inclus",
       "hrOpsLocked": "Suivi du temps et absences — aperçu uniquement, pas pour une utilisation réelle",
-      "performanceIncluded": "Gestion de la performance pour jusqu'à {{count}} employés",
+      "performanceIncluded": "Gestion de la performance incluse",
       "performanceLocked": "Gestion de la performance — aperçu uniquement",
-      "performanceNotIncluded": "Gestion de la performance non incluse"
+      "performanceNotIncluded": "Gestion de la performance non incluse",
+      "advancedReportingIncluded": "Rapports avancés inclus",
+      "advancedReportingNotIncluded": "Rapports avancés non inclus"
     },
+    "employeeRangeMax": "Pour les comptes jusqu'à {{count}} employés",
+    "employeeRangeMin": "Pour les comptes de {{count}}+ employés",
     "dataNote": "L'annulation ou la rétrogradation ne supprime jamais vos données existantes — vous conservez un accès complet à tout ce que vous avez déjà. Seule la création de nouveaux éléments au-delà de la limite de votre nouvelle formule est suspendue.",
+    "onboardingFeeNote": "Des frais d'intégration uniques de {{fee}} Ft s'appliquent à l'inscription pour Core et Growth, facturés avec votre première facture. La facturation annuelle est également disponible avec 15% de réduction sur le total annualisé, payé d'avance.",
     "onboardingNote": "Le suivi du temps, les absences, la gestion de la performance, le chatbot de bien-être IA et le téléversement de certificats médicaux nécessitent tous une formule qui les inclut (voir le détail des formules ci-dessus) et l'appel d'intégration de votre entreprise terminé — ces deux conditions s'appliquent quelle que soit la formule. Les nouvelles entreprises en libre-service peuvent publier des offres et utiliser le Job Assistant immédiatement ; ces autres modules se débloquent une fois que vous êtes sur une formule qui les inclut et que votre appel de mise en route avec notre équipe est terminé.",
-    "priceNote": "Prix affichés en forint hongrois (HUF), facturés mensuellement."
+    "priceNote": "Prix affichés en forint hongrois (HUF), facturés mensuellement sauf en cas de facturation annuelle."
   },
   "contactForm": {
     "header": {
@@ -1833,7 +1835,10 @@
       "companyNotAvailable": "Informations de l'entreprise non disponibles.",
       "planUnavailable": "Ce plan est temporairement indisponible en raison de problèmes de tarification.",
       "unableCheckout": "Impossible de démarrer le paiement",
-      "unexpectedCheckout": "Erreur inattendue lors du démarrage du paiement"
+      "unexpectedCheckout": "Erreur inattendue lors du démarrage du paiement",
+      "alreadySubscribed": "Cette entreprise a déjà un abonnement actif. Utilisez « Gérer la facturation » pour le modifier.",
+      "tooManyEmployeesForPlan": "{{plan}} n'est disponible que pour les comptes ayant jusqu'à {{max}} employés. Votre entreprise en compte {{count}}.",
+      "tooFewEmployeesForPlan": "{{plan}} n'est disponible que pour les comptes ayant au moins {{min}} employés. Votre entreprise en compte {{count}}."
     },
     "messages": {
       "freePlan": "Ceci est un plan gratuit. Aucun abonnement nécessaire.",
@@ -1851,7 +1856,8 @@
       "title": "Abonnement Actuel",
       "plan": "Plan",
       "active": "Actif",
-      "creditsRemaining": "Crédits IA restants"
+      "creditsRemaining": "Crédits IA restants",
+      "costBreakdown": "{{base}} frais de base + {{count}} employés × {{perSeat}} = {{total}} {{interval}}"
     },
     "noSubscription": {
       "title": "Aucun Abonnement Actif",
@@ -1870,6 +1876,7 @@
       "happyCheckAccess": "Accès Happy Check",
       "description": "Parfait pour les entreprises nécessitant {{features}}",
       "defaultDescription": "Un excellent plan pour les besoins de votre entreprise",
+      "paidDescription": "Des frais de base plus des frais par employé qui évoluent avec votre équipe",
       "defaultName": "Plan {{id}}"
     },
     "features": {
@@ -1877,21 +1884,38 @@
       "maxPositions": "Jusqu'à {{count}} postes ouverts",
       "unlimitedCertificates": "Certificats médicaux illimités",
       "maxCertificates": "Jusqu'à {{count}} certificats médicaux",
-      "happyCheck": "Fonctionnalité Happy Check incluse",
+      "happyCheck": "Chatbot de bien-être IA",
       "emailSupport": "Support par email",
       "analytics": "Analyses de base",
       "secureStorage": "Stockage de données sécurisé",
-      "aiCreditsIncluded": "{{count}} Crédits IA inclus"
+      "aiCreditsIncluded": "{{count}} Crédits IA inclus",
+      "recruitment": "Recrutement et offres d'emploi",
+      "attendanceAbsences": "Temps de présence et gestion des absences",
+      "medicalCertificates": "Téléversement de certificats médicaux",
+      "performance": "Gestion de la performance",
+      "advancedReporting": "Rapports avancés"
     },
     "pricing": {
       "free": "Gratuit",
-      "perMonth": "HUF/mois"
+      "perMonth": "HUF/mois",
+      "perYear": "HUF/an",
+      "baseFee": "frais de base",
+      "perSeat": "+ {{price}} {{interval}} par employé"
+    },
+    "employeeRangeMax": "Pour les comptes jusqu'à {{count}} employés",
+    "employeeRangeMin": "Pour les comptes de {{count}}+ employés",
+    "toggle": {
+      "monthly": "Mensuel",
+      "annual": "Annuel (économisez 15%)"
     },
     "buttons": {
       "freePlan": "Plan Gratuit",
       "unavailable": "Temporairement Indisponible",
       "currentPlan": "Plan Actuel",
-      "subscribe": "S'abonner à {{plan}}"
+      "subscribe": "S'abonner à {{plan}}",
+      "manageBilling": "Gérer la facturation",
+      "manageBillingToChange": "Gérer via le portail de facturation",
+      "notEligible": "Non disponible pour votre effectif"
     },
     "credits": {
       "title": "Acheter des Crédits IA",
@@ -2149,7 +2173,7 @@
       "cookiesLink": "Politique relative aux cookies",
       "impressumLink": "Impressum",
       "contact": "Pour toute question relative à la confidentialité, contactez",
-      "aiDisclaimer": "Les fonctionnalités d'IA sont uniquement à des fins de démonstration et ne doivent pas être utilisées pour de réelles décisions RH."
+      "aiDisclaimer": "Les résultats générés par l'IA sont fournis à titre purement informatif et peuvent contenir des erreurs — vous restez seul responsable des décisions de recrutement et du respect du droit du travail applicable."
     },
     "privacyDemo": {
       "title": "Avis de confidentialité (Version Démo)",
@@ -2459,7 +2483,7 @@
     "cookiesLink": "Politique relative aux cookies",
     "impressumLink": "Impressum",
     "contact": "Pour toute question relative à la confidentialité, contactez",
-    "aiDisclaimer": "Les fonctionnalités d'IA sont uniquement à des fins de démonstration et ne doivent pas être utilisées pour de réelles décisions RH."
+    "aiDisclaimer": "Les résultats générés par l'IA sont fournis à titre purement informatif et peuvent contenir des erreurs — vous restez seul responsable des décisions de recrutement et du respect du droit du travail applicable."
   },
   "privacyDemo": {
     "title": "Avis de confidentialité",
@@ -2566,7 +2590,7 @@
       },
       "userRights": {
         "title": "Vos droits",
-        "text": "Sous réserve du droit applicable, et lorsque HRInno est responsable du traitement de vos données (voir « Qui est responsable de vos données » ci-dessus), vous avez le droit de : demander l'accès aux données personnelles que nous détenons sur vous ; demander la rectification de données inexactes ; demander l'effacement de vos données ; demander la limitation ou vous opposer à certains traitements ; recevoir une copie de vos données dans un format portable ; et retirer votre consentement à tout moment lorsque le traitement est fondé sur celui-ci, sans affecter les traitements déjà effectués. Lorsqu'une évaluation automatisée vous concerne — comme un score de CV généré par IA — vous pouvez demander qu'elle soit examinée par une personne. Pour exercer l'un de ces droits, contactez-nous à privacy@hrinno.hu. Si HRInno traite vos données en tant que sous-traitant pour le compte d'une entreprise cliente, veuillez d'abord adresser votre demande à cette entreprise ; nous l'aiderons à y répondre. Vous avez également le droit d'introduire une réclamation auprès de l'autorité hongroise de protection des données (NAIH), www.naih.hu, ou auprès de l'autorité de contrôle de votre propre État membre de l'UE."
+        "text": "Sous réserve du droit applicable, et lorsque HRInno est responsable du traitement de vos données (voir « Qui est responsable de vos données » ci-dessus), vous avez le droit de : demander l'accès aux données personnelles que nous détenons sur vous ; demander la rectification de données inexactes ; demander l'effacement de vos données ; demander la limitation ou vous opposer à certains traitements ; recevoir une copie de vos données dans un format portable ; et retirer votre consentement à tout moment lorsque le traitement est fondé sur celui-ci, sans affecter les traitements déjà effectués. Lorsqu'une évaluation automatisée vous concerne — comme un score de CV généré par IA — vous pouvez demander qu'elle soit examinée par une personne. Pour exercer l'un de ces droits, contactez-nous à info@hrinno.hu. Si HRInno traite vos données en tant que sous-traitant pour le compte d'une entreprise cliente, veuillez d'abord adresser votre demande à cette entreprise ; nous l'aiderons à y répondre. Vous avez également le droit d'introduire une réclamation auprès de l'autorité hongroise de protection des données (NAIH), www.naih.hu, ou auprès de l'autorité de contrôle de votre propre État membre de l'UE."
       },
       "security": {
         "title": "Mesures de sécurité",
@@ -2579,9 +2603,9 @@
         "addressLabel": "Adresse :",
         "dpoLabel": "Délégué à la protection des données :",
         "name": "Saussez Grégory",
-        "email": "privacy@hrinno.hu",
+        "email": "info@hrinno.hu",
         "address": "Budapest, Hongrie",
-        "dpo": "Aucun délégué à la protection des données n'a été formellement désigné à ce jour ; les demandes relatives à la protection des données sont traitées directement à privacy@hrinno.hu"
+        "dpo": "Aucun délégué à la protection des données n'a été formellement désigné à ce jour ; les demandes relatives à la protection des données sont traitées directement à info@hrinno.hu"
       },
       "changes": {
         "title": "Modifications du présent avis",
@@ -2590,7 +2614,7 @@
       "contact": {
         "title": "Contact",
         "text": "Responsable du traitement : Saussez Grégory, Budapest, Hongrie",
-        "email": "privacy@hrinno.hu"
+        "email": "info@hrinno.hu"
       }
     }
   },

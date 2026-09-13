@@ -6,7 +6,7 @@ import type { FeatureKey } from '../../src/config/entitlements';
 import { FEATURE_COPY, getOnboardingRequiredMessage } from '../../src/config/entitlements';
 
 type Props = {
-  feature: Extract<FeatureKey, 'attendance.use' | 'absences.use' | 'performance.use' | 'medicalCertificates.upload' | 'support.tickets'>;
+  feature: Extract<FeatureKey, 'attendance.use' | 'absences.use' | 'performance.use' | 'medicalCertificates.upload' | 'support.tickets' | 'reporting.advanced'>;
   plan: string | null;
   upgradeHref: string;
   /**

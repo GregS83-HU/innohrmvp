@@ -5,6 +5,7 @@ import { hasFeatureAccess } from "../../../../lib/entitlements"
 import { getAddEmployeeLimitMessage } from "../../../../src/config/entitlements"
 import { requireSuperAdmin } from "../../../../lib/authz"
 import { safeErrorInfo } from '../../../../lib/logSafe';
+import { syncEmployeeSeats } from '../../../../lib/billing/syncEmployeeSeats';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -51,6 +52,11 @@ export async function POST(req: NextRequest) {
     const rows = XLSX.utils.sheet_to_json<CSVRow>(workbook.Sheets[sheetName])
 
     const results: ImportResult[] = []
+    // A single CSV can span multiple companies (see the seat-cap comment
+    // below) - track every company_id actually touched so the per-seat
+    // Stripe subscription item for each one can be synced once after the
+    // loop, rather than issuing one Stripe API call per row.
+    const touchedCompanyIds = new Set<number>()
 
     for (const row of rows) {
       const email = row.email?.toLowerCase()
@@ -133,7 +139,12 @@ export async function POST(req: NextRequest) {
         continue
       }
 
+      touchedCompanyIds.add(company_id)
       results.push({ email, success: true })
+    }
+
+    for (const touchedCompanyId of touchedCompanyIds) {
+      await syncEmployeeSeats(touchedCompanyId)
     }
 
     return NextResponse.json({ results })

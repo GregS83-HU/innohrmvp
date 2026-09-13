@@ -1,10 +1,9 @@
-import Stripe from "stripe"
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { requireCompanyAdmin } from "../../../../../lib/authz"
+import { stripe } from "../../../../../lib/stripe/client"
 
 export const runtime = "nodejs"
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 export async function POST(request: Request) {
   try {

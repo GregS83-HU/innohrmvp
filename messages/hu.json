@@ -62,8 +62,9 @@
   "pricing": {
     "eyebrow": "Árak",
     "title": "Csomagok a toborzás minden szakaszához",
-    "subtitle": "Kezdje ingyen, hogy kipróbálja a HRInno-t. Váltson magasabb csomagra, ha készen áll a valódi munkaidő-nyilvántartásra és távollét-kezelésre — vagy oldja fel a teljesítménykezelést is.",
+    "subtitle": "Kezdje ingyen, hogy kipróbálja a HRInno-t. Váltson Core vagy Growth csomagra, ha készen áll a valódi munkaidő-nyilvántartásra és távollét-kezelésre — vagy oldja fel a teljesítménykezelést, az AI jólléti chatbotot és a speciális riportolást is.",
     "perMonth": "/hó",
+    "perEmployee": "+ {{price}} Ft / alkalmazott / hó",
     "currentPlanLabel": "Tartalmazza",
     "free": {
       "name": "Free",
@@ -71,20 +72,16 @@
       "tagline": "Ismerje meg a platformot elköteleződés előtt",
       "cta": "Ingyenes kezdés"
     },
-    "momentum": {
-      "name": "Momentum",
-      "price": "20 000 Ft",
+    "core": {
+      "name": "Core",
       "tagline": "Valódi HR-műveletek",
-      "cta": "Momentum választása",
+      "cta": "Core választása",
       "badge": "Legnépszerűbb"
     },
-    "infinity": {
-      "name": "Infinity",
-      "price": "45 000 Ft",
-      "tagline": "Minden, nagy léptékben",
-      "cta": "Infinity választása",
-      "contactNote": "Több mint 100 alkalmazott?",
-      "contactLink": "Kérjen egyedi árajánlatot."
+    "growth": {
+      "name": "Growth",
+      "tagline": "Minden, plusz teljesítmény és elemzések",
+      "cta": "Growth választása"
     },
     "features": {
       "positions": "Legfeljebb {{count}} nyitott álláshely",
@@ -92,15 +89,20 @@
       "credits": "{{count}} AI kredit",
       "wellbeingIncluded": "AI jólléti chatbot elérhető",
       "wellbeingNotIncluded": "AI jólléti chatbot nem elérhető",
-      "hrOpsIncluded": "Munkaidő-nyilvántartás és távollétek legfeljebb {{count}} alkalmazottig",
+      "hrOpsIncluded": "Munkaidő-nyilvántartás és távollétek elérhetők",
       "hrOpsLocked": "Munkaidő-nyilvántartás és távollétek — csak előnézet, valódi HR-műveletekre nem használható",
-      "performanceIncluded": "Teljesítménykezelés legfeljebb {{count}} alkalmazottig",
+      "performanceIncluded": "Teljesítménykezelés elérhető",
       "performanceLocked": "Teljesítménykezelés — csak előnézet",
-      "performanceNotIncluded": "Teljesítménykezelés nem elérhető"
+      "performanceNotIncluded": "Teljesítménykezelés nem elérhető",
+      "advancedReportingIncluded": "Speciális riportolás elérhető",
+      "advancedReportingNotIncluded": "Speciális riportolás nem elérhető"
     },
+    "employeeRangeMax": "Legfeljebb {{count}} alkalmazottal rendelkező cégeknek",
+    "employeeRangeMin": "Legalább {{count}} alkalmazottal rendelkező cégeknek",
     "dataNote": "A lemondás vagy visszaminősítés soha nem törli a meglévő adataidat — továbbra is teljes hozzáférésed lesz mindenhez, amid már van. Csak az új csomaglimit fölötti új elemek létrehozása szünetel.",
+    "onboardingFeeNote": "Regisztrációkor egyszeri {{fee}} Ft bevezetési díj érvényes a Core és Growth csomagokra, amelyet az első számlával együtt számlázunk ki. Éves elszámolás is választható, amellyel az éves összeg 15%-os kedvezményt kap, előre fizetve.",
     "onboardingNote": "A munkaidő-nyilvántartáshoz, a távollétekhez, a teljesítménykezeléshez, az AI jólléti chatbothoz és az orvosi igazolások feltöltéséhez egyaránt olyan csomagra van szükség, amely tartalmazza az adott funkciót (lásd a csomagrészleteket fent), valamint vállalata bevezető hívásának teljesítésére — mindkét feltétel csomagtól függetlenül érvényes. Az új, önkiszolgáló módon regisztrált vállalatok azonnal közzétehetnek állásokat és használhatják a Job Assistantet; ezek a további modulok akkor válnak elérhetővé, amikor Ön olyan csomagon van, amely tartalmazza őket, és a bevezető hívás csapatunkkal megtörtént.",
-    "priceNote": "Az árak magyar forintban (HUF) szerepelnek, havi elszámolással."
+    "priceNote": "Az árak magyar forintban (HUF) szerepelnek, havi elszámolással, kivéve, ha éves elszámolást választ."
   },
   "contactForm": {
     "header": {
@@ -1833,7 +1835,10 @@
       "companyNotAvailable": "A vállalati információk nem elérhetők.",
       "planUnavailable": "Ez a csomag átmenetileg nem elérhető árképzési problémák miatt.",
       "unableCheckout": "Nem sikerült elindítani a fizetési folyamatot",
-      "unexpectedCheckout": "Váratlan hiba történt a fizetési folyamat indításakor"
+      "unexpectedCheckout": "Váratlan hiba történt a fizetési folyamat indításakor",
+      "alreadySubscribed": "Ennek a vállalatnak már van aktív előfizetése. A módosításhoz használja a \"Számlázás kezelése\" gombot.",
+      "tooManyEmployeesForPlan": "A(z) {{plan}} csak legfeljebb {{max}} alkalmazottal rendelkező cégek számára érhető el. Az Ön cégének {{count}} alkalmazottja van.",
+      "tooFewEmployeesForPlan": "A(z) {{plan}} csak legalább {{min}} alkalmazottal rendelkező cégek számára érhető el. Az Ön cégének {{count}} alkalmazottja van."
     },
     "messages": {
       "freePlan": "Ez egy ingyenes csomag. Nem szükséges előfizetés.",
@@ -1851,7 +1856,8 @@
       "title": "Aktuális előfizetés",
       "plan": "Csomag",
       "active": "Aktív",
-      "creditsRemaining": "Fennmaradó AI kreditek"
+      "creditsRemaining": "Fennmaradó AI kreditek",
+      "costBreakdown": "{{base}} alapdíj + {{count}} alkalmazott × {{perSeat}} = {{total}} {{interval}}"
     },
     "noSubscription": {
       "title": "Nincs aktív előfizetés",
@@ -1870,6 +1876,7 @@
       "happyCheckAccess": "Happy Check hozzáférés",
       "description": "Tökéletes választás azoknak a vállalatoknak, amelyeknek szükségük van: {{features}}",
       "defaultDescription": "Kiváló csomag az Ön üzleti igényeihez",
+      "paidDescription": "Egy alapdíj, plusz egy létszámmal arányosan növekvő alkalmazottankénti díj",
       "defaultName": "Csomag {{id}}"
     },
     "features": {
@@ -1877,21 +1884,38 @@
       "maxPositions": "Legfeljebb {{count}} nyitott pozíció",
       "unlimitedCertificates": "Korlátlan számú orvosi igazolás",
       "maxCertificates": "Legfeljebb {{count}} orvosi igazolás",
-      "happyCheck": "Happy Check funkció tartalmazva",
+      "happyCheck": "AI jólléti chatbot",
       "emailSupport": "E-mailes támogatás",
       "analytics": "Alap statisztikák",
       "secureStorage": "Biztonságos adatkezelés",
-      "aiCreditsIncluded": "{{count}} AI kredit tartalmazva"
+      "aiCreditsIncluded": "{{count}} AI kredit tartalmazva",
+      "recruitment": "Toborzás és álláshirdetések",
+      "attendanceAbsences": "Munkaidő-nyilvántartás és távollétkezelés",
+      "medicalCertificates": "Orvosi igazolások feltöltése",
+      "performance": "Teljesítménymenedzsment",
+      "advancedReporting": "Speciális riportolás"
     },
     "pricing": {
       "free": "Ingyenes",
-      "perMonth": "HUF/hó"
+      "perMonth": "HUF/hó",
+      "perYear": "HUF/év",
+      "baseFee": "alapdíj",
+      "perSeat": "+ {{price}} {{interval}} alkalmazottanként"
+    },
+    "employeeRangeMax": "Legfeljebb {{count}} alkalmazottal rendelkező cégeknek",
+    "employeeRangeMin": "Legalább {{count}} alkalmazottal rendelkező cégeknek",
+    "toggle": {
+      "monthly": "Havi",
+      "annual": "Éves (15% kedvezmény)"
     },
     "buttons": {
       "freePlan": "Ingyenes csomag",
       "unavailable": "Átmenetileg nem elérhető",
       "currentPlan": "Aktuális csomag",
-      "subscribe": "Előfizetés a(z) {{plan}} csomagra"
+      "subscribe": "Előfizetés a(z) {{plan}} csomagra",
+      "manageBilling": "Számlázás kezelése",
+      "manageBillingToChange": "Kezelés a számlázási portálon",
+      "notEligible": "Az Ön létszámával nem elérhető"
     },
     "credits": {
       "title": "AI kreditek vásárlása",
@@ -2151,7 +2175,7 @@
     "cookiesLink": "Süti szabályzat",
     "impressumLink": "Impresszum",
     "contact": "Adatvédelmi megkeresés esetén írjon a következő címre:",
-    "aiDisclaimer": "Az AI funkciók kizárólag bemutató jellegűek, és nem alkalmasak valódi HR-döntések meghozatalára."
+    "aiDisclaimer": "Az AI által generált eredmények kizárólag tájékoztató jellegűek, és hibákat tartalmazhatnak — a felvételi döntésekért és a vonatkozó munkajogi előírások betartásáért Ön felel."
   },
   "privacyDemo": {
     "title": "Adatkezelési tájékoztató",
@@ -2258,7 +2282,7 @@
       },
       "userRights": {
         "title": "Az Ön jogai",
-        "text": "Az alkalmazandó jog keretein belül, és amennyiben a HRInno az Ön adatainak kezelője (lásd „Ki felel az Ön adataiból” fentebb), Önnek joga van: hozzáférést kérni az Önről tárolt személyes adatokhoz; pontatlan adatok helyesbítését kérni; adatai törlését kérni; kérni bizonyos adatkezelések korlátozását vagy tiltakozni ellenük; adatait hordozható formátumban megkapni; és bármikor visszavonni hozzájárulását, ha az adatkezelés azon alapul, anélkül, hogy ez befolyásolná a már elvégzett adatkezelést. Ha egy automatizált értékelés — például egy MI által generált önéletrajz-pontszám — érinti Önt, kérheti annak emberi felülvizsgálatát. E jogok gyakorlásához írjon nekünk a privacy@hrinno.hu címre. Ha a HRInno egy előfizető vállalat nevében adatfeldolgozóként kezeli adatait, kérjük, kérését először ahhoz a vállalathoz nyújtsa be; mi segítséget nyújtunk a válasz elkészítésében. Jogában áll panaszt tenni a Nemzeti Adatvédelmi és Információszabadság Hatóságnál (NAIH), www.naih.hu, vagy saját EU-tagállama felügyeleti hatóságánál."
+        "text": "Az alkalmazandó jog keretein belül, és amennyiben a HRInno az Ön adatainak kezelője (lásd „Ki felel az Ön adataiból” fentebb), Önnek joga van: hozzáférést kérni az Önről tárolt személyes adatokhoz; pontatlan adatok helyesbítését kérni; adatai törlését kérni; kérni bizonyos adatkezelések korlátozását vagy tiltakozni ellenük; adatait hordozható formátumban megkapni; és bármikor visszavonni hozzájárulását, ha az adatkezelés azon alapul, anélkül, hogy ez befolyásolná a már elvégzett adatkezelést. Ha egy automatizált értékelés — például egy MI által generált önéletrajz-pontszám — érinti Önt, kérheti annak emberi felülvizsgálatát. E jogok gyakorlásához írjon nekünk a info@hrinno.hu címre. Ha a HRInno egy előfizető vállalat nevében adatfeldolgozóként kezeli adatait, kérjük, kérését először ahhoz a vállalathoz nyújtsa be; mi segítséget nyújtunk a válasz elkészítésében. Jogában áll panaszt tenni a Nemzeti Adatvédelmi és Információszabadság Hatóságnál (NAIH), www.naih.hu, vagy saját EU-tagállama felügyeleti hatóságánál."
       },
       "security": {
         "title": "Biztonsági intézkedések",
@@ -2271,9 +2295,9 @@
         "addressLabel": "Cím:",
         "dpoLabel": "Adatvédelmi tisztviselő:",
         "name": "Saussez Grégory",
-        "email": "privacy@hrinno.hu",
+        "email": "info@hrinno.hu",
         "address": "Budapest, Magyarország",
-        "dpo": "Adatvédelmi tisztviselő hivatalosan még nincs kijelölve; az adatvédelmi megkereséseket közvetlenül a privacy@hrinno.hu címen kezeljük"
+        "dpo": "Adatvédelmi tisztviselő hivatalosan még nincs kijelölve; az adatvédelmi megkereséseket közvetlenül a info@hrinno.hu címen kezeljük"
       },
       "changes": {
         "title": "A tájékoztató változásai",
@@ -2282,13 +2306,13 @@
       "contact": {
         "title": "Kapcsolat",
         "text": "Adatkezelő: Saussez Grégory, Budapest, Magyarország",
-        "email": "privacy@hrinno.hu"
+        "email": "info@hrinno.hu"
       }
     }
   },
   "cookies": {
     "title": "Sütik és adatok",
-    "text": "A sütiket a bemutató élményének javítása érdekében használjuk. Harmadik fél által használt nyomkövető sütiket nem alkalmazunk.",
+    "text": "A sütiket a felhasználói élmény javítása érdekében használjuk. Harmadik fél által használt nyomkövető sütiket nem alkalmazunk.",
     "accept": "Elfogadom",
     "reject": "Elutasítom"
   },

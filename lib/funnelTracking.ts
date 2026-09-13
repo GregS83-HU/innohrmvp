@@ -49,7 +49,7 @@ export type FunnelEventType =
   | 'onboarding_reminder_sent';
 
 export type FunnelSource = 'homepage' | 'pricing_page' | 'marketing_site';
-export type FunnelPlan = 'free' | 'momentum' | 'infinity';
+export type FunnelPlan = 'free' | 'core' | 'growth';
 
 /**
  * An anonymous, client-generated session id - not tied to any account,

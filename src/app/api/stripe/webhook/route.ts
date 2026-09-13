@@ -96,10 +96,68 @@
 
     await supabase
       .from("company")
-      .update({ stripe_subscription_id: null, forfait: null })
+      .update({
+        stripe_subscription_id: null,
+        forfait: null,
+        stripe_base_item_id: null,
+        stripe_seat_item_id: null,
+        billing_interval: null,
+      })
       .eq("id", companyId)
 
     console.log(`✅ Company ${companyId} subscription ended on Stripe's side → forfait cleared`)
+  }
+
+  // Resolves which forfait (Core/Growth) a subscription is on, and which of
+  // its two recurring items is the base-fee item vs the per-seat item, by
+  // matching each item's price.product against forfait.stripe_product_id_base
+  // - a single Product-id comparison per candidate row, rather than matching
+  // 4 separate price-id columns. The onboarding fee is a one-time Price, so
+  // it never appears in subscription.items (Stripe adds a one-time Checkout
+  // line item to the first invoice only, not as a subscription item) - every
+  // subscription created by this app has exactly two recurring items, base
+  // and seat, in either order.
+  type PlanResolution = {
+    forfaitName: string
+    billingInterval: "month" | "year"
+    baseItemId: string
+    seatItemId: string
+    onboardingPriceId: string | null
+  }
+
+  async function resolvePlanFromSubscription(
+    supabase: SupabaseClient,
+    subscription: Stripe.Subscription
+  ): Promise<PlanResolution | null> {
+    const { data: forfaitRows } = await supabase
+      .from("forfait")
+      .select("forfait_name, stripe_product_id_base, stripe_price_id_onboarding")
+      .not("stripe_product_id_base", "is", null)
+
+    if (!forfaitRows) return null
+
+    const items = subscription.items.data
+    for (const item of items) {
+      const productId = typeof item.price.product === "string" ? item.price.product : item.price.product?.id
+      const match = forfaitRows.find((row) => row.stripe_product_id_base === productId)
+      if (!match) continue
+
+      const interval = item.price.recurring?.interval
+      if (interval !== "month" && interval !== "year") continue
+
+      const seatItem = items.find((other) => other.id !== item.id)
+      if (!seatItem) continue
+
+      return {
+        forfaitName: match.forfait_name,
+        billingInterval: interval,
+        baseItemId: item.id,
+        seatItemId: seatItem.id,
+        onboardingPriceId: match.stripe_price_id_onboarding,
+      }
+    }
+
+    return null
   }
 
   export async function POST(req: Request) {
@@ -176,28 +234,25 @@
           // ----- Handle Subscription Purchase -----
           if (subscriptionId && customerId) {
             const subscription = await stripe.subscriptions.retrieve(subscriptionId)
-            const priceId = subscription.items.data[0]?.price.id
+            const resolved = await resolvePlanFromSubscription(supabase, subscription)
 
-            const { data: forfait } = await supabase
-              .from("forfait")
-              .select("id, forfait_name")
-              .eq("stripe_price_id", priceId)
-              .single()
-
-            if (forfait) {
+            if (resolved) {
               await supabase
                 .from("company")
                 .update({
-                  forfait: forfait.forfait_name,
+                  forfait: resolved.forfaitName,
                   stripe_subscription_id: subscriptionId,
                   stripe_customer_id: customerId,
+                  stripe_base_item_id: resolved.baseItemId,
+                  stripe_seat_item_id: resolved.seatItemId,
+                  billing_interval: resolved.billingInterval,
                   grace_until: null,
                 })
                 .eq("id", companyId)
 
-              console.log(`✅ Company ${companyId} subscribed to ${forfait.forfait_name}`)
+              console.log(`✅ Company ${companyId} subscribed to ${resolved.forfaitName} (${resolved.billingInterval}ly)`)
             } else {
-              console.log("ℹ️ No matching forfait found for priceId", priceId)
+              console.log("ℹ️ Could not resolve a forfait plan from subscription", subscriptionId)
             }
           }
         }
@@ -238,26 +293,39 @@
 
         // Update subscription info
         const subscription = await stripe.subscriptions.retrieve(subscriptionId)
-        const priceId = subscription.items.data[0]?.price.id
+        const resolved = await resolvePlanFromSubscription(supabase, subscription)
 
-        const { data: forfait } = await supabase
-          .from("forfait")
-          .select("forfait_name")
-          .eq("stripe_price_id", priceId)
-          .single()
+        if (companyId && resolved) {
+          const update: Record<string, unknown> = {
+            forfait: resolved.forfaitName,
+            stripe_subscription_id: subscriptionId,
+            stripe_customer_id: customerId,
+            stripe_base_item_id: resolved.baseItemId,
+            stripe_seat_item_id: resolved.seatItemId,
+            billing_interval: resolved.billingInterval,
+            grace_until: null,
+          }
 
-        if (companyId && forfait) {
+          // The onboarding fee is a one-time Price mixed into the
+          // subscription-mode Checkout Session's line items, so it lands as
+          // a line item on the FIRST invoice of a brand-new subscription -
+          // billing_reason is Stripe's own documented, reliable signal for
+          // "this invoice created the subscription", more robust than
+          // inferring "first invoice" any other way.
+          if (
+            invoice.billing_reason === "subscription_create" &&
+            resolved.onboardingPriceId &&
+            invoice.lines.data.some((line) => line.pricing?.price_details?.price === resolved.onboardingPriceId)
+          ) {
+            update.onboarding_fee_paid_at = new Date().toISOString()
+          }
+
           await supabase
             .from("company")
-            .update({
-              forfait: forfait.forfait_name,
-              stripe_subscription_id: subscriptionId,
-              stripe_customer_id: customerId,
-              grace_until: null,
-            })
+            .update(update)
             .eq("id", companyId)
 
-          console.log(`✅ Updated company ${companyId} to plan: ${forfait.forfait_name}`)
+          console.log(`✅ Updated company ${companyId} to plan: ${resolved.forfaitName}`)
         }
       }
 
@@ -315,6 +383,14 @@
       // by the grace_until mechanism in the invoice.payment_failed handler
       // above, and turning those into an immediate downgrade would be new
       // behavior beyond syncing forfait to Stripe's actual cancellation.
+      //
+      // Quantity changes on the per-seat item (from
+      // lib/billing/syncEmployeeSeats.ts) also land here as non-cancellation
+      // updates. Deliberately not acted on: this app's own seat-sync helper
+      // is what initiates those changes and already writes the resulting
+      // state straight to the DB at the call site, so this event is purely
+      // confirmatory for that case - reacting to it here would race the
+      // helper's own write rather than add information.
       // ----------------------------
       if (event.type === "customer.subscription.updated") {
         const subscription = event.data.object as Stripe.Subscription
