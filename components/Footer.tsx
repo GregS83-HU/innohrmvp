@@ -19,30 +19,40 @@ const Footer: React.FC = () => {
 
   return (
     <footer className="text-center text-sm text-gray-500 mt-8 py-6 border-t border-gray-200">
-      <p>© 2025 HRinno Demo – {t('footer.operatedBy')}</p>
+      <p>© {new Date().getFullYear()} HRInno – {t('footer.operatedBy')}</p>
 
       <div className="flex justify-center gap-4 mt-2 flex-wrap">
-        <Link href={makePath('privacy-demo')} className="underline hover:text-blue-600">
+        <Link href={makePath('privacy')} className="underline hover:text-blue-600">
           {t('footer.privacyLink')}
         </Link>
-        <Link href={makePath('terms-demo')} className="underline hover:text-blue-600">
+        <a
+          href="https://www.hrinno.hu/terms"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-blue-600"
+        >
           {t('footer.termsLink')}
-        </Link>
+        </a>
         <Link href={makePath('cookies')} className="underline hover:text-blue-600">
           {t('footer.cookiesLink')}
         </Link>
-        <Link href={makePath('impressum-demo')} className="underline hover:text-blue-600">
+        <a
+          href="https://www.hrinno.hu/legal-notice"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-blue-600"
+        >
           {t('footer.impressumLink')}
-        </Link>
+        </a>
       </div>
 
       <p className="mt-2">
         {t('footer.contact')}{' '}
         <a
-          href="mailto:privacy@hrinno.hu"
+          href="mailto:info@hrinno.hu"
           className="underline hover:text-blue-600"
         >
-          privacy@hrinno.hu
+          info@hrinno.hu
         </a>
       </p>
 

@@ -72,10 +72,10 @@ const CookiesDemoContent: React.FC = () => {
       <p className="mb-4">
         {t('cookiesDemo.sections.moreInfo.text')}{' '}
         <a
-          href="mailto:privacy@hrinno.hu"
+          href="mailto:info@hrinno.hu"
           className="text-blue-600 underline hover:text-blue-800"
         >
-          privacy@hrinno.hu
+          info@hrinno.hu
         </a>
       </p>
 

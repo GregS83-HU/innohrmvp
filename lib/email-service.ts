@@ -2,7 +2,7 @@
 
 import { Resend } from 'resend'
 import { generateICS } from './ics-generator'
-import { generateInterviewEmail, generateOnboardingEmail } from './email-templates'
+import { generateInterviewEmail, generateOnboardingEmail, generatePlanCrossoverEmail } from './email-templates'
 import { sendEmailWithCompanySMTP } from './smtp-mailer'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -490,4 +490,55 @@ export async function sendOnboardingBookingEmail(params: SendOnboardingEmailPara
 /** One-time nudge if the company hasn't booked within the reminder SLA. */
 export async function sendOnboardingReminderEmail(params: SendOnboardingEmailParams) {
   return sendOnboardingEmail(params, 'reminder')
+}
+
+interface SendPlanCrossoverEmailParams {
+  companyId: number
+  to: string
+  adminFirstName: string
+  companyName: string
+  employeeCount: number
+  coreCost: number
+  growthCost: number
+  monthlySavingsHuf: number
+  billingUrl: string
+}
+
+/**
+ * One-time, numbers-based nudge sent to a Core account's admin once their
+ * headcount has crossed the point where Growth is both cheaper and includes
+ * more features - see src/app/api/cron/plan-crossover-check/route.ts, the
+ * only caller.
+ */
+export async function sendPlanCrossoverEmail(params: SendPlanCrossoverEmailParams) {
+  const { companyId, to, ...templateData } = params
+  const subject = `Growth would cost ${params.companyName} less right now`
+  const html = generatePlanCrossoverEmail(templateData)
+
+  try {
+    try {
+      const result = await sendEmailWithCompanySMTP(companyId, { to, subject, html })
+      console.log('✅ Plan crossover email sent via company SMTP:', result)
+      return { success: true, emailId: result.emailId, provider: result.provider }
+    } catch (smtpError) {
+      console.log('⚠️ Company SMTP failed, falling back to Resend')
+
+      const result = await resend.emails.send({
+        from: 'HRInno Billing <onboarding@notifications.hrinno.hu>',
+        to,
+        subject,
+        html,
+      })
+
+      if (result.error) {
+        throw new Error(`Resend rejected the email: ${result.error.message}`)
+      }
+
+      console.log('✅ Plan crossover email sent via Resend:', result)
+      return { success: true, emailId: result.data?.id, provider: 'resend' as const }
+    }
+  } catch (error) {
+    console.error('❌ Failed to send plan crossover email:', error)
+    throw error
+  }
 }

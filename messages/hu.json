@@ -2282,7 +2282,7 @@
       },
       "userRights": {
         "title": "Az Ön jogai",
-        "text": "Az alkalmazandó jog keretein belül, és amennyiben a HRInno az Ön adatainak kezelője (lásd „Ki felel az Ön adataiból” fentebb), Önnek joga van: hozzáférést kérni az Önről tárolt személyes adatokhoz; pontatlan adatok helyesbítését kérni; adatai törlését kérni; kérni bizonyos adatkezelések korlátozását vagy tiltakozni ellenük; adatait hordozható formátumban megkapni; és bármikor visszavonni hozzájárulását, ha az adatkezelés azon alapul, anélkül, hogy ez befolyásolná a már elvégzett adatkezelést. Ha egy automatizált értékelés — például egy MI által generált önéletrajz-pontszám — érinti Önt, kérheti annak emberi felülvizsgálatát. E jogok gyakorlásához írjon nekünk a info@hrinno.hu címre. Ha a HRInno egy előfizető vállalat nevében adatfeldolgozóként kezeli adatait, kérjük, kérését először ahhoz a vállalathoz nyújtsa be; mi segítséget nyújtunk a válasz elkészítésében. Jogában áll panaszt tenni a Nemzeti Adatvédelmi és Információszabadság Hatóságnál (NAIH), www.naih.hu, vagy saját EU-tagállama felügyeleti hatóságánál."
+        "text": "Az alkalmazandó jog keretein belül, és amennyiben a HRInno az Ön adatainak kezelője (lásd „Ki felel az Ön adataiból” fentebb), Önnek joga van: hozzáférést kérni az Önről tárolt személyes adatokhoz; pontatlan adatok helyesbítését kérni; adatai törlését kérni; kérni bizonyos adatkezelések korlátozását vagy tiltakozni ellenük; adatait hordozható formátumban megkapni; és bármikor visszavonni hozzájárulását, ha az adatkezelés azon alapul, anélkül, hogy ez befolyásolná a már elvégzett adatkezelést. Ha egy automatizált értékelés — például egy MI által generált önéletrajz-pontszám — érinti Önt, kérheti annak emberi felülvizsgálatát. E jogok gyakorlásához írjon nekünk az info@hrinno.hu címre. Ha a HRInno egy előfizető vállalat nevében adatfeldolgozóként kezeli adatait, kérjük, kérését először ahhoz a vállalathoz nyújtsa be; mi segítséget nyújtunk a válasz elkészítésében. Jogában áll panaszt tenni a Nemzeti Adatvédelmi és Információszabadság Hatóságnál (NAIH), www.naih.hu, vagy saját EU-tagállama felügyeleti hatóságánál."
       },
       "security": {
         "title": "Biztonsági intézkedések",
@@ -2297,7 +2297,7 @@
         "name": "Saussez Grégory",
         "email": "info@hrinno.hu",
         "address": "Budapest, Magyarország",
-        "dpo": "Adatvédelmi tisztviselő hivatalosan még nincs kijelölve; az adatvédelmi megkereséseket közvetlenül a info@hrinno.hu címen kezeljük"
+        "dpo": "Adatvédelmi tisztviselő hivatalosan még nincs kijelölve; az adatvédelmi megkereséseket közvetlenül az info@hrinno.hu címen kezeljük"
       },
       "changes": {
         "title": "A tájékoztató változásai",

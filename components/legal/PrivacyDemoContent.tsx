@@ -64,7 +64,7 @@ const PrivacyDemoContent: React.FC = () => {
       <p className="mb-2">{t('privacyDemo.sections.contact.text')}</p>
 
       <a
-        href="mailto:privacy@hrinno.hu"
+        href="mailto:info@hrinno.hu"
         className="text-blue-600 underline hover:text-blue-800"
       >
         {t('privacyDemo.sections.contact.email')}

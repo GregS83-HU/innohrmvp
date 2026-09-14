@@ -67,14 +67,18 @@
       // Fallback to localStorage
       const storedLocale = cookieLocale || (localStorage.getItem(LOCALE_COOKIE) as Locale | null);
 
+      // No previously-saved choice falls back to defaultLocale (Hungarian) -
+      // deliberately NOT auto-detected from navigator.language. The
+      // marketing site (www.hrinno.hu) always defaults to Hungarian
+      // regardless of browser language, and this app has no way to read a
+      // language choice made there (different subdomain, and that site
+      // doesn't persist its own choice to a cookie or localStorage either -
+      // it's in-memory only). Matching its default, rather than guessing
+      // from the browser, keeps a visitor's language consistent across the
+      // two sites instead of an app.hrinno.hu page suddenly switching to
+      // whatever language their OS happens to be set to.
       if (storedLocale && locales.includes(storedLocale)) {
         setLocaleState(storedLocale);
-      } else {
-        // Detect from browser
-        const browserLocale = navigator.language.split('-')[0] as Locale;
-        if (locales.includes(browserLocale)) {
-          setLocaleState(browserLocale);
-        }
       }
     }, []);
 
