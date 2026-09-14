@@ -15,6 +15,7 @@ import {
 import NotificationComponent from './NotificationComponent';
 import TimeClockModal from '../components/timeclock/TimeClockModal';
 import LanguageSwitcher from './LanguageSwitcher';
+import HRInnoLogoMark from './HRInnoLogoMark';
 import { useLocale } from 'i18n/LocaleProvider';
 
 export default function Header() {
@@ -102,11 +103,15 @@ export default function Header() {
             {/* Logo + Forfait + Language */}
             <div className="flex-shrink-0 flex flex-col items-start gap-1 -ml-2">
               <Link href={companySlug === 'demo' ? `/jobs/demo/contact` : companySlug ? buildLink('/') : '/'}>
-                <img
-                  src={companySlug && companyLogo ? companyLogo : '/HRInnoLogo.jpeg'}
-                  alt="Logo"
-                  className="h-10 sm:h-12 object-contain"
-                />
+                {companySlug && companyLogo ? (
+                  <img
+                    src={companyLogo}
+                    alt="Logo"
+                    className="h-10 sm:h-12 object-contain"
+                  />
+                ) : (
+                  <HRInnoLogoMark />
+                )}
               </Link>
               <div className="flex items-center gap-2 mt-1">
                 <ForfaitBadge companyForfait={companyForfait} />
