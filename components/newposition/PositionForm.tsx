@@ -1,8 +1,9 @@
 'use client'
 
-import { Plus, Briefcase, FileText, Calendar, Activity, MapPin, Sparkles, User } from 'lucide-react'
+import { Plus, Briefcase, FileText, Calendar, Activity, MapPin, Sparkles, User, MessageSquare } from 'lucide-react'
 import { ManagerDropdown, CompanyUser } from './ManagerDropdown'
 import { useLocale } from 'i18n/LocaleProvider'
+import { CANDIDATE_FEEDBACK_TONES, CandidateFeedbackTone } from '../../lib/candidateFeedbackTone'
 
 // --- Salary input with thousands separator ---
 
@@ -62,6 +63,7 @@ export interface PositionFormData {
   salaryCurrency: string
   salaryPublic: boolean
   applicationDeadline: string
+  candidateFeedbackTone: CandidateFeedbackTone
 }
 
 interface PositionFormProps {
@@ -273,6 +275,35 @@ export function PositionForm({
               min={new Date().toISOString().split('T')[0]}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             />
+          </div>
+
+          {/* Candidate Feedback Tone */}
+          <div>
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
+              <MessageSquare className="w-4 h-4" />
+              {t('newPosition.form.feedbackTone.title')}
+            </label>
+            <p className="text-xs text-gray-500 mb-3">{t('newPosition.form.feedbackTone.help')}</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {CANDIDATE_FEEDBACK_TONES.map((tone) => (
+                <button
+                  key={tone}
+                  type="button"
+                  onClick={() => onChange('candidateFeedbackTone', tone)}
+                  aria-pressed={data.candidateFeedbackTone === tone}
+                  className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${
+                    data.candidateFeedbackTone === tone
+                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                  }`}
+                >
+                  {t(`newPosition.form.feedbackTone.levels.${tone}.label`)}
+                </button>
+              ))}
+            </div>
+            <p className="text-sm text-gray-600 mt-3">
+              {t(`newPosition.form.feedbackTone.levels.${data.candidateFeedbackTone}.description`)}
+            </p>
           </div>
 
           {/* AI Generation Section */}

@@ -356,7 +356,29 @@
       "min": "Min",
       "max": "Max",
       "currency": "Currency",
-      "applicationDeadline": "Application Deadline"
+      "applicationDeadline": "Application Deadline",
+      "feedbackTone": {
+        "title": "Tone of the AI feedback to candidates",
+        "help": "Candidates who upload their CV get instant AI feedback. Choose how it is worded. The score and your own analysis are not affected.",
+        "levels": {
+          "direct": {
+            "label": "Direct",
+            "description": "Frank and concise: the gaps are named plainly, without softening."
+          },
+          "balanced": {
+            "label": "Balanced",
+            "description": "Honest and constructive: strengths first, then gaps explained neutrally."
+          },
+          "warm": {
+            "label": "Warm",
+            "description": "Encouraging: strengths highlighted, gaps presented as areas to develop."
+          },
+          "very_soft": {
+            "label": "Very soft",
+            "description": "Gentle and empathetic: focuses on what the candidate does well and mentions gaps tactfully."
+          }
+        }
+      }
     },
     "buttons": {
       "createPosition": "Create Position",

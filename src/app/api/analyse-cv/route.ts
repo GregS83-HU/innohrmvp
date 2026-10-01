@@ -9,6 +9,7 @@ import parsePdfBuffer from '../../../../lib/parsePdfSafe';
 import { createClient } from '@supabase/supabase-js';
 import { consumeCredit } from '../../../../lib/credit';
 import { getPrompt, fillPromptVariables, PromptNotFoundError, PromptDatabaseError } from '../../../../lib/prompts';
+import { buildCandidateFeedbackToneInstruction, DEFAULT_CANDIDATE_FEEDBACK_TONE, isCandidateFeedbackTone } from '../../../../lib/candidateFeedbackTone';
 import { safeErrorInfo } from '../../../../lib/logSafe';
 
 const supabase = createClient(
@@ -293,10 +294,24 @@ export async function POST(req: NextRequest) {
       throw error;
     }
 
+    // Fetched separately from positionData so a missing column (migration not
+    // yet applied) degrades to the default tone instead of blocking applications.
+    const { data: toneData, error: toneError } = await supabase
+      .from('openedpositions')
+      .select('candidate_feedback_tone')
+      .eq('id', positionId)
+      .single();
+    if (toneError) {
+      console.error('Failed to load candidate feedback tone, using default:', toneError.message);
+    }
+    const feedbackTone = isCandidateFeedbackTone(toneData?.candidate_feedback_tone)
+      ? toneData.candidate_feedback_tone
+      : DEFAULT_CANDIDATE_FEEDBACK_TONE;
+
     const combinedPrompt = fillPromptVariables(promptTemplate, {
       cvText,
       jobDescription
-    });
+    }) + buildCandidateFeedbackToneInstruction(feedbackTone);
 
     console.log('Starting combined AI analysis...');
 

@@ -11,6 +11,7 @@ import { PositionForm, PositionFormData } from '../../../../../../components/new
 import { AIGenerateModal } from '../../../../../../components/newposition/AIGenerateModal'
 import { ConfirmAnalysisModal } from '../../../../../../components/newposition//ConfirmAnalysisModal'
 import { safeErrorInfo } from '../../../../../../lib/logSafe';
+import { DEFAULT_CANDIDATE_FEEDBACK_TONE } from '../../../../../../lib/candidateFeedbackTone';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,6 +32,7 @@ const DEFAULT_FORM: PositionFormData = {
   salaryCurrency: 'HUF',
   salaryPublic: false,
   applicationDeadline: '',
+  candidateFeedbackTone: DEFAULT_CANDIDATE_FEEDBACK_TONE,
 }
 
 export default function NewOpenedPositionPage() {
@@ -176,6 +178,7 @@ export default function NewOpenedPositionPage() {
           salary_currency: form.salaryCurrency,
           salary_public: form.salaryPublic,
           application_deadline: form.applicationDeadline || null,
+          candidate_feedback_tone: form.candidateFeedbackTone,
         }),
       })
       const data = await res.json()

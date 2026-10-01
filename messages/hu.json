@@ -356,7 +356,29 @@
       "min": "Min",
       "max": "Max",
       "currency": "Pénznem",
-      "applicationDeadline": "Jelentkezési határidő"
+      "applicationDeadline": "Jelentkezési határidő",
+      "feedbackTone": {
+        "title": "A jelölteknek adott AI-visszajelzés hangneme",
+        "help": "Az önéletrajzot feltöltő jelöltek azonnali AI-visszajelzést kapnak. Válassza ki, milyen hangnemben. A pontszámot és az Ön elemzését ez nem befolyásolja.",
+        "levels": {
+          "direct": {
+            "label": "Közvetlen",
+            "description": "Őszinte és tömör: a hiányosságokat egyenesen, finomítás nélkül nevezi meg."
+          },
+          "balanced": {
+            "label": "Kiegyensúlyozott",
+            "description": "Őszinte és építő jellegű: először az erősségek, majd a hiányosságok semleges magyarázata."
+          },
+          "warm": {
+            "label": "Barátságos",
+            "description": "Bátorító: kiemeli az erősségeket, a hiányosságokat fejlődési lehetőségként mutatja be."
+          },
+          "very_soft": {
+            "label": "Nagyon lágy",
+            "description": "Gyengéd és empatikus: arra fókuszál, amiben a jelölt jó, a hiányosságokat tapintatosan említi."
+          }
+        }
+      }
     },
     "buttons": {
       "createPosition": "Pozíció létrehozása",

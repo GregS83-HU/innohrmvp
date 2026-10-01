@@ -356,7 +356,29 @@
       "min": "Min",
       "max": "Max",
       "currency": "Devise",
-      "applicationDeadline": "Date limite de candidature"
+      "applicationDeadline": "Date limite de candidature",
+      "feedbackTone": {
+        "title": "Ton du retour IA aux candidats",
+        "help": "Les candidats qui déposent leur CV reçoivent un retour immédiat de l'IA. Choisissez sa formulation. Le score et votre propre analyse ne sont pas affectés.",
+        "levels": {
+          "direct": {
+            "label": "Direct",
+            "description": "Franc et concis : les écarts sont nommés clairement, sans détour."
+          },
+          "balanced": {
+            "label": "Équilibré",
+            "description": "Honnête et constructif : les points forts d'abord, puis les écarts expliqués de façon neutre."
+          },
+          "warm": {
+            "label": "Bienveillant",
+            "description": "Encourageant : les points forts sont mis en avant, les écarts présentés comme des axes de progrès."
+          },
+          "very_soft": {
+            "label": "Très doux",
+            "description": "Délicat et empathique : met l'accent sur les qualités du candidat et évoque les écarts avec tact."
+          }
+        }
+      }
     },
     "buttons": {
       "createPosition": "Créer le Poste",
