@@ -1,6 +1,6 @@
 'use client'
 
-import { useSession } from '@supabase/auth-helpers-react'
+import { useSessionContext } from '@supabase/auth-helpers-react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { Plus, BarChart3, CheckCircle, AlertCircle, Activity, Lock } from 'lucide-react'
@@ -39,7 +39,8 @@ export default function NewOpenedPositionPage() {
   const { t } = useLocale()
   const router = useRouter()
   const pathname = usePathname()
-  const session = useSession()
+  // isLoading is true while the session is restored from storage after a hard refresh
+  const { session, isLoading: sessionLoading } = useSessionContext()
 
   // Form state (single object, easy to reset)
   const [form, setForm] = useState<PositionFormData>(DEFAULT_FORM)
@@ -67,8 +68,8 @@ export default function NewOpenedPositionPage() {
 
   // Auth guard
   useEffect(() => {
-    if (!session) router.push('/')
-  }, [session, router])
+    if (!sessionLoading && !session) router.push('/')
+  }, [session, sessionLoading, router])
 
   // Fetch company id
   const fetchUserCompanyId = useCallback(async (userId: string) => {
