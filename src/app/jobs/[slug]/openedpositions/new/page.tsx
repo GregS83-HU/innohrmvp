@@ -7,7 +7,7 @@ import { Plus, BarChart3, CheckCircle, AlertCircle, Activity, Lock } from 'lucid
 import { createClient } from '@supabase/supabase-js'
 import { useLocale } from 'i18n/LocaleProvider'
 
-import { PositionForm, PositionFormData } from '../../../../../../components/newposition/PositionForm'
+import { PositionForm, PositionFormData, isSalaryRangeInvalid } from '../../../../../../components/newposition/PositionForm'
 import { AIGenerateModal } from '../../../../../../components/newposition/AIGenerateModal'
 import { ConfirmAnalysisModal } from '../../../../../../components/newposition//ConfirmAnalysisModal'
 import { safeErrorInfo } from '../../../../../../lib/logSafe';
@@ -154,6 +154,10 @@ export default function NewOpenedPositionPage() {
     }
     if (!form.employmentType) {
       setMessage({ text: t('newPosition.messages.selectEmploymentType'), type: 'error' })
+      return
+    }
+    if (isSalaryRangeInvalid(form)) {
+      setMessage({ text: t('newPosition.messages.salaryMinAboveMax'), type: 'error' })
       return
     }
 

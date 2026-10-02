@@ -356,6 +356,9 @@
       "min": "Min",
       "max": "Max",
       "currency": "Devise",
+      "salaryPublicOn": "Les candidats verront cette fourchette sur l'offre d'emploi",
+      "salaryPublicOff": "Usage interne uniquement — masqué aux candidats",
+      "salaryMinAboveMax": "Le minimum dépasse le maximum",
       "applicationDeadline": "Date limite de candidature",
       "feedbackTone": {
         "title": "Ton du retour IA aux candidats",
@@ -413,7 +416,10 @@
       "noCredits": "Vous n'avez plus de crédits IA ce mois-ci. Veuillez mettre à niveau votre forfait.",
       "aiGenerationFailed": "Échec de la génération des descriptions. Veuillez réessayer.",
       "aiGenerationSuccess": "✨ Descriptions générées avec succès ! Relisez-les ci-dessous et apportez les ajustements nécessaires.",
-      "positionNameRequired": "Veuillez entrer un nom de poste avant de générer les descriptions."
+      "positionNameRequired": "Veuillez entrer un nom de poste avant de générer les descriptions.",
+      "selectManager": "Veuillez sélectionner un manager.",
+      "selectEmploymentType": "Veuillez sélectionner un type d'emploi.",
+      "salaryMinAboveMax": "Le salaire minimum ne peut pas dépasser le maximum."
     },
     "analysis": {
       "title": "Analyse des Candidats",

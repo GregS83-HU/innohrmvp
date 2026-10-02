@@ -1,6 +1,6 @@
 'use client'
 
-import { Plus, Briefcase, FileText, Calendar, Activity, MapPin, Sparkles, User, MessageSquare, Clock, Hourglass, FileSignature, GraduationCap, CalendarClock } from 'lucide-react'
+import { Plus, Briefcase, FileText, Calendar, Activity, MapPin, Sparkles, User, MessageSquare, Clock, Hourglass, FileSignature, GraduationCap, CalendarClock, Wallet, Eye, EyeOff } from 'lucide-react'
 import { ManagerDropdown, CompanyUser } from './ManagerDropdown'
 import { useLocale } from 'i18n/LocaleProvider'
 import { CANDIDATE_FEEDBACK_TONES, CandidateFeedbackTone } from '../../lib/candidateFeedbackTone'
@@ -15,24 +15,25 @@ function formatWithThousands(raw: string): string {
 }
 
 function unformat(formatted: string): string {
-  return formatted.replace(/,/g, '')
+  // fr-FR groups with a narrow no-break space, so strip every separator, not just commas
+  return formatted.replace(/\D/g, '')
 }
+
+const SALARY_CURRENCIES = ['HUF', 'EUR', 'USD', 'CZK', 'PLN', 'RON', 'GBP', 'CHF'] as const
 
 interface SalaryInputProps {
   value: string          // stored as raw numeric string e.g. "1500000"
   onChange: (raw: string) => void
   placeholder?: string
   className?: string
+  ariaLabel?: string
 }
 
-function SalaryInput({ value, onChange, placeholder = '0', className = '' }: SalaryInputProps) {
+function SalaryInput({ value, onChange, placeholder = '0', className = '', ariaLabel }: SalaryInputProps) {
   const displayed = value ? formatWithThousands(value) : ''
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = unformat(e.target.value)
-    if (raw === '' || /^\d+$/.test(raw)) {
-      onChange(raw)
-    }
+    onChange(unformat(e.target.value))
   }
 
   return (
@@ -43,6 +44,7 @@ function SalaryInput({ value, onChange, placeholder = '0', className = '' }: Sal
       onChange={handleChange}
       placeholder={placeholder}
       className={className}
+      aria-label={ariaLabel}
     />
   )
 }
@@ -64,6 +66,10 @@ export interface PositionFormData {
   salaryPublic: boolean
   applicationDeadline: string
   candidateFeedbackTone: CandidateFeedbackTone
+}
+
+export function isSalaryRangeInvalid(data: Pick<PositionFormData, 'salaryMin' | 'salaryMax'>): boolean {
+  return !!data.salaryMin && !!data.salaryMax && Number(data.salaryMin) > Number(data.salaryMax)
 }
 
 const EMPLOYMENT_TYPES = [
@@ -96,6 +102,28 @@ export function PositionForm({
   setMessage,
 }: PositionFormProps) {
   const { t } = useLocale()
+
+  const salaryRangeInvalid = isSalaryRangeInvalid(data)
+
+  const renderSalaryField = (field: 'salaryMin' | 'salaryMax', labelKey: 'min' | 'max') => (
+    <div>
+      <span className="block text-xs font-medium text-gray-500 mb-1">{t(`newPosition.form.${labelKey}`)}</span>
+      <div className="relative">
+        <SalaryInput
+          value={data[field]}
+          onChange={(raw) => onChange(field, raw)}
+          placeholder="0"
+          ariaLabel={t(`newPosition.form.${labelKey}`)}
+          className={`w-full pl-3 pr-12 py-3 bg-white border rounded-lg font-medium tabular-nums focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+            salaryRangeInvalid ? 'border-red-400' : 'border-gray-300'
+          }`}
+        />
+        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-400">
+          {data.salaryCurrency}
+        </span>
+      </div>
+    </div>
+  )
 
   const handleAIClick = () => {
     if (!data.positionName.trim()) {
@@ -223,59 +251,82 @@ export function PositionForm({
           </div>
 
           {/* Salary Range */}
-          <div className="border-2 border-dashed border-gray-200 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-4">
-              <label className="block text-sm font-medium text-gray-700">
-                {t('newPosition.form.salaryRange')}{' '}
-                <span className="text-gray-400 text-xs">({t('newPosition.form.optional')})</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={data.salaryPublic}
-                  onChange={(e) => onChange('salaryPublic', e.target.checked)}
-                  className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <span className="text-sm text-gray-600">{t('newPosition.form.showPublicly')}</span>
-              </label>
-            </div>
+          <div>
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+              <Wallet className="w-4 h-4" />
+              {t('newPosition.form.salaryRange')}{' '}
+              <span className="text-gray-400 text-xs font-normal">({t('newPosition.form.optional')})</span>
+            </label>
 
-            <div className="grid grid-cols-3 gap-3">
-              <div>
-                <label className="block text-xs text-gray-600 mb-1">{t('newPosition.form.min')}</label>
-                <SalaryInput
-                  value={data.salaryMin}
-                  onChange={(raw) => onChange('salaryMin', raw)}
-                  placeholder="0"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+            <div className="rounded-xl border border-gray-200 bg-gray-50/60 p-4 space-y-4">
+              {/* Currency */}
+              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t('newPosition.form.currency')}>
+                {SALARY_CURRENCIES.map((cur) => {
+                  const selected = data.salaryCurrency === cur
+                  return (
+                    <button
+                      key={cur}
+                      type="button"
+                      role="radio"
+                      aria-checked={selected}
+                      onClick={() => onChange('salaryCurrency', cur)}
+                      className={`px-3 py-1.5 rounded-full border-2 text-xs font-semibold tracking-wide transition-all ${
+                        selected
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-300 bg-white text-gray-600 hover:border-gray-400'
+                      }`}
+                    >
+                      {cur}
+                    </button>
+                  )
+                })}
               </div>
-              <div>
-                <label className="block text-xs text-gray-600 mb-1">{t('newPosition.form.max')}</label>
-                <SalaryInput
-                  value={data.salaryMax}
-                  onChange={(raw) => onChange('salaryMax', raw)}
-                  placeholder="0"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+
+              {/* Min — Max */}
+              <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-2 sm:gap-3">
+                {renderSalaryField('salaryMin', 'min')}
+                <span className="pb-3 text-gray-400 font-medium">–</span>
+                {renderSalaryField('salaryMax', 'max')}
               </div>
-              <div>
-                <label className="block text-xs text-gray-600 mb-1">{t('newPosition.form.currency')}</label>
-                <select
-                  value={data.salaryCurrency}
-                  onChange={(e) => onChange('salaryCurrency', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              {salaryRangeInvalid && (
+                <p className="text-xs text-red-600 -mt-2">{t('newPosition.form.salaryMinAboveMax')}</p>
+              )}
+
+              {/* Visibility */}
+              <button
+                type="button"
+                role="switch"
+                aria-checked={data.salaryPublic}
+                onClick={() => onChange('salaryPublic', !data.salaryPublic)}
+                className={`w-full flex items-center gap-3 rounded-lg border-2 px-3 py-3 text-left transition-all ${
+                  data.salaryPublic ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-gray-300'
+                }`}
+              >
+                {data.salaryPublic ? (
+                  <Eye className="w-5 h-5 shrink-0 text-blue-600" />
+                ) : (
+                  <EyeOff className="w-5 h-5 shrink-0 text-gray-400" />
+                )}
+                <span className="flex-1 min-w-0">
+                  <span className={`block text-sm font-medium ${data.salaryPublic ? 'text-blue-700' : 'text-gray-700'}`}>
+                    {t('newPosition.form.showPublicly')}
+                  </span>
+                  <span className="block text-xs text-gray-500">
+                    {t(data.salaryPublic ? 'newPosition.form.salaryPublicOn' : 'newPosition.form.salaryPublicOff')}
+                  </span>
+                </span>
+                <span
+                  className={`relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors ${
+                    data.salaryPublic ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}
                 >
-                  <option value="HUF">HUF</option>
-                  <option value="EUR">EUR</option>
-                  <option value="USD">USD</option>
-                  <option value="CZK">CZK</option>
-                  <option value="PLN">PLN</option>
-                  <option value="RON">RON</option>
-                  <option value="GBP">GBP</option>
-                  <option value="CHF">CHF</option>
-                </select>
-              </div>
+                  <span
+                    className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                      data.salaryPublic ? 'translate-x-5' : ''
+                    }`}
+                  />
+                </span>
+              </button>
             </div>
           </div>
 

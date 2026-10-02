@@ -356,6 +356,9 @@
       "min": "Min",
       "max": "Max",
       "currency": "Currency",
+      "salaryPublicOn": "Candidates will see this range on the job posting",
+      "salaryPublicOff": "Internal only — hidden from candidates",
+      "salaryMinAboveMax": "Minimum is higher than maximum",
       "applicationDeadline": "Application Deadline",
       "feedbackTone": {
         "title": "Tone of the AI feedback to candidates",
@@ -411,7 +414,10 @@
       "createdRunLater": "Position created successfully. You can run the analysis later.",
       "aiGenerationFailed": "Failed to generate descriptions. Please try again.",
       "aiGenerationSuccess": "✨ Descriptions generated successfully! Review them below and make any necessary adjustments.",
-      "positionNameRequired": "Please enter a position name before generating descriptions."
+      "positionNameRequired": "Please enter a position name before generating descriptions.",
+      "selectManager": "Please select a manager.",
+      "selectEmploymentType": "Please select an employment type.",
+      "salaryMinAboveMax": "The minimum salary cannot be higher than the maximum."
     },
     "analysis": {
       "title": "Candidate Analysis",

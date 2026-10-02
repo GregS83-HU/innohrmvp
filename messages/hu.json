@@ -356,6 +356,9 @@
       "min": "Min",
       "max": "Max",
       "currency": "Pénznem",
+      "salaryPublicOn": "A jelöltek látni fogják ezt a sávot az álláshirdetésben",
+      "salaryPublicOff": "Csak belső használatra — a jelöltek nem látják",
+      "salaryMinAboveMax": "A minimum nagyobb, mint a maximum",
       "applicationDeadline": "Jelentkezési határidő",
       "feedbackTone": {
         "title": "A jelölteknek adott AI-visszajelzés hangneme",
@@ -413,7 +416,10 @@
       "noCredits": "Nincs több AI kreditje ebben a hónapban. Kérjük, frissítse csomagját.",
       "aiGenerationFailed": "A leírások generálása sikertelen. Kérjük, próbálja újra.",
       "aiGenerationSuccess": "✨ Leírások sikeresen generálva! Ellenőrizze őket alább, és végezze el a szükséges módosításokat.",
-      "positionNameRequired": "Kérjük, adjon meg egy pozíciónevet a leírások generálása előtt."
+      "positionNameRequired": "Kérjük, adjon meg egy pozíciónevet a leírások generálása előtt.",
+      "selectManager": "Kérjük, válasszon vezetőt.",
+      "selectEmploymentType": "Kérjük, válassza ki a foglalkoztatás típusát.",
+      "salaryMinAboveMax": "A minimális fizetés nem lehet magasabb a maximálisnál."
     },
     "analysis": {
       "title": "Jelöltek elemzése",
