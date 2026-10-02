@@ -1,6 +1,6 @@
 'use client'
 
-import { Plus, Briefcase, FileText, Calendar, Activity, MapPin, Sparkles, User, MessageSquare } from 'lucide-react'
+import { Plus, Briefcase, FileText, Calendar, Activity, MapPin, Sparkles, User, MessageSquare, Clock, Hourglass, FileSignature, GraduationCap, CalendarClock } from 'lucide-react'
 import { ManagerDropdown, CompanyUser } from './ManagerDropdown'
 import { useLocale } from 'i18n/LocaleProvider'
 import { CANDIDATE_FEEDBACK_TONES, CandidateFeedbackTone } from '../../lib/candidateFeedbackTone'
@@ -65,6 +65,14 @@ export interface PositionFormData {
   applicationDeadline: string
   candidateFeedbackTone: CandidateFeedbackTone
 }
+
+const EMPLOYMENT_TYPES = [
+  { value: 'full-time', labelKey: 'fullTime', Icon: Briefcase },
+  { value: 'part-time', labelKey: 'partTime', Icon: Hourglass },
+  { value: 'contract', labelKey: 'contract', Icon: FileSignature },
+  { value: 'internship', labelKey: 'internship', Icon: GraduationCap },
+  { value: 'temporary', labelKey: 'temporary', Icon: CalendarClock },
+] as const
 
 interface PositionFormProps {
   data: PositionFormData
@@ -186,22 +194,32 @@ export function PositionForm({
 
           {/* Employment Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+              <Clock className="w-4 h-4" />
               {t('newPosition.form.employmentType')} <span className="text-red-500">*</span>
             </label>
-            <select
-              value={data.employmentType}
-              onChange={(e) => onChange('employmentType', e.target.value as PositionFormData['employmentType'])}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            >
-              <option value="">{t('newPosition.form.selectEmploymentType')}</option>
-              <option value="full-time">{t('newPosition.form.employmentTypes.fullTime')}</option>
-              <option value="part-time">{t('newPosition.form.employmentTypes.partTime')}</option>
-              <option value="contract">{t('newPosition.form.employmentTypes.contract')}</option>
-              <option value="internship">{t('newPosition.form.employmentTypes.internship')}</option>
-              <option value="temporary">{t('newPosition.form.employmentTypes.temporary')}</option>
-            </select>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3" role="radiogroup">
+              {EMPLOYMENT_TYPES.map(({ value, labelKey, Icon }) => {
+                const selected = data.employmentType === value
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => onChange('employmentType', value)}
+                    className={`flex flex-col items-center justify-center gap-2 px-3 py-4 rounded-lg border-2 font-medium text-sm transition-all ${
+                      selected
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                    }`}
+                  >
+                    <Icon className={`w-5 h-5 ${selected ? 'text-blue-600' : 'text-gray-400'}`} />
+                    {t(`newPosition.form.employmentTypes.${labelKey}`)}
+                  </button>
+                )
+              })}
+            </div>
           </div>
 
           {/* Salary Range */}
