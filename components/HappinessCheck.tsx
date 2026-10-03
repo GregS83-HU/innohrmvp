@@ -77,7 +77,6 @@ const HappinessCheckInner: React.FC = () => {
     };
 
     extractCompanyInfo();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, searchParams]);
 
   const fetchCompanyFromSlug = async (slug: string) => {

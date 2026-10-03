@@ -9,10 +9,7 @@ import {
   Plus,
   Loader2,
   AlertCircle,
-  RefreshCw,
-  FileText,
-  Users,
-  Bell
+  Users
 } from 'lucide-react';
 
 import { supabase } from '../../../../../lib/supabaseClient';
@@ -22,9 +19,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useLocale } from 'i18n/LocaleProvider';
 
 import CertificateUploadModal from '../../../../../components/CertificateUploadModal';
-import { CertificateStatusBadge } from '../../../../../components/CertificateStatusBadge';
 
-import StatusBadge from '../../../../../components/absence/StatusBadge';
 import LeaveBalances from '../../../../../components/absence/LeaveBalances';
 import RecentRequests from '../../../../../components/absence/RecentRequests';
 import PendingApprovals from '../../../../../components/absence/PendingApprovals';
@@ -81,7 +76,7 @@ const AbsenceManagement: React.FC = () => {
   // Certificate upload states
   const [showCertificateModal, setShowCertificateModal] = useState(false);
   const [selectedLeaveRequestId, setSelectedLeaveRequestId] = useState<string | null>(null);
-  const [certificateData, setCertificateData] = useState<CertificateData | null>(null);
+  const [, setCertificateData] = useState<CertificateData | null>(null);
   const [uploadMode, setUploadMode] = useState<'new' | 'existing'>('new');
 
   // Extract CompanySlug:
@@ -250,12 +245,6 @@ const AbsenceManagement: React.FC = () => {
   };
 
   // Open certificate modal for new request
-  const handleCreateWithCertificate = () => {
-    setSelectedLeaveRequestId(null);
-    setUploadMode('new');
-    setShowCertificateModal(true);
-  };
-
   // Submit leave request
   const submitLeaveRequest = async (e: React.FormEvent) => {
     e.preventDefault();

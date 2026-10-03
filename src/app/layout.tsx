@@ -7,7 +7,6 @@ import ClientProvider from "./ClientProvider";
 import { LocaleProvider } from "../i18n/LocaleProvider";
 import { messages } from "../i18n/messages";
 import CookieConsent from "../../components/CookieConsent";
-import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const sora = Sora({ subsets: ["latin"], variable: "--font-sora", display: "swap" });
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });

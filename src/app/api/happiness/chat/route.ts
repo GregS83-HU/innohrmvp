@@ -363,7 +363,6 @@ async function generatePersonalizedAdvice(
     const defaultFallback = fallbackAdvice[language];
 
     while (adviceLines.length < 3) {
-      const index = adviceLines.length;
       if (avgScore >= 7) {
         adviceLines.push(defaultFallback[0]);
       } else if (avgScore >= 5) {

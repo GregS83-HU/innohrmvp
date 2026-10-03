@@ -14,7 +14,6 @@ export const CertificateStatusBadge: React.FC<CertificateStatusBadgeProps> = ({
   hasCertificate,
   certificateTreated,
   isHrValidated,
-  isMedicalConfirmed
 }) => {
   const { t } = useLocale();
 

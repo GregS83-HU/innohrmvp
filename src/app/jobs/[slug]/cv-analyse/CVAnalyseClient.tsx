@@ -63,7 +63,7 @@ export default function CVAnalyseClient({
   const companySlug = pathname.split('/')[2] ?? ''
 
   const [file, setFile] = useState<File | null>(null)
-  const [analysis, setAnalysis] = useState('')
+  const [, setAnalysis] = useState('')
   const [candidateFeedback, setCandidateFeedback] = useState('')
   const [score, setScore] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)

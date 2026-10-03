@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Plus, X, CheckCircle, Loader2, Search, Calendar, UserCircle, Users } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 import { useLocale } from 'i18n/LocaleProvider';
@@ -23,6 +23,16 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
+
+// Generate random password
+const generatePassword = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+  let password = '';
+  for (let i = 0; i < 12; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+};
 
 export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserModalProps) => {
   const { t } = useLocale();
@@ -48,28 +58,7 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
   const [managerSearch, setManagerSearch] = useState('');
   const [showManagerDropdown, setShowManagerDropdown] = useState(false);
 
-  // Generate random password
-  const generatePassword = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
-    let password = '';
-    for (let i = 0; i < 12; i++) {
-      password += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return password;
-  };
-
-  // Fetch managers when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      if (!formData.password) {
-        const newPassword = generatePassword();
-        setFormData(prev => ({ ...prev, password: newPassword }));
-      }
-      fetchManagers();
-    }
-  }, [isOpen]);
-
-  const fetchManagers = async () => {
+  const fetchManagers = useCallback(async () => {
     if (!companyId) return;
     
     setLoadingManagers(true);
@@ -96,7 +85,15 @@ export const AddUserModal = ({ isOpen, onClose, onSuccess, companyId }: AddUserM
     } finally {
       setLoadingManagers(false);
     }
-  };
+  }, [companyId, t]);
+
+  // Fetch managers when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setFormData(prev => (prev.password ? prev : { ...prev, password: generatePassword() }));
+      fetchManagers();
+    }
+  }, [isOpen, fetchManagers]);
 
   // Filter managers based on search
   const filteredManagers = managers.filter(manager =>

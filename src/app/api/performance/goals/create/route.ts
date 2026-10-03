@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
 import { hasFeatureAccess, entitlementErrorBody } from '../../../../../../lib/entitlements'
 import { requireSelfOrManagerOf } from '../../../../../../lib/authz'
 import { safeErrorInfo } from '../../../../../../lib/logSafe'

@@ -2,7 +2,7 @@
 
 import { useSession } from '@supabase/auth-helpers-react'
 import { useRouter, useParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Calendar, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { useLocale } from 'i18n/LocaleProvider'
@@ -46,16 +46,7 @@ export default function WeeklyPulsePage() {
   const [weekStart, setWeekStart] = useState('')
   const [message, setMessage] = useState<{ text: string; type: 'error' | 'success' } | null>(null)
 
-  useEffect(() => {
-    if (!session) {
-      router.push('/')
-      return
-    }
-
-    fetchGoalsNeedingPulse(session.user.id)
-  }, [session, router])
-
-  const fetchGoalsNeedingPulse = async (userId: string) => {
+  const fetchGoalsNeedingPulse = useCallback(async (userId: string) => {
     setLoading(true)
     try {
       const { data: week } = await supabase.rpc('get_week_start')
@@ -91,7 +82,16 @@ export default function WeeklyPulsePage() {
       console.error('Error fetching goals:', safeErrorInfo(error))
     }
     setLoading(false)
-  }
+  }, [session])
+
+  useEffect(() => {
+    if (!session) {
+      router.push('/')
+      return
+    }
+
+    fetchGoalsNeedingPulse(session.user.id)
+  }, [session, router, fetchGoalsNeedingPulse])
 
   const updatePulse = (goalId: string, field: keyof PulseData[string], value: string) => {
     setPulseData(prev => ({

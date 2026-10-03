@@ -71,7 +71,6 @@ export async function POST(request: Request) {
       throw new Error("Could not generate signed URL for medical certificate");
       }
 
-const secureUrl = signedUrlData.signedUrl;
 
     // Insert into database
     const insertData = {

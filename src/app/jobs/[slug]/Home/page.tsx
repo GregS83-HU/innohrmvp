@@ -46,7 +46,6 @@ export default function HomePage() {
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
 
   const isAdmin = useMemo(() => !!user && user.is_admin, [user]);
-  const isManager = useMemo(() => !!user && user.is_manager && !user.is_admin, [user]);
   const isManagerOrAdmin = useMemo(() => !!user && (user.is_manager || user.is_admin), [user]);
   // Admins always see attendance/absences/performance tiles (locked
   // preview at the destination page if the plan doesn't include them);
@@ -210,6 +209,7 @@ export default function HomePage() {
 
       <div className="flex flex-col items-center pt-16 pb-16 px-4 w-full">
         {companyLogo && (
+          // eslint-disable-next-line @next/next/no-img-element -- customer-uploaded logo on an arbitrary storage host; next/image would need remotePatterns for it
           <img src={companyLogo} alt={companyName || 'Company logo'} className="h-16 object-contain mb-6" />
         )}
 

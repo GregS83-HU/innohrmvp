@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js'
 import { useSession } from '@supabase/auth-helpers-react'
 import { useSearchParams } from 'next/navigation'
 import { v4 as uuidv4 } from 'uuid'
-import { Check, X, Star, Zap, Shield, Crown } from 'lucide-react'
+import { Check, Star, Zap, Shield, Crown } from 'lucide-react'
 import { loadStripe } from "@stripe/stripe-js"
 import { useLocale } from '../../../../i18n/LocaleProvider'
 import { safeErrorInfo } from '../../../../../lib/logSafe';
@@ -322,16 +322,16 @@ const fetchCompanyDetails = useCallback(async (companyId: string) => {
     }
   }
 
-  const generateDescription = (forfait: ForfaitData) => {
+  const generateDescription = useCallback((forfait: ForfaitData) => {
     if (!forfait.base_fee_huf) return t('subscription.plan.defaultDescription')
     return t('subscription.plan.paidDescription')
-  }
+  }, [t])
 
   // Core and Growth share recruitment, time & attendance, absences, and
   // medical certificate uploads - Growth additionally includes performance
   // management, the AI wellbeing chatbot, and advanced reporting. Free's
   // feature list stays as-is (untouched by this pricing overhaul).
-  const generateFeatures = (forfait: ForfaitData) => {
+  const generateFeatures = useCallback((forfait: ForfaitData) => {
     if (!forfait.base_fee_huf) {
       const features: string[] = []
       if (forfait.max_opened_position) {
@@ -352,7 +352,7 @@ const fetchCompanyDetails = useCallback(async (companyId: string) => {
     if (forfait.access_happy_check) features.push(t('subscription.features.happyCheck'))
     if (forfait.access_advanced_reporting) features.push(t('subscription.features.advancedReporting'))
     return features
-  }
+  }, [t])
 
   const fetchPlans = useCallback(async () => {
     setLoadingPlans(true)
@@ -389,7 +389,7 @@ const fetchCompanyDetails = useCallback(async (companyId: string) => {
     } finally {
       setLoadingPlans(false)
     }
-  }, [t])
+  }, [t, generateDescription, generateFeatures])
 
   const handleSubscribe = async (plan: Plan) => {
     if (!companyId) return addToast(t('subscription.errors.companyNotAvailable'), "error")

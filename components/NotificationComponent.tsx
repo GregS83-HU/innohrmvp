@@ -10,8 +10,6 @@ import {
   Ticket,
   Check,
   Calendar,
-  CheckCircle,
-  XCircle,
   Target,
   AlertTriangle,
   TrendingUp,
@@ -75,12 +73,6 @@ interface TicketMessagePayload {
   sender_id?: string;
   sender_name?: string;
   created_at: string;
-}
-
-interface PostgresChangePayload<T = Record<string, unknown>> {
-  new: T;
-  old?: Partial<T>;
-  eventType?: 'INSERT' | 'UPDATE' | 'DELETE';
 }
 
 export default function NotificationComponent({

@@ -19,8 +19,7 @@ import {
   Check,
   Edit3,
   Power,
-  X,
-} from 'lucide-react';
+  } from 'lucide-react';
 import { AddUserModal } from '../../../../../components/AddUserModal';
 import { useLocale } from '../../../../i18n/LocaleProvider';
 import { safeErrorInfo } from '../../../../../lib/logSafe';

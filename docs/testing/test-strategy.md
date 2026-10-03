@@ -25,7 +25,7 @@ HRInno is a multi-tenant HR SaaS that holds special-category data (health certif
 | Layer | What | Tooling | Speed | Runs | Status |
 |---|---|---|---|---|---|
 | **L0 Static** | TypeScript typecheck of all app code | `tsc` via `tsconfig.typecheck.json` | ~5–9 s | pre-commit, pre-push, on demand | ✅ Live, blocking |
-| **L0 Static** | ESLint | `eslint` | ~8 s | pre-push (changed files only) | ⚠️ Advisory — 416 pre-existing errors must be cleared before it can block |
+| **L0 Static** | ESLint (`npm run lint`) | `eslint` | ~8 s | pre-push, on demand | ✅ Live — errors block the push; warnings are reported |
 | **L1 Unit** | Pure business rules in `lib/` and `src/config/` (entitlements, authz, pricing crossover, encryption, slugs, business days, log scrubbing, feedback tone) | Vitest | <1 s | pre-commit, pre-push, on demand | ✅ Live |
 | **L2 API route** | Each `src/app/api/**/route.ts` handler invoked directly with Supabase, Stripe, OpenRouter and email **mocked**. Asserts status codes, authorization, tenant scoping, and exactly what gets written | Vitest + `test/helpers` | ~3 s total | pre-commit, pre-push, on demand | ✅ Live |
 | **L3 Guards** | Structural checks over the source tree: every API route has an authz check or a written justification; product promises (stateless Job Assistant, no AI on certificates, no public promo codes) | Vitest reading source files | <1 s | pre-commit, pre-push, on demand | ✅ Live |
@@ -72,11 +72,12 @@ npm run test:unit     # L1 unit + L3 guards only
 npm run test:api      # L2 API route tests only
 npm run test:watch    # re-run on save while developing
 npm run typecheck     # TypeScript only
+npm run lint          # ESLint
 ```
 
 **Git hooks** (`.githooks/`, activated automatically by `npm install` through the `prepare` script):
 - **pre-commit** — `npm run verify`. Skipped for docs-only commits (`*.md`, `docs/`). Blocks the commit on failure.
-- **pre-push** — `npm run verify` again (catches `--no-verify` commits), then ESLint on the files the branch changed (advisory, non-blocking).
+- **pre-push** — `npm run verify` again (catches `--no-verify` commits), then ESLint on the whole repo; any lint **error** blocks the push.
 - Emergency bypass: `git commit --no-verify` / `git push --no-verify`.
 
 **Conventions for new tests**
@@ -332,6 +333,6 @@ Closed (kept as regression tests in `test/api/known-gaps.test.ts`, `ai-credit-ro
 1. **L4 RLS suite (highest value).** `supabase start` locally, apply `supabase/migrations`, seed two tenants with the persona cast, then for each tenant table assert that tenant-B credentials get zero rows / write errors on tenant-A data. Add a migration-drift check comparing `supabase_migrations.schema_migrations` with the files in the repo. Run on demand and nightly in CI.
 2. **CI.** A GitHub Actions workflow running `npm run verify` on every PR, so the gate can't be bypassed with `--no-verify`; add L4 when ready.
 3. **L5 Playwright smoke journeys** (one per persona): signup → dashboard; admin creates position → candidate applies on the public board → recruiter moves candidate; employee requests leave → manager approves; Stripe test-mode checkout.
-4. **Clear the ESLint backlog**, then make lint blocking in pre-push.
+4. **Promote lint warnings to errors** once the last few are cleared, so warnings can't creep back in.
 5. **Extract pure logic from routes** (attendance status, working-day counts, pulse week calculation, AI score thresholds) into `lib/` so it can be unit-tested; this also makes the 5-vs-7 threshold inconsistency explicit.
 6. **Coverage reporting** (`@vitest/coverage-v8`) once L4 exists, with a floor on `lib/`.

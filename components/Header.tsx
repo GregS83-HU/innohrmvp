@@ -52,7 +52,6 @@ export default function Header() {
   const [isMobileHRToolsOpen, setIsMobileHRToolsOpen] = React.useState(false);
   const [isMobileAccountOpen, setIsMobileAccountOpen] = React.useState(false);
 
-  const isRegularUser = useMemo(() => user && !user.is_manager && !user.is_admin, [user]);
   const isManager = useMemo(() => user && user.is_manager && !user.is_admin, [user]);
   const isAdmin = useMemo(() => user && user.is_admin, [user]);
   const isSuperAdmin = useMemo(() => user && user.is_super_admin === true, [user]);
@@ -71,7 +70,6 @@ export default function Header() {
   );
 
   const happyCheckLink = useMemo(() => buildLink('/happiness-check'), [buildLink]);
-  const uploadCertificateLink = useMemo(() => buildLink('/medical-certificate/upload'), [buildLink]);
   const manageSubscriptionLink = useMemo(() => buildLink('/subscription'), [buildLink]);
   const manageUsersLink = useMemo(() => buildLink('/users-creation'), [buildLink]);
   const helpGuideLink = useMemo(() => buildLink('/help'), [buildLink]);
@@ -104,6 +102,7 @@ export default function Header() {
             <div className="flex-shrink-0 flex flex-col items-start gap-1 -ml-2">
               <Link href={companySlug === 'demo' ? `/jobs/demo/contact` : companySlug ? buildLink('/') : '/'}>
                 {companySlug && companyLogo ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- customer-uploaded logo on an arbitrary storage host; next/image would need remotePatterns for it
                   <img
                     src={companyLogo}
                     alt="Logo"

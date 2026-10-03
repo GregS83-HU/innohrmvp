@@ -2,12 +2,12 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
-  Search, Filter, Mail, Phone, Building2,
+  Search, Mail, Phone, Building2,
   Calendar, MessageSquare, CheckCircle, Clock,
-  AlertCircle, Ban, User, Trash2, ExternalLink,
-  StickyNote, X, Save
+  AlertCircle, Ban, Trash2, ExternalLink,
+  X, Save
 } from 'lucide-react';
 import { safeErrorInfo } from '../../../../../lib/logSafe';
 
@@ -34,14 +34,8 @@ interface ContactSubmission {
 
 type StatusType = 'all' | 'new' | 'in_progress' | 'contacted' | 'completed' | 'spam';
 
-interface ContactSubmissionsPageProps {
-  params: Promise<{ slug: string }>;
-}
-
-export default function ContactSubmissionsPage({ params }: ContactSubmissionsPageProps) {
-  const { slug } = React.use(params);
+export default function ContactSubmissionsPage() {
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
-  const [filteredSubmissions, setFilteredSubmissions] = useState<ContactSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusType>('all');
@@ -62,10 +56,6 @@ export default function ContactSubmissionsPage({ params }: ContactSubmissionsPag
     fetchSubmissions();
   }, []);
 
-  useEffect(() => {
-    filterSubmissions();
-  }, [submissions, searchTerm, statusFilter]);
-
   const fetchSubmissions = async () => {
     try {
       setLoading(true);
@@ -82,7 +72,7 @@ export default function ContactSubmissionsPage({ params }: ContactSubmissionsPag
     }
   };
 
-  const filterSubmissions = () => {
+  const filteredSubmissions = useMemo(() => {
     let filtered = [...submissions];
 
     if (statusFilter !== 'all') {
@@ -99,8 +89,8 @@ export default function ContactSubmissionsPage({ params }: ContactSubmissionsPag
       );
     }
 
-    setFilteredSubmissions(filtered);
-  };
+    return filtered;
+  }, [submissions, searchTerm, statusFilter]);
 
   const updateStatus = async (id: string, newStatus: string) => {
     try {

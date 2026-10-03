@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 import {
@@ -78,6 +78,13 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+const getAuthHeaders = async (): Promise<Record<string, string>> => {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  return session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {};
+};
+
 // --------------------
 // TimeClock Component
 // --------------------
@@ -86,7 +93,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [clockedIn, setClockedIn] = useState(false);
   const [clockInTime, setClockInTime] = useState<Date | null>(null);
-  const [todayEntry, setTodayEntry] = useState<TimeEntry | null>(null);
+  const [, setTodayEntry] = useState<TimeEntry | null>(null);
   const [activeTab, setActiveTab] = useState<'clock' | 'history'>('clock');
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -96,28 +103,17 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const getAuthHeaders = async (): Promise<Record<string, string>> => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    return session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {};
-  };
-
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    fetchClockStatus();
-    fetchWeeklySummary();
-  }, [userId]);
+  const showError = useCallback((msg: string) => {
+    setError(msg);
+    setTimeout(() => setError(null), 5000);
+  }, []);
 
-  useEffect(() => {
-    if (activeTab === 'history') fetchHistory();
-  }, [activeTab]);
-
-  const fetchClockStatus = async () => {
+  const fetchClockStatus = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch(`/api/timeclock?userId=${userId}&action=status`, { headers: await getAuthHeaders() });
@@ -133,9 +129,9 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, t, showError]);
 
-  const fetchHistory = async () => {
+  const fetchHistory = useCallback(async () => {
     try {
       const res = await fetch(`/api/timeclock?userId=${userId}&action=history`, { headers: await getAuthHeaders() });
       const data: HistoryResponse = await res.json();
@@ -143,9 +139,9 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
     } catch {
       showError(t('timeClockPage.messages.loadHistoryFailed'));
     }
-  };
+  }, [userId, t, showError]);
 
-  const fetchWeeklySummary = async () => {
+  const fetchWeeklySummary = useCallback(async () => {
     try {
       const res = await fetch(`/api/timeclock?userId=${userId}&action=summary`, { headers: await getAuthHeaders() });
       const data: SummaryResponse = await res.json();
@@ -153,7 +149,16 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
     } catch (err) {
       console.error(safeErrorInfo(err));
     }
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    fetchClockStatus();
+    fetchWeeklySummary();
+  }, [fetchClockStatus, fetchWeeklySummary]);
+
+  useEffect(() => {
+    if (activeTab === 'history') fetchHistory();
+  }, [activeTab, fetchHistory]);
 
   const handleClockIn = async () => {
     try {
@@ -201,11 +206,6 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
     } finally {
       setActionLoading(false);
     }
-  };
-
-  const showError = (msg: string) => {
-    setError(msg);
-    setTimeout(() => setError(null), 5000);
   };
 
   const showSuccess = (msg: string) => {
@@ -484,7 +484,7 @@ export default function TimeClockPage({ params }: PageProps) {
   const [currentUser, setCurrentUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [slug, setSlug] = useState<string>('');
+  const [, setSlug] = useState<string>('');
 
   useEffect(() => {
     const loadUser = async () => {

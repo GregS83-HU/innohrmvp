@@ -3,7 +3,7 @@
 
 import { useSession } from '@supabase/auth-helpers-react'
 import { useRouter, useParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Plus, Target, TrendingUp, Calendar, AlertCircle, CheckCircle } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { useLocale } from 'i18n/LocaleProvider'
@@ -48,16 +48,6 @@ export default function PerformanceDashboard() {
   const [weekStart, setWeekStart] = useState('')
   const moduleAccess = useModuleAccess(session?.user?.id)
 
-  useEffect(() => {
-    if (!session) {
-      router.push(`/jobs/${companySlug}`)
-      return
-    }
-
-    fetchGoals()
-    fetchQuarterAndWeek()
-  }, [session, router, companySlug])
-
   const fetchQuarterAndWeek = async () => {
     try {
       const { data: quarter } = await supabase.rpc('get_current_quarter')
@@ -70,7 +60,7 @@ export default function PerformanceDashboard() {
     }
   }
 
-  const fetchGoals = async () => {
+  const fetchGoals = useCallback(async () => {
     setLoading(true)
     try {
       if (!session?.user?.id || !session?.access_token) {
@@ -92,7 +82,17 @@ export default function PerformanceDashboard() {
       console.error('Error fetching goals:', safeErrorInfo(error))
     }
     setLoading(false)
-  }
+  }, [session])
+
+  useEffect(() => {
+    if (!session) {
+      router.push(`/jobs/${companySlug}`)
+      return
+    }
+
+    fetchGoals()
+    fetchQuarterAndWeek()
+  }, [session, router, companySlug, fetchGoals])
 
   const activeGoals = goals.filter(g => g.status === 'active')
   const draftGoals = goals.filter(g => g.status === 'draft')
