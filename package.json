@@ -7,8 +7,16 @@
     "build": "next build",
     "start": "next start",
     "postinstall": "patch-package",
-    "lint": "next lint",
-    "test-env": "node -e \"console.log('URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)\""
+    "lint": "eslint .",
+    "stripe:setup-pricing": "node scripts/stripe-setup-pricing.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test-env": "node -e \"console.log('URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)\"",
+    "prepare": "git config core.hooksPath .githooks || true",
+    "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
+    "test:unit": "vitest run test/unit test/guards",
+    "test:api": "vitest run test/api",
+    "verify": "npm run --silent typecheck && vitest run --reporter=dot --silent=passed-only"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -73,6 +81,7 @@
     "snyk": "^1.1299.0",
     "tailwindcss": "^4.1.13",
     "tw-animate-css": "^1.3.7",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.11"
   }
 }

@@ -1,6 +1,7 @@
 // src/app/api/candidates/signed-cv-url/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireAuthenticatedUser, requireCompanyMember } from '../../../../../lib/authz';
 import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
@@ -22,15 +23,11 @@ function resolveCvStoragePath(cvFile: string): string | null {
 
 export async function POST(req: NextRequest) {
   try {
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) {
-      return NextResponse.json({ error: "Missing authorization header" }, { status: 401 });
-    }
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    // Order preserved from the original implementation: verify the caller's
+    // identity, validate the request body, *then* check company membership.
+    const identity = await requireAuthenticatedUser(req);
+    if (!identity.authorized) {
+      return NextResponse.json({ error: identity.error }, { status: identity.status });
     }
 
     const { candidate_ids } = (await req.json()) as { candidate_ids?: number[] };
@@ -38,14 +35,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "candidate_ids is required" }, { status: 400 });
     }
 
-    const { data: membership, error: membershipError } = await supabase
-      .from("company_to_users")
-      .select("company_id")
-      .eq("user_id", user.id)
-      .single();
-
-    if (membershipError || !membership) {
-      return NextResponse.json({ error: "No company associated with your account" }, { status: 403 });
+    const authCheck = await requireCompanyMember(req);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }
 
     // A candidate is only visible to a user if they applied to a position
@@ -54,7 +46,7 @@ export async function POST(req: NextRequest) {
       .from("position_to_candidat")
       .select("candidat_id, openedpositions!inner(company_id)")
       .in("candidat_id", candidate_ids)
-      .eq("openedpositions.company_id", membership.company_id);
+      .eq("openedpositions.company_id", authCheck.companyId);
 
     if (linksError) {
       return NextResponse.json({ error: "Error verifying candidate access" }, { status: 500 });

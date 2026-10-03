@@ -1,0 +1,16 @@
+#!/bin/sh
+# Runs before every commit: typecheck + the full unit/API/guard suite (~15s).
+# Activated by `npm install` (the "prepare" script sets core.hooksPath).
+# Bypass in an emergency with `git commit --no-verify`.
+
+# Docs-only commits (e.g. the product brief) can't break the build - skip.
+if git diff --cached --name-only --diff-filter=ACMRD | grep -qvE '\.(md|txt)$|^docs/'; then
+  echo "▶ pre-commit: typecheck + tests"
+  npm run --silent verify || {
+    echo ""
+    echo "✖ Commit blocked: fix the failures above (or 'git commit --no-verify' to bypass)."
+    exit 1
+  }
+else
+  echo "▶ pre-commit: docs-only change, skipping checks"
+fi

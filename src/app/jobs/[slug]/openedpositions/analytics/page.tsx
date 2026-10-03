@@ -7,8 +7,11 @@ import {
 } from 'recharts';
 import { Users, TrendingUp, Award, Clock } from 'lucide-react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
+import { useParams } from 'next/navigation';
 import { useLocale } from 'i18n/LocaleProvider';
 import { safeErrorInfo } from '../../../../../../lib/logSafe';
+import { useModuleAccess } from '../../../../../../hooks/useModuleAccess';
+import LockedModuleNotice from '../../../../../../components/entitlements/LockedModuleNotice';
 
 interface Position {
   id: number;
@@ -78,13 +81,16 @@ const PositionAnalytics: React.FC = () => {
 
   const [positions, setPositions] = useState<Position[]>([]);
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
-  const [candidates, setCandidates] = useState<PositionCandidate[]>([]);
+  const [, setCandidates] = useState<PositionCandidate[]>([]);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(false);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
   const [error, setError] = useState<string | null>(null);
   const session = useSession();
   const supabase = useSupabaseClient()
+  const params = useParams();
+  const companySlug = params.slug as string;
+  const moduleAccess = useModuleAccess(session?.user?.id);
 
   useEffect(() => {
     loadPositions();
@@ -259,8 +265,6 @@ const PositionAnalytics: React.FC = () => {
       }))
       .sort((a, b) => {
         // parse using day/month or locale-specific format might be ambiguous; sort by ISO by reconstructing date
-        const aParts = a.date.split(/[^\d]/).map(Number);
-        const bParts = b.date.split(/[^\d]/).map(Number);
         // fallback: compare as strings if parsing fails
         return a.date.localeCompare(b.date);
       });
@@ -314,6 +318,23 @@ const PositionAnalytics: React.FC = () => {
     if (filter === '90d') return t('analytics.timeFilters.90d');
     return t('analytics.timeFilters.all');
   };
+
+  // Locked preview for admins on a plan that doesn't include advanced
+  // reporting (Core). Non-admins get nothing here at all rather than a
+  // locked preview, same treatment as the performance/attendance pages -
+  // see components/entitlements/LockedModuleNotice.tsx.
+  if (!moduleAccess.loading && !moduleAccess.advancedReportingEnabled) {
+    if (!moduleAccess.isAdmin) return null;
+    return (
+      <div className="min-h-screen bg-gray-50 p-6">
+        <LockedModuleNotice
+          feature="reporting.advanced"
+          plan={moduleAccess.plan}
+          upgradeHref={`/jobs/${companySlug}/subscription`}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">

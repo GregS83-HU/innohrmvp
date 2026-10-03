@@ -272,7 +272,7 @@ export default function TicketDetailPage() {
         created_at: new Date().toISOString()
       };
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('ticket_messages')
         .insert(messageData)
         .select()

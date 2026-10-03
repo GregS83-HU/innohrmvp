@@ -1,6 +1,7 @@
 // src/app/api/medical-certificates/signed-url/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireAuthenticatedUser, requireCompanyAdmin } from '../../../../../lib/authz';
 import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
@@ -24,15 +25,11 @@ function resolveStoragePath(certificateFile: string): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) {
-      return NextResponse.json({ error: "Missing authorization header" }, { status: 401 });
-    }
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    // Order preserved from the original implementation: verify the caller's
+    // identity, validate the request body, *then* check admin role + company.
+    const identity = await requireAuthenticatedUser(req);
+    if (!identity.authorized) {
+      return NextResponse.json({ error: identity.error }, { status: identity.status });
     }
 
     const { certificate_ids } = (await req.json()) as { certificate_ids?: number[] };
@@ -40,31 +37,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "certificate_ids is required" }, { status: 400 });
     }
 
-    const { data: profile, error: profileError } = await supabase
-      .from("users")
-      .select("is_admin, is_super_admin")
-      .eq("id", user.id)
-      .single();
-
-    if (profileError || !profile || (!profile.is_admin && !profile.is_super_admin)) {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 });
-    }
-
-    const { data: membership, error: membershipError } = await supabase
-      .from("company_to_users")
-      .select("company_id")
-      .eq("user_id", user.id)
-      .single();
-
-    if (membershipError || !membership) {
-      return NextResponse.json({ error: "No company associated with your account" }, { status: 403 });
+    const authCheck = await requireCompanyAdmin(req);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }
 
     const { data: certificates, error: certError } = await supabase
       .from("medical_certificates")
       .select("id, certificate_file")
       .in("id", certificate_ids)
-      .eq("company_id", membership.company_id);
+      .eq("company_id", authCheck.companyId);
 
     if (certError) {
       return NextResponse.json({ error: "Error fetching certificates" }, { status: 500 });

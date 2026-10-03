@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { requireSelf } from '../../../../../lib/authz';
 import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 export async function GET(request: Request) {
@@ -14,7 +15,14 @@ export async function GET(request: Request) {
     if (!user_id) {
       return NextResponse.json({ error: 'user_id is required' }, { status: 400 })
     }
-    
+
+    // Caller must genuinely be user_id - previously trusted outright,
+    // letting anyone read anyone's own goals via the employee view.
+    const authCheck = await requireSelf(request, user_id)
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status })
+    }
+
     const cookieStore = await cookies()
     
     // Use service role to bypass RLS for server-side operations
@@ -62,10 +70,21 @@ export async function GET(request: Request) {
       
       const employeeIds = teamMembers.map(m => m.user_id)
       console.log('Employee IDs:', employeeIds)
-      
-      // If specific employee requested, filter to just that employee
-      const targetIds = employee_id ? [employee_id] : employeeIds
-      
+
+      // If a specific employee is requested, it must actually be one of
+      // this manager's real reports - previously this check was computed
+      // (employeeIds, above) and then silently discarded, so any
+      // employee_id was accepted regardless of team membership.
+      let targetIds: string[]
+      if (employee_id) {
+        if (!employeeIds.includes(employee_id)) {
+          return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+        }
+        targetIds = [employee_id]
+      } else {
+        targetIds = employeeIds
+      }
+
       // Get goals using the view for better performance
       const { data: goals, error: goalsError } = await supabase
         .from('v_goals_with_status')

@@ -3,7 +3,8 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { sendInterviewInvitation, sendInterviewCancellation } from '../../../../lib/email-service'
-import { getServerTranslation } from '../../../i18n/server-translations' 
+import { getServerTranslation } from '../../../i18n/server-translations'
+import { requireCompanyMember } from '../../../../lib/authz'
 import { safeErrorInfo } from '../../../../lib/logSafe';
 
 const supabase = createClient(
@@ -15,6 +16,30 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const candidat_id = searchParams.get('candidat_id')
   if (!candidat_id) return NextResponse.json([], { status: 200 })
+
+  const authCheck = await requireCompanyMember(req)
+  if (!authCheck.authorized) {
+    return NextResponse.json({ error: authCheck.error }, { status: authCheck.status })
+  }
+
+  // Verify this candidate is linked to at least one position in the
+  // caller's own company before returning their interview history.
+  // Deliberately two simple queries (rather than a nested-embed filter)
+  // to avoid the exact PostgREST failure mode that caused the
+  // positions-public bug - see RLS_JOBBOARD_LOG_FIX.md.
+  const { data: candidatePositions } = await supabase
+    .from('position_to_candidat')
+    .select('position_id')
+    .eq('candidat_id', candidat_id)
+
+  const positionIds = (candidatePositions ?? []).map((p) => p.position_id)
+  const { data: matchingPosition } = positionIds.length
+    ? await supabase.from('openedpositions').select('id').in('id', positionIds).eq('company_id', authCheck.companyId).limit(1).maybeSingle()
+    : { data: null }
+
+  if (!matchingPosition) {
+    return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+  }
 
   const { data, error } = await supabase
     .from('interviews')
@@ -40,6 +65,27 @@ export async function POST(req: Request) {
     } = body
 
     console.log('[Interviews API] Creating interview for position:', position_id)
+
+    if (!position_id) {
+      return NextResponse.json({ error: 'position_id is required' }, { status: 400 })
+    }
+
+    // Verify the caller belongs to the company that owns this position
+    // before creating an interview tied to it.
+    const { data: positionForAuth, error: positionAuthErr } = await supabase
+      .from('openedpositions')
+      .select('company_id')
+      .eq('id', position_id)
+      .single()
+
+    if (positionAuthErr || !positionForAuth) {
+      return NextResponse.json({ error: 'Position not found' }, { status: 404 })
+    }
+
+    const authCheck = await requireCompanyMember(req, positionForAuth.company_id)
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status })
+    }
 
     // Fetch the current recruitment step for this candidate/position
     let recruitment_step_id: number | null = null
@@ -196,6 +242,37 @@ export async function POST(req: Request) {
 export async function PATCH(req: Request) {
   const body = await req.json()
   const { id, status, notes, ai_summary, locale } = body
+
+  if (!id) {
+    return NextResponse.json({ error: 'id is required' }, { status: 400 })
+  }
+
+  // Verify the caller belongs to the company that owns this interview's
+  // position before updating it.
+  const { data: existingInterview, error: existingErr } = await supabase
+    .from('interviews')
+    .select('position_id')
+    .eq('id', id)
+    .single()
+
+  if (existingErr || !existingInterview) {
+    return NextResponse.json({ error: 'Interview not found' }, { status: 404 })
+  }
+
+  const { data: positionForAuth, error: positionAuthErr } = await supabase
+    .from('openedpositions')
+    .select('company_id')
+    .eq('id', existingInterview.position_id)
+    .single()
+
+  if (positionAuthErr || !positionForAuth) {
+    return NextResponse.json({ error: 'Position not found' }, { status: 404 })
+  }
+
+  const authCheck = await requireCompanyMember(req, positionForAuth.company_id)
+  if (!authCheck.authorized) {
+    return NextResponse.json({ error: authCheck.error }, { status: authCheck.status })
+  }
 
   // Update interview status
   const { data, error } = await supabase

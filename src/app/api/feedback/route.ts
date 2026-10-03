@@ -2,6 +2,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse,NextRequest } from 'next/server'
 import { safeErrorInfo } from '../../../../lib/logSafe';
+import { requireSuperAdmin } from '../../../../lib/authz';
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -59,9 +60,14 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// Listing includes IP addresses - HRInno team only. Submitting (POST) stays public.
 export async function GET(request: NextRequest) {
+  const auth = await requireSuperAdmin(request)
+  if (!auth.authorized) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status })
+  }
+
   try {
-    // Optional: Get all feedback (for admin purposes)
     const { data, error } = await supabase
       .from('demo_feedback')
       .select('*')

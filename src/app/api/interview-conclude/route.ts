@@ -75,6 +75,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    // Public, unauthenticated endpoint - it's called mid-application by a
+    // candidate in InterviewChat.tsx, so there is no caller session to
+    // check company membership against. Instead, verify candidateId is
+    // actually linked to positionId via position_to_candidat before writing
+    // an interview score/summary, so an arbitrary candidateId/positionId
+    // pair that was never actually interviewed together can't be
+    // overwritten.
+    const { data: link, error: linkError } = await supabase
+      .from('position_to_candidat')
+      .select('candidat_id')
+      .eq('candidat_id', candidateId)
+      .eq('position_id', positionId)
+      .single();
+
+    if (linkError || !link) {
+      return NextResponse.json({ error: 'Candidate is not linked to this position' }, { status: 404 });
+    }
+
     const historyText = (conversationHistory as Message[])
       .map(m => `${m.role === 'interviewer' ? 'Interviewer' : 'Candidate'}: ${m.content}`)
       .join('\n');

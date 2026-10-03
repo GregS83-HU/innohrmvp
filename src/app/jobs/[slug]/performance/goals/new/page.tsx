@@ -32,9 +32,18 @@ export default function NewGoalPage() {
     setLoading(true)
 
     try {
+      if (!session?.access_token) {
+        setMessage({ text: t('newGoalPage.messages.noSession'), type: 'error' })
+        setLoading(false)
+        return
+      }
+
       const res = await fetch('/api/performance/goals/create', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({
           employee_id: session?.user.id,
           goal_title: goalTitle,

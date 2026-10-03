@@ -1,14 +1,23 @@
-import Stripe from "stripe"
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { requireCompanyAdmin } from "../../../../../lib/authz"
+import { stripe } from "../../../../../lib/stripe/client"
 
 export const runtime = "nodejs"
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-
 export async function POST(req: Request) {
-  const { company_id } = await req.json()
-  if (!company_id) return NextResponse.json({ error: "Missing company_id" }, { status: 400 })
+  // company_id is derived from the caller's own session/membership below -
+  // never trusted from the request body. This is a destructive action
+  // (immediately cancels a live subscription), so it requires the caller to
+  // be an admin of the company being acted on, not just any member.
+  const authCheck = await requireCompanyAdmin(req)
+  if (!authCheck.authorized) {
+    return NextResponse.json({ error: authCheck.error }, { status: authCheck.status })
+  }
+  if (authCheck.companyId === undefined) {
+    return NextResponse.json({ error: "Company not found" }, { status: 500 })
+  }
+  const company_id = authCheck.companyId
 
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -30,10 +39,17 @@ export async function POST(req: Request) {
   try {
     const canceledSubscription = await stripe.subscriptions.cancel(company.stripe_subscription_id)
 
-    // 3) Update Supabase
+    // 3) Update Supabase - also clears the per-seat/base subscription item
+    // ids and billing interval, same fields
+    // clearCompanyPlanForSubscription() nulls in the webhook for a
+    // Stripe-side cancellation, so both cancellation paths converge on the
+    // same "no active subscription" state.
     await supabase.from("company").update({
       stripe_subscription_id: null,
       forfait: null,
+      stripe_base_item_id: null,
+      stripe_seat_item_id: null,
+      billing_interval: null,
     }).eq("id", company_id)
 
     return NextResponse.json({

@@ -16,6 +16,12 @@ Each ticket opens as a message thread — you and the HRInno support team can re
 
 Ticket status (e.g. marking a ticket resolved) is managed by the HRInno support team, not by company admins directly — as a company admin, you can view your tickets and reply, and the team will update the status as your request progresses.
 
+## Plan availability
+
+Submitting a new ticket is available on the **Momentum** and **Infinity** plans. It's usable as soon as your company subscribes — unlike some other modules, there's no onboarding-call requirement, since asking for help is often the first thing a new company needs to do.
+
+On the **Free** plan (or with no active plan), you'll see a message when trying to submit a new ticket — visit **Manage Subscription** from the account menu for upgrade options. Tickets you already have stay fully accessible — you can still view them and reply in the thread — regardless of plan changes; only submitting a **new** ticket is affected.
+
 ## Who can access this
 
-Any logged-in user can submit and view their own support tickets.
+Any logged-in user at a company on an eligible plan can submit and view their own support tickets.

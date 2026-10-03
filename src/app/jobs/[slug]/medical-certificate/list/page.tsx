@@ -26,7 +26,7 @@ export default function MedicalCertificatesPage() {
   const [loading, setLoading] = useState<boolean>(true)
   const [search, setSearch] = useState<string>('')
   const [showAll, setShowAll] = useState<boolean>(false)
-  const [companyId, setCompanyId] = useState<number | null>(null)
+  const [, setCompanyId] = useState<number | null>(null)
   const [viewingId, setViewingId] = useState<number | null>(null)
 
   const session = useSession()
@@ -109,7 +109,7 @@ export default function MedicalCertificatesPage() {
       const userId = session.user.id
 
       // First, update the medical certificate
-      const { data: certData, error: certError } = await supabase
+      const { error: certError } = await supabase
         .from('medical_certificates')
         .update({ 
           treated: newValue,
@@ -397,7 +397,7 @@ export default function MedicalCertificatesPage() {
                     </td>
                   </tr>
                 ) : (
-                  filteredCertificates.map((cert, index) => (
+                  filteredCertificates.map((cert) => (
                     <tr 
                       key={cert.id} 
                       className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${

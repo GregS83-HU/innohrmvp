@@ -1,11 +1,6 @@
 // app/api/notifications/email/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { requireCompanyMember } from '../../../../../lib/authz';
 
 // Email templates
 const emailTemplates = {
@@ -74,12 +69,17 @@ const emailTemplates = {
 };
 
 // Mock email service
-async function sendEmail(to: string, subject: string, html: string) {
+async function sendEmail(to: string, subject: string, _html: string) {
   console.log('Sending email, subject length:', subject.length);
   return { success: true };
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await requireCompanyMember(req);
+  if (!auth.authorized) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+
   try {
     const { type, recipientEmail, ticketData, messageData, companySlug } = await req.json();
 

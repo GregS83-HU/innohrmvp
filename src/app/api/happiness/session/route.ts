@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { randomBytes, createHash } from 'crypto'
 import { hasFeatureAccess, entitlementErrorBody } from '../../../../../lib/entitlements'
+import { requireSessionToken } from '../../../../../lib/authz'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -107,21 +108,16 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    const sessionToken = req.headers.get('x-session-token')
-    
-    if (!sessionToken) {
-      return NextResponse.json({ error: 'Token session requis' }, { status: 401 })
+    const authCheck = await requireSessionToken<{ timeout_at: string }>(
+      req,
+      'happiness_sessions',
+      { noToken: 'Token session requis', notFound: 'Session non trouvée' }
+    )
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status })
     }
-
-    const { data: session, error } = await supabase
-      .from('happiness_sessions')
-      .select('*')
-      .eq('session_token', sessionToken)
-      .single()
-
-    if (error || !session) {
-      return NextResponse.json({ error: 'Session non trouvée' }, { status: 404 })
-    }
+    const session = authCheck.session
+    const sessionToken = req.headers.get('x-session-token') as string
 
     // Check if session is expired
     if (new Date() > new Date(session.timeout_at)) {
@@ -129,7 +125,7 @@ export async function GET(req: NextRequest) {
         .from('happiness_sessions')
         .update({ status: 'timeout' })
         .eq('session_token', sessionToken)
-      
+
       return NextResponse.json({ error: 'Session expirée' }, { status: 410 })
     }
 

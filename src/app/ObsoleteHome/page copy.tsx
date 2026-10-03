@@ -12,6 +12,7 @@ export default function HomePage() {
         {/* Logo Card */}
         <div className="bg-white rounded-xl shadow-lg p-8 mb-8 transform hover:scale-105 transition-all duration-300">
           <div className="text-center">
+            {/* eslint-disable-next-line @next/next/no-img-element -- obsolete page, slated for removal; not worth migrating */}
             <img
               src="/HRInnoLogo.jpeg"
               alt="HRInno"

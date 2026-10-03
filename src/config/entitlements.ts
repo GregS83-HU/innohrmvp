@@ -21,13 +21,15 @@ export type FeatureKey =
   | "attendance.use"
   | "absences.use"
   | "performance.use"
-  | "company.addEmployee";
+  | "company.addEmployee"
+  | "support.tickets"
+  | "reporting.advanced";
 
 export type EntitlementCheck =
   // Capacity check: compares a live count against a per-plan max column.
   | { kind: "capacity"; rpc: "can_open_new_position" | "can_add_medical_certificate" | "can_add_employee" }
   // Boolean flag check: reads a per-plan boolean column.
-  | { kind: "flag"; rpc: "can_access_happy_check" | "can_use_attendance_absences" | "can_use_performance" };
+  | { kind: "flag"; rpc: "can_access_happy_check" | "can_use_attendance_absences" | "can_use_performance" | "can_use_support_tickets" | "can_use_advanced_reporting" };
 
 // Features that require company.onboarding_completed = true, on top of
 // whatever plan check applies - regardless of forfait, a company that
@@ -36,16 +38,20 @@ export type EntitlementCheck =
 // deliberately NOT in this set: it stays usable immediately after
 // self-serve signup, subject only to plan limits.
 //
-// medicalCertificates.upload is here for a different reason than the other
-// five: it's not a training/complexity gate, it's a TEMPORARY compliance
-// safeguard. Certificate uploads send employee health data to third-party
-// AI/OCR services (OCR.Space, OpenRouter) with redaction that's best-effort
-// (not guaranteed) and retention periods that are placeholders, not a legal
-// determination - see Known Limitations in docs/product-brief.md. A
-// self-serve company could otherwise start uploading certificates with
-// zero human contact from our team first. Revisit removing this feature
-// from this set once the pending legal review of retention periods and
-// subprocessor terms is complete.
+// medicalCertificates.upload was originally placed here as a TEMPORARY
+// compliance safeguard rather than a training/complexity gate: certificate
+// uploads used to send employee health data to third-party AI/OCR services
+// (OCR.Space, OpenRouter) for automated extraction, with only best-effort
+// redaction and unreviewed subprocessor terms. That AI/OCR step has since
+// been removed entirely - a certificate is now stored and its details
+// entered manually by a company admin, with no third-party AI/OCR service
+// ever seeing the document or its contents. The original rationale for
+// gating this specific feature on onboarding no longer applies; it remains
+// in this set for now only because removing it is a separate product
+// decision that hasn't been made, not because of any current AI/OCR risk.
+// support.tickets is deliberately NOT in this set: unlike the five features
+// above, it's usable immediately after self-serve signup (same treatment as
+// recruitment.openPosition), subject only to the plan check below.
 export const ONBOARDING_GATED_FEATURES: ReadonlySet<FeatureKey> = new Set([
   "attendance.use",
   "absences.use",
@@ -73,11 +79,19 @@ export const FEATURE_RULES: Record<FeatureKey, EntitlementCheck> = {
   // (e.g. after a downgrade), matching the same "never punish existing
   // data" principle used for job postings. See MODULE_GATING_FIX.md.
   "company.addEmployee": { kind: "capacity", rpc: "can_add_employee" },
+  // Support tickets are gated by their own flag, not shared with any other
+  // module - unlike attendance/absences, ticket access doesn't naturally
+  // pair with another feature's plan boundary.
+  "support.tickets": { kind: "flag", rpc: "can_use_support_tickets" },
+  // Growth-only. Its own DB column rather than reusing access_performance -
+  // the two features have no product reason to always travel together
+  // beyond both happening to be Growth-only today.
+  "reporting.advanced": { kind: "flag", rpc: "can_use_advanced_reporting" },
 };
 
 // Copy shown in upgrade prompts / paywall states. Plan names must match
 // `forfait.forfait_name` values exactly (confirmed against the live table:
-// Free, Momentum, Infinity - see GATING_SUMMARY.md).
+// Free, Core, Growth).
 export const FEATURE_COPY: Record<FeatureKey, { title: string; limitReached: string; notIncluded: string; noSubscription: string }> = {
   "recruitment.openPosition": {
     title: "Open job positions",
@@ -94,34 +108,44 @@ export const FEATURE_COPY: Record<FeatureKey, { title: string; limitReached: str
   "happiness.chatbot": {
     title: "AI wellbeing chatbot",
     limitReached: "This plan doesn't include the AI wellbeing chatbot.",
-    notIncluded: "The AI wellbeing chatbot isn't included in your current plan (Momentum and Infinity only).",
-    noSubscription: "Your company doesn't have an active plan. Subscribe to a plan that includes the AI wellbeing chatbot.",
+    notIncluded: "The AI wellbeing chatbot is available on Growth.",
+    noSubscription: "Your company doesn't have an active plan. Subscribe to Growth to use the AI wellbeing chatbot.",
   },
   "attendance.use": {
     title: "Time & attendance",
     limitReached: "Time & attendance isn't usable on your current plan.",
-    notIncluded: "Time & attendance is available on Momentum and Infinity, for up to your plan's included employee count.",
-    noSubscription: "Your company doesn't have an active plan. Subscribe to Momentum or Infinity to use time & attendance.",
+    notIncluded: "Time & attendance is available on Core and Growth.",
+    noSubscription: "Your company doesn't have an active plan. Subscribe to Core or Growth to use time & attendance.",
   },
   "absences.use": {
     title: "Absences",
     limitReached: "Absence management isn't usable on your current plan.",
-    notIncluded: "Absence management is available on Momentum and Infinity, for up to your plan's included employee count.",
-    noSubscription: "Your company doesn't have an active plan. Subscribe to Momentum or Infinity to use absence management.",
+    notIncluded: "Absence management is available on Core and Growth.",
+    noSubscription: "Your company doesn't have an active plan. Subscribe to Core or Growth to use absence management.",
   },
   "performance.use": {
     title: "Performance management",
     limitReached: "Performance management isn't usable on your current plan.",
-    notIncluded: "Performance management (goals, pulse check-ins) is available on Infinity only, for up to your plan's included employee count.",
-    noSubscription: "Your company doesn't have an active plan. Subscribe to Infinity to use performance management.",
+    notIncluded: "Performance management (goals, pulse check-ins) is available on Growth.",
+    noSubscription: "Your company doesn't have an active plan. Subscribe to Growth to use performance management.",
   },
   "company.addEmployee": {
     title: "Add employee",
-    // Overridden for Infinity by getAddEmployeeMessage() below - this
-    // generic copy is for Free/Momentum, where upgrading is the answer.
     limitReached: "You've reached your plan's included employee count. Upgrade to add more employees.",
     notIncluded: "Adding employees isn't included in your current plan.",
     noSubscription: "Your company doesn't have an active plan. Subscribe to a plan to add employees.",
+  },
+  "support.tickets": {
+    title: "Support tickets",
+    limitReached: "Submitting new support tickets isn't usable on your current plan.",
+    notIncluded: "Submitting support tickets is available on Core and Growth plans.",
+    noSubscription: "Your company doesn't have an active plan. Subscribe to Core or Growth to submit support tickets.",
+  },
+  "reporting.advanced": {
+    title: "Advanced reporting",
+    limitReached: "Advanced reporting isn't usable on your current plan.",
+    notIncluded: "Advanced reporting is available on Growth.",
+    noSubscription: "Your company doesn't have an active plan. Subscribe to Growth to use advanced reporting.",
   },
 };
 
@@ -131,26 +155,24 @@ export const FEATURE_COPY: Record<FeatureKey, { title: string; limitReached: str
 // "no setup call yet", not a plan limitation.
 export const ONBOARDING_REQUIRED_MESSAGE = "Available after your onboarding call.";
 
-// medicalCertificates.upload gets an honest, feature-specific reason instead
-// of the generic message above: the checkpoint exists because of third-party
-// AI/OCR processing of health data, not (only) because of feature
-// complexity like the other five onboarding-gated modules. See
-// ONBOARDING_GATED_FEATURES for the full rationale.
-export function getOnboardingRequiredMessage(feature: FeatureKey): string {
-  if (feature === "medicalCertificates.upload") {
-    return "Available after your onboarding call — this checkpoint exists because certificate data is processed using third-party AI/OCR services.";
-  }
+// medicalCertificates.upload no longer has a feature-specific reason to
+// show here: certificate review is manual-entry-only now (see
+// ONBOARDING_GATED_FEATURES), so the generic message applies to it the same
+// as the other onboarding-gated modules.
+export function getOnboardingRequiredMessage(_feature: FeatureKey): string {
   return ONBOARDING_REQUIRED_MESSAGE;
 }
 
-// Infinity has no higher self-serve tier, so hitting its employee cap isn't
-// a plain "upgrade" prompt - it should route to a custom quote conversation
-// instead. Centralized here so every consumer (API error body, UI) shows
-// the same message rather than each re-implementing the Infinity special
-// case. See MODULE_GATING_FIX.md.
+// Core is hard-capped at 30 employees: past that point Core's per-seat
+// formula (25,000 + 1,000/employee) crosses over to cost more than Growth's
+// (40,000 + 750/employee), which also includes strictly more features - an
+// account must never be able to sit in that zone. Growth has no upper cap
+// (max_employees is null), so this branch only ever fires for Core; the
+// generic message below remains for Free, where it's currently unreachable
+// (Free has no employee cap either) but kept as the fallback.
 export function getAddEmployeeLimitMessage(plan: string | null): string {
-  if (plan === "Infinity") {
-    return "You've reached the Infinity plan's included employee count (100). This isn't self-serve above 100 employees - contact us for a custom quote.";
+  if (plan === "Core") {
+    return "You've reached Core's 30-employee limit. Upgrade to Growth to add more employees.";
   }
   return FEATURE_COPY["company.addEmployee"].limitReached;
 }

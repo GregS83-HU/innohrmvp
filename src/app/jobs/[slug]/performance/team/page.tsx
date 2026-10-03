@@ -3,7 +3,7 @@
 
 import { useSession } from '@supabase/auth-helpers-react'
 import { useRouter, useParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Users, AlertTriangle, Target, TrendingUp } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { useLocale } from 'i18n/LocaleProvider'
@@ -56,22 +56,10 @@ export default function ManagerDashboard() {
   const companySlug = params.slug as string
 
   const [goals, setGoals] = useState<Goal[]>([])
-  const [employeeStats, setEmployeeStats] = useState<EmployeeStats[]>([])
   const [loading, setLoading] = useState(true)
   const [weekStart, setWeekStart] = useState('')
   const [selectedView, setSelectedView] = useState<'overview' | 'red-flags' | 'pending'>('overview')
-  const [expandedEmployee, setExpandedEmployee] = useState<string | null>(null)
   const moduleAccess = useModuleAccess(session?.user?.id)
-
-  useEffect(() => {
-    if (!session) {
-      router.push('/')
-      return
-    }
-
-    fetchTeamGoals()
-    fetchWeekStart()
-  }, [session, router])
 
   const fetchWeekStart = async () => {
     try {
@@ -82,22 +70,23 @@ export default function ManagerDashboard() {
     }
   }
 
-  const fetchTeamGoals = async () => {
+  const fetchTeamGoals = useCallback(async () => {
     setLoading(true)
     try {
-      if (!session?.user?.id) {
+      if (!session?.user?.id || !session?.access_token) {
         console.error('No session found')
         setLoading(false)
         return
       }
-      
-      const res = await fetch(`/api/performance/goals?view=manager&user_id=${session.user.id}`)
+
+      const res = await fetch(`/api/performance/goals?view=manager&user_id=${session.user.id}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
       const data = await res.json()
       if (res.ok) {
         const teamGoals = data.goals || []
         console.log('Team goals fetched:', teamGoals.length)
         setGoals(teamGoals)
-        calculateEmployeeStats(teamGoals)
       } else {
         console.error('Error fetching team goals:', data.error)
       }
@@ -105,12 +94,25 @@ export default function ManagerDashboard() {
       console.error('Error fetching team goals:', safeErrorInfo(error))
     }
     setLoading(false)
-  }
+  }, [session])
 
-  const calculateEmployeeStats = (teamGoals: Goal[]) => {
+  useEffect(() => {
+    if (!session) {
+      router.push('/')
+      return
+    }
+
+    fetchTeamGoals()
+    fetchWeekStart()
+  }, [session, router, fetchTeamGoals])
+
+  // Derived from goals + weekStart (not computed once at fetch time): the
+  // week start loads in a separate request, and computing stats before it
+  // arrived counted every active goal as needing a pulse update.
+  const employeeStats = useMemo(() => {
     const statsMap = new Map<string, EmployeeStats>()
 
-    teamGoals.forEach(goal => {
+    goals.forEach(goal => {
       if (!statsMap.has(goal.employee_id)) {
         statsMap.set(goal.employee_id, {
           employee_id: goal.employee_id,
@@ -145,17 +147,22 @@ export default function ManagerDashboard() {
       }
     })
 
-    setEmployeeStats(Array.from(statsMap.values()))
-  }
+    return Array.from(statsMap.values())
+  }, [goals, weekStart])
 
   const handleApproveGoal = async (goalId: string) => {
+    if (!session?.user?.id || !session?.access_token) return
     try {
       const res = await fetch('/api/performance/goals/update', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({
           goal_id: goalId,
-          status: 'active'
+          status: 'active',
+          user_id: session.user.id
         })
       })
 
@@ -164,24 +171,6 @@ export default function ManagerDashboard() {
       }
     } catch (error) {
       console.error('Error approving goal:', safeErrorInfo(error))
-    }
-  }
-
-  const getStatusColor = (status: string | null) => {
-    switch (status) {
-      case 'green': return 'bg-green-100 text-green-800 border-green-200'
-      case 'yellow': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
-      case 'red': return 'bg-red-100 text-red-800 border-red-200'
-      default: return 'bg-gray-100 text-gray-800 border-gray-200'
-    }
-  }
-
-  const getStatusIcon = (status: string | null) => {
-    switch (status) {
-      case 'green': return '🟢'
-      case 'yellow': return '🟡'
-      case 'red': return '🔴'
-      default: return '⚪'
     }
   }
 

@@ -1,16 +1,17 @@
 'use client'
 
-import { useSession } from '@supabase/auth-helpers-react'
+import { useSessionContext } from '@supabase/auth-helpers-react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { Plus, BarChart3, CheckCircle, AlertCircle, Activity, Lock } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { useLocale } from 'i18n/LocaleProvider'
 
-import { PositionForm, PositionFormData } from '../../../../../../components/newposition/PositionForm'
+import { PositionForm, PositionFormData, isSalaryRangeInvalid } from '../../../../../../components/newposition/PositionForm'
 import { AIGenerateModal } from '../../../../../../components/newposition/AIGenerateModal'
 import { ConfirmAnalysisModal } from '../../../../../../components/newposition//ConfirmAnalysisModal'
 import { safeErrorInfo } from '../../../../../../lib/logSafe';
+import { DEFAULT_CANDIDATE_FEEDBACK_TONE } from '../../../../../../lib/candidateFeedbackTone';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,13 +32,15 @@ const DEFAULT_FORM: PositionFormData = {
   salaryCurrency: 'HUF',
   salaryPublic: false,
   applicationDeadline: '',
+  candidateFeedbackTone: DEFAULT_CANDIDATE_FEEDBACK_TONE,
 }
 
 export default function NewOpenedPositionPage() {
   const { t } = useLocale()
   const router = useRouter()
   const pathname = usePathname()
-  const session = useSession()
+  // isLoading is true while the session is restored from storage after a hard refresh
+  const { session, isLoading: sessionLoading } = useSessionContext()
 
   // Form state (single object, easy to reset)
   const [form, setForm] = useState<PositionFormData>(DEFAULT_FORM)
@@ -65,8 +68,8 @@ export default function NewOpenedPositionPage() {
 
   // Auth guard
   useEffect(() => {
-    if (!session) router.push('/')
-  }, [session, router])
+    if (!sessionLoading && !session) router.push('/')
+  }, [session, sessionLoading, router])
 
   // Fetch company id
   const fetchUserCompanyId = useCallback(async (userId: string) => {
@@ -84,16 +87,18 @@ export default function NewOpenedPositionPage() {
 
   // Check position creation quota
   const checkPositionCreationAccess = useCallback(async () => {
-    if (!companyId || positionAccessChecked.current) return
+    if (!companyId || positionAccessChecked.current || !session?.access_token) return
     positionAccessChecked.current = true
     try {
-      const res = await fetch(`/api/entitlements/check?company_id=${companyId}&feature=recruitment.openPosition`)
+      const res = await fetch(`/api/entitlements/check?feature=recruitment.openPosition`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
       const result = await res.json()
       setCanCreatePosition(res.ok && result.allowed === true)
     } catch {
       setCanCreatePosition(false)
     }
-  }, [companyId])
+  }, [companyId, session?.access_token])
 
   useEffect(() => {
     if (session?.user?.id) fetchUserCompanyId(session.user.id)
@@ -115,8 +120,8 @@ export default function NewOpenedPositionPage() {
     try {
       const res = await fetch('/api/generate-position-description', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roughDraft, positionName: form.positionName, companyId }),
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session!.access_token}` },
+        body: JSON.stringify({ roughDraft, positionName: form.positionName }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -152,6 +157,10 @@ export default function NewOpenedPositionPage() {
       setMessage({ text: t('newPosition.messages.selectEmploymentType'), type: 'error' })
       return
     }
+    if (isSalaryRangeInvalid(form)) {
+      setMessage({ text: t('newPosition.messages.salaryMinAboveMax'), type: 'error' })
+      return
+    }
 
     setLoading(true)
     try {
@@ -174,6 +183,7 @@ export default function NewOpenedPositionPage() {
           salary_currency: form.salaryCurrency,
           salary_public: form.salaryPublic,
           application_deadline: form.applicationDeadline || null,
+          candidate_feedback_tone: form.candidateFeedbackTone,
         }),
       })
       const data = await res.json()
@@ -194,7 +204,9 @@ export default function NewOpenedPositionPage() {
   const handleAnalyseClick = async () => {
     setFetchingCount(true)
     try {
-      const res = await fetch(`/api/candidate-count?user_id=${session!.user.id}`)
+      const res = await fetch(`/api/candidate-count?user_id=${session!.user.id}`, {
+        headers: { Authorization: `Bearer ${session!.access_token}` },
+      })
       const data = await res.json()
       if (!res.ok) {
         setMessage({ text: t('newPosition.messages.errorFetchingCount'), type: 'error' })
@@ -221,35 +233,45 @@ export default function NewOpenedPositionPage() {
     setAnalysisResult(null)
     setMessage(null)
     setProgress(0)
+    // fetch() rather than EventSource: EventSource can't send the Authorization header.
     try {
-      const es = new EventSource(
-        `/api/analyse-massive?position_id=${positionId}&user_id=${session!.user.id}&company_id=${companyId}`
-      )
-      es.onmessage = (event) => {
-        const data = JSON.parse(event.data)
-        if (data.type === 'progress') {
-          setProgress(data.progress)
-        } else if (data.type === 'done') {
-          setAnalysisResult({ matched: data.matched, total: data.total })
-          setMessage({
-            text: `${t('newPosition.messages.analysisComplete')} ${data.matched} / ${data.total} ${t('newPosition.messages.candidatesCorresponding')}`,
-            type: 'success',
-          })
-          setAnalysisLoading(false)
-          es.close()
-        } else if (data.type === 'error') {
-          setMessage({ text: data.error, type: 'error' })
-          setAnalysisLoading(false)
-          es.close()
-        }
-      }
-      es.onerror = () => {
+      const res = await fetch(`/api/analyse-massive?position_id=${positionId}`, {
+        headers: { Authorization: `Bearer ${session!.access_token}` },
+      })
+      if (!res.ok || !res.body) {
         setMessage({ text: t('newPosition.messages.serverError'), type: 'error' })
-        setAnalysisLoading(false)
-        es.close()
+        return
+      }
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+      while (true) {
+        const { value, done } = await reader.read()
+        if (done) break
+        buffer += decoder.decode(value, { stream: true })
+        const events = buffer.split('\n\n')
+        buffer = events.pop() ?? ''
+        for (const event of events) {
+          if (!event.startsWith('data: ')) continue
+          const data = JSON.parse(event.slice('data: '.length))
+          if (data.type === 'progress') {
+            setProgress(data.progress)
+          } else if (data.type === 'done') {
+            setAnalysisResult({ matched: data.matched, total: data.total })
+            setMessage({
+              text: `${t('newPosition.messages.analysisComplete')} ${data.matched} / ${data.total} ${t('newPosition.messages.candidatesCorresponding')}`,
+              type: 'success',
+            })
+          } else if (data.type === 'error') {
+            setMessage({ text: data.error, type: 'error' })
+            await reader.cancel()
+            return
+          }
+        }
       }
     } catch (error) {
       setMessage({ text: `${t('newPosition.messages.unexpectedError')} ${(error as Error).message}`, type: 'error' })
+    } finally {
       setAnalysisLoading(false)
     }
   }
@@ -297,12 +319,6 @@ export default function NewOpenedPositionPage() {
               </div>
               <h3 className="text-xl font-bold text-red-800 mb-2">{t('newPosition.limitReached.title')}</h3>
               <p className="text-red-700 mb-6">{t('newPosition.limitReached.message')}</p>
-              <button
-                className="bg-gradient-to-r from-red-600 to-rose-600 text-white py-3 px-8 rounded-lg font-medium hover:from-red-700 hover:to-rose-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
-                onClick={() => console.log('Redirect to upgrade page')}
-              >
-                {t('newPosition.limitReached.upgradeButton')}
-              </button>
             </div>
           </div>
         )}

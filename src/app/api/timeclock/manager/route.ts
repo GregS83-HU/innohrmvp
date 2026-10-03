@@ -3,12 +3,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { hasFeatureAccess, entitlementErrorBody, resolveCompanyIdForUser } from '../../../../../lib/entitlements';
+import { requireSelfOrCompanyAdminOf } from '../../../../../lib/authz';
 import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase: SupabaseClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
+
+// Verifies the caller is either the manager they claim to be, or an admin
+// of that manager's own company (for HR oversight of a team's timeclock
+// data). Promoted to lib/authz's requireSelfOrCompanyAdminOf so the same
+// relationship check can be reused by the Medium/Low-severity fixes
+// elsewhere instead of being rewritten per route.
+const verifyManagerAccess = requireSelfOrCompanyAdminOf;
 
 // -------------------
 // TypeScript types
@@ -71,6 +79,11 @@ export async function GET(request: NextRequest) {
     const action = searchParams.get('action');
 
     if (!managerId) return NextResponse.json({ error: 'Manager ID required' }, { status: 400 });
+
+    const authCheck = await verifyManagerAccess(request, managerId);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+    }
 
     // -------------------
     // Team Today
@@ -226,6 +239,11 @@ export async function POST(request: NextRequest) {
     };
 
     if (!managerId) return NextResponse.json({ error: 'Manager ID required' }, { status: 400 });
+
+    const authCheck = await verifyManagerAccess(request, managerId);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+    }
 
     if (action === 'approve-entry') {
       if (!entryId || !status) return NextResponse.json({ error: 'Entry ID and status required' }, { status: 400 });

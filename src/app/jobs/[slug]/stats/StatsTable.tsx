@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useCallback, useEffect, useState, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import InterviewList from '../../../../../components/InterviewList'
 import { useSession } from '@supabase/auth-helpers-react'
@@ -434,14 +434,14 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
 
   useEffect(() => {
     router.refresh()
-  }, [searchParams])
+  }, [searchParams, router])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } })
   )
 
-  const handleAutoScroll = (clientX: number) => {
+  const handleAutoScroll = useCallback((clientX: number) => {
     if (!scrollContainer || !isDragging) return
 
     const containerRect = scrollContainer.getBoundingClientRect()
@@ -464,7 +464,7 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
     if (scrollSpeed !== 0) {
       scrollContainer.scrollLeft += scrollSpeed
     }
-  }
+  }, [scrollContainer, isDragging])
 
   const clearAutoScroll = () => {
     if (autoScrollInterval) {
@@ -500,14 +500,16 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
       document.removeEventListener('touchmove', handleMove)
       clearInterval(interval)
     }
-  }, [isDragging, scrollContainer, currentMousePosition.x])
+  }, [isDragging, scrollContainer, currentMousePosition.x, handleAutoScroll])
 
   useEffect(() => {
     if (!session?.user?.id) return
     const fetchData = async () => {
       setLoading(true)
       try {
-        const resSteps = await fetch(`/api/recruitment-step?user_id=${session.user.id}`)
+        const resSteps = await fetch(`/api/recruitment-step?user_id=${session.user.id}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
         const stepsData = await resSteps.json()
         setSteps(stepsData)
 

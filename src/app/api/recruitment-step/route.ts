@@ -1,15 +1,19 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { safeErrorInfo } from '../../../../lib/logSafe';
+import { requireSelf } from '../../../../lib/authz';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const user_id = searchParams.get('user_id')
 
-  console.log("user:", user_id)
-
   if (!user_id) {
     return NextResponse.json({ error: 'Missing user_id' }, { status: 400 })
+  }
+
+  const auth = await requireSelf(request, user_id)
+  if (!auth.authorized) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status })
   }
 
   try {

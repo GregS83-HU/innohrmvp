@@ -1,6 +1,8 @@
 // next-intl.config.mjs
-export default {
+const nextIntlConfig = {
   locales: ['en', 'fr', 'hu'],
   defaultLocale: 'en',
   localeDetection: true,
 };
+
+export default nextIntlConfig;

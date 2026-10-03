@@ -88,9 +88,11 @@ function daysToCutoff(retentionDays: number): Date {
   return new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000);
 }
 
-// The OCR-staging copy of a medical certificate (uploads/{companyId}/...)
-// has no DB row to key off of — it's tracked purely by storage object age.
-// See DATA_FLOW_AUDIT.md, section 1a.
+// Historical OCR-staging copies of medical certificates (uploads/{companyId}/...)
+// from before certificate review became manual-entry-only (no AI/OCR
+// staging upload is written for new certificates) have no DB row to key
+// off of — tracked purely by storage object age so any remaining backlog
+// still gets cleaned up. See DATA_FLOW_AUDIT.md, section 1a.
 async function listOrphanedCertificateStagingFiles(
   cutoff: Date
 ): Promise<{ path: string; created_at: string }[]> {

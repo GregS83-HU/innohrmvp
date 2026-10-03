@@ -280,8 +280,6 @@ const RequestLeaveModalManual: React.FC<Props> = ({
     onClose();
   };
 
-  const datesLocked = isSickLeave && certificateId;
-
   if (!isOpen) return null;
 
   return (

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useSession } from '@supabase/auth-helpers-react';
 import {
   Clock,
   Users,
@@ -55,6 +56,7 @@ export default function ManagerTimeClockDashboard({
   managerName,
 }: ManagerTimeClockDashboardProps) {
   const { t } = useLocale();
+  const session = useSession();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [pendingEntries, setPendingEntries] = useState<PendingEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,21 +66,20 @@ export default function ManagerTimeClockDashboard({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchTeamData();
-  }, [managerId]);
+  const accessToken = session?.access_token;
 
-  useEffect(() => {
-    if (activeTab === 'pending') {
-      fetchPendingEntries();
-    }
-  }, [activeTab]);
+  const showError = useCallback((message: string) => {
+    setError(message);
+    setTimeout(() => setError(null), 5000);
+  }, []);
 
-  const fetchTeamData = async () => {
+  const fetchTeamData = useCallback(async () => {
+    if (!accessToken) return;
     try {
       setLoading(true);
       const response = await fetch(
-        `/api/timeclock/manager?managerId=${managerId}&action=team-today`
+        `/api/timeclock/manager?managerId=${managerId}&action=team-today`,
+        { headers: { Authorization: `Bearer ${accessToken}` } }
       );
       const data = await response.json();
 
@@ -93,12 +94,14 @@ export default function ManagerTimeClockDashboard({
     } finally {
       setLoading(false);
     }
-  };
+  }, [accessToken, managerId, t, showError]);
 
-  const fetchPendingEntries = async () => {
+  const fetchPendingEntries = useCallback(async () => {
+    if (!accessToken) return;
     try {
       const response = await fetch(
-        `/api/timeclock/manager?managerId=${managerId}&action=pending-approvals`
+        `/api/timeclock/manager?managerId=${managerId}&action=pending-approvals`,
+        { headers: { Authorization: `Bearer ${accessToken}` } }
       );
       const data = await response.json();
 
@@ -111,7 +114,17 @@ export default function ManagerTimeClockDashboard({
       console.error('Failed to fetch pending entries:', err);
       showError(t('managerTimeClockDashboard.messages.loadPendingFailed'));
     }
-  };
+  }, [accessToken, managerId, t, showError]);
+
+  useEffect(() => {
+    fetchTeamData();
+  }, [fetchTeamData]);
+
+  useEffect(() => {
+    if (activeTab === 'pending') {
+      fetchPendingEntries();
+    }
+  }, [activeTab, fetchPendingEntries]);
 
   const handleRefresh = async () => {
     try {
@@ -134,11 +147,15 @@ export default function ManagerTimeClockDashboard({
     status: 'approved' | 'rejected',
     notes?: string
   ) => {
+    if (!session?.access_token) return;
     try {
       setActionLoading(entryId);
       const response = await fetch('/api/timeclock/manager', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({
           managerId,
           action: 'approve-entry',
@@ -169,11 +186,6 @@ export default function ManagerTimeClockDashboard({
     } finally {
       setActionLoading(null);
     }
-  };
-
-  const showError = (message: string) => {
-    setError(message);
-    setTimeout(() => setError(null), 5000);
   };
 
   const showSuccess = (message: string) => {

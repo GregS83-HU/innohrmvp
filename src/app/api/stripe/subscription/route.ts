@@ -1,14 +1,20 @@
 import { createClient } from "@supabase/supabase-js"
 import { NextResponse } from "next/server"
+import { requireCompanyMember } from "../../../../../lib/authz"
 
 export async function GET(request: Request) {
   try {
-    const url = new URL(request.url)
-    const company_id = url.searchParams.get("company_id")
-    
-    if (!company_id) {
-      return NextResponse.json({ error: "Missing company_id" }, { status: 400 })
+    // company_id is derived from the caller's own session/membership below -
+    // never trusted from the query string. Read-only, so any authenticated
+    // member of the company (not just an admin) may view its plan/status.
+    const authCheck = await requireCompanyMember(request)
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status })
     }
+    if (authCheck.companyId === undefined) {
+      return NextResponse.json({ error: "Company not found" }, { status: 500 })
+    }
+    const company_id = authCheck.companyId
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,7 +23,7 @@ export async function GET(request: Request) {
 
     const { data: company, error: supabaseError } = await supabase
       .from("company")
-      .select("forfait, stripe_subscription_id")
+      .select("forfait, stripe_subscription_id, billing_interval, onboarding_fee_paid_at")
       .eq("id", company_id)
       .single()
 
@@ -36,10 +42,20 @@ export async function GET(request: Request) {
       status = company.stripe_subscription_id ? "Active" : "Pending"
     }
 
+    const { count: employeeCount } = await supabase
+      .from("company_to_users")
+      .select("id", { count: "exact", head: true })
+      .eq("company_id", company_id)
+      .eq("is_active", true)
+
     return NextResponse.json({
       subscription: {
         plan: company.forfait || "None",
         status,
+        billingInterval: company.billing_interval,
+        hasStripeSubscription: !!company.stripe_subscription_id,
+        onboardingFeePaid: !!company.onboarding_fee_paid_at,
+        employeeCount: employeeCount ?? 0,
       }
     })
 

@@ -7,11 +7,12 @@ export async function sendTicketNotification(
   ticketData: TicketData,
   recipientEmail: string,
   companySlug: string,
+  accessToken: string,
   messageData?: MessageData
 ) {
   const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/notifications/email`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
     body: JSON.stringify({ type, ticketData, recipientEmail, companySlug, messageData })
   });
 

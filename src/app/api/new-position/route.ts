@@ -3,6 +3,7 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { hasFeatureAccess, entitlementErrorBody } from '../../../../lib/entitlements'
 import { safeErrorInfo } from '../../../../lib/logSafe';
+import { DEFAULT_CANDIDATE_FEEDBACK_TONE, isCandidateFeedbackTone } from '../../../../lib/candidateFeedbackTone';
 
 export async function POST(request: Request) {
   try {
@@ -23,6 +24,7 @@ export async function POST(request: Request) {
       salary_currency,
       salary_public,
       application_deadline,
+      candidate_feedback_tone,
     } = body
 
     // Validate required fields
@@ -33,6 +35,10 @@ export async function POST(request: Request) {
     // Validate employment_type is required
     if (!employment_type) {
       return NextResponse.json({ error: 'Employment type is required' }, { status: 400 })
+    }
+
+    if (candidate_feedback_tone !== undefined && !isCandidateFeedbackTone(candidate_feedback_tone)) {
+      return NextResponse.json({ error: 'Invalid candidate feedback tone' }, { status: 400 })
     }
 
     const supabase = createServerComponentClient({ cookies })
@@ -72,6 +78,7 @@ export async function POST(request: Request) {
           salary_currency: salary_currency || 'HUF',
           salary_public: salary_public || false,
           application_deadline: application_deadline || null,
+          candidate_feedback_tone: candidate_feedback_tone ?? DEFAULT_CANDIDATE_FEEDBACK_TONE,
         },
       ])
       .select()

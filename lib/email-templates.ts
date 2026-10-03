@@ -72,6 +72,76 @@ export function generateOnboardingEmail(data: OnboardingEmailData): string {
 `
 }
 
+interface PlanCrossoverEmailData {
+  adminFirstName: string
+  companyName: string
+  employeeCount: number
+  coreCost: number
+  growthCost: number
+  monthlySavingsHuf: number
+  billingUrl: string
+}
+
+/**
+ * Sent once to a Core account's admin when their real headcount has grown
+ * past the point where Growth is both cheaper and includes strictly more
+ * features (performance management, the AI wellbeing chatbot, advanced
+ * reporting, more AI credits) - see lib/billing/planCrossover.ts for the
+ * calculation. Purely informational: self-serve stays self-serve, so this
+ * never switches the plan itself.
+ */
+export function generatePlanCrossoverEmail(data: PlanCrossoverEmailData): string {
+  const huf = (n: number) => Math.round(n).toLocaleString('en-US').replace(/,/g, ' ')
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+
+  <div style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+    <h1 style="color: white; margin: 0; font-size: 24px;">Growth would cost you less right now</h1>
+  </div>
+
+  <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
+
+    <p style="font-size: 16px; margin-top: 0;">Hi ${data.adminFirstName},</p>
+
+    <p style="font-size: 16px;">
+      <strong>${data.companyName}</strong> is currently at <strong>${data.employeeCount} employees</strong> on Core.
+      At that headcount, Core costs <strong>${huf(data.coreCost)} Ft/month</strong> while Growth would cost
+      <strong>${huf(data.growthCost)} Ft/month</strong> - that's <strong>${huf(data.monthlySavingsHuf)} Ft/month less</strong>,
+      and Growth also includes performance management, the AI wellbeing chatbot, advanced reporting, and more AI credits.
+    </p>
+
+    <p style="font-size: 16px;">
+      This isn't a required change - you decide if and when to switch. If it's a good fit, you can move to Growth anytime from Billing.
+    </p>
+
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${data.billingUrl}" style="display: inline-block; background: #059669; color: white; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+        Review plans in Billing
+      </a>
+    </div>
+
+    <p style="font-size: 14px; color: #6b7280; margin-bottom: 0;">
+      Questions in the meantime? Just reply to this email.
+    </p>
+
+  </div>
+
+  <div style="text-align: center; padding: 20px; color: #6b7280; font-size: 12px;">
+    <p style="margin: 0;">Sent via HRInno</p>
+  </div>
+
+</body>
+</html>
+`
+}
+
 interface InterviewEmailData {
   candidateName: string
   recruiterName: string

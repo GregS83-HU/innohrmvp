@@ -3,13 +3,35 @@ import { NextResponse } from 'next/server'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { encryptPassword } from '../../../../lib/encryption'
+import { requireCompanyMemberSession } from '../../../../lib/authz'
 import { safeErrorInfo } from '../../../../lib/logSafe';
+import type { SupabaseClient } from '@supabase/supabase-js'
+import type { AuthzResult } from '../../../../lib/authz/types'
+
+// Composed locally rather than added to lib/authz: cookie-session identity +
+// company membership (requireCompanyMemberSession, already shared) plus an
+// admin-role check, since SMTP credentials are sensitive enough to restrict
+// to admins, not just any company member.
+async function requireOwnCompanyAdminSession(supabase: SupabaseClient): Promise<AuthzResult> {
+  const membership = await requireCompanyMemberSession(supabase)
+  if (!membership.authorized) return membership
+
+  const { data: profile, error } = await supabase
+    .from('users')
+    .select('is_admin, is_super_admin')
+    .eq('id', membership.userId)
+    .single()
+
+  if (error || !profile || (!(profile as { is_admin: boolean }).is_admin && !(profile as { is_super_admin: boolean }).is_super_admin)) {
+    return { authorized: false, status: 403, error: 'Access denied' }
+  }
+  return membership
+}
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
     const {
-      company_id,
       smtp_host,
       smtp_port,
       smtp_secure,
@@ -20,9 +42,9 @@ export async function POST(request: Request) {
     } = body
 
     // Validate required fields
-    if (!company_id || !smtp_host || !smtp_port || !smtp_username || !smtp_password || !from_email) {
+    if (!smtp_host || !smtp_port || !smtp_username || !smtp_password || !from_email) {
       return NextResponse.json(
-        { error: 'Missing required fields: company_id, smtp_host, smtp_port, smtp_username, smtp_password, from_email' },
+        { error: 'Missing required fields: smtp_host, smtp_port, smtp_username, smtp_password, from_email' },
         { status: 400 }
       )
     }
@@ -46,19 +68,18 @@ export async function POST(request: Request) {
 
     const supabase = createServerComponentClient({ cookies })
 
-    // Verify company exists
-    const { data: company, error: companyError } = await supabase
-      .from('company')
-      .select('id')
-      .eq('id', company_id)
-      .single()
-
-    if (companyError || !company) {
-      return NextResponse.json(
-        { error: 'Company not found' },
-        { status: 404 }
-      )
+    // The company these SMTP settings belong to is derived from the
+    // caller's own session/membership below - never trusted from the
+    // request body. Reading or writing another company's mail-relay
+    // credentials requires the caller to be an admin of that company.
+    const authCheck = await requireOwnCompanyAdminSession(supabase)
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status })
     }
+    if (authCheck.companyId === undefined) {
+      return NextResponse.json({ error: 'Company not found' }, { status: 500 })
+    }
+    const company_id = authCheck.companyId
 
     // Encrypt the password
     const encryptedPassword = encryptPassword(smtp_password)
@@ -137,19 +158,20 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
   try {
-    const { searchParams } = new URL(request.url)
-    const company_id = searchParams.get('company_id')
-
-    if (!company_id) {
-      return NextResponse.json(
-        { error: 'Missing company_id parameter' },
-        { status: 400 }
-      )
-    }
-
     const supabase = createServerComponentClient({ cookies })
+
+    // company_id is derived from the caller's own session/membership below -
+    // never trusted from the query string.
+    const authCheck = await requireOwnCompanyAdminSession(supabase)
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status })
+    }
+    if (authCheck.companyId === undefined) {
+      return NextResponse.json({ error: 'Company not found' }, { status: 500 })
+    }
+    const company_id = authCheck.companyId
 
     const { data, error } = await supabase
       .from('company_email_settings')
@@ -181,19 +203,20 @@ export async function GET(request: Request) {
   }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(_request: Request) {
   try {
-    const { searchParams } = new URL(request.url)
-    const company_id = searchParams.get('company_id')
-
-    if (!company_id) {
-      return NextResponse.json(
-        { error: 'Missing company_id parameter' },
-        { status: 400 }
-      )
-    }
-
     const supabase = createServerComponentClient({ cookies })
+
+    // company_id is derived from the caller's own session/membership below -
+    // never trusted from the query string.
+    const authCheck = await requireOwnCompanyAdminSession(supabase)
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status })
+    }
+    if (authCheck.companyId === undefined) {
+      return NextResponse.json({ error: 'Company not found' }, { status: 500 })
+    }
+    const company_id = authCheck.companyId
 
     const { error } = await supabase
       .from('company_email_settings')

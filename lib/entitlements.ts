@@ -41,6 +41,8 @@ type ForfaitRow = {
   access_happy_check: boolean | null;
   access_attendance_absences: boolean | null;
   access_performance: boolean | null;
+  access_support_tickets: boolean | null;
+  access_advanced_reporting: boolean | null;
   max_employees: number | null;
 };
 
@@ -69,7 +71,7 @@ export async function hasFeatureAccess(
 
   // Onboarding gate is checked first and independently of plan: a company
   // that hasn't had its setup call yet stays locked out of these features
-  // even if it's paying for Momentum/Infinity. See ONBOARDING_GATED_FEATURES.
+  // even if it's paying for Core/Growth. See ONBOARDING_GATED_FEATURES.
   if (ONBOARDING_GATED_FEATURES.has(feature) && !company.onboarding_completed) {
     return { allowed: false, reason: "onboarding_required", plan: company.forfait };
   }
@@ -79,7 +81,7 @@ export async function hasFeatureAccess(
   const { data: forfait, error: forfaitError } = await supabase
     .from("forfait")
     .select(
-      "forfait_name, max_opened_position, max_medical_certificates, access_happy_check, access_attendance_absences, access_performance, max_employees"
+      "forfait_name, max_opened_position, max_medical_certificates, access_happy_check, access_attendance_absences, access_performance, access_support_tickets, access_advanced_reporting, max_employees"
     )
     .eq("forfait_name", planName)
     .single<ForfaitRow>();
@@ -100,6 +102,10 @@ export async function hasFeatureAccess(
         ? forfait.access_happy_check
         : rule.rpc === "can_use_attendance_absences"
         ? forfait.access_attendance_absences
+        : rule.rpc === "can_use_support_tickets"
+        ? forfait.access_support_tickets
+        : rule.rpc === "can_use_advanced_reporting"
+        ? forfait.access_advanced_reporting
         : forfait.access_performance;
 
     if (flagValue) {

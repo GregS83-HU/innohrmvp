@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { safeErrorInfo } from '../../../../lib/logSafe';
+import { requireSelf } from '../../../../lib/authz';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,6 +18,11 @@ export async function GET(req: NextRequest) {
       { error: "user_id is required" },
       { status: 400 }
     );
+  }
+
+  const auth = await requireSelf(req, user_id);
+  if (!auth.authorized) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
   try {

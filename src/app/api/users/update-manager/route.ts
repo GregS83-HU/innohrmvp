@@ -1,6 +1,7 @@
 // app/api/users/update-manager/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { requireCompanyAdmin } from '../../../../../lib/authz';
 import { safeErrorInfo } from '../../../../../lib/logSafe';
 
 const supabase = createClient(
@@ -25,6 +26,26 @@ export async function PATCH(req: NextRequest) {
         { error: 'Manager ID is required' },
         { status: 400 }
       );
+    }
+
+    // The admin's own company is derived from their session below - never
+    // trusted from the request body. The target user must also actually
+    // belong to that company, or an admin of company A could reassign the
+    // manager of a user in company B just by supplying their userId.
+    const authCheck = await requireCompanyAdmin(req);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+    }
+
+    const { data: targetMembership, error: targetError } = await supabase
+      .from('company_to_users')
+      .select('company_id')
+      .eq('user_id', userId)
+      .eq('company_id', authCheck.companyId)
+      .single();
+
+    if (targetError || !targetMembership) {
+      return NextResponse.json({ error: 'User not found in your company' }, { status: 404 });
     }
 
     // Check if user_profiles record exists

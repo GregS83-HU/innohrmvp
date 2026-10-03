@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useSession } from "@supabase/auth-helpers-react"
 import { useEffect, useState, useCallback, useMemo } from "react"
-import { Search, Briefcase, BarChart3, X, Building2, FileText, Copy, Workflow } from 'lucide-react'
+import { Search, Briefcase, X, Building2, FileText, Copy, Workflow } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useLocale } from 'i18n/LocaleProvider'
 import { safeErrorInfo } from '../../../../../lib/logSafe';
@@ -57,13 +57,15 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
   // Fetch user role when logged in
   useEffect(() => {
     async function fetchUserRole() {
-      if (!isLoggedIn || !userId) {
+      if (!isLoggedIn || !userId || !session?.access_token) {
         setUserRoleLoading(false)
         return
       }
 
       try {
-        const res = await fetch(`/api/user-role?userId=${userId}`)
+        const res = await fetch(`/api/user-role?userId=${userId}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
         if (res.ok) {
           const data = await res.json()
           setIsManager(data.is_manager || false)
@@ -77,7 +79,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
     }
 
     fetchUserRole()
-  }, [isLoggedIn, userId])
+  }, [isLoggedIn, userId, session?.access_token])
 
   useEffect(() => {
     if (!companySlug) {
@@ -179,27 +181,6 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
     }
   }, [getPublicLink, t])
 
-  // ⬇️ NOUVELLE LOGIQUE : Déterminer quel type de boutons afficher
-  const getButtonsType = useCallback((position: Position) => {
-    // Admin : tous les boutons de gestion
-    if (isAdmin) {
-      return 'admin'
-    }
-    
-    // Manager assigné à cette position : uniquement bouton "Traitement"
-    if (isManager && position.manager_id === userId) {
-      return 'assigned-manager'
-    }
-    
-    // Manager NON assigné à cette position : bouton "Apply"
-    if (isManager && position.manager_id !== userId) {
-      return 'apply'
-    }
-    
-    // Utilisateur non connecté ou utilisateur régulier : bouton "Apply"
-    return 'apply'
-  }, [isAdmin, isManager, userId])
-
   useEffect(() => {
     if (snackbarMessage) {
       const timer = setTimeout(() => setSnackbarMessage(null), 3000)
@@ -278,7 +259,6 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
         {/* Positions List */}
         <div className="space-y-4 sm:space-y-6">
           {filteredPositions.map((position) => {
-            const buttonsType = getButtonsType(position)
 
             const isManagerOfPosition =
             isManager && position.manager_id === userId
@@ -315,6 +295,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
                     {position.company?.company_logo && (
                       <div className="flex-shrink-0 self-start sm:ml-6">
                         <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-50 rounded-lg p-2 sm:p-3 border">
+                          {/* eslint-disable-next-line @next/next/no-img-element -- customer-uploaded logo on an arbitrary storage host; next/image would need remotePatterns for it */}
                           <img
                             src={position.company.company_logo}
                             alt="Company logo"

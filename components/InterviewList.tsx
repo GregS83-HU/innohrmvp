@@ -58,8 +58,14 @@ export default function InterviewList({
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null)
 
   const loadInterviews = useCallback(async () => {
+    if (!session?.access_token) {
+      setLoading(false)
+      return
+    }
     setLoading(true)
-    const res = await fetch(`/api/interviews?candidat_id=${candidatId}`)
+    const res = await fetch(`/api/interviews?candidat_id=${candidatId}`, {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    })
     const data = await res.json()
 
     // Sort interviews chronologically
@@ -71,7 +77,7 @@ export default function InterviewList({
 
     setInterviews(data)
     setLoading(false)
-  }, [candidatId])
+  }, [candidatId, session?.access_token])
 
   useEffect(() => {
     loadInterviews()
@@ -97,7 +103,10 @@ export default function InterviewList({
 
     const res = await fetch('/api/interviews', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
       body: JSON.stringify(body),
     })
 
@@ -114,11 +123,18 @@ export default function InterviewList({
   }
 
   const deleteInterview = async (id: number) => {
+    if (!session?.access_token) {
+      alert(t('interviewList.loginRequired'))
+      return
+    }
     await fetch(`/api/interviews`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        id, 
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        id,
         status: 'cancelled',
         locale  // ⭐ Added: Pass current locale to API
       }),
@@ -475,6 +491,7 @@ function InterviewAssistantModal({
   onClose: () => void
 }) {
   const { t, locale } = useLocale()
+  const session = useSession()
   const [interviewQuestions, setInterviewQuestions] = useState<Question[] | null>(null)
   const [interviewNotes, setInterviewNotes] = useState('')
   const [interviewSummary, setInterviewSummary] = useState<InterviewSummary | null>(null)
@@ -482,12 +499,19 @@ function InterviewAssistantModal({
   const [step, setStep] = useState<'questions' | 'summary'>('questions')
 
   async function handleGenerateQuestions() {
+    if (!session?.access_token) {
+      alert(t('interviewList.loginRequired'))
+      return
+    }
     setIsLoading(true)
     setStep('questions')
     try {
       const res = await fetch('/api/interview-assistant', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({
           mode: 'questions',
           candidat_id: candidatId,
@@ -506,12 +530,19 @@ function InterviewAssistantModal({
   }
 
   async function handleGenerateSummary() {
+    if (!session?.access_token) {
+      alert(t('interviewList.loginRequired'))
+      return
+    }
     setIsLoading(true)
     setStep('summary')
     try {
       const res = await fetch('/api/interview-assistant', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({
           mode: 'summary',
           candidat_id: candidatId,
@@ -532,13 +563,16 @@ function InterviewAssistantModal({
 
   async function handleClose() {
     // Update interview status to "done" only if summary was generated
-    if (interviewSummary) {
+    if (interviewSummary && session?.access_token) {
       try {
         await fetch('/api/interviews', {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            id: interviewId, 
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            id: interviewId,
             status: 'done'
           }),
         })

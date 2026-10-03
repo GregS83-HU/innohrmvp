@@ -1,14 +1,9 @@
 // src/app/api/generate-position-description/route.ts
 export const runtime = "nodejs";
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { consumeCredit } from '../../../../lib/credit';
 import { getPrompt, fillPromptVariables, PromptNotFoundError, PromptDatabaseError } from '../../../../lib/prompts';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { requireCompanyMember } from '../../../../lib/authz';
 
 // Optimized API call
 async function callOpenRouterAPI(prompt: string, model = 'anthropic/claude-3.5-sonnet') {
@@ -121,7 +116,7 @@ function extractAndParseJSON(rawResponse: string) {
         console.log(`Successfully parsed JSON using strategy ${i + 1}`);
       }
       return result;
-    } catch (e) {
+    } catch {
       if (i === 0) {
         console.log(`Strategy 1 failed, trying alternatives...`);
         console.error('Problematic JSON (first 300 chars):', jsonString.substring(0, 300));
@@ -136,9 +131,16 @@ function extractAndParseJSON(rawResponse: string) {
 }
 
 export async function POST(req: NextRequest) {
+  // Credits are billed to the caller's own company, never a client-supplied one.
+  const auth = await requireCompanyMember(req);
+  if (!auth.authorized) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+  const companyId = String(auth.companyId);
+
   try {
     const body = await req.json();
-    const { roughDraft, positionName, companyId } = body;
+    const { roughDraft, positionName } = body;
 
     // Validate inputs
     if (!roughDraft || roughDraft.trim().length < 20) {
@@ -147,14 +149,7 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    if (!companyId) {
-      return NextResponse.json({ 
-        error: 'Missing company ID (needed to check AI credits).' 
-      }, { status: 400 });
-    }
-
     // === CHECK AI CREDITS BEFORE GENERATION ===
-    console.log('Checking AI credits for company:', companyId);
     const ok = await consumeCredit(companyId);
     if (!ok) {
       return NextResponse.json({ 

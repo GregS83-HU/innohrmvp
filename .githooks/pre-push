@@ -1,0 +1,19 @@
+#!/bin/sh
+# Runs before every push: the same blocking checks as pre-commit (they may
+# have been bypassed with --no-verify), plus ESLint. Lint ERRORS block the
+# push; warnings are printed but don't (the repo has zero errors today).
+# Bypass in an emergency with `git push --no-verify`.
+
+echo "▶ pre-push: typecheck + tests"
+npm run --silent verify || {
+  echo ""
+  echo "✖ Push blocked: fix the failures above (or 'git push --no-verify' to bypass)."
+  exit 1
+}
+
+echo "▶ pre-push: lint"
+npx eslint . --quiet || {
+  echo ""
+  echo "✖ Push blocked: lint errors above (or 'git push --no-verify' to bypass)."
+  exit 1
+}

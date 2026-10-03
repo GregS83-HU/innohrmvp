@@ -19,8 +19,7 @@ import {
   Check,
   Edit3,
   Power,
-  X,
-} from 'lucide-react';
+  } from 'lucide-react';
 import { AddUserModal } from '../../../../../components/AddUserModal';
 import { useLocale } from '../../../../i18n/LocaleProvider';
 import { safeErrorInfo } from '../../../../../lib/logSafe';
@@ -371,9 +370,19 @@ export default function CompanyUsersPage() {
   const updateManager = async (userId: string, newManagerId: string) => {
     setUpdatingManager(true);
     try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error(t('companyUsers.errors.updateManager'));
+      }
+
       const res = await fetch('/api/users/update-manager', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({ userId, managerId: newManagerId }),
       });
 
@@ -409,12 +418,21 @@ export default function CompanyUsersPage() {
 
     setUpdatingStatus(true);
     try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error('Failed to update user status');
+      }
+
       const res = await fetch('/api/users/update-status', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({
           userId: confirmModal.userId,
-          companyId,
           isActive: confirmModal.isActivating,
         }),
       });
