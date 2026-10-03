@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "postinstall": "patch-package",
-    "lint": "next lint",
+    "lint": "eslint .",
     "stripe:setup-pricing": "node scripts/stripe-setup-pricing.mjs",
     "test": "vitest run",
     "test:watch": "vitest",

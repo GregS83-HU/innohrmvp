@@ -81,7 +81,7 @@ const PositionAnalytics: React.FC = () => {
 
   const [positions, setPositions] = useState<Position[]>([]);
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
-  const [candidates, setCandidates] = useState<PositionCandidate[]>([]);
+  const [, setCandidates] = useState<PositionCandidate[]>([]);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(false);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
@@ -265,8 +265,6 @@ const PositionAnalytics: React.FC = () => {
       }))
       .sort((a, b) => {
         // parse using day/month or locale-specific format might be ambiguous; sort by ISO by reconstructing date
-        const aParts = a.date.split(/[^\d]/).map(Number);
-        const bParts = b.date.split(/[^\d]/).map(Number);
         // fallback: compare as strings if parsing fails
         return a.date.localeCompare(b.date);
       });

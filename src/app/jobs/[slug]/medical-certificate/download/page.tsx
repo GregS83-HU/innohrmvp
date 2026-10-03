@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import { useLocale } from 'i18n/LocaleProvider';
 import * as XLSX from 'xlsx';
 import JSZip from 'jszip';
-import { Download, Search, Calendar, FileText, Users, AlertCircle, CheckCircle, User, Clock } from 'lucide-react';
+import { Download, Search, Calendar, FileText, AlertCircle, CheckCircle, User, Clock } from 'lucide-react';
 import { safeErrorInfo } from '../../../../../../lib/logSafe';
 
 // Define the type for one row of medical_certificates
@@ -182,7 +182,6 @@ export default function CertificateDownloadPage() {
   // Calculate stats
   const treatedCount = certificates.filter(cert => cert.treated).length;
   const pendingCount = certificates.filter(cert => !cert.treated).length;
-  const uniqueEmployeesCount = new Set(certificates.map(c => c.employee_name)).size;
 
   if (loading && certificates.length === 0) {
     return (

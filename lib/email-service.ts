@@ -210,7 +210,7 @@ export async function sendInterviewCancellation(params: SendInterviewCancellatio
         emailId: result.emailId,
         provider: result.provider,
       }
-    } catch (smtpError) {
+    } catch {
       // If company SMTP fails, fall back to Resend
       console.log('⚠️ Company SMTP failed, falling back to Resend')
       
@@ -354,7 +354,7 @@ export async function sendInterviewInvitation(params: SendInterviewInvitationPar
         recruiterEmailId: recruiterResult.emailId,
         provider: 'company-smtp',
       }
-    } catch (smtpError) {
+    } catch {
       // If company SMTP fails, fall back to Resend
       console.log('⚠️ Company SMTP failed, falling back to Resend')
 
@@ -451,7 +451,7 @@ async function sendOnboardingEmail(
       const result = await sendEmailWithCompanySMTP(companyId, { to, subject, html })
       console.log(`✅ Onboarding ${variant} email sent via company SMTP:`, result)
       return { success: true, emailId: result.emailId, provider: result.provider }
-    } catch (smtpError) {
+    } catch {
       console.log('⚠️ Company SMTP failed, falling back to Resend')
 
       const result = await resend.emails.send({
@@ -520,7 +520,7 @@ export async function sendPlanCrossoverEmail(params: SendPlanCrossoverEmailParam
       const result = await sendEmailWithCompanySMTP(companyId, { to, subject, html })
       console.log('✅ Plan crossover email sent via company SMTP:', result)
       return { success: true, emailId: result.emailId, provider: result.provider }
-    } catch (smtpError) {
+    } catch {
       console.log('⚠️ Company SMTP failed, falling back to Resend')
 
       const result = await resend.emails.send({

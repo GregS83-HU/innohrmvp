@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
 import { useLocale } from 'i18n/LocaleProvider';
 
-interface Absence {
-  user_id: string;
-  employee_name: string;
-  leave_type_name_hu: string;
-  status: 'pending' | 'approved';
-}
-
 interface AbsentEmployee {
   name: string;
   leaves: TeamLeave[];

@@ -3,7 +3,7 @@
 
 import { useSession } from '@supabase/auth-helpers-react'
 import { useRouter, useParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { ArrowLeft, Target, Calendar, TrendingUp, CheckCircle, AlertCircle, Trash2 } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { useLocale } from 'i18n/LocaleProvider'
@@ -53,16 +53,7 @@ export default function GoalDetailPage() {
   const [isManager, setIsManager] = useState(false)
   const [message, setMessage] = useState<{ text: string; type: 'error' | 'success' } | null>(null)
 
-  useEffect(() => {
-    if (!session) {
-      router.push('/')
-      return
-    }
-
-    fetchGoalDetails()
-  }, [session, router, goalId])
-
-  const fetchGoalDetails = async () => {
+  const fetchGoalDetails = useCallback(async () => {
     setLoading(true)
     try {
       // Fetch goal
@@ -95,7 +86,16 @@ export default function GoalDetailPage() {
       console.error('Error fetching goal details:', safeErrorInfo(error))
     }
     setLoading(false)
-  }
+  }, [session, goalId])
+
+  useEffect(() => {
+    if (!session) {
+      router.push('/')
+      return
+    }
+
+    fetchGoalDetails()
+  }, [session, router, fetchGoalDetails])
 
   const handleApprove = async () => {
     if (!session?.user?.id || !session?.access_token) {

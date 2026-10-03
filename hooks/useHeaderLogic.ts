@@ -109,7 +109,7 @@ export const useHeaderLogic = () : UseHeaderLogicReturn => {
       .eq('id', userId)
       .single();
     if (data) setUser({ id: data.id, firstname: data.user_firstname, lastname: data.user_lastname, is_admin: data.is_admin, is_super_admin: data.is_super_admin, is_manager: data.is_manager });
-  }, []);
+  }, [supabase]);
 
   const fetchUserCompanyId = useCallback(async (userId: string) => {
     const { data, error } = await supabase
@@ -118,7 +118,7 @@ export const useHeaderLogic = () : UseHeaderLogicReturn => {
       .eq('user_id', userId)
       .single();
     if (!error && data?.company_id) setCompanyId(data.company_id);
-  }, []);
+  }, [supabase]);
 
   const fetchCompanyLogoAndId = useCallback(async (slug: string) => {
     const { data } = await supabase
@@ -129,7 +129,7 @@ export const useHeaderLogic = () : UseHeaderLogicReturn => {
     setCompanyLogo(data?.company_logo || null);
     setCompanyId(data?.id || null);
     setCompanyForfait(data?.forfait || null);
-  }, []);
+  }, [supabase]);
 
   const checkHappyCheckAccess = useCallback(async () => {
     if (!companyId || happyCheckAccessChecked.current) return;
@@ -170,7 +170,7 @@ export const useHeaderLogic = () : UseHeaderLogicReturn => {
       console.error('Error checking happy check access:', error);
       setCanAccessHappyCheck(false);
     }
-  }, [companyId]);
+  }, [companyId, supabase]);
 
   // Demo expiration handler
   // Demo expiration handler
@@ -200,7 +200,7 @@ const handleDemoExpiration = useCallback(async () => {
   if (companySlug === 'demo') {
     setTimeout(() => router.push(`/jobs/demo/feedback`), 2000);
   }
-}, [user, companySlug, router]);
+}, [user, companySlug, router, supabase]);
 
 // Demo timer effect
 useEffect(() => {
@@ -280,7 +280,7 @@ useEffect(() => {
     const homeUrl = companySlug ? `/jobs/${companySlug}` : '/';
     router.push(homeUrl);
   }
-}, [login, password, companySlug, router, fetchUserProfile, fetchUserCompanyId, isDemoExpired]);
+}, [login, password, companySlug, router, fetchUserProfile, fetchUserCompanyId, isDemoExpired, supabase]);
 
   const handleLogout = useCallback(async () => {
   console.log('Logout - companySlug:', companySlug);
@@ -290,7 +290,7 @@ useEffect(() => {
   setUser(null);
   console.log('About to redirect to:', homeUrl);
   router.push(homeUrl);
-}, [companySlug, router]);
+}, [companySlug, router, supabase]);
 
   // Utility functions
   const formatTime = useCallback((seconds: number) => {
@@ -386,7 +386,7 @@ useEffect(() => {
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, [companySlug, fetchUserProfile, fetchUserCompanyId, fetchCompanyLogoAndId]);
+  }, [companySlug, fetchUserProfile, fetchUserCompanyId, fetchCompanyLogoAndId, supabase]);
 
   useEffect(() => {
     if (companyId) {

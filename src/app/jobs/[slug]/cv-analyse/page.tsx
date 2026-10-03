@@ -2,7 +2,6 @@
 import CVAnalyseClient from './CVAnalyseClient';
 import { createClient } from '@supabase/supabase-js';
 import { Analytics } from "@vercel/analytics/next"
-import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { safeErrorInfo } from '../../../../../lib/logSafe';
 
@@ -102,7 +101,7 @@ export async function generateMetadata({
 }
 
 // Cached data fetching function
-async function fetchPositionData(positionId: string, companySlug: string): Promise<PositionData | null> {
+async function fetchPositionData(positionId: string, _companySlug: string): Promise<PositionData | null> {
   try {
     // Single query with join to get all needed data INCLUDING NEW FIELDS
     const { data: position, error } = await supabase

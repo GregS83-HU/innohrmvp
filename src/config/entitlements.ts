@@ -159,7 +159,7 @@ export const ONBOARDING_REQUIRED_MESSAGE = "Available after your onboarding call
 // show here: certificate review is manual-entry-only now (see
 // ONBOARDING_GATED_FEATURES), so the generic message applies to it the same
 // as the other onboarding-gated modules.
-export function getOnboardingRequiredMessage(feature: FeatureKey): string {
+export function getOnboardingRequiredMessage(_feature: FeatureKey): string {
   return ONBOARDING_REQUIRED_MESSAGE;
 }
 
