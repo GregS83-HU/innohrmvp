@@ -192,8 +192,12 @@
       return NextResponse.json({ received: true })
     }
 
-    await supabase.from("stripe_events").insert({ id: event.id, type: event.type }).select()
-
+    // Only record the event as processed once handling has succeeded. If it
+    // were recorded up front, a handler failure (500) would make Stripe's
+    // retry hit the "already processed" check above and the event (e.g. a
+    // paid checkout.session.completed) would never be applied. The finally
+    // block also covers the early `received: true` returns inside the try.
+    let failed = false
     try {
       // ----------------------------
       // Checkout Session Completed
@@ -399,8 +403,13 @@
         }
       }
     } catch (err: unknown) {
+      failed = true
       console.error("❌ Webhook handling error:", err)
       return NextResponse.json({ error: "Internal webhook error" }, { status: 500 })
+    } finally {
+      if (!failed) {
+        await supabase.from("stripe_events").insert({ id: event.id, type: event.type }).select()
+      }
     }
 
     return NextResponse.json({ received: true })

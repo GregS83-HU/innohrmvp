@@ -152,11 +152,7 @@ describe('POST /api/stripe/webhook', () => {
     expect(companyUpdates()[0].payload).toMatchObject({ forfait: null });
   });
 
-  // KNOWN GAP: the event id is recorded as processed BEFORE handling it. If
-  // handling fails (500), Stripe retries - but the retry is short-circuited
-  // as "already processed", so a paid subscription is never activated.
-  // Remove `.fails` once the event is only recorded after successful handling.
-  it.fails('KNOWN GAP: a Stripe retry after a handler failure is still processed', async () => {
+  it('a Stripe retry after a handler failure is still processed', async () => {
     const { POST } = await loadRoute({ retrieveFails: true });
     const e = () => event('checkout.session.completed', { metadata: { company_id: '100' }, subscription: 'sub_new', customer: 'cus_1' }, 'evt_retry');
     expect((await POST(e())).status).toBe(500);
