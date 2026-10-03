@@ -507,7 +507,9 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
     const fetchData = async () => {
       setLoading(true)
       try {
-        const resSteps = await fetch(`/api/recruitment-step?user_id=${session.user.id}`)
+        const resSteps = await fetch(`/api/recruitment-step?user_id=${session.user.id}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
         const stepsData = await resSteps.json()
         setSteps(stepsData)
 

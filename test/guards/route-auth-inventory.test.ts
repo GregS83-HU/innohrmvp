@@ -31,15 +31,7 @@ const PUBLIC_BY_DESIGN: Record<string, string> = {
 };
 
 /** Unauthenticated today, and should not be. Each is a tracked finding. */
-const KNOWN_GAPS: Record<string, string> = {
-  'analyse-massive/route.ts': 'Anyone with ids can bulk re-score a company candidate DB and burn its AI credits.',
-  'generate-position-description/route.ts': "Anyone with a company id can burn that company's AI credits.",
-  'feedback/route.ts': 'GET lists all demo feedback including IP addresses with no auth.',
-  'recruitment-step/route.ts': "Service-role read of any user's company pipeline steps by user_id.",
-  'candidate-count/route.ts': "Service-role read of any user's company candidate count by user_id.",
-  'notifications/email/route.ts': 'Unauthenticated email trigger (send is currently mocked).',
-  'unsubscribe/route.tsx': 'Anyone can unsubscribe any email address (no signed token).',
-};
+const KNOWN_GAPS: Record<string, string> = {};
 
 function listRoutes(dir: string): string[] {
   return readdirSync(dir).flatMap((name) => {

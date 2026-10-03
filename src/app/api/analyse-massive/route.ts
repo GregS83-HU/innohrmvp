@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { consumeCredit } from "../../../../lib/credit";
 import { getPrompt, fillPromptVariables, PromptNotFoundError, PromptDatabaseError } from "../../../../lib/prompts";
 import { safeErrorInfo } from '../../../../lib/logSafe';
+import { requireCompanyMember } from '../../../../lib/authz';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -50,21 +51,17 @@ async function analyseCvWithAi(
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const position_id_str = url.searchParams.get("position_id");
-  const user_id = url.searchParams.get("user_id");
-  const company_id = url.searchParams.get("company_id");
+
+  // Caller and company come from the session, never from the query string.
+  const auth = await requireCompanyMember(req);
+  if (!auth.authorized) {
+    return Response.json({ error: auth.error }, { status: auth.status });
+  }
+  const user_id = auth.userId;
+  const company_id = String(auth.companyId);
 
   if (!position_id_str) {
     return new Response(JSON.stringify({ error: "position_id requis" }), {
-      status: 400,
-    });
-  }
-  if (!user_id) {
-    return new Response(JSON.stringify({ error: "user_id requis" }), {
-      status: 400,
-    });
-  }
-  if (!company_id) {
-    return new Response(JSON.stringify({ error: "company_id requis" }), {
       status: 400,
     });
   }
@@ -74,6 +71,17 @@ export async function GET(req: NextRequest) {
     return new Response(JSON.stringify({ error: "position_id invalide" }), {
       status: 400,
     });
+  }
+
+  const { data: position, error: posErr } = await supabase
+    .from("openedpositions")
+    .select("*")
+    .eq("id", positionId)
+    .single();
+
+  // Same response for "missing" and "another company's" so ids can't be probed.
+  if (posErr || !position || String(position.company_id) !== company_id) {
+    return Response.json({ error: "Position non trouvée" }, { status: 404 });
   }
 
   const encoder = new TextEncoder();
@@ -101,27 +109,7 @@ export async function GET(req: NextRequest) {
           throw error;
         }
 
-        // === Step 1: Load position details ===
-        const { data: position, error: posErr } = await supabase
-          .from("openedpositions")
-          .select("*")
-          .eq("id", positionId)
-          .single();
-
-        if (posErr || !position) {
-          controller.enqueue(
-            encoder.encode(
-              `data: ${JSON.stringify({
-                type: "error",
-                error: "Position non trouvée",
-              })}\n\n`
-            )
-          );
-          controller.close();
-          return;
-        }
-
-        // === Step 2: Load company candidates ===
+        // === Step 1: Load company candidates ===
         const { data: candidats, error: candErr } = await supabase.rpc(
           "get_company_candidates",
           { user_uuid: user_id }
@@ -155,7 +143,7 @@ export async function GET(req: NextRequest) {
           return;
         }
 
-        // === Step 3: Iterate over candidates one by one ===
+        // === Step 2: Iterate over candidates one by one ===
         let matched = 0;
 
         for (let i = 0; i < candidats.length; i++) {
@@ -238,7 +226,7 @@ export async function GET(req: NextRequest) {
           }
         }
 
-        // === Step 4: End of stream ===
+        // === Step 3: End of stream ===
         controller.enqueue(
           encoder.encode(
             `data: ${JSON.stringify({

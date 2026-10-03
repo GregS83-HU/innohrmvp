@@ -120,8 +120,8 @@ export default function NewOpenedPositionPage() {
     try {
       const res = await fetch('/api/generate-position-description', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roughDraft, positionName: form.positionName, companyId }),
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session!.access_token}` },
+        body: JSON.stringify({ roughDraft, positionName: form.positionName }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -204,7 +204,9 @@ export default function NewOpenedPositionPage() {
   const handleAnalyseClick = async () => {
     setFetchingCount(true)
     try {
-      const res = await fetch(`/api/candidate-count?user_id=${session!.user.id}`)
+      const res = await fetch(`/api/candidate-count?user_id=${session!.user.id}`, {
+        headers: { Authorization: `Bearer ${session!.access_token}` },
+      })
       const data = await res.json()
       if (!res.ok) {
         setMessage({ text: t('newPosition.messages.errorFetchingCount'), type: 'error' })
@@ -231,35 +233,45 @@ export default function NewOpenedPositionPage() {
     setAnalysisResult(null)
     setMessage(null)
     setProgress(0)
+    // fetch() rather than EventSource: EventSource can't send the Authorization header.
     try {
-      const es = new EventSource(
-        `/api/analyse-massive?position_id=${positionId}&user_id=${session!.user.id}&company_id=${companyId}`
-      )
-      es.onmessage = (event) => {
-        const data = JSON.parse(event.data)
-        if (data.type === 'progress') {
-          setProgress(data.progress)
-        } else if (data.type === 'done') {
-          setAnalysisResult({ matched: data.matched, total: data.total })
-          setMessage({
-            text: `${t('newPosition.messages.analysisComplete')} ${data.matched} / ${data.total} ${t('newPosition.messages.candidatesCorresponding')}`,
-            type: 'success',
-          })
-          setAnalysisLoading(false)
-          es.close()
-        } else if (data.type === 'error') {
-          setMessage({ text: data.error, type: 'error' })
-          setAnalysisLoading(false)
-          es.close()
-        }
-      }
-      es.onerror = () => {
+      const res = await fetch(`/api/analyse-massive?position_id=${positionId}`, {
+        headers: { Authorization: `Bearer ${session!.access_token}` },
+      })
+      if (!res.ok || !res.body) {
         setMessage({ text: t('newPosition.messages.serverError'), type: 'error' })
-        setAnalysisLoading(false)
-        es.close()
+        return
+      }
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+      while (true) {
+        const { value, done } = await reader.read()
+        if (done) break
+        buffer += decoder.decode(value, { stream: true })
+        const events = buffer.split('\n\n')
+        buffer = events.pop() ?? ''
+        for (const event of events) {
+          if (!event.startsWith('data: ')) continue
+          const data = JSON.parse(event.slice('data: '.length))
+          if (data.type === 'progress') {
+            setProgress(data.progress)
+          } else if (data.type === 'done') {
+            setAnalysisResult({ matched: data.matched, total: data.total })
+            setMessage({
+              text: `${t('newPosition.messages.analysisComplete')} ${data.matched} / ${data.total} ${t('newPosition.messages.candidatesCorresponding')}`,
+              type: 'success',
+            })
+          } else if (data.type === 'error') {
+            setMessage({ text: data.error, type: 'error' })
+            await reader.cancel()
+            return
+          }
+        }
       }
     } catch (error) {
       setMessage({ text: `${t('newPosition.messages.unexpectedError')} ${(error as Error).message}`, type: 'error' })
+    } finally {
       setAnalysisLoading(false)
     }
   }

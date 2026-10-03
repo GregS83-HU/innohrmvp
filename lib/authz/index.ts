@@ -1,5 +1,6 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { AuthzResult, SessionTokenResult } from './types';
 
 // lib/entitlements.ts constructs its own Supabase client eagerly at module
@@ -324,4 +325,32 @@ export async function requireSelfOrManagerOf(request: Request, employeeId: strin
     return { authorized: false, status: 403, error: 'Access denied' };
   }
   return adminCheck;
+}
+
+/**
+ * Signed email token (e.g. unsubscribe links): HMAC-SHA256 of the
+ * lower-cased email, keyed by the named env var. Lets a link act on exactly
+ * one address without a user session. Throws when the secret is unset, so a
+ * link is never minted with an empty key.
+ */
+export function signEmailToken(email: string, envVar: string): string {
+  const secret = process.env[envVar];
+  if (!secret) throw new Error(`${envVar} is not configured`);
+  return createHmac('sha256', secret).update(email.trim().toLowerCase()).digest('hex');
+}
+
+/**
+ * Shape 10 (signed email token): caller presents the token minted by
+ * signEmailToken for this exact email. Fails closed when the secret is unset.
+ */
+export function requireEmailToken(email: string, token: string | null | undefined, envVar: string): AuthzResult {
+  if (!process.env[envVar] || !token) {
+    return { authorized: false, status: 403, error: 'Invalid or missing token' };
+  }
+  const expected = Buffer.from(signEmailToken(email, envVar), 'hex');
+  const given = Buffer.from(token, 'hex');
+  if (given.length !== expected.length || !timingSafeEqual(given, expected)) {
+    return { authorized: false, status: 403, error: 'Invalid or missing token' };
+  }
+  return { authorized: true, userId: 'email-token' };
 }

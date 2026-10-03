@@ -118,7 +118,7 @@ Legend: ✅ automated · 🟡 planned (layer noted) · 🔴 known gap (tracked b
 | AUTHZ-09 | RLS: a user of company A cannot select/update any row of company B on every tenant table (`openedpositions`, `candidats`, `position_to_candidat`, `leave_requests`, `timeclock`, `medical_certificates`, `tickets`, `company_email_settings`, …) | L4 | 🟡 **top priority** |
 | AUTHZ-10 | Migration drift: every migration file in `supabase/migrations` is applied in the target database | L4/CI | 🟡 |
 | AUTHZ-11 | Storage buckets (`cvs`, certificates, ticket attachments) are private; signed URLs expire in 10 min | L4 | 🟡 |
-| AUTHZ-12 | Unauthenticated service-role routes: `analyse-massive`, `generate-position-description`, `feedback` GET, `recruitment-step`, `candidate-count`, `notifications/email`, `unsubscribe` | L2/L3 | 🔴 |
+| AUTHZ-12 | Formerly unauthenticated service-role routes now authorize the caller: `generate-position-description` / `analyse-massive` (company member; company from session, position must belong to it), `feedback` GET (super admin), `recruitment-step` / `candidate-count` (self only), `notifications/email` (company member), `unsubscribe` (signed token) | L2/L3 | ✅ |
 
 ### M03 — Plans, entitlements & onboarding gate (P0)
 | ID | Scenario | Layer | Status |
@@ -150,7 +150,7 @@ Legend: ✅ automated · 🟡 planned (layer noted) · 🔴 known gap (tracked b
 | BILL-11 | Webhook: first invoice marks onboarding fee paid; renewals don't | L2 | ✅ |
 | BILL-12 | Webhook: payment failed → 7-day grace, no immediate downgrade | L2 | ✅ |
 | BILL-13 | Webhook: subscription deleted/canceled → plan cleared; stale events for old subscriptions ignored | L2 | ✅ |
-| BILL-14 | Webhook: a Stripe retry after a handler error is processed (currently swallowed as "already processed") | L2 | 🔴 |
+| BILL-14 | Webhook: a Stripe retry after a handler error is processed | L2 | ✅ |
 | BILL-15 | Subscription status (Active/Pending/Inactive, headcount) visible to any member, own tenant only | L2 | ✅ |
 | BILL-16 | Cancel: admin only, own company, immediate | L2 | ✅ |
 | BILL-17 | Portal session and credit-pack session: admin only, own company | L2 | ✅ |
@@ -170,7 +170,7 @@ Legend: ✅ automated · 🟡 planned (layer noted) · 🔴 known gap (tracked b
 | POS-04 | Close position: own tenant only, other tenant 403 | L2 | ✅ |
 | POS-05 | Public board shows only open positions of the requested company slug | L2/L4 | 🟡 |
 | POS-06 | Private list: members see their company's open positions only | L4 | 🟡 |
-| POS-07 | AI job description generation consumes 1 credit; 402 when out of credits | L2 | 🟡 (auth gap: 🔴 AUTHZ-12) |
+| POS-07 | AI job description generation: company member only, 1 credit billed to the caller's company (client `companyId` ignored); 402 when out of credits | L2 | ✅ |
 | POS-08 | Create-position form (icon card employment type, salary range, refresh doesn't redirect) | L5 | 🟡 |
 
 ### M06 — Recruitment: CV scoring, pipeline & reporting
@@ -180,7 +180,7 @@ Legend: ✅ automated · 🟡 planned (layer noted) · 🔴 known gap (tracked b
 | CV-02 | AI credits billed to the position's company, never a client-supplied one | L2 | ✅ |
 | CV-03 | Score < 5 → auto "Rejected"; otherwise "Unassigned"; admins + manager notified | L2 | 🟡 |
 | CV-04 | Candidate feedback uses the position's tone; score/analysis unaffected by tone | L1/L6 | ✅ (prompt) / 🟡 (eval) |
-| CV-05 | Bulk re-score ("Analyse Massive"): progress stream, credit per CV, threshold 7 | L2 | 🟡 (auth gap: 🔴 AUTHZ-12) |
+| CV-05 | Bulk re-score ("Analyse Massive"): own-company position only (404 otherwise), progress stream, credit per CV billed to the caller's company, threshold 7 | L2 | ✅ |
 | CV-06 | Pipeline: move candidate to step, comment — own tenant only | L2 | ✅ |
 | CV-07 | Signed CV URL only for own-company candidates, expires 10 min | L2 | ✅ |
 | CV-08 | Position stats: own company only, 404 unknown | L2 | ✅ |
@@ -298,8 +298,8 @@ Legend: ✅ automated · 🟡 planned (layer noted) · 🔴 known gap (tracked b
 |---|---|---|---|
 | PUB-01 | Contact form: GDPR consent required, email/phone validated, sanitised, 3 per IP+email per window | L2 | ✅ |
 | PUB-02 | Demo feedback: rating 1–5 enforced | L2 | ✅ |
-| PUB-03 | Demo feedback list is not public (exposes IP addresses) | L2 | 🔴 |
-| PUB-04 | Unsubscribe requires a signed token | L2 | 🔴 |
+| PUB-03 | Demo feedback list is super-admin only (exposes IP addresses); submitting stays public | L2 | ✅ |
+| PUB-04 | Unsubscribe requires an HMAC token for that exact email (`UNSUBSCRIBE_SECRET`); fails closed when unset | L2 | ✅ |
 | PUB-05 | Pricing page shows Free/Core/Growth with the DB prices and ranges; every CTA leads to signup | L5 | 🟡 |
 | PUB-06 | `/privacy`, `/cookies` reachable; terms/impressum link out to hrinno.hu | L5 | 🟡 |
 
@@ -313,13 +313,17 @@ Legend: ✅ automated · 🟡 planned (layer noted) · 🔴 known gap (tracked b
 
 ## 6. Open findings surfaced while building this strategy
 
-These are tracked in the suite (they keep it green but go red when fixed):
+Still open:
 
-1. **Stripe webhook loses events on transient errors** (BILL-14). The event id is recorded *before* processing; if processing fails, Stripe's retry is skipped as "already processed" — a paid checkout could never activate the plan. Fix: record the event only after successful handling (or delete the marker on failure).
-2. **AI credits can be burned by anyone** (AUTHZ-12). `generate-position-description` and `analyse-massive` trust a client-supplied company id with no caller check; `analyse-massive` also rewrites that company's candidate scores.
-3. **Demo feedback list is public and includes IP addresses** (PUB-03).
-4. **Minor unauthenticated reads/actions**: `recruitment-step`, `candidate-count` (by any `user_id`), `notifications/email`, `unsubscribe` (any address).
-5. **Leave approval relies solely on RLS** (LV-03) — needs an L4 test to prove the policy holds.
+1. **Leave approval relies solely on RLS** (LV-03) — needs an L4 test to prove the policy holds.
+2. **Unsubscribe links are not generated yet.** `/api/unsubscribe` now requires `signEmailToken(email, 'UNSUBSCRIBE_SECRET')`, but no email template or page produces such a link today; whoever adds marketing emails must include it, and `UNSUBSCRIBE_SECRET` must be set in production.
+
+Closed (kept as regression tests in `test/api/known-gaps.test.ts`, `ai-credit-routes.test.ts`, `service-role-routes.test.ts`, `stripe/webhook.test.ts`; `KNOWN_GAPS` in the route inventory is now empty):
+
+- **Stripe webhook lost events on transient errors** (BILL-14). The event id is now recorded only after handling succeeds, so Stripe's retry is processed.
+- **AI credits could be burned by anyone** (AUTHZ-12). `generate-position-description` and `analyse-massive` trusted a client-supplied company id; both now require a company member and bill the session's company, and `analyse-massive` refuses positions of another company.
+- **Demo feedback list was public with IP addresses** (PUB-03) — now super admin only.
+- **Minor unauthenticated reads/actions** — `recruitment-step` and `candidate-count` are self-only, `notifications/email` requires a company member, `unsubscribe` requires a signed token (PUB-04).
 
 ---
 
