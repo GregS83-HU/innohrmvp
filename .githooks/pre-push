@@ -1,0 +1,22 @@
+#!/bin/sh
+# Runs before every push: the same blocking checks as pre-commit (they may
+# have been bypassed with --no-verify), plus an ADVISORY lint of the files
+# this branch changed. Lint doesn't block yet - the repo has a pre-existing
+# ESLint error backlog; make it blocking once that's cleared.
+
+echo "▶ pre-push: typecheck + tests"
+npm run --silent verify || {
+  echo ""
+  echo "✖ Push blocked: fix the failures above (or 'git push --no-verify' to bypass)."
+  exit 1
+}
+
+base=$(git merge-base HEAD origin/main 2>/dev/null || echo "")
+if [ -n "$base" ]; then
+  changed=$(git diff --name-only --diff-filter=ACMR "$base" HEAD -- '*.ts' '*.tsx' | grep -v '^test/' || true)
+  if [ -n "$changed" ]; then
+    echo "▶ pre-push: lint of changed files (advisory)"
+    # shellcheck disable=SC2086
+    npx eslint --quiet $changed || echo "⚠ Lint errors above are advisory and did not block the push."
+  fi
+fi
