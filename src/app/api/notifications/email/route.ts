@@ -69,7 +69,7 @@ const emailTemplates = {
 };
 
 // Mock email service
-async function sendEmail(to: string, subject: string, html: string) {
+async function sendEmail(to: string, subject: string, _html: string) {
   console.log('Sending email, subject length:', subject.length);
   return { success: true };
 }

@@ -116,7 +116,7 @@ function extractAndParseJSON(rawResponse: string) {
         console.log(`Successfully parsed JSON using strategy ${i + 1}`);
       }
       return result;
-    } catch (e) {
+    } catch {
       if (i === 0) {
         console.log(`Strategy 1 failed, trying alternatives...`);
         console.error('Problematic JSON (first 300 chars):', jsonString.substring(0, 300));
