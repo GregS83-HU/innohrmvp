@@ -119,7 +119,7 @@ async function notifyManagerOfNewCV(
   }
 }
 
-async function callOpenRouterAPI(prompt: string, context = '', model = '  ') {
+async function callOpenRouterAPI(prompt: string, context = '', model = 'nvidia/nemotron-3-super-120b-a12b:free') {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 60000);
 
@@ -173,9 +173,9 @@ async function callOpenRouterAPI(prompt: string, context = '', model = '  ') {
 
 async function callFallbackAPI(prompt: string, context = '') {
   try {
-    return await callOpenRouterAPI(prompt, context, 'anthropic/claude-3-haiku');
+    return await callOpenRouterAPI(prompt, context, 'qwen/qwen3.8-27b:free');
   } catch {
-    return await callOpenRouterAPI(prompt, context, 'mistralai/mistral-small');
+    return await callOpenRouterAPI(prompt, context, 'google/gemma-4-31b-it:free');
   }
 }
 

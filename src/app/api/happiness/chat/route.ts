@@ -211,7 +211,7 @@ async function analyzeResponseWithAI(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'mistralai/mistral-7b-instruct',
+        model: 'nvidia/nemotron-3-super-120b-a12b:free',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.2,
         max_tokens: 50
@@ -330,7 +330,7 @@ async function generatePersonalizedAdvice(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'mistralai/mistral-7b-instruct',
+        model: 'nvidia/nemotron-3-super-120b-a12b:free',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.8,
         max_tokens: 600
