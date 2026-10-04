@@ -211,7 +211,8 @@ async function analyzeResponseWithAI(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'nvidia/nemotron-3-super-120b-a12b:free',
+        // OpenRouter falls back to the next model if the first one errors
+        models: ['openai/gpt-4o-mini', 'mistralai/mistral-small-24b-instruct-2501'],
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.2,
         max_tokens: 50
@@ -330,7 +331,8 @@ async function generatePersonalizedAdvice(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'nvidia/nemotron-3-super-120b-a12b:free',
+        // OpenRouter falls back to the next model if the first one errors
+        models: ['openai/gpt-4o-mini', 'mistralai/mistral-small-24b-instruct-2501'],
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.8,
         max_tokens: 600

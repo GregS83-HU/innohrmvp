@@ -6,7 +6,7 @@ import { getPrompt, fillPromptVariables, PromptNotFoundError, PromptDatabaseErro
 import { requireCompanyMember } from '../../../../lib/authz';
 
 // Optimized API call
-async function callOpenRouterAPI(prompt: string, model = 'nvidia/nemotron-3-super-120b-a12b:free') {
+async function callOpenRouterAPI(prompt: string, model = 'openai/gpt-4o-mini') {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s timeout
 
@@ -61,11 +61,11 @@ async function callOpenRouterAPI(prompt: string, model = 'nvidia/nemotron-3-supe
 // Fallback API call with different model
 async function callFallbackAPI(prompt: string) {
   try {
-    // Try GPT-4o-mini as fallback (still good but faster)
-    return await callOpenRouterAPI(prompt, 'openai/gpt-4o-mini');
+    // Mistral Small as fallback
+    return await callOpenRouterAPI(prompt, 'mistralai/mistral-small-24b-instruct-2501');
   } catch {
-    // Final fallback: GPT-3.5
-    return await callOpenRouterAPI(prompt, 'openai/gpt-3.5-turbo');
+    // Final fallback: newer Mistral Small
+    return await callOpenRouterAPI(prompt, 'mistralai/mistral-small-3.2-24b-instruct');
   }
 }
 
