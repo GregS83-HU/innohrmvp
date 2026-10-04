@@ -6,7 +6,7 @@ import { getPrompt, fillPromptVariables, PromptNotFoundError, PromptDatabaseErro
 import { requireCompanyMember } from '../../../../lib/authz';
 
 // Optimized API call
-async function callOpenRouterAPI(prompt: string, model = 'anthropic/claude-sonnet-4.5') {
+async function callOpenRouterAPI(prompt: string, model = 'nvidia/nemotron-3-super-120b-a12b:free') {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s timeout
 
