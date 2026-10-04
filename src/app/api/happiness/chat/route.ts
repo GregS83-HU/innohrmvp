@@ -211,7 +211,7 @@ async function analyzeResponseWithAI(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'mistralai/mistral-7b-instruct',
+        model: 'mistralai/ministral-8b-2512',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.2,
         max_tokens: 50
@@ -330,7 +330,7 @@ async function generatePersonalizedAdvice(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'mistralai/mistral-7b-instruct',
+        model: 'mistralai/ministral-8b-2512',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.8,
         max_tokens: 600

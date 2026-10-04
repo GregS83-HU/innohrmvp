@@ -119,7 +119,7 @@ async function notifyManagerOfNewCV(
   }
 }
 
-async function callOpenRouterAPI(prompt: string, context = '', model = '  ') {
+async function callOpenRouterAPI(prompt: string, context = '', model = 'openai/gpt-4o-mini') {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 60000);
 
@@ -173,9 +173,9 @@ async function callOpenRouterAPI(prompt: string, context = '', model = '  ') {
 
 async function callFallbackAPI(prompt: string, context = '') {
   try {
-    return await callOpenRouterAPI(prompt, context, 'anthropic/claude-3-haiku');
+    return await callOpenRouterAPI(prompt, context, 'anthropic/claude-haiku-4.5');
   } catch {
-    return await callOpenRouterAPI(prompt, context, 'mistralai/mistral-small');
+    return await callOpenRouterAPI(prompt, context, 'mistralai/mistral-small-3.2-24b-instruct');
   }
 }
 
