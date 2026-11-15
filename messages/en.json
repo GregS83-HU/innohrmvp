@@ -35,8 +35,8 @@
       },
       "teamManagement": {
         "title": "Time & Attendance",
-        "description": "Track time and attendance, and manage absences without spreadsheets — on Momentum and Infinity plans.",
-        "badge": "Momentum & Infinity"
+        "description": "Track time and attendance, and manage absences without spreadsheets — on Core and Growth plans.",
+        "badge": "Core & Growth"
       }
     },
     "cta": {
