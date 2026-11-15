@@ -20,4 +20,4 @@ Managers see a team dashboard with Overview, Red Flags, and Pending Approval tab
 
 ## Plan limits and availability
 
-Performance management is included on Infinity only, for up to 100 employees — it's a locked preview on both Free and Momentum. It unlocks as soon as your company finishes its account setup and its first payment goes through (see Getting Started).
+Performance management is included on **Growth** only — it's a locked preview on both Free and Core. It unlocks as soon as your company finishes its account setup and its first payment goes through (see Getting Started).

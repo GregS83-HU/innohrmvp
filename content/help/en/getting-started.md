@@ -21,7 +21,7 @@ Every module is reachable from the top navigation bar or the account menu in the
 - The main nav bar links to modules like Positions, HR Tools, Performance, Time Clock, and Absences.
 - Click your name or avatar in the top-right corner to open the account menu, which has account-level items like Manage Subscription, Manage Users, and this User Guide (admins only).
 
-If a module isn't visible to you, it's because your role doesn't include it, your company's plan doesn't include it (time & attendance/absences are Momentum and Infinity only; performance is Infinity only; the wellbeing chatbot is Momentum and Infinity only), or your company hasn't finished onboarding yet (see below).
+If a module isn't visible to you, it's because your role doesn't include it, your company's plan doesn't include it (time & attendance and absences are Core and Growth only; performance management and the wellbeing chatbot are Growth only), or your company hasn't finished onboarding yet (see below).
 
 ## A note on plans and onboarding
 

@@ -18,7 +18,7 @@ Ticket status (e.g. marking a ticket resolved) is managed by the HRInno support 
 
 ## Plan availability
 
-Submitting a new ticket is available on the **Momentum** and **Infinity** plans. It's usable as soon as your company subscribes, since asking for help is often the first thing a new company needs to do.
+Submitting a new ticket is available on the **Core** and **Growth** plans. It's usable as soon as your company subscribes, since asking for help is often the first thing a new company needs to do.
 
 On the **Free** plan (or with no active plan), you'll see a message when trying to submit a new ticket — visit **Manage Subscription** from the account menu for upgrade options. Tickets you already have stay fully accessible — you can still view them and reply in the thread — regardless of plan changes; only submitting a **new** ticket is affected.
 

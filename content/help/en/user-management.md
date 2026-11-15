@@ -18,4 +18,4 @@ Because each row must include your company's internal ID, bulk import is better 
 
 ## Who can access this
 
-Adding, editing, and importing users are admin-only actions. Adding a new user is also subject to your plan's included employee count: up to 20 employees on Momentum, up to 100 on Infinity. Free doesn't have a numeric seat cap of its own, since the modules that seat count matters most for (time & attendance, absences, performance) are locked on Free regardless. Beyond 100 employees on Infinity isn't self-serve — you'll see a message directing you to contact us for a custom quote rather than a plan upgrade button.
+Adding, editing, and importing users are admin-only actions. On Core and Growth, every active employee adds that plan's per-employee fee to your subscription, and your bill adjusts automatically when you add, deactivate, or reactivate someone. **Core is limited to 30 active employees**: adding or reactivating a 31st employee is blocked with a message suggesting Growth, which has no upper limit. Free has no employee limit, since there is no subscription to bill.

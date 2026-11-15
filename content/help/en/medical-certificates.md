@@ -25,8 +25,8 @@ The number of certificates you can upload **per month** depends on your plan:
 | Plan | Medical certificate uploads / month |
 |---|---|
 | Free | Up to 5 |
-| Momentum | Up to 10 |
-| Infinity | Up to 20 |
+| Core | Up to 10 |
+| Growth | Up to 20 |
 
 If you reach your plan's monthly limit, you'll see a message when trying to upload — visit **Manage Subscription** from the account menu for upgrade options. Certificates you've already uploaded stay accessible regardless of plan changes; the limit only affects new uploads.
 

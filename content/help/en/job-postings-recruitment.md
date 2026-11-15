@@ -33,8 +33,8 @@ The number of positions you can have **open at the same time** depends on your p
 | Plan | Open job positions |
 |---|---|
 | Free | Up to 2 |
-| Momentum | Up to 5 |
-| Infinity | Up to 10 |
+| Core | Up to 5 |
+| Growth | Up to 10 |
 
 This limit applies only to *creating new* open positions — closing an existing position frees up a slot, and downgrading your plan never deletes or hides positions you already have; it only stops you from opening more beyond your new plan's limit.
 

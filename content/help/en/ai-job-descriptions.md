@@ -16,4 +16,4 @@ Treat the generated text as a **first draft, not a final version**: review it, a
 
 ## Who can use this
 
-Anyone who can create or edit a job position (admins and managers, depending on your company's setup) can use the AI description generator. It isn't restricted by plan.
+Anyone who can create or edit a job position (admins and managers, depending on your company's setup) can use the AI description generator. It's available on every plan, but each generation uses one AI credit from your company's monthly allowance (Free 50, Core 100, Growth 250). If you run out, you'll see a "no remaining AI credits" message until the monthly reset, or an admin can buy a credit pack from **Manage Subscription**.
