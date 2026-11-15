@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import {
   Briefcase, Plus, Smile, BarChart3, Stethoscope, Target, Users, CalendarClock,
-  CreditCard, UserCog, TicketPlus, AlertTriangle, CheckCircle, LogIn,
+  CreditCard, UserCog, TicketPlus, AlertTriangle, CheckCircle, LogIn, Rocket,
 } from 'lucide-react';
 import { useLocale } from '../../../../i18n/LocaleProvider';
 import { useParams } from 'next/navigation';
@@ -236,6 +236,24 @@ export default function HomePage() {
               <LogIn className="w-5 h-5" />
               {t('header.login')}
             </button>
+          </div>
+        )}
+
+        {user && isAdmin && !moduleAccess.loading && !moduleAccess.onboardingCompleted && (
+          <div className="w-full max-w-5xl mb-6 rounded-xl border border-brand-200 bg-brand-50 p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center flex-shrink-0">
+              <Rocket className="w-5 h-5" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-gray-900">{t('onboardingWizard.banner.title')}</p>
+              <p className="text-sm text-gray-600">{t('onboardingWizard.banner.message')}</p>
+            </div>
+            <a
+              href={buildLink('/onboarding')}
+              className="inline-flex items-center justify-center bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-lg font-medium whitespace-nowrap"
+            >
+              {t('onboardingWizard.banner.cta')}
+            </a>
           </div>
         )}
 

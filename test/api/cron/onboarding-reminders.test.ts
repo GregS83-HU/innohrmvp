@@ -54,4 +54,25 @@ describe('GET /api/cron/onboarding-reminders', () => {
     const body = await res.json();
     expect(body).toEqual({ success: true, sent: 0, skipped: 'no CALENDLY_ONBOARDING_URL' });
   });
+
+  it('only reminds companies that paid for the assisted call and whose call is not done yet', async () => {
+    process.env.CRON_SECRET = 'the-real-secret';
+    process.env.CALENDLY_ONBOARDING_URL = 'https://calendly.test/onboarding';
+    vi.resetModules();
+    const client = createSupabaseMock({ tables: { company: () => ({ data: [] }) } });
+    vi.doMock('@supabase/supabase-js', () => ({ createClient: () => client }));
+    vi.doMock('../../../lib/email-service', () => ({ sendOnboardingReminderEmail: vi.fn() }));
+    const { GET } = await import(ROUTE_PATH);
+
+    const res = await GET(req('Bearer the-real-secret'));
+    expect(res.status).toBe(200);
+    const [query] = client.calls.filter((c) => c.table === 'company');
+    expect(query.filters).toMatchObject({
+      assisted_onboarding_requested: true,
+      assisted_call_completed_at: { is: null },
+      onboarding_link_sent_at: { not: { is: null } },
+      onboarding_reminder_sent_at: { is: null },
+    });
+    expect(query.filters).not.toHaveProperty('onboarding_completed');
+  });
 });

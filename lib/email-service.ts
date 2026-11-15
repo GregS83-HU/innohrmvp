@@ -2,7 +2,13 @@
 
 import { Resend } from 'resend'
 import { generateICS } from './ics-generator'
-import { generateInterviewEmail, generateOnboardingEmail, generatePlanCrossoverEmail } from './email-templates'
+import {
+  generateInterviewEmail,
+  generateOnboardingEmail,
+  generatePlanCrossoverEmail,
+  generateSelfOnboardingNotificationEmail,
+  type SelfOnboardingNotificationData,
+} from './email-templates'
 import { sendEmailWithCompanySMTP } from './smtp-mailer'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -437,7 +443,7 @@ async function sendOnboardingEmail(
 
   const subject =
     variant === 'welcome'
-      ? `Welcome to HRInno, ${adminFirstName} — book your onboarding call`
+      ? `Welcome to HRInno, ${adminFirstName} — book your assisted onboarding call`
       : `Reminder: book your HRInno onboarding call`
 
   const html = generateOnboardingEmail({ adminFirstName, companyName, calendlyUrl, variant })
@@ -482,7 +488,7 @@ async function sendOnboardingEmail(
   }
 }
 
-/** Sent right after self-serve signup - Calendly link to book the onboarding call. */
+/** Sent once an assisted-onboarding customer's first payment succeeds - Calendly link to book the call. */
 export async function sendOnboardingBookingEmail(params: SendOnboardingEmailParams) {
   return sendOnboardingEmail(params, 'welcome')
 }
@@ -541,4 +547,34 @@ export async function sendPlanCrossoverEmail(params: SendPlanCrossoverEmailParam
     console.error('❌ Failed to send plan crossover email:', error)
     throw error
   }
+}
+/**
+ * Internal notification to the HRInno team each time a company completes
+ * self-onboarding (first subscription payment succeeded). Sent via Resend
+ * directly - never through a customer's own SMTP settings - to the address
+ * in ONBOARDING_NOTIFY_EMAIL. Returns { skipped: true } if that variable is
+ * not set, so a missing config never breaks the Stripe webhook.
+ */
+export async function sendSelfOnboardingNotificationEmail(data: SelfOnboardingNotificationData) {
+  const to = process.env.ONBOARDING_NOTIFY_EMAIL
+  if (!to) {
+    console.warn('ONBOARDING_NOTIFY_EMAIL is not set - skipping self-onboarding notification email')
+    return { success: false, skipped: true as const }
+  }
+
+  const subject = data.assistedCallRequested
+    ? `📞 Call back: ${data.companyName} started paying (assisted onboarding)`
+    : `New paying customer: ${data.companyName} (${data.plan})`
+
+  const result = await resend.emails.send({
+    from: 'HRInno Onboarding <onboarding@notifications.hrinno.hu>',
+    to: to.split(',').map((address) => address.trim()).filter(Boolean),
+    subject,
+    html: generateSelfOnboardingNotificationEmail(data),
+  })
+
+  if (result.error) {
+    throw new Error(`Resend rejected the email: ${result.error.message}`)
+  }
+  return { success: true, emailId: result.data?.id }
 }

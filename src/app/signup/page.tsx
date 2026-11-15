@@ -44,7 +44,9 @@ export default function SignupPage() {
       }
 
       trackFunnelEvent('signup_completed', { source: 'marketing_site' });
-      router.push(`/jobs/${data.slug}`);
+      // Straight into the setup wizard; it has a "Skip for now" link back
+      // to the dashboard for admins who only want to recruit on Free.
+      router.push(`/jobs/${data.slug}/onboarding`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
       setSubmitting(false);
@@ -133,7 +135,7 @@ export default function SignupPage() {
 
         <p className="text-xs text-gray-400 mt-6 text-center">
           Time &amp; attendance, absences, performance management, and the AI wellbeing chatbot unlock
-          after a short onboarding call with our team.
+          as soon as you finish the short in-app setup and choose a plan. No call needed.
         </p>
       </div>
     </div>

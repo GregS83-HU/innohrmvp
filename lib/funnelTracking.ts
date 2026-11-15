@@ -46,7 +46,8 @@ export type FunnelEventType =
   | 'signup_completed'
   | 'onboarding_marked_complete'
   | 'onboarding_link_sent'
-  | 'onboarding_reminder_sent';
+  | 'onboarding_reminder_sent'
+  | 'self_onboarding_completed';
 
 export type FunnelSource = 'homepage' | 'pricing_page' | 'marketing_site';
 export type FunnelPlan = 'free' | 'core' | 'growth';

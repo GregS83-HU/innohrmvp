@@ -100,8 +100,8 @@
     "employeeRangeMax": "Legfeljebb {{count}} alkalmazottal rendelkező cégeknek",
     "employeeRangeMin": "Legalább {{count}} alkalmazottal rendelkező cégeknek",
     "dataNote": "A lemondás vagy visszaminősítés soha nem törli a meglévő adataidat — továbbra is teljes hozzáférésed lesz mindenhez, amid már van. Csak az új csomaglimit fölötti új elemek létrehozása szünetel.",
-    "onboardingFeeNote": "Regisztrációkor egyszeri {{fee}} Ft bevezetési díj érvényes a Core és Growth csomagokra, amelyet az első számlával együtt számlázunk ki. Éves elszámolás is választható, amellyel az éves összeg 15%-os kedvezményt kap, előre fizetve.",
-    "onboardingNote": "A munkaidő-nyilvántartáshoz, a távollétekhez, a teljesítménykezeléshez, az AI jólléti chatbothoz és az orvosi igazolások feltöltéséhez egyaránt olyan csomagra van szükség, amely tartalmazza az adott funkciót (lásd a csomagrészleteket fent), valamint vállalata bevezető hívásának teljesítésére — mindkét feltétel csomagtól függetlenül érvényes. Az új, önkiszolgáló módon regisztrált vállalatok azonnal közzétehetnek állásokat és használhatják a Job Assistantet; ezek a további modulok akkor válnak elérhetővé, amikor Ön olyan csomagon van, amely tartalmazza őket, és a bevezető hívás csapatunkkal megtörtént.",
+    "onboardingFeeNote": "Opcionálisan segített bevezető hívás is kérhető egyszeri {{fee}} Ft díjért, amelyet az első számlával együtt számlázunk ki. Éves elszámolás is választható, amellyel az éves összeg 15%-os kedvezményt kap, előre fizetve.",
+    "onboardingNote": "A munkaidő-nyilvántartás, a távollétek, a teljesítménykezelés, az AI jólléti chatbot és az orvosi igazolások feltöltése minden olyan csomagban elérhető, amely tartalmazza őket (lásd a csomagrészleteket fent). A beállítás teljesen önkiszolgáló: az új vállalatok azonnal közzétehetnek állásokat és használhatják a Job Assistantet, a többi modul pedig azonnal elérhetővé válik, amint befejezi az alkalmazáson belüli beállítást és az első fizetés sikeres. Bevezető hívásra nincs szükség.",
     "priceNote": "Az árak magyar forintban (HUF) szerepelnek, havi elszámolással, kivéve, ha éves elszámolást választ."
   },
   "contactForm": {
@@ -539,9 +539,9 @@
       "messageWithCompany": "Ez a jólléti felmérés nem szerepel a(z) {{companyName}} jelenlegi csomagjában."
     },
     "onboardingRequired": {
-      "title": "A bevezető hívás után lesz elérhető",
-      "message": "Az AI jólléti chatbot azután válik elérhetővé, hogy vállalata bevezető hívása megtörtént.",
-      "cta": "Kapcsolatfelvétel"
+      "title": "Fejezze be a fiók beállítását",
+      "message": "Az AI jóllét-chatbot akkor válik elérhetővé, ha a cég befejezte a beállítást és az előfizetése aktív.",
+      "cta": "Beállítás befejezése"
     },
     "loading": "Felmérés betöltése...",
     "header": "Boldogság Ellenőrzés 😊",
@@ -2299,7 +2299,7 @@
           },
           "calendly": {
             "name": "Calendly (bevezető hívás időpontfoglalás)",
-            "desc": "Cél: lehetővé teszi egy új vállalat adminisztrátorának, hogy regisztráció után bevezető hívást foglaljon. Kizárólag munkahelyi e-mail címét és a kiválasztott időpontot osztjuk meg a Calendlyvel e célból.",
+            "desc": "Cél: lehetővé teszi annak a vállalati adminisztrátornak, aki az opcionális segített bevezető hívást választotta, hogy időpontot foglaljon erre a hívásra. Kizárólag munkahelyi e-mail címét és a kiválasztott időpontot osztjuk meg a Calendlyvel e célból.",
             "linkHref": "https://calendly.com/privacy",
             "linkText": "Adatvédelmi tájékoztató",
             "color": "border-pink-500"
@@ -2691,6 +2691,99 @@
       "minutesAgo": "{{count}} perce",
       "hoursAgo": "{{count}} órája",
       "daysAgo": "{{count}} napja"
+    }
+  },
+  "onboardingWizard": {
+    "title": "HRInno fiók beállítása",
+    "subtitle": "Három rövid lépés. A munkaidő-nyilvántartás, a távollétek, a teljesítményértékelés, a jóllét-chatbot és az orvosi igazolások azonnal elérhetővé válnak, amint az első fizetés sikeres.",
+    "steps": {
+      "company": "Cég",
+      "team": "Csapat",
+      "plan": "Csomag és fizetés"
+    },
+    "next": "Tovább",
+    "back": "Vissza",
+    "skip": "Később",
+    "backToDashboard": "Vissza az irányítópultra",
+    "company": {
+      "title": "Az Ön cége",
+      "subtitle": "Ellenőrizze, hogyan jelenik meg a cég neve a munkatársak és a jelöltek számára.",
+      "nameLabel": "Cégnév",
+      "nameRequired": "Kérjük, adja meg a cég nevét.",
+      "unlocksTitle": "Mit kap",
+      "unlocksBody": "A toborzás és a Job Assistant már az ingyenes csomagban is működik. A beállítás befejezése és egy fizetős csomag kiválasztása azonnal elérhetővé teszi a csomagban szereplő HR-modulokat, hívásra várás nélkül."
+    },
+    "team": {
+      "title": "Az Ön csapata",
+      "subtitle": "Adja hozzá munkatársait, hogy be tudjanak jelentkezni, szabadságot kérhessenek és használhassák a HRInno-t. A csomag és az ár a létszámtól függ.",
+      "activeEmployees": "aktív munkatárs (Önt is beleértve)",
+      "addEmployees": "Munkatársak hozzáadása",
+      "hint": "A munkatársak felvétele új lapon nyílik meg. Ha végzett, térjen vissza ide, a létszám automatikusan frissül. Később is felvehet további munkatársakat.",
+      "refresh": "Frissítés",
+      "recommended": "{{count}} munkatárssal az Önnek megfelelő csomag: {{plan}}.",
+      "noPlan": "A jelenlegi létszámhoz nem tartozik fizetős csomag. Kérjük, vegye fel velünk a kapcsolatot."
+    },
+    "plan": {
+      "title": "Válasszon csomagot",
+      "subtitle": "Biztonságosan, bankkártyával fizet a Stripe-on keresztül. Az előfizetés automatikusan megújul, és bármikor lemondható.",
+      "monthly": "Havi",
+      "annual": "Éves (-15%)",
+      "perMonth": "Ft/hó",
+      "perYear": "Ft/év",
+      "price": "{{base}} {{per}} + {{seat}} munkatársanként",
+      "rangeMax": "Legfeljebb {{count}} munkatárs",
+      "rangeMin": "{{count}} munkatárstól",
+      "notEligible": "{{count}} munkatárs esetén nem elérhető",
+      "features": {
+        "recruitment": "Toborzás és AI Job Assistant",
+        "attendance": "Munkaidő-nyilvántartás és távollétek",
+        "certificates": "Orvosi igazolások",
+        "performance": "Teljesítményértékelés",
+        "wellbeing": "AI jóllét-chatbot",
+        "reporting": "Haladó toborzási riportok",
+        "aiCredits": "{{count}} AI kredit"
+      },
+      "assistedTitle": "Segített bevezető hívás (+{{fee}} Ft, egyszeri)",
+      "assistedBody": "Opcionális. Csapatunk felhívja Önt, és segít beállítani a HRInno-t a cégénél. A modulok mindenképpen azonnal elérhetővé válnak.",
+      "summaryRecurring": "{{plan}}, {{count}} munkatárs",
+      "summaryAssisted": "Segített bevezető hívás (egyszeri)",
+      "summaryToday": "Első fizetés",
+      "summaryNote": "Becslés a jelenlegi létszám alapján. A munkatársankénti díj automatikusan igazodik a csapat változásaihoz.",
+      "pay": "Tovább a biztonságos fizetéshez",
+      "canceled": "A fizetés megszakadt, nem történt terhelés. Folytathatja onnan, ahol abbahagyta."
+    },
+    "waiting": {
+      "title": "Fizetés megerősítése…",
+      "message": "Ez általában néhány másodpercig tart. A modulok automatikusan elérhetővé válnak.",
+      "slow": "A fizetés megerősítése a szokásosnál tovább tart. Frissítsen egy pillanat múlva; ha néhány perc után is zárolva vannak a modulok, kérjük, vegye fel velünk a kapcsolatot.",
+      "refresh": "Újraellenőrzés"
+    },
+    "done": {
+      "title": "Minden kész!",
+      "subtitle": "A fiókja teljesen be van állítva.",
+      "subtitlePlan": "A(z) {{plan}} előfizetése aktív, a modulok elérhetők.",
+      "assisted": "Köszönjük, hogy a segített bevezetést választotta. E-mailben elküldtük a hívás időpontfoglaló linkjét, és csapatunk is felveszi Önnel a kapcsolatot.",
+      "unlockedTitle": "Most már elérhető",
+      "modules": {
+        "attendance": "Munkaidő-nyilvántartás",
+        "absences": "Távollétek",
+        "certificates": "Orvosi igazolások",
+        "performance": "Teljesítményértékelés",
+        "wellbeing": "Jóllét-chatbot"
+      },
+      "goToDashboard": "Irány az irányítópult"
+    },
+    "banner": {
+      "title": "Fejezze be a fiók beállítását",
+      "message": "Válasszon csomagot a munkaidő-nyilvántartás, a távollétek, a teljesítményértékelés, a jóllét-chatbot és az orvosi igazolások eléréséhez. Csak néhány perc.",
+      "cta": "Beállítás befejezése"
+    },
+    "errors": {
+      "generic": "Hiba történt. Kérjük, próbálja újra.",
+      "checkout": "Nem sikerült elindítani a fizetést. Kérjük, próbálja újra.",
+      "sessionExpired": "A munkamenet lejárt. Kérjük, jelentkezzen be újra.",
+      "notLoggedIn": "A fiók beállításához kérjük, jelentkezzen be.",
+      "adminOnly": "A fiókot csak céges adminisztrátor állíthatja be. Kérjük, forduljon az adminisztrátorhoz."
     }
   }
 }

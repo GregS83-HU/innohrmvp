@@ -210,7 +210,7 @@ export default function ManagerDashboard() {
         <LockedModuleNotice
           feature="performance.use"
           plan={moduleAccess.plan}
-          upgradeHref={moduleAccess.onboardingCompleted ? `/jobs/${companySlug}/subscription` : `/jobs/${companySlug}/contact`}
+          upgradeHref={moduleAccess.onboardingCompleted ? `/jobs/${companySlug}/subscription` : `/jobs/${companySlug}/onboarding`}
           reason={moduleAccess.onboardingCompleted ? 'plan' : 'onboarding'}
         />
       </div>

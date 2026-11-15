@@ -1,6 +1,8 @@
 // Daily cron: sends a one-time reminder email (with the Calendly onboarding
-// link) to self-serve companies that haven't booked their onboarding call
-// within the SLA window. Mirrors the structure of
+// link) to companies that paid for the optional assisted onboarding call
+// but whose call hasn't been marked done (assisted_call_completed_at) within
+// the SLA window, counted from when the booking link was sent. Companies
+// that self-onboarded without the assisted call never get this email. Mirrors the structure of
 // src/app/api/cron/data-retention/route.ts (CRON_SECRET auth, thin route
 // delegating the actual work).
 import { NextRequest, NextResponse } from 'next/server';
@@ -36,15 +38,18 @@ export async function GET(request: NextRequest) {
   try {
     const { data: candidates, error } = await supabase
       .from('company')
-      .select('id, company_name, slug, created_at')
-      .eq('onboarding_completed', false)
+      .select('id, company_name, slug, onboarding_link_sent_at')
+      .eq('assisted_onboarding_requested', true)
+      .is('assisted_call_completed_at', null)
+      .not('onboarding_link_sent_at', 'is', null)
       .is('onboarding_reminder_sent_at', null);
 
     if (error) throw error;
 
     const now = new Date();
     const due = (candidates ?? []).filter(
-      (company) => addBusinessDays(new Date(company.created_at), ONBOARDING_REMINDER_THRESHOLD_BUSINESS_DAYS) <= now
+      (company) =>
+        addBusinessDays(new Date(company.onboarding_link_sent_at as string), ONBOARDING_REMINDER_THRESHOLD_BUSINESS_DAYS) <= now
     );
 
     let sent = 0;

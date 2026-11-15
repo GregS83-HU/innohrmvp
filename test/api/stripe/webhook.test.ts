@@ -16,14 +16,17 @@ const SUBSCRIPTION = {
 let client: ReturnType<typeof createSupabaseMock>;
 let processedEvents: Set<string>;
 let subscriptionsRetrieve: ReturnType<typeof vi.fn>;
+let completeSelfOnboarding: ReturnType<typeof vi.fn>;
 
-async function loadRoute(opts: { companyCurrentSub?: string | null; usedCredits?: number; retrieveFails?: boolean } = {}) {
+async function loadRoute(opts: { companyCurrentSub?: string | null; usedCredits?: number; retrieveFails?: boolean; assisted?: boolean } = {}) {
   vi.resetModules();
   processedEvents = new Set();
   subscriptionsRetrieve = vi.fn(async () => {
     if (opts.retrieveFails) throw new Error('stripe unavailable');
-    return SUBSCRIPTION;
+    return { ...SUBSCRIPTION, metadata: { company_id: '100', assisted_onboarding: opts.assisted ? 'true' : 'false' } };
   });
+  completeSelfOnboarding = vi.fn(async () => ({ completed: true, ownerNotified: true, bookingEmailSent: false }));
+  vi.doMock('../../../lib/onboarding/completeSelfOnboarding', () => ({ completeSelfOnboarding }));
   vi.doMock('stripe', () => ({
     default: class {
       webhooks = {
@@ -119,6 +122,39 @@ describe('POST /api/stripe/webhook', () => {
     const { POST } = await loadRoute();
     await POST(event('invoice.payment_succeeded', { subscription: 'sub_new', customer: 'cus_1', billing_reason: 'subscription_cycle', lines: { data: [] } }));
     expect(companyUpdates()[0].payload).not.toHaveProperty('onboarding_fee_paid_at');
+  });
+
+  it('completes self-onboarding on the first paid invoice of a new subscription', async () => {
+    const { POST } = await loadRoute({ assisted: true });
+    await POST(event('invoice.payment_succeeded', {
+      subscription: 'sub_new',
+      customer: 'cus_1',
+      billing_reason: 'subscription_create',
+      status: 'paid',
+      amount_paid: 9700000,
+      currency: 'huf',
+      lines: { data: [{ pricing: { price_details: { price: 'price_onb' } } }] },
+    }));
+    expect(completeSelfOnboarding).toHaveBeenCalledWith(expect.anything(), {
+      companyId: '100',
+      assistedCallRequested: true,
+      plan: 'Core',
+      billingInterval: 'month',
+      amountPaid: 97000,
+      currency: 'huf',
+    });
+  });
+
+  it('does not complete self-onboarding on a renewal invoice', async () => {
+    const { POST } = await loadRoute();
+    await POST(event('invoice.payment_succeeded', { subscription: 'sub_new', customer: 'cus_1', billing_reason: 'subscription_cycle', status: 'paid', amount_paid: 100, currency: 'huf', lines: { data: [] } }));
+    expect(completeSelfOnboarding).not.toHaveBeenCalled();
+  });
+
+  it('does not complete self-onboarding on checkout completion alone (payment must succeed)', async () => {
+    const { POST } = await loadRoute();
+    await POST(event('checkout.session.completed', { metadata: { company_id: '100' }, subscription: 'sub_new', customer: 'cus_1' }));
+    expect(completeSelfOnboarding).not.toHaveBeenCalled();
   });
 
   it('starts a 7-day grace period on a failed payment without downgrading', async () => {

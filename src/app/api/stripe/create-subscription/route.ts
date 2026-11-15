@@ -9,7 +9,10 @@ type Tier = (typeof VALID_TIERS)[number]
 
 export async function POST(req: Request) {
   try {
-    const { tier, interval, return_url } = await req.json()
+    const { tier, interval, return_url, assisted_onboarding } = await req.json()
+    // Optional paid "assisted onboarding call" add-on. Anything other than
+    // an explicit `true` means self-serve with no onboarding fee.
+    const assisted = assisted_onboarding === true
 
     if (!VALID_TIERS.includes(tier) || (interval !== 'month' && interval !== 'year') || !return_url) {
       return NextResponse.json(
@@ -123,9 +126,17 @@ export async function POST(req: Request) {
 
     // Onboarding fee is a one-time Price mixed into this subscription-mode
     // Checkout Session - Stripe adds it as an invoice item on the
-    // subscription's first invoice automatically. Only included if it
-    // hasn't already been paid, so a resubscribe never charges it twice.
-    if (forfait.stripe_price_id_onboarding && !company.onboarding_fee_paid_at) {
+    // subscription's first invoice automatically. Since self-onboarding it
+    // is OPTIONAL: charged only when the admin ticks the assisted
+    // onboarding call, and never if it has already been paid, so a
+    // resubscribe never charges it twice.
+    if (assisted && !forfait.stripe_price_id_onboarding) {
+      return NextResponse.json(
+        { error: 'Assisted onboarding is not configured for this plan yet' },
+        { status: 500 }
+      )
+    }
+    if (assisted && forfait.stripe_price_id_onboarding && !company.onboarding_fee_paid_at) {
       lineItems.push({ price: forfait.stripe_price_id_onboarding, quantity: 1 })
     }
 
@@ -147,6 +158,17 @@ export async function POST(req: Request) {
         company_id: company_id.toString(),
         tier,
         interval,
+        assisted_onboarding: assisted ? 'true' : 'false',
+      },
+      // Copied onto the Subscription itself so the webhook's
+      // invoice.payment_succeeded handler (which only sees the invoice and
+      // its subscription, and can arrive before checkout.session.completed)
+      // knows whether the customer asked for the assisted call.
+      subscription_data: {
+        metadata: {
+          company_id: company_id.toString(),
+          assisted_onboarding: assisted ? 'true' : 'false',
+        },
       },
     })
 

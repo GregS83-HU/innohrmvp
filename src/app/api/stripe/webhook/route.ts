@@ -2,6 +2,7 @@
   import Stripe from "stripe"
   import { NextResponse } from "next/server"
   import { createClient, SupabaseClient } from "@supabase/supabase-js"
+  import { completeSelfOnboarding } from "../../../../../lib/onboarding/completeSelfOnboarding"
 
   export const runtime = "nodejs"
 
@@ -330,6 +331,25 @@
             .eq("id", companyId)
 
           console.log(`✅ Updated company ${companyId} to plan: ${resolved.forfaitName}`)
+
+          // Self-onboarding completes on the FIRST successful payment of a
+          // brand-new subscription: card on file + recurring billing live.
+          // This is what unlocks the onboarding-gated modules - see
+          // lib/onboarding/completeSelfOnboarding.ts (idempotent, so a
+          // Stripe retry never re-sends its emails).
+          if (invoice.billing_reason === "subscription_create" && invoice.status === "paid") {
+            const result = await completeSelfOnboarding(supabase, {
+              companyId,
+              assistedCallRequested: subscription.metadata?.assisted_onboarding === "true",
+              plan: resolved.forfaitName,
+              billingInterval: resolved.billingInterval,
+              // HUF is a two-decimal currency in the Stripe API (amounts
+              // are in fillér) - see scripts/stripe-setup-pricing.mjs.
+              amountPaid: invoice.amount_paid / 100,
+              currency: invoice.currency,
+            })
+            console.log(`ℹ️ Self-onboarding for company ${companyId}:`, result)
+          }
         }
       }
 

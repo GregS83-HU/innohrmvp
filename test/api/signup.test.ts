@@ -71,18 +71,12 @@ describe('POST /api/signup (self-serve company creation)', () => {
     expect((await (await POST(post(VALID))).json()).slug).toBe('acme-kft-3');
   });
 
-  it('sends the onboarding booking email and records it', async () => {
+  it('no longer sends the onboarding-call booking email at signup (assisted call is opt-in, after payment)', async () => {
     const { POST } = await loadRoute();
-    await POST(post(VALID));
-    expect(sendEmail).toHaveBeenCalledWith(expect.objectContaining({ to: VALID.email, calendlyUrl: process.env.CALENDLY_ONBOARDING_URL }));
-    const update = writesTo(client, 'company').find((w) => w.method === 'update');
-    expect(update?.payload).toHaveProperty('onboarding_link_sent_at');
-    expect(writesTo(client, 'funnel_events')[0].payload).toMatchObject({ event_type: 'onboarding_link_sent' });
-  });
-
-  it('still succeeds when the onboarding email fails', async () => {
-    const { POST } = await loadRoute({ emailFails: true });
     expect((await POST(post(VALID))).status).toBe(200);
+    expect(sendEmail).not.toHaveBeenCalled();
+    expect(writesTo(client, 'company').some((w) => w.method === 'update')).toBe(false);
+    expect(writesTo(client, 'funnel_events')).toHaveLength(0);
   });
 
   it('rolls back the auth user when the company insert fails', async () => {

@@ -70,7 +70,7 @@ describe('POST /api/stripe/create-subscription', () => {
     for (const c of companyReads) expect(c.filters['id']).toBe(COMPANY_A);
   });
 
-  it('creates a monthly Core checkout with base + seat items and the one-time onboarding fee', async () => {
+  it('creates a monthly Core checkout with base + seat items and NO onboarding fee by default', async () => {
     const { POST } = await loadRoute({ employees: 12 });
     const res = await POST(req('admin'));
     expect(res.status).toBe(200);
@@ -81,20 +81,40 @@ describe('POST /api/stripe/create-subscription', () => {
     expect(args.line_items).toEqual([
       { price: 'core_base_m', quantity: 1 },
       { price: 'core_seat_m', quantity: 12 },
+    ]);
+    expect(args.metadata.assisted_onboarding).toBe('false');
+    expect(args.subscription_data.metadata).toEqual({ company_id: String(COMPANY_A), assisted_onboarding: 'false' });
+  });
+
+  it('adds the one-time onboarding fee only when the assisted onboarding call is requested', async () => {
+    const { POST } = await loadRoute({ employees: 12 });
+    await POST(req('admin', { assisted_onboarding: true }));
+    const args = checkoutCreate.mock.calls[0][0];
+    expect(args.line_items).toEqual([
+      { price: 'core_base_m', quantity: 1 },
+      { price: 'core_seat_m', quantity: 12 },
       { price: 'onb', quantity: 1 },
     ]);
+    expect(args.subscription_data.metadata.assisted_onboarding).toBe('true');
+  });
+
+  it('treats a non-boolean assisted_onboarding value as not requested', async () => {
+    const { POST } = await loadRoute();
+    await POST(req('admin', { assisted_onboarding: 'yes' }));
+    const items = checkoutCreate.mock.calls[0][0].line_items.map((i: { price: string }) => i.price);
+    expect(items).not.toContain('onb');
   });
 
   it('uses annual prices when interval=year', async () => {
     const { POST } = await loadRoute({ employees: 40 });
-    await POST(req('admin', { tier: 'Growth', interval: 'year' }));
+    await POST(req('admin', { tier: 'Growth', interval: 'year', assisted_onboarding: true }));
     const items = checkoutCreate.mock.calls[0][0].line_items.map((i: { price: string }) => i.price);
     expect(items).toEqual(['gr_base_y', 'gr_seat_y', 'onb']);
   });
 
   it('never charges the onboarding fee twice', async () => {
     const { POST } = await loadRoute({ company: { onboarding_fee_paid_at: '2026-01-01' } });
-    await POST(req('admin'));
+    await POST(req('admin', { assisted_onboarding: true }));
     const items = checkoutCreate.mock.calls[0][0].line_items.map((i: { price: string }) => i.price);
     expect(items).not.toContain('onb');
   });

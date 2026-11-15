@@ -140,8 +140,8 @@ function UploadCertificatePageContent() {
   }
 
   // Onboarding-completion gate: same locked-state component used by the
-  // other five onboarding-gated modules, not the plan-limit card below -
-  // this is a temporary compliance safeguard, not a plan limitation. See
+  // other onboarding-gated modules, not the plan-limit card below - the
+  // company hasn't finished self-onboarding yet. See
   // ONBOARDING_GATED_FEATURES in src/config/entitlements.ts.
   if (canAddCertificate === false && accessReason === 'onboarding_required') {
     return (
@@ -149,7 +149,7 @@ function UploadCertificatePageContent() {
         <LockedModuleNotice
           feature="medicalCertificates.upload"
           plan={accessPlan}
-          upgradeHref={`/jobs/${slug}/contact`}
+          upgradeHref={`/jobs/${slug}/onboarding`}
           reason="onboarding"
         />
       </div>

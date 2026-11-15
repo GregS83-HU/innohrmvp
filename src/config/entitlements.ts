@@ -32,26 +32,15 @@ export type EntitlementCheck =
   | { kind: "flag"; rpc: "can_access_happy_check" | "can_use_attendance_absences" | "can_use_performance" | "can_use_support_tickets" | "can_use_advanced_reporting" };
 
 // Features that require company.onboarding_completed = true, on top of
-// whatever plan check applies - regardless of forfait, a company that
-// signed up self-serve stays locked out of these until our team flips the
-// flag after a manual setup call. Recruitment (job postings) is
-// deliberately NOT in this set: it stays usable immediately after
-// self-serve signup, subject only to plan limits.
-//
-// medicalCertificates.upload was originally placed here as a TEMPORARY
-// compliance safeguard rather than a training/complexity gate: certificate
-// uploads used to send employee health data to third-party AI/OCR services
-// (OCR.Space, OpenRouter) for automated extraction, with only best-effort
-// redaction and unreviewed subprocessor terms. That AI/OCR step has since
-// been removed entirely - a certificate is now stored and its details
-// entered manually by a company admin, with no third-party AI/OCR service
-// ever seeing the document or its contents. The original rationale for
-// gating this specific feature on onboarding no longer applies; it remains
-// in this set for now only because removing it is a separate product
-// decision that hasn't been made, not because of any current AI/OCR risk.
-// support.tickets is deliberately NOT in this set: unlike the five features
-// above, it's usable immediately after self-serve signup (same treatment as
-// recruitment.openPosition), subject only to the plan check below.
+// whatever plan check applies. A self-serve company unlocks them by
+// finishing the in-app setup wizard (/jobs/[slug]/onboarding): the flag is
+// set automatically when its first subscription payment succeeds (see
+// lib/onboarding/completeSelfOnboarding.ts), so none of these cost-bearing
+// modules is usable before a card is on file and billing is live. The team
+// can still override the flag manually from /admin/onboarding.
+// Recruitment (job postings) and support.tickets are deliberately NOT in
+// this set: they stay usable immediately after signup, subject only to plan
+// limits.
 export const ONBOARDING_GATED_FEATURES: ReadonlySet<FeatureKey> = new Set([
   "attendance.use",
   "absences.use",
@@ -151,14 +140,10 @@ export const FEATURE_COPY: Record<FeatureKey, { title: string; limitReached: str
 
 // Shared copy for any ONBOARDING_GATED_FEATURES feature blocked because
 // company.onboarding_completed is false - same message regardless of which
-// module it is or what plan the company is on, since the reason is always
-// "no setup call yet", not a plan limitation.
-export const ONBOARDING_REQUIRED_MESSAGE = "Available after your onboarding call.";
+// module it is or what plan the company is on, since the fix is always the
+// same: finish the setup wizard and start a subscription.
+export const ONBOARDING_REQUIRED_MESSAGE = "Finish setting up your account to unlock this module. It only takes a few minutes.";
 
-// medicalCertificates.upload no longer has a feature-specific reason to
-// show here: certificate review is manual-entry-only now (see
-// ONBOARDING_GATED_FEATURES), so the generic message applies to it the same
-// as the other onboarding-gated modules.
 export function getOnboardingRequiredMessage(_feature: FeatureKey): string {
   return ONBOARDING_REQUIRED_MESSAGE;
 }

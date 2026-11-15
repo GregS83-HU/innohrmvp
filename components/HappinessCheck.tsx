@@ -533,7 +533,7 @@ const HappinessCheckInner: React.FC = () => {
                   const companySlug = slugMatch ? slugMatch[1] : null;
                   return companySlug ? (
                     <a
-                      href={`/jobs/${companySlug}/contact`}
+                      href={`/jobs/${companySlug}/onboarding`}
                       className="inline-block mt-3 text-sm font-medium text-yellow-800 underline hover:text-yellow-900"
                     >
                       {t('app.onboardingRequired.cta')}

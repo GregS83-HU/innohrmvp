@@ -148,7 +148,7 @@ describe('entitlementErrorBody', () => {
   it('returns the onboarding message for onboarding_required', async () => {
     const { mod } = await load(onboarded('Free'));
     const body = mod.entitlementErrorBody('attendance.use', { allowed: false, reason: 'onboarding_required', plan: 'Core' });
-    expect(body).toMatchObject({ code: 'UPGRADE_REQUIRED', reason: 'onboarding_required', message: 'Available after your onboarding call.' });
+    expect(body).toMatchObject({ code: 'UPGRADE_REQUIRED', reason: 'onboarding_required', message: 'Finish setting up your account to unlock this module. It only takes a few minutes.' });
   });
 
   it('returns the Core 30-employee upgrade message when the seat cap is hit', async () => {

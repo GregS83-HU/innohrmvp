@@ -13,22 +13,23 @@ interface OnboardingEmailData {
 }
 
 /**
- * Sent to a self-serve signup's admin: a Calendly link to book the
- * onboarding call needed to unlock time & attendance/absences/
- * performance/the wellbeing chatbot/medical certificates. 'welcome' goes
- * out right at signup; 'reminder' is the one-time nudge if they haven't
- * booked within the SLA window (see lib/businessDays.ts).
+ * Sent to the admin of a company that ticked the optional, paid "assisted
+ * onboarding call" during self-onboarding: a Calendly link to book that
+ * call. Their modules are already unlocked by the time this goes out (the
+ * call is extra help, not a gate). 'welcome' goes out when the first
+ * payment succeeds; 'reminder' is the one-time nudge if the call hasn't
+ * been marked done within the SLA window (see lib/businessDays.ts).
  */
 export function generateOnboardingEmail(data: OnboardingEmailData): string {
   const isReminder = data.variant === 'reminder'
 
-  const heading = isReminder ? "Don't forget to book your onboarding call" : 'Welcome to HRInno!'
+  const heading = isReminder ? "Don't forget to book your onboarding call" : 'Book your assisted onboarding call'
   const intro = isReminder
-    ? `Just a quick reminder — <strong>${data.companyName}</strong> hasn't booked its onboarding call yet.`
-    : `<strong>${data.companyName}</strong> is set up and ready to go.`
+    ? `Just a quick reminder — <strong>${escapeHtml(data.companyName)}</strong> hasn't booked its assisted onboarding call yet.`
+    : `Thank you for choosing assisted onboarding for <strong>${escapeHtml(data.companyName)}</strong>.`
   const body = isReminder
-    ? `Time & attendance, absences, performance management, the AI wellbeing chatbot, and medical certificate uploads are all waiting for a short setup call with our team before they unlock.`
-    : `You can start posting jobs and using the AI Job Assistant right away — no setup needed. Time & attendance, absences, performance management, the AI wellbeing chatbot, and medical certificate uploads unlock after a short onboarding call with our team.`
+    ? `Every module in your plan is already unlocked — the call is there to help your team get the most out of time &amp; attendance, absences, performance management, and the rest of HRInno.`
+    : `Every module in your plan is already unlocked and ready to use. Pick a time below and our team will walk you through setting up HRInno for your company.`
 
   return `
 <!DOCTYPE html>
@@ -45,7 +46,7 @@ export function generateOnboardingEmail(data: OnboardingEmailData): string {
 
   <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
 
-    <p style="font-size: 16px; margin-top: 0;">Hi ${data.adminFirstName},</p>
+    <p style="font-size: 16px; margin-top: 0;">Hi ${escapeHtml(data.adminFirstName)},</p>
 
     <p style="font-size: 16px;">${intro}</p>
 
@@ -67,6 +68,77 @@ export function generateOnboardingEmail(data: OnboardingEmailData): string {
     <p style="margin: 0;">Sent via HRInno</p>
   </div>
 
+</body>
+</html>
+`
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+export interface SelfOnboardingNotificationData {
+  companyName: string
+  companySlug: string | null
+  adminName: string | null
+  adminEmail: string | null
+  plan: string
+  billingInterval: 'month' | 'year'
+  employeeCount: number
+  amountPaid: number
+  currency: string
+  assistedCallRequested: boolean
+}
+
+/**
+ * Internal email to the HRInno team (ONBOARDING_NOTIFY_EMAIL) sent each time
+ * a company completes self-onboarding, i.e. its first subscription payment
+ * succeeded. When the customer ticked the paid assisted onboarding call, the
+ * email leads with a request to call them back.
+ */
+export function generateSelfOnboardingNotificationEmail(data: SelfOnboardingNotificationData): string {
+  const amount = `${data.amountPaid.toLocaleString('en-US')} ${data.currency.toUpperCase()}`
+  const interval = data.billingInterval === 'year' ? 'annual' : 'monthly'
+  const rows: Array<[string, string]> = [
+    ['Company', data.companyName],
+    ['Slug', data.companySlug ?? '—'],
+    ['Admin', data.adminName ?? '—'],
+    ['Admin email', data.adminEmail ?? '—'],
+    ['Plan', `${data.plan} (${interval})`],
+    ['Active employees', String(data.employeeCount)],
+    ['First payment', amount],
+    ['Assisted onboarding call', data.assistedCallRequested ? 'Yes — paid, please call back' : 'No'],
+  ]
+
+  const callBack = data.assistedCallRequested
+    ? `<div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+        <strong>Action needed: please call this customer back.</strong><br>
+        They paid for the assisted onboarding call. They have also been sent the Calendly booking link. Mark the call as done in the onboarding admin page once it has happened.
+      </div>`
+    : ''
+
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.5; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <h2 style="margin-top: 0;">New paying customer: ${escapeHtml(data.companyName)}</h2>
+  <p>${escapeHtml(data.companyName)} completed self-onboarding and its first subscription payment succeeded. Time &amp; attendance, absences, performance, the wellbeing chatbot and medical certificates are now unlocked (subject to their plan).</p>
+  ${callBack}
+  <table style="border-collapse: collapse; width: 100%; font-size: 14px;">
+    ${rows
+      .map(
+        ([label, value]) =>
+          `<tr><td style="padding: 6px 8px; border-bottom: 1px solid #e5e7eb; color: #6b7280; white-space: nowrap;">${label}</td><td style="padding: 6px 8px; border-bottom: 1px solid #e5e7eb;">${escapeHtml(value)}</td></tr>`
+      )
+      .join('')}
+  </table>
+  <p style="margin-top: 20px; color: #6b7280; font-size: 13px;">Manage this company from the Onboarding page in the super-admin menu.</p>
 </body>
 </html>
 `

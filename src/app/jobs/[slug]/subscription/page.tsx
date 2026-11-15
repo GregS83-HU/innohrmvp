@@ -5,10 +5,11 @@ import { createClient } from '@supabase/supabase-js'
 import { useSession } from '@supabase/auth-helpers-react'
 import { useSearchParams } from 'next/navigation'
 import { v4 as uuidv4 } from 'uuid'
-import { Check, Star, Zap, Shield, Crown } from 'lucide-react'
+import { Check, Star, Zap, Shield, Crown, Phone } from 'lucide-react'
 import { loadStripe } from "@stripe/stripe-js"
 import { useLocale } from '../../../../i18n/LocaleProvider'
 import { safeErrorInfo } from '../../../../../lib/logSafe';
+import { ASSISTED_ONBOARDING_FEE_HUF } from '../../../../config/onboarding';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -86,6 +87,9 @@ export default function ManageSubscription() {
   const [includedAICredits, setIncludedAICredits] = useState<number>(0)
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month')
   const [isManagingBilling, setIsManagingBilling] = useState(false)
+  // Optional paid assisted onboarding call - only adds the one-time fee to
+  // checkout when ticked (see create-subscription/route.ts).
+  const [assistedOnboarding, setAssistedOnboarding] = useState(false)
 
 
   const addToast = (message: string, type: 'success' | 'error' = 'error') => {
@@ -436,7 +440,8 @@ const fetchCompanyDetails = useCallback(async (companyId: string) => {
         body: JSON.stringify({
           tier: plan.name,
           interval: billingInterval,
-          return_url: window.location.href
+          return_url: window.location.href,
+          assisted_onboarding: assistedOnboarding && !subscription?.onboardingFeePaid,
         }),
       })
 
@@ -623,6 +628,26 @@ const remainingAICredits = (includedAICredits ?? 0) - (currentAICredits ?? 0)
             </button>
           </div>
         </div>
+
+        {subscription && !subscription.hasStripeSubscription && !subscription.onboardingFeePaid && (
+          <div className="flex justify-center mb-8">
+            <label className="flex items-start gap-3 bg-white border border-gray-200 rounded-xl p-4 max-w-xl cursor-pointer hover:bg-gray-50">
+              <input
+                type="checkbox"
+                checked={assistedOnboarding}
+                onChange={(e) => setAssistedOnboarding(e.target.checked)}
+                className="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded"
+              />
+              <span className="text-sm">
+                <span className="font-medium text-gray-900 flex items-center gap-1.5">
+                  <Phone className="w-4 h-4" />
+                  {t('onboardingWizard.plan.assistedTitle', { fee: ASSISTED_ONBOARDING_FEE_HUF.toLocaleString() })}
+                </span>
+                <span className="text-gray-500 block mt-0.5">{t('onboardingWizard.plan.assistedBody')}</span>
+              </span>
+            </label>
+          </div>
+        )}
 
         {/* Plans Grid */}
         {loadingPlans ? (

@@ -100,8 +100,8 @@
     "employeeRangeMax": "Pour les comptes jusqu'à {{count}} employés",
     "employeeRangeMin": "Pour les comptes de {{count}}+ employés",
     "dataNote": "L'annulation ou la rétrogradation ne supprime jamais vos données existantes — vous conservez un accès complet à tout ce que vous avez déjà. Seule la création de nouveaux éléments au-delà de la limite de votre nouvelle formule est suspendue.",
-    "onboardingFeeNote": "Des frais d'intégration uniques de {{fee}} Ft s'appliquent à l'inscription pour Core et Growth, facturés avec votre première facture. La facturation annuelle est également disponible avec 15% de réduction sur le total annualisé, payé d'avance.",
-    "onboardingNote": "Le suivi du temps, les absences, la gestion de la performance, le chatbot de bien-être IA et le téléversement de certificats médicaux nécessitent tous une formule qui les inclut (voir le détail des formules ci-dessus) et l'appel d'intégration de votre entreprise terminé — ces deux conditions s'appliquent quelle que soit la formule. Les nouvelles entreprises en libre-service peuvent publier des offres et utiliser le Job Assistant immédiatement ; ces autres modules se débloquent une fois que vous êtes sur une formule qui les inclut et que votre appel de mise en route avec notre équipe est terminé.",
+    "onboardingFeeNote": "En option : ajoutez un appel d'accompagnement pour {{fee}} Ft (paiement unique), facturé avec votre première facture. La facturation annuelle est également disponible avec 15% de réduction sur le total annualisé, payé d'avance.",
+    "onboardingNote": "Le suivi du temps, les absences, la gestion de la performance, le chatbot de bien-être IA et le téléversement de certificats médicaux sont disponibles dans toutes les formules qui les incluent (voir le détail des formules ci-dessus). La mise en route est entièrement en libre-service : les nouvelles entreprises peuvent publier des offres et utiliser le Job Assistant immédiatement, et les autres modules se débloquent dès que vous terminez la configuration dans l'application et que votre premier paiement est validé. Aucun appel d'intégration n'est nécessaire.",
     "priceNote": "Prix affichés en forint hongrois (HUF), facturés mensuellement sauf en cas de facturation annuelle."
   },
   "contactForm": {
@@ -539,9 +539,9 @@
       "messageWithCompany": "Cette évaluation de bien-être n'est pas incluse dans le forfait actuel de {{companyName}}."
     },
     "onboardingRequired": {
-      "title": "Disponible après votre appel d'intégration",
-      "message": "Le chatbot IA de bien-être se débloque une fois l'appel d'intégration de votre entreprise terminé.",
-      "cta": "Nous contacter"
+      "title": "Terminez la configuration de votre compte",
+      "message": "Le chatbot bien-être IA est débloqué dès que votre entreprise a terminé la configuration et que son abonnement est actif.",
+      "cta": "Terminer la configuration"
     },
     "loading": "Chargement de l'évaluation...",
     "header": "Happy Check 😊",
@@ -2607,7 +2607,7 @@
           },
           "calendly": {
             "name": "Calendly (prise de rendez-vous d'intégration)",
-            "desc": "Finalité : permet à l'administrateur d'une nouvelle entreprise de réserver un appel d'intégration après l'inscription. Seuls votre e-mail professionnel et le créneau choisi sont partagés avec Calendly à cette fin.",
+            "desc": "Finalité : permet à l'administrateur d'une entreprise ayant choisi l'appel d'accompagnement optionnel de réserver cet appel. Seuls votre e-mail professionnel et le créneau choisi sont partagés avec Calendly à cette fin.",
             "linkHref": "https://calendly.com/privacy",
             "linkText": "Politique de confidentialité",
             "color": "border-pink-500"
@@ -2999,6 +2999,99 @@
       "minutesAgo": "il y a {{count}} min",
       "hoursAgo": "il y a {{count}} h",
       "daysAgo": "il y a {{count}} j"
+    }
+  },
+  "onboardingWizard": {
+    "title": "Configurez votre compte HRInno",
+    "subtitle": "Trois étapes rapides. Le suivi du temps, les absences, la performance, le chatbot bien-être et les certificats médicaux sont débloqués dès que votre premier paiement est validé.",
+    "steps": {
+      "company": "Entreprise",
+      "team": "Équipe",
+      "plan": "Offre et paiement"
+    },
+    "next": "Continuer",
+    "back": "Retour",
+    "skip": "Plus tard",
+    "backToDashboard": "Retour au tableau de bord",
+    "company": {
+      "title": "Votre entreprise",
+      "subtitle": "Vérifiez le nom de votre entreprise tel qu'il apparaît à votre équipe et aux candidats.",
+      "nameLabel": "Nom de l'entreprise",
+      "nameRequired": "Veuillez saisir le nom de votre entreprise.",
+      "unlocksTitle": "Ce que vous débloquez",
+      "unlocksBody": "Le recrutement et le Job Assistant fonctionnent déjà avec l'offre gratuite. Terminer la configuration et choisir une offre payante débloque immédiatement les modules RH inclus, sans attendre d'appel."
+    },
+    "team": {
+      "title": "Votre équipe",
+      "subtitle": "Ajoutez vos employés pour qu'ils puissent pointer, demander des congés et utiliser HRInno. Votre offre et votre prix dépendent de votre effectif.",
+      "activeEmployees": "employés actifs (vous compris)",
+      "addEmployees": "Ajouter des employés",
+      "hint": "L'ajout d'employés s'ouvre dans un nouvel onglet. Revenez ici une fois terminé : le nombre se met à jour automatiquement. Vous pourrez aussi en ajouter plus tard.",
+      "refresh": "Actualiser",
+      "recommended": "Avec {{count}} employés, l'offre adaptée est {{plan}}.",
+      "noPlan": "Aucune offre payante ne correspond à votre effectif actuel. Veuillez nous contacter."
+    },
+    "plan": {
+      "title": "Choisissez votre offre",
+      "subtitle": "Vous payez par carte en toute sécurité via Stripe. L'abonnement se renouvelle automatiquement et peut être résilié à tout moment.",
+      "monthly": "Mensuel",
+      "annual": "Annuel (-15 %)",
+      "perMonth": "HUF/mois",
+      "perYear": "HUF/an",
+      "price": "{{base}} {{per}} + {{seat}} par employé",
+      "rangeMax": "Jusqu'à {{count}} employés",
+      "rangeMin": "À partir de {{count}} employés",
+      "notEligible": "Non disponible pour {{count}} employés",
+      "features": {
+        "recruitment": "Recrutement et Job Assistant IA",
+        "attendance": "Suivi du temps et absences",
+        "certificates": "Certificats médicaux",
+        "performance": "Gestion de la performance",
+        "wellbeing": "Chatbot bien-être IA",
+        "reporting": "Rapports de recrutement avancés",
+        "aiCredits": "{{count}} crédits IA inclus"
+      },
+      "assistedTitle": "Ajouter un appel d'accompagnement (+{{fee}} HUF, unique)",
+      "assistedBody": "Optionnel. Notre équipe vous appelle pour vous aider à configurer HRInno. Vos modules sont débloqués immédiatement dans tous les cas.",
+      "summaryRecurring": "{{plan}} pour {{count}} employés",
+      "summaryAssisted": "Appel d'accompagnement (unique)",
+      "summaryToday": "Premier paiement",
+      "summaryNote": "Estimation basée sur votre effectif actuel. Le tarif par employé s'ajuste automatiquement à l'évolution de votre équipe.",
+      "pay": "Continuer vers le paiement sécurisé",
+      "canceled": "Le paiement a été annulé, rien n'a été débité. Vous pouvez reprendre où vous en étiez."
+    },
+    "waiting": {
+      "title": "Confirmation de votre paiement…",
+      "message": "Cela prend généralement quelques secondes. Vos modules seront débloqués automatiquement.",
+      "slow": "La confirmation du paiement prend plus de temps que d'habitude. Réessayez dans un instant ; si vos modules sont toujours verrouillés après quelques minutes, contactez-nous.",
+      "refresh": "Vérifier à nouveau"
+    },
+    "done": {
+      "title": "Tout est prêt !",
+      "subtitle": "Votre compte est entièrement configuré.",
+      "subtitlePlan": "Votre abonnement {{plan}} est actif et vos modules sont débloqués.",
+      "assisted": "Merci d'avoir choisi l'accompagnement. Nous vous avons envoyé par e-mail un lien pour réserver votre appel, et notre équipe vous contactera également.",
+      "unlockedTitle": "Désormais disponible",
+      "modules": {
+        "attendance": "Suivi du temps",
+        "absences": "Absences",
+        "certificates": "Certificats médicaux",
+        "performance": "Gestion de la performance",
+        "wellbeing": "Chatbot bien-être"
+      },
+      "goToDashboard": "Aller au tableau de bord"
+    },
+    "banner": {
+      "title": "Terminez la configuration de votre compte",
+      "message": "Choisissez une offre pour débloquer le suivi du temps, les absences, la performance, le chatbot bien-être et les certificats médicaux. Cela ne prend que quelques minutes.",
+      "cta": "Terminer la configuration"
+    },
+    "errors": {
+      "generic": "Une erreur s'est produite. Veuillez réessayer.",
+      "checkout": "Impossible de démarrer le paiement. Veuillez réessayer.",
+      "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter.",
+      "notLoggedIn": "Veuillez vous connecter pour configurer votre compte.",
+      "adminOnly": "Seul un administrateur de l'entreprise peut configurer le compte. Veuillez contacter votre administrateur."
     }
   }
 }

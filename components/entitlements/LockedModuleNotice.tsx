@@ -11,9 +11,9 @@ type Props = {
   upgradeHref: string;
   /**
    * 'plan' (default): the module isn't included in the company's current
-   * plan - CTA points to plans/upgrade. 'onboarding': the module is
-   * withheld until our team completes a manual setup call, regardless of
-   * plan - CTA points to a contact destination instead.
+   * plan - CTA points to plans/upgrade. 'onboarding': the company hasn't
+   * finished self-onboarding yet (setup wizard + first payment) - CTA
+   * points to the setup wizard.
    */
   reason?: 'plan' | 'onboarding';
 };
@@ -22,7 +22,7 @@ type Props = {
  * Shown to company admins/HR managers when a module (attendance, absences,
  * performance, medical certificates, support tickets) isn't accessible yet -
  * either because it isn't included in the plan, or because the company
- * hasn't completed its onboarding call yet (see ONBOARDING_GATED_FEATURES).
+ * hasn't finished self-onboarding yet (see ONBOARDING_GATED_FEATURES).
  * Admins still see the module in navigation and can open it - this is what
  * they see instead of the real feature UI. Non-admins never reach this: the
  * nav hides the module entirely for them. See MODULE_GATING_FIX.md.
@@ -45,7 +45,7 @@ export default function LockedModuleNotice({ feature, plan, upgradeHref, reason 
         href={upgradeHref}
         className={`inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-6 py-3 rounded-lg font-medium transition-colors ${isOnboarding ? 'mt-2' : ''}`}
       >
-        {isOnboarding ? 'Contact us' : 'View plans'}
+        {isOnboarding ? 'Finish setup' : 'View plans'}
       </Link>
     </div>
   );

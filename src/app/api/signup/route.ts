@@ -1,10 +1,15 @@
 // Self-serve signup: creates a brand-new company + its first admin account,
 // unassisted. New companies land on Free (forfait = null) with
 // onboarding_completed = false - attendance/absences/performance/the
-// wellbeing chatbot stay gated until our team flips that flag after a
-// setup call (see lib/entitlements.ts). Recruitment/Job Assistant are NOT
-// gated by onboarding, so this route is all a new company needs to start
-// using them immediately.
+// wellbeing chatbot/medical certificates stay gated until the admin
+// finishes the in-app setup wizard (/jobs/[slug]/onboarding) and the first
+// subscription payment succeeds (see lib/onboarding/completeSelfOnboarding.ts).
+// Recruitment/Job Assistant are NOT gated by onboarding, so this route is
+// all a new company needs to start using them immediately.
+//
+// No onboarding-call email is sent here any more: the Calendly booking link
+// only goes to customers who opt into the paid assisted onboarding call,
+// once their first payment succeeds.
 //
 // Mirrors the create -> rollback-on-failure pattern already used by
 // src/app/api/users/users-creation/route.ts, just with an extra initial
@@ -12,7 +17,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { generateUniqueCompanySlug } from '../../../../lib/slug';
-import { sendOnboardingBookingEmail } from '../../../../lib/email-service';
 import { safeErrorInfo } from '../../../../lib/logSafe';
 
 const supabase = createClient(
@@ -58,7 +62,7 @@ export async function POST(req: NextRequest) {
     userId = authData.user.id;
 
     // 2. Create the company - Free tier by default (forfait: null), locked
-    // out of onboarding-gated modules until manually flipped.
+    // out of onboarding-gated modules until self-onboarding completes.
     const { data: company, error: companyError } = await supabase
       .from('company')
       .insert({ company_name: companyName.trim(), slug, forfait: null, onboarding_completed: false })
@@ -106,41 +110,6 @@ export async function POST(req: NextRequest) {
       await supabase.from('users').delete().eq('id', userId);
       await supabase.from('company').delete().eq('id', companyId);
       throw new Error(profileError.message || 'Failed to create user profile');
-    }
-
-    // 6. Send the onboarding-call booking email (Calendly link). Best-effort:
-    // a failure here must never fail signup itself - the admin already has
-    // a working account. No need to re-check onboarding_completed here -
-    // the insert above always sets it to false for a brand-new self-serve
-    // company, so this route never needs to skip a grandfathered company.
-    if (process.env.CALENDLY_ONBOARDING_URL) {
-      try {
-        const result = await sendOnboardingBookingEmail({
-          companyId: company.id,
-          to: email,
-          adminFirstName,
-          companyName: companyName.trim(),
-          calendlyUrl: process.env.CALENDLY_ONBOARDING_URL,
-        });
-        if (result.success) {
-          const { error: updateError } = await supabase
-            .from('company')
-            .update({ onboarding_link_sent_at: new Date().toISOString() })
-            .eq('id', company.id);
-          if (updateError) console.error('Failed to record onboarding_link_sent_at:', updateError.message);
-
-          const { error: funnelError } = await supabase.from('funnel_events').insert({
-            event_type: 'onboarding_link_sent',
-            session_id: 'internal_system',
-            metadata: { company_id: company.id, slug: company.slug },
-          });
-          if (funnelError) console.error('Failed to log onboarding_link_sent funnel event:', funnelError.message);
-        }
-      } catch (emailError) {
-        console.error('Failed to send onboarding booking email (signup still succeeded):', safeErrorInfo(emailError));
-      }
-    } else {
-      console.warn('CALENDLY_ONBOARDING_URL is not set - skipping onboarding booking email');
     }
 
     return NextResponse.json({ success: true, slug: company.slug });

@@ -41,7 +41,7 @@ export default function Page() {
         <LockedModuleNotice
           feature="attendance.use"
           plan={moduleAccess.plan}
-          upgradeHref={moduleAccess.onboardingCompleted ? `/jobs/${slug}/subscription` : `/jobs/${slug}/contact`}
+          upgradeHref={moduleAccess.onboardingCompleted ? `/jobs/${slug}/subscription` : `/jobs/${slug}/onboarding`}
           reason={moduleAccess.onboardingCompleted ? 'plan' : 'onboarding'}
         />
       </div>

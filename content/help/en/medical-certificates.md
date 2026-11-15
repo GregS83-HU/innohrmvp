@@ -32,4 +32,4 @@ If you reach your plan's monthly limit, you'll see a message when trying to uplo
 
 ## Availability for new (self-serve) companies
 
-Uploading a medical certificate is currently held behind the same onboarding-completion checkpoint as time & attendance, absences, performance, and the wellbeing chatbot (see Getting Started) — on any plan, including paid ones. If you try to upload before your company's onboarding call is complete, you'll see a message explaining this, with a link to get in touch.
+Uploading a medical certificate unlocks together with time & attendance, absences, performance, and the wellbeing chatbot once your company has finished its account setup and its first subscription payment has gone through (see Getting Started). If you try to upload before then, you'll see a message with a **Finish setup** button that takes you to the setup steps.

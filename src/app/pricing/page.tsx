@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Check, X, Lock, Info } from 'lucide-react';
 import { useLocale } from 'i18n/LocaleProvider';
 import { trackFunnelEvent } from '../../../lib/funnelTracking';
+import { ASSISTED_ONBOARDING_FEE_HUF } from '../../config/onboarding';
 
 type PlanKey = 'free' | 'core' | 'growth';
 
@@ -41,7 +42,6 @@ const PLAN_DATA: Record<
   growth: { positions: 10, certificates: 20, credits: 250, baseFeeHuf: 40000, perSeatFeeHuf: 750, minEmployees: 31, maxEmployees: null, wellbeing: true, hrOps: 'included', performance: 'included', advancedReporting: true },
 };
 
-const ONBOARDING_FEE_HUF = 60000;
 
 export default function PricingPage() {
   const { t } = useLocale();
@@ -196,7 +196,7 @@ export default function PricingPage() {
         <div className="max-w-3xl mx-auto bg-white rounded-xl shadow p-5 flex items-start gap-3 mb-3">
           <Info className="w-5 h-5 text-brand-600 flex-shrink-0 mt-0.5" />
           <p className="text-sm text-gray-600">
-            {t('pricing.onboardingFeeNote', { fee: ONBOARDING_FEE_HUF.toLocaleString() })}
+            {t('pricing.onboardingFeeNote', { fee: ASSISTED_ONBOARDING_FEE_HUF.toLocaleString() })}
           </p>
         </div>
 

@@ -12,6 +12,7 @@ const ROUTE_PATH = '../../../src/app/api/admin/onboarding/route';
 const COMPANIES_FIXTURE = [{ id: 1, company_name: 'Acme', slug: 'acme', onboarding_completed: false }];
 
 let funnelInsertMock: (payload: unknown) => void;
+let lastCompanyUpdate: Record<string, unknown> | null = null;
 
 async function loadRoute() {
   vi.resetModules();
@@ -23,6 +24,7 @@ async function loadRoute() {
       company: (state) => {
         if (state.method === 'select') return { data: COMPANIES_FIXTURE, error: null };
         if (state.method === 'update') {
+          lastCompanyUpdate = state.payload as Record<string, unknown>;
           const payload = state.payload as { onboarding_completed?: boolean };
           return {
             data: { id: state.filters['id'], company_name: 'Acme', slug: 'acme', onboarding_completed: payload?.onboarding_completed },
@@ -98,5 +100,21 @@ describe('PATCH /api/admin/onboarding', () => {
     expect(funnelInsertMock).toHaveBeenCalledWith(
       expect.objectContaining({ event_type: 'onboarding_marked_complete' })
     );
+  });
+
+  it('marks an assisted onboarding call as done without touching onboarding_completed or logging a funnel event', async () => {
+    const { PATCH } = await loadRoute();
+    const res = await PATCH(req('PATCH', VALID_SUPER_ADMIN_TOKEN, { company_id: 1, assisted_call_completed: true }));
+    expect(res.status).toBe(200);
+    expect(lastCompanyUpdate).toHaveProperty('assisted_call_completed_at');
+    expect(lastCompanyUpdate?.assisted_call_completed_at).not.toBeNull();
+    expect(lastCompanyUpdate).not.toHaveProperty('onboarding_completed');
+    expect(funnelInsertMock).not.toHaveBeenCalled();
+  });
+
+  it('rejects a body with neither flag', async () => {
+    const { PATCH } = await loadRoute();
+    const res = await PATCH(req('PATCH', VALID_SUPER_ADMIN_TOKEN, { company_id: 1 }));
+    expect(res.status).toBe(400);
   });
 });

@@ -100,8 +100,8 @@
     "employeeRangeMax": "For accounts with up to {{count}} employees",
     "employeeRangeMin": "For accounts with {{count}}+ employees",
     "dataNote": "Canceling or downgrading never deletes your existing data — you keep full access to everything you already have. Only creating new items above your new plan's limit is paused.",
-    "onboardingFeeNote": "A one-time {{fee}} Ft onboarding fee applies at signup for Core and Growth, billed alongside your first invoice. Annual billing is also available at 15% off the annualized total, paid upfront.",
-    "onboardingNote": "Time & attendance, absences, performance management, the AI wellbeing chatbot, and medical certificate uploads all require your plan to include them (see plan details above) and your company's onboarding call to be complete — both conditions apply regardless of plan. New self-serve companies can start posting jobs and using the Job Assistant immediately; these other modules unlock once you're on a plan that includes them and your setup call with our team is done.",
+    "onboardingFeeNote": "Optional: add an assisted onboarding call for a one-time {{fee}} Ft, billed with your first invoice. Annual billing is also available at 15% off the annualized total, paid upfront.",
+    "onboardingNote": "Time & attendance, absences, performance management, the AI wellbeing chatbot, and medical certificate uploads are available on every plan that includes them (see plan details above). Setup is fully self-serve: new companies can start posting jobs and using the Job Assistant immediately, and the other modules unlock as soon as you finish the in-app setup and your first payment goes through. No onboarding call is required.",
     "priceNote": "Prices shown in Hungarian Forint (HUF), billed monthly unless annual billing is chosen."
   },
   "contactForm": {
@@ -537,9 +537,9 @@
       "messageWithCompany": "This wellbeing assessment isn't included in {{companyName}}'s current plan."
     },
     "onboardingRequired": {
-      "title": "Available after your onboarding call",
-      "message": "The AI wellbeing chatbot unlocks once your company's onboarding call is complete.",
-      "cta": "Contact us"
+      "title": "Finish setting up your account",
+      "message": "The AI wellbeing chatbot unlocks once your company has finished setup and its subscription is active.",
+      "cta": "Finish setup"
     },
     "loading": "Loading assessment...",
     "header": "Happy Check 😊",
@@ -2297,7 +2297,7 @@
           },
           "calendly": {
             "name": "Calendly (Onboarding Call Scheduling)",
-            "desc": "Purpose: lets a new company's admin book an onboarding call after signup. Only your work email and chosen time slot are shared with Calendly for this purpose.",
+            "desc": "Purpose: lets a company admin who chose the optional assisted onboarding call book that call. Only your work email and chosen time slot are shared with Calendly for this purpose.",
             "linkHref": "https://calendly.com/privacy",
             "linkText": "Privacy Policy",
             "color": "border-pink-500"
@@ -2689,6 +2689,99 @@
       "minutesAgo": "{{count}}m ago",
       "hoursAgo": "{{count}}h ago",
       "daysAgo": "{{count}}d ago"
+    }
+  },
+  "onboardingWizard": {
+    "title": "Set up your HRInno account",
+    "subtitle": "Three short steps. Time & attendance, absences, performance, the wellbeing chatbot and medical certificates unlock as soon as your first payment goes through.",
+    "steps": {
+      "company": "Company",
+      "team": "Team",
+      "plan": "Plan & payment"
+    },
+    "next": "Continue",
+    "back": "Back",
+    "skip": "Skip for now",
+    "backToDashboard": "Back to dashboard",
+    "company": {
+      "title": "Your company",
+      "subtitle": "Check how your company name appears to your team and candidates.",
+      "nameLabel": "Company name",
+      "nameRequired": "Please enter your company name.",
+      "unlocksTitle": "What you unlock",
+      "unlocksBody": "Recruitment and the Job Assistant already work on the Free plan. Finishing setup and choosing a paid plan unlocks the HR modules included in that plan, immediately and without waiting for a call."
+    },
+    "team": {
+      "title": "Your team",
+      "subtitle": "Add your employees so they can clock in, request leave and use HRInno. Your plan and price depend on your headcount.",
+      "activeEmployees": "active employees (including you)",
+      "addEmployees": "Add employees",
+      "hint": "Employees open in a new tab. Come back here when you are done; the count updates automatically. You can also add more employees later.",
+      "refresh": "Refresh",
+      "recommended": "With {{count}} employees, the right plan for you is {{plan}}.",
+      "noPlan": "No paid plan matches your current headcount. Please contact us."
+    },
+    "plan": {
+      "title": "Choose your plan",
+      "subtitle": "You pay securely by card with Stripe. Your subscription renews automatically and you can cancel at any time.",
+      "monthly": "Monthly",
+      "annual": "Annual (-15%)",
+      "perMonth": "HUF/month",
+      "perYear": "HUF/year",
+      "price": "{{base}} {{per}} + {{seat}} per employee",
+      "rangeMax": "Up to {{count}} employees",
+      "rangeMin": "From {{count}} employees",
+      "notEligible": "Not available for {{count}} employees",
+      "features": {
+        "recruitment": "Recruitment & AI Job Assistant",
+        "attendance": "Time & attendance and absences",
+        "certificates": "Medical certificates",
+        "performance": "Performance management",
+        "wellbeing": "AI wellbeing chatbot",
+        "reporting": "Advanced recruitment reporting",
+        "aiCredits": "{{count}} AI credits included"
+      },
+      "assistedTitle": "Add an assisted onboarding call (+{{fee}} HUF, one-time)",
+      "assistedBody": "Optional. Our team calls you to help set up HRInno for your company. Your modules unlock right away either way.",
+      "summaryRecurring": "{{plan}} for {{count}} employees",
+      "summaryAssisted": "Assisted onboarding call (one-time)",
+      "summaryToday": "First payment",
+      "summaryNote": "Estimate based on your current headcount. The per-employee fee adjusts automatically as your team changes.",
+      "pay": "Continue to secure payment",
+      "canceled": "Payment was canceled. Nothing was charged. You can pick up where you left off."
+    },
+    "waiting": {
+      "title": "Confirming your payment…",
+      "message": "This usually takes a few seconds. Your modules will unlock automatically.",
+      "slow": "Your payment is taking longer than usual to confirm. Refresh in a moment; if your modules are still locked after a few minutes, please contact us.",
+      "refresh": "Check again"
+    },
+    "done": {
+      "title": "You're all set!",
+      "subtitle": "Your account is fully set up.",
+      "subtitlePlan": "Your {{plan}} subscription is active and your modules are unlocked.",
+      "assisted": "Thank you for choosing assisted onboarding. We have emailed you a link to book your call, and our team will also reach out to you.",
+      "unlockedTitle": "Now available",
+      "modules": {
+        "attendance": "Time & attendance",
+        "absences": "Absences",
+        "certificates": "Medical certificates",
+        "performance": "Performance management",
+        "wellbeing": "Wellbeing chatbot"
+      },
+      "goToDashboard": "Go to dashboard"
+    },
+    "banner": {
+      "title": "Finish setting up your account",
+      "message": "Choose a plan to unlock time & attendance, absences, performance, the wellbeing chatbot and medical certificates. It only takes a few minutes.",
+      "cta": "Finish setup"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "checkout": "We could not start the payment. Please try again.",
+      "sessionExpired": "Your session has expired. Please log in again.",
+      "notLoggedIn": "Please log in to set up your account.",
+      "adminOnly": "Only a company admin can set up the account. Please ask your admin."
     }
   }
 }
