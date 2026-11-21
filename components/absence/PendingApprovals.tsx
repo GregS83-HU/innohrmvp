@@ -132,15 +132,15 @@ const PendingApprovals: React.FC<Props> = ({
 
   return (
     <>
-      <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
             <Bell className="w-5 h-5 text-orange-600" />
             {t('pendingApprovals.title')}
           </h2>
           <button
             onClick={onRefresh}
-            className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+            className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
@@ -149,7 +149,7 @@ const PendingApprovals: React.FC<Props> = ({
         {approvals.length === 0 ? (
           <div className="text-center py-8">
             <CheckCircle className="w-12 h-12 text-green-300 mx-auto mb-4" />
-            <p className="text-gray-500">{t('pendingApprovals.noApprovals')}</p>
+            <p className="text-slate-500">{t('pendingApprovals.noApprovals')}</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -168,10 +168,10 @@ const PendingApprovals: React.FC<Props> = ({
                           className="w-3 h-3 rounded-full"
                           style={{ backgroundColor: approval.leave_type_color }}
                         />
-                        <h3 className="font-semibold text-gray-900">
+                        <h3 className="font-semibold text-slate-900">
                           {approval.employee_name}
                         </h3>
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-slate-500">
                           ({approval.leave_type_name_hu})
                         </span>
                         {certificateUrl && (
@@ -179,7 +179,7 @@ const PendingApprovals: React.FC<Props> = ({
                             href={certificateUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="ml-2 inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 hover:text-blue-800 rounded-lg transition-colors text-xs font-medium"
+                            className="ml-2 inline-flex items-center gap-1.5 px-3 py-1 bg-brand-100 hover:bg-brand-200 text-brand-700 hover:text-brand-800 rounded-lg transition-colors text-xs font-medium"
                             title={t('pendingApprovals.fields.viewCertificate')}
                           >
                             <FileText className="w-3.5 h-3.5" />
@@ -187,7 +187,7 @@ const PendingApprovals: React.FC<Props> = ({
                           </a>
                         )}
                       </div>
-                      <div className="text-sm text-gray-600 space-y-1">
+                      <div className="text-sm text-slate-600 space-y-1">
                         <p>
                           <span className="font-medium">{t('pendingApprovals.fields.period')}</span>{' '}
                           {formatDate(approval.start_date)} - {formatDate(approval.end_date)}
@@ -203,7 +203,7 @@ const PendingApprovals: React.FC<Props> = ({
                             <span className="font-medium">{t('pendingApprovals.fields.reason')}</span> {approval.reason}
                           </p>
                         )}
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-slate-500">
                           {t('pendingApprovals.fields.requested')} {formatDate(approval.created_at)}
                         </p>
                       </div>

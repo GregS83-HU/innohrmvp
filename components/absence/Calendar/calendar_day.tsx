@@ -125,7 +125,7 @@ const CalendarDay: React.FC<CalendarDayProps> = ({
         }}
       >
         <span className={`
-          ${isWeekend || isHoliday ? 'text-gray-600' : 'text-gray-900'}
+          ${isWeekend || isHoliday ? 'text-slate-600' : 'text-slate-900'}
           ${hasOverlap ? 'text-white font-bold' : ''}
         `}>
           {dayNumber}
@@ -141,7 +141,7 @@ const CalendarDay: React.FC<CalendarDayProps> = ({
 
       {/* Tooltip */}
       {showTooltip && (leaves.length > 0 || isHoliday) && (
-        <div className="absolute z-50 bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg whitespace-nowrap pointer-events-none print:hidden">
+        <div className="absolute z-50 bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900 text-white text-xs rounded-lg shadow-lg whitespace-nowrap pointer-events-none print:hidden">
           <div className="space-y-1">
             <p className="font-semibold">{formatDate(date)}</p>
             
@@ -156,13 +156,13 @@ const CalendarDay: React.FC<CalendarDayProps> = ({
             {leaves.map((leave, index) => (
               <div key={index} className="space-y-0.5">
                 <p className="font-medium">{leave.leave_type_name_hu}</p>
-                <p className="text-gray-300 text-[10px]">
+                <p className="text-slate-300 text-[10px]">
                   {leave.status === 'pending' 
                     ? t('calendarDay.tooltip.statusPending') 
                     : t('calendarDay.tooltip.statusApproved')}
                 </p>
                 {leave.reason && (
-                  <p className="text-gray-400 text-[10px] italic">{leave.reason}</p>
+                  <p className="text-slate-400 text-[10px] italic">{leave.reason}</p>
                 )}
               </div>
             ))}
@@ -170,7 +170,7 @@ const CalendarDay: React.FC<CalendarDayProps> = ({
           
           {/* Arrow */}
           <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-            <div className="border-4 border-transparent border-t-gray-900" />
+            <div className="border-4 border-transparent border-t-slate-900" />
           </div>
         </div>
       )}

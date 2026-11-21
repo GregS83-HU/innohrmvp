@@ -273,38 +273,38 @@ export default function MedicalCertificatesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">{t('medicalCertificates.loading')}</p>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-slate-600">{t('medicalCertificates.loading')}</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div className="min-h-screen bg-slate-50 p-4">
       <div style={{ maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
         
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-            <FileText className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+          <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <FileText className="w-12 h-12 text-brand-600 mx-auto mb-4" />
+            <h1 className="text-3xl font-bold text-slate-800 mb-2">
               {t('medicalCertificates.title')}
             </h1>
             <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full">
+              <div className="inline-flex items-center gap-2 bg-brand-600 text-white px-4 py-2 rounded-full">
                 <FileText className="w-4 h-4" />
                 <span className="font-semibold">{certificates.length}</span>
                 <span>{t('medicalCertificates.stats.total')}</span>
               </div>
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-600 text-white px-4 py-2 rounded-full">
+              <div className="inline-flex items-center gap-2 bg-amber-500 text-white px-4 py-2 rounded-full">
                 <Clock className="w-4 h-4" />
                 <span className="font-semibold">{pendingCount}</span>
                 <span>{t('medicalCertificates.stats.pending')}</span>
               </div>
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-full">
+              <div className="inline-flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-full">
                 <CheckCircle className="w-4 h-4" />
                 <span className="font-semibold">{treatedCount}</span>
                 <span>{t('medicalCertificates.stats.treated')}</span>
@@ -314,16 +314,16 @@ export default function MedicalCertificatesPage() {
         </div>
 
         {/* Search and Filter */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1 relative max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
               <input
                 type="text"
                 placeholder={t('medicalCertificates.search.placeholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
               />
             </div>
             
@@ -331,8 +331,8 @@ export default function MedicalCertificatesPage() {
               onClick={() => setShowAll((prev) => !prev)}
               className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] ${
                 showAll 
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700' 
-                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                  ? 'bg-brand-600 hover:bg-brand-700 text-white ' 
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
               }`}
             >
               <Filter className="w-4 h-4" />
@@ -342,45 +342,45 @@ export default function MedicalCertificatesPage() {
         </div>
 
         {/* Table Container */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full" style={{ minWidth: '1100px' }}>
-              <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+              <thead className="bg-slate-50 ">
                 <tr>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-40">
+                  <th className="px-4 py-4 text-left font-semibold text-slate-700 w-40">
                     <div className="flex items-center gap-2">
                       <User className="w-4 h-4" />
                       {t('medicalCertificates.table.headers.employeeName')}
                     </div>
                   </th>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-32">
+                  <th className="px-4 py-4 text-left font-semibold text-slate-700 w-32">
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4" />
                       {t('medicalCertificates.table.headers.startDate')}
                     </div>
                   </th>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-32">
+                  <th className="px-4 py-4 text-left font-semibold text-slate-700 w-32">
                     {t('medicalCertificates.table.headers.endDate')}
                   </th>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-32">
+                  <th className="px-4 py-4 text-left font-semibold text-slate-700 w-32">
                     {t('medicalCertificates.table.headers.certificate')}
                   </th>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-32">
+                  <th className="px-4 py-4 text-left font-semibold text-slate-700 w-32">
                     <div className="flex items-center gap-2">
                       <Upload className="w-4 h-4" />
                       {t('medicalCertificates.table.headers.uploadDate')}
                     </div>
                   </th>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-40">
+                  <th className="px-4 py-4 text-left font-semibold text-slate-700 w-40">
                     <div className="flex items-center gap-2">
                       <MessageCircle className="w-4 h-4" />
                       {t('medicalCertificates.table.headers.comment')}
                     </div>
                   </th>
-                  <th className="px-4 py-4 text-center font-semibold text-gray-700 w-24">
+                  <th className="px-4 py-4 text-center font-semibold text-slate-700 w-24">
                     {t('medicalCertificates.table.headers.status')}
                   </th>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-40">
+                  <th className="px-4 py-4 text-left font-semibold text-slate-700 w-40">
                     {t('medicalCertificates.table.headers.treatmentDate')}
                   </th>
                 </tr>
@@ -389,9 +389,9 @@ export default function MedicalCertificatesPage() {
                 {filteredCertificates.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="px-4 py-12 text-center">
-                      <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-gray-600 mb-2">{t('medicalCertificates.table.empty.title')}</h3>
-                      <p className="text-gray-500">
+                      <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-slate-600 mb-2">{t('medicalCertificates.table.empty.title')}</h3>
+                      <p className="text-slate-500">
                         {search ? t('medicalCertificates.table.empty.withSearch') : t('medicalCertificates.table.empty.withoutSearch')}
                       </p>
                     </td>
@@ -400,21 +400,21 @@ export default function MedicalCertificatesPage() {
                   filteredCertificates.map((cert) => (
                     <tr 
                       key={cert.id} 
-                      className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+                      className={`border-b border-slate-100 hover:bg-slate-50 transition-colors ${
                         !cert.treated ? 'bg-yellow-25' : ''
                       }`}
                     >
-                      <td className="px-4 py-4 font-medium text-gray-800 w-40">
+                      <td className="px-4 py-4 font-medium text-slate-800 w-40">
                         <div className="truncate" title={cert.employee_name}>
                           {cert.employee_name}
                         </div>
                       </td>
                       
-                      <td className="px-4 py-4 text-gray-700 w-32">
+                      <td className="px-4 py-4 text-slate-700 w-32">
                         {formatSimpleDate(cert.absence_start_date)}
                       </td>
                       
-                      <td className="px-4 py-4 text-gray-700 w-32">
+                      <td className="px-4 py-4 text-slate-700 w-32">
                         {formatSimpleDate(cert.absence_end_date)}
                       </td>
                       
@@ -424,17 +424,17 @@ export default function MedicalCertificatesPage() {
                             type="button"
                             onClick={() => handleViewCertificate(cert.id)}
                             disabled={viewingId === cert.id}
-                            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors disabled:opacity-50"
+                            className="inline-flex items-center gap-2 text-brand-600 hover:text-brand-700 font-medium transition-colors disabled:opacity-50"
                           >
                             <Eye className="w-4 h-4" />
                             {t('medicalCertificates.table.actions.view')}
                           </button>
                         ) : (
-                          <span className="text-gray-500">{t('medicalCertificates.table.noData')}</span>
+                          <span className="text-slate-500">{t('medicalCertificates.table.noData')}</span>
                         )}
                       </td>
 
-                      <td className="px-4 py-4 text-gray-700 w-32">
+                      <td className="px-4 py-4 text-slate-700 w-32">
                         {formatSimpleDate(cert.created_at)}
                       </td>
                       
@@ -442,7 +442,7 @@ export default function MedicalCertificatesPage() {
                         {cert.employee_comment ? (
                           <Popover.Root>
                             <Popover.Trigger asChild>
-                              <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" aria-label={t('medicalCertificates.table.actions.viewComment')}>
+                              <button className="p-2 text-slate-500 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors" aria-label={t('medicalCertificates.table.actions.viewComment')}>
                                 <MessageCircle className="w-4 h-4" />
                               </button>
                             </Popover.Trigger>
@@ -451,22 +451,22 @@ export default function MedicalCertificatesPage() {
                                 side="top" 
                                 align="center" 
                                 sideOffset={5}
-                                className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 z-50"
+                                className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 z-50"
                                 style={{ 
                                   maxWidth: 'min(400px, 90vw)',
                                   maxHeight: '60vh',
                                   overflowY: 'auto'
                                 }}
                               >
-                                <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                                <div className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
                                   {cert.employee_comment}
                                 </div>
-                                <Popover.Arrow className="fill-white stroke-gray-200" />
+                                <Popover.Arrow className="fill-white stroke-slate-200" />
                               </Popover.Content>
                             </Popover.Portal>
                           </Popover.Root>
                         ) : (
-                          <span className="text-gray-500">{t('medicalCertificates.table.noData')}</span>
+                          <span className="text-slate-500">{t('medicalCertificates.table.noData')}</span>
                         )}
                       </td>
                       
@@ -481,7 +481,7 @@ export default function MedicalCertificatesPage() {
                           <div className={`relative w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${
                             cert.treated 
                               ? 'bg-green-500 border-green-500' 
-                              : 'bg-white border-gray-300 hover:border-gray-400'
+                              : 'bg-white border-slate-300 hover:border-slate-400'
                           }`}>
                             {cert.treated && (
                               <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -493,7 +493,7 @@ export default function MedicalCertificatesPage() {
                       </td>
                       
                       <td className="px-4 py-4 w-40">
-                        <span className={cert.treated ? 'text-green-700 font-medium' : 'text-gray-500'}>
+                        <span className={cert.treated ? 'text-green-700 font-medium' : 'text-slate-500'}>
                           {formatDate(cert.treatment_date)}
                         </span>
                       </td>

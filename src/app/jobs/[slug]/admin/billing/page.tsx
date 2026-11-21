@@ -25,7 +25,7 @@ function BooleanBadge({ value, trueLabel, falseLabel }: { value: boolean; trueLa
       <CheckCircle2 className="w-3.5 h-3.5" /> {trueLabel}
     </span>
   ) : (
-    <span className="inline-flex items-center gap-1 text-gray-400">
+    <span className="inline-flex items-center gap-1 text-slate-400">
       <Circle className="w-3.5 h-3.5" /> {falseLabel}
     </span>
   )
@@ -82,13 +82,13 @@ export default function BillingAdminPage() {
   }
 
   return (
-    <div className="min-h-screen p-6 md:p-10 bg-gray-50">
+    <div className="min-h-screen p-6 md:p-10 bg-slate-50">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-2 mb-2">
           <CreditCard className="w-6 h-6 text-brand-600" />
-          <h1 className="text-2xl font-bold text-gray-800">Billing</h1>
+          <h1 className="text-2xl font-bold text-slate-800">Billing</h1>
         </div>
-        <p className="text-gray-500 mb-6 text-sm">
+        <p className="text-slate-500 mb-6 text-sm">
           Plan, employee count, billing interval, onboarding fee, and founding-customer discount status for every company.
           The founding discount can be applied once per company (30% or 40% off the base fee for 12 months) and only to a
           company with an active Stripe subscription.
@@ -102,7 +102,7 @@ export default function BillingAdminPage() {
           <div className="bg-white rounded-xl shadow-sm overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-500 border-b border-gray-100">
+                <tr className="text-left text-slate-500 border-b border-slate-100">
                   <th className="px-4 py-3 font-medium">Company</th>
                   <th className="px-4 py-3 font-medium">Plan</th>
                   <th className="px-4 py-3 font-medium">Interval</th>
@@ -115,10 +115,10 @@ export default function BillingAdminPage() {
               </thead>
               <tbody>
                 {companies.map((c) => (
-                  <tr key={c.id} className="border-b border-gray-50 last:border-0">
+                  <tr key={c.id} className="border-b border-slate-50 last:border-0">
                     <td className="px-4 py-3">
-                      <div className="font-medium text-gray-900">{c.company_name || `#${c.id}`}</div>
-                      <div className="text-xs text-gray-400">{c.slug}</div>
+                      <div className="font-medium text-slate-900">{c.company_name || `#${c.id}`}</div>
+                      <div className="text-xs text-slate-400">{c.slug}</div>
                     </td>
                     <td className="px-4 py-3">{c.forfait || 'Free'}</td>
                     <td className="px-4 py-3">{c.billing_interval || '—'}</td>
@@ -132,7 +132,7 @@ export default function BillingAdminPage() {
                           <Gift className="w-3.5 h-3.5" /> {c.founding_discount_coupon_id}
                         </span>
                       ) : (
-                        <span className="text-gray-400">None</span>
+                        <span className="text-slate-400">None</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -140,9 +140,9 @@ export default function BillingAdminPage() {
                     </td>
                     <td className="px-4 py-3">
                       {!c.stripe_subscription_id ? (
-                        <span className="text-gray-400 text-xs">No subscription</span>
+                        <span className="text-slate-400 text-xs">No subscription</span>
                       ) : c.founding_discount_applied_at ? (
-                        <span className="text-gray-400 text-xs">Already applied</span>
+                        <span className="text-slate-400 text-xs">Already applied</span>
                       ) : (
                         <div className="flex gap-2">
                           {FOUNDING_COUPONS.map((couponId) => (

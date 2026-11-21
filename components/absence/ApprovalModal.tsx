@@ -65,7 +65,7 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({
       `}</style>
       
       <div className="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-        <div className="modal-content bg-white rounded-2xl shadow-2xl max-w-md w-full">
+        <div className="modal-content bg-white rounded-xl shadow-2xl max-w-md w-full">
           {/* Header */}
           <div className={`flex items-center justify-between p-6 border-b ${
             isReject ? 'bg-red-50' : 'bg-green-50'
@@ -79,29 +79,29 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({
               onClick={handleClose}
               className="p-1 hover:bg-white rounded-lg transition-colors"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-5 h-5 text-slate-500" />
             </button>
           </div>
 
           {/* Content */}
           <div className="p-6">
-            <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600 mb-1">{t('approvalModal.fields.employee')}</p>
-              <p className="font-semibold text-gray-900">{approval.employee_name}</p>
-              <p className="text-sm text-gray-600 mt-2">{t('approvalModal.fields.leaveType')}</p>
-              <p className="font-medium text-gray-800">{approval.leave_type_name_hu}</p>
-              <p className="text-sm text-gray-600 mt-2">{t('approvalModal.fields.duration')}</p>
-              <p className="font-medium text-gray-800">{approval.total_days} {t('approvalModal.fields.days')}</p>
+            <div className="mb-4 p-4 bg-slate-50 rounded-lg">
+              <p className="text-sm text-slate-600 mb-1">{t('approvalModal.fields.employee')}</p>
+              <p className="font-semibold text-slate-900">{approval.employee_name}</p>
+              <p className="text-sm text-slate-600 mt-2">{t('approvalModal.fields.leaveType')}</p>
+              <p className="font-medium text-slate-800">{approval.leave_type_name_hu}</p>
+              <p className="text-sm text-slate-600 mt-2">{t('approvalModal.fields.duration')}</p>
+              <p className="font-medium text-slate-800">{approval.total_days} {t('approvalModal.fields.days')}</p>
             </div>
 
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 {isReject ? t('approvalModal.fields.rejectionReasonLabel') : t('approvalModal.fields.notesLabel')}
               </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
                 rows={4}
                 placeholder={isReject ? t('approvalModal.fields.rejectionReasonPlaceholder') : t('approvalModal.fields.notesPlaceholder')}
               />
@@ -115,7 +115,7 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({
               <button
                 type="button"
                 onClick={handleClose}
-                className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors"
+                className="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition-colors"
               >
                 {t('approvalModal.buttons.cancel')}
               </button>
@@ -125,7 +125,7 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({
                 disabled={isReject && !notes.trim()}
                 className={`flex-1 px-4 py-3 text-white rounded-lg font-medium transition-colors ${
                   isReject && !notes.trim()
-                    ? 'bg-gray-400 cursor-not-allowed'
+                    ? 'bg-slate-400 cursor-not-allowed'
                     : isReject
                     ? 'bg-red-600 hover:bg-red-700'
                     : 'bg-green-600 hover:bg-green-700'

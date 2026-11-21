@@ -191,10 +191,10 @@ export default function ManagerDashboard() {
 
   if (!session || loading || moduleAccess.loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">{t('managerDashboard.loading.message')}</p>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-slate-600">{t('managerDashboard.loading.message')}</p>
         </div>
       </div>
     )
@@ -206,7 +206,7 @@ export default function ManagerDashboard() {
   if (!moduleAccess.performanceEnabled) {
     if (!moduleAccess.isAdmin) return null
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 sm:p-6 lg:p-8">
+      <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
         <LockedModuleNotice
           feature="performance.use"
           plan={moduleAccess.plan}
@@ -222,20 +222,20 @@ export default function ManagerDashboard() {
       <div className="space-y-6">
         
         {/* Header */}
-        <div className="bg-white rounded-2xl shadow-sm p-6">
+        <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="bg-purple-100 rounded-lg p-3">
-                <Users className="w-8 h-8 text-purple-600" />
+              <div className="bg-brand-100 rounded-lg p-3">
+                <Users className="w-8 h-8 text-brand-600" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-800">{t('managerDashboard.header.title')}</h1>
-                <p className="text-gray-600">{t('managerDashboard.header.subtitle')}</p>
+                <h1 className="text-3xl font-bold text-slate-800">{t('managerDashboard.header.title')}</h1>
+                <p className="text-slate-600">{t('managerDashboard.header.subtitle')}</p>
               </div>
             </div>
             <button
               onClick={() => router.push(`/jobs/${companySlug}/performance`)}
-              className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+              className="text-brand-600 hover:text-brand-700 font-medium transition-colors"
             >
               {t('managerDashboard.header.myGoalsButton')}
             </button>
@@ -248,8 +248,8 @@ export default function ManagerDashboard() {
             onClick={() => setSelectedView('overview')}
             className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
               selectedView === 'overview'
-                ? 'bg-blue-500 text-white shadow-md'
-                : 'text-gray-600 hover:bg-gray-100'
+                ? 'bg-brand-500 text-white shadow-md'
+                : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             {t('managerDashboard.viewSelector.overview')}
@@ -259,7 +259,7 @@ export default function ManagerDashboard() {
             className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
               selectedView === 'red-flags'
                 ? 'bg-red-500 text-white shadow-md'
-                : 'text-gray-600 hover:bg-gray-100'
+                : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             {t('managerDashboard.viewSelector.redFlags', { count: totalRedFlags })}
@@ -268,8 +268,8 @@ export default function ManagerDashboard() {
             onClick={() => setSelectedView('pending')}
             className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
               selectedView === 'pending'
-                ? 'bg-purple-500 text-white shadow-md'
-                : 'text-gray-600 hover:bg-gray-100'
+                ? 'bg-brand-500 text-white shadow-md'
+                : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             {t('managerDashboard.viewSelector.pendingApproval', { count: totalPending })}
@@ -280,23 +280,23 @@ export default function ManagerDashboard() {
         {selectedView === 'overview' && (
           <div className="space-y-6">
             {employeeStats.length === 0 ? (
-              <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
-                <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-700 mb-2">
+              <div className="bg-white rounded-xl shadow-sm p-12 text-center">
+                <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-slate-700 mb-2">
                   {t('managerDashboard.overview.noTeamMembers.title')}
                 </h3>
-                <p className="text-gray-500">
+                <p className="text-slate-500">
                   {t('managerDashboard.overview.noTeamMembers.description')}
                 </p>
               </div>
             ) : (
               employeeStats.map(employee => (
-                <div key={employee.employee_id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b border-gray-100">
+                <div key={employee.employee_id} className="bg-white rounded-xl shadow-sm overflow-hidden">
+                  <div className="bg-slate-50 p-6 border-b border-slate-100">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-xl font-semibold text-gray-800">{employee.employee_name}</h3>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <h3 className="text-xl font-semibold text-slate-800">{employee.employee_name}</h3>
+                        <p className="text-sm text-slate-600 mt-1">
                           {getActiveGoalsText(employee.active_goals)}
                         </p>
                       </div>
@@ -323,20 +323,20 @@ export default function ManagerDashboard() {
                   <div className="p-6">
                     <div className="grid grid-cols-3 gap-4 mb-4">
                       <div className="text-center">
-                        <p className="text-2xl font-bold text-gray-800">{employee.active_goals}</p>
-                        <p className="text-xs text-gray-600">
+                        <p className="text-2xl font-bold text-slate-800">{employee.active_goals}</p>
+                        <p className="text-xs text-slate-600">
                           {t('managerDashboard.overview.employeeCard.stats.active')}
                         </p>
                       </div>
                       <div className="text-center">
                         <p className="text-2xl font-bold text-yellow-600">{employee.needs_pulse}</p>
-                        <p className="text-xs text-gray-600">
+                        <p className="text-xs text-slate-600">
                           {t('managerDashboard.overview.employeeCard.stats.needsPulse')}
                         </p>
                       </div>
                       <div className="text-center">
-                        <p className="text-2xl font-bold text-purple-600">{employee.pending_approval}</p>
-                        <p className="text-xs text-gray-600">
+                        <p className="text-2xl font-bold text-brand-600">{employee.pending_approval}</p>
+                        <p className="text-xs text-slate-600">
                           {t('managerDashboard.overview.employeeCard.stats.pending')}
                         </p>
                       </div>
@@ -352,7 +352,7 @@ export default function ManagerDashboard() {
                             router.push(`/jobs/${companySlug}/performance/goals/${employeeGoals[0].id}`)
                           }
                         }}
-                        className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-600 transition-colors text-sm"
+                        className="flex-1 bg-brand-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-brand-600 transition-colors text-sm"
                       >
                         {t('managerDashboard.overview.employeeCard.viewGoalsButton')}
                       </button>
@@ -366,9 +366,9 @@ export default function ManagerDashboard() {
 
         {/* Red Flags View */}
         {selectedView === 'red-flags' && (
-          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-gray-100">
-              <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-slate-100">
+              <h2 className="text-xl font-semibold text-slate-800 flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-red-600" />
                 {t('managerDashboard.redFlags.title')}
               </h2>
@@ -376,20 +376,20 @@ export default function ManagerDashboard() {
             
             {redFlagGoals.length === 0 ? (
               <div className="p-12 text-center">
-                <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-700 mb-2">
+                <Target className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-slate-700 mb-2">
                   {t('managerDashboard.redFlags.noRedFlags.title')}
                 </h3>
-                <p className="text-gray-500">
+                <p className="text-slate-500">
                   {t('managerDashboard.redFlags.noRedFlags.description')}
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-slate-100">
                 {redFlagGoals.map(goal => (
                   <div 
                     key={goal.id} 
-                    className="p-6 hover:bg-gray-50 transition-colors cursor-pointer"
+                    className="p-6 hover:bg-slate-50 transition-colors cursor-pointer"
                     onClick={() => router.push(`/jobs/${companySlug}/performance/goals/${goal.id}`)}
                   >
                     <div className="flex items-start gap-4">
@@ -397,8 +397,8 @@ export default function ManagerDashboard() {
                       <div className="flex-1">
                         <div className="flex items-start justify-between mb-2">
                           <div>
-                            <h3 className="font-semibold text-gray-800">{goal.goal_title}</h3>
-                            <p className="text-sm text-gray-600">{goal.employee_name}</p>
+                            <h3 className="font-semibold text-slate-800">{goal.goal_title}</h3>
+                            <p className="text-sm text-slate-600">{goal.employee_name}</p>
                           </div>
                         </div>
                         
@@ -407,17 +407,17 @@ export default function ManagerDashboard() {
                             <p className="text-sm font-medium text-red-800 mb-1">
                               {t('managerDashboard.redFlags.blockers')}
                             </p>
-                            <p className="text-sm text-gray-700">{goal.latest_blockers}</p>
+                            <p className="text-sm text-slate-700">{goal.latest_blockers}</p>
                           </div>
                         )}
                         
                         {goal.latest_comment && (
-                          <div className="bg-gray-50 rounded-lg p-3 mt-2">
-                            <p className="text-sm text-gray-700">{goal.latest_comment}</p>
+                          <div className="bg-slate-50 rounded-lg p-3 mt-2">
+                            <p className="text-sm text-slate-700">{goal.latest_comment}</p>
                           </div>
                         )}
                         
-                        <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
+                        <div className="flex items-center gap-2 mt-3 text-xs text-slate-500">
                           <span>
                             {t('managerDashboard.redFlags.updated', { date: formatDate(goal.last_update_date!) })}
                           </span>
@@ -433,39 +433,39 @@ export default function ManagerDashboard() {
 
         {/* Pending Approval View */}
         {selectedView === 'pending' && (
-          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-gray-100">
-              <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-purple-600" />
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-slate-100">
+              <h2 className="text-xl font-semibold text-slate-800 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-brand-600" />
                 {t('managerDashboard.pendingApproval.title')}
               </h2>
             </div>
             
             {pendingGoals.length === 0 ? (
               <div className="p-12 text-center">
-                <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-700 mb-2">
+                <Target className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-slate-700 mb-2">
                   {t('managerDashboard.pendingApproval.noPending.title')}
                 </h3>
-                <p className="text-gray-500">
+                <p className="text-slate-500">
                   {t('managerDashboard.pendingApproval.noPending.description')}
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-slate-100">
                 {pendingGoals.map(goal => (
-                  <div key={goal.id} className="p-6 hover:bg-gray-50 transition-colors">
+                  <div key={goal.id} className="p-6 hover:bg-slate-50 transition-colors">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <h3 className="font-semibold text-gray-800 mb-2">{goal.goal_title}</h3>
-                        <p className="text-sm text-gray-600 mb-2">{goal.employee_name}</p>
-                        <p className="text-sm text-gray-700 mb-3">{goal.goal_description}</p>
+                        <h3 className="font-semibold text-slate-800 mb-2">{goal.goal_title}</h3>
+                        <p className="text-sm text-slate-600 mb-2">{goal.employee_name}</p>
+                        <p className="text-sm text-slate-700 mb-3">{goal.goal_description}</p>
                         {goal.success_criteria && (
-                          <div className="bg-blue-50 rounded-lg p-3 mb-3">
-                            <p className="text-xs font-medium text-blue-800 mb-1">
+                          <div className="bg-brand-50 rounded-lg p-3 mb-3">
+                            <p className="text-xs font-medium text-brand-800 mb-1">
                               {t('managerDashboard.pendingApproval.successCriteria')}
                             </p>
-                            <p className="text-sm text-gray-700">{goal.success_criteria}</p>
+                            <p className="text-sm text-slate-700">{goal.success_criteria}</p>
                           </div>
                         )}
                         <div className="flex gap-2">
@@ -477,7 +477,7 @@ export default function ManagerDashboard() {
                           </button>
                           <button
                             onClick={() => router.push(`/jobs/${companySlug}/performance/goals/${goal.id}`)}
-                            className="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-300 transition-all text-sm"
+                            className="bg-slate-200 text-slate-700 py-2 px-4 rounded-lg font-medium hover:bg-slate-300 transition-all text-sm"
                           >
                             {t('managerDashboard.pendingApproval.viewDetailsButton')}
                           </button>

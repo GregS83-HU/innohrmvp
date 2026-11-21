@@ -191,18 +191,18 @@ export default async function CVAnalysePage({
   // If no position ID provided, show error
   if (!positionId) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 text-center max-w-md">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-sm p-8 text-center max-w-md">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-red-500 text-2xl">⚠️</span>
           </div>
-          <h1 className="text-xl font-bold text-gray-800 mb-2">Invalid Application Link</h1>
-          <p className="text-gray-600 mb-4">
+          <h1 className="text-xl font-bold text-slate-800 mb-2">Invalid Application Link</h1>
+          <p className="text-slate-600 mb-4">
             The application link appears to be incomplete or invalid.
           </p>
           <a
             href={`/jobs/${slug}`}
-            className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-block bg-brand-600 text-white px-6 py-2 rounded-lg hover:bg-brand-700 transition-colors"
           >
             Back to Positions
           </a>
@@ -217,18 +217,18 @@ export default async function CVAnalysePage({
   // If position not found or doesn't belong to company, show error
   if (!position) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 text-center max-w-md">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-sm p-8 text-center max-w-md">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-red-500 text-2xl">❌</span>
           </div>
-          <h1 className="text-xl font-bold text-gray-800 mb-2">Position Not Found</h1>
-          <p className="text-gray-600 mb-4">
+          <h1 className="text-xl font-bold text-slate-800 mb-2">Position Not Found</h1>
+          <p className="text-slate-600 mb-4">
             The position you&apos;re trying to apply for doesn&apos;t exist or is no longer available.
           </p>
           <a
             href={`/jobs/${slug}`}
-            className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-block bg-brand-600 text-white px-6 py-2 rounded-lg hover:bg-brand-700 transition-colors"
           >
             Back to Positions
           </a>

@@ -59,34 +59,34 @@ export default function FunnelDashboardPage() {
         { label: 'Job Assistant completed', value: data.funnel.jobAssistantCompleted, icon: TrendingUp, color: 'bg-emerald-600' },
         { label: 'Pricing page viewed', value: data.funnel.pricingViewed, icon: Tag, color: 'bg-brand-500' },
         { label: 'Pricing CTA clicked', value: data.funnel.pricingCtaClicked, icon: MousePointerClick, color: 'bg-brand-600' },
-        { label: 'ROI calculator used', value: data.funnel.roiCalculatorUsed, icon: Calculator, color: 'bg-indigo-500' },
-        { label: 'Contact form submitted', value: data.funnel.contactFormSubmitted, icon: Mail, color: 'bg-purple-600' },
-        { label: 'Companies onboarded', value: data.funnel.companiesOnboarded, icon: Building2, color: 'bg-gray-800' },
+        { label: 'ROI calculator used', value: data.funnel.roiCalculatorUsed, icon: Calculator, color: 'bg-brand-500' },
+        { label: 'Contact form submitted', value: data.funnel.contactFormSubmitted, icon: Mail, color: 'bg-brand-600' },
+        { label: 'Companies onboarded', value: data.funnel.companiesOnboarded, icon: Building2, color: 'bg-slate-800' },
       ]
     : []
 
   const maxValue = Math.max(1, ...steps.map((s) => s.value))
 
   return (
-    <div className="min-h-screen p-6 md:p-10 bg-gray-50">
+    <div className="min-h-screen p-6 md:p-10 bg-slate-50">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-2 mb-2">
           <Users className="w-6 h-6 text-brand-600" />
-          <h1 className="text-2xl font-bold text-gray-800">Funnel Dashboard</h1>
+          <h1 className="text-2xl font-bold text-slate-800">Funnel Dashboard</h1>
         </div>
-        <p className="text-gray-500 mb-6 text-sm">
+        <p className="text-slate-500 mb-6 text-sm">
           Job Assistant usage → pricing → contact form → onboarded companies. See <code>FUNNEL_TRACKING.md</code> for what each step means and how it&apos;s tracked.
         </p>
 
         {/* Date range */}
         <div className="bg-white rounded-xl shadow-sm p-4 mb-6 flex flex-wrap items-end gap-4">
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">From</label>
-            <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+            <label className="block text-xs font-medium text-slate-500 mb-1">From</label>
+            <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="border border-slate-300 rounded-lg px-3 py-2 text-sm" />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">To</label>
-            <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+            <label className="block text-xs font-medium text-slate-500 mb-1">To</label>
+            <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="border border-slate-300 rounded-lg px-3 py-2 text-sm" />
           </div>
           <button
             onClick={fetchFunnel}
@@ -108,12 +108,12 @@ export default function FunnelDashboardPage() {
               {steps.map(({ label, value, icon: Icon, color }) => (
                 <div key={label}>
                   <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="flex items-center gap-2 text-gray-700">
-                      <Icon className="w-4 h-4 text-gray-400" /> {label}
+                    <span className="flex items-center gap-2 text-slate-700">
+                      <Icon className="w-4 h-4 text-slate-400" /> {label}
                     </span>
-                    <span className="font-semibold text-gray-900">{value}</span>
+                    <span className="font-semibold text-slate-900">{value}</span>
                   </div>
-                  <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
                     <div
                       className={`h-full ${color} rounded-full transition-all`}
                       style={{ width: `${Math.max(2, (value / maxValue) * 100)}%` }}
@@ -126,26 +126,26 @@ export default function FunnelDashboardPage() {
             {/* Breakdowns */}
             <div className="grid md:grid-cols-2 gap-6">
               <div className="bg-white rounded-xl shadow-sm p-6">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">Pricing CTA clicks by plan</h3>
+                <h3 className="text-sm font-semibold text-slate-700 mb-3">Pricing CTA clicks by plan</h3>
                 <ul className="space-y-2 text-sm">
                   {Object.entries(data.funnel.pricingCtaClickedByPlan).map(([plan, count]) => (
                     <li key={plan} className="flex justify-between">
-                      <span className="capitalize text-gray-600">{plan}</span>
-                      <span className="font-medium text-gray-900">{count}</span>
+                      <span className="capitalize text-slate-600">{plan}</span>
+                      <span className="font-medium text-slate-900">{count}</span>
                     </li>
                   ))}
                 </ul>
               </div>
               <div className="bg-white rounded-xl shadow-sm p-6">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">Contact submissions by source</h3>
+                <h3 className="text-sm font-semibold text-slate-700 mb-3">Contact submissions by source</h3>
                 <ul className="space-y-2 text-sm">
                   {Object.entries(data.funnel.contactFormSubmittedBySource).length === 0 && (
-                    <li className="text-gray-400">No submissions in this range</li>
+                    <li className="text-slate-400">No submissions in this range</li>
                   )}
                   {Object.entries(data.funnel.contactFormSubmittedBySource).map(([source, count]) => (
                     <li key={source} className="flex justify-between">
-                      <span className="capitalize text-gray-600">{source}</span>
-                      <span className="font-medium text-gray-900">{count}</span>
+                      <span className="capitalize text-slate-600">{source}</span>
+                      <span className="font-medium text-slate-900">{count}</span>
                     </li>
                   ))}
                 </ul>

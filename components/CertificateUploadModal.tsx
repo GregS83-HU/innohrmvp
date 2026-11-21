@@ -121,27 +121,27 @@ const CertificateUploadModal: React.FC<CertificateUploadModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between rounded-t-2xl">
+        <div className="sticky top-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between rounded-t-2xl">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <FileText className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-brand-100 rounded-lg flex items-center justify-center">
+              <FileText className="w-5 h-5 text-brand-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="text-xl font-bold text-slate-900">
                 {existingLeaveRequestId ? 'Upload Medical Certificate' : 'Upload Certificate & Create Leave'}
               </h2>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-slate-600">
                 {existingLeaveRequestId ? 'Add certificate to existing sick leave' : 'Upload certificate to create sick leave request'}
               </p>
             </div>
           </div>
           <button
             onClick={handleClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="w-5 h-5 text-slate-500" />
           </button>
         </div>
 
@@ -159,14 +159,14 @@ const CertificateUploadModal: React.FC<CertificateUploadModalProps> = ({
 
           {/* Upload Section */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
+            <label className="block text-sm font-semibold text-slate-700 mb-3">
               Select Medical Certificate
             </label>
             <div
               className={`border-2 border-dashed rounded-xl p-6 text-center transition-all ${
                 file
                   ? 'border-green-300 bg-green-50'
-                  : 'border-gray-300 bg-gray-50 hover:border-blue-300 hover:bg-blue-50'
+                  : 'border-slate-300 bg-slate-50 hover:border-brand-300 hover:bg-brand-50'
               }`}
             >
               <input
@@ -188,11 +188,11 @@ const CertificateUploadModal: React.FC<CertificateUploadModalProps> = ({
                   </div>
                 ) : (
                   <div>
-                    <Upload className="w-10 h-10 text-gray-400 mx-auto mb-3" />
-                    <p className="text-blue-600 font-medium hover:text-blue-700">
+                    <Upload className="w-10 h-10 text-slate-400 mx-auto mb-3" />
+                    <p className="text-brand-600 font-medium hover:text-brand-700">
                       Click to select certificate
                     </p>
-                    <p className="text-xs text-gray-500 mt-2">
+                    <p className="text-xs text-slate-500 mt-2">
                       PDF or Image • Maximum 1MB
                     </p>
                   </div>
@@ -205,7 +205,7 @@ const CertificateUploadModal: React.FC<CertificateUploadModalProps> = ({
           <div className="space-y-4">
             {/* Employee Name */}
             <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
                 <User className="w-4 h-4" />
                 Employee Name
               </label>
@@ -214,14 +214,14 @@ const CertificateUploadModal: React.FC<CertificateUploadModalProps> = ({
                 value={formData.employee_name}
                 onChange={(e) => setFormData({ ...formData, employee_name: e.target.value })}
                 placeholder="Enter employee name"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               />
             </div>
 
             {/* Dates */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
                   <Calendar className="w-4 h-4" />
                   Start Date
                 </label>
@@ -229,12 +229,12 @@ const CertificateUploadModal: React.FC<CertificateUploadModalProps> = ({
                   type="date"
                   value={formData.sickness_start_date}
                   onChange={(e) => setFormData({ ...formData, sickness_start_date: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 />
               </div>
 
               <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
                   <Calendar className="w-4 h-4" />
                   End Date
                 </label>
@@ -242,21 +242,21 @@ const CertificateUploadModal: React.FC<CertificateUploadModalProps> = ({
                   type="date"
                   value={formData.sickness_end_date}
                   onChange={(e) => setFormData({ ...formData, sickness_end_date: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 />
               </div>
             </div>
 
             {/* Comment */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Additional Comment (Optional)
               </label>
               <textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="Add any additional information..."
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
                 rows={3}
               />
             </div>
@@ -265,14 +265,14 @@ const CertificateUploadModal: React.FC<CertificateUploadModalProps> = ({
             <div className="flex gap-3 pt-4">
               <button
                 onClick={handleClose}
-                className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-medium transition-colors"
+                className="flex-1 px-6 py-3 border border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 font-medium transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirm}
                 disabled={saving}
-                className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-6 rounded-xl font-medium hover:from-green-700 hover:to-emerald-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-3 px-6 rounded-xl font-medium transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? (
                   <>

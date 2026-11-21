@@ -161,7 +161,7 @@ export default function GoalDetailPage() {
       case 'green': return 'bg-green-100 text-green-800 border-green-200'
       case 'yellow': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
       case 'red': return 'bg-red-100 text-red-800 border-red-200'
-      default: return 'bg-gray-100 text-gray-800 border-gray-200'
+      default: return 'bg-slate-100 text-slate-800 border-slate-200'
     }
   }
 
@@ -188,10 +188,10 @@ export default function GoalDetailPage() {
 
   if (!session || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">{t('goalDetailPage.loading.message')}</p>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-slate-600">{t('goalDetailPage.loading.message')}</p>
         </div>
       </div>
     )
@@ -200,13 +200,13 @@ export default function GoalDetailPage() {
   if (!goal) {
     return (
       <main className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
+        <div className="bg-white rounded-xl shadow-sm p-12 text-center">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">{t('goalDetailPage.notFound.title')}</h2>
-          <p className="text-gray-600 mb-6">{t('goalDetailPage.notFound.description')}</p>
+          <h2 className="text-2xl font-bold text-slate-800 mb-2">{t('goalDetailPage.notFound.title')}</h2>
+          <p className="text-slate-600 mb-6">{t('goalDetailPage.notFound.description')}</p>
           <button
             onClick={() => router.push(`/jobs/${companySlug}/performance`)}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all"
+            className="bg-brand-600 hover:bg-brand-700 text-white py-3 px-6 rounded-lg font-medium transition-all"
           >
             {t('goalDetailPage.notFound.backButton')}
           </button>
@@ -220,10 +220,10 @@ export default function GoalDetailPage() {
       <div className="space-y-6">
         
         {/* Header */}
-        <div className="bg-white rounded-2xl shadow-sm p-6">
+        <div className="bg-white rounded-xl shadow-sm p-6">
           <button
             onClick={() => router.push(isManager ? `/jobs/${companySlug}/performance/team` : `/jobs/${companySlug}/performance`)}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4 transition-colors"
+            className="flex items-center gap-2 text-slate-600 hover:text-slate-800 mb-4 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             {isManager ? t('goalDetailPage.header.backToTeam') : t('goalDetailPage.header.backToMy')}
@@ -231,12 +231,12 @@ export default function GoalDetailPage() {
           
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-4 flex-1">
-              <div className="bg-blue-100 rounded-lg p-3">
-                <Target className="w-8 h-8 text-blue-600" />
+              <div className="bg-brand-100 rounded-lg p-3">
+                <Target className="w-8 h-8 text-brand-600" />
               </div>
               <div className="flex-1">
-                <h1 className="text-3xl font-bold text-gray-800 mb-2">{goal.goal_title}</h1>
-                <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+                <h1 className="text-3xl font-bold text-slate-800 mb-2">{goal.goal_title}</h1>
+                <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600">
                   <span>{t('goalDetailPage.header.employee')} {goal.employee_name}</span>
                   <span>{t('goalDetailPage.header.separator')}</span>
                   <span>{t('goalDetailPage.header.manager')} {goal.manager_name}</span>
@@ -248,7 +248,7 @@ export default function GoalDetailPage() {
             
             <div className="flex items-center gap-2">
               {goal.status === 'draft' && (
-                <span className="px-3 py-1 bg-purple-100 text-purple-800 text-sm font-medium rounded-full">
+                <span className="px-3 py-1 bg-brand-100 text-brand-800 text-sm font-medium rounded-full">
                   {t('goalDetailPage.status.pendingApproval')}
                 </span>
               )}
@@ -284,9 +284,9 @@ export default function GoalDetailPage() {
 
         {/* Approval Section for Managers */}
         {isManager && goal.status === 'draft' && (
-          <div className="bg-purple-50 border border-purple-200 rounded-2xl p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">{t('goalDetailPage.approval.title')}</h3>
-            <p className="text-gray-700 mb-4">
+          <div className="bg-brand-50 border border-brand-200 rounded-xl p-6">
+            <h3 className="text-lg font-semibold text-slate-800 mb-4">{t('goalDetailPage.approval.title')}</h3>
+            <p className="text-slate-700 mb-4">
               {t('goalDetailPage.approval.description', { employeeName: goal.employee_name })}
             </p>
             <button
@@ -299,29 +299,29 @@ export default function GoalDetailPage() {
         )}
 
         {/* Goal Details */}
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="p-6 space-y-4">
             <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">
+              <h3 className="text-sm font-semibold text-slate-700 mb-2">
                 {t('goalDetailPage.details.descriptionLabel')}
               </h3>
-              <p className="text-gray-800">
+              <p className="text-slate-800">
                 {goal.goal_description || t('goalDetailPage.details.noDescription')}
               </p>
             </div>
 
             {goal.success_criteria && (
               <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                <h3 className="text-sm font-semibold text-slate-700 mb-2">
                   {t('goalDetailPage.details.successCriteriaLabel')}
                 </h3>
-                <p className="text-gray-800">{goal.success_criteria}</p>
+                <p className="text-slate-800">{goal.success_criteria}</p>
               </div>
             )}
 
-            <div className="pt-4 border-t border-gray-100">
+            <div className="pt-4 border-t border-slate-100">
               <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-slate-600">
                   {goal.created_by === 'employee' 
                     ? t('goalDetailPage.details.createdByEmployee', { date: formatDate(goal.created_at) })
                     : t('goalDetailPage.details.createdByManager', { date: formatDate(goal.created_at) })
@@ -342,9 +342,9 @@ export default function GoalDetailPage() {
         </div>
 
         {/* Progress Timeline */}
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-gray-100">
-            <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-slate-100">
+            <h2 className="text-xl font-semibold text-slate-800 flex items-center gap-2">
               <TrendingUp className="w-5 h-5" />
               {t('goalDetailPage.timeline.title', { count: updates.length })}
             </h2>
@@ -352,11 +352,11 @@ export default function GoalDetailPage() {
           
           {updates.length === 0 ? (
             <div className="p-12 text-center">
-              <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-700 mb-2">
+              <Calendar className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-slate-700 mb-2">
                 {t('goalDetailPage.timeline.noUpdates.title')}
               </h3>
-              <p className="text-gray-500">
+              <p className="text-slate-500">
                 {t('goalDetailPage.timeline.noUpdates.description')}
               </p>
             </div>
@@ -369,7 +369,7 @@ export default function GoalDetailPage() {
                     <div key={update.id} className="relative">
                       {/* Timeline line */}
                       {index !== updates.length - 1 && (
-                        <div className="absolute left-6 top-14 bottom-0 w-0.5 bg-gray-200"></div>
+                        <div className="absolute left-6 top-14 bottom-0 w-0.5 bg-slate-200"></div>
                       )}
                       
                       <div className="flex gap-4">
@@ -386,13 +386,13 @@ export default function GoalDetailPage() {
 
                         {/* Update Content */}
                         <div className="flex-1 pb-8">
-                          <div className="bg-gray-50 rounded-lg p-4">
+                          <div className="bg-slate-50 rounded-lg p-4">
                             <div className="flex items-start justify-between mb-2">
                               <div>
-                                <p className="font-medium text-gray-800">
+                                <p className="font-medium text-slate-800">
                                   {t('goalDetailPage.timeline.weekOf', { date: formatDate(update.week_start_date) })}
                                 </p>
-                                <p className="text-xs text-gray-500">
+                                <p className="text-xs text-slate-500">
                                   {dateTime.date} at {dateTime.time}
                                 </p>
                               </div>
@@ -403,10 +403,10 @@ export default function GoalDetailPage() {
 
                             {update.progress_comment && (
                               <div className="mt-3">
-                                <p className="text-sm font-medium text-gray-700 mb-1">
+                                <p className="text-sm font-medium text-slate-700 mb-1">
                                   {t('goalDetailPage.timeline.progressUpdate')}
                                 </p>
-                                <p className="text-sm text-gray-600">{update.progress_comment}</p>
+                                <p className="text-sm text-slate-600">{update.progress_comment}</p>
                               </div>
                             )}
 
@@ -415,7 +415,7 @@ export default function GoalDetailPage() {
                                 <p className="text-sm font-medium text-red-800 mb-1">
                                   {t('goalDetailPage.timeline.blockers')}
                                 </p>
-                                <p className="text-sm text-gray-700">{update.blockers}</p>
+                                <p className="text-sm text-slate-700">{update.blockers}</p>
                               </div>
                             )}
                           </div>
@@ -431,16 +431,16 @@ export default function GoalDetailPage() {
 
         {/* Quick Actions */}
         {goal.status === 'active' && session?.user.id === goal.employee_id && (
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-2xl p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+          <div className="bg-slate-50 border border-brand-200 rounded-xl p-6">
+            <h3 className="text-lg font-semibold text-slate-800 mb-2">
               {t('goalDetailPage.quickActions.title')}
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-slate-600 mb-4">
               {t('goalDetailPage.quickActions.description')}
             </p>
             <button
               onClick={() => router.push(`/jobs/${companySlug}/performance/pulse`)}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
+              className="bg-brand-600 hover:bg-brand-700 text-white py-3 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
             >
               <Calendar className="w-5 h-5 inline-block mr-2" />
               {t('goalDetailPage.quickActions.submitPulseButton')}

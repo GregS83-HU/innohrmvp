@@ -133,23 +133,23 @@ const ContactForm: React.FC<ContactFormProps> = ({ isOpen, onClose, trigger = 'o
   };
 
   const inputClasses =
-    'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent';
+    'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent';
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-6 border-b border-slate-200">
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">{t('contactForm.header.title')}</h2>
-            <p className="text-gray-600 text-sm mt-1">
+            <h2 className="text-2xl font-bold text-slate-800">{t('contactForm.header.title')}</h2>
+            <p className="text-slate-600 text-sm mt-1">
               {trigger === 'demo'
                 ? t('contactForm.header.subtitleDemo')
                 : t('contactForm.header.subtitleOther')}
             </p>
           </div>
-          <button onClick={handleClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors" disabled={isSubmitting}>
-            <X className="w-5 h-5 text-gray-500" />
+          <button onClick={handleClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors" disabled={isSubmitting}>
+            <X className="w-5 h-5 text-slate-500" />
           </button>
         </div>
 
@@ -178,66 +178,66 @@ const ContactForm: React.FC<ContactFormProps> = ({ isOpen, onClose, trigger = 'o
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">{t('contactForm.labels.firstName')}</label>
+              <label className="block text-sm font-medium text-slate-700">{t('contactForm.labels.firstName')}</label>
               <input type="text" value={formData.firstName} onChange={(e) => handleInputChange('firstName', e.target.value)}
-                className={`${inputClasses} ${errors.firstName ? 'border-red-300' : 'border-gray-300'}`} disabled={isSubmitting} />
+                className={`${inputClasses} ${errors.firstName ? 'border-red-300' : 'border-slate-300'}`} disabled={isSubmitting} />
               {errors.firstName && <p className="text-red-600 text-xs mt-1">{errors.firstName}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">{t('contactForm.labels.lastName')}</label>
+              <label className="block text-sm font-medium text-slate-700">{t('contactForm.labels.lastName')}</label>
               <input type="text" value={formData.lastName} onChange={(e) => handleInputChange('lastName', e.target.value)}
-                className={`${inputClasses} ${errors.lastName ? 'border-red-300' : 'border-gray-300'}`} disabled={isSubmitting} />
+                className={`${inputClasses} ${errors.lastName ? 'border-red-300' : 'border-slate-300'}`} disabled={isSubmitting} />
               {errors.lastName && <p className="text-red-600 text-xs mt-1">{errors.lastName}</p>}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">{t('contactForm.labels.email')}</label>
+            <label className="block text-sm font-medium text-slate-700">{t('contactForm.labels.email')}</label>
             <input type="email" value={formData.email} onChange={(e) => handleInputChange('email', e.target.value)}
-              className={`${inputClasses} ${errors.email ? 'border-red-300' : 'border-gray-300'}`} disabled={isSubmitting} />
+              className={`${inputClasses} ${errors.email ? 'border-red-300' : 'border-slate-300'}`} disabled={isSubmitting} />
             {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">{t('contactForm.labels.phone')}</label>
+            <label className="block text-sm font-medium text-slate-700">{t('contactForm.labels.phone')}</label>
             <input type="tel" value={formData.phone} onChange={(e) => handleInputChange('phone', e.target.value)}
-              className={`${inputClasses} ${errors.phone ? 'border-red-300' : 'border-gray-300'}`}
+              className={`${inputClasses} ${errors.phone ? 'border-red-300' : 'border-slate-300'}`}
               placeholder={t('contactForm.placeholders.phone')} disabled={isSubmitting} />
             {errors.phone && <p className="text-red-600 text-xs mt-1">{errors.phone}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">{t('contactForm.labels.companyName')}</label>
+            <label className="block text-sm font-medium text-slate-700">{t('contactForm.labels.companyName')}</label>
             <input type="text" value={formData.companyName} onChange={(e) => handleInputChange('companyName', e.target.value)}
-              className={`${inputClasses} ${errors.companyName ? 'border-red-300' : 'border-gray-300'}`} disabled={isSubmitting} />
+              className={`${inputClasses} ${errors.companyName ? 'border-red-300' : 'border-slate-300'}`} disabled={isSubmitting} />
             {errors.companyName && <p className="text-red-600 text-xs mt-1">{errors.companyName}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">{t('contactForm.labels.comment')}</label>
+            <label className="block text-sm font-medium text-slate-700">{t('contactForm.labels.comment')}</label>
             <textarea value={formData.comment} onChange={(e) => handleInputChange('comment', e.target.value)}
               rows={4} className={inputClasses} disabled={isSubmitting} />
           </div>
 
           {/* GDPR Section */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+          <div className="bg-brand-50 border border-brand-200 rounded-lg p-4 space-y-3">
             <div className="flex items-center gap-2 mb-2">
-              <Shield className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-800">{t('contactForm.labels.gdprTitle')}</span>
+              <Shield className="w-4 h-4 text-brand-600" />
+              <span className="text-sm font-medium text-brand-800">{t('contactForm.labels.gdprTitle')}</span>
             </div>
             <label className="flex items-start gap-3 cursor-pointer">
               <input type="checkbox" checked={formData.gdprConsent} onChange={(e) => handleInputChange('gdprConsent', e.target.checked)}
-                className={`mt-0.5 w-4 h-4 text-blue-600 border-2 rounded focus:ring-blue-500 ${errors.gdprConsent ? 'border-red-300' : 'border-gray-300'}`}
+                className={`mt-0.5 w-4 h-4 text-brand-600 border-2 rounded focus:ring-brand-500 ${errors.gdprConsent ? 'border-red-300' : 'border-slate-300'}`}
                 disabled={isSubmitting} />
-              <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-line">{t('contactForm.labels.gdprText')}</div>
+              <div className="text-xs text-slate-700 leading-relaxed whitespace-pre-line">{t('contactForm.labels.gdprText')}</div>
             </label>
             {errors.gdprConsent && <p className="text-red-600 text-xs">{errors.gdprConsent}</p>}
 
             <label className="flex items-start gap-3 cursor-pointer">
               <input type="checkbox" checked={formData.marketingConsent} onChange={(e) => handleInputChange('marketingConsent', e.target.checked)}
-                className="mt-0.5 w-4 h-4 text-blue-600 border-2 border-gray-300 rounded focus:ring-blue-500"
+                className="mt-0.5 w-4 h-4 text-brand-600 border-2 border-slate-300 rounded focus:ring-brand-500"
                 disabled={isSubmitting} />
-              <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-line">
+              <div className="text-xs text-slate-700 leading-relaxed whitespace-pre-line">
                 <strong>{t('contactForm.labels.marketingTitle')}</strong><br />{t('contactForm.labels.marketingText')}
               </div>
             </label>
@@ -246,7 +246,7 @@ const ContactForm: React.FC<ContactFormProps> = ({ isOpen, onClose, trigger = 'o
           {/* Submit Button */}
           <div className="pt-4">
             <button type="submit" disabled={isSubmitting || submitStatus === 'success'}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+              className="w-full bg-brand-600 hover:bg-brand-700 text-white py-3 px-6 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
               {isSubmitting ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> :
                submitStatus === 'success' ? <CheckCircle className="w-4 h-4" /> :
                <Send className="w-4 h-4" />}

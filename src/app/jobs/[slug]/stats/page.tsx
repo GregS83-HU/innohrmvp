@@ -101,8 +101,8 @@ console.log('positionData fetch hadError:', !!positionError)
   if (!data || data.length === 0) {
     return (
       <div className="w-full max-w-7xl mx-auto px-4 py-8">
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-          <p className="text-blue-700">{t('statsPage.noCandidates')}</p>
+        <div className="bg-brand-50 border border-brand-200 rounded-lg p-6 text-center">
+          <p className="text-brand-700">{t('statsPage.noCandidates')}</p>
         </div>
       </div>
     )

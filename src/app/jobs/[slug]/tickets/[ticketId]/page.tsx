@@ -100,22 +100,22 @@ export default function TicketDetailPage() {
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
   const statusColors = {
-    open: 'bg-blue-100 text-blue-800 border-blue-200',
+    open: 'bg-brand-100 text-brand-800 border-brand-200',
     in_progress: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     resolved: 'bg-green-100 text-green-800 border-green-200',
-    closed: 'bg-gray-100 text-gray-800 border-gray-200'
+    closed: 'bg-slate-100 text-slate-800 border-slate-200'
   };
 
   const statusButtonColors = {
-    open: 'bg-blue-600 hover:bg-blue-700 text-white',
+    open: 'bg-brand-600 hover:bg-brand-700 text-white',
     in_progress: 'bg-yellow-600 hover:bg-yellow-700 text-white',
     resolved: 'bg-green-600 hover:bg-green-700 text-white',
-    closed: 'bg-gray-600 hover:bg-gray-700 text-white'
+    closed: 'bg-slate-600 hover:bg-slate-700 text-white'
   };
 
   const priorityColors = {
-    low: 'bg-gray-100 text-gray-700',
-    medium: 'bg-blue-100 text-blue-700',
+    low: 'bg-slate-100 text-slate-700',
+    medium: 'bg-brand-100 text-brand-700',
     high: 'bg-orange-100 text-orange-700',
     urgent: 'bg-red-100 text-red-700'
   };
@@ -446,10 +446,10 @@ export default function TicketDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-2xl shadow-lg">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600 text-center">{t('ticketDetail.loading')}</p>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-xl shadow-sm">
+          <Loader2 className="w-8 h-8 animate-spin text-brand-600 mx-auto mb-4" />
+          <p className="text-slate-600 text-center">{t('ticketDetail.loading')}</p>
         </div>
       </div>
     );
@@ -457,18 +457,18 @@ export default function TicketDetailPage() {
 
   if (error && !ticket) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-md w-full">
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+        <div className="bg-white p-8 rounded-xl shadow-sm text-center max-w-md w-full">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="w-8 h-8 text-red-600" />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
+          <h2 className="text-xl font-bold text-slate-900 mb-2">
             {t('ticketDetail.errorState.title')}
           </h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <p className="text-slate-600 mb-6">{error}</p>
           <button
             onClick={() => router.back()}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors shadow-lg hover:shadow-xl"
+            className="px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-medium transition-colors shadow-sm hover:shadow-md"
           >
             {t('ticketDetail.errorState.goBack')}
           </button>
@@ -480,32 +480,32 @@ export default function TicketDetailPage() {
   if (!ticket) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-slate-50 ">
       <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
         {/* Header */}
         <div className="mb-6">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
+            className="flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-4 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             {t('ticketDetail.header.backToTickets')}
           </button>
 
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-start gap-3 mb-4">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <MessageSquare className="w-5 h-5 text-white" />
+                  <div className="w-10 h-10 bg-brand-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <MessageSquare className="w-5 h-5 text-brand-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{ticket.title}</h1>
-                    <p className="text-gray-600 text-sm sm:text-base">{ticket.description}</p>
+                    <h1 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">{ticket.title}</h1>
+                    <p className="text-slate-600 text-sm sm:text-base">{ticket.description}</p>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+                <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
                   <div className="flex items-center gap-1">
                     <User className="w-4 h-4" />
                     <span>{ticket.user_name}</span>
@@ -532,7 +532,7 @@ export default function TicketDetailPage() {
                     {t(`ticketDetail.priority.${ticket.priority}`)}
                   </span>
                   {ticket.category && (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
                       {ticket.category}
                     </span>
                   )}
@@ -541,7 +541,7 @@ export default function TicketDetailPage() {
                 {isHrinnoAdmin && (
                   <button
                     onClick={() => setShowStatusModal(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors text-sm"
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition-colors text-sm"
                   >
                     <Settings className="w-4 h-4" />
                     {t('ticketDetail.header.updateStatus')}
@@ -555,24 +555,24 @@ export default function TicketDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Main Content - Messages */}
           <div className="lg:col-span-3">
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 h-[600px] flex flex-col">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-100 h-[600px] flex flex-col">
               {/* Messages Header */}
-              <div className="p-4 border-b border-gray-100">
-                <h3 className="font-semibold text-gray-900">{t('ticketDetail.messages.title')}</h3>
-                <p className="text-sm text-gray-500">{t('ticketDetail.messages.count', { count: messages.length })}</p>
+              <div className="p-4 border-b border-slate-100">
+                <h3 className="font-semibold text-slate-900">{t('ticketDetail.messages.title')}</h3>
+                <p className="text-sm text-slate-500">{t('ticketDetail.messages.count', { count: messages.length })}</p>
               </div>
 
               {/* Messages List */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.length === 0 ? (
-                  <div className="text-center text-gray-500 py-8">
-                    <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <div className="text-center text-slate-500 py-8">
+                    <MessageSquare className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                     <p>{t('ticketDetail.messages.empty')}</p>
                   </div>
                 ) : (
                   messages.map((message) => (
                     <div key={message.id} className={`flex ${message.sender_type === 'admin' ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[80%] ${message.sender_type === 'admin' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-900'} rounded-2xl px-4 py-3`}>
+                      <div className={`max-w-[80%] ${message.sender_type === 'admin' ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-900'} rounded-xl px-4 py-3`}>
                         <div className="flex items-center gap-2 mb-1">
                           {message.sender_type === 'admin' ? (
                             <Shield className="w-3 h-3" />
@@ -591,20 +591,20 @@ export default function TicketDetailPage() {
               </div>
 
               {/* Message Input */}
-              <div className="p-4 border-t border-gray-100">
+              <div className="p-4 border-t border-slate-100">
                 <div className="flex gap-2">
                   <textarea
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     onKeyDown={handleKeyPress}
                     placeholder={t('ticketDetail.messages.placeholder')}
-                    className="flex-1 p-3 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    className="flex-1 p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
                     rows={2}
                   />
                   <button
                     onClick={sendMessage}
                     disabled={sendingMessage || !newMessage.trim()}
-                    className="p-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="p-3 rounded-full bg-brand-600 hover:bg-brand-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Send className="w-4 h-4" />
                   </button>
@@ -615,26 +615,26 @@ export default function TicketDetailPage() {
 
           {/* Sidebar - Attachments */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 flex flex-col h-[600px]">
-              <h3 className="font-semibold text-gray-900 mb-4">{t('ticketDetail.attachments.title')}</h3>
+            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 flex flex-col h-[600px]">
+              <h3 className="font-semibold text-slate-900 mb-4">{t('ticketDetail.attachments.title')}</h3>
               <div className="flex-1 overflow-y-auto space-y-3">
                 {attachments.length === 0 ? (
-                  <p className="text-gray-500 text-sm text-center mt-12">{t('ticketDetail.attachments.empty')}</p>
+                  <p className="text-slate-500 text-sm text-center mt-12">{t('ticketDetail.attachments.empty')}</p>
                 ) : (
                   attachments.map((attachment) => (
                     <div
                       key={attachment.id}
-                      className="flex items-center justify-between bg-gray-50 p-3 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+                      className="flex items-center justify-between bg-slate-50 p-3 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
                       onClick={() => downloadAttachment(attachment)}
                     >
                       <div className="flex items-center gap-2">
-                        <Paperclip className="w-4 h-4 text-gray-400" />
+                        <Paperclip className="w-4 h-4 text-slate-400" />
                         <div className="flex flex-col">
-                          <span className="text-sm text-gray-900 truncate max-w-[120px]">{attachment.file_name}</span>
-                          <span className="text-xs text-gray-500">{formatFileSize(attachment.file_size)}</span>
+                          <span className="text-sm text-slate-900 truncate max-w-[120px]">{attachment.file_name}</span>
+                          <span className="text-xs text-slate-500">{formatFileSize(attachment.file_size)}</span>
                         </div>
                       </div>
-                      <Download className="w-4 h-4 text-gray-400" />
+                      <Download className="w-4 h-4 text-slate-400" />
                     </div>
                   ))
                 )}
@@ -647,8 +647,8 @@ export default function TicketDetailPage() {
       {/* Status Modal */}
       {showStatusModal && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 w-80">
-            <h3 className="font-semibold text-gray-900 mb-4">{t('ticketDetail.statusModal.title')}</h3>
+          <div className="bg-white rounded-xl p-6 w-80">
+            <h3 className="font-semibold text-slate-900 mb-4">{t('ticketDetail.statusModal.title')}</h3>
             <div className="flex flex-col gap-2">
               {(['open', 'in_progress', 'resolved', 'closed'] as const).map((status) => (
                 <button
@@ -671,7 +671,7 @@ export default function TicketDetailPage() {
             <button
               onClick={() => setShowStatusModal(false)}
               disabled={updatingStatus}
-              className="mt-4 w-full px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-4 w-full px-4 py-2 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {t('ticketDetail.statusModal.cancel')}
             </button>

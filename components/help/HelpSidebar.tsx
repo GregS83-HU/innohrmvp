@@ -25,15 +25,15 @@ export default function HelpSidebar({
   }, [sections, query]);
 
   return (
-    <nav className="w-full md:w-64 flex-shrink-0 md:border-r md:border-gray-100 md:pr-4">
+    <nav className="w-full md:w-64 flex-shrink-0 md:border-r md:border-slate-100 md:pr-4">
       <div className="relative mb-4">
-        <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search the guide…"
-          className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+          className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
         />
       </div>
       <ul className="space-y-1">
@@ -47,7 +47,7 @@ export default function HelpSidebar({
                 className={`block px-3 py-2 rounded-lg text-sm transition-colors ${
                   active
                     ? 'bg-brand-100 text-brand-700 font-medium'
-                    : 'text-gray-600 hover:bg-brand-50 hover:text-brand-700'
+                    : 'text-slate-600 hover:bg-brand-50 hover:text-brand-700'
                 }`}
               >
                 {s.title}
@@ -56,7 +56,7 @@ export default function HelpSidebar({
           );
         })}
         {filtered.length === 0 && (
-          <li className="px-3 py-2 text-sm text-gray-400">No sections match &ldquo;{query}&rdquo;.</li>
+          <li className="px-3 py-2 text-sm text-slate-400">No sections match &ldquo;{query}&rdquo;.</li>
         )}
       </ul>
     </nav>

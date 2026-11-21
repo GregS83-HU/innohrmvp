@@ -776,7 +776,7 @@ const remainingAICredits = (includedAICredits ?? 0) - (currentAICredits ?? 0)
         {/* Toast notifications */}
         <div className="fixed top-5 right-5 flex flex-col gap-2 z-40" aria-live="polite">
           {toasts.map(t => (
-            <div key={t.id} className={`px-4 py-3 rounded-lg shadow-lg text-sm text-white font-medium ${t.type === 'error' ? 'bg-red-600' : 'bg-emerald-600'}`}>
+            <div key={t.id} className={`px-4 py-3 rounded-lg shadow-sm text-sm text-white font-medium ${t.type === 'error' ? 'bg-red-600' : 'bg-emerald-600'}`}>
               {t.message}
             </div>
           ))}

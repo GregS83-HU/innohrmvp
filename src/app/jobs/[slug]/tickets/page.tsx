@@ -81,15 +81,15 @@ export default function TicketsPage() {
   const [isHrinnoAdmin, setIsHrinnoAdmin] = useState(false);
 
   const statusColors = {
-    open: 'bg-blue-100 text-blue-800 border-blue-200',
+    open: 'bg-brand-100 text-brand-800 border-brand-200',
     in_progress: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     resolved: 'bg-green-100 text-green-800 border-green-200',
-    closed: 'bg-gray-100 text-gray-800 border-gray-200'
+    closed: 'bg-slate-100 text-slate-800 border-slate-200'
   };
 
   const priorityColors = {
-    low: 'bg-gray-100 text-gray-700',
-    medium: 'bg-blue-100 text-blue-700',
+    low: 'bg-slate-100 text-slate-700',
+    medium: 'bg-brand-100 text-brand-700',
     high: 'bg-orange-100 text-orange-700',
     urgent: 'bg-red-100 text-red-700'
   };
@@ -241,10 +241,10 @@ export default function TicketsPage() {
 
   if (loading && tickets.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-2xl shadow-lg">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600 text-center">{t('ticketsPage.loading')}</p>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-xl shadow-sm">
+          <Loader2 className="w-8 h-8 animate-spin text-brand-600 mx-auto mb-4" />
+          <p className="text-slate-600 text-center">{t('ticketsPage.loading')}</p>
         </div>
       </div>
     );
@@ -252,18 +252,18 @@ export default function TicketsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-md w-full">
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+        <div className="bg-white p-8 rounded-xl shadow-sm text-center max-w-md w-full">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="w-8 h-8 text-red-600" />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
+          <h2 className="text-xl font-bold text-slate-900 mb-2">
             {t('ticketsPage.errorState.title')}
           </h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <p className="text-slate-600 mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors shadow-lg hover:shadow-xl"
+            className="px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-medium transition-colors shadow-sm hover:shadow-md"
           >
             {t('ticketsPage.errorState.tryAgain')}
           </button>
@@ -273,19 +273,19 @@ export default function TicketsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                <Ticket className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center">
+                <Ticket className="w-6 h-6 text-brand-600" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
                   {isHrinnoAdmin ? t('ticketsPage.header.titleAdmin') : t('ticketsPage.header.title')}
                 </h1>
-                <p className="text-gray-600">
+                <p className="text-slate-600">
                   {t('ticketsPage.header.count', { count: filteredTickets.length })}
                   {isHrinnoAdmin && ' ' + t('ticketsPage.header.acrossCompanies')}
                 </p>
@@ -294,7 +294,7 @@ export default function TicketsPage() {
 
             <button
               onClick={() => router.push(`/jobs/${companySlug}/tickets/create`)}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md transform "
             >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">{t('ticketsPage.header.newTicket')}</span>
@@ -302,26 +302,26 @@ export default function TicketsPage() {
             </button>
           </div>
 
-          <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100">
+          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-slate-100">
             <div className="flex flex-col lg:flex-row gap-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="text"
                   placeholder={t('ticketsPage.search.placeholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
                 />
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 lg:w-auto">
                 <div className="flex items-center gap-2 min-w-fit">
-                  <Filter className="w-4 h-4 text-gray-500" />
+                  <Filter className="w-4 h-4 text-slate-500" />
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+                    className="px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors bg-white"
                   >
                     <option value="all">{t('ticketsPage.filters.allStatus')}</option>
                     <option value="open">{t('ticketsPage.status.open')}</option>
@@ -332,11 +332,11 @@ export default function TicketsPage() {
                 </div>
 
                 <div className="flex items-center gap-2 min-w-fit">
-                  <ArrowUpCircle className="w-4 h-4 text-gray-500" />
+                  <ArrowUpCircle className="w-4 h-4 text-slate-500" />
                   <select
                     value={priorityFilter}
                     onChange={(e) => setPriorityFilter(e.target.value)}
-                    className="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+                    className="px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors bg-white"
                   >
                     <option value="all">{t('ticketsPage.filters.allPriority')}</option>
                     <option value="urgent">{t('ticketsPage.priority.urgent')}</option>
@@ -351,16 +351,16 @@ export default function TicketsPage() {
         </div>
 
         {filteredTickets.length === 0 ? (
-          <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 text-center">
-            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Ticket className="w-10 h-10 text-gray-400" />
+          <div className="bg-white rounded-xl p-8 shadow-sm border border-slate-100 text-center">
+            <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Ticket className="w-10 h-10 text-slate-400" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <h3 className="text-xl font-semibold text-slate-900 mb-2">
               {searchTerm || statusFilter !== 'all' || priorityFilter !== 'all'
                 ? t('ticketsPage.empty.noTicketsFound')
                 : t('ticketsPage.empty.noTicketsYet')}
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-slate-600 mb-6">
               {searchTerm || statusFilter !== 'all' || priorityFilter !== 'all'
                 ? t('ticketsPage.empty.tryAdjusting')
                 : t('ticketsPage.empty.createFirst')}
@@ -368,7 +368,7 @@ export default function TicketsPage() {
             {!searchTerm && statusFilter === 'all' && priorityFilter === 'all' && (
               <button
                 onClick={() => router.push(`/jobs/${companySlug}/tickets/create`)}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors"
+                className="px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-medium transition-colors"
               >
                 {t('ticketsPage.empty.createFirstButton')}
               </button>
@@ -376,49 +376,49 @@ export default function TicketsPage() {
           </div>
         ) : (
           <>
-            <div className="hidden lg:block bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div className="hidden lg:block bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="min-w-full">
                   <thead>
-                    <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <tr className="bg-slate-50 border-b border-slate-200">
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                         {t('ticketsPage.table.ticket')}
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                         {t('ticketsPage.table.status')}
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                         {t('ticketsPage.table.priority')}
                       </th>
                       {isHrinnoAdmin && (
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                           {t('ticketsPage.table.company')}
                         </th>
                       )}
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                         {t('ticketsPage.table.user')}
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                         {t('ticketsPage.table.created')}
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                         {t('ticketsPage.table.activity')}
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-slate-100">
                     {filteredTickets.map((ticket) => (
                       <tr
                         key={ticket.id}
                         onClick={() => router.push(`/jobs/${companySlug}/tickets/${ticket.id}`)}
-                        className="hover:bg-gray-50 transition-colors group cursor-pointer"
+                        className="hover:bg-slate-50 transition-colors group cursor-pointer"
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>
-                            <h4 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                            <h4 className="font-semibold text-slate-900 group-hover:text-brand-600 transition-colors">
                               {ticket.title}
                             </h4>
-                            <p className="text-sm text-gray-500 truncate max-w-xs">
+                            <p className="text-sm text-slate-500 truncate max-w-xs">
                               {ticket.description}
                             </p>
                           </div>
@@ -436,8 +436,8 @@ export default function TicketsPage() {
                         {isHrinnoAdmin && (
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center gap-2">
-                              <Building className="w-4 h-4 text-gray-400" />
-                              <span className="text-sm text-gray-600">
+                              <Building className="w-4 h-4 text-slate-400" />
+                              <span className="text-sm text-slate-600">
                                 {ticket.company?.name || t('ticketsPage.common.unknown')}
                               </span>
                             </div>
@@ -445,15 +445,15 @@ export default function TicketsPage() {
                         )}
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-2">
-                            <User className="w-4 h-4 text-gray-400" />
+                            <User className="w-4 h-4 text-slate-400" />
                             <div>
-                              <p className="text-sm font-medium text-gray-900">{ticket.user_name}</p>
-                              <p className="text-xs text-gray-500">{ticket.user_email}</p>
+                              <p className="text-sm font-medium text-slate-900">{ticket.user_name}</p>
+                              <p className="text-xs text-slate-500">{ticket.user_email}</p>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center gap-1 text-sm text-gray-600">
+                          <div className="flex items-center gap-1 text-sm text-slate-600">
                             <Calendar className="w-4 h-4" />
                             {formatDate(ticket.created_at)}
                           </div>
@@ -461,13 +461,13 @@ export default function TicketsPage() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-3">
                             {ticket.message_count > 0 && (
-                              <div className="flex items-center gap-1 text-xs text-gray-500">
+                              <div className="flex items-center gap-1 text-xs text-slate-500">
                                 <MessageSquare className="w-3 h-3" />
                                 {ticket.message_count}
                               </div>
                             )}
                             {ticket.attachment_count > 0 && (
-                              <div className="flex items-center gap-1 text-xs text-gray-500">
+                              <div className="flex items-center gap-1 text-xs text-slate-500">
                                 <Paperclip className="w-3 h-3" />
                                 {ticket.attachment_count}
                               </div>
@@ -486,14 +486,14 @@ export default function TicketsPage() {
                 <div
                   key={ticket.id}
                   onClick={() => router.push(`/jobs/${companySlug}/tickets/${ticket.id}`)}
-                  className="bg-white rounded-2xl p-4 shadow-lg border border-gray-100 cursor-pointer hover:shadow-xl transition-shadow"
+                  className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 cursor-pointer hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-gray-900 truncate">
+                      <h4 className="font-semibold text-slate-900 truncate">
                         {ticket.title}
                       </h4>
-                      <p className="text-sm text-gray-500 line-clamp-2 mt-1">
+                      <p className="text-sm text-slate-500 line-clamp-2 mt-1">
                         {ticket.description}
                       </p>
                     </div>
@@ -507,7 +507,7 @@ export default function TicketsPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between text-sm text-gray-600">
+                  <div className="flex items-center justify-between text-sm text-slate-600">
                     <div className="flex items-center gap-2">
                       <User className="w-4 h-4" />
                       <span className="truncate">{ticket.user_name}</span>
@@ -519,14 +519,14 @@ export default function TicketsPage() {
                   </div>
 
                   {isHrinnoAdmin && (
-                    <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-2 mt-2 text-sm text-slate-600">
                       <Building className="w-4 h-4" />
                       <span>{ticket.company?.name || t('ticketsPage.common.unknownCompany')}</span>
                     </div>
                   )}
 
                   {(ticket.message_count > 0 || ticket.attachment_count > 0) && (
-                    <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
+                    <div className="flex items-center gap-4 mt-3 text-xs text-slate-500">
                       {ticket.message_count > 0 && (
                         <div className="flex items-center gap-1">
                           <MessageSquare className="w-3 h-3" />

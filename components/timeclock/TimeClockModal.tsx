@@ -225,23 +225,23 @@ export default function TimeClockModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-white px-6 py-4 border-b border-gray-200 flex items-center justify-between rounded-t-2xl">
+        <div className="sticky top-0 bg-white px-6 py-4 border-b border-slate-200 flex items-center justify-between rounded-t-2xl">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-              <Clock className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 bg-brand-50 rounded-full flex items-center justify-center">
+              <Clock className="w-5 h-5 text-brand-600" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">
+              <h2 className="text-lg font-bold text-slate-900">
                 {t('timeClockModal.header.title')}
               </h2>
-              <p className="text-xs text-gray-600">{userName}</p>
+              <p className="text-xs text-slate-600">{userName}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-slate-400 hover:text-slate-600 transition-colors"
           >
             <X className="w-6 h-6" />
           </button>
@@ -266,16 +266,16 @@ export default function TimeClockModal({
 
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+              <Loader2 className="w-8 h-8 animate-spin text-brand-600" />
             </div>
           ) : (
             <>
               {/* Current Time */}
-              <div className="text-center bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6 border border-blue-100">
-                <div className="text-4xl font-bold text-gray-900 font-mono mb-2">
+              <div className="text-center bg-slate-50 rounded-xl p-6 border border-brand-100">
+                <div className="text-4xl font-bold text-slate-900 font-mono mb-2">
                   {formatTime(currentTime)}
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-slate-600">
                   {currentTime.toLocaleDateString('en-US', {
                     weekday: 'long',
                     month: 'long',
@@ -289,7 +289,7 @@ export default function TimeClockModal({
                 <button
                   onClick={handleClockIn}
                   disabled={actionLoading}
-                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-emerald-600 hover:bg-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-sm hover:shadow-md transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <div className="flex items-center justify-center gap-2">
                     {actionLoading ? (
@@ -319,10 +319,10 @@ export default function TimeClockModal({
                     </div>
 
                     <div className="bg-white rounded-lg p-3 border border-green-200">
-                      <p className="text-xs text-gray-600 mb-1">
+                      <p className="text-xs text-slate-600 mb-1">
                         {t('timeClockModal.clock.activeSession.timeWorked')}
                       </p>
-                      <div className="text-2xl font-bold text-gray-900 font-mono">
+                      <div className="text-2xl font-bold text-slate-900 font-mono">
                         {calculateWorkedHours()}
                       </div>
                     </div>
@@ -332,7 +332,7 @@ export default function TimeClockModal({
                   <button
                     onClick={handleClockOut}
                     disabled={actionLoading}
-                    className="w-full bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-red-600 hover:bg-red-600 text-white py-4 rounded-xl font-bold text-lg shadow-sm hover:shadow-md transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <div className="flex items-center justify-center gap-2">
                       {actionLoading ? (
@@ -348,19 +348,19 @@ export default function TimeClockModal({
 
               {/* Weekly Summary */}
               {weeklySummary && (
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                   <div className="flex items-center gap-2 mb-3">
-                    <TrendingUp className="w-4 h-4 text-blue-600" />
-                    <h3 className="font-semibold text-gray-900 text-sm">
+                    <TrendingUp className="w-4 h-4 text-brand-600" />
+                    <h3 className="font-semibold text-slate-900 text-sm">
                       {t('timeClockModal.clock.weeklySummary.title')}
                     </h3>
                   </div>
                   <div className="grid grid-cols-3 gap-3">
                     <div className="text-center">
-                      <p className="text-xl font-bold text-gray-900">
+                      <p className="text-xl font-bold text-slate-900">
                         {weeklySummary.totalHours.toFixed(1)}
                       </p>
-                      <p className="text-xs text-gray-600">
+                      <p className="text-xs text-slate-600">
                         {t('timeClockModal.clock.weeklySummary.hours')}
                       </p>
                     </div>
@@ -368,7 +368,7 @@ export default function TimeClockModal({
                       <p className="text-xl font-bold text-green-600">
                         {weeklySummary.onTimeDays}
                       </p>
-                      <p className="text-xs text-gray-600">
+                      <p className="text-xs text-slate-600">
                         {t('timeClockModal.clock.weeklySummary.onTime')}
                       </p>
                     </div>
@@ -376,7 +376,7 @@ export default function TimeClockModal({
                       <p className="text-xl font-bold text-orange-600">
                         {weeklySummary.overtimeHours.toFixed(1)}
                       </p>
-                      <p className="text-xs text-gray-600">
+                      <p className="text-xs text-slate-600">
                         {t('timeClockModal.clock.weeklySummary.overtime')}
                       </p>
                     </div>
@@ -391,7 +391,7 @@ export default function TimeClockModal({
                     onClose();
                     onOpenManagerDashboard();
                   }}
-                  className="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 py-3 rounded-xl font-medium text-sm transition-colors border border-indigo-200"
+                  className="w-full bg-brand-50 hover:bg-brand-100 text-brand-700 py-3 rounded-xl font-medium text-sm transition-colors border border-brand-200"
                 >
                   {t('timeClockModal.actions.viewTeamDashboard')}
                 </button>
@@ -400,7 +400,7 @@ export default function TimeClockModal({
               {/* View Full History Link */}
               <button
                 onClick={onClose}
-                className="w-full text-blue-600 hover:text-blue-700 py-2 text-sm font-medium transition-colors"
+                className="w-full text-brand-600 hover:text-brand-700 py-2 text-sm font-medium transition-colors"
               >
                 {t('timeClockModal.actions.viewFullHistory')}
               </button>

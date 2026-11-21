@@ -9,7 +9,7 @@ const CookiesDemoContent: React.FC = () => {
   const { t } = useLocale();
 
   return (
-    <div className="max-w-4xl mx-auto py-12 px-6 text-gray-800">
+    <div className="max-w-4xl mx-auto py-12 px-6 text-slate-800">
       <h1 className="text-3xl font-bold mb-6">{t('cookiesDemo.title')}</h1>
 
       <p className="mb-4">{t('cookiesDemo.intro')}</p>
@@ -37,8 +37,8 @@ const CookiesDemoContent: React.FC = () => {
         {t('cookiesDemo.sections.specificStorage.title')}
       </h2>
       <div className="overflow-x-auto mb-4">
-        <table className="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
-          <thead className="bg-gray-50">
+        <table className="min-w-full text-sm border border-slate-200 rounded-lg overflow-hidden">
+          <thead className="bg-slate-50">
             <tr>
               <th className="text-left px-3 py-2 font-semibold">{t('cookiesDemo.sections.specificStorage.columns.name')}</th>
               <th className="text-left px-3 py-2 font-semibold">{t('cookiesDemo.sections.specificStorage.columns.type')}</th>
@@ -49,12 +49,12 @@ const CookiesDemoContent: React.FC = () => {
           </thead>
           <tbody>
             {STORAGE_ITEM_KEYS.map((key) => (
-              <tr key={key} className="border-t border-gray-100">
+              <tr key={key} className="border-t border-slate-100">
                 <td className="px-3 py-2 font-mono text-xs">{t(`cookiesDemo.sections.specificStorage.items.${key}.name`)}</td>
                 <td className="px-3 py-2">{t(`cookiesDemo.sections.specificStorage.items.${key}.type`)}</td>
-                <td className="px-3 py-2 text-gray-600">{t(`cookiesDemo.sections.specificStorage.items.${key}.purpose`)}</td>
-                <td className="px-3 py-2 text-gray-600">{t(`cookiesDemo.sections.specificStorage.items.${key}.duration`)}</td>
-                <td className="px-3 py-2 text-gray-600">{t(`cookiesDemo.sections.specificStorage.items.${key}.consent`)}</td>
+                <td className="px-3 py-2 text-slate-600">{t(`cookiesDemo.sections.specificStorage.items.${key}.purpose`)}</td>
+                <td className="px-3 py-2 text-slate-600">{t(`cookiesDemo.sections.specificStorage.items.${key}.duration`)}</td>
+                <td className="px-3 py-2 text-slate-600">{t(`cookiesDemo.sections.specificStorage.items.${key}.consent`)}</td>
               </tr>
             ))}
           </tbody>
@@ -73,13 +73,13 @@ const CookiesDemoContent: React.FC = () => {
         {t('cookiesDemo.sections.moreInfo.text')}{' '}
         <a
           href="mailto:info@hrinno.hu"
-          className="text-blue-600 underline hover:text-blue-800"
+          className="text-brand-600 underline hover:text-brand-800"
         >
           info@hrinno.hu
         </a>
       </p>
 
-      <p className="text-sm text-gray-500 mt-8">
+      <p className="text-sm text-slate-500 mt-8">
         {t('cookiesDemo.lastUpdated')}
       </p>
     </div>

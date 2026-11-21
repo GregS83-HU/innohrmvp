@@ -18,29 +18,29 @@ const Footer: React.FC = () => {
     jobSlug ? `/jobs/${jobSlug}/${subpath}` : `/${subpath}`;
 
   return (
-    <footer className="text-center text-sm text-gray-500 mt-8 py-6 border-t border-gray-200">
+    <footer className="text-center text-sm text-slate-500 mt-8 py-6 border-t border-slate-200">
       <p>© {new Date().getFullYear()} HRInno – {t('footer.operatedBy')}</p>
 
       <div className="flex justify-center gap-4 mt-2 flex-wrap">
-        <Link href={makePath('privacy')} className="underline hover:text-blue-600">
+        <Link href={makePath('privacy')} className="underline hover:text-brand-600">
           {t('footer.privacyLink')}
         </Link>
         <a
           href="https://www.hrinno.hu/terms"
           target="_blank"
           rel="noopener noreferrer"
-          className="underline hover:text-blue-600"
+          className="underline hover:text-brand-600"
         >
           {t('footer.termsLink')}
         </a>
-        <Link href={makePath('cookies')} className="underline hover:text-blue-600">
+        <Link href={makePath('cookies')} className="underline hover:text-brand-600">
           {t('footer.cookiesLink')}
         </Link>
         <a
           href="https://www.hrinno.hu/legal-notice"
           target="_blank"
           rel="noopener noreferrer"
-          className="underline hover:text-blue-600"
+          className="underline hover:text-brand-600"
         >
           {t('footer.impressumLink')}
         </a>
@@ -50,7 +50,7 @@ const Footer: React.FC = () => {
         {t('footer.contact')}{' '}
         <a
           href="mailto:info@hrinno.hu"
-          className="underline hover:text-blue-600"
+          className="underline hover:text-brand-600"
         >
           info@hrinno.hu
         </a>

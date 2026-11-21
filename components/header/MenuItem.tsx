@@ -26,9 +26,9 @@ export const HappyCheckMenuItem = ({
 
   if (isLoading) {
     return (
-      <div className={`${className.replace(/bg-\w+-\d+/, 'bg-gray-100').replace(/text-\w+-\d+/, 'text-gray-400')} cursor-wait relative`}>
+      <div className={`${className.replace(/bg-\w+-\d+/, 'bg-slate-100').replace(/text-\w+-\d+/, 'text-slate-400')} cursor-wait relative`}>
         {children}
-        <div className="absolute inset-0 bg-gray-200 opacity-20 rounded-xl"></div>
+        <div className="absolute inset-0 bg-slate-200 opacity-20 rounded-xl"></div>
       </div>
     );
   }
@@ -39,11 +39,11 @@ export const HappyCheckMenuItem = ({
       : t('menuItem.tooltips.notAvailable');
 
     return (
-      <div className={`${className.replace(/bg-\w+-\d+/, 'bg-gray-100').replace(/text-\w+-\d+/, 'text-gray-400')} cursor-not-allowed relative group`}>
+      <div className={`${className.replace(/bg-\w+-\d+/, 'bg-slate-100').replace(/text-\w+-\d+/, 'text-slate-400')} cursor-not-allowed relative group`}>
         {children}
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
           {tooltipMessage}
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-900"></div>
         </div>
       </div>
     );
@@ -79,11 +79,11 @@ export const DemoAwareMenuItem = ({
 
   if (isDisabled) {
     return (
-      <div className={`${className.replace(/bg-\w+-\d+/, 'bg-gray-100').replace(/text-\w+-\d+/, 'text-gray-400')} cursor-not-allowed relative group`}>
+      <div className={`${className.replace(/bg-\w+-\d+/, 'bg-slate-100').replace(/text-\w+-\d+/, 'text-slate-400')} cursor-not-allowed relative group`}>
         {children}
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
           {t('menuItem.tooltips.demoExpired')}
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-900"></div>
         </div>
       </div>
     );

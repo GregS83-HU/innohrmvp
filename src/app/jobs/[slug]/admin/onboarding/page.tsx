@@ -19,10 +19,10 @@ interface Company {
 
 function EmailStatusBadge({ sentAt }: { sentAt: string | null }) {
   if (!sentAt) {
-    return <span className="text-gray-400">Not sent</span>
+    return <span className="text-slate-400">Not sent</span>
   }
   return (
-    <span className="inline-flex items-center gap-1 text-gray-600" title={new Date(sentAt).toLocaleString()}>
+    <span className="inline-flex items-center gap-1 text-slate-600" title={new Date(sentAt).toLocaleString()}>
       <Mail className="w-3.5 h-3.5" /> Sent
     </span>
   )
@@ -81,13 +81,13 @@ export default function OnboardingAdminPage() {
   const callBackCount = companies.filter((c) => c.assisted_onboarding_requested && !c.assisted_call_completed_at).length
 
   return (
-    <div className="min-h-screen p-6 md:p-10 bg-gray-50">
+    <div className="min-h-screen p-6 md:p-10 bg-slate-50">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center gap-2 mb-2">
           <ClipboardCheck className="w-6 h-6 text-brand-600" />
-          <h1 className="text-2xl font-bold text-gray-800">Onboarding</h1>
+          <h1 className="text-2xl font-bold text-slate-800">Onboarding</h1>
         </div>
-        <p className="text-gray-500 mb-4 text-sm">
+        <p className="text-slate-500 mb-4 text-sm">
           Companies onboard themselves: time &amp; attendance, absences, performance management, the AI
           wellbeing chatbot and medical certificates unlock automatically when the setup wizard is finished
           and the first subscription payment succeeds. The toggle below is a manual override.
@@ -106,13 +106,13 @@ export default function OnboardingAdminPage() {
 
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           {loading ? (
-            <div className="p-6 text-sm text-gray-400">Loading…</div>
+            <div className="p-6 text-sm text-slate-400">Loading…</div>
           ) : companies.length === 0 ? (
-            <div className="p-6 text-sm text-gray-400">No companies found.</div>
+            <div className="p-6 text-sm text-slate-400">No companies found.</div>
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 text-left text-gray-500">
+                <tr className="border-b border-slate-100 text-left text-slate-500">
                   <th className="px-4 py-3 font-medium">Company</th>
                   <th className="px-4 py-3 font-medium">Slug</th>
                   <th className="px-4 py-3 font-medium">Plan</th>
@@ -125,10 +125,10 @@ export default function OnboardingAdminPage() {
               </thead>
               <tbody>
                 {companies.map((c) => (
-                  <tr key={c.id} className="border-b border-gray-50 last:border-0">
-                    <td className="px-4 py-3 text-gray-900">{c.company_name || '—'}</td>
-                    <td className="px-4 py-3 text-gray-500">{c.slug || '—'}</td>
-                    <td className="px-4 py-3 text-gray-700">{c.forfait || 'Free'}</td>
+                  <tr key={c.id} className="border-b border-slate-50 last:border-0">
+                    <td className="px-4 py-3 text-slate-900">{c.company_name || '—'}</td>
+                    <td className="px-4 py-3 text-slate-500">{c.slug || '—'}</td>
+                    <td className="px-4 py-3 text-slate-700">{c.forfait || 'Free'}</td>
                     <td className="px-4 py-3">
                       {c.onboarding_completed ? (
                         <span className="inline-flex items-center gap-1 text-green-700">
@@ -142,7 +142,7 @@ export default function OnboardingAdminPage() {
                     </td>
                     <td className="px-4 py-3">
                       {!c.assisted_onboarding_requested ? (
-                        <span className="text-gray-400">No</span>
+                        <span className="text-slate-400">No</span>
                       ) : (
                         <button
                           onClick={() => handleCallToggle(c)}
@@ -171,7 +171,7 @@ export default function OnboardingAdminPage() {
                         disabled={saving === c.id}
                         className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 ${
                           c.onboarding_completed
-                            ? 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                            ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                             : 'bg-brand-600 hover:bg-brand-700 text-white'
                         }`}
                       >

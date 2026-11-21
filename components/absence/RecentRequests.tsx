@@ -153,15 +153,15 @@ const RecentRequests: React.FC<Props> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+    <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <FileText className="w-5 h-5 text-blue-600" />
+        <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+          <FileText className="w-5 h-5 text-brand-600" />
           {t('recentRequests.title')}
         </h2>
         <button
           onClick={onRefresh}
-          className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+          className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
         </button>
@@ -169,11 +169,11 @@ const RecentRequests: React.FC<Props> = ({
 
       {requests.length === 0 ? (
         <div className="text-center py-8">
-          <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 mb-4">{t('recentRequests.empty.noRequests')}</p>
+          <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+          <p className="text-slate-500 mb-4">{t('recentRequests.empty.noRequests')}</p>
           <button
             onClick={onOpenRequestModal}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors"
+            className="px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-medium transition-colors"
           >
             {t('recentRequests.empty.firstLeaveButton')}
           </button>
@@ -198,7 +198,7 @@ const RecentRequests: React.FC<Props> = ({
                           className="w-3 h-3 rounded-full"
                           style={{ backgroundColor: request.leave_type_color }}
                         />
-                        <h3 className="font-semibold text-gray-900">
+                        <h3 className="font-semibold text-slate-900">
                           {request.leave_type_name_hu}
                         </h3>
                         <div className="ml-2">
@@ -206,7 +206,7 @@ const RecentRequests: React.FC<Props> = ({
                         </div>
                       </div>
 
-                      <div className="text-sm text-gray-600 space-y-1">
+                      <div className="text-sm text-slate-600 space-y-1">
                         <p>
                           <span className="font-medium">{t('recentRequests.fields.period')}</span>{' '}
                           {formatDate(request.start_date)} - {formatDate(request.end_date)}
@@ -231,7 +231,7 @@ const RecentRequests: React.FC<Props> = ({
                     </div>
 
                     <div className="flex flex-col items-end gap-2">
-                      <div className="text-xs text-gray-500 text-right">
+                      <div className="text-xs text-slate-500 text-right">
                         {t('recentRequests.fields.requested')} {formatDate(request.created_at)}
                         {request.reviewed_at && (
                           <>
@@ -257,7 +257,7 @@ const RecentRequests: React.FC<Props> = ({
                             <div className="bg-white rounded-lg border-2 border-red-200 p-3 min-w-[200px]">
                               <div className="flex items-center gap-2 mb-2">
                                 <AlertTriangle className="w-4 h-4 text-red-600" />
-                                <p className="text-sm font-semibold text-gray-900">
+                                <p className="text-sm font-semibold text-slate-900">
                                   {t('recentRequests.buttons.confirmCancel')}
                                 </p>
                               </div>
@@ -279,7 +279,7 @@ const RecentRequests: React.FC<Props> = ({
                                 <button
                                   onClick={() => setShowCancelConfirm(null)}
                                   disabled={isCancelling}
-                                  className="flex-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50"
+                                  className="flex-1 px-3 py-1.5 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors disabled:opacity-50"
                                 >
                                   {t('recentRequests.buttons.confirmNo')}
                                 </button>
@@ -305,7 +305,7 @@ const RecentRequests: React.FC<Props> = ({
                       request.status === 'pending' && (
                         <button
                           onClick={() => onUploadCertificateForRequest(request.id)}
-                          className="text-xs px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg font-medium transition-colors"
+                          className="text-xs px-3 py-1 bg-brand-100 hover:bg-brand-200 text-brand-700 rounded-lg font-medium transition-colors"
                         >
                           {t('recentRequests.buttons.uploadCertificate')}
                         </button>

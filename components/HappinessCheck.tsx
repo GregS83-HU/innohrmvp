@@ -293,22 +293,22 @@ const HappinessCheckInner: React.FC = () => {
 
   // Progress and scores component
   const ProgressSection: React.FC = () => (
-    <div className="border-t border-gray-200 bg-gray-50 p-3">
+    <div className="border-t border-slate-200 bg-slate-50 p-3">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-sm font-semibold text-gray-700">
+        <h2 className="text-sm font-semibold text-slate-700">
           {t('progress.title')}
           {companyName && (
-            <span className="text-xs font-normal text-blue-600 ml-2">• {companyName}</span>
+            <span className="text-xs font-normal text-brand-600 ml-2">• {companyName}</span>
           )}
         </h2>
-        <div className="text-sm text-gray-500 font-medium">
+        <div className="text-sm text-slate-500 font-medium">
           {t('progress.step', { currentStep })}
         </div>
       </div>
 
-      <div className="w-full bg-gray-300 rounded-full h-2 mb-3">
+      <div className="w-full bg-slate-300 rounded-full h-2 mb-3">
         <div
-          className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+          className="bg-brand-600 h-2 rounded-full transition-all duration-500"
           style={{ width: `${Math.max((currentStep / 12) * 100, 5)}%` }}
         />
       </div>
@@ -322,7 +322,7 @@ const HappinessCheckInner: React.FC = () => {
           ))}
         </div>
       ) : (
-        <div className="text-xs text-gray-500 text-center">
+        <div className="text-xs text-slate-500 text-center">
           {t('progress.permaIntro')}
         </div>
       )}
@@ -390,36 +390,36 @@ const HappinessCheckInner: React.FC = () => {
         : t('completion.poor');
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="min-h-screen bg-slate-50 p-4">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
             <div className="mb-6">
               <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('completion.thankYou')}</h1>
-              <p className="text-gray-600 text-lg">
+              <h1 className="text-3xl font-bold text-slate-800 mb-2">{t('completion.thankYou')}</h1>
+              <p className="text-slate-600 text-lg">
                 {t('completion.complete')}
-                {companyName && <span className="block mt-2 text-blue-600 font-medium">{t('completion.recordedFor', { companyName })}</span>}
+                {companyName && <span className="block mt-2 text-brand-600 font-medium">{t('completion.recordedFor', { companyName })}</span>}
               </p>
             </div>
 
-            <div className="mb-6 p-4 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200">
-              <h3 className="text-lg font-semibold text-blue-800 mb-2">{t('completion.summaryTitle')}</h3>
-              <p className="text-blue-700">{endMessage}</p>
+            <div className="mb-6 p-4 rounded-lg bg-slate-50 border border-brand-200">
+              <h3 className="text-lg font-semibold text-brand-800 mb-2">{t('completion.summaryTitle')}</h3>
+              <p className="text-brand-700">{endMessage}</p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-8 mb-8">
-              <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-6 text-white">
+              <div className="bg-brand-600 rounded-lg p-6 text-white">
                 <h2 className="text-xl font-semibold mb-2">{t('completion.overallScore')}</h2>
                 <div className="text-4xl font-bold mb-2">{avgScore}/10</div>
-                <p className="text-blue-100">{t('completion.happinessLevel')}</p>
+                <p className="text-brand-100">{t('completion.happinessLevel')}</p>
               </div>
 
-              <div className="bg-gray-50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4 text-gray-800">{t('completion.scoreByDomain')}</h3>
+              <div className="bg-slate-50 rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4 text-slate-800">{t('completion.scoreByDomain')}</h3>
                 <div className="space-y-2">
                   {Object.entries(permaScores).map(([key, score]) => (
                     <div key={key} className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">{permaLabels[key as keyof typeof permaLabels]}</span>
+                      <span className="text-sm text-slate-600">{permaLabels[key as keyof typeof permaLabels]}</span>
                       <span className={`px-2 py-1 rounded text-sm font-medium ${getScoreColor(score)}`}>
                         {getScoreEmoji(score)} {score}/10
                       </span>
@@ -430,24 +430,24 @@ const HappinessCheckInner: React.FC = () => {
             </div>
 
             {personalizedAdvice && personalizedAdvice.length > 0 ? (
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-6 mb-8">
-                <h3 className="text-xl font-semibold text-purple-800 mb-4 flex items-center gap-2">
+              <div className="bg-slate-50 border border-brand-200 rounded-lg p-6 mb-8">
+                <h3 className="text-xl font-semibold text-brand-800 mb-4 flex items-center gap-2">
                   <span className="text-2xl">💡</span>
                   {t('completion.adviceTitle')}
                 </h3>
-                <p className="text-purple-700 text-sm mb-4">{t('completion.adviceIntro')}</p>
+                <p className="text-brand-700 text-sm mb-4">{t('completion.adviceIntro')}</p>
                 <div className="space-y-3">
                   {personalizedAdvice.map((advice, index) => (
-                    <div key={index} className="bg-white/70 rounded-lg p-4 border border-purple-100 hover:shadow-sm transition-shadow">
+                    <div key={index} className="bg-white/70 rounded-lg p-4 border border-brand-100 hover:shadow-sm transition-shadow">
                       <div className="flex items-start gap-3">
-                        <span className="flex-shrink-0 w-6 h-6 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm font-semibold">{index + 1}</span>
-                        <p className="text-gray-700 text-sm leading-relaxed">{advice}</p>
+                        <span className="flex-shrink-0 w-6 h-6 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center text-sm font-semibold">{index + 1}</span>
+                        <p className="text-slate-700 text-sm leading-relaxed">{advice}</p>
                       </div>
                     </div>
                   ))}
                 </div>
                 <div className="mt-4 text-center">
-                  <p className="text-xs text-purple-600">{t('completion.aiTips')}</p>
+                  <p className="text-xs text-brand-600">{t('completion.aiTips')}</p>
                 </div>
               </div>
             ) : null}
@@ -459,12 +459,12 @@ const HappinessCheckInner: React.FC = () => {
             </div>
 
             <div className="flex gap-4 justify-center">
-              <button onClick={resetSession} className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              <button onClick={resetSession} className="flex items-center gap-2 px-6 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors">
                 <ArrowLeft className="w-4 h-4" />
                 {t('completion.newAssessment')}
               </button>
 
-              <button onClick={() => (window.location.href = companyId ? `/jobs/company-${companyId}` : '/')} className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+              <button onClick={() => (window.location.href = companyId ? `/jobs/company-${companyId}` : '/')} className="px-6 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors">
                 {companyName ? t('completion.backTo', { companyName }) : t('completion.backHome')}
               </button>
             </div>
@@ -477,25 +477,25 @@ const HappinessCheckInner: React.FC = () => {
   // Render pre-start view
   if (!sessionStarted && messages.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
         <div className="max-w-2xl mx-auto text-center">
-          <div className="bg-white rounded-xl shadow-lg p-8">
+          <div className="bg-white rounded-xl shadow-sm p-8">
             <div className="mb-6">
               <Heart className="w-16 h-16 text-red-500 mx-auto mb-4" />
-              <h1 className="text-3xl font-bold text-gray-800 mb-4">
+              <h1 className="text-3xl font-bold text-slate-800 mb-4">
                 {t('app.title')}
-                {companyName && <span className="block text-lg text-blue-600 font-medium mt-2">{t('app.subtitle', { companyName })}</span>}
+                {companyName && <span className="block text-lg text-brand-600 font-medium mt-2">{t('app.subtitle', { companyName })}</span>}
               </h1>
-              <p className="text-gray-600 text-lg mb-6">
+              <p className="text-slate-600 text-lg mb-6">
                 {t('app.description')}
               </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-4 mb-8">
-              <div className="flex flex-col items-center p-4 bg-blue-50 rounded-lg">
-                <MessageCircle className="w-8 h-8 text-blue-600 mb-2" />
-                <h3 className="font-semibold text-blue-800">{t('features.conversationalTitle')}</h3>
-                <p className="text-sm text-blue-600 text-center">{t('features.conversationalText')}</p>
+              <div className="flex flex-col items-center p-4 bg-brand-50 rounded-lg">
+                <MessageCircle className="w-8 h-8 text-brand-600 mb-2" />
+                <h3 className="font-semibold text-brand-800">{t('features.conversationalTitle')}</h3>
+                <p className="text-sm text-brand-600 text-center">{t('features.conversationalText')}</p>
               </div>
 
               <div className="flex flex-col items-center p-4 bg-green-50 rounded-lg">
@@ -504,10 +504,10 @@ const HappinessCheckInner: React.FC = () => {
                 <p className="text-sm text-green-600 text-center">{t('features.scientificText')}</p>
               </div>
 
-              <div className="flex flex-col items-center p-4 bg-purple-50 rounded-lg">
-                <CheckCircle className="w-8 h-8 text-purple-600 mb-2" />
-                <h3 className="font-semibold text-purple-800">{t('features.quickTitle')}</h3>
-                <p className="text-sm text-purple-600 text-center">
+              <div className="flex flex-col items-center p-4 bg-brand-50 rounded-lg">
+                <CheckCircle className="w-8 h-8 text-brand-600 mb-2" />
+                <h3 className="font-semibold text-brand-800">{t('features.quickTitle')}</h3>
+                <p className="text-sm text-brand-600 text-center">
                   {t('features.quickText')}
                   <span className="block text-xs mt-1 opacity-80">{t('features.quickSub')}</span>
                 </p>
@@ -543,11 +543,11 @@ const HappinessCheckInner: React.FC = () => {
               </div>
             ) : (
               <>
-                <button onClick={createSession} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105">
+                <button onClick={createSession} className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-md hover:shadow-lg transform ">
                   {t('app.startButton')}
                 </button>
 
-                <p className="text-xs text-gray-500 mt-4">
+                <p className="text-xs text-slate-500 mt-4">
                   {t('app.noPersonalData')}
                   {companyName && ` ${t('app.resultsIncluded', { companyName })}`}
                 </p>
@@ -561,12 +561,12 @@ const HappinessCheckInner: React.FC = () => {
 
   // Main chat view (session started)
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div className="min-h-screen bg-slate-50 p-4">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white shadow-lg rounded-lg overflow-hidden" style={{ height: 'calc(100vh - 2rem)' }}>
+        <div className="bg-white shadow-sm rounded-lg overflow-hidden" style={{ height: 'calc(100vh - 2rem)' }}>
           {/* Header */}
           <div className="bg-white border-b p-3">
-            <h1 className="text-lg font-bold text-gray-800 text-center">{t('app.header')}</h1>
+            <h1 className="text-lg font-bold text-slate-800 text-center">{t('app.header')}</h1>
           </div>
 
           {/* Scrollable Messages Area - ref attached */}
@@ -580,12 +580,12 @@ const HappinessCheckInner: React.FC = () => {
           >
             {messages.map((message, index) => (
               <div key={message.id} data-message-index={index} className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}>
-                <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${message.isBot ? 'bg-gray-100 text-gray-800' : 'bg-blue-600 text-white'} ${message.typing ? 'animate-pulse' : ''}`}>
+                <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${message.isBot ? 'bg-slate-100 text-slate-800' : 'bg-brand-600 text-white'} ${message.typing ? 'animate-pulse' : ''}`}>
                   {message.typing ? (
                     <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                      <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" />
+                      <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                      <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
                     </div>
                   ) : (
                     <p className="whitespace-pre-wrap">{message.text}</p>
@@ -606,14 +606,14 @@ const HappinessCheckInner: React.FC = () => {
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder={t('app.inputPlaceholder')}
-                className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 disabled={isLoading}
                 // IMPORTANT: do NOT autoFocus here — we control focus from effects
               />
               <button
                 onClick={handleSubmit}
                 disabled={isLoading || !inputValue.trim()}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-brand-600 text-white px-4 py-2 rounded-lg hover:bg-brand-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -622,7 +622,7 @@ const HappinessCheckInner: React.FC = () => {
             {/* Progress Section (between chat and footer) */}
             <ProgressSection />
 
-            <p className="text-xs text-gray-500 text-center mt-3">
+            <p className="text-xs text-slate-500 text-center mt-3">
               {t('app.confidentiality')}
               {companyName && ` ${t('app.aggregate', { companyName })}`}
             </p>
@@ -637,10 +637,10 @@ const HappinessCheck: React.FC = () => {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
-            <p className="text-gray-600">{/* use t in parent if available; simple fallback: */}Loading assessment...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600 mx-auto mb-4" />
+            <p className="text-slate-600">{/* use t in parent if available; simple fallback: */}Loading assessment...</p>
           </div>
         </div>
       }

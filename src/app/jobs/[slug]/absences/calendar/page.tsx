@@ -218,44 +218,44 @@ const CalendarPage: React.FC = () => {
 
   if (loading && !calendarData && !teamData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-2xl shadow-lg">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600 text-center">Loading calendar...</p>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-xl shadow-sm">
+          <Loader2 className="w-8 h-8 animate-spin text-brand-600 mx-auto mb-4" />
+          <p className="text-slate-600 text-center">Loading calendar...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-6 lg:p-8 print:bg-white print:p-0">
+    <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8 print:bg-white print:p-0">
       <div className="max-w-[1800px] mx-auto">
         {/* Header & Controls */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6 print:hidden">
           <div className="flex items-center gap-3">
             <button onClick={() => router.back()} className="p-2 hover:bg-white rounded-lg transition-colors">
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
+              <ArrowLeft className="w-5 h-5 text-slate-600" />
             </button>
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl flex items-center justify-center">
-              <Calendar className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center">
+              <Calendar className="w-6 h-6 text-brand-600" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Calendar View</h1>
-              <p className="text-gray-600">Year-round absence overview</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Calendar View</h1>
+              <p className="text-slate-600">Year-round absence overview</p>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <select value={selectedYear} onChange={(e) => setSelectedYear(Number(e.target.value))} className="px-4 py-2 border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <select value={selectedYear} onChange={(e) => setSelectedYear(Number(e.target.value))} className="px-4 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
               {yearOptions.map(y => <option key={y} value={y}>{y}</option>)}
             </select>
 
             {isManager && (
-              <div className="flex bg-white border border-gray-200 rounded-xl p-1">
-                <button onClick={() => setViewMode('my')} className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${viewMode === 'my' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:text-gray-900'}`}>
+              <div className="flex bg-white border border-slate-200 rounded-xl p-1">
+                <button onClick={() => setViewMode('my')} className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${viewMode === 'my' ? 'bg-brand-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'}`}>
                   <UserIcon className="w-4 h-4 inline mr-1" /> My View
                 </button>
-                <button onClick={() => setViewMode('manager')} className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${viewMode === 'manager' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:text-gray-900'}`}>
+                <button onClick={() => setViewMode('manager')} className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${viewMode === 'manager' ? 'bg-brand-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'}`}>
                   <Users className="w-4 h-4 inline mr-1" /> Team View
                 </button>
               </div>
@@ -263,10 +263,10 @@ const CalendarPage: React.FC = () => {
 
             {viewMode === 'my' && (
               <>
-                <button onClick={exportToPDF} className="px-4 py-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-sm font-medium">
+                <button onClick={exportToPDF} className="px-4 py-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm font-medium">
                   <Download className="w-4 h-4 inline mr-1" /> PDF
                 </button>
-                <button onClick={exportToICal} className="px-4 py-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-sm font-medium">
+                <button onClick={exportToICal} className="px-4 py-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm font-medium">
                   <Download className="w-4 h-4 inline mr-1" /> iCal
                 </button>
               </>
@@ -277,13 +277,13 @@ const CalendarPage: React.FC = () => {
         <CalendarLegend viewMode={viewMode} leaveTypes={calendarData?.leave_balances || []} />
 
         {viewMode === 'my' && calendarData?.leave_balances && (
-          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mt-4 print:hidden">
-            <h3 className="font-semibold text-gray-900 mb-3 text-sm">Leave Balances</h3>
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 mt-4 print:hidden">
+            <h3 className="font-semibold text-slate-900 mb-3 text-sm">Leave Balances</h3>
             <div className="flex flex-wrap gap-4">
               {calendarData.leave_balances.map(b => (
                 <div key={b.leave_type_id} className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: b.leave_type_color }} />
-                  <span className="text-sm text-gray-600">{b.leave_type_name_hu}: <span className="font-semibold text-gray-900 ml-1">{b.remaining_days}/{b.total_days}</span></span>
+                  <span className="text-sm text-slate-600">{b.leave_type_name_hu}: <span className="font-semibold text-slate-900 ml-1">{b.remaining_days}/{b.total_days}</span></span>
                 </div>
               ))}
             </div>
@@ -291,9 +291,9 @@ const CalendarPage: React.FC = () => {
         )}
 
         {viewMode === 'manager' && teamData && (
-          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mt-4 print:hidden">
-            <p className="text-sm text-gray-600">
-              Managing <span className="font-semibold text-gray-900">{teamData.team_size}</span> team member{teamData.team_size !== 1 ? 's' : ''}
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 mt-4 print:hidden">
+            <p className="text-sm text-slate-600">
+              Managing <span className="font-semibold text-slate-900">{teamData.team_size}</span> team member{teamData.team_size !== 1 ? 's' : ''}
             </p>
           </div>
         )}

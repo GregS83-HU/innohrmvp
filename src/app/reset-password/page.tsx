@@ -98,8 +98,8 @@ export default function ResetPasswordPage() {
     return (
       <div className="p-6 max-w-md mx-auto">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="mt-2 text-gray-600">{t('resetPage.loading') || 'Loading...'}</p>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
+          <p className="mt-2 text-slate-600">{t('resetPage.loading') || 'Loading...'}</p>
         </div>
       </div>
     );
@@ -115,7 +115,7 @@ export default function ResetPasswordPage() {
           <p className="text-red-700 mb-4">{error}</p>
           <button
             onClick={handleBackToApp}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors"
+            className="w-full bg-brand-600 hover:bg-brand-700 text-white py-3 rounded-lg transition-colors"
           >
             {t('resetPage.buttons.backToHome') || 'Back to Home'}
           </button>
@@ -158,7 +158,7 @@ export default function ResetPasswordPage() {
         <button
           onClick={handleUpdate}
           disabled={success}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-brand-600 hover:bg-brand-700 text-white py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {t('resetPage.buttons.save')}
         </button>
@@ -166,7 +166,7 @@ export default function ResetPasswordPage() {
         {success && (
           <button
             onClick={handleBackToApp}
-            className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg transition-colors"
+            className="w-full bg-slate-600 hover:bg-slate-700 text-white py-3 rounded-lg transition-colors"
           >
             {t('resetPage.buttons.backToApp') || 'Back to Application'}
           </button>

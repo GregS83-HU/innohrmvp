@@ -284,10 +284,10 @@ export default function NewOpenedPositionPage() {
   // --- Loading / access gate ---
   if (!session || canCreatePosition === null) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-slate-600">
             {!session ? t('newPosition.loading.userInfo') : t('newPosition.loading.checkingLimits')}
           </p>
         </div>
@@ -301,18 +301,18 @@ export default function NewOpenedPositionPage() {
 
         {/* Header */}
         <div className="text-center">
-          <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
+          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 lg:p-8">
             <Plus className="w-12 h-12 text-green-600 mx-auto mb-4" />
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-2">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-800 mb-2">
               {t('newPosition.header.title')}
             </h1>
-            <p className="text-gray-600">{t('newPosition.header.subtitle')}</p>
+            <p className="text-slate-600">{t('newPosition.header.subtitle')}</p>
           </div>
         </div>
 
         {/* Limit reached banner */}
         {canCreatePosition === false && (
-          <div className="bg-gradient-to-br from-red-50 to-rose-100 border border-red-200 rounded-2xl shadow-sm overflow-hidden">
+          <div className="bg-red-50 border border-red-200 rounded-xl shadow-sm overflow-hidden">
             <div className="p-4 sm:p-6 lg:p-8 text-center">
               <div className="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Lock className="w-8 h-8 text-red-600" />
@@ -339,7 +339,7 @@ export default function NewOpenedPositionPage() {
 
             {/* Message banner */}
             {message && (
-              <div className={`rounded-2xl p-4 sm:p-6 ${
+              <div className={`rounded-xl p-4 sm:p-6 ${
                 message.type === 'success' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
               }`}>
                 <div className="flex items-center gap-2">
@@ -357,16 +357,16 @@ export default function NewOpenedPositionPage() {
 
             {/* Analysis launcher */}
             {positionId && (
-              <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+              <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                 <div className="p-4 sm:p-6 lg:p-8">
-                  <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-4">
+                  <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-800 mb-4">
                     <Activity className="w-5 h-5" />
                     {t('newPosition.analysis.title')}
                   </h3>
                   <button
                     onClick={handleAnalyseClick}
                     disabled={analysisLoading || fetchingCount}
-                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-6 rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none mb-4"
+                    className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-3 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none mb-4"
                   >
                     {fetchingCount ? (
                       <>
@@ -386,9 +386,9 @@ export default function NewOpenedPositionPage() {
                     )}
                   </button>
                   {analysisLoading && (
-                    <div className="bg-gray-200 rounded-full h-3 overflow-hidden mb-4">
+                    <div className="bg-slate-200 rounded-full h-3 overflow-hidden mb-4">
                       <div
-                        className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 transition-all duration-300 rounded-full"
+                        className="bg-emerald-600 h-3 transition-all duration-300 rounded-full"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
@@ -399,18 +399,18 @@ export default function NewOpenedPositionPage() {
 
             {/* Analysis results */}
             {analysisResult && (
-              <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+              <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                 <div className="p-4 sm:p-6 lg:p-8">
-                  <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-4">
+                  <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-800 mb-4">
                     <BarChart3 className="w-5 h-5" />
                     {t('newPosition.results.title')}
                   </h3>
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-4">
+                  <div className="bg-slate-50 rounded-lg p-4 mb-4">
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-blue-600 mb-1">
+                      <div className="text-3xl font-bold text-brand-600 mb-1">
                         {analysisResult.matched} / {analysisResult.total}
                       </div>
-                      <p className="text-gray-600">{t('newPosition.results.matchingCandidates')}</p>
+                      <p className="text-slate-600">{t('newPosition.results.matchingCandidates')}</p>
                     </div>
                   </div>
                   <button
@@ -418,7 +418,7 @@ export default function NewOpenedPositionPage() {
                       const basePath = pathname.split('/openedpositions')[0]
                       router.push(`${basePath}/stats?positionId=${positionId}`)
                     }}
-                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+                    className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-3 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
                   >
                     <BarChart3 className="w-5 h-5" />
                     {t('newPosition.results.viewDetails')}

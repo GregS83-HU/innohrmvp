@@ -326,7 +326,7 @@ const PositionAnalytics: React.FC = () => {
   if (!moduleAccess.loading && !moduleAccess.advancedReportingEnabled) {
     if (!moduleAccess.isAdmin) return null;
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-slate-50 p-6">
         <LockedModuleNotice
           feature="reporting.advanced"
           plan={moduleAccess.plan}
@@ -337,13 +337,13 @@ const PositionAnalytics: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-slate-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header and selection */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">{t('analytics.header.title')}</h1>
+          <h1 className="text-3xl font-bold text-slate-900 mb-4">{t('analytics.header.title')}</h1>
           <div className="bg-white rounded-lg shadow p-6">
-            <label htmlFor="position-select" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="position-select" className="block text-sm font-medium text-slate-700 mb-2">
               {t('analytics.labels.selectPosition')}
             </label>
             <select
@@ -353,7 +353,7 @@ const PositionAnalytics: React.FC = () => {
                 const pos = positions.find(p => p.id === parseInt(e.target.value, 10));
                 setSelectedPosition(pos ?? null);
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
             >
               <option value="">{t('analytics.labels.choosePosition')}</option>
               {positions.map(p => (
@@ -365,15 +365,15 @@ const PositionAnalytics: React.FC = () => {
 
             {selectedPosition && (
               <div className="mt-4 flex flex-wrap gap-2">
-                <span className="text-sm font-medium text-gray-700 mr-2">{t('analytics.labels.period')}:</span>
+                <span className="text-sm font-medium text-slate-700 mr-2">{t('analytics.labels.period')}:</span>
                 {TIME_FILTERS.map(filter => (
                   <button
                     key={filter}
                     onClick={() => setTimeFilter(filter)}
                     className={`px-3 py-1 rounded-md text-sm font-medium ${
                       timeFilter === filter
-                        ? 'bg-blue-100 text-blue-700 border-blue-200'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-brand-100 text-brand-700 border-brand-200'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                     }`}
                   >
                     {timeFilterLabel(filter)}
@@ -398,54 +398,54 @@ const PositionAnalytics: React.FC = () => {
           </div>
         ) : !selectedPosition ? (
           <div className="text-center py-12">
-            <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">{t('analytics.placeholders.selectPositionTitle')}</h3>
-            <p className="text-gray-500">{t('analytics.placeholders.selectPositionDescription')}</p>
+            <Users className="mx-auto h-12 w-12 text-slate-400 mb-4" />
+            <h3 className="text-lg font-medium text-slate-900 mb-2">{t('analytics.placeholders.selectPositionTitle')}</h3>
+            <p className="text-slate-500">{t('analytics.placeholders.selectPositionDescription')}</p>
           </div>
         ) : loading ? (
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-500">{t('analytics.labels.loading')}</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600 mx-auto mb-4"></div>
+            <p className="text-slate-500">{t('analytics.labels.loading')}</p>
           </div>
         ) : !analytics ? (
           <div className="text-center py-12">
-            <TrendingUp className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">{t('analytics.placeholders.noDataTitle')}</h3>
-            <p className="text-gray-500">{t('analytics.placeholders.noDataDescription')}</p>
+            <TrendingUp className="mx-auto h-12 w-12 text-slate-400 mb-4" />
+            <h3 className="text-lg font-medium text-slate-900 mb-2">{t('analytics.placeholders.noDataTitle')}</h3>
+            <p className="text-slate-500">{t('analytics.placeholders.noDataDescription')}</p>
           </div>
         ) : (
           <div className="space-y-6">
             {/* KPIs */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="bg-white rounded-lg shadow p-6 flex items-center">
-                <Users className="h-8 w-8 text-blue-600" />
+                <Users className="h-8 w-8 text-brand-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">{t('analytics.kpis.totalApplications')}</p>
-                  <p className="text-2xl font-bold text-gray-900">{analytics.totalCandidates}</p>
+                  <p className="text-sm font-medium text-slate-600">{t('analytics.kpis.totalApplications')}</p>
+                  <p className="text-2xl font-bold text-slate-900">{analytics.totalCandidates}</p>
                 </div>
               </div>
 
               <div className="bg-white rounded-lg shadow p-6 flex items-center">
                 <Award className="h-8 w-8 text-green-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">{t('analytics.kpis.averageScore')}</p>
-                  <p className="text-2xl font-bold text-gray-900">{analytics.averageScore}/10</p>
+                  <p className="text-sm font-medium text-slate-600">{t('analytics.kpis.averageScore')}</p>
+                  <p className="text-2xl font-bold text-slate-900">{analytics.averageScore}/10</p>
                 </div>
               </div>
 
               <div className="bg-white rounded-lg shadow p-6 flex items-center">
-                <TrendingUp className="h-8 w-8 text-purple-600" />
+                <TrendingUp className="h-8 w-8 text-brand-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">{t('analytics.kpis.medianScore')}</p>
-                  <p className="text-2xl font-bold text-gray-900">{analytics.medianScore}/10</p>
+                  <p className="text-sm font-medium text-slate-600">{t('analytics.kpis.medianScore')}</p>
+                  <p className="text-2xl font-bold text-slate-900">{analytics.medianScore}/10</p>
                 </div>
               </div>
 
               <div className="bg-white rounded-lg shadow p-6 flex items-center">
                 <Clock className="h-8 w-8 text-orange-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">{t('analytics.kpis.candidatesPerDay')}</p>
-                  <p className="text-2xl font-bold text-gray-900">{analytics.candidatesPerDay}</p>
+                  <p className="text-sm font-medium text-slate-600">{t('analytics.kpis.candidatesPerDay')}</p>
+                  <p className="text-2xl font-bold text-slate-900">{analytics.candidatesPerDay}</p>
                 </div>
               </div>
             </div>
@@ -454,7 +454,7 @@ const PositionAnalytics: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Timeline */}
               <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">{t('analytics.charts.applicationTrends')}</h3>
+                <h3 className="text-lg font-medium text-slate-900 mb-4">{t('analytics.charts.applicationTrends')}</h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <AreaChart data={analytics.timelineData}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -474,7 +474,7 @@ const PositionAnalytics: React.FC = () => {
 
               {/* Score Distribution */}
               <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">{t('analytics.charts.scoreDistribution')}</h3>
+                <h3 className="text-lg font-medium text-slate-900 mb-4">{t('analytics.charts.scoreDistribution')}</h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={analytics.scoreDistribution}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -488,7 +488,7 @@ const PositionAnalytics: React.FC = () => {
 
               {/* Source Distribution */}
               <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">{t('analytics.charts.sourceDistribution')}</h3>
+                <h3 className="text-lg font-medium text-slate-900 mb-4">{t('analytics.charts.sourceDistribution')}</h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
@@ -516,7 +516,7 @@ const PositionAnalytics: React.FC = () => {
 
               {/* Average Score Over Time */}
               <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">{t('analytics.charts.averageScoreOverTime')}</h3>
+                <h3 className="text-lg font-medium text-slate-900 mb-4">{t('analytics.charts.averageScoreOverTime')}</h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={analytics.timelineData}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -537,38 +537,38 @@ const PositionAnalytics: React.FC = () => {
 
             {/* Source Table */}
             <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">{t('analytics.tables.sourceDetails')}</h3>
+              <h3 className="text-lg font-medium text-slate-900 mb-4">{t('analytics.tables.sourceDetails')}</h3>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-slate-200">
+                  <thead className="bg-slate-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                         {t('analytics.tables.headers.source')}
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                         {t('analytics.tables.headers.numberOfCandidates')}
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                         {t('analytics.tables.headers.averageScore')}
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                         {t('analytics.tables.headers.percentage')}
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white divide-y divide-slate-200">
                     {analytics.sourceDistribution.map((source) => (
                       <tr key={source.name}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
                           {source.name}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                           {source.value}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                           {source.avgScore.toFixed(1)}/10
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                           {((source.value / analytics.totalCandidates) * 100).toFixed(1)}%
                         </td>
                       </tr>

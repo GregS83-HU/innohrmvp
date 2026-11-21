@@ -79,10 +79,10 @@ export default function NewGoalPage() {
       <div className="space-y-6">
         
         {/* Header */}
-        <div className="bg-white rounded-2xl shadow-sm p-6">
+        <div className="bg-white rounded-xl shadow-sm p-6">
           <button
             onClick={() => router.push(`/jobs/${companySlug}/performance`)}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4 transition-colors"
+            className="flex items-center gap-2 text-slate-600 hover:text-slate-800 mb-4 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             {t('newGoalPage.header.backButton')}
@@ -92,17 +92,17 @@ export default function NewGoalPage() {
               <Target className="w-8 h-8 text-green-600" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">{t('newGoalPage.header.title')}</h1>
-              <p className="text-gray-600">{t('newGoalPage.header.subtitle')}</p>
+              <h1 className="text-3xl font-bold text-slate-800">{t('newGoalPage.header.title')}</h1>
+              <p className="text-slate-600">{t('newGoalPage.header.subtitle')}</p>
             </div>
           </div>
         </div>
 
         {/* Info Box */}
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+        <div className="bg-brand-50 border border-brand-200 rounded-xl p-4">
           <div className="flex gap-3">
-            <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-gray-700">
+            <AlertCircle className="w-5 h-5 text-brand-600 flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-slate-700">
               <p className="font-medium mb-1">{t('newGoalPage.infoBox.title')}</p>
               <ul className="list-disc list-inside space-y-1">
                 <li>{t('newGoalPage.infoBox.tips.specific')}</li>
@@ -135,13 +135,13 @@ export default function NewGoalPage() {
         )}
 
         {/* Form */}
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="p-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               
               {/* Goal Title */}
               <div>
-                <label htmlFor="goalTitle" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label htmlFor="goalTitle" className="block text-sm font-semibold text-slate-700 mb-2">
                   {t('newGoalPage.form.goalTitle.label')} {t('newGoalPage.form.goalTitle.required')}
                 </label>
                 <input
@@ -150,21 +150,21 @@ export default function NewGoalPage() {
                   value={goalTitle}
                   onChange={(e) => setGoalTitle(e.target.value)}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
                   placeholder={t('newGoalPage.form.goalTitle.placeholder')}
                 />
               </div>
 
               {/* Goal Description */}
               <div>
-                <label htmlFor="goalDescription" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label htmlFor="goalDescription" className="block text-sm font-semibold text-slate-700 mb-2">
                   {t('newGoalPage.form.goalDescription.label')}
                 </label>
                 <textarea
                   id="goalDescription"
                   value={goalDescription}
                   onChange={(e) => setGoalDescription(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all resize-none"
                   rows={4}
                   placeholder={t('newGoalPage.form.goalDescription.placeholder')}
                 />
@@ -172,14 +172,14 @@ export default function NewGoalPage() {
 
               {/* Success Criteria */}
               <div>
-                <label htmlFor="successCriteria" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label htmlFor="successCriteria" className="block text-sm font-semibold text-slate-700 mb-2">
                   {t('newGoalPage.form.successCriteria.label')}
                 </label>
                 <textarea
                   id="successCriteria"
                   value={successCriteria}
                   onChange={(e) => setSuccessCriteria(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all resize-none"
                   rows={3}
                   placeholder={t('newGoalPage.form.successCriteria.placeholder')}
                 />
@@ -189,7 +189,7 @@ export default function NewGoalPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-6 rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-3 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {loading ? (
                   <>

@@ -29,7 +29,7 @@ type Props = {
 // Simple Snackbar component
 function Snackbar({ message }: { message: string }) {
   return (
-    <div className="fixed bottom-4 left-4 right-4 sm:left-1/2 sm:right-auto sm:transform sm:-translate-x-1/2 sm:w-auto bg-gray-900 text-white px-4 py-2 rounded-lg shadow-lg animate-fade-in-up z-50">
+    <div className="fixed bottom-4 left-4 right-4 sm:left-1/2 sm:right-auto sm:transform sm:-translate-x-1/2 sm:w-auto bg-slate-900 text-white px-4 py-2 rounded-lg shadow-lg animate-fade-in-up z-50">
       {message}
     </div>
   )
@@ -192,10 +192,10 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
 
   if (loading || userRoleLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 text-center max-w-sm w-full">
-          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">{t('positions.loading')}</p>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-sm p-8 text-center max-w-sm w-full">
+          <div className="animate-spin w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-slate-600">{t('positions.loading')}</p>
         </div>
       </div>
     )
@@ -203,8 +203,8 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 text-center max-w-sm w-full">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-sm p-8 text-center max-w-sm w-full">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <X className="w-8 h-8 text-red-500" />
           </div>
@@ -215,31 +215,31 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-4 sm:p-6">
+    <div className="min-h-screen bg-slate-50 px-4 py-4 sm:p-6">
       <div className="max-w-4xl mx-auto w-full">
         {/* Header */}
         <div className="text-center mb-6 sm:mb-8">
-          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
-            <Briefcase className="w-10 h-10 sm:w-12 sm:h-12 text-blue-600 mx-auto mb-3 sm:mb-4" />
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
+            <Briefcase className="w-10 h-10 sm:w-12 sm:h-12 text-brand-600 mx-auto mb-3 sm:mb-4" />
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-2">
               {t('positions.availablePositions')}
             </h1>
-            <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-blue-700 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base">
+            <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-200 text-brand-700 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base">
               <span className="font-semibold">{filteredPositions.length}</span>
               <span>{t('positions.positionsAvailable')}</span>
             </div>
           </div>
 
           {/* Search Bar */}
-          <div className="bg-white rounded-xl shadow-lg p-3 sm:p-4 mb-4 sm:mb-6">
+          <div className="bg-white rounded-xl shadow-sm p-3 sm:p-4 mb-4 sm:mb-6">
             <div className="relative max-w-md mx-auto">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4 sm:w-5 sm:h-5" />
               <input
                 type="text"
                 placeholder={t('positions.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+                className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm sm:text-base"
               />
             </div>
           </div>
@@ -248,10 +248,10 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
         {/* No Results */}
         {filteredPositions.length === 0 && (
           <div className="text-center">
-            <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
-              <Briefcase className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-4" />
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-600 mb-2">{t('positions.noPositions')}</h2>
-              <p className="text-gray-500 text-sm sm:text-base">{t('positions.checkLater')}</p>
+            <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8">
+              <Briefcase className="w-12 h-12 sm:w-16 sm:h-16 text-slate-300 mx-auto mb-4" />
+              <h2 className="text-lg sm:text-xl font-semibold text-slate-600 mb-2">{t('positions.noPositions')}</h2>
+              <p className="text-slate-500 text-sm sm:text-base">{t('positions.checkLater')}</p>
             </div>
           </div>
         )}
@@ -276,17 +276,17 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
             return (
               <div
                 key={position.id}
-                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:scale-[1.01] sm:hover:scale-[1.02]"
+                className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 transform hover:scale-[1.01] sm:hover:scale-[1.02]"
               >
                 
                 <div className="p-4 sm:p-6">
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-4">
                     <div className="flex-1 min-w-0">
-                      <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 break-words">
+                      <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2 break-words">
                         {position.position_name}
                       </h2>
                       {position.company?.company_name && (
-                        <div className="flex items-center gap-2 text-gray-600 mb-3">
+                        <div className="flex items-center gap-2 text-slate-600 mb-3">
                           <Building2 className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
                           <span className="text-sm sm:text-base truncate">{position.company.company_name}</span>
                         </div>
@@ -294,7 +294,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
                     </div>
                     {position.company?.company_logo && (
                       <div className="flex-shrink-0 self-start sm:ml-6">
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-50 rounded-lg p-2 sm:p-3 border">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-50 rounded-lg p-2 sm:p-3 border">
                           {/* eslint-disable-next-line @next/next/no-img-element -- customer-uploaded logo on an arbitrary storage host; next/image would need remotePatterns for it */}
                           <img
                             src={position.company.company_logo}
@@ -307,7 +307,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
                     )}
                   </div>
 
-                  <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 leading-relaxed whitespace-pre-wrap">
+                  <p className="text-slate-600 text-sm sm:text-base mb-4 sm:mb-6 leading-relaxed whitespace-pre-wrap">
                     {position.position_description}
                   </p>
 
@@ -315,7 +315,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
   {showApply && companySlug && (
     <Link
       href={getApplyLink(position)!}
-      className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base"
+      className="flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform text-sm sm:text-base"
     >
       <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
       {t('positions.apply')}
@@ -325,7 +325,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
   {showTreatment && companySlug && (
     <Link
       href={getStatsLink(position)!}
-      className="flex items-center justify-center gap-2 bg-green-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-green-600 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base"
+      className="flex items-center justify-center gap-2 bg-green-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-green-600 transition-colors shadow-md hover:shadow-lg transform text-sm sm:text-base"
     >
       <Workflow className="w-4 h-4 sm:w-5 sm:h-5" />
       {t('positions.treatment')}
@@ -336,7 +336,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
     <>
       <button
         onClick={() => handleCopyLink(position)}
-        className="flex items-center justify-center gap-2 bg-blue-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base"
+        className="flex items-center justify-center gap-2 bg-brand-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-brand-600 transition-colors shadow-md hover:shadow-lg transform text-sm sm:text-base"
       >
         <Copy className="w-4 h-4 sm:w-5 sm:h-5" />
         {t('positions.copyLink')}
@@ -345,7 +345,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
       <button
         onClick={() => handleClose(position.id)}
         disabled={loadingClose === position.id}
-        className="flex items-center justify-center gap-2 bg-red-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-red-600 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm sm:text-base"
+        className="flex items-center justify-center gap-2 bg-red-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-red-600 transition-colors shadow-md hover:shadow-lg transform disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm sm:text-base"
       >
         {loadingClose === position.id ? (
           <>

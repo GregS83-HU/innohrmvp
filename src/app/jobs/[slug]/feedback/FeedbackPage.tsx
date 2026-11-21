@@ -54,23 +54,23 @@ const FeedbackPage: React.FC = () => {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-xl shadow-sm p-8 text-center">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-8 h-8 text-green-600" />
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">
+          <h1 className="text-2xl font-bold text-slate-800 mb-4">
             {t('feedback.success.title')}
           </h1>
 
-          <p className="text-gray-600 mb-6">
+          <p className="text-slate-600 mb-6">
             {t('feedback.success.subtitle')}
           </p>
 
           <button
             onClick={handleContactUs}
-            className="w-full border-2 border-gray-300 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-50 transition-all transform hover:scale-105 flex items-center justify-center gap-2"
+            className="w-full border-2 border-slate-300 text-slate-700 py-3 px-6 rounded-lg font-semibold hover:bg-slate-50 transition-all transform flex items-center justify-center gap-2"
           >
             <Phone className="w-4 h-4" />
             {t('feedback.success.contactUs')}
@@ -81,19 +81,19 @@ const FeedbackPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="max-w-lg w-full bg-white rounded-2xl shadow-xl p-8">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+      <div className="max-w-lg w-full bg-white rounded-xl shadow-sm p-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <MessageSquare className="w-8 h-8 text-blue-600" />
+          <div className="w-16 h-16 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <MessageSquare className="w-8 h-8 text-brand-600" />
           </div>
 
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+          <h1 className="text-3xl font-bold text-slate-800 mb-2">
             {t('feedback.header.title')}
           </h1>
 
-          <p className="text-gray-600">
+          <p className="text-slate-600">
             {t('feedback.header.subtitle')}
           </p>
         </div>
@@ -101,7 +101,7 @@ const FeedbackPage: React.FC = () => {
         <div className="space-y-6">
           {/* Star Rating */}
           <div className="text-center">
-            <div className="block text-lg font-semibold text-gray-700 mb-4">
+            <div className="block text-lg font-semibold text-slate-700 mb-4">
               {t('feedback.rating.label')}
             </div>
 
@@ -113,13 +113,13 @@ const FeedbackPage: React.FC = () => {
                   onMouseEnter={() => setHoveredRating(star)}
                   onMouseLeave={() => setHoveredRating(0)}
                   onClick={() => setRating(star)}
-                  className="p-1 transition-transform hover:scale-110"
+                  className="p-1 transition-transform "
                 >
                   <Star
                     className={`w-10 h-10 transition-colors ${
                       star <= (hoveredRating || rating)
                         ? 'text-yellow-400 fill-yellow-400'
-                        : 'text-gray-300'
+                        : 'text-slate-300'
                     }`}
                   />
                 </button>
@@ -127,7 +127,7 @@ const FeedbackPage: React.FC = () => {
             </div>
 
             {rating > 0 && (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-slate-500">
                 {rating === 1 && t('feedback.rating.labels.poor')}
                 {rating === 2 && t('feedback.rating.labels.fair')}
                 {rating === 3 && t('feedback.rating.labels.good')}
@@ -139,7 +139,7 @@ const FeedbackPage: React.FC = () => {
 
           {/* Comment Box */}
           <div>
-            <div className="block text-lg font-semibold text-gray-700 mb-3">
+            <div className="block text-lg font-semibold text-slate-700 mb-3">
               {t('feedback.comment.label')}
             </div>
             <textarea
@@ -147,11 +147,11 @@ const FeedbackPage: React.FC = () => {
               onChange={(e) => setComment(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder={t('feedback.comment.placeholder')}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors resize-none"
+              className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-brand-500 focus:outline-none transition-colors resize-none"
               rows={4}
               maxLength={500}
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-slate-500 mt-1">
               {comment.length}/500 {t('feedback.comment.characters')}
             </p>
           </div>
@@ -167,7 +167,7 @@ const FeedbackPage: React.FC = () => {
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="w-full bg-linear-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+            className="w-full bg-brand-600 hover:bg-brand-700 text-white py-4 px-6 rounded-lg font-semibold text-lg transition-all transform disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
           >
             {isSubmitting ? (
               <>

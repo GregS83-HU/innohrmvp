@@ -231,11 +231,11 @@ const YearCalendarGrid: React.FC<YearCalendarGridProps> = ({
         const days = getDaysInMonth(monthIndex);
 
         return (
-          <div key={monthName} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 print:break-inside-avoid">
-            <h3 className="font-bold text-gray-900 mb-3 text-center">{monthName}</h3>
+          <div key={monthName} className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 print:break-inside-avoid">
+            <h3 className="font-bold text-slate-900 mb-3 text-center">{monthName}</h3>
             <div className="grid grid-cols-7 gap-1 mb-2">
               {weekDays.map((day, index) => (
-                <div key={`${day}-${index}`} className="text-xs font-medium text-gray-500 text-center">{day}</div>
+                <div key={`${day}-${index}`} className="text-xs font-medium text-slate-500 text-center">{day}</div>
               ))}
             </div>
 

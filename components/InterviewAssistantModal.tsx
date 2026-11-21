@@ -99,18 +99,18 @@ export default function InterviewAssistantModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full relative p-6 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('interviewAssistant.title')}</h2>
+        <h2 className="text-2xl font-bold text-slate-800 mb-4">{t('interviewAssistant.title')}</h2>
 
         {/* Step 1: Questions */}
         {!interviewQuestions && step === 'questions' && (
           <div className="space-y-4">
-            <p className="text-gray-600">
+            <p className="text-slate-600">
               {t('interviewAssistant.step1.description')}
             </p>
             <button
               onClick={handleGenerateQuestions}
               disabled={isLoading}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-all"
+              className="bg-brand-600 text-white px-4 py-2 rounded-lg hover:bg-brand-700 transition-all"
             >
               {isLoading ? t('interviewAssistant.step1.generating') : t('interviewAssistant.step1.generateButton')}
             </button>
@@ -120,8 +120,8 @@ export default function InterviewAssistantModal({
         {/* Show questions */}
         {interviewQuestions && (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-indigo-800">{t('interviewAssistant.questions.title')}</h3>
-            <ul className="list-disc pl-6 text-gray-700 space-y-1">
+            <h3 className="text-lg font-semibold text-brand-800">{t('interviewAssistant.questions.title')}</h3>
+            <ul className="list-disc pl-6 text-slate-700 space-y-1">
               {interviewQuestions.map((q: InterviewQuestion, i: number) => (
                 <li key={i}>
                   <span className="font-semibold capitalize">{q.category}:</span> {q.text}
@@ -133,7 +133,7 @@ export default function InterviewAssistantModal({
               value={interviewNotes}
               onChange={(e) => setInterviewNotes(e.target.value)}
               placeholder={t('interviewAssistant.questions.notesPlaceholder')}
-              className="w-full border rounded-lg p-3 text-sm mt-4 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full border rounded-lg p-3 text-sm mt-4 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               rows={4}
             />
 
@@ -149,7 +149,7 @@ export default function InterviewAssistantModal({
 
         {/* Show summary */}
         {interviewSummary && (
-          <div className="mt-6 space-y-2 text-gray-800 text-sm">
+          <div className="mt-6 space-y-2 text-slate-800 text-sm">
             <h3 className="text-lg font-semibold text-green-800">{t('interviewAssistant.summary.title')}</h3>
             <p><strong>{t('interviewAssistant.summary.summaryLabel')}:</strong> {interviewSummary.summary}</p>
             <p><strong>{t('interviewAssistant.summary.strengthsLabel')}:</strong> {interviewSummary.strengths?.join(', ')}</p>
@@ -169,7 +169,7 @@ export default function InterviewAssistantModal({
         <div className="flex justify-end mt-6">
           <button
             onClick={onClose}
-            className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-all"
+            className="bg-slate-500 text-white px-4 py-2 rounded-lg hover:bg-slate-600 transition-all"
           >
             {t('interviewAssistant.buttons.close')}
           </button>

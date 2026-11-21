@@ -19,7 +19,7 @@ export const CertificateStatusBadge: React.FC<CertificateStatusBadgeProps> = ({
 
   if (!hasCertificate) {
     return (
-      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
+      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
         <FileText className="w-3 h-3 mr-1" />
         {t('certificateStatusBadge.noCertificate')}
       </span>
@@ -45,7 +45,7 @@ export const CertificateStatusBadge: React.FC<CertificateStatusBadgeProps> = ({
   }
 
   return (
-    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200">
+    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-brand-100 text-brand-700 border border-brand-200">
       <FileText className="w-3 h-3 mr-1" />
       {t('certificateStatusBadge.certificateUploaded')}
     </span>

@@ -39,8 +39,8 @@ export function AIGenerateModal({ isOpen, onClose, onGenerate, positionName, loa
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 backdrop-blur-sm overflow-y-auto">
       <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full my-8 transform transition-all">
-          <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 relative">
+        <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full my-8 transform transition-all">
+          <div className="bg-brand-600 p-6 relative">
             <button
               onClick={handleClose}
               disabled={loading}
@@ -53,12 +53,12 @@ export function AIGenerateModal({ isOpen, onClose, onGenerate, positionName, loa
           </div>
 
           <div className="p-6 space-y-4">
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-100">
+            <div className="bg-slate-50 rounded-lg p-4 border border-brand-100">
               <div className="flex items-start gap-3">
-                <Wand2 className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
-                <div className="text-sm text-purple-900">
+                <Wand2 className="w-5 h-5 text-brand-600 mt-0.5 flex-shrink-0" />
+                <div className="text-sm text-brand-900">
                   <p className="font-medium mb-1">{t('newPosition.aiModal.instructions')}</p>
-                  <ul className="list-disc list-inside space-y-1 text-purple-800">
+                  <ul className="list-disc list-inside space-y-1 text-brand-800">
                     <li>{t('newPosition.aiModal.instruction1')}</li>
                     <li>{t('newPosition.aiModal.instruction2')}</li>
                     <li>{t('newPosition.aiModal.instruction3')}</li>
@@ -68,15 +68,15 @@ export function AIGenerateModal({ isOpen, onClose, onGenerate, positionName, loa
             </div>
 
             {positionName && (
-              <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                <p className="text-sm text-gray-600">
+              <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
+                <p className="text-sm text-slate-600">
                   <span className="font-semibold">{t('newPosition.aiModal.generatingFor')}</span> {positionName}
                 </p>
               </div>
             )}
 
             <div>
-              <label htmlFor="roughDraft" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="roughDraft" className="block text-sm font-semibold text-slate-700 mb-2">
                 {t('newPosition.aiModal.roughDraftLabel')}
               </label>
               <textarea
@@ -84,12 +84,12 @@ export function AIGenerateModal({ isOpen, onClose, onGenerate, positionName, loa
                 value={roughDraft}
                 onChange={(e) => setRoughDraft(e.target.value)}
                 disabled={loading}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none disabled:bg-gray-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all resize-none disabled:bg-slate-50 disabled:cursor-not-allowed"
                 rows={8}
                 placeholder={t('newPosition.aiModal.roughDraftPlaceholder')}
               />
               <div className="flex justify-between items-center mt-2">
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-slate-500">
                   {roughDraft.length} {t('newPosition.aiModal.characters')} (min. 20)
                 </p>
                 {error && <p className="text-xs text-red-600">{error}</p>}
@@ -108,7 +108,7 @@ export function AIGenerateModal({ isOpen, onClose, onGenerate, positionName, loa
             <button
               onClick={handleGenerate}
               disabled={loading || roughDraft.trim().length < 20}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-3 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               {loading ? (
                 <>
@@ -125,7 +125,7 @@ export function AIGenerateModal({ isOpen, onClose, onGenerate, positionName, loa
             <button
               onClick={handleClose}
               disabled={loading}
-              className="w-full text-gray-500 py-2 px-6 rounded-lg font-medium hover:text-gray-700 hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full text-slate-500 py-2 px-6 rounded-lg font-medium hover:text-slate-700 hover:bg-slate-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {t('newPosition.aiModal.cancel')}
             </button>

@@ -1,20 +1,26 @@
 @import "tailwindcss";
 
 /*
- * Minimal starting design system - not a full rebrand.
- * Brand color and headline font, formalized from what the app already used
- * ad hoc throughout (blue/purple gradients, emerald for the Job Assistant).
- * A designer should revisit this later; this just gives the app one
- * consistent palette + font pairing instead of default black/white/Arial.
+ * Design system: sober and consistent.
+ * - One accent: brand indigo, for primary actions, links, selection and
+ *   focus. Every in-app blue/purple/violet/teal tone maps onto this scale.
+ * - Slate grays for structure (canvas, cards, borders, secondary text).
+ * - Emerald / amber / red only to signal success / warning / error.
+ * - No gradients, no grow-on-hover. See components/ui/styles.ts.
+ * Accent emerald stays for the public Job Assistant's own identity.
  */
 @theme {
   --color-brand-50: #eef2ff;
   --color-brand-100: #e0e7ff;
   --color-brand-200: #c7d2fe;
+  --color-brand-300: #a5b4fc;
   --color-brand-400: #818cf8;
   --color-brand-500: #6366f1;
   --color-brand-600: #4f46e5;
   --color-brand-700: #4338ca;
+  --color-brand-800: #3730a3;
+  --color-brand-900: #312e81;
+  --color-brand-950: #1e1b4b;
 
   --color-accent-50: #ecfdf5;
   --color-accent-100: #d1fae5;

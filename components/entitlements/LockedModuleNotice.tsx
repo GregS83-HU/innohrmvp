@@ -32,15 +32,15 @@ export default function LockedModuleNotice({ feature, plan, upgradeHref, reason 
   const isOnboarding = reason === 'onboarding';
 
   return (
-    <div className="max-w-2xl mx-auto mt-12 bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
-      <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-        <Lock className="w-6 h-6 text-gray-500" />
+    <div className="max-w-2xl mx-auto mt-12 bg-white rounded-xl shadow-sm border border-slate-100 p-8 text-center">
+      <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+        <Lock className="w-6 h-6 text-slate-500" />
       </div>
-      <h1 className="text-xl font-semibold text-gray-900 mb-2">{copy.title}</h1>
-      <p className="text-gray-600 mb-1">
+      <h1 className="text-xl font-semibold text-slate-900 mb-2">{copy.title}</h1>
+      <p className="text-slate-600 mb-1">
         {isOnboarding ? getOnboardingRequiredMessage(feature) : copy.notIncluded}
       </p>
-      {!isOnboarding && plan && <p className="text-sm text-gray-400 mb-6">Current plan: {plan}</p>}
+      {!isOnboarding && plan && <p className="text-sm text-slate-400 mb-6">Current plan: {plan}</p>}
       <Link
         href={upgradeHref}
         className={`inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-6 py-3 rounded-lg font-medium transition-colors ${isOnboarding ? 'mt-2' : ''}`}

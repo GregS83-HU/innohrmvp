@@ -185,38 +185,38 @@ export default function CertificateDownloadPage() {
 
   if (loading && certificates.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">{t('certificateDownload.loading')}</p>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-slate-600">{t('certificateDownload.loading')}</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div className="min-h-screen bg-slate-50 p-4">
       <div style={{ maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
         
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+          <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
             <Download className="w-12 h-12 text-green-600 mx-auto mb-4" />
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            <h1 className="text-3xl font-bold text-slate-800 mb-2">
               {t('certificateDownload.title')}
             </h1>
             <div className="flex items-center justify-center gap-6">
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full">
+              <div className="inline-flex items-center gap-2 bg-brand-600 text-white px-4 py-2 rounded-full">
                 <FileText className="w-4 h-4" />
                 <span className="font-semibold">{certificates.length}</span>
                 <span>{t('certificateDownload.stats.total')}</span>
               </div>
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-600 text-white px-4 py-2 rounded-full">
+              <div className="inline-flex items-center gap-2 bg-amber-500 text-white px-4 py-2 rounded-full">
                 <Clock className="w-4 h-4" />
                 <span className="font-semibold">{pendingCount}</span>
                 <span>{t('certificateDownload.stats.pending')}</span>
               </div>
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-full">
+              <div className="inline-flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-full">
                 <CheckCircle className="w-4 h-4" />
                 <span className="font-semibold">{treatedCount}</span>
                 <span>{t('certificateDownload.stats.treated')}</span>
@@ -226,25 +226,25 @@ export default function CertificateDownloadPage() {
         </div>
 
         {/* Date Selection and Search */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">{t('certificateDownload.dateSelection.startDateLabel')}</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">{t('certificateDownload.dateSelection.startDateLabel')}</label>
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
               />
             </div>
             
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">{t('certificateDownload.dateSelection.endDateLabel')}</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">{t('certificateDownload.dateSelection.endDateLabel')}</label>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
               />
             </div>
             
@@ -252,7 +252,7 @@ export default function CertificateDownloadPage() {
               <button
                 onClick={fetchCertificates}
                 disabled={loading}
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-3 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {loading ? (
                   <>
@@ -271,7 +271,7 @@ export default function CertificateDownloadPage() {
                 <button
                   onClick={handleDownload}
                   disabled={loading}
-                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-6 rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  className="flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-3 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   {loading ? (
                     <>
@@ -312,30 +312,30 @@ export default function CertificateDownloadPage() {
         )}
 
         {/* Table Container */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full" style={{ minWidth: '1000px' }}>
-              <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+              <thead className="bg-slate-50 ">
                 <tr>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-40">
+                  <th className="px-4 py-4 text-left font-semibold text-slate-700 w-40">
                     <div className="flex items-center gap-2">
                       <User className="w-4 h-4" />
                       {t('certificateDownload.table.headers.employeeName')}
                     </div>
                   </th>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-32">
+                  <th className="px-4 py-4 text-left font-semibold text-slate-700 w-32">
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4" />
                       {t('certificateDownload.table.headers.startDate')}
                     </div>
                   </th>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-32">
+                  <th className="px-4 py-4 text-left font-semibold text-slate-700 w-32">
                     {t('certificateDownload.table.headers.endDate')}
                   </th>
-                  <th className="px-4 py-4 text-left font-semibold text-gray-700 w-40">
+                  <th className="px-4 py-4 text-left font-semibold text-slate-700 w-40">
                     {t('certificateDownload.table.headers.hrComment')}
                   </th>
-                  <th className="px-4 py-4 text-center font-semibold text-gray-700 w-24">
+                  <th className="px-4 py-4 text-center font-semibold text-slate-700 w-24">
                     {t('certificateDownload.table.headers.status')}
                   </th>
                 </tr>
@@ -344,9 +344,9 @@ export default function CertificateDownloadPage() {
                 {certificates.length === 0 && !loading ? (
                   <tr>
                     <td colSpan={5} className="px-4 py-12 text-center">
-                      <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-gray-600 mb-2">{t('certificateDownload.table.empty.title')}</h3>
-                      <p className="text-gray-500">
+                      <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-slate-600 mb-2">{t('certificateDownload.table.empty.title')}</h3>
+                      <p className="text-slate-500">
                         {noResults ? t('certificateDownload.table.empty.withSearch') : t('certificateDownload.table.empty.withoutSearch')}
                       </p>
                     </td>
@@ -355,25 +355,25 @@ export default function CertificateDownloadPage() {
                   certificates.map((cert) => (
                     <tr 
                       key={cert.id} 
-                      className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+                      className={`border-b border-slate-100 hover:bg-slate-50 transition-colors ${
                         !cert.treated ? 'bg-yellow-25' : ''
                       }`}
                     >
-                      <td className="px-4 py-4 font-medium text-gray-800 w-40">
+                      <td className="px-4 py-4 font-medium text-slate-800 w-40">
                         <div className="truncate" title={cert.employee_name || ''}>
                           {cert.employee_name || t('certificateDownload.table.noData')}
                         </div>
                       </td>
                       
-                      <td className="px-4 py-4 text-gray-700 w-32">
+                      <td className="px-4 py-4 text-slate-700 w-32">
                         {formatDate(cert.absence_start_date)}
                       </td>
                       
-                      <td className="px-4 py-4 text-gray-700 w-32">
+                      <td className="px-4 py-4 text-slate-700 w-32">
                         {formatDate(cert.absence_end_date)}
                       </td>
                       
-                      <td className="px-4 py-4 text-gray-700 w-40">
+                      <td className="px-4 py-4 text-slate-700 w-40">
                         <div className="truncate" title={cert.hr_comment || ''}>
                           {cert.hr_comment || t('certificateDownload.table.noData')}
                         </div>
@@ -385,7 +385,7 @@ export default function CertificateDownloadPage() {
                             <CheckCircle className="w-4 h-4 text-white" />
                           </div>
                         ) : (
-                          <div className="w-6 h-6 bg-white border-gray-300 hover:border-gray-400 rounded border-2 mx-auto"></div>
+                          <div className="w-6 h-6 bg-white border-slate-300 hover:border-slate-400 rounded border-2 mx-auto"></div>
                         )}
                       </td>
                     </tr>

@@ -232,7 +232,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
 
   const getStatusColor = (e: TimeEntry) => {
     if (e.is_late) return 'text-orange-600 bg-orange-50';
-    if (e.is_overtime) return 'text-purple-600 bg-purple-50';
+    if (e.is_overtime) return 'text-brand-600 bg-brand-50';
     return 'text-green-600 bg-green-50';
   };
 
@@ -247,23 +247,23 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 ">
+        <Loader2 className="w-8 h-8 text-brand-600 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20">
+    <div className="min-h-screen bg-slate-50 pb-20">
       <div className="bg-white border-b shadow-sm sticky top-0 z-10">
         <div className="max-w-2xl mx-auto px-4 py-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center">
               <Clock className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-gray-900">{t('timeClockPage.header.title')}</h1>
-              <p className="text-xs text-gray-600">{userName}</p>
+              <h1 className="text-lg font-bold text-slate-900">{t('timeClockPage.header.title')}</h1>
+              <p className="text-xs text-slate-600">{userName}</p>
             </div>
           </div>
 
@@ -272,8 +272,8 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
               onClick={() => setActiveTab('clock')}
               className={`flex-1 py-2 px-4 rounded-lg font-medium text-sm ${
                 activeTab === 'clock'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-brand-600 text-white shadow-md'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
               {t('timeClockPage.header.tabs.clockInOut')}
@@ -282,8 +282,8 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
               onClick={() => setActiveTab('history')}
               className={`flex-1 py-2 px-4 rounded-lg font-medium text-sm ${
                 activeTab === 'history'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-brand-600 text-white shadow-md'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
               {t('timeClockPage.header.tabs.history')}
@@ -313,12 +313,12 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
       <div className="max-w-2xl mx-auto px-4 py-6">
         {activeTab === 'clock' ? (
           <>
-            <div className="bg-white rounded-2xl shadow-lg border p-6 mb-6 text-center">
-              <p className="text-sm text-gray-600 mb-2">{formatDate(currentTime)}</p>
-              <div className="text-5xl font-bold text-gray-900 font-mono mb-4">
+            <div className="bg-white rounded-xl shadow-sm border p-6 mb-6 text-center">
+              <p className="text-sm text-slate-600 mb-2">{formatDate(currentTime)}</p>
+              <div className="text-5xl font-bold text-slate-900 font-mono mb-4">
                 {formatTime(currentTime)}
               </div>
-              <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center justify-center gap-2 text-sm text-slate-600">
                 <Calendar className="w-4 h-4" />
                 <span>
                   {t('timeClockPage.clock.shift', { 
@@ -333,7 +333,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
               <button
                 onClick={handleClockIn}
                 disabled={actionLoading}
-                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-6 rounded-2xl font-bold text-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+                className="w-full bg-emerald-600 text-white py-6 rounded-xl font-bold text-xl shadow-sm hover:shadow-md transition-all disabled:opacity-50"
               >
                 <div className="flex items-center justify-center gap-3">
                   {actionLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <LogIn className="w-6 h-6" />}
@@ -342,7 +342,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
               </button>
             ) : (
               <div className="space-y-4">
-                <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-6">
+                <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
@@ -357,10 +357,10 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
                     </span>
                   </div>
                   <div className="bg-white rounded-xl p-4 border border-green-200 text-center">
-                    <p className="text-sm text-gray-600 mb-1">
+                    <p className="text-sm text-slate-600 mb-1">
                       {t('timeClockPage.clock.activeSession.timeWorked')}
                     </p>
-                    <div className="text-3xl font-bold text-gray-900 font-mono">
+                    <div className="text-3xl font-bold text-slate-900 font-mono">
                       {calculateWorkedHours()}
                     </div>
                   </div>
@@ -369,7 +369,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
                 <button
                   onClick={handleClockOut}
                   disabled={actionLoading}
-                  className="w-full bg-gradient-to-r from-red-500 to-rose-600 text-white py-6 rounded-2xl font-bold text-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+                  className="w-full bg-red-600 text-white py-6 rounded-xl font-bold text-xl shadow-sm hover:shadow-md transition-all disabled:opacity-50"
                 >
                   <div className="flex items-center justify-center gap-3">
                     {actionLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <LogOut className="w-6 h-6" />}
@@ -380,19 +380,19 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
             )}
 
             {weeklySummary && (
-              <div className="mt-6 bg-white rounded-2xl shadow-lg border p-6">
+              <div className="mt-6 bg-white rounded-xl shadow-sm border p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <TrendingUp className="w-5 h-5 text-blue-600" />
-                  <h3 className="font-semibold text-gray-900">
+                  <TrendingUp className="w-5 h-5 text-brand-600" />
+                  <h3 className="font-semibold text-slate-900">
                     {t('timeClockPage.clock.weeklySummary.title')}
                   </h3>
                 </div>
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <p className="text-2xl font-bold text-gray-900">
+                    <p className="text-2xl font-bold text-slate-900">
                       {weeklySummary.totalHours.toFixed(1)}
                     </p>
-                    <p className="text-xs text-gray-600">
+                    <p className="text-xs text-slate-600">
                       {t('timeClockPage.clock.weeklySummary.hours')}
                     </p>
                   </div>
@@ -400,7 +400,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
                     <p className="text-2xl font-bold text-green-600">
                       {weeklySummary.onTimeDays}
                     </p>
-                    <p className="text-xs text-gray-600">
+                    <p className="text-xs text-slate-600">
                       {t('timeClockPage.clock.weeklySummary.onTime')}
                     </p>
                   </div>
@@ -408,7 +408,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
                     <p className="text-2xl font-bold text-orange-600">
                       {weeklySummary.overtimeHours.toFixed(1)}
                     </p>
-                    <p className="text-xs text-gray-600">
+                    <p className="text-xs text-slate-600">
                       {t('timeClockPage.clock.weeklySummary.overtime')}
                     </p>
                   </div>
@@ -418,14 +418,14 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
           </>
         ) : (
           <div className="space-y-3">
-            <h3 className="font-semibold text-gray-900 mb-4">
+            <h3 className="font-semibold text-slate-900 mb-4">
               {t('timeClockPage.history.title')}
             </h3>
             {timeEntries.length === 0 ? (
               <div className="bg-white rounded-xl border p-8 text-center shadow-sm">
-                <Clock className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">{t('timeClockPage.history.noEntries.title')}</p>
-                <p className="text-sm text-gray-400 mt-1">
+                <Clock className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-500">{t('timeClockPage.history.noEntries.title')}</p>
+                <p className="text-sm text-slate-400 mt-1">
                   {t('timeClockPage.history.noEntries.description')}
                 </p>
               </div>
@@ -436,7 +436,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
                   className="bg-white rounded-xl border p-4 shadow-sm hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-gray-900">
+                    <span className="font-medium text-slate-900">
                       {formatDateShort(entry.clock_in)}
                     </span>
                     <span
@@ -448,7 +448,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
                       </span>
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-sm text-gray-600">
+                  <div className="flex items-center justify-between text-sm text-slate-600">
                     <div className="flex items-center gap-4">
                       <span>
                         {t('timeClockPage.history.entry.in', { time: formatTimeShort(entry.clock_in) })}
@@ -460,7 +460,7 @@ function TimeClock({ userId, userName }: { userId: string; userName: string }) {
                       </span>
                     </div>
                     {entry.total_hours && (
-                      <span className="font-semibold text-gray-900">
+                      <span className="font-semibold text-slate-900">
                         {t('timeClockPage.history.entry.hours', { hours: entry.total_hours.toFixed(2) })}
                       </span>
                     )}
@@ -523,21 +523,21 @@ export default function TimeClockPage({ params }: PageProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 ">
+        <Loader2 className="w-8 h-8 text-brand-600 animate-spin" />
       </div>
     );
   }
 
   if (error || !currentUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
-        <div className="bg-white rounded-2xl shadow-lg border p-8 max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 ">
+        <div className="bg-white rounded-xl shadow-sm border p-8 max-w-md">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 text-center mb-2">
+          <h2 className="text-xl font-bold text-slate-900 text-center mb-2">
             {t('timeClockPage.error.title')}
           </h2>
-          <p className="text-gray-600 text-center">
+          <p className="text-slate-600 text-center">
             {error || t('timeClockPage.messages.unableToLoad')}
           </p>
         </div>

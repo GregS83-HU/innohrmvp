@@ -78,15 +78,15 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
         
         {/* HEADER */}
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">
+        <div className="p-6 border-b border-slate-200">
+          <h2 className="text-2xl font-bold text-slate-900">
             {isResetMode ? t('loginModal.resetTitle') : t('loginModal.title')}
           </h2>
           {!isResetMode && (
-            <p className="text-gray-600 mt-1">
+            <p className="text-slate-600 mt-1">
               {isDemoMode ? t('loginModal.subtitle.demo') : t('loginModal.subtitle.normal')}
             </p>
           )}
@@ -97,10 +97,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           <div className="p-6 space-y-3">
             <button
               onClick={handleDemoLogin('user@hrinno.hu', 'password')}
-              className="w-full px-4 py-4 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 rounded-lg transition-colors text-left"
+              className="w-full px-4 py-4 bg-brand-50 hover:bg-brand-100 border-2 border-brand-200 rounded-lg transition-colors text-left"
             >
-              <div className="font-semibold text-blue-900">{t('loginModal.demoAccounts.user')}</div>
-              <div className="text-sm text-blue-700 mt-1">user@hrinno.hu</div>
+              <div className="font-semibold text-brand-900">{t('loginModal.demoAccounts.user')}</div>
+              <div className="text-sm text-brand-700 mt-1">user@hrinno.hu</div>
             </button>
 
             <button
@@ -113,10 +113,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
             <button
               onClick={handleDemoLogin('hrmanager@hrinno.hu', 'password')}
-              className="w-full px-4 py-4 bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 rounded-lg transition-colors text-left"
+              className="w-full px-4 py-4 bg-brand-50 hover:bg-brand-100 border-2 border-brand-200 rounded-lg transition-colors text-left"
             >
-              <div className="font-semibold text-purple-900">{t('loginModal.demoAccounts.hrManager')}</div>
-              <div className="text-sm text-purple-700 mt-1">hrmanager@hrinno.hu</div>
+              <div className="font-semibold text-brand-900">{t('loginModal.demoAccounts.hrManager')}</div>
+              <div className="text-sm text-brand-700 mt-1">hrmanager@hrinno.hu</div>
             </button>
           </div>
         )}
@@ -127,7 +127,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
             {/* EMAIL */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 {t('loginModal.fields.email')}
               </label>
               <input
@@ -135,13 +135,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 placeholder={t('loginModal.fields.emailPlaceholder')}
                 value={login}
                 onChange={(e) => setLogin(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
               />
             </div>
 
             {/* PASSWORD */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 {t('loginModal.fields.password')}
               </label>
               <input
@@ -149,7 +149,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 placeholder={t('loginModal.fields.passwordPlaceholder')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
               />
             </div>
 
@@ -164,7 +164,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
             <div className="text-right">
               <button
                 onClick={() => setIsResetMode(true)}
-                className="text-sm text-blue-600 hover:underline"
+                className="text-sm text-brand-600 hover:underline"
               >
                 {t('loginModal.buttons.forgotPassword')}
               </button>
@@ -175,13 +175,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         {/* RESET PASSWORD MODE -------------------------------------------- */}
         {isResetMode && (
           <div className="p-6 space-y-4">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-slate-600">
               {t('loginModal.resetDescription')}
             </p>
 
             {/* EMAIL */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 {t('loginModal.fields.email')}
               </label>
               <input
@@ -189,7 +189,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 value={login}
                 onChange={(e) => setLogin(e.target.value)}
                 placeholder={t('loginModal.fields.emailPlaceholder')}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg"
               />
             </div>
 
@@ -212,7 +212,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         )}
 
         {/* FOOTER ----------------------------------------------------------- */}
-        <div className="p-6 border-t border-gray-200 flex gap-3">
+        <div className="p-6 border-t border-slate-200 flex gap-3">
 
           {/* CANCEL OR BACK */}
           <button
@@ -225,7 +225,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 onClose();
               }
             }}
-            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors"
+            className="flex-1 px-4 py-3 border border-slate-300 rounded-lg hover:bg-slate-50 font-medium transition-colors"
           >
             {isResetMode
               ? t('loginModal.buttons.backToLogin')
@@ -238,14 +238,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               {!isResetMode ? (
                 <button
                   onClick={() => onLogin()}
-                  className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                  className="flex-1 px-4 py-3 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg transition-colors"
                 >
                   {t('loginModal.buttons.connect')}
                 </button>
               ) : (
                 <button
                   onClick={handleResetPassword}
-                  className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
+                  className="flex-1 px-4 py-3 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
                   disabled={isSending}
                 >
                   {isSending

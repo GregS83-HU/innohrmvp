@@ -107,18 +107,18 @@ export function PositionForm({
 
   const renderSalaryField = (field: 'salaryMin' | 'salaryMax', labelKey: 'min' | 'max') => (
     <div>
-      <span className="block text-xs font-medium text-gray-500 mb-1">{t(`newPosition.form.${labelKey}`)}</span>
+      <span className="block text-xs font-medium text-slate-500 mb-1">{t(`newPosition.form.${labelKey}`)}</span>
       <div className="relative">
         <SalaryInput
           value={data[field]}
           onChange={(raw) => onChange(field, raw)}
           placeholder="0"
           ariaLabel={t(`newPosition.form.${labelKey}`)}
-          className={`w-full pl-3 pr-12 py-3 bg-white border rounded-lg font-medium tabular-nums focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-            salaryRangeInvalid ? 'border-red-400' : 'border-gray-300'
+          className={`w-full pl-3 pr-12 py-3 bg-white border rounded-lg font-medium tabular-nums focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all ${
+            salaryRangeInvalid ? 'border-red-400' : 'border-slate-300'
           }`}
         />
-        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-400">
+        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">
           {data.salaryCurrency}
         </span>
       </div>
@@ -134,13 +134,13 @@ export function PositionForm({
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
       <div className="p-4 sm:p-6 lg:p-8">
         <form onSubmit={onSubmit} className="space-y-6">
 
           {/* Position Name */}
           <div>
-            <label htmlFor="positionName" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+            <label htmlFor="positionName" className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-3">
               <Briefcase className="w-4 h-4" />
               {t('newPosition.form.positionName')}
             </label>
@@ -150,14 +150,14 @@ export function PositionForm({
               value={data.positionName}
               onChange={(e) => onChange('positionName', e.target.value)}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
               placeholder={t('newPosition.form.positionNamePlaceholder')}
             />
           </div>
 
           {/* Manager */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+            <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-3">
               <User className="w-4 h-4" />
               {t('newPosition.form.manager')} <span className="text-red-500">*</span>
             </label>
@@ -169,21 +169,21 @@ export function PositionForm({
                 t={(key) => t(`newPosition.${key}`)}
               />
             ) : (
-              <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-400">
+              <div className="w-full px-4 py-3 border border-slate-300 rounded-lg bg-slate-50 text-slate-400">
                 {t('managerDropdown.loadingManagers')}
               </div>
             )}
           </div>
 
           {/* Location Section */}
-          <div className="border-t border-gray-200 pt-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-blue-600" />
+          <div className="border-t border-slate-200 pt-6">
+            <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-brand-600" />
               {t('newPosition.form.locationTitle')}
             </h3>
             <div className="space-y-4">
               <div>
-                <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="location" className="block text-sm font-medium text-slate-700 mb-2">
                   {t('newPosition.form.location')}
                 </label>
                 <input
@@ -191,13 +191,13 @@ export function PositionForm({
                   type="text"
                   value={data.location}
                   onChange={(e) => onChange('location', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
                   placeholder={t('newPosition.form.locationPlaceholder')}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   {t('newPosition.form.locationType')}
                 </label>
                 <div className="grid grid-cols-3 gap-3">
@@ -208,8 +208,8 @@ export function PositionForm({
                       onClick={() => onChange('locationType', type)}
                       className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${
                         data.locationType === type
-                          ? 'border-blue-500 bg-blue-50 text-blue-700'
-                          : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                          ? 'border-brand-500 bg-brand-50 text-brand-700'
+                          : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
                       }`}
                     >
                       {t(`newPosition.form.locationTypes.${type}`)}
@@ -222,7 +222,7 @@ export function PositionForm({
 
           {/* Employment Type */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+            <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-3">
               <Clock className="w-4 h-4" />
               {t('newPosition.form.employmentType')} <span className="text-red-500">*</span>
             </label>
@@ -238,11 +238,11 @@ export function PositionForm({
                     onClick={() => onChange('employmentType', value)}
                     className={`flex flex-col items-center justify-center gap-2 px-3 py-4 rounded-lg border-2 font-medium text-sm transition-all ${
                       selected
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                        ? 'border-brand-500 bg-brand-50 text-brand-700'
+                        : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
                     }`}
                   >
-                    <Icon className={`w-5 h-5 ${selected ? 'text-blue-600' : 'text-gray-400'}`} />
+                    <Icon className={`w-5 h-5 ${selected ? 'text-brand-600' : 'text-slate-400'}`} />
                     {t(`newPosition.form.employmentTypes.${labelKey}`)}
                   </button>
                 )
@@ -252,13 +252,13 @@ export function PositionForm({
 
           {/* Salary Range */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+            <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-3">
               <Wallet className="w-4 h-4" />
               {t('newPosition.form.salaryRange')}{' '}
-              <span className="text-gray-400 text-xs font-normal">({t('newPosition.form.optional')})</span>
+              <span className="text-slate-400 text-xs font-normal">({t('newPosition.form.optional')})</span>
             </label>
 
-            <div className="rounded-xl border border-gray-200 bg-gray-50/60 p-4 space-y-4">
+            <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 space-y-4">
               {/* Currency */}
               <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t('newPosition.form.currency')}>
                 {SALARY_CURRENCIES.map((cur) => {
@@ -272,8 +272,8 @@ export function PositionForm({
                       onClick={() => onChange('salaryCurrency', cur)}
                       className={`px-3 py-1.5 rounded-full border-2 text-xs font-semibold tracking-wide transition-all ${
                         selected
-                          ? 'border-blue-500 bg-blue-50 text-blue-700'
-                          : 'border-gray-300 bg-white text-gray-600 hover:border-gray-400'
+                          ? 'border-brand-500 bg-brand-50 text-brand-700'
+                          : 'border-slate-300 bg-white text-slate-600 hover:border-slate-400'
                       }`}
                     >
                       {cur}
@@ -285,7 +285,7 @@ export function PositionForm({
               {/* Min — Max */}
               <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-2 sm:gap-3">
                 {renderSalaryField('salaryMin', 'min')}
-                <span className="pb-3 text-gray-400 font-medium">–</span>
+                <span className="pb-3 text-slate-400 font-medium">–</span>
                 {renderSalaryField('salaryMax', 'max')}
               </div>
               {salaryRangeInvalid && (
@@ -299,25 +299,25 @@ export function PositionForm({
                 aria-checked={data.salaryPublic}
                 onClick={() => onChange('salaryPublic', !data.salaryPublic)}
                 className={`w-full flex items-center gap-3 rounded-lg border-2 px-3 py-3 text-left transition-all ${
-                  data.salaryPublic ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-gray-300'
+                  data.salaryPublic ? 'border-brand-500 bg-brand-50' : 'border-slate-200 bg-white hover:border-slate-300'
                 }`}
               >
                 {data.salaryPublic ? (
-                  <Eye className="w-5 h-5 shrink-0 text-blue-600" />
+                  <Eye className="w-5 h-5 shrink-0 text-brand-600" />
                 ) : (
-                  <EyeOff className="w-5 h-5 shrink-0 text-gray-400" />
+                  <EyeOff className="w-5 h-5 shrink-0 text-slate-400" />
                 )}
                 <span className="flex-1 min-w-0">
-                  <span className={`block text-sm font-medium ${data.salaryPublic ? 'text-blue-700' : 'text-gray-700'}`}>
+                  <span className={`block text-sm font-medium ${data.salaryPublic ? 'text-brand-700' : 'text-slate-700'}`}>
                     {t('newPosition.form.showPublicly')}
                   </span>
-                  <span className="block text-xs text-gray-500">
+                  <span className="block text-xs text-slate-500">
                     {t(data.salaryPublic ? 'newPosition.form.salaryPublicOn' : 'newPosition.form.salaryPublicOff')}
                   </span>
                 </span>
                 <span
                   className={`relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors ${
-                    data.salaryPublic ? 'bg-blue-600' : 'bg-gray-300'
+                    data.salaryPublic ? 'bg-brand-600' : 'bg-slate-300'
                   }`}
                 >
                   <span
@@ -332,9 +332,9 @@ export function PositionForm({
 
           {/* Application Deadline */}
           <div>
-            <label htmlFor="applicationDeadline" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="applicationDeadline" className="block text-sm font-medium text-slate-700 mb-2">
               {t('newPosition.form.applicationDeadline')}{' '}
-              <span className="text-gray-400 text-xs">({t('newPosition.form.optional')})</span>
+              <span className="text-slate-400 text-xs">({t('newPosition.form.optional')})</span>
             </label>
             <input
               id="applicationDeadline"
@@ -342,17 +342,17 @@ export function PositionForm({
               value={data.applicationDeadline}
               onChange={(e) => onChange('applicationDeadline', e.target.value)}
               min={new Date().toISOString().split('T')[0]}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
             />
           </div>
 
           {/* Candidate Feedback Tone */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
+            <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-1">
               <MessageSquare className="w-4 h-4" />
               {t('newPosition.form.feedbackTone.title')}
             </label>
-            <p className="text-xs text-gray-500 mb-3">{t('newPosition.form.feedbackTone.help')}</p>
+            <p className="text-xs text-slate-500 mb-3">{t('newPosition.form.feedbackTone.help')}</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {CANDIDATE_FEEDBACK_TONES.map((tone) => (
                 <button
@@ -362,34 +362,34 @@ export function PositionForm({
                   aria-pressed={data.candidateFeedbackTone === tone}
                   className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${
                     data.candidateFeedbackTone === tone
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
-                      : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                      ? 'border-brand-500 bg-brand-50 text-brand-700'
+                      : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
                   }`}
                 >
                   {t(`newPosition.form.feedbackTone.levels.${tone}.label`)}
                 </button>
               ))}
             </div>
-            <p className="text-sm text-gray-600 mt-3">
+            <p className="text-sm text-slate-600 mt-3">
               {t(`newPosition.form.feedbackTone.levels.${data.candidateFeedbackTone}.description`)}
             </p>
           </div>
 
           {/* AI Generation Section */}
-          <div className="border-2 border-dashed border-purple-200 rounded-xl p-6 bg-gradient-to-br from-purple-50 to-pink-50">
+          <div className="border-2 border-dashed border-brand-200 rounded-xl p-6 bg-slate-50 ">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-purple-600" />
-                <h3 className="text-lg font-semibold text-gray-800">{t('newPosition.aiSection.title')}</h3>
+                <Sparkles className="w-5 h-5 text-brand-600" />
+                <h3 className="text-lg font-semibold text-slate-800">{t('newPosition.aiSection.title')}</h3>
               </div>
-              <span className="px-3 py-1 bg-purple-600 text-white text-xs font-medium rounded-full">AI</span>
+              <span className="px-3 py-1 bg-brand-600 text-white text-xs font-medium rounded-full">AI</span>
             </div>
-            <p className="text-sm text-gray-600 mb-4">{t('newPosition.aiSection.description')}</p>
+            <p className="text-sm text-slate-600 mb-4">{t('newPosition.aiSection.description')}</p>
             <button
               type="button"
               onClick={handleAIClick}
               disabled={aiGenerating}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-3 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               <Sparkles className="w-5 h-5" />
               {t('newPosition.aiSection.generateButton')}
@@ -398,7 +398,7 @@ export function PositionForm({
 
           {/* Short Description */}
           <div>
-            <label htmlFor="positionDescription" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+            <label htmlFor="positionDescription" className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-3">
               <FileText className="w-4 h-4" />
               {t('newPosition.form.positionDescription')}
             </label>
@@ -407,7 +407,7 @@ export function PositionForm({
               value={data.positionDescription}
               onChange={(e) => onChange('positionDescription', e.target.value)}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all resize-none"
               rows={4}
               placeholder={t('newPosition.form.positionDescriptionPlaceholder')}
             />
@@ -415,7 +415,7 @@ export function PositionForm({
 
           {/* Detailed Description */}
           <div>
-            <label htmlFor="positionDescriptionDetailed" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+            <label htmlFor="positionDescriptionDetailed" className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-3">
               <Activity className="w-4 h-4" />
               {t('newPosition.form.positionDescriptionDetailed')}
             </label>
@@ -424,7 +424,7 @@ export function PositionForm({
               value={data.positionDescriptionDetailed}
               onChange={(e) => onChange('positionDescriptionDetailed', e.target.value)}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all resize-none"
               rows={4}
               placeholder={t('newPosition.form.positionDescriptionDetailedPlaceholder')}
             />
@@ -432,7 +432,7 @@ export function PositionForm({
 
           {/* Start Date */}
           <div>
-            <label htmlFor="positionStartDate" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+            <label htmlFor="positionStartDate" className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-3">
               <Calendar className="w-4 h-4" />
               {t('newPosition.form.startingDate')}
             </label>
@@ -442,7 +442,7 @@ export function PositionForm({
               value={data.positionStartDate}
               onChange={(e) => onChange('positionStartDate', e.target.value)}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
             />
           </div>
 
@@ -450,7 +450,7 @@ export function PositionForm({
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-3 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             {loading ? (
               <>

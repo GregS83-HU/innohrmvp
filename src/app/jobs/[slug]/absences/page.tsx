@@ -379,10 +379,10 @@ const AbsenceManagement: React.FC = () => {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-2xl shadow-lg">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600 text-center">{t('absenceManagement.loading.message')}</p>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-xl shadow-sm">
+          <Loader2 className="w-8 h-8 animate-spin text-brand-600 mx-auto mb-4" />
+          <p className="text-slate-600 text-center">{t('absenceManagement.loading.message')}</p>
         </div>
       </div>
     );
@@ -391,16 +391,16 @@ const AbsenceManagement: React.FC = () => {
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-md w-full">
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+        <div className="bg-white p-8 rounded-xl shadow-sm text-center max-w-md w-full">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="w-8 h-8 text-red-600" />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">{t('absenceManagement.error.title')}</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">{t('absenceManagement.error.title')}</h2>
+          <p className="text-slate-600 mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors"
+            className="px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-medium transition-colors"
           >
             {t('absenceManagement.error.tryAgain')}
           </button>
@@ -420,7 +420,7 @@ const AbsenceManagement: React.FC = () => {
   if (!moduleAccess.loading && !moduleAccess.attendanceAbsencesEnabled) {
     if (!moduleAccess.isAdmin) return null;
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-6 lg:p-8">
+      <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
         <LockedModuleNotice
           feature="absences.use"
           plan={moduleAccess.plan}
@@ -432,27 +432,27 @@ const AbsenceManagement: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-600 rounded-xl flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center">
+                <Calendar className="w-6 h-6 text-brand-600" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
                   {t('absenceManagement.header.title')}
                 </h1>
-                <p className="text-gray-600">{t('absenceManagement.header.subtitle')}</p>
+                <p className="text-slate-600">{t('absenceManagement.header.subtitle')}</p>
               </div>
             </div>
 
             <div className="flex gap-2">
               <button
                 onClick={() => setShowRequestModal(true)}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md transform "
               >
                 <Plus className="w-4 h-4" />
                 <span className="hidden sm:inline">{t('absenceManagement.header.requestLeave')}</span>
@@ -462,7 +462,7 @@ const AbsenceManagement: React.FC = () => {
               {/* Calendar View Button - Hidden on Mobile */}
               <button
                 onClick={() => router.push(`/jobs/${companySlug}/absences/calendar`)}
-                className="hidden md:flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="hidden md:flex items-center justify-center gap-2 px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md transform "
               >
                 <Calendar className="w-4 h-4" />
                 {t('absenceManagement.header.calendarView')}
@@ -472,14 +472,14 @@ const AbsenceManagement: React.FC = () => {
 
           {/* Tab Navigation for Managers */}
           {isManager && (
-            <div className="bg-white rounded-2xl p-4 shadow-lg border border-gray-100 mb-6">
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 mb-6">
               <div className="flex gap-2">
                 <button
                   onClick={() => setActiveTab('overview')}
                   className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
                     activeTab === 'overview'
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-brand-600 text-white shadow-sm'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                 >
                   <Users className="w-4 h-4 inline mr-2" />
@@ -489,8 +489,8 @@ const AbsenceManagement: React.FC = () => {
                   onClick={() => setActiveTab('approvals')}
                   className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 relative ${
                     activeTab === 'approvals'
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-brand-600 text-white shadow-sm'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                 >
                   <Users className="w-4 h-4 inline mr-2" />

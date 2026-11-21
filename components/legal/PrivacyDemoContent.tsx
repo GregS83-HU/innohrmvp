@@ -7,7 +7,7 @@ const PrivacyDemoContent: React.FC = () => {
   const { t } = useLocale();
 
   return (
-    <div className="max-w-3xl mx-auto py-12 px-6 text-gray-800">
+    <div className="max-w-3xl mx-auto py-12 px-6 text-slate-800">
       <h1 className="text-3xl font-bold mb-6">{t('privacyDemo.title')}</h1>
 
       <DataControllerInfo />
@@ -65,12 +65,12 @@ const PrivacyDemoContent: React.FC = () => {
 
       <a
         href="mailto:info@hrinno.hu"
-        className="text-blue-600 underline hover:text-blue-800"
+        className="text-brand-600 underline hover:text-brand-800"
       >
         {t('privacyDemo.sections.contact.email')}
       </a>
 
-      <p className="text-sm text-gray-500 mt-8">
+      <p className="text-sm text-slate-500 mt-8">
         {t('privacyDemo.lastUpdated')}
       </p>
     </div>
@@ -87,11 +87,11 @@ const DataCollected = () => {
       </h2>
       <div className="space-y-3">
         {['account', 'employee', 'candidate', 'health', 'billing', 'technical'].map((key) => (
-          <div key={key} className="border-l-4 border-gray-300 pl-4">
+          <div key={key} className="border-l-4 border-slate-300 pl-4">
             <h3 className="font-semibold">
               {t(`privacyDemo.sections.dataCollected.categories.${key}.title`)}
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-slate-600">
               {t(`privacyDemo.sections.dataCollected.categories.${key}.text`)}
             </p>
           </div>
@@ -120,11 +120,11 @@ const ThirdPartyServices = () => {
             <h3 className="font-semibold">
               {t(`privacyDemo.sections.thirdParty.items.${key}.name`)}
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-slate-600">
               {t(`privacyDemo.sections.thirdParty.items.${key}.desc`)} <br />
               <a
                 href={t(`privacyDemo.sections.thirdParty.items.${key}.linkHref`)}
-                className="text-blue-600 underline"
+                className="text-brand-600 underline"
               >
                 {t(`privacyDemo.sections.thirdParty.items.${key}.linkText`)}
               </a>
@@ -133,7 +133,7 @@ const ThirdPartyServices = () => {
         ))}
       </div>
 
-      <p className="text-sm text-gray-600 mt-4 bg-yellow-50 p-3 rounded">
+      <p className="text-sm text-slate-600 mt-4 bg-yellow-50 p-3 rounded">
         ⚠️ <strong>{t('privacyDemo.sections.thirdParty.noticeTitle')}</strong>{' '}
         {t('privacyDemo.sections.thirdParty.noticeText')}
       </p>
@@ -145,11 +145,11 @@ const DataControllerInfo = () => {
   const { t } = useLocale();
 
   return (
-    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-      <h3 className="font-semibold text-blue-900 mb-2">
+    <div className="bg-brand-50 border border-brand-200 rounded-lg p-4 mb-6">
+      <h3 className="font-semibold text-brand-900 mb-2">
         {t('privacyDemo.sections.dataController.title')}
       </h3>
-      <p className="text-sm text-blue-800">
+      <p className="text-sm text-brand-800">
         <strong>{t('privacyDemo.sections.dataController.nameLabel')}</strong>{' '}
         {t('privacyDemo.sections.dataController.name')} <br />
         <strong>{t('privacyDemo.sections.dataController.emailLabel')}</strong>{' '}

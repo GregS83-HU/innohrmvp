@@ -45,9 +45,9 @@ export default function ContactSubmissionsPage() {
   const [isSavingNote, setIsSavingNote] = useState(false);
 
   const statusConfig = {
-    new: { label: 'New', color: 'bg-blue-100 text-blue-800', icon: Mail },
+    new: { label: 'New', color: 'bg-brand-100 text-brand-800', icon: Mail },
     in_progress: { label: 'In Progress', color: 'bg-yellow-100 text-yellow-800', icon: Clock },
-    contacted: { label: 'Contacted', color: 'bg-purple-100 text-purple-800', icon: Phone },
+    contacted: { label: 'Contacted', color: 'bg-brand-100 text-brand-800', icon: Phone },
     completed: { label: 'Completed', color: 'bg-green-100 text-green-800', icon: CheckCircle },
     spam: { label: 'Spam', color: 'bg-red-100 text-red-800', icon: Ban },
   };
@@ -182,18 +182,18 @@ export default function ContactSubmissionsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-slate-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Contact Submissions</h1>
-          <p className="text-gray-600">Manage and track all contact requests</p>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">Contact Submissions</h1>
+          <p className="text-slate-600">Manage and track all contact requests</p>
         </div>
 
         {/* Stats Cards */}
@@ -204,12 +204,12 @@ export default function ContactSubmissionsPage() {
               onClick={() => setStatusFilter(status as StatusType)}
               className={`p-4 rounded-lg border-2 transition-all ${
                 statusFilter === status
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 bg-white hover:border-gray-300'
+                  ? 'border-brand-500 bg-brand-50'
+                  : 'border-slate-200 bg-white hover:border-slate-300'
               }`}
             >
-              <div className="text-2xl font-bold text-gray-900">{count}</div>
-              <div className="text-sm text-gray-600 capitalize">{status.replace('_', ' ')}</div>
+              <div className="text-2xl font-bold text-slate-900">{count}</div>
+              <div className="text-sm text-slate-600 capitalize">{status.replace('_', ' ')}</div>
             </button>
           ))}
         </div>
@@ -218,13 +218,13 @@ export default function ContactSubmissionsPage() {
         <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input
                 type="text"
                 placeholder="Search by name, email, or company..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -234,9 +234,9 @@ export default function ContactSubmissionsPage() {
         <div className="space-y-4">
           {filteredSubmissions.length === 0 ? (
             <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-              <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No submissions found</h3>
-              <p className="text-gray-600">Try adjusting your filters or search term</p>
+              <AlertCircle className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-slate-900 mb-2">No submissions found</h3>
+              <p className="text-slate-600">Try adjusting your filters or search term</p>
             </div>
           ) : (
             filteredSubmissions.map((submission) => {
@@ -250,19 +250,19 @@ export default function ContactSubmissionsPage() {
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-start gap-4 flex-1">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
+                      <div className="w-12 h-12 bg-brand-50 rounded-full flex items-center justify-center text-brand-700 font-semibold">
                         {submission.first_name[0]}{submission.last_name[0]}
                       </div>
                       
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                        <h3 className="text-lg font-semibold text-slate-900 mb-1">
                           {submission.first_name} {submission.last_name}
                         </h3>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-slate-600">
                           <div className="flex items-center gap-2">
                             <Mail className="w-4 h-4" />
-                            <a href={`mailto:${submission.email}`} className="hover:text-blue-600">
+                            <a href={`mailto:${submission.email}`} className="hover:text-brand-600">
                               {submission.email}
                             </a>
                           </div>
@@ -270,7 +270,7 @@ export default function ContactSubmissionsPage() {
                           {submission.phone && (
                             <div className="flex items-center gap-2">
                               <Phone className="w-4 h-4" />
-                              <a href={`tel:${submission.phone}`} className="hover:text-blue-600">
+                              <a href={`tel:${submission.phone}`} className="hover:text-brand-600">
                                 {submission.phone}
                               </a>
                             </div>
@@ -288,10 +288,10 @@ export default function ContactSubmissionsPage() {
                         </div>
 
                         {submission.comment && (
-                          <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                          <div className="mt-3 p-3 bg-slate-50 rounded-lg">
                             <div className="flex items-start gap-2">
-                              <MessageSquare className="w-4 h-4 text-gray-400 mt-0.5" />
-                              <p className="text-sm text-gray-700">{submission.comment}</p>
+                              <MessageSquare className="w-4 h-4 text-slate-400 mt-0.5" />
+                              <p className="text-sm text-slate-700">{submission.comment}</p>
                             </div>
                           </div>
                         )}
@@ -307,11 +307,11 @@ export default function ContactSubmissionsPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 pt-4 border-t border-gray-100">
+                  <div className="flex items-center gap-2 pt-4 border-t border-slate-100">
                     <select
                       value={submission.status}
                       onChange={(e) => updateStatus(submission.id, e.target.value)}
-                      className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500"
                     >
                       <option value="new">New</option>
                       <option value="in_progress">In Progress</option>
@@ -322,7 +322,7 @@ export default function ContactSubmissionsPage() {
 
                     <button
                       onClick={() => openModal(submission)}
-                      className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1"
+                      className="px-3 py-1.5 text-sm bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors flex items-center gap-1"
                     >
                       <ExternalLink className="w-4 h-4" />
                       View Details
@@ -338,10 +338,10 @@ export default function ContactSubmissionsPage() {
       {/* Detail Modal */}
       {isModalOpen && selectedSubmission && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900">Submission Details</h2>
-              <button onClick={closeModal} className="p-2 hover:bg-gray-100 rounded-lg">
+          <div className="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-slate-200">
+              <h2 className="text-2xl font-bold text-slate-900">Submission Details</h2>
+              <button onClick={closeModal} className="p-2 hover:bg-slate-100 rounded-lg">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -352,19 +352,19 @@ export default function ContactSubmissionsPage() {
                 <h3 className="text-lg font-semibold mb-3">Contact Information</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm text-gray-600">Name</label>
+                    <label className="text-sm text-slate-600">Name</label>
                     <p className="font-medium">{selectedSubmission.first_name} {selectedSubmission.last_name}</p>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">Company</label>
+                    <label className="text-sm text-slate-600">Company</label>
                     <p className="font-medium">{selectedSubmission.company_name}</p>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">Email</label>
+                    <label className="text-sm text-slate-600">Email</label>
                     <p className="font-medium">{selectedSubmission.email}</p>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">Phone</label>
+                    <label className="text-sm text-slate-600">Phone</label>
                     <p className="font-medium">{selectedSubmission.phone || 'N/A'}</p>
                   </div>
                 </div>
@@ -374,7 +374,7 @@ export default function ContactSubmissionsPage() {
               {selectedSubmission.comment && (
                 <div>
                   <h3 className="text-lg font-semibold mb-3">Message</h3>
-                  <p className="p-4 bg-gray-50 rounded-lg">{selectedSubmission.comment}</p>
+                  <p className="p-4 bg-slate-50 rounded-lg">{selectedSubmission.comment}</p>
                 </div>
               )}
 
@@ -385,13 +385,13 @@ export default function ContactSubmissionsPage() {
                   value={noteText}
                   onChange={(e) => setNoteText(e.target.value)}
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500"
                   placeholder="Add internal notes here..."
                 />
                 <button
                   onClick={saveNote}
                   disabled={isSavingNote}
-                  className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                  className="mt-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 flex items-center gap-2"
                 >
                   {isSavingNote ? (
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -407,19 +407,19 @@ export default function ContactSubmissionsPage() {
                 <h3 className="text-lg font-semibold mb-3">Additional Information</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <label className="text-gray-600">Submitted</label>
+                    <label className="text-slate-600">Submitted</label>
                     <p>{new Date(selectedSubmission.submitted_at).toLocaleString()}</p>
                   </div>
                   <div>
-                    <label className="text-gray-600">Trigger</label>
+                    <label className="text-slate-600">Trigger</label>
                     <p className="capitalize">{selectedSubmission.trigger}</p>
                   </div>
                   <div>
-                    <label className="text-gray-600">GDPR Consent</label>
+                    <label className="text-slate-600">GDPR Consent</label>
                     <p>{selectedSubmission.gdpr_consent ? '✓ Yes' : '✗ No'}</p>
                   </div>
                   <div>
-                    <label className="text-gray-600">Marketing Consent</label>
+                    <label className="text-slate-600">Marketing Consent</label>
                     <p>{selectedSubmission.marketing_consent ? '✓ Yes' : '✗ No'}</p>
                   </div>
                 </div>
@@ -437,7 +437,7 @@ export default function ContactSubmissionsPage() {
                 
                 <button
                   onClick={closeModal}
-                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+                  className="px-4 py-2 bg-slate-200 text-slate-800 rounded-lg hover:bg-slate-300"
                 >
                   Close
                 </button>

@@ -155,16 +155,16 @@ const HRDashboard = () => {
 
   if (!session?.user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-lg p-8 text-center max-w-md">
-          <Lock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">{t('dashboard.auth.required')}</h2>
-          <p className="text-gray-600 mb-6">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="bg-white rounded-xl shadow-sm p-8 text-center max-w-md">
+          <Lock className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-slate-800 mb-2">{t('dashboard.auth.required')}</h2>
+          <p className="text-slate-600 mb-6">
             {t('dashboard.auth.description')}
           </p>
           <button
             onClick={() => window.location.href = '/login'}
-            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors mx-auto"
+            className="flex items-center gap-2 px-6 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors mx-auto"
           >
             <LogIn className="w-4 h-4" />
             {t('dashboard.auth.login')}
@@ -176,10 +176,10 @@ const HRDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="flex items-center gap-3">
-          <RefreshCw className="w-6 h-6 animate-spin text-blue-600" />
-          <span className="text-lg text-gray-600">{t('dashboard.loading')}</span>
+          <RefreshCw className="w-6 h-6 animate-spin text-brand-600" />
+          <span className="text-lg text-slate-600">{t('dashboard.loading')}</span>
         </div>
       </div>
     );
@@ -187,7 +187,7 @@ const HRDashboard = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
           <div className="flex items-center gap-2 text-red-800 mb-2">
             <AlertTriangle className="w-5 h-5" />
@@ -223,22 +223,22 @@ const HRDashboard = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+              <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
                 <Heart className="w-8 h-8 text-red-500" />
                 {t('dashboard.title')}
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-slate-600 mt-1">
                 {t('dashboard.subtitle')} • {data.period}
               </p>
               {data.companyName && (
-                <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium mt-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <div className="inline-flex items-center gap-2 bg-brand-50 text-brand-700 px-3 py-1 rounded-full text-sm font-medium mt-2">
+                  <div className="w-2 h-2 bg-brand-500 rounded-full"></div>
                   {data.companyName}
                 </div>
               )}
@@ -249,7 +249,7 @@ const HRDashboard = () => {
               <div className="relative">
                 <button
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
                 >
                   <Calendar className="w-4 h-4" />
                   {t('dashboard.period.days', { count: selectedPeriod })}
@@ -257,7 +257,7 @@ const HRDashboard = () => {
                 </button>
                 
                 {isFilterOpen && (
-                  <div className="absolute top-full mt-2 right-0 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                  <div className="absolute top-full mt-2 right-0 bg-white rounded-lg shadow-lg border border-slate-200 z-10">
                     {['7', '30', '90', '365'].map(period => (
                       <button
                         key={period}
@@ -265,7 +265,7 @@ const HRDashboard = () => {
                           setSelectedPeriod(period);
                           setIsFilterOpen(false);
                         }}
-                        className="block w-full text-left px-4 py-2 hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg"
+                        className="block w-full text-left px-4 py-2 hover:bg-slate-50 first:rounded-t-lg last:rounded-b-lg"
                       >
                         {t('dashboard.period.days', { count: period })}
                       </button>
@@ -276,7 +276,7 @@ const HRDashboard = () => {
 
               <button
                 onClick={fetchData}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors"
               >
                 <RefreshCw className="w-4 h-4" />
                 {t('dashboard.refresh')}
@@ -293,15 +293,15 @@ const HRDashboard = () => {
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">{t('dashboard.metrics.avgScore')}</p>
-                <p className="text-3xl font-bold text-gray-900">{data.summary.avgHappiness}/10</p>
+                <p className="text-sm text-slate-600">{t('dashboard.metrics.avgScore')}</p>
+                <p className="text-3xl font-bold text-slate-900">{data.summary.avgHappiness}/10</p>
                 <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${happinessLevel.bg} ${happinessLevel.color} mt-2`}>
                   <HappinessIcon className="w-3 h-3" />
                   {happinessLevel.label}
                 </div>
               </div>
-              <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
-                <Heart className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 bg-brand-50 rounded-lg flex items-center justify-center">
+                <Heart className="w-6 h-6 text-brand-600" />
               </div>
             </div>
           </div>
@@ -310,11 +310,11 @@ const HRDashboard = () => {
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">{t('dashboard.metrics.participations')}</p>
-                <p className="text-3xl font-bold text-gray-900">{data.summary.totalSessions}</p>
+                <p className="text-sm text-slate-600">{t('dashboard.metrics.participations')}</p>
+                <p className="text-3xl font-bold text-slate-900">{data.summary.totalSessions}</p>
                 <div className="flex items-center gap-1 mt-2">
                   {getTrendIcon(data.summary.participationTrend)}
-                  <span className="text-xs text-gray-600">
+                  <span className="text-xs text-slate-600">
                     {data.summary.participationTrend > 0 ? '+' : ''}{data.summary.participationTrend}
                   </span>
                 </div>
@@ -329,8 +329,8 @@ const HRDashboard = () => {
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">{t('dashboard.metrics.strongestArea')}</p>
-                <p className="text-sm font-semibold text-gray-900">
+                <p className="text-sm text-slate-600">{t('dashboard.metrics.strongestArea')}</p>
+                <p className="text-sm font-semibold text-slate-900">
                   {Object.entries(data.permaAverages).sort(([,a],[,b])=>b-a)[0]
                     ? permaLabels[Object.entries(data.permaAverages).sort(([,a],[,b])=>b-a)[0][0] as PermaKey]
                     : 'N/A'}
@@ -339,8 +339,8 @@ const HRDashboard = () => {
                   {Object.entries(data.permaAverages).sort(([,a],[,b])=>b-a)[0]?.[1].toFixed(1) || 'N/A'}/10
                 </p>
               </div>
-              <div className="w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center">
-                <BarChart3 className="w-6 h-6 text-purple-600" />
+              <div className="w-12 h-12 bg-brand-50 rounded-lg flex items-center justify-center">
+                <BarChart3 className="w-6 h-6 text-brand-600" />
               </div>
             </div>
           </div>
@@ -349,8 +349,8 @@ const HRDashboard = () => {
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">{t('dashboard.metrics.improvementArea')}</p>
-                <p className="text-sm font-semibold text-gray-900">
+                <p className="text-sm text-slate-600">{t('dashboard.metrics.improvementArea')}</p>
+                <p className="text-sm font-semibold text-slate-900">
                   {data.areasForImprovement[0]
                     ? permaLabels[data.areasForImprovement[0].area as PermaKey]
                     : 'N/A'}
@@ -370,7 +370,7 @@ const HRDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* PERMA Radar */}
           <div className="bg-white rounded-xl shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboard.charts.permaAnalysis')}</h3>
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">{t('dashboard.charts.permaAnalysis')}</h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={permaData}>
@@ -389,7 +389,7 @@ const HRDashboard = () => {
           
           {/* PERMA Distribution */}
           <div className="bg-white rounded-xl shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboard.charts.distribution')}</h3>
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">{t('dashboard.charts.distribution')}</h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                <PieChart>
@@ -418,7 +418,7 @@ const HRDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           {/* Domain Comparison */}
           <div className="lg:col-span-3 bg-white rounded-xl shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboard.charts.comparison')}</h3>
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">{t('dashboard.charts.comparison')}</h3>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={permaData} margin={{ left:20 }}>
@@ -441,7 +441,7 @@ const HRDashboard = () => {
 
         {/* Recommended Actions */}
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboard.actions.title')}</h3>
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">{t('dashboard.actions.title')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {data.areasForImprovement.slice(0,3).map((area)=>(
               <div key={area.area} className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -457,14 +457,14 @@ const HRDashboard = () => {
         </div>
 
         {/* Footer */}
-        <div className="mt-8 bg-gray-100 rounded-xl p-6">
+        <div className="mt-8 bg-slate-100 rounded-xl p-6">
           <div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-slate-600">
               <strong>{t('dashboard.footer.privacy')}:</strong> {t('dashboard.footer.privacyText')}
             </p>
-            <p className="text-xs text-gray-500 mt-1">{t('dashboard.footer.lastUpdate')}: {new Date().toLocaleString(locale === 'hu' ? 'hu-HU' : 'en-US')}</p>
+            <p className="text-xs text-slate-500 mt-1">{t('dashboard.footer.lastUpdate')}: {new Date().toLocaleString(locale === 'hu' ? 'hu-HU' : 'en-US')}</p>
             {data.companyName && (
-              <p className="text-xs text-blue-600 mt-1">{t('dashboard.footer.filteredFor')}: {data.companyName}</p>
+              <p className="text-xs text-brand-600 mt-1">{t('dashboard.footer.filteredFor')}: {data.companyName}</p>
             )}
           </div>
         </div>

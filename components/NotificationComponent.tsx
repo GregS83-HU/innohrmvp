@@ -344,11 +344,11 @@ export default function NotificationComponent({
   const getNotificationColor = (type: NotificationData['type']) => {
     switch (type) {
       case 'ticket_created':
-        return 'bg-blue-100 text-blue-600 border-blue-200';
+        return 'bg-brand-100 text-brand-600 border-brand-200';
       case 'ticket_status_changed':
-        return 'bg-indigo-100 text-indigo-600 border-indigo-200';
+        return 'bg-brand-100 text-brand-600 border-brand-200';
       case 'ticket_message':
-        return 'bg-cyan-100 text-cyan-600 border-cyan-200';
+        return 'bg-brand-100 text-brand-600 border-brand-200';
       case 'leave_request_created':
         return 'bg-yellow-100 text-yellow-600 border-yellow-200';
       case 'leave_request_approved':
@@ -360,15 +360,15 @@ export default function NotificationComponent({
       case 'goal_created':
         return 'bg-emerald-100 text-emerald-600 border-emerald-200';
       case 'goal_approved':
-        return 'bg-teal-100 text-teal-600 border-teal-200';
+        return 'bg-brand-100 text-brand-600 border-brand-200';
       case 'goal_red_flag':
         return 'bg-orange-100 text-orange-600 border-orange-200';
       case 'pulse_reminder':
-        return 'bg-violet-100 text-violet-600 border-violet-200';
+        return 'bg-brand-100 text-brand-600 border-brand-200';
       case 'cv_uploaded':
-        return 'bg-purple-100 text-purple-600 border-purple-200';
+        return 'bg-brand-100 text-brand-600 border-brand-200';
       default:
-        return 'bg-gray-100 text-gray-600 border-gray-200';
+        return 'bg-slate-100 text-slate-600 border-slate-200';
     }
   };
 
@@ -464,9 +464,9 @@ export default function NotificationComponent({
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setShowNotifications(!showNotifications)}
-          className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors"
         >
-          <Bell className="w-5 h-5 text-gray-600" />
+          <Bell className="w-5 h-5 text-slate-600" />
           {unreadCount > 0 && (
             <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
               {unreadCount > 9 ? '9+' : unreadCount}
@@ -476,16 +476,16 @@ export default function NotificationComponent({
 
         {/* Dropdown */}
         {showNotifications && (
-          <div className="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 max-h-[600px] overflow-hidden flex flex-col">
+          <div className="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-2xl border border-slate-200 z-50 max-h-[600px] overflow-hidden flex flex-col">
             {/* Header */}
-            <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-blue-50 to-purple-50">
-              <h3 className="font-semibold text-gray-900">
+            <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 ">
+              <h3 className="font-semibold text-slate-900">
                 {t('notificationComponent.title')}
               </h3>
               {unreadCount > 0 && (
                 <button
                   onClick={handleMarkAllAsRead}
-                  className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                  className="text-xs text-brand-600 hover:text-brand-800 flex items-center gap-1"
                 >
                   <Check className="w-3 h-3" />
                   {t('notificationComponent.markAllRead')}
@@ -496,18 +496,18 @@ export default function NotificationComponent({
             {/* Notifications List */}
             <div className="overflow-y-auto flex-1">
               {notifications.length === 0 ? (
-                <div className="p-8 text-center text-gray-500">
-                  <Bell className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                <div className="p-8 text-center text-slate-500">
+                  <Bell className="w-12 h-12 mx-auto mb-3 text-slate-300" />
                   <p>{t('notificationComponent.noNotifications')}</p>
                 </div>
               ) : (
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-slate-100">
                   {notifications.map((notification) => (
                     <div
                       key={notification.id}
                       onClick={() => handleNotificationClick(notification)}
-                      className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
-                        !notification.read ? 'bg-blue-50' : ''
+                      className={`p-4 hover:bg-slate-50 cursor-pointer transition-colors ${
+                        !notification.read ? 'bg-brand-50' : ''
                       }`}
                     >
                       <div className="flex gap-3">
@@ -520,17 +520,17 @@ export default function NotificationComponent({
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
-                            <p className="font-semibold text-sm text-gray-900 truncate">
+                            <p className="font-semibold text-sm text-slate-900 truncate">
                               {notification.title}
                             </p>
                             {!notification.read && (
-                              <span className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0 mt-1"></span>
+                              <span className="w-2 h-2 bg-brand-600 rounded-full flex-shrink-0 mt-1"></span>
                             )}
                           </div>
-                          <p className="text-sm text-gray-600 line-clamp-2 mt-1">
+                          <p className="text-sm text-slate-600 line-clamp-2 mt-1">
                             {notification.message}
                           </p>
-                          <p className="text-xs text-gray-400 mt-1">
+                          <p className="text-xs text-slate-400 mt-1">
                             {formatTime(notification.created_at)}
                           </p>
                         </div>
@@ -549,7 +549,7 @@ export default function NotificationComponent({
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className="bg-white rounded-lg shadow-2xl border border-gray-200 p-4 w-80 animate-slide-in pointer-events-auto"
+            className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 w-80 animate-slide-in pointer-events-auto"
           >
             <div className="flex gap-3">
               <div
@@ -560,12 +560,12 @@ export default function NotificationComponent({
                 {getNotificationIcon(toast.type)}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm text-gray-900">{toast.title}</p>
-                <p className="text-sm text-gray-600 line-clamp-2">{toast.message}</p>
+                <p className="font-semibold text-sm text-slate-900">{toast.title}</p>
+                <p className="text-sm text-slate-600 line-clamp-2">{toast.message}</p>
               </div>
               <button
                 onClick={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-slate-400 hover:text-slate-600"
               >
                 <X className="w-4 h-4" />
               </button>

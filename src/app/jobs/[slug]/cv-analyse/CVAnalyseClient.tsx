@@ -203,7 +203,7 @@ export default function CVAnalyseClient({
         <div className="flex items-center gap-3">
           <button
             onClick={handleBackToPositions}
-            className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors"
+            className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-medium transition-colors"
             aria-label={t('cvAnalyse.buttons.back')}
             title={t('cvAnalyse.buttons.back')}
           >
@@ -214,16 +214,16 @@ export default function CVAnalyseClient({
 
         {/* Header */}
         <div className="text-center">
-          <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
-            <Brain className="w-10 h-10 sm:w-12 sm:h-12 text-blue-600 mx-auto mb-4" aria-hidden />
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-4">{t('cvAnalyse.header.title')}</h1>
+          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 lg:p-8">
+            <Brain className="w-10 h-10 sm:w-12 sm:h-12 text-brand-600 mx-auto mb-4" aria-hidden />
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-800 mb-4">{t('cvAnalyse.header.title')}</h1>
 
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg inline-block mb-2">
+            <div className="bg-brand-600 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg inline-block mb-2">
               <span className="font-semibold text-sm sm:text-base">{positionName}</span>
             </div>
 
             {companyName && (
-              <p className="text-gray-600 text-sm sm:text-base mb-4">
+              <p className="text-slate-600 text-sm sm:text-base mb-4">
                 {t('cvAnalyse.header.positionAt')} {companyName}
               </p>
             )}
@@ -231,7 +231,7 @@ export default function CVAnalyseClient({
             {/* Position Meta Information Badges */}
             <div className="flex flex-wrap justify-center gap-2 mt-4">
               {location && (
-                <div className="flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium border border-blue-200">
+                <div className="flex items-center gap-1.5 bg-brand-50 text-brand-700 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium border border-brand-200">
                   <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span>{location}</span>
                 </div>
@@ -242,15 +242,15 @@ export default function CVAnalyseClient({
                   locationType === 'remote'
                     ? 'bg-green-50 text-green-700 border-green-200'
                     : locationType === 'hybrid'
-                    ? 'bg-purple-50 text-purple-700 border-purple-200'
-                    : 'bg-gray-50 text-gray-700 border-gray-200'
+                    ? 'bg-brand-50 text-brand-700 border-brand-200'
+                    : 'bg-slate-50 text-slate-700 border-slate-200'
                 }`}>
                   <span>{t(`cvAnalyse.badges.${locationType}`)}</span>
                 </div>
               )}
 
               {employmentType && (
-                <div className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium border border-indigo-200">
+                <div className="flex items-center gap-1.5 bg-brand-50 text-brand-700 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium border border-brand-200">
                   <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span>{t(`cvAnalyse.badges.${employmentType.replace('-', '')}`)}</span>
                 </div>
@@ -281,26 +281,26 @@ export default function CVAnalyseClient({
         </div>
 
         {/* Position Description */}
-        <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 lg:p-8">
           <div className="flex items-center gap-3 mb-4">
-            <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" aria-hidden />
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-800">{t('cvAnalyse.sections.positionDescription')}</h2>
+            <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-brand-600" aria-hidden />
+            <h2 className="text-lg sm:text-xl font-semibold text-slate-800">{t('cvAnalyse.sections.positionDescription')}</h2>
           </div>
-          <p className="text-gray-600 leading-relaxed text-sm sm:text-base whitespace-pre-wrap">{jobDescription}</p>
+          <p className="text-slate-600 leading-relaxed text-sm sm:text-base whitespace-pre-wrap">{jobDescription}</p>
         </div>
 
         {/* Demo CVs Download Block */}
         {isDemo && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 sm:p-6">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 sm:p-6">
             <div className="text-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('cvAnalyse.sections.demoTitle')}</h3>
+              <h3 className="text-lg font-semibold text-slate-800 mb-2">{t('cvAnalyse.sections.demoTitle')}</h3>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <a
                 href="https://drive.google.com/uc?export=download&id=1-pMKT5dp-8PjJI2RbaVbUNuxt_rxXLFG"
                 download
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+                className="flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-3 px-4 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
               >
                 <Download className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden />
                 <span className="text-sm sm:text-base">{t('cvAnalyse.sections.demoDownload.software')}</span>
@@ -309,19 +309,19 @@ export default function CVAnalyseClient({
               <a
                 href="https://drive.google.com/uc?export=download&id=15kzhUQFvizgx1Zhx9MG-CJAhTvHc3gJS"
                 download
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-4 rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+                className="flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-3 px-4 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
               >
                 <Download className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden />
                 <span className="text-sm sm:text-base">{t('cvAnalyse.sections.demoDownload.marketing')}</span>
               </a>
             </div>
 
-            <p className="text-sm text-gray-700 text-center">{t('cvAnalyse.sections.demoSubtitle')}</p>
+            <p className="text-sm text-slate-700 text-center">{t('cvAnalyse.sections.demoSubtitle')}</p>
           </div>
         )}
 
         {/* Main Form */}
-        <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 lg:p-8">
           <form onSubmit={handleUpload} className="space-y-4 sm:space-y-6" aria-label={t('cvAnalyse.forms.uploadForm')}>
             {/* Important Notice */}
             {!analysisCompleted && (
@@ -337,7 +337,7 @@ export default function CVAnalyseClient({
             <div>
               <div
                 className={`border-2 border-dashed rounded-lg p-4 sm:p-6 lg:p-8 text-center transition-colors ${
-                  analysisCompleted ? 'border-gray-200 bg-gray-50' : 'border-gray-300 bg-gray-50 hover:bg-gray-100'
+                  analysisCompleted ? 'border-slate-200 bg-slate-50' : 'border-slate-300 bg-slate-50 hover:bg-slate-100'
                 }`}
                 aria-live="polite"
               >
@@ -357,15 +357,15 @@ export default function CVAnalyseClient({
                     <div className="flex flex-col items-center gap-3">
                       <CheckCircle className="w-10 h-10 sm:w-12 sm:h-12 text-green-500" aria-hidden />
                       <span className="text-green-600 font-semibold text-sm sm:text-base break-all px-2">{file.name}</span>
-                      {!analysisCompleted && <span className="text-xs sm:text-sm text-gray-500">{t('cvAnalyse.labels.clickToChange')}</span>}
+                      {!analysisCompleted && <span className="text-xs sm:text-sm text-slate-500">{t('cvAnalyse.labels.clickToChange')}</span>}
                     </div>
                   ) : (
                     <div className="flex flex-col items-center gap-3">
-                      <Upload className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400" aria-hidden />
-                      <span className={`font-semibold text-sm sm:text-base ${analysisCompleted ? 'text-gray-400' : 'text-blue-600 hover:underline'}`}>
+                      <Upload className="w-10 h-10 sm:w-12 sm:h-12 text-slate-400" aria-hidden />
+                      <span className={`font-semibold text-sm sm:text-base ${analysisCompleted ? 'text-slate-400' : 'text-brand-600 hover:underline'}`}>
                         {t('cvAnalyse.labels.clickToSelect')}
                       </span>
-                      <span className="text-xs sm:text-sm text-gray-500">{t('cvAnalyse.labels.pdfOnly')}</span>
+                      <span className="text-xs sm:text-sm text-slate-500">{t('cvAnalyse.labels.pdfOnly')}</span>
                     </div>
                   )}
                 </label>
@@ -374,24 +374,24 @@ export default function CVAnalyseClient({
 
             {/* GDPR Checkbox */}
             {file && !analysisCompleted && gdpr_file_url && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+              <div className="bg-brand-50 border border-brand-200 rounded-lg p-3 sm:p-4">
                 <div className="flex items-start gap-3">
                   <input
                     id="gdpr"
                     type="checkbox"
                     checked={gdprAccepted}
                     onChange={(e) => setGdprAccepted(e.target.checked)}
-                    className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0"
+                    className="mt-1 h-4 w-4 text-brand-600 focus:ring-brand-500 border-slate-300 rounded flex-shrink-0"
                     disabled={analysisCompleted}
                   />
-                  <label htmlFor="gdpr" className="text-xs sm:text-sm text-gray-700 flex-1">
+                  <label htmlFor="gdpr" className="text-xs sm:text-sm text-slate-700 flex-1">
                     <Shield className="w-4 h-4 inline mr-1" aria-hidden />
                     {t('cvAnalyse.messages.gdprPre')}{' '}
                     <a
                       href={gdpr_file_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 underline hover:text-blue-700"
+                      className="text-brand-600 underline hover:text-brand-700"
                     >
                       {t('cvAnalyse.messages.gdprLinkText')}
                     </a>
@@ -403,17 +403,17 @@ export default function CVAnalyseClient({
 
             {/* AI Consent Checkbox */}
             {file && !analysisCompleted && (
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 sm:p-4">
+              <div className="bg-brand-50 border border-brand-200 rounded-lg p-3 sm:p-4">
                 <div className="flex items-start gap-3">
                   <input
                     id="ai-consent"
                     type="checkbox"
                     checked={aiConsentAccepted}
                     onChange={(e) => setAiConsentAccepted(e.target.checked)}
-                    className="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded flex-shrink-0"
+                    className="mt-1 h-4 w-4 text-brand-600 focus:ring-brand-500 border-slate-300 rounded flex-shrink-0"
                     disabled={analysisCompleted}
                   />
-                  <label htmlFor="ai-consent" className="text-xs sm:text-sm text-gray-700 flex-1">
+                  <label htmlFor="ai-consent" className="text-xs sm:text-sm text-slate-700 flex-1">
                     🤖 {t('cvAnalyse.messages.aiConsent')}
                   </label>
                 </div>
@@ -426,8 +426,8 @@ export default function CVAnalyseClient({
               disabled={!file || (gdpr_file_url && !gdprAccepted) || !aiConsentAccepted || loading || analysisCompleted}
               className={`w-full py-3 sm:py-4 px-4 sm:px-6 rounded-lg font-semibold text-white text-base sm:text-lg transition-all shadow-md hover:shadow-lg transform ${
                 loading || !file || (gdpr_file_url && !gdprAccepted) || !aiConsentAccepted || analysisCompleted
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:scale-105'
+                  ? 'bg-slate-400 cursor-not-allowed'
+                  : 'bg-brand-600 hover:bg-brand-700 '
               }`}
               aria-disabled={!file || (gdpr_file_url && !gdprAccepted) || !aiConsentAccepted || loading || analysisCompleted}
             >
@@ -469,7 +469,7 @@ export default function CVAnalyseClient({
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 sm:p-6 animate-fade-in" role="alert">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 sm:p-6 animate-fade-in" role="alert">
             <div className="flex items-center gap-3">
               <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-red-500 flex-shrink-0" aria-hidden />
               <div>
@@ -484,7 +484,7 @@ export default function CVAnalyseClient({
         {score !== null && candidateFeedback && (
           <div className="space-y-4 sm:space-y-6 animate-fade-in" aria-live="polite">
             {/* Score Card */}
-            <div className={`rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8 border-2 ${getScoreColor(score)}`}>
+            <div className={`rounded-xl shadow-sm p-4 sm:p-6 lg:p-8 border-2 ${getScoreColor(score)}`}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
                 <div className="flex items-center gap-3">
                   <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden />
@@ -499,13 +499,13 @@ export default function CVAnalyseClient({
             </div>
 
             {/* Candidate Feedback */}
-            <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
+            <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 lg:p-8">
               <div className="flex items-center gap-3 mb-4">
-                <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" aria-hidden />
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-800">{t('cvAnalyse.sections.feedbackTitle')}</h2>
+                <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 text-brand-600" aria-hidden />
+                <h2 className="text-lg sm:text-xl font-semibold text-slate-800">{t('cvAnalyse.sections.feedbackTitle')}</h2>
               </div>
-              <div className="bg-blue-50 rounded-lg p-3 sm:p-4">
-                <div className="whitespace-pre-wrap text-xs sm:text-sm text-gray-700 leading-relaxed">{candidateFeedback}</div>
+              <div className="bg-brand-50 rounded-lg p-3 sm:p-4">
+                <div className="whitespace-pre-wrap text-xs sm:text-sm text-slate-700 leading-relaxed">{candidateFeedback}</div>
               </div>
             </div>
 

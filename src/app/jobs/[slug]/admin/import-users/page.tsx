@@ -135,8 +135,8 @@ export default function AdminImportUsersPage() {
 
   if (!accessChecked) {
     return (
-      <div className="min-h-screen p-10 bg-gray-50">
-        <div className="max-w-2xl mx-auto bg-white shadow-lg rounded-2xl p-8 text-gray-500">
+      <div className="min-h-screen p-10 bg-slate-50">
+        <div className="max-w-2xl mx-auto bg-white shadow-sm rounded-xl p-8 text-slate-500">
           Loading…
         </div>
       </div>
@@ -145,18 +145,18 @@ export default function AdminImportUsersPage() {
 
   if (!isSuperAdmin) {
     return (
-      <div className="min-h-screen p-10 bg-gray-50">
-        <div className="max-w-2xl mx-auto bg-white shadow-lg rounded-2xl p-8">
+      <div className="min-h-screen p-10 bg-slate-50">
+        <div className="max-w-2xl mx-auto bg-white shadow-sm rounded-xl p-8">
           <h1 className="text-2xl font-bold mb-2">Access denied</h1>
-          <p className="text-gray-600">This page is restricted to super admins.</p>
+          <p className="text-slate-600">This page is restricted to super admins.</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen p-10 bg-gray-50">
-      <div className="max-w-2xl mx-auto bg-white shadow-lg rounded-2xl p-8">
+    <div className="min-h-screen p-10 bg-slate-50">
+      <div className="max-w-2xl mx-auto bg-white shadow-sm rounded-xl p-8">
         <h1 className="text-2xl font-bold mb-6">Import Users</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -166,7 +166,7 @@ export default function AdminImportUsersPage() {
               type="file"
               accept=".csv,.xlsx"
               onChange={handleFileChange}
-              className="block w-full border border-gray-300 rounded-lg p-2"
+              className="block w-full border border-slate-300 rounded-lg p-2"
             />
           </div>
 
@@ -197,7 +197,7 @@ export default function AdminImportUsersPage() {
           <button
             type="submit"
             disabled={loading || !file || needsAdminConfirmation}
-            className="px-5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50"
+            className="px-5 py-2 bg-brand-600 text-white rounded-xl hover:bg-brand-700 disabled:opacity-50"
           >
             {loading ? 'Importing...' : 'Start Import'}
           </button>
@@ -206,9 +206,9 @@ export default function AdminImportUsersPage() {
         {results && (
           <div className="mt-10">
             <h2 className="text-xl font-semibold mb-4">Results</h2>
-            <div className="bg-gray-100 rounded-xl p-4 max-h-80 overflow-auto">
+            <div className="bg-slate-100 rounded-xl p-4 max-h-80 overflow-auto">
               {results.map((r, i) => (
-                <div key={i} className="p-2 border-b border-gray-300">
+                <div key={i} className="p-2 border-b border-slate-300">
                   {r.success ? (
                     <span className="text-green-600 font-medium">✔ {r.email} imported</span>
                   ) : (

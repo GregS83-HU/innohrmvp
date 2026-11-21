@@ -87,7 +87,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+      <header className="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-40">
         <DemoTimer
           isDemoMode={isDemoMode}
           isDemoExpired={isDemoExpired}
@@ -127,7 +127,7 @@ export default function Header() {
               {companySlug && (
                 <DemoAwareMenuItem
                   href={buildLink('/openedpositions')}
-                  className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700`}
+                  className={`${buttonBaseClasses} bg-brand-50 hover:bg-brand-100 text-brand-700`}
                   isDemoExpired={isDemoExpired}
                 >
                   <Briefcase className="w-4 h-4" /> {(isManager || isAdmin) ? t('header.yourPositions') : t('header.availablePositions')}
@@ -181,62 +181,62 @@ export default function Header() {
               {companySlug && user && (
                 <div className="relative" ref={hrToolsMenuRef}>
                   {isDemoExpired ? (
-                    <div className={`${buttonBaseClasses} bg-gray-100 text-gray-400 cursor-not-allowed relative group`}>
+                    <div className={`${buttonBaseClasses} bg-slate-100 text-slate-400 cursor-not-allowed relative group`}>
                       <Heart className="w-4 h-4" /> {t('header.hrTools')}
                       <ChevronDown className="w-3 h-3" />
-                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
                         {t('header.demoExpiredTooltip')}
-                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-900"></div>
                       </div>
                     </div>
                   ) : (
                     <>
-                      <button onClick={() => setIsHRToolsMenuOpen(!isHRToolsMenuOpen)} className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700`}>
+                      <button onClick={() => setIsHRToolsMenuOpen(!isHRToolsMenuOpen)} className={`${buttonBaseClasses} bg-brand-50 hover:bg-brand-100 text-brand-700`}>
                         <Heart className="w-4 h-4" /> {t('header.hrTools')}
                         <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isHRToolsMenuOpen ? 'rotate-180' : ''}`} />
                       </button>
                       {isHRToolsMenuOpen && (
-                        <div className="absolute top-full mt-2 left-0 w-64 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
-                          <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
-                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">{t('header.hrTools')}</p>
+                        <div className="absolute top-full mt-2 left-0 w-64 bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden z-50">
+                          <div className="px-4 py-2 bg-slate-50 border-b border-slate-200">
+                            <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide">{t('header.hrTools')}</p>
                           </div>
                           {showAdvancedReporting && (
-                            <Link href={buildLink('/openedpositions/analytics')} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
+                            <Link href={buildLink('/openedpositions/analytics')} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-brand-50 text-brand-700 w-full px-4 py-3 border-b border-slate-100`}>
                               <BarChart3 className="w-4 h-4" /> {t('header.recruitmentDashboard')}
                             </Link>
                           )}
                           {isAdmin && (
-                            <HappyCheckMenuItem href={buildLink('/happiness-dashboard')} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`} onClick={() => setIsHRToolsMenuOpen(false)} canAccessHappyCheck={canAccessHappyCheck}>
+                            <HappyCheckMenuItem href={buildLink('/happiness-dashboard')} className={`${buttonBaseClasses} bg-white hover:bg-brand-50 text-brand-700 w-full px-4 py-3 border-b border-slate-100`} onClick={() => setIsHRToolsMenuOpen(false)} canAccessHappyCheck={canAccessHappyCheck}>
                               <BarChart3 className="w-4 h-4" /> {t('header.happinessDashboard')}
                             </HappyCheckMenuItem>
                           )}
                           {isAdmin && (
-                            <Link href={buildLink('/medical-certificate/list')} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
+                            <Link href={buildLink('/medical-certificate/list')} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-brand-50 text-brand-700 w-full px-4 py-3 border-b border-slate-100`}>
                               <Stethoscope className="w-4 h-4" /> {t('header.listCertificates')}
                             </Link>
                           )}
                           {isAdmin && (
-                            <Link href={buildLink('/medical-certificate/download')} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-blue-50 text-blue-700 w-full px-4 py-3 border-b border-gray-100`}>
+                            <Link href={buildLink('/medical-certificate/download')} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-brand-50 text-brand-700 w-full px-4 py-3 border-b border-slate-100`}>
                               <Stethoscope className="w-4 h-4" /> {t('header.certificatesDownload')}
                             </Link>
                           )}
                           {showPerformance && (
-                            <Link href={myperformance} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-orange-50 text-orange-700 w-full px-4 py-3 border-b border-gray-100`}>
+                            <Link href={myperformance} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-orange-50 text-orange-700 w-full px-4 py-3 border-b border-slate-100`}>
                               <Target className="w-4 h-4" /> {t('header.myPerformance')}
                             </Link>
                           )}
                           {(isManager || isAdmin) && showPerformance && (
-                            <Link href={teamperformance} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-orange-50 text-orange-700 w-full px-4 py-3 border-b border-gray-100`}>
+                            <Link href={teamperformance} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-orange-50 text-orange-700 w-full px-4 py-3 border-b border-slate-100`}>
                               <Users className="w-4 h-4" /> {t('header.teamPerformance')}
                             </Link>
                           )}
                           {(isManager || isAdmin) && showAttendanceAbsences && (
-                            <Link href={timeclockmanager} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-indigo-50 text-indigo-700 w-full px-4 py-3 border-b border-gray-100`}>
+                            <Link href={timeclockmanager} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-brand-50 text-brand-700 w-full px-4 py-3 border-b border-slate-100`}>
                               <CalendarClock className="w-4 h-4" /> {t('header.timeClockCheck')}
                             </Link>
                           )}
                           {showAttendanceAbsences && (
-                            <Link href={manageabsencesLink} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-indigo-50 text-indigo-700 w-full px-4 py-3`}>
+                            <Link href={manageabsencesLink} onClick={() => setIsHRToolsMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-brand-50 text-brand-700 w-full px-4 py-3`}>
                               <CalendarClock className="w-4 h-4" /> {t('header.absences')}
                             </Link>
                           )}
@@ -251,67 +251,67 @@ export default function Header() {
               {companySlug && isAdmin && (
                 <div className="relative" ref={accountMenuRef}>
                   {isDemoExpired ? (
-                    <div className={`${buttonBaseClasses} bg-gray-100 text-gray-400 cursor-not-allowed relative group`}>
+                    <div className={`${buttonBaseClasses} bg-slate-100 text-slate-400 cursor-not-allowed relative group`}>
                       <User className="w-4 h-4" /> {t('header.manageAccount')}
                       <ChevronDown className="w-3 h-3" />
-                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
                         {t('header.demoExpiredTooltip')}
                       </div>
                     </div>
                   ) : (
                     <>
-                      <button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700`}>
+                      <button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className={`${buttonBaseClasses} bg-brand-50 hover:bg-brand-100 text-brand-700`}>
                         <User className="w-4 h-4" /> {t('header.manageAccount')}
                         <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isAccountMenuOpen ? 'rotate-180' : ''}`} />
                       </button>
                       {isAccountMenuOpen && (
-                        <div className="absolute top-full mt-2 left-0 w-56 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
-                          <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
-                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">{t('header.accountManagement')}</p>
+                        <div className="absolute top-full mt-2 left-0 w-56 bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden z-50">
+                          <div className="px-4 py-2 bg-slate-50 border-b border-slate-200">
+                            <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide">{t('header.accountManagement')}</p>
                           </div>
                           {companySlug !== 'demo' && (
-                            <Link href={manageSubscriptionLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}>
+                            <Link href={manageSubscriptionLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-brand-50 text-brand-700 w-full px-4 py-3 border-b border-slate-100`}>
                               <CreditCard className="w-4 h-4" /> {t('header.manageSubscription')}
                             </Link>
                           )}
-                          <Link href={manageUsersLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}>
+                          <Link href={manageUsersLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-brand-50 text-brand-700 w-full px-4 py-3 border-b border-slate-100`}>
                             <UserCog className="w-4 h-4" /> {t('header.manageUsers')}
                           </Link>
-                          <Link href={helpGuideLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}>
+                          <Link href={helpGuideLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-brand-50 text-brand-700 w-full px-4 py-3 border-b border-slate-100`}>
                             <BookOpen className="w-4 h-4" /> {t('header.userGuide')}
                           </Link>
                           {isSuperAdmin && (
-                            <Link href={manageContactsLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}>
+                            <Link href={manageContactsLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-brand-50 text-brand-700 w-full px-4 py-3 border-b border-slate-100`}>
                               <Users2 className="w-4 h-4" /> {t('header.manageContacts')}
                             </Link>
                           )}
                           {isSuperAdmin && (
-                            <Link href={manageUsersUpload} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}>
+                            <Link href={manageUsersUpload} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-brand-50 text-brand-700 w-full px-4 py-3 border-b border-slate-100`}>
                               <Users2 className="w-4 h-4" /> {'User Massive Upload'}
                             </Link>
                           )}
                           {isSuperAdmin && (
-                            <Link href={funnelDashboardLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}>
+                            <Link href={funnelDashboardLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-brand-50 text-brand-700 w-full px-4 py-3 border-b border-slate-100`}>
                               <BarChart3 className="w-4 h-4" /> {'Funnel Dashboard'}
                             </Link>
                           )}
                           {isSuperAdmin && (
-                            <Link href={dataRetentionLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}>
+                            <Link href={dataRetentionLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-brand-50 text-brand-700 w-full px-4 py-3 border-b border-slate-100`}>
                               <Shield className="w-4 h-4" /> {'Data Retention'}
                             </Link>
                           )}
                           {isSuperAdmin && (
-                            <Link href={onboardingDashboardLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}>
+                            <Link href={onboardingDashboardLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-brand-50 text-brand-700 w-full px-4 py-3 border-b border-slate-100`}>
                               <ClipboardCheck className="w-4 h-4" /> {'Onboarding'}
                             </Link>
                           )}
                           {isSuperAdmin && (
-                            <Link href={billingDashboardLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3 border-b border-gray-100`}>
+                            <Link href={billingDashboardLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-brand-50 text-brand-700 w-full px-4 py-3 border-b border-slate-100`}>
                               <CreditCard className="w-4 h-4" /> {'Billing'}
                             </Link>
                           )}
                           {companySlug !== 'demo' && (
-                            <Link href={manageticketsLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-teal-50 text-teal-700 w-full px-4 py-3`}>
+                            <Link href={manageticketsLink} onClick={() => setIsAccountMenuOpen(false)} className={`${buttonBaseClasses} bg-white hover:bg-brand-50 text-brand-700 w-full px-4 py-3`}>
                               <TicketPlus className="w-4 h-4" /> {t('header.supportTickets')}
                             </Link>
                           )}
@@ -337,8 +337,8 @@ export default function Header() {
 
               {/* Time Clock - only in slug context */}
               {companySlug && user && (
-                <button onClick={() => setIsTimeClockOpen(true)} className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors" title={t('header.openTimeClock')}>
-                  <Clock className="w-5 h-5 text-gray-600" />
+                <button onClick={() => setIsTimeClockOpen(true)} className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors" title={t('header.openTimeClock')}>
+                  <Clock className="w-5 h-5 text-slate-600" />
                 </button>
               )}
 
@@ -346,7 +346,7 @@ export default function Header() {
               {companySlug === 'demo' && (
                 <DemoAwareMenuItem
                   href={`/jobs/demo/contact`}
-                  className={`${buttonBaseClasses} bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hidden sm:flex`}
+                  className={`${buttonBaseClasses} bg-brand-50 hover:bg-brand-100 text-brand-700 hidden sm:flex`}
                   isDemoExpired={isDemoExpired}
                   isContactUs={true}
                 >
@@ -360,30 +360,30 @@ export default function Header() {
                   {user ? (
                     <div className="relative min-w-0 flex-1 max-w-[140px]" ref={userMenuRef}>
                       {isDemoExpired ? (
-                        <div className={`${buttonBaseClasses} bg-gray-100 text-gray-400 cursor-not-allowed relative group min-w-0 w-full`}>
-                          <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
-                            <User className="w-4 h-4 text-gray-500" />
+                        <div className={`${buttonBaseClasses} bg-slate-100 text-slate-400 cursor-not-allowed relative group min-w-0 w-full`}>
+                          <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center flex-shrink-0">
+                            <User className="w-4 h-4 text-slate-500" />
                           </div>
                           <span className="truncate min-w-0 flex-1">{user.firstname} {user.lastname}</span>
                           <ChevronDown className="w-3 h-3 flex-shrink-0" />
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
                             {t('header.demoExpiredTooltip')}
                           </div>
                         </div>
                       ) : (
                         <>
-                          <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} className={`${buttonBaseClasses} bg-gray-50 hover:bg-gray-100 text-gray-700 min-w-0 w-full`}>
-                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                              <User className="w-4 h-4 text-blue-600" />
+                          <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} className={`${buttonBaseClasses} bg-slate-50 hover:bg-slate-100 text-slate-700 min-w-0 w-full`}>
+                            <div className="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center flex-shrink-0">
+                              <User className="w-4 h-4 text-brand-600" />
                             </div>
                             <span className="truncate min-w-0 flex-1">{user.firstname} {user.lastname}</span>
                             <ChevronDown className={`w-3 h-3 flex-shrink-0 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
                           </button>
                           {isUserMenuOpen && (
-                            <div className="absolute top-full mt-2 right-0 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
-                              <div className="px-4 py-3 border-b border-gray-100">
-                                <p className="text-sm text-gray-600">{t('header.connectedAs')}</p>
-                                <p className="font-semibold text-gray-900">{user.firstname} {user.lastname}</p>
+                            <div className="absolute top-full mt-2 right-0 w-48 bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden z-50">
+                              <div className="px-4 py-3 border-b border-slate-100">
+                                <p className="text-sm text-slate-600">{t('header.connectedAs')}</p>
+                                <p className="font-semibold text-slate-900">{user.firstname} {user.lastname}</p>
                               </div>
                               <button onClick={() => { handleLogout(); setIsUserMenuOpen(false); }} className={`${buttonBaseClasses} bg-white hover:bg-red-50 text-red-600 w-full px-4 py-3 text-left`}>
                                 <LogOut className="w-4 h-4" /> {t('header.logout')}
@@ -396,16 +396,16 @@ export default function Header() {
                   ) : (
                     <div className="flex items-center gap-3">
                       {companySlug === 'demo' && (
-                        <div className="flex items-center gap-1 text-sm text-gray-600 whitespace-nowrap cursor-pointer hover:text-blue-600 transition-colors" onClick={() => setIsLoginOpen(true)}>
+                        <div className="flex items-center gap-1 text-sm text-slate-600 whitespace-nowrap cursor-pointer hover:text-brand-600 transition-colors" onClick={() => setIsLoginOpen(true)}>
                           <span>{t('header.demoProfilesHint')}</span>
-                          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                           </svg>
                         </div>
                       )}
                       <button
                         onClick={() => setIsLoginOpen(true)}
-                        className={`${buttonBaseClasses} ${isDemoExpired ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
+                        className={`${buttonBaseClasses} ${isDemoExpired ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-brand-600 hover:bg-brand-700 text-white'}`}
                         disabled={isDemoExpired}
                       >
                         <User className="w-4 h-4" /> {t('header.login')}
@@ -416,7 +416,7 @@ export default function Header() {
               )}
 
               {/* Mobile/Tablet menu button */}
-              <button className="xl:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+              <button className="xl:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                 {isMobileMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
               </button>
             </div>
@@ -425,7 +425,7 @@ export default function Header() {
 
         {/* Mobile/Tablet Menu */}
         {isMobileMenuOpen && (
-          <div className="xl:hidden bg-white border-t border-gray-200 shadow-lg">
+          <div className="xl:hidden bg-white border-t border-slate-200 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
 
               <div className="flex justify-end mb-3">
@@ -437,7 +437,7 @@ export default function Header() {
                 <DemoAwareMenuItem
                   href={buildLink('/openedpositions')}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`${buttonBaseClasses} bg-purple-50 hover:bg-purple-100 text-purple-700 w-full justify-start`}
+                  className={`${buttonBaseClasses} bg-brand-50 hover:bg-brand-100 text-brand-700 w-full justify-start`}
                   isDemoExpired={isDemoExpired}
                 >
                   <Briefcase className="w-4 h-4" /> {(isManager || isAdmin) ? t('header.yourPositions') : t('header.availablePositions')}
@@ -493,10 +493,10 @@ export default function Header() {
 
               {/* HR Tools - only in slug context */}
               {companySlug && user && (
-                <div className="border-t border-gray-200 pt-2">
+                <div className="border-t border-slate-200 pt-2">
                   <button
                     onClick={() => setIsMobileHRToolsOpen(!isMobileHRToolsOpen)}
-                    className={`${buttonBaseClasses} ${isDemoExpired ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-50 hover:bg-blue-100 text-blue-700'} w-full justify-between`}
+                    className={`${buttonBaseClasses} ${isDemoExpired ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-brand-50 hover:bg-brand-100 text-brand-700'} w-full justify-between`}
                     disabled={isDemoExpired}
                   >
                     <div className="flex items-center gap-2">
@@ -508,22 +508,22 @@ export default function Header() {
                   {isMobileHRToolsOpen && !isDemoExpired && (
                     <div className="mt-2 ml-4 space-y-2 pb-2">
                       {showAdvancedReporting && (
-                        <DemoAwareMenuItem href={buildLink('/openedpositions/analytics')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
+                        <DemoAwareMenuItem href={buildLink('/openedpositions/analytics')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-brand-50 hover:bg-brand-100 text-brand-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
                           <BarChart3 className="w-4 h-4" /> {t('header.recruitmentDashboard')}
                         </DemoAwareMenuItem>
                       )}
                       {isAdmin && (
-                        <HappyCheckMenuItem href={buildLink('/happiness-dashboard')} className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700 w-full justify-start text-sm`} onClick={() => setIsMobileMenuOpen(false)} canAccessHappyCheck={canAccessHappyCheck}>
+                        <HappyCheckMenuItem href={buildLink('/happiness-dashboard')} className={`${buttonBaseClasses} bg-brand-50 hover:bg-brand-100 text-brand-700 w-full justify-start text-sm`} onClick={() => setIsMobileMenuOpen(false)} canAccessHappyCheck={canAccessHappyCheck}>
                           <BarChart3 className="w-4 h-4" /> {t('header.happinessDashboard')}
                         </HappyCheckMenuItem>
                       )}
                       {isAdmin && (
-                        <DemoAwareMenuItem href={buildLink('/medical-certificate/list')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
+                        <DemoAwareMenuItem href={buildLink('/medical-certificate/list')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-brand-50 hover:bg-brand-100 text-brand-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
                           <Stethoscope className="w-4 h-4" /> {t('header.listCertificates')}
                         </DemoAwareMenuItem>
                       )}
                       {isAdmin && (
-                        <DemoAwareMenuItem href={buildLink('/medical-certificate/download')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-blue-50 hover:bg-blue-100 text-blue-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
+                        <DemoAwareMenuItem href={buildLink('/medical-certificate/download')} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-brand-50 hover:bg-brand-100 text-brand-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
                           <Stethoscope className="w-4 h-4" /> {t('header.certificatesDownload')}
                         </DemoAwareMenuItem>
                       )}
@@ -538,12 +538,12 @@ export default function Header() {
                         </DemoAwareMenuItem>
                       )}
                       {(isManager || isAdmin) && showAttendanceAbsences && (
-                        <DemoAwareMenuItem href={timeclockmanager} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-indigo-50 hover:bg-indigo-100 text-indigo-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
+                        <DemoAwareMenuItem href={timeclockmanager} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-brand-50 hover:bg-brand-100 text-brand-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
                           <CalendarClock className="w-4 h-4" /> {t('header.timeClockCheck')}
                         </DemoAwareMenuItem>
                       )}
                       {showAttendanceAbsences && (
-                        <DemoAwareMenuItem href={manageabsencesLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-indigo-50 hover:bg-indigo-100 text-indigo-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
+                        <DemoAwareMenuItem href={manageabsencesLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-brand-50 hover:bg-brand-100 text-brand-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
                           <CalendarClock className="w-4 h-4" /> {t('header.absences')}
                         </DemoAwareMenuItem>
                       )}
@@ -554,10 +554,10 @@ export default function Header() {
 
               {/* Manage Account - only in slug context */}
               {companySlug && isAdmin && (
-                <div className="border-t border-gray-200 pt-2">
+                <div className="border-t border-slate-200 pt-2">
                   <button
                     onClick={() => setIsMobileAccountOpen(!isMobileAccountOpen)}
-                    className={`${buttonBaseClasses} ${isDemoExpired ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-teal-50 hover:bg-teal-100 text-teal-700'} w-full justify-between`}
+                    className={`${buttonBaseClasses} ${isDemoExpired ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-brand-50 hover:bg-brand-100 text-brand-700'} w-full justify-between`}
                     disabled={isDemoExpired}
                   >
                     <div className="flex items-center gap-2">
@@ -569,23 +569,23 @@ export default function Header() {
                   {isMobileAccountOpen && !isDemoExpired && (
                     <div className="mt-2 ml-4 space-y-2 pb-2">
                       {companySlug !== 'demo' && (
-                        <DemoAwareMenuItem href={manageSubscriptionLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
+                        <DemoAwareMenuItem href={manageSubscriptionLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-brand-50 hover:bg-brand-100 text-brand-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
                           <CreditCard className="w-4 h-4" /> {t('header.manageSubscription')}
                         </DemoAwareMenuItem>
                       )}
-                      <DemoAwareMenuItem href={manageUsersLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
+                      <DemoAwareMenuItem href={manageUsersLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-brand-50 hover:bg-brand-100 text-brand-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
                         <UserCog className="w-4 h-4" /> {t('header.manageUsers')}
                       </DemoAwareMenuItem>
-                      <DemoAwareMenuItem href={helpGuideLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
+                      <DemoAwareMenuItem href={helpGuideLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-brand-50 hover:bg-brand-100 text-brand-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
                         <BookOpen className="w-4 h-4" /> {t('header.userGuide')}
                       </DemoAwareMenuItem>
                       {isSuperAdmin && (
-                        <DemoAwareMenuItem href={manageContactsLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
+                        <DemoAwareMenuItem href={manageContactsLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-brand-50 hover:bg-brand-100 text-brand-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
                           <Users2 className="w-4 h-4" /> {t('header.manageContacts')}
                         </DemoAwareMenuItem>
                       )}
                       {companySlug !== 'demo' && (
-                        <DemoAwareMenuItem href={manageticketsLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-teal-50 hover:bg-teal-100 text-teal-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
+                        <DemoAwareMenuItem href={manageticketsLink} onClick={() => setIsMobileMenuOpen(false)} className={`${buttonBaseClasses} bg-brand-50 hover:bg-brand-100 text-brand-700 w-full justify-start text-sm`} isDemoExpired={isDemoExpired}>
                           <TicketPlus className="w-4 h-4" /> {t('header.supportTickets')}
                         </DemoAwareMenuItem>
                       )}
@@ -596,7 +596,7 @@ export default function Header() {
 
               {/* Login/Logout - only in slug context */}
               {companySlug && (
-                <div className="pt-4 border-t border-gray-200">
+                <div className="pt-4 border-t border-slate-200">
                   {user ? (
                     <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className={`${buttonBaseClasses} bg-white hover:bg-red-50 text-red-600 w-full justify-start`}>
                       <LogOut className="w-4 h-4" /> {t('header.logout')}
@@ -604,7 +604,7 @@ export default function Header() {
                   ) : (
                     <button
                       onClick={() => { setIsLoginOpen(true); setIsMobileMenuOpen(false); }}
-                      className={`${buttonBaseClasses} ${isDemoExpired ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'} w-full justify-start`}
+                      className={`${buttonBaseClasses} ${isDemoExpired ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-brand-600 hover:bg-brand-700 text-white'} w-full justify-start`}
                       disabled={isDemoExpired}
                     >
                       <User className="w-4 h-4" /> {t('header.login')}

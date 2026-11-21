@@ -225,7 +225,7 @@ export default function ManagerTimeClockDashboard({
         );
       case 'clocked_out':
         return (
-          <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
+          <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-medium">
             {t('managerTimeClockDashboard.teamMembers.status.finished')}
           </span>
         );
@@ -240,27 +240,27 @@ export default function ManagerTimeClockDashboard({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-600" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20">
+    <div className="min-h-screen bg-slate-50 pb-20">
       {/* Header */}
       <div className="bg-white shadow-sm border-b sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
-                <Users className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 bg-brand-50 rounded-full flex items-center justify-center">
+                <Users className="w-5 h-5 text-brand-600" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-gray-900">
+                <h1 className="text-lg font-bold text-slate-900">
                   {t('managerTimeClockDashboard.header.title')}
                 </h1>
-                <p className="text-xs text-gray-600">{managerName}</p>
+                <p className="text-xs text-slate-600">{managerName}</p>
               </div>
             </div>
 
@@ -268,10 +268,10 @@ export default function ManagerTimeClockDashboard({
               <button
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 title={t('managerTimeClockDashboard.header.refreshButton')}
               >
-                <RefreshCw className={`w-5 h-5 text-gray-600 ${refreshing ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-5 h-5 text-slate-600 ${refreshing ? 'animate-spin' : ''}`} />
               </button>
 
               {pendingEntries.length > 0 && (
@@ -291,8 +291,8 @@ export default function ManagerTimeClockDashboard({
               onClick={() => setActiveTab('today')}
               className={`flex-1 py-2 px-4 rounded-lg font-medium text-sm transition-all ${
                 activeTab === 'today'
-                  ? 'bg-indigo-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-brand-600 text-white shadow-md'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
               {t('managerTimeClockDashboard.tabs.todayStatus')}
@@ -301,8 +301,8 @@ export default function ManagerTimeClockDashboard({
               onClick={() => setActiveTab('pending')}
               className={`flex-1 py-2 px-4 rounded-lg font-medium text-sm transition-all relative ${
                 activeTab === 'pending'
-                  ? 'bg-indigo-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-brand-600 text-white shadow-md'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
               {t('managerTimeClockDashboard.tabs.pendingApprovals')}
@@ -340,10 +340,10 @@ export default function ManagerTimeClockDashboard({
           <>
             {/* Team Summary */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+              <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">
+                    <p className="text-sm text-slate-600 mb-1">
                       {t('managerTimeClockDashboard.summary.workingNow')}
                     </p>
                     <p className="text-3xl font-bold text-green-600">
@@ -356,26 +356,26 @@ export default function ManagerTimeClockDashboard({
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+              <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">
+                    <p className="text-sm text-slate-600 mb-1">
                       {t('managerTimeClockDashboard.summary.finishedToday')}
                     </p>
-                    <p className="text-3xl font-bold text-gray-900">
+                    <p className="text-3xl font-bold text-slate-900">
                       {teamMembers.filter((m) => m.todayStatus === 'clocked_out').length}
                     </p>
                   </div>
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-6 h-6 text-gray-600" />
+                  <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-6 h-6 text-slate-600" />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+              <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">
+                    <p className="text-sm text-slate-600 mb-1">
                       {t('managerTimeClockDashboard.summary.notStarted')}
                     </p>
                     <p className="text-3xl font-bold text-orange-600">
@@ -390,50 +390,50 @@ export default function ManagerTimeClockDashboard({
             </div>
 
             {/* Team Members List */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <h3 className="font-semibold text-gray-900">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-200 bg-slate-50">
+                <h3 className="font-semibold text-slate-900">
                   {t('managerTimeClockDashboard.teamMembers.title')}
                 </h3>
               </div>
 
               {teamMembers.length === 0 ? (
                 <div className="p-12 text-center">
-                  <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500 text-lg">
+                  <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                  <p className="text-slate-500 text-lg">
                     {t('managerTimeClockDashboard.teamMembers.noMembers.title')}
                   </p>
-                  <p className="text-gray-400 text-sm mt-2">
+                  <p className="text-slate-400 text-sm mt-2">
                     {t('managerTimeClockDashboard.teamMembers.noMembers.description')}
                   </p>
                 </div>
               ) : (
-                <div className="divide-y divide-gray-200">
+                <div className="divide-y divide-slate-200">
                   {teamMembers.map((member) => (
                     <div
                       key={member.user_id}
-                      className="p-6 hover:bg-gray-50 transition-colors"
+                      className="p-6 hover:bg-slate-50 transition-colors"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                              <span className="text-white font-semibold text-sm">
+                            <div className="w-10 h-10 bg-brand-50 rounded-full flex items-center justify-center">
+                              <span className="text-brand-700 font-semibold text-sm">
                                 {member.first_name[0]}
                                 {member.last_name[0]}
                               </span>
                             </div>
                             <div>
-                              <h4 className="font-semibold text-gray-900">
+                              <h4 className="font-semibold text-slate-900">
                                 {member.first_name} {member.last_name}
                               </h4>
-                              <p className="text-sm text-gray-500">{member.email}</p>
+                              <p className="text-sm text-slate-500">{member.email}</p>
                             </div>
                           </div>
 
                           {member.todayEntry && (
                             <div className="ml-13 flex items-center gap-6 text-sm">
-                              <div className="flex items-center gap-2 text-gray-600">
+                              <div className="flex items-center gap-2 text-slate-600">
                                 <Clock className="w-4 h-4" />
                                 <span>
                                   {t('managerTimeClockDashboard.teamMembers.clockIn', { 
@@ -442,7 +442,7 @@ export default function ManagerTimeClockDashboard({
                                 </span>
                               </div>
                               {member.todayEntry.clock_out && (
-                                <div className="flex items-center gap-2 text-gray-600">
+                                <div className="flex items-center gap-2 text-slate-600">
                                   <span>
                                     {t('managerTimeClockDashboard.teamMembers.clockOut', { 
                                       time: formatTime(member.todayEntry.clock_out) 
@@ -461,10 +461,10 @@ export default function ManagerTimeClockDashboard({
 
                         <div className="flex items-center gap-4">
                           <div className="text-right">
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-slate-600">
                               {t('managerTimeClockDashboard.teamMembers.thisWeek')}
                             </p>
-                            <p className="text-lg font-bold text-gray-900">
+                            <p className="text-lg font-bold text-slate-900">
                               {t('managerTimeClockDashboard.teamMembers.hours', { 
                                 hours: member.weeklyHours.toFixed(1) 
                               })}
@@ -483,18 +483,18 @@ export default function ManagerTimeClockDashboard({
           /* Pending Approvals Tab */
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-900">
+              <h3 className="font-semibold text-slate-900">
                 {t('managerTimeClockDashboard.pendingApprovals.title')}
               </h3>
             </div>
 
             {pendingEntries.length === 0 ? (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+              <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-12 text-center">
                 <CheckCircle className="w-16 h-16 text-green-300 mx-auto mb-4" />
-                <p className="text-gray-500 text-lg">
+                <p className="text-slate-500 text-lg">
                   {t('managerTimeClockDashboard.pendingApprovals.noPending.title')}
                 </p>
-                <p className="text-gray-400 text-sm mt-2">
+                <p className="text-slate-400 text-sm mt-2">
                   {t('managerTimeClockDashboard.pendingApprovals.noPending.description')}
                 </p>
               </div>
@@ -502,12 +502,12 @@ export default function ManagerTimeClockDashboard({
               pendingEntries.map((entry) => (
                 <div
                   key={entry.id}
-                  className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"
+                  className="bg-white rounded-xl shadow-sm border border-slate-100 p-6"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h4 className="font-semibold text-gray-900">
+                        <h4 className="font-semibold text-slate-900">
                           {entry.user_profiles.first_name}{' '}
                           {entry.user_profiles.last_name}
                         </h4>
@@ -518,14 +518,14 @@ export default function ManagerTimeClockDashboard({
                           </span>
                         )}
                         {entry.is_overtime && (
-                          <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium flex items-center gap-1">
+                          <span className="px-2 py-1 bg-brand-100 text-brand-700 rounded-full text-xs font-medium flex items-center gap-1">
                             <TrendingUp className="w-3 h-3" />
                             {t('managerTimeClockDashboard.pendingApprovals.overtime')}
                           </span>
                         )}
                       </div>
 
-                      <div className="flex items-center gap-6 text-sm text-gray-600">
+                      <div className="flex items-center gap-6 text-sm text-slate-600">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4" />
                           <span>{formatDate(entry.clock_in)}</span>
@@ -536,7 +536,7 @@ export default function ManagerTimeClockDashboard({
                             {formatTime(entry.clock_in)} - {formatTime(entry.clock_out)}
                           </span>
                         </div>
-                        <span className="font-semibold text-gray-900">
+                        <span className="font-semibold text-slate-900">
                           {t('managerTimeClockDashboard.teamMembers.hours', { 
                             hours: entry.total_hours.toFixed(2) 
                           })}
@@ -544,11 +544,11 @@ export default function ManagerTimeClockDashboard({
                       </div>
 
                       {entry.employee_notes && (
-                        <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                          <p className="text-xs text-gray-500 mb-1">
+                        <div className="mt-3 p-3 bg-slate-50 rounded-lg">
+                          <p className="text-xs text-slate-500 mb-1">
                             {t('managerTimeClockDashboard.pendingApprovals.employeeNote')}
                           </p>
-                          <p className="text-sm text-gray-700">{entry.employee_notes}</p>
+                          <p className="text-sm text-slate-700">{entry.employee_notes}</p>
                         </div>
                       )}
                     </div>

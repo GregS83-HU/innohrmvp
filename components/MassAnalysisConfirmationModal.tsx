@@ -35,9 +35,9 @@ export default function ConfirmAnalysisModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all">
+      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 relative">
+        <div className="bg-brand-600 p-6 relative">
           <button
             onClick={onClose}
             disabled={loading}
@@ -53,30 +53,30 @@ export default function ConfirmAnalysisModal({
 
         {/* Content */}
         <div className="p-6 space-y-4">
-          <p className="text-gray-600 text-center">
+          <p className="text-slate-600 text-center">
             {t('confirmAnalysisModal.content.description')}
           </p>
 
           {/* Stats Cards */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 text-center border border-blue-100">
-              <Users className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-blue-600">{candidateCount}</div>
-              <div className="text-xs text-gray-600">
+            <div className="bg-slate-50 rounded-lg p-4 text-center border border-brand-100">
+              <Users className="w-6 h-6 text-brand-600 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-brand-600">{candidateCount}</div>
+              <div className="text-xs text-slate-600">
                 {t('confirmAnalysisModal.content.stats.candidates')}
               </div>
             </div>
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4 text-center border border-purple-100">
-              <Clock className="w-6 h-6 text-purple-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-purple-600">{candidateCount}</div>
-              <div className="text-xs text-gray-600">
+            <div className="bg-slate-50 rounded-lg p-4 text-center border border-brand-100">
+              <Clock className="w-6 h-6 text-brand-600 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-brand-600">{candidateCount}</div>
+              <div className="text-xs text-slate-600">
                 {t('confirmAnalysisModal.content.stats.aiCredits')}
               </div>
             </div>
           </div>
 
           {/* Estimated Time */}
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-4 border border-amber-200">
+          <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
             <div className="flex items-center gap-2 justify-center text-amber-800">
               <Clock className="w-4 h-4" />
               <span className="text-sm font-medium">
@@ -86,8 +86,8 @@ export default function ConfirmAnalysisModal({
           </div>
 
           {/* Warning Text */}
-          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-            <p className="text-xs text-gray-600 text-center">
+          <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
+            <p className="text-xs text-slate-600 text-center">
               {t('confirmAnalysisModal.content.warning', { count: candidateCount })}
             </p>
           </div>
@@ -98,7 +98,7 @@ export default function ConfirmAnalysisModal({
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-3 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             {loading ? (
               <>
@@ -113,7 +113,7 @@ export default function ConfirmAnalysisModal({
           <button
             onClick={onCreateWithoutAnalysis}
             disabled={loading}
-            className="w-full bg-white text-gray-700 py-3 px-6 rounded-lg font-medium border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-white text-slate-700 py-3 px-6 rounded-lg font-medium border-2 border-slate-300 hover:bg-slate-50 hover:border-slate-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {t('confirmAnalysisModal.actions.createWithout')}
           </button>
@@ -121,7 +121,7 @@ export default function ConfirmAnalysisModal({
           <button
             onClick={onClose}
             disabled={loading}
-            className="w-full text-gray-500 py-2 px-6 rounded-lg font-medium hover:text-gray-700 hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full text-slate-500 py-2 px-6 rounded-lg font-medium hover:text-slate-700 hover:bg-slate-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {t('confirmAnalysisModal.actions.cancel')}
           </button>

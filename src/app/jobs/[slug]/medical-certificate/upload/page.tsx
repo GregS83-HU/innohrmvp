@@ -91,10 +91,10 @@ function UploadCertificatePageContent() {
   // Show loading state
   if (session === undefined || companyIdLoading || isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 p-4 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">{t('uploadCertificate.loading')}</p>
+          <div className="animate-spin w-8 h-8 border-4 border-brand-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-slate-600">{t('uploadCertificate.loading')}</p>
         </div>
       </div>
     );
@@ -104,13 +104,13 @@ function UploadCertificatePageContent() {
   // API routes it calls) used to be reachable with no login at all.
   if (!session) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 p-4 flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
+      <div className="min-h-screen bg-slate-50 p-4 flex items-center justify-center">
+        <div className="bg-white rounded-xl shadow-sm p-8 max-w-md w-full text-center">
           <h1 className="text-2xl font-bold text-red-600 mb-4">{t('uploadCertificate.error.title')}</h1>
-          <p className="text-gray-700 mb-4">{t('uploadCertificate.error.loginRequired')}</p>
+          <p className="text-slate-700 mb-4">{t('uploadCertificate.error.loginRequired')}</p>
           <a
             href={`/jobs/${slug}`}
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium"
+            className="inline-block bg-brand-600 hover:bg-brand-700 text-white px-6 py-2 rounded-lg font-medium"
           >
             {t('uploadCertificate.buttons.back')}
           </a>
@@ -122,15 +122,15 @@ function UploadCertificatePageContent() {
   // Show error if the session has no associated company
   if (!companyId) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 p-4 flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
+      <div className="min-h-screen bg-slate-50 p-4 flex items-center justify-center">
+        <div className="bg-white rounded-xl shadow-sm p-8 max-w-md w-full text-center">
           <h1 className="text-2xl font-bold text-red-600 mb-4">{t('uploadCertificate.error.title')}</h1>
-          <p className="text-gray-700 mb-4">
+          <p className="text-slate-700 mb-4">
             {t('uploadCertificate.error.noCompanyId')}
           </p>
           <button
             onClick={() => window.history.back()}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium"
+            className="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2 rounded-lg font-medium"
           >
             {t('uploadCertificate.buttons.back')}
           </button>
@@ -145,7 +145,7 @@ function UploadCertificatePageContent() {
   // ONBOARDING_GATED_FEATURES in src/config/entitlements.ts.
   if (canAddCertificate === false && accessReason === 'onboarding_required') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="min-h-screen bg-slate-50 p-4">
         <LockedModuleNotice
           feature="medicalCertificates.upload"
           plan={accessPlan}
@@ -159,20 +159,20 @@ function UploadCertificatePageContent() {
   // Show plan limit reached message if access is denied
   if (canAddCertificate === false) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-100 p-4 flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
+      <div className="min-h-screen bg-slate-50 p-4 flex items-center justify-center">
+        <div className="bg-white rounded-xl shadow-sm p-8 max-w-md w-full text-center">
           <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">{t('uploadCertificate.planLimit.title')}</h1>
-          <p className="text-gray-700 mb-6">
+          <h1 className="text-2xl font-bold text-slate-800 mb-4">{t('uploadCertificate.planLimit.title')}</h1>
+          <p className="text-slate-700 mb-6">
             {t('uploadCertificate.planLimit.message')}
           </p>
           <button
             onClick={() => window.history.back()}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium"
+            className="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2 rounded-lg font-medium"
           >
             {t('uploadCertificate.buttons.home')}
           </button>
@@ -190,10 +190,10 @@ export default function UploadCertificatePage() {
 
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 p-4 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">{t('uploadCertificate.loading')}</p>
+          <div className="animate-spin w-8 h-8 border-4 border-brand-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-slate-600">{t('uploadCertificate.loading')}</p>
         </div>
       </div>
     }>

@@ -84,17 +84,17 @@ const ManagerHeatmapCell: React.FC<ManagerHeatmapCellProps> = ({
       onMouseLeave={() => setShowTooltip(false)}
     >
       <div
-        className="w-full h-full rounded flex items-center justify-center text-xs font-medium border border-gray-200 transition-all"
+        className="w-full h-full rounded flex items-center justify-center text-xs font-medium border border-slate-200 transition-all"
         style={{ backgroundColor }}
       >
-        <span className={`${isWeekend ? 'text-gray-600' : 'text-gray-900'}`}>
+        <span className={`${isWeekend ? 'text-slate-600' : 'text-slate-900'}`}>
           {dayNumber}
         </span>
       </div>
 
       {/* Tooltip */}
       {showTooltip && absences.length > 0 && (
-        <div className="absolute z-50 bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg min-w-max pointer-events-none print:hidden">
+        <div className="absolute z-50 bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900 text-white text-xs rounded-lg shadow-lg min-w-max pointer-events-none print:hidden">
           <div className="space-y-1">
             <p className="font-semibold">{formatDate(date)}</p>
             <p className="text-orange-300">
@@ -105,12 +105,12 @@ const ManagerHeatmapCell: React.FC<ManagerHeatmapCellProps> = ({
               })}
             </p>
             
-            <div className="border-t border-gray-700 mt-2 pt-2 space-y-1.5">
+            <div className="border-t border-slate-700 mt-2 pt-2 space-y-1.5">
               {absentEmployees.map((employee, index) => (
                 <div key={index}>
                   <p className="font-medium">{employee.name}</p>
                   {employee.leaves.map((leave, leaveIndex) => (
-                    <p key={leaveIndex} className="text-gray-400 text-[10px]">
+                    <p key={leaveIndex} className="text-slate-400 text-[10px]">
                       • {leave.leave_type_name_hu} 
                       {leave.status === 'pending' && ` ${t('managerHeatmapCell.tooltip.pending')}`}
                     </p>
@@ -122,7 +122,7 @@ const ManagerHeatmapCell: React.FC<ManagerHeatmapCellProps> = ({
 
           {/* Arrow */}
           <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-            <div className="border-4 border-transparent border-t-gray-900" />
+            <div className="border-4 border-transparent border-t-slate-900" />
           </div>
         </div>
       )}

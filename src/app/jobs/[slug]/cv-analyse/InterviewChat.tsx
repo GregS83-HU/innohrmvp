@@ -285,25 +285,25 @@ export default function InterviewChat({
   // ─── NOT STARTED ────────────────────────────────────────────────────────────
   if (!started) {
     return (
-      <div className="rounded-2xl overflow-hidden shadow-sm border border-indigo-100">
-        <div className="h-1.5 bg-gradient-to-r from-violet-500 via-blue-500 to-cyan-400" />
+      <div className="rounded-xl overflow-hidden shadow-sm border border-brand-100">
+        <div className="h-1.5 bg-brand-600 " />
         <div className="bg-white p-6 sm:p-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-md">
+            <div className="w-12 h-12 rounded-xl bg-brand-600 flex items-center justify-center flex-shrink-0 shadow-md">
               <Mic className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900">
+              <h3 className="text-lg sm:text-xl font-bold text-slate-900">
                 {t('interview.cta.title') || 'Virtual Interview Available'}
               </h3>
-              <p className="text-sm text-gray-500 mt-0.5">
+              <p className="text-sm text-slate-500 mt-0.5">
                 {t('interview.cta.subtitle') || `${TOTAL_QUESTIONS} personalized questions • ~10 minutes`}
               </p>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-violet-50 to-blue-50 rounded-xl p-4 mb-6 border border-indigo-100">
-            <p className="text-sm text-gray-700 leading-relaxed">
+          <div className="bg-slate-50 rounded-xl p-4 mb-6 border border-brand-100">
+            <p className="text-sm text-slate-700 leading-relaxed">
               {t('interview.cta.description') ||
                 "Your profile looks great! You're invited to complete a short virtual interview tailored to your background and this position. This is optional but gives you an extra chance to stand out."}
             </p>
@@ -315,9 +315,9 @@ export default function InterviewChat({
               { icon: '🤖', label: t('interview.cta.feature2') || 'AI-powered' },
               { icon: '⚡', label: t('interview.cta.feature3') || 'Instant results' },
             ].map((f, i) => (
-              <div key={i} className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
+              <div key={i} className="bg-white rounded-lg p-3 border border-slate-100 shadow-sm">
                 <div className="text-xl mb-1">{f.icon}</div>
-                <p className="text-xs text-gray-600 font-medium">{f.label}</p>
+                <p className="text-xs text-slate-600 font-medium">{f.label}</p>
               </div>
             ))}
           </div>
@@ -325,13 +325,13 @@ export default function InterviewChat({
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={handleStart}
-              className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white py-3 px-6 rounded-xl font-semibold text-sm sm:text-base transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+              className="flex-1 flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-3 px-6 rounded-xl font-semibold text-sm sm:text-base transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
             >
               <MessageSquare className="w-4 h-4" />
               {t('interview.cta.startButton') || 'Start Virtual Interview'}
               <ChevronRight className="w-4 h-4" />
             </button>
-            <p className="text-xs text-gray-400 text-center sm:text-left self-center">
+            <p className="text-xs text-slate-400 text-center sm:text-left self-center">
               {t('interview.cta.optional') || 'Optional — you can skip this step'}
             </p>
           </div>
@@ -342,10 +342,10 @@ export default function InterviewChat({
 
   // ─── CHAT INTERFACE ──────────────────────────────────────────────────────────
   return (
-    <div className="rounded-2xl overflow-hidden shadow-sm border border-indigo-100 bg-white">
+    <div className="rounded-xl overflow-hidden shadow-sm border border-brand-100 bg-white">
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-violet-600 to-blue-600 px-4 sm:px-6 py-4">
+      <div className="bg-brand-600 px-4 sm:px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -381,16 +381,16 @@ export default function InterviewChat({
       </div>
 
       {/* Messages area */}
-      <div className="h-96 sm:h-[480px] overflow-y-auto p-4 sm:p-6 space-y-4 bg-gray-50/50">
+      <div className="h-96 sm:h-[480px] overflow-y-auto p-4 sm:p-6 space-y-4 bg-slate-50/50">
 
         {/* Welcome */}
         <div className="flex items-start gap-3">
-          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+          <div className="w-7 h-7 rounded-full bg-brand-600 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
             <Bot className="w-3.5 h-3.5 text-white" />
           </div>
           <div className="max-w-[85%]">
-            <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm border border-gray-100">
-              <p className="text-sm text-gray-700 leading-relaxed">
+            <div className="bg-white rounded-xl rounded-tl-sm px-4 py-3 shadow-sm border border-slate-100">
+              <p className="text-sm text-slate-700 leading-relaxed">
                 {(t('interview.chat.welcome') ?? `Hello! Welcome to your virtual interview for the ${positionName} position. I'll ask you ${TOTAL_QUESTIONS} questions tailored to your profile. For each question, you can choose a suggested answer or write your own.`)
                   .replace('{name}', candidateFirstName ? ` ${candidateFirstName}` : '')}
               </p>
@@ -407,8 +407,8 @@ export default function InterviewChat({
             <div
               className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm ${
                 msg.role === 'interviewer'
-                  ? 'bg-gradient-to-br from-violet-500 to-blue-600'
-                  : 'bg-gradient-to-br from-gray-600 to-gray-800'
+                  ? 'bg-brand-600 '
+                  : 'bg-slate-600 '
               }`}
             >
               {msg.role === 'interviewer'
@@ -419,15 +419,15 @@ export default function InterviewChat({
 
             <div className={`max-w-[85%] flex flex-col ${msg.role === 'candidate' ? 'items-end' : 'items-start'}`}>
               {msg.role === 'interviewer' && (
-                <span className="text-xs text-violet-600 font-medium mb-1 ml-1">
+                <span className="text-xs text-brand-600 font-medium mb-1 ml-1">
                   {t('interview.chat.questionLabel') || 'Question'} {getQuestionIndex(i)}/{TOTAL_QUESTIONS}
                 </span>
               )}
               <div
-                className={`px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
+                className={`px-4 py-3 rounded-xl text-sm leading-relaxed shadow-sm ${
                   msg.role === 'interviewer'
-                    ? 'bg-white border border-gray-100 text-gray-800 rounded-tl-sm'
-                    : 'bg-gradient-to-br from-violet-600 to-blue-600 text-white rounded-tr-sm'
+                    ? 'bg-white border border-slate-100 text-slate-800 rounded-tl-sm'
+                    : 'bg-brand-600 text-white rounded-tr-sm'
                 }`}
               >
                 {msg.content}
@@ -439,14 +439,14 @@ export default function InterviewChat({
         {/* Loading dots */}
         {isLoadingQuestion && (
           <div className="flex items-start gap-3">
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+            <div className="w-7 h-7 rounded-full bg-brand-600 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
               <Bot className="w-3.5 h-3.5 text-white" />
             </div>
-            <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm border border-gray-100">
+            <div className="bg-white rounded-xl rounded-tl-sm px-4 py-3 shadow-sm border border-slate-100">
               <div className="flex gap-1.5 items-center">
-                <div className="w-2 h-2 rounded-full bg-violet-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-2 h-2 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
             </div>
           </div>
@@ -455,13 +455,13 @@ export default function InterviewChat({
         {/* Concluding */}
         {isConcluding && (
           <div className="flex items-start gap-3">
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+            <div className="w-7 h-7 rounded-full bg-brand-600 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
               <Bot className="w-3.5 h-3.5 text-white" />
             </div>
-            <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm border border-gray-100">
+            <div className="bg-white rounded-xl rounded-tl-sm px-4 py-3 shadow-sm border border-slate-100">
               <div className="flex items-center gap-2">
-                <Loader2 className="w-4 h-4 text-violet-500 animate-spin" />
-                <span className="text-sm text-gray-500">
+                <Loader2 className="w-4 h-4 text-brand-500 animate-spin" />
+                <span className="text-sm text-slate-500">
                   {t('interview.chat.evaluating') || 'Evaluating your answers...'}
                 </span>
               </div>
@@ -472,11 +472,11 @@ export default function InterviewChat({
         {/* Closing message */}
         {closingMessage && (
           <div className="flex items-start gap-3">
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+            <div className="w-7 h-7 rounded-full bg-emerald-600 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
               <CheckCircle className="w-3.5 h-3.5 text-white" />
             </div>
             <div className="max-w-[85%]">
-              <div className="bg-emerald-50 border border-emerald-100 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
+              <div className="bg-emerald-50 border border-emerald-100 rounded-xl rounded-tl-sm px-4 py-3 shadow-sm">
                 <p className="text-sm text-emerald-800 leading-relaxed">{closingMessage}</p>
               </div>
             </div>
@@ -497,12 +497,12 @@ export default function InterviewChat({
 
       {/* ── Answer area ────────────────────────────────────────────────────────── */}
       {!interviewDone && !isLoadingQuestion && !isConcluding && currentSuggestions.length > 0 && (
-        <div className="border-t border-gray-100 bg-white p-3 sm:p-4 space-y-3">
+        <div className="border-t border-slate-100 bg-white p-3 sm:p-4 space-y-3">
 
           {/* Suggested answers */}
           {!showCustomInput && (
             <>
-              <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">
+              <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">
                 {t('interview.chat.suggestionsLabel') || 'Choose an answer or write your own'}
               </p>
 
@@ -512,9 +512,9 @@ export default function InterviewChat({
                     key={i}
                     onClick={() => sendAnswer(suggestion)}
                     disabled={isSending}
-                    className="w-full text-left px-4 py-3 rounded-xl border border-violet-100 bg-violet-50 hover:bg-violet-100 hover:border-violet-300 text-sm text-gray-700 leading-relaxed transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed group"
+                    className="w-full text-left px-4 py-3 rounded-xl border border-brand-100 bg-brand-50 hover:bg-brand-100 hover:border-brand-300 text-sm text-slate-700 leading-relaxed transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed group"
                   >
-                    <span className="text-violet-400 font-bold mr-2 group-hover:text-violet-600 transition-colors">
+                    <span className="text-brand-400 font-bold mr-2 group-hover:text-brand-600 transition-colors">
                       {i === 0 ? '▸' : i === 1 ? '▸' : '▸'}
                     </span>
                     {suggestion}
@@ -526,7 +526,7 @@ export default function InterviewChat({
               <button
                 onClick={() => setShowCustomInput(true)}
                 disabled={isSending}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-gray-300 hover:border-gray-400 text-sm text-gray-500 hover:text-gray-700 transition-all duration-150 disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-slate-300 hover:border-slate-400 text-sm text-slate-500 hover:text-slate-700 transition-all duration-150 disabled:opacity-50"
               >
                 <PenLine className="w-3.5 h-3.5" />
                 {t('interview.chat.writeOwnAnswer') || 'Write my own answer'}
@@ -538,12 +538,12 @@ export default function InterviewChat({
           {showCustomInput && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">
+                <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">
                   {t('interview.chat.yourAnswer') || 'Your answer'}
                 </p>
                 <button
                   onClick={() => setShowCustomInput(false)}
-                  className="text-xs text-violet-500 hover:text-violet-700 transition-colors"
+                  className="text-xs text-brand-500 hover:text-brand-700 transition-colors"
                 >
                   ← {t('interview.chat.backToSuggestions') || 'Back to suggestions'}
                 </button>
@@ -568,8 +568,8 @@ export default function InterviewChat({
                     : (t('interview.chat.inputPlaceholder') || 'Type your answer... (Enter to send, Shift+Enter for new line)')}
                   disabled={isSending}
                   rows={3}
-                  className={`w-full resize-none rounded-xl border px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-400 ${
-                    isRecording ? 'border-red-300 focus:ring-red-300 bg-red-50/30' : 'border-gray-200 focus:ring-violet-400'
+                  className={`w-full resize-none rounded-xl border px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all disabled:bg-slate-50 disabled:text-slate-400 ${
+                    isRecording ? 'border-red-300 focus:ring-red-300 bg-red-50/30' : 'border-slate-200 focus:ring-brand-400'
                   }`}
                 />
                 {isRecording && (
@@ -590,8 +590,8 @@ export default function InterviewChat({
                       : (t('jobAssistant.interview.startRecording') || 'Answer by voice')}
                     className={`w-10 h-10 flex-shrink-0 rounded-xl flex items-center justify-center transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
                       isRecording
-                        ? 'bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-200'
-                        : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+                        ? 'bg-red-500 hover:bg-red-600 text-white shadow-sm shadow-red-200'
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
                     }`}
                   >
                     {isRecording ? <Square className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
@@ -600,7 +600,7 @@ export default function InterviewChat({
                 <button
                   onClick={() => sendAnswer(customInput)}
                   disabled={!customInput.trim() || isSending || isRecording}
-                  className="w-10 h-10 flex-shrink-0 rounded-xl bg-gradient-to-br from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 flex items-center justify-center transition-all shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed transform enabled:hover:scale-105"
+                  className="w-10 h-10 flex-shrink-0 rounded-xl bg-brand-600 hover:bg-brand-700 flex items-center justify-center transition-all shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed transform "
                 >
                   {isSending
                     ? <Loader2 className="w-4 h-4 text-white animate-spin" />
@@ -608,7 +608,7 @@ export default function InterviewChat({
                   }
                 </button>
               </div>
-              <p className="text-xs text-gray-400 ml-1">
+              <p className="text-xs text-slate-400 ml-1">
                 {t('interview.chat.hint') || 'Press Enter to send • Shift+Enter for new line'}
               </p>
             </div>
@@ -618,9 +618,9 @@ export default function InterviewChat({
 
       {/* Sending spinner between questions */}
       {!interviewDone && isSending && (
-        <div className="border-t border-gray-100 bg-white px-4 py-3 flex items-center gap-2">
-          <Loader2 className="w-4 h-4 text-violet-400 animate-spin" />
-          <span className="text-sm text-gray-400">
+        <div className="border-t border-slate-100 bg-white px-4 py-3 flex items-center gap-2">
+          <Loader2 className="w-4 h-4 text-brand-400 animate-spin" />
+          <span className="text-sm text-slate-400">
             {t('interview.chat.sending') || 'Sending...'}
           </span>
         </div>

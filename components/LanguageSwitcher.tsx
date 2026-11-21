@@ -40,10 +40,10 @@ const LanguageSwitcher: React.FC<Props> = ({ compact = false }) => {
           const next = locales[(index + 1) % locales.length];
           setLocale(next);
         }}
-        className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+        className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
         title="Change language"
       >
-        <Globe className="w-5 h-5 text-gray-600" />
+        <Globe className="w-5 h-5 text-slate-600" />
       </button>
     );
   }
@@ -53,7 +53,7 @@ const LanguageSwitcher: React.FC<Props> = ({ compact = false }) => {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setOpen((prev) => !prev)}
-        className="flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+        className="flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
       >
         <span className="text-lg">{FLAGS[locale]}</span>
         <span>{locale.toUpperCase()}</span>
@@ -71,8 +71,8 @@ const LanguageSwitcher: React.FC<Props> = ({ compact = false }) => {
               }}
               className={`w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors ${
                 locale === code
-                  ? 'bg-blue-600 text-white'
-                  : 'hover:bg-gray-100 text-gray-600'
+                  ? 'bg-brand-600 text-white'
+                  : 'hover:bg-slate-100 text-slate-600'
               }`}
             >
               <span className="text-lg">{FLAGS[code]}</span>

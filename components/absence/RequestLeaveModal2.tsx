@@ -284,10 +284,10 @@ const RequestLeaveModalManual: React.FC<Props> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-gray-900">{t('requestLeaveModal.title')}</h3>
-          <button onClick={handleClose} className="text-gray-400 hover:text-gray-600">
+          <h3 className="text-xl font-bold text-slate-900">{t('requestLeaveModal.title')}</h3>
+          <button onClick={handleClose} className="text-slate-400 hover:text-slate-600">
             <XCircle className="w-6 h-6" />
           </button>
         </div>
@@ -295,14 +295,14 @@ const RequestLeaveModalManual: React.FC<Props> = ({
         <form onSubmit={handleSubmitWithNotification} className="space-y-4">
           {/* Leave Type Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               {t('requestLeaveModal.fields.leaveType')}
             </label>
             <select
               value={requestForm.leave_type_id}
               onChange={(e) => setRequestForm(prev => ({ ...prev, leave_type_id: e.target.value }))}
               required
-              className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
             >
               <option value="">{t('requestLeaveModal.fields.leaveTypePlaceholder')}</option>
               {leaveTypes.map((type) => (
@@ -315,10 +315,10 @@ const RequestLeaveModalManual: React.FC<Props> = ({
 
           {/* Medical Certificate Section */}
           {isSickLeave && (
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 space-y-4">
+            <div className="bg-brand-50 border-2 border-brand-200 rounded-xl p-4 space-y-4">
               <div className="flex items-center gap-2 mb-2">
-                <FileText className="w-5 h-5 text-blue-600" />
-                <h4 className="font-semibold text-gray-900">{t('requestLeaveModal.certificate.title')}</h4>
+                <FileText className="w-5 h-5 text-brand-600" />
+                <h4 className="font-semibold text-slate-900">{t('requestLeaveModal.certificate.title')}</h4>
               </div>
 
               {error && (
@@ -334,11 +334,11 @@ const RequestLeaveModalManual: React.FC<Props> = ({
                 <div className="space-y-4">
                   {/* File Upload */}
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                    <label className="block text-xs font-medium text-slate-700 mb-1">
                       {t('requestLeaveModal.certificate.uploadFile')}
                     </label>
                     <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-all ${
-                      certificateFile ? 'border-green-300 bg-green-50' : 'border-gray-300 bg-white hover:border-blue-400 hover:bg-blue-50'
+                      certificateFile ? 'border-green-300 bg-green-50' : 'border-slate-300 bg-white hover:border-brand-400 hover:bg-brand-50'
                     } ${validationErrors.file ? 'border-red-300' : ''}`}>
                       <input
                         type="file"
@@ -355,11 +355,11 @@ const RequestLeaveModalManual: React.FC<Props> = ({
                           </div>
                         ) : (
                           <div>
-                            <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                            <p className="text-blue-600 font-medium text-sm hover:text-blue-700">
+                            <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                            <p className="text-brand-600 font-medium text-sm hover:text-brand-700">
                               {t('requestLeaveModal.certificate.selectFile')}
                             </p>
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-slate-500 mt-1">
                               {t('requestLeaveModal.certificate.fileHelp')}
                             </p>
                           </div>
@@ -373,7 +373,7 @@ const RequestLeaveModalManual: React.FC<Props> = ({
 
                   {/* Employee Name */}
                   <div>
-                    <label className="flex items-center gap-2 text-xs font-medium text-gray-700 mb-1">
+                    <label className="flex items-center gap-2 text-xs font-medium text-slate-700 mb-1">
                       <User className="w-3 h-3" />
                       {t('requestLeaveModal.certificate.employeeName')}
                     </label>
@@ -382,8 +382,8 @@ const RequestLeaveModalManual: React.FC<Props> = ({
                       value={certificateData.employee_name}
                       onChange={(e) => setCertificateData(prev => ({ ...prev, employee_name: e.target.value }))}
                       placeholder={t('requestLeaveModal.certificate.employeeNamePlaceholder')}
-                      className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                        validationErrors.employee_name ? 'border-red-300' : 'border-gray-300'
+                      className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 ${
+                        validationErrors.employee_name ? 'border-red-300' : 'border-slate-300'
                       }`}
                     />
                     {validationErrors.employee_name && (
@@ -394,7 +394,7 @@ const RequestLeaveModalManual: React.FC<Props> = ({
                   {/* Date Fields */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="flex items-center gap-2 text-xs font-medium text-gray-700 mb-1">
+                      <label className="flex items-center gap-2 text-xs font-medium text-slate-700 mb-1">
                         <Calendar className="w-3 h-3" />
                         {t('requestLeaveModal.fields.startDate')}
                       </label>
@@ -412,8 +412,8 @@ const RequestLeaveModalManual: React.FC<Props> = ({
                               : prev.sickness_end_date
                           }));
                         }}
-                        className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          validationErrors.sickness_start_date ? 'border-red-300' : 'border-gray-300'
+                        className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 ${
+                          validationErrors.sickness_start_date ? 'border-red-300' : 'border-slate-300'
                         }`}
                       />
                       {validationErrors.sickness_start_date && (
@@ -422,7 +422,7 @@ const RequestLeaveModalManual: React.FC<Props> = ({
                     </div>
 
                     <div>
-                      <label className="flex items-center gap-2 text-xs font-medium text-gray-700 mb-1">
+                      <label className="flex items-center gap-2 text-xs font-medium text-slate-700 mb-1">
                         <Calendar className="w-3 h-3" />
                         {t('requestLeaveModal.fields.endDate')}
                       </label>
@@ -431,8 +431,8 @@ const RequestLeaveModalManual: React.FC<Props> = ({
                         value={certificateData.sickness_end_date}
                         onChange={(e) => setCertificateData(prev => ({ ...prev, sickness_end_date: e.target.value }))}
                         min={certificateData.sickness_start_date}
-                        className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          validationErrors.sickness_end_date ? 'border-red-300' : 'border-gray-300'
+                        className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 ${
+                          validationErrors.sickness_end_date ? 'border-red-300' : 'border-slate-300'
                         }`}
                       />
                       {validationErrors.sickness_end_date && (
@@ -443,14 +443,14 @@ const RequestLeaveModalManual: React.FC<Props> = ({
 
                   {/* Comment */}
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                    <label className="block text-xs font-medium text-slate-700 mb-1">
                       {t('requestLeaveModal.certificate.additionalComment')}
                     </label>
                     <textarea
                       value={certificateData.comment}
                       onChange={(e) => setCertificateData(prev => ({ ...prev, comment: e.target.value }))}
                       placeholder={t('requestLeaveModal.certificate.commentPlaceholder')}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                      className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
                       rows={2}
                     />
                   </div>
@@ -496,7 +496,7 @@ const RequestLeaveModalManual: React.FC<Props> = ({
             <>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
                     {t('requestLeaveModal.fields.startDate')}
                   </label>
                   <input
@@ -512,11 +512,11 @@ const RequestLeaveModalManual: React.FC<Props> = ({
                       });
                     }}
                     required
-                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
                     {t('requestLeaveModal.fields.endDate')}
                   </label>
                   <input
@@ -525,21 +525,21 @@ const RequestLeaveModalManual: React.FC<Props> = ({
                     onChange={(e) => setRequestForm(prev => ({ ...prev, end_date: e.target.value }))}
                     min={requestForm.start_date}
                     required
-                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                   />
                 </div>
               </div>
 
               {/* Reason - Only show if NOT sick leave */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   {t('requestLeaveModal.fields.reason')}
                 </label>
                 <textarea
                   value={requestForm.reason}
                   onChange={(e) => setRequestForm(prev => ({ ...prev, reason: e.target.value }))}
                   rows={3}
-                  className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                   placeholder={t('requestLeaveModal.fields.reasonPlaceholder')}
                 />
               </div>
@@ -551,14 +551,14 @@ const RequestLeaveModalManual: React.FC<Props> = ({
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-medium transition-colors"
+              className="flex-1 px-4 py-3 border border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 font-medium transition-colors"
             >
               {t('requestLeaveModal.buttons.cancel')}
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white rounded-xl font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="flex-1 px-4 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>

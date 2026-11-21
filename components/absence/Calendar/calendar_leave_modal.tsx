@@ -211,11 +211,11 @@ const CalendarLeaveModal: React.FC<CalendarLeaveModalProps> = ({
   return (
     <>
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-          <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between rounded-t-2xl">
+        <div className="bg-white rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="sticky top-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between rounded-t-2xl">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">{t('calendarLeaveModal.title')}</h2>
-              <p className="text-sm text-gray-600">
+              <h2 className="text-xl font-bold text-slate-900">{t('calendarLeaveModal.title')}</h2>
+              <p className="text-sm text-slate-600">
                 {prefilledDates.start.toLocaleDateString('hu-HU')} -{' '}
                 {prefilledDates.end.toLocaleDateString('hu-HU')}
               </p>
@@ -223,22 +223,22 @@ const CalendarLeaveModal: React.FC<CalendarLeaveModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-5 h-5 text-slate-500" />
             </button>
           </div>
 
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 {t('calendarLeaveModal.fields.leaveType')}
               </label>
               <select
                 value={formData.leave_type_id}
                 onChange={e => setFormData({ ...formData, leave_type_id: e.target.value })}
                 required
-                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
               >
                 <option value="">{t('calendarLeaveModal.fields.leaveTypePlaceholder')}</option>
                 {leaveTypes.map(type => (
@@ -250,14 +250,14 @@ const CalendarLeaveModal: React.FC<CalendarLeaveModalProps> = ({
             </div>
 
             {isSickLeaveType(formData.leave_type_id) && !certificateData && (
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                <p className="text-sm text-blue-800 mb-3">
+              <div className="bg-brand-50 border border-brand-200 rounded-xl p-4">
+                <p className="text-sm text-brand-800 mb-3">
                   {t('calendarLeaveModal.certificate.uploadPrompt')}
                 </p>
                 <button
                   type="button"
                   onClick={() => setShowCertificateModal(true)}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-sm font-medium transition-colors"
                 >
                   <Upload className="w-4 h-4" />
                   {t('calendarLeaveModal.certificate.uploadButton')}
@@ -276,7 +276,7 @@ const CalendarLeaveModal: React.FC<CalendarLeaveModalProps> = ({
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   {t('calendarLeaveModal.fields.startDate')}
                 </label>
                 <input
@@ -284,11 +284,11 @@ const CalendarLeaveModal: React.FC<CalendarLeaveModalProps> = ({
                   value={formData.start_date}
                   onChange={e => setFormData({ ...formData, start_date: e.target.value })}
                   required
-                  className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   {t('calendarLeaveModal.fields.endDate')}
                 </label>
                 <input
@@ -297,13 +297,13 @@ const CalendarLeaveModal: React.FC<CalendarLeaveModalProps> = ({
                   min={formData.start_date}
                   onChange={e => setFormData({ ...formData, end_date: e.target.value })}
                   required
-                  className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 {t('calendarLeaveModal.fields.reason')}
               </label>
               <textarea
@@ -311,7 +311,7 @@ const CalendarLeaveModal: React.FC<CalendarLeaveModalProps> = ({
                 onChange={e => setFormData({ ...formData, reason: e.target.value })}
                 rows={3}
                 placeholder={t('calendarLeaveModal.fields.reasonPlaceholder')}
-                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 resize-none"
               />
             </div>
 
@@ -319,14 +319,14 @@ const CalendarLeaveModal: React.FC<CalendarLeaveModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-medium transition-colors"
+                className="flex-1 px-4 py-3 border border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 font-medium transition-colors"
               >
                 {t('calendarLeaveModal.buttons.cancel')}
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 px-4 py-3 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white rounded-xl font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>

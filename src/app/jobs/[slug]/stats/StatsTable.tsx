@@ -80,18 +80,18 @@ function InterviewSummaryPopover({ summary, onClose, anchorRef }: {
   return (
     <div
       ref={popoverRef}
-      className={`absolute z-50 left-0 w-64 bg-white border border-violet-200 rounded-xl shadow-xl p-3 ${
+      className={`absolute z-50 left-0 w-64 bg-white border border-brand-200 rounded-xl shadow-xl p-3 ${
         position === 'top' ? 'bottom-full mb-1' : 'top-full mt-1'
       }`}
       onClick={(e) => e.stopPropagation()}
     >
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-semibold text-violet-700">{t('trelloBoard.card.interviewSummary')}</span>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+        <span className="text-xs font-semibold text-brand-700">{t('trelloBoard.card.interviewSummary')}</span>
+        <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
           <X className="w-3.5 h-3.5" />
         </button>
       </div>
-      <p className="text-xs text-gray-600 leading-relaxed max-h-48 overflow-y-auto">{summary}</p>
+      <p className="text-xs text-slate-600 leading-relaxed max-h-48 overflow-y-auto">{summary}</p>
     </div>
   )
 }
@@ -123,23 +123,23 @@ function Card({
   }
 
   const getScoreColor = (score: number | null) => {
-    if (score === null || score === undefined) return { bg: 'bg-gray-100', text: 'text-gray-700', border: 'border-gray-200' }
+    if (score === null || score === undefined) return { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-200' }
     if (score >= 8) return { bg: 'bg-green-50', text: 'text-green-800', border: 'border-green-200' }
     if (score >= 6) return { bg: 'bg-orange-50', text: 'text-orange-800', border: 'border-orange-200' }
     return { bg: 'bg-red-50', text: 'text-red-800', border: 'border-red-200' }
   }
 
   const getScoreBadgeColor = (score: number | null) => {
-    if (score === null || score === undefined) return 'bg-gray-100 text-gray-500'
+    if (score === null || score === undefined) return 'bg-slate-100 text-slate-500'
     if (score >= 8) return 'bg-green-100 text-green-700'
     if (score >= 6) return 'bg-orange-100 text-orange-700'
     return 'bg-red-100 text-red-700'
   }
 
   const getInterviewBadgeColor = (score: number | null) => {
-    if (score === null || score === undefined) return 'bg-gray-100 text-gray-500'
-    if (score >= 8) return 'bg-violet-100 text-violet-700'
-    if (score >= 6) return 'bg-blue-100 text-blue-700'
+    if (score === null || score === undefined) return 'bg-slate-100 text-slate-500'
+    if (score >= 8) return 'bg-brand-100 text-brand-700'
+    if (score >= 6) return 'bg-brand-100 text-brand-700'
     return 'bg-red-100 text-red-700'
   }
 
@@ -148,7 +148,7 @@ function Card({
   const cardClasses = `
     ${scoreColors.bg} rounded-lg shadow-sm border 
     ${isSelected 
-      ? 'border-blue-500 ring-2 ring-blue-200 bg-blue-50' 
+      ? 'border-brand-500 ring-2 ring-brand-200 bg-brand-50' 
       : scoreColors.border
     } 
     p-3 cursor-pointer hover:shadow-md transition-all select-none mb-2 group touch-manipulation relative
@@ -174,7 +174,7 @@ const summaryAnchorRef = useRef<HTMLDivElement>(null)
       className={cardClasses}
     >
       {isSelected && (
-        <div className="absolute top-2 right-2 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+        <div className="absolute top-2 right-2 w-5 h-5 bg-brand-600 rounded-full flex items-center justify-center">
           <Check className="w-3 h-3 text-white" />
         </div>
       )}
@@ -182,12 +182,12 @@ const summaryAnchorRef = useRef<HTMLDivElement>(null)
       {/* Header: name + NEW badge */}
       <div className="flex justify-between items-start mb-2">
         <div className="flex-1 min-w-0 pr-2">
-          <p className={`font-medium ${isSelected ? 'text-blue-800' : scoreColors.text} text-sm leading-tight truncate`}>
+          <p className={`font-medium ${isSelected ? 'text-brand-800' : scoreColors.text} text-sm leading-tight truncate`}>
             {row.candidats?.candidat_firstname ?? '—'} {row.candidats?.candidat_lastname ?? ''}
           </p>
         </div>
         {row.candidat_next_step === null && (
-          <span className="flex-shrink-0 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs px-2 py-1 rounded-full font-bold shadow-md animate-pulse">
+          <span className="flex-shrink-0 bg-amber-500 text-white text-xs px-2 py-1 rounded-full font-bold shadow-md animate-pulse">
             {t('trelloBoard.card.new')}
           </span>
         )}
@@ -197,7 +197,7 @@ const summaryAnchorRef = useRef<HTMLDivElement>(null)
       <div className="space-y-1 mb-2">
         {/* CV Score */}
         <div className="flex items-center gap-1.5">
-        <span className="text-xs text-gray-500 w-20 flex-shrink-0">{t('trelloBoard.card.cvScore')}</span>
+        <span className="text-xs text-slate-500 w-20 flex-shrink-0">{t('trelloBoard.card.cvScore')}</span>
           <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-md ${getScoreBadgeColor(row.candidat_score)}`}>
             {row.candidat_score !== null ? `${row.candidat_score}/10` : '—'}
           </span>
@@ -205,7 +205,7 @@ const summaryAnchorRef = useRef<HTMLDivElement>(null)
 
         {/* AI Interview Score */}
         <div className="flex items-center gap-1.5 relative" ref={summaryAnchorRef}  >
-          <span className="text-xs text-gray-500 w-20 flex-shrink-0">{t('trelloBoard.card.aiInterview')}</span>
+          <span className="text-xs text-slate-500 w-20 flex-shrink-0">{t('trelloBoard.card.aiInterview')}</span>
           {row.interview_score !== null ? (
             <div className="flex items-center gap-1">
               <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-md ${getInterviewBadgeColor(row.interview_score)}`}>
@@ -213,7 +213,7 @@ const summaryAnchorRef = useRef<HTMLDivElement>(null)
               </span>
               {row.interview_summary && (
                 <button
-                  className="flex items-center justify-center w-4 h-4 rounded-full bg-violet-100 hover:bg-violet-200 text-violet-600 transition-colors flex-shrink-0"
+                  className="flex items-center justify-center w-4 h-4 rounded-full bg-brand-100 hover:bg-brand-200 text-brand-600 transition-colors flex-shrink-0"
                   onClick={(e) => {
                     e.stopPropagation()
                     setShowSummary(prev => !prev)
@@ -225,7 +225,7 @@ const summaryAnchorRef = useRef<HTMLDivElement>(null)
               )}
             </div>
           ) : (
-            <span className="text-xs text-gray-400 italic">—</span>
+            <span className="text-xs text-slate-400 italic">—</span>
           )}
 
           {/* Summary popover */}
@@ -244,7 +244,7 @@ const summaryAnchorRef = useRef<HTMLDivElement>(null)
         {row.candidats?.candidat_email && (
           <a
             href={`mailto:${row.candidats.candidat_email}`}
-            className="flex items-center gap-1 text-blue-600 hover:underline text-xs"
+            className="flex items-center gap-1 text-brand-600 hover:underline text-xs"
             onClick={(e) => e.stopPropagation()}
           >
             <Mail className="w-3 h-3" /> {row.candidats.candidat_email}
@@ -262,13 +262,13 @@ const summaryAnchorRef = useRef<HTMLDivElement>(null)
       </div>
 
       {row.candidat_comment && (
-        <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+        <p className="text-xs text-slate-600 mb-2 line-clamp-2">
           {row.candidat_comment}
         </p>
       )}
       
       <div className="flex justify-between items-center">
-        <span className="text-xs text-gray-500">
+        <span className="text-xs text-slate-500">
           {row.candidats?.created_at ? new Date(row.candidats.created_at).toLocaleDateString('en-GB') : '—'}
         </span>
         {row.candidats?.cv_file && (
@@ -278,7 +278,7 @@ const summaryAnchorRef = useRef<HTMLDivElement>(null)
               e.stopPropagation()
               onViewCv(row.candidat_id)
             }}
-            className="flex items-center gap-1 text-purple-600 hover:text-purple-800 hover:underline text-xs transition-colors"
+            className="flex items-center gap-1 text-brand-600 hover:text-brand-800 hover:underline text-xs transition-colors"
           >
             <FileText className="w-3 h-3" />
             <span>{t('trelloBoard.card.viewCV')}</span>
@@ -320,9 +320,9 @@ function Column({
   })
 
   const isRejected = columnName.toLowerCase() === "rejected"
-  const baseBg = isRejected ? "bg-red-100" : "bg-gray-100"
-  const badgeBg = isRejected ? "bg-red-200 text-red-700" : "bg-gray-200 text-gray-600"
-  const titleColor = isRejected ? "text-red-700" : "text-gray-700"
+  const baseBg = isRejected ? "bg-red-100" : "bg-slate-100"
+  const badgeBg = isRejected ? "bg-red-200 text-red-700" : "bg-slate-200 text-slate-600"
+  const titleColor = isRejected ? "text-red-700" : "text-slate-700"
 
   const displayRows = isRejectedColumn && !showRejected ? [] : rows
   const actualCount = rows.length
@@ -334,7 +334,7 @@ function Column({
     <div
       ref={setNodeRef}
       className={`${baseBg} rounded-lg p-3 w-72 flex-shrink-0 min-h-[400px] flex flex-col transition-colors ${
-        isOver ? 'bg-blue-50 border-2 border-blue-300 border-dashed' : ''
+        isOver ? 'bg-brand-50 border-2 border-brand-300 border-dashed' : ''
       }`}
     >
       <div className="flex justify-between items-center mb-3">
@@ -346,7 +346,7 @@ function Column({
             {actualCount}
           </span>
           {selectedInColumn > 0 && (
-            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+            <span className="bg-brand-500 text-white text-xs px-2 py-1 rounded-full font-medium">
               {selectedInColumn} {t('trelloBoard.stats.selected')}
             </span>
           )}
@@ -357,14 +357,14 @@ function Column({
         <div className="flex gap-1 mb-2">
           <button
             onClick={() => onSelectAll(columnId)}
-            className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
+            className="text-xs bg-brand-100 text-brand-700 px-2 py-1 rounded hover:bg-brand-200 transition-colors"
             disabled={allSelected}
           >
             {t('trelloBoard.buttons.selectAll')}
           </button>
           <button
             onClick={() => onDeselectAll(columnId)}
-            className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200 transition-colors"
+            className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded hover:bg-slate-200 transition-colors"
             disabled={selectedInColumn === 0}
           >
             {t('trelloBoard.buttons.selectNone')}
@@ -387,11 +387,11 @@ function Column({
         </SortableContext>
         
         {displayRows.length === 0 && (
-          <div className="flex items-center justify-center h-32 border-2 border-dashed border-gray-300 rounded-lg">
+          <div className="flex items-center justify-center h-32 border-2 border-dashed border-slate-300 rounded-lg">
             {isRejectedColumn && !showRejected ? (
-              <p className="text-gray-500 text-sm italic">{t('trelloBoard.column.rejectedHidden')}</p>
+              <p className="text-slate-500 text-sm italic">{t('trelloBoard.column.rejectedHidden')}</p>
             ) : (
-              <p className="text-gray-500 text-sm italic">{t('trelloBoard.column.dropHere')}</p>
+              <p className="text-slate-500 text-sm italic">{t('trelloBoard.column.dropHere')}</p>
             )}
           </div>
         )}
@@ -820,10 +820,10 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
 
   if (loading || steps.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="flex items-center justify-center min-h-screen bg-slate-50 ">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">{t('trelloBoard.header.loading')}</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600 mx-auto mb-4"></div>
+          <p className="text-slate-600 text-lg">{t('trelloBoard.header.loading')}</p>
         </div>
       </div>
     )
@@ -832,40 +832,40 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
   const columns = [{ step_id: 'unassigned', step_name: t('trelloBoard.column.unassigned') }, ...steps]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-slate-50 ">
       <div className="w-full">
         {/* Header */}
         <div className="p-4 sm:p-6">
           <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 w-full">
             <div className="flex flex-col items-center gap-6">
               <div className="flex items-center gap-4">
-                <Workflow className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600 flex-shrink-0" />
+                <Workflow className="w-8 h-8 sm:w-10 sm:h-10 text-brand-600 flex-shrink-0" />
                 <div className="text-center">
-                  <h1 className="text-xl sm:text-xl lg:text-2xl font-bold text-gray-800">{t('trelloBoard.header.title')}</h1>
+                  <h1 className="text-xl sm:text-xl lg:text-2xl font-bold text-slate-800">{t('trelloBoard.header.title')}</h1>
                   {positionName && (
-                    <p className="text-4xl sm:text-3xl lg:text-4xl font-bold text-blue-700 mt-1">{positionName}</p>
+                    <p className="text-4xl sm:text-3xl lg:text-4xl font-bold text-brand-700 mt-1">{positionName}</p>
                   )}
-                  <p className="text-xs sm:text-sm text-gray-600 mt-1">{t('trelloBoard.header.subtitle')}</p>
+                  <p className="text-xs sm:text-sm text-slate-600 mt-1">{t('trelloBoard.header.subtitle')}</p>
                 </div>
               </div>
 
               <div className="flex items-center justify-center gap-6 flex-wrap">
-                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full">
+                <div className="inline-flex items-center gap-2 bg-brand-600 text-white px-4 py-2 rounded-full">
                   <Users className="w-5 h-5" />
                   <span className="font-semibold text-lg">{showRejected ? rows.length : nonRejectedCandidatesCount}</span>
                   <span>{t('trelloBoard.stats.candidates')}</span>
                   {!showRejected && rejectedCandidatesCount > 0 && (
-                    <span className="text-blue-100 text-sm">({rejectedCandidatesCount} {t('trelloBoard.stats.hidden')})</span>
+                    <span className="text-brand-100 text-sm">({rejectedCandidatesCount} {t('trelloBoard.stats.hidden')})</span>
                   )}
                 </div>
 
                 {selectedCandidates.size > 0 && (
-                  <div className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-full">
+                  <div className="inline-flex items-center gap-2 bg-brand-600 text-white px-4 py-2 rounded-full">
                     <Check className="w-4 h-4" />
                     <span className="font-medium">{selectedCandidates.size} {t('trelloBoard.stats.selected')}</span>
                     <button
                       onClick={clearAllSelections}
-                      className="ml-2 text-blue-200 hover:text-white transition-colors"
+                      className="ml-2 text-brand-200 hover:text-white transition-colors"
                       title="Clear selection"
                     >
                       <XCircle className="w-4 h-4" />
@@ -876,7 +876,7 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
                 {rejectedCandidatesCount > 0 && (
                   <button
                     onClick={() => setShowRejected(!showRejected)}
-                    className="inline-flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm font-medium"
+                    className="inline-flex items-center gap-2 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm font-medium"
                   >
                     {showRejected ? (
                       <>
@@ -941,24 +941,24 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
           <DragOverlay>
             {draggingRow && (
               <div className="relative">
-                <div className="bg-white rounded-lg shadow-lg border-2 border-blue-300 p-3 cursor-grabbing w-72 transform rotate-3 z-50">
-                  <p className="font-medium text-gray-800 text-sm">
+                <div className="bg-white rounded-lg shadow-lg border-2 border-brand-300 p-3 cursor-grabbing w-72 transform rotate-3 z-50">
+                  <p className="font-medium text-slate-800 text-sm">
                     {draggingRow.candidats?.candidat_firstname} #{draggingRow.candidat_id}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">{t('trelloBoard.modal.score')}: {draggingRow.candidat_score ?? '—'}</p>
+                  <p className="text-xs text-slate-500 mt-1">{t('trelloBoard.modal.score')}: {draggingRow.candidat_score ?? '—'}</p>
                 </div>
                 
                 {draggingMultiple.length > 1 && (
                   <>
-                    <div className="absolute top-1 left-1 bg-blue-100 rounded-lg shadow-md border border-blue-200 p-3 w-72 transform rotate-2 -z-10">
-                      <div className="h-4 bg-blue-200 rounded mb-2"></div>
-                      <div className="h-3 bg-blue-150 rounded"></div>
+                    <div className="absolute top-1 left-1 bg-brand-100 rounded-lg shadow-md border border-brand-200 p-3 w-72 transform rotate-2 -z-10">
+                      <div className="h-4 bg-brand-200 rounded mb-2"></div>
+                      <div className="h-3 bg-brand-150 rounded"></div>
                     </div>
-                    <div className="absolute top-2 left-2 bg-blue-50 rounded-lg shadow-sm border border-blue-100 p-3 w-72 transform rotate-1 -z-20">
-                      <div className="h-4 bg-blue-100 rounded mb-2"></div>
-                      <div className="h-3 bg-blue-75 rounded"></div>
+                    <div className="absolute top-2 left-2 bg-brand-50 rounded-lg shadow-sm border border-brand-100 p-3 w-72 transform rotate-1 -z-20">
+                      <div className="h-4 bg-brand-100 rounded mb-2"></div>
+                      <div className="h-3 bg-brand-75 rounded"></div>
                     </div>
-                    <div className="absolute -top-2 -right-2 bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold z-60">
+                    <div className="absolute -top-2 -right-2 bg-brand-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold z-60">
                       {draggingMultiple.length}
                     </div>
                   </>
@@ -974,33 +974,33 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full relative max-h-[90vh] overflow-y-auto">
             <div className="p-6">
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg mb-6 border border-blue-100">
+              <div className="bg-slate-50 p-6 rounded-lg mb-6 border border-brand-100">
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                    <Users className="w-8 h-8 text-blue-600" />
+                  <div className="w-16 h-16 bg-brand-100 rounded-full flex items-center justify-center">
+                    <Users className="w-8 h-8 text-brand-600" />
                   </div>
                   <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-gray-800">
+                    <h2 className="text-2xl font-bold text-slate-800">
                       {selectedCandidate.candidats?.candidat_firstname ?? '—'}{' '}
                       {selectedCandidate.candidats?.candidat_lastname ?? ''}
                     </h2>
-                    <p className="text-sm text-gray-500 font-medium">{t('trelloBoard.modal.candidateId')}: {selectedCandidate.candidat_id}</p>
+                    <p className="text-sm text-slate-500 font-medium">{t('trelloBoard.modal.candidateId')}: {selectedCandidate.candidat_id}</p>
                   </div>
                 </div>
                 
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-blue-200 hover:border-blue-300 transition-colors">
-                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Mail className="w-4 h-4 text-blue-600" />
+                  <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-brand-200 hover:border-brand-300 transition-colors">
+                    <div className="w-8 h-8 bg-brand-100 rounded-lg flex items-center justify-center">
+                      <Mail className="w-4 h-4 text-brand-600" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{t('trelloBoard.modal.email')}</p>
+                      <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">{t('trelloBoard.modal.email')}</p>
                       {selectedCandidate.candidats?.candidat_email ? (
-                        <a href={`mailto:${selectedCandidate.candidats.candidat_email}`} className="text-blue-600 hover:text-blue-800 hover:underline transition-colors font-medium">
+                        <a href={`mailto:${selectedCandidate.candidats.candidat_email}`} className="text-brand-600 hover:text-brand-800 hover:underline transition-colors font-medium">
                           {selectedCandidate.candidats.candidat_email}
                         </a>
                       ) : (
-                        <span className="text-gray-400 italic">{t('trelloBoard.modal.notProvided')}</span>
+                        <span className="text-slate-400 italic">{t('trelloBoard.modal.notProvided')}</span>
                       )}
                     </div>
                   </div>
@@ -1010,28 +1010,28 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
                       <Phone className="w-4 h-4 text-green-600" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{t('trelloBoard.modal.phone')}</p>
+                      <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">{t('trelloBoard.modal.phone')}</p>
                       {selectedCandidate.candidats?.candidat_phone ? (
                         <a href={`tel:${selectedCandidate.candidats.candidat_phone}`} className="text-green-600 hover:text-green-800 hover:underline transition-colors font-medium">
                           {selectedCandidate.candidats.candidat_phone}
                         </a>
                       ) : (
-                        <span className="text-gray-400 italic">{t('trelloBoard.modal.notProvided')}</span>
+                        <span className="text-slate-400 italic">{t('trelloBoard.modal.notProvided')}</span>
                       )}
                     </div>
                   </div>
 
                   {selectedCandidate.candidats?.cv_file && (
-                    <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-purple-200 hover:border-purple-300 transition-colors">
-                      <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <FileText className="w-4 h-4 text-purple-600" />
+                    <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-brand-200 hover:border-brand-300 transition-colors">
+                      <div className="w-8 h-8 bg-brand-100 rounded-lg flex items-center justify-center">
+                        <FileText className="w-4 h-4 text-brand-600" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{t('trelloBoard.modal.cvFile')}</p>
+                        <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">{t('trelloBoard.modal.cvFile')}</p>
                         <button
                           type="button"
                           onClick={() => handleViewCv(selectedCandidate.candidat_id)}
-                          className="text-purple-600 hover:text-purple-800 hover:underline transition-colors font-medium"
+                          className="text-brand-600 hover:text-brand-800 hover:underline transition-colors font-medium"
                         >
                           {t('trelloBoard.modal.viewCV')}
                         </button>
@@ -1039,13 +1039,13 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
                     </div>
                   )}
 
-                  <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
-                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <FileText className="w-4 h-4 text-gray-600" />
+                  <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-200 hover:border-slate-300 transition-colors">
+                    <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
+                      <FileText className="w-4 h-4 text-slate-600" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{t('trelloBoard.modal.source')}</p>
-                      <p className="text-gray-800 font-medium">{selectedCandidate.source ?? t('trelloBoard.modal.notSpecified')}</p>
+                      <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">{t('trelloBoard.modal.source')}</p>
+                      <p className="text-slate-800 font-medium">{selectedCandidate.source ?? t('trelloBoard.modal.notSpecified')}</p>
                     </div>
                   </div>
                 </div>
@@ -1054,35 +1054,35 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
               <div className="space-y-4">
                 {/* CV Score + Interview Score side by side */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <h3 className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">{t('trelloBoard.modal.score')}</h3>
-                    <p className="text-2xl font-bold text-blue-900">{selectedCandidate.candidat_score ?? '—'}<span className="text-sm font-normal text-blue-400">/10</span></p>
+                  <div className="bg-brand-50 p-4 rounded-lg">
+                    <h3 className="text-xs font-semibold text-brand-600 uppercase tracking-wide mb-1">{t('trelloBoard.modal.score')}</h3>
+                    <p className="text-2xl font-bold text-brand-900">{selectedCandidate.candidat_score ?? '—'}<span className="text-sm font-normal text-brand-400">/10</span></p>
                   </div>
-                  <div className="bg-violet-50 p-4 rounded-lg">
-                    <h3 className="text-xs font-semibold text-violet-600 uppercase tracking-wide mb-1">{t('trelloBoard.modal.aiInterview')}</h3>
-                    <p className="text-2xl font-bold text-violet-900">
+                  <div className="bg-brand-50 p-4 rounded-lg">
+                    <h3 className="text-xs font-semibold text-brand-600 uppercase tracking-wide mb-1">{t('trelloBoard.modal.aiInterview')}</h3>
+                    <p className="text-2xl font-bold text-brand-900">
                       {selectedCandidate.interview_score ?? '—'}
-                      {selectedCandidate.interview_score !== null && <span className="text-sm font-normal text-violet-400">/10</span>}
+                      {selectedCandidate.interview_score !== null && <span className="text-sm font-normal text-brand-400">/10</span>}
                     </p>
                   </div>
                 </div>
 
                 {/* Interview summary in modal */}
                 {selectedCandidate.interview_summary && (
-                  <div className="bg-violet-50 p-4 rounded-lg border border-violet-100">
-                    <h3 className="text-sm font-semibold text-violet-800 mb-2 flex items-center gap-1.5">
+                  <div className="bg-brand-50 p-4 rounded-lg border border-brand-100">
+                    <h3 className="text-sm font-semibold text-brand-800 mb-2 flex items-center gap-1.5">
                       <MessageSquare className="w-4 h-4" />
                       {t('trelloBoard.modal.interviewSummary')}
                     </h3>
-                    <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">{selectedCandidate.interview_summary}</p>
+                    <p className="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap">{selectedCandidate.interview_summary}</p>
                   </div>
                 )}
                 
-                <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="bg-slate-50 p-4 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-semibold text-gray-700">{t('trelloBoard.modal.comment')}</h3>
+                    <h3 className="text-sm font-semibold text-slate-700">{t('trelloBoard.modal.comment')}</h3>
                     {!isEditingComment && (
-                      <button onClick={startEditingComment} className="flex items-center gap-1 text-gray-600 hover:text-gray-800 transition-colors">
+                      <button onClick={startEditingComment} className="flex items-center gap-1 text-slate-600 hover:text-slate-800 transition-colors">
                         <Edit3 className="w-4 h-4" />
                         <span className="text-xs">{t('trelloBoard.buttons.edit')}</span>
                       </button>
@@ -1094,34 +1094,34 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
                       <textarea
                         value={editedComment}
                         onChange={(e) => setEditedComment(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full p-3 border border-slate-300 rounded-lg resize-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                         rows={4}
                         placeholder={t('trelloBoard.modal.commentPlaceholder')}
                       />
                       <div className="flex gap-2">
-                        <button onClick={handleCommentUpdate} disabled={isSavingComment} className="flex items-center gap-1 bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm">
+                        <button onClick={handleCommentUpdate} disabled={isSavingComment} className="flex items-center gap-1 bg-brand-600 text-white px-3 py-2 rounded-lg hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm">
                           <Save className="w-4 h-4" />
                           {isSavingComment ? t('trelloBoard.buttons.saving') : t('trelloBoard.buttons.save')}
                         </button>
-                        <button onClick={cancelEditingComment} disabled={isSavingComment} className="flex items-center gap-1 bg-gray-500 text-white px-3 py-2 rounded-lg hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm">
+                        <button onClick={cancelEditingComment} disabled={isSavingComment} className="flex items-center gap-1 bg-slate-500 text-white px-3 py-2 rounded-lg hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm">
                           <XCircle className="w-4 h-4" />
                           {t('trelloBoard.buttons.cancel')}
                         </button>
                       </div>
                     </div>
                   ) : (
-                    <p className="text-gray-800 whitespace-pre-wrap">{selectedCandidate.candidat_comment || t('trelloBoard.modal.noComments')}</p>
+                    <p className="text-slate-800 whitespace-pre-wrap">{selectedCandidate.candidat_comment || t('trelloBoard.modal.noComments')}</p>
                   )}
                 </div>
                 
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h3 className="text-sm font-semibold text-blue-800 mb-2">{t('trelloBoard.modal.aiAnalysis')}</h3>
-                  <p className="text-gray-800 whitespace-pre-wrap">{selectedCandidate.candidat_ai_analyse ?? t('trelloBoard.modal.noAiAnalysis')}</p>
+                <div className="bg-brand-50 p-4 rounded-lg">
+                  <h3 className="text-sm font-semibold text-brand-800 mb-2">{t('trelloBoard.modal.aiAnalysis')}</h3>
+                  <p className="text-slate-800 whitespace-pre-wrap">{selectedCandidate.candidat_ai_analyse ?? t('trelloBoard.modal.noAiAnalysis')}</p>
                 </div>
                 
                 <div className="bg-orange-50 p-4 rounded-lg">
                   <h3 className="text-sm font-semibold text-orange-800 mb-2">{t('trelloBoard.modal.nextStep')}</h3>
-                  <p className="text-gray-800">{getStepName(selectedCandidate.candidat_next_step)}</p>
+                  <p className="text-slate-800">{getStepName(selectedCandidate.candidat_next_step)}</p>
                 </div>
               </div>
 
@@ -1131,7 +1131,7 @@ export default function TrelloBoard({ rows: initialRows, positionName }: { rows:
               </div>
 
               <div className="mt-6 flex justify-end">
-                <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors" onClick={handleCloseModal}>
+                <button className="bg-brand-600 text-white px-6 py-2 rounded-lg hover:bg-brand-700 transition-colors" onClick={handleCloseModal}>
                   {t('trelloBoard.buttons.close')}
                 </button>
               </div>

@@ -63,7 +63,7 @@ function ConfirmationModal({
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in duration-200">
+      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in duration-200">
         <div className="flex items-start gap-4 mb-4">
           <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
             isActivating ? 'bg-green-100' : 'bg-red-100'
@@ -75,10 +75,10 @@ function ConfirmationModal({
             )}
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">
               {isActivating ? 'Activate User' : 'Deactivate User'}
             </h3>
-            <p className="text-gray-600 text-sm">
+            <p className="text-slate-600 text-sm">
               {isActivating
                 ? `Are you sure you want to activate ${userName}? They will regain access to the system.`
                 : `Are you sure you want to deactivate ${userName}? They will lose access to the system.`}
@@ -90,7 +90,7 @@ function ConfirmationModal({
           <button
             onClick={onClose}
             disabled={isLoading}
-            className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg font-medium transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg font-medium transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
@@ -202,19 +202,19 @@ function ManagerDropdownPortal({
     <div
       ref={portalRef}
       style={{ position: 'absolute', top: style.top, left: style.left, width: style.width, zIndex: 9999 }}
-      className="bg-white border border-gray-300 rounded-lg shadow-xl overflow-hidden"
+      className="bg-white border border-slate-300 rounded-lg shadow-sm overflow-hidden"
       role="dialog"
       aria-modal="true"
     >
-      <div className="p-2 border-b border-gray-200">
+      <div className="p-2 border-b border-slate-200">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
             placeholder={t('companyUsers.managerDropdown.searchPlaceholder')}
             value={managerSearch}
             onChange={(e) => setManagerSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
             autoFocus
           />
         </div>
@@ -223,8 +223,8 @@ function ManagerDropdownPortal({
       <div className="max-h-64 overflow-y-auto">
         {updatingManager ? (
           <div className="px-4 py-8 text-center">
-            <Loader2 className="w-6 h-6 animate-spin text-blue-600 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">{t('companyUsers.managerDropdown.updating')}</p>
+            <Loader2 className="w-6 h-6 animate-spin text-brand-600 mx-auto mb-2" />
+            <p className="text-sm text-slate-500">{t('companyUsers.managerDropdown.updating')}</p>
           </div>
         ) : managers.length > 0 ? (
           managers.map((manager) => (
@@ -234,27 +234,27 @@ function ManagerDropdownPortal({
                 e.stopPropagation();
                 onSelect(manager.user_id);
               }}
-              className={`w-full px-4 py-3 text-left hover:bg-blue-50 flex items-center gap-3 transition-colors ${
-                selectedManagerId === manager.user_id ? 'bg-blue-50' : ''
+              className={`w-full px-4 py-3 text-left hover:bg-brand-50 flex items-center gap-3 transition-colors ${
+                selectedManagerId === manager.user_id ? 'bg-brand-50' : ''
               }`}
             >
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-white font-semibold text-xs">
+              <div className="w-8 h-8 bg-brand-50 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-brand-700 font-semibold text-xs">
                   {manager.first_name?.[0] ?? '?'}
                   {manager.last_name?.[0] ?? '?'}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-gray-900 truncate">
+                <p className="font-medium text-slate-900 truncate">
                   {manager.first_name} {manager.last_name}
                 </p>
-                <p className="text-xs text-gray-500 truncate">{manager.email}</p>
+                <p className="text-xs text-slate-500 truncate">{manager.email}</p>
               </div>
-              {selectedManagerId === manager.user_id && <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />}
+              {selectedManagerId === manager.user_id && <Check className="w-4 h-4 text-brand-600 flex-shrink-0" />}
             </button>
           ))
         ) : (
-          <div className="px-4 py-3 text-center text-gray-500 text-sm">{t('companyUsers.managerDropdown.noManagers')}</div>
+          <div className="px-4 py-3 text-center text-slate-500 text-sm">{t('companyUsers.managerDropdown.noManagers')}</div>
         )}
       </div>
     </div>,
@@ -299,7 +299,7 @@ export default function CompanyUsersPage() {
   const getRoleBadge = (user: CompanyUser) => {
     if (user.is_admin) {
       return (
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200">
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-green-800 border border-green-200">
           <ShieldCheck className="w-3 h-3 mr-1" /> {t('companyUsers.roles.admin')}
         </span>
       );
@@ -307,14 +307,14 @@ export default function CompanyUsersPage() {
     
     if (user.is_manager) {
       return (
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border border-blue-200">
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-50 text-brand-800 border border-brand-200">
           <Users className="w-3 h-3 mr-1" /> {t('companyUsers.roles.manager')}
         </span>
       );
     }
     
     return (
-      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-gray-100 to-slate-100 text-gray-700 border border-gray-200">
+      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-50 text-slate-700 border border-slate-200">
         <Shield className="w-3 h-3 mr-1" /> {t('companyUsers.roles.user')}
       </span>
     );
@@ -505,26 +505,26 @@ export default function CompanyUsersPage() {
 
   if (loading)
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-2xl shadow-lg">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600 text-center">{t('companyUsers.loading')}</p>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-xl shadow-sm">
+          <Loader2 className="w-8 h-8 animate-spin text-brand-600 mx-auto mb-4" />
+          <p className="text-slate-600 text-center">{t('companyUsers.loading')}</p>
         </div>
       </div>
     );
 
   if (error)
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-md w-full">
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+        <div className="bg-white p-8 rounded-xl shadow-sm text-center max-w-md w-full">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="w-8 h-8 text-red-600" />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">{t('companyUsers.errorState.title')}</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">{t('companyUsers.errorState.title')}</h2>
+          <p className="text-slate-600 mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors shadow-lg hover:shadow-xl"
+            className="px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-medium transition-colors shadow-sm hover:shadow-md"
           >
             {t('companyUsers.errorState.tryAgain')}
           </button>
@@ -536,24 +536,24 @@ export default function CompanyUsersPage() {
   const managersForEditingUser = editingUserId ? getFilteredManagers(editingUserId) : [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                <Users className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center">
+                <Users className="w-6 h-6 text-brand-600" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('companyUsers.header.title')}</h1>
-                <p className="text-gray-600">{t('companyUsers.header.teamMembers', { count: users.length })}</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">{t('companyUsers.header.title')}</h1>
+                <p className="text-slate-600">{t('companyUsers.header.teamMembers', { count: users.length })}</p>
               </div>
             </div>
 
             <button
               onClick={() => setIsAddUserModalOpen(true)}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md transform "
             >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">{t('companyUsers.header.addUser')}</span>
@@ -562,27 +562,27 @@ export default function CompanyUsersPage() {
           </div>
 
           {/* Search and Filter Section */}
-          <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100">
+          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-slate-100">
             <div className="flex flex-col sm:flex-row gap-4">
               {/* Search */}
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="text"
                   placeholder={t('companyUsers.search.placeholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
                 />
               </div>
 
               {/* Status Filter */}
               <div className="flex items-center gap-2 min-w-fit">
-                <Power className="w-4 h-4 text-gray-500" />
+                <Power className="w-4 h-4 text-slate-500" />
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
-                  className="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+                  className="px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors bg-white"
                 >
                   <option value="active">Active Users</option>
                   <option value="inactive">Inactive Users</option>
@@ -592,11 +592,11 @@ export default function CompanyUsersPage() {
 
               {/* Role Filter */}
               <div className="flex items-center gap-2 min-w-fit">
-                <Filter className="w-4 h-4 text-gray-500" />
+                <Filter className="w-4 h-4 text-slate-500" />
                 <select
                   value={roleFilter}
                   onChange={(e) => setRoleFilter(e.target.value as 'all' | 'admin' | 'user')}
-                  className="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+                  className="px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors bg-white"
                 >
                   <option value="all">{t('companyUsers.filter.allRoles')}</option>
                   <option value="admin">{t('companyUsers.filter.admins')}</option>
@@ -609,18 +609,18 @@ export default function CompanyUsersPage() {
 
         {/* Users Content */}
         {filteredUsers.length === 0 ? (
-          <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 text-center">
-            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Users className="w-10 h-10 text-gray-400" />
+          <div className="bg-white rounded-xl p-8 shadow-sm border border-slate-100 text-center">
+            <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Users className="w-10 h-10 text-slate-400" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <h3 className="text-xl font-semibold text-slate-900 mb-2">
               {searchTerm || roleFilter !== 'all' || statusFilter !== 'active' ? t('companyUsers.empty.noUsersFound') : t('companyUsers.empty.noUsersYet')}
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-slate-600 mb-6">
               {searchTerm || roleFilter !== 'all' || statusFilter !== 'active' ? t('companyUsers.empty.tryAdjusting') : t('companyUsers.empty.getStarted')}
             </p>
             {!searchTerm && roleFilter === 'all' && statusFilter === 'active' && (
-              <button onClick={() => setIsAddUserModalOpen(true)} className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors">
+              <button onClick={() => setIsAddUserModalOpen(true)} className="px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-medium transition-colors">
                 {t('companyUsers.empty.addFirstUser')}
               </button>
             )}
@@ -628,30 +628,30 @@ export default function CompanyUsersPage() {
         ) : (
           <>
             {/* Desktop Table View */}
-            <div className="hidden lg:block bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div className="hidden lg:block bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="min-w-full">
                   <thead>
-                    <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{t('companyUsers.table.name')}</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{t('companyUsers.table.email')}</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{t('companyUsers.table.manager')}</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{t('companyUsers.table.startDate')}</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{t('companyUsers.table.role')}</th>
+                    <tr className="bg-slate-50 border-b border-slate-200">
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{t('companyUsers.table.name')}</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{t('companyUsers.table.email')}</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{t('companyUsers.table.manager')}</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{t('companyUsers.table.startDate')}</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{t('companyUsers.table.role')}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-slate-100">
                     {filteredUsers.map((user) => (
                       <tr 
                         key={user.user_id} 
-                        className={`hover:bg-gray-50 transition-colors group ${!user.is_active ? 'opacity-50' : ''}`}
+                        className={`hover:bg-slate-50 transition-colors group ${!user.is_active ? 'opacity-50' : ''}`}
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <button
                             onClick={() => handleStatusToggle(user)}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                              user.is_active ? 'bg-green-600' : 'bg-gray-300'
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 ${
+                              user.is_active ? 'bg-green-600' : 'bg-slate-300'
                             }`}
                             title={user.is_active ? 'Active' : 'Inactive'}
                           >
@@ -665,14 +665,14 @@ export default function CompanyUsersPage() {
 
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                              <span className="text-white font-semibold text-sm">
+                            <div className="w-10 h-10 bg-brand-50 rounded-full flex items-center justify-center">
+                              <span className="text-brand-700 font-semibold text-sm">
                                 {user.first_name?.[0]}
                                 {user.last_name?.[0]}
                               </span>
                             </div>
                             <div>
-                              <p className="font-semibold text-gray-900">{user.first_name} {user.last_name}</p>
+                              <p className="font-semibold text-slate-900">{user.first_name} {user.last_name}</p>
                               {!user.is_active && (
                                 <span className="text-xs text-red-600 font-medium">Inactive</span>
                               )}
@@ -681,7 +681,7 @@ export default function CompanyUsersPage() {
                         </td>
 
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center gap-2 text-gray-600">
+                          <div className="flex items-center gap-2 text-slate-600">
                             <Mail className="w-4 h-4" />
                             <span>{user.email}</span>
                           </div>
@@ -697,9 +697,9 @@ export default function CompanyUsersPage() {
                                   setManagerSearch('');
                                 }}
                                 disabled={updatingManager || !user.is_active}
-                                className="flex items-center gap-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded-lg transition-colors group/manager disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex items-center gap-2 text-slate-700 hover:text-brand-600 hover:bg-brand-50 px-2 py-1 rounded-lg transition-colors group/manager disabled:opacity-50 disabled:cursor-not-allowed"
                               >
-                                <UserCircle className="w-4 h-4 text-gray-400 group-hover/manager:text-blue-500" />
+                                <UserCircle className="w-4 h-4 text-slate-400 group-hover/manager:text-brand-500" />
                                 <span>{user.manager_first_name} {user.manager_last_name}</span>
                                 {updateSuccess === user.user_id ? (
                                   <Check className="w-3 h-3 text-green-500" />
@@ -715,7 +715,7 @@ export default function CompanyUsersPage() {
                                   setManagerSearch('');
                                 }}
                                 disabled={updatingManager || !user.is_active}
-                                className="text-gray-400 text-sm hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="text-slate-400 text-sm hover:text-brand-600 hover:bg-brand-50 px-2 py-1 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 {t('companyUsers.table.addManager')}
                               </button>
@@ -724,8 +724,8 @@ export default function CompanyUsersPage() {
                         </td>
 
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center gap-2 text-gray-700">
-                            <Calendar className="w-4 h-4 text-gray-400" />
+                          <div className="flex items-center gap-2 text-slate-700">
+                            <Calendar className="w-4 h-4 text-slate-400" />
                             <span>{formatDate(user.employment_start_date)}</span>
                           </div>
                         </td>
@@ -745,11 +745,11 @@ export default function CompanyUsersPage() {
               {filteredUsers.map((user) => (
                 <div 
                   key={user.user_id} 
-                  className={`bg-white rounded-2xl p-4 shadow-lg border border-gray-100 ${!user.is_active ? 'opacity-60' : ''}`}
+                  className={`bg-white rounded-xl p-4 shadow-sm border border-slate-100 ${!user.is_active ? 'opacity-60' : ''}`}
                 >
                   <div className="flex items-start gap-3 mb-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-white font-semibold">
+                    <div className="w-12 h-12 bg-brand-50 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-brand-700 font-semibold">
                         {user.first_name?.[0]}
                         {user.last_name?.[0]}
                       </span>
@@ -757,13 +757,13 @@ export default function CompanyUsersPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <h3 className="font-semibold text-gray-900 truncate">
+                          <h3 className="font-semibold text-slate-900 truncate">
                             {user.first_name} {user.last_name}
                             {!user.is_active && (
                               <span className="ml-2 text-xs text-red-600 font-medium">Inactive</span>
                             )}
                           </h3>
-                          <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
+                          <div className="flex items-center gap-1 text-sm text-slate-600 mt-1">
                             <Mail className="w-3 h-3" />
                             <span className="truncate">{user.email}</span>
                           </div>
@@ -773,16 +773,16 @@ export default function CompanyUsersPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-2 pt-3 border-t border-gray-100">
+                  <div className="space-y-2 pt-3 border-t border-slate-100">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <div className="flex items-center gap-2 text-sm text-slate-500">
                         <Power className="w-4 h-4" />
                         <span>Status</span>
                       </div>
                       <button
                         onClick={() => handleStatusToggle(user)}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                          user.is_active ? 'bg-green-600' : 'bg-gray-300'
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 ${
+                          user.is_active ? 'bg-green-600' : 'bg-slate-300'
                         }`}
                       >
                         <span
@@ -794,7 +794,7 @@ export default function CompanyUsersPage() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <div className="flex items-center gap-2 text-sm text-slate-500">
                         <UserCircle className="w-4 h-4" />
                         <span>{t('companyUsers.mobile.manager')}</span>
                       </div>
@@ -807,7 +807,7 @@ export default function CompanyUsersPage() {
                               setManagerSearch('');
                             }}
                             disabled={updatingManager || !user.is_active}
-                            className="text-sm font-medium text-gray-900 hover:text-blue-600 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="text-sm font-medium text-slate-900 hover:text-brand-600 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {user.manager_first_name} {user.manager_last_name}
                             {updateSuccess === user.user_id ? <Check className="w-3 h-3 text-green-500" /> : <Edit3 className="w-3 h-3" />}
@@ -820,7 +820,7 @@ export default function CompanyUsersPage() {
                               setManagerSearch('');
                             }}
                             disabled={updatingManager || !user.is_active}
-                            className="text-sm text-blue-600 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="text-sm text-brand-600 hover:text-brand-700 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {t('companyUsers.mobile.addManager')}
                           </button>
@@ -828,9 +828,9 @@ export default function CompanyUsersPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 text-sm text-gray-700">
-                      <Calendar className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-500">{t('companyUsers.mobile.startDate')}</span>
+                    <div className="flex items-center gap-2 text-sm text-slate-700">
+                      <Calendar className="w-4 h-4 text-slate-400" />
+                      <span className="text-slate-500">{t('companyUsers.mobile.startDate')}</span>
                       <span className="font-medium">{formatDate(user.employment_start_date)}</span>
                     </div>
 
