@@ -24,7 +24,7 @@ HRInno
 
 ## Last Updated
 
-2026-11-15
+2026-11-21
 
 ## Status
 - Idea
@@ -117,8 +117,15 @@ List ONLY completed features, based on what exists in the code.
 
 ## Dashboard
 
-- Per-company SaaS entry point at `/jobs/[slug]` — reached only by someone who knows their company's slug (not discoverable/indexed). Not logged in: company branding (logo/name) and a login prompt. Logged in: "Welcome back" plus a role-aware grid of quick links to the company's HR tools (positions, HR tools, performance, time clock, absences, and for admins: subscription, users, tickets). Until the company has finished self-onboarding, admins also see a "Finish setting up your account" banner linking to the setup wizard.
+- Per-company SaaS entry point at `/jobs/[slug]` — reached only by someone who knows their company's slug (not discoverable/indexed). Not logged in: company branding (logo/name) and a login prompt. Logged in: "Welcome back" plus role-aware quick links to the company's HR tools, grouped under four headings — Recruitment, Time & absences, Performance & wellbeing, and Administration (subscription, users, tickets; admins only). Until the company has finished self-onboarding, admins also see a "Finish setting up your account" banner linking to the setup wizard.
 - Distinct from the public homepage at `/` (see Marketing/Public Site below).
+
+## Visual Design
+
+- The whole app uses one restrained, consistent visual style (applied app-wide on 2026-11-21): a single indigo accent for primary actions, links and selection; neutral slate grays for page backgrounds, cards and text; and green, amber and red only to signal success, warning and error. There are no gradients, no oversized drop shadows and no grow-on-hover effects. Cards are flat white panels with thin borders, and every screen shares the same primary button.
+- Color that carries meaning is preserved: the absence calendar's leave-type, approved, pending and public-holiday colors, and the green/yellow/red CV score and status indicators.
+- Typography is Sora for headings and Inter for text. The public Job Assistant keeps its own green identity, and the homepage and pricing page were already in this style.
+- The interface text still contains around 90 emoji; they were not part of this change.
 
 ## Marketing / Public Site
 
@@ -315,7 +322,7 @@ Web (responsive), Next.js application. No native mobile app.
 
 Frontend
 
-- Next.js 15, React 19, Tailwind CSS v4 with a minimal custom theme (brand indigo/accent emerald color scales) and a Sora/Inter font pairing, applied so far mainly to the homepage and pricing page.
+- Next.js 15, React 19, Tailwind CSS v4 with a small design system: a full brand indigo color scale plus an emerald accent, slate neutrals, a Sora/Inter font pairing, and shared button/card style helpers (`components/ui/styles.ts`) used across the app.
 
 Backend
 
@@ -444,7 +451,7 @@ Important information for Marketing.
 - Self-serve onboarding is real and live end to end: a company can sign up and post jobs in minutes for free, and can unlock time & attendance, absences, performance, the wellbeing chatbot, and medical certificates immediately by finishing the in-app setup and paying by card. No sales or onboarding call is required. The assisted onboarding call is an optional paid add-on (60,000 HUF one-time) and never delays access. Do NOT promise a free trial of the HR modules: they unlock only after payment.
 - The founding-customer discount (30–40% off the base fee for 12 months) is an internal, manually-applied offer for a small batch of early signups, not a public promo code — don't publish a redeemable code for it, and don't promise it will remain available beyond the first 10–15 signups.
 - Avoid describing medical certificate upload as an "employee self-service" feature in copy — the backend restricts it to company admins even though it is currently surfaced on an employee-facing screen; describe it as an HR-admin-managed workflow instead until that's resolved.
-- A minimal brand (indigo/emerald color palette, Sora/Inter fonts) exists on the homepage and pricing page — usable as a starting point for campaign creative, but not yet a full brand system.
+- The product now has one consistent, sober visual style across every screen (indigo accent, slate neutrals, Sora/Inter fonts, no gradients) — screenshots of any screen are now usable in campaign creative without looking like a different product from the homepage. There is still no formal brand guideline document beyond this.
 
 ---
 
@@ -549,6 +556,7 @@ Business questions still unresolved, based on gaps found in the codebase:
 
 Brief summary (maximum 10 bullet points). Based on the most recent completed work:
 
+- Rolled out a sober, modern visual style across the whole app: one indigo accent, neutral grays, color only for success/warning/error, no gradients or hover effects; dashboard links are now grouped by area (Recruitment, Time & absences, Performance & wellbeing, Administration)
 - Released full self-onboarding: a three-step in-app setup wizard (company, team, plan & card payment) replaces the mandatory onboarding call. The HR modules unlock automatically on the first successful payment. The onboarding fee became an optional paid assisted-call add-on, the Calendly booking email now goes only to customers who chose that add-on, and the team gets an email for every new paying customer, including a call-back request for assisted customers
 - A live-database audit found that four schema/RLS migrations from earlier sessions had silently never been applied to the actual production Supabase project (a mismatch between the CLI's authenticated account and the project owner's), and reproduced/fixed the three that were real, confirmed-exploitable vulnerabilities: unauthenticated create/edit/close access to any company's job postings; every plan-gated feature check across the whole app failing unpredictably because a `forfait` column the code queried was missing from the live database; and any authenticated user (not just a company's own admins) able to read/write another company's stored SMTP credentials
 - Moved the terms of service and impressum out of this app to the external marketing site (www.hrinno.hu/terms and /legal-notice), keeping only the privacy notice and cookie notice in-app (now at clean `/privacy` and `/cookies` paths with the legacy `-demo` suffix fully removed) since those two document this app's own data handling specifically; consolidated the shared privacy/cookie contact address to `info@hrinno.hu`
@@ -558,7 +566,6 @@ Brief summary (maximum 10 bullet points). Based on the most recent completed wor
 - Removed AI/OCR processing from medical certificates entirely — an admin now manually types the employee name and sickness dates instead of an AI/OCR pipeline extracting them, so certificate content is never sent to any third-party AI provider, closing what was previously the product's most sensitive health-data exposure
 - Substantively rewrote the legal/policy pages to accurately describe the real, paid product instead of their previous "free demo" framing — GDPR-structured disclosures, a real commercial terms of service, an accurate cookie/local-storage table, and a cookie-consent banner that actually gates the analytics it describes rather than only displaying a choice with no effect. The impressum carries the operator's real name and address, honestly disclosing that no business entity is registered yet
 - Added real voice input to the in-pipeline "Virtual Interview," matching the free public Job Assistant's voice-enabled mock interview experience; also removed two previously non-functional UI controls (a job-posting "upgrade" button, a wellbeing-dashboard "export" button) rather than leaving them visible but broken
-- Centralized authorization into a single `lib/authz/` module, replacing the previous ad hoc per-route pattern across most of the app's sensitive surfaces, and closed 16 confirmed critical/high-severity authorization vulnerabilities in application code as part of that centralization
 
 ---
 
