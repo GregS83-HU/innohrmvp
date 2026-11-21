@@ -20,7 +20,13 @@
       "subtitle": "Les outils RH de votre entreprise, au même endroit.",
       "subtitleCompany": "Les outils RH de {{company}}, au même endroit.",
       "defaultTitle": "Bienvenue",
-      "loginPrompt": "Connectez-vous pour accéder au portail RH de votre entreprise."
+      "loginPrompt": "Connectez-vous pour accéder au portail RH de votre entreprise.",
+      "groups": {
+        "recruitment": "Recrutement",
+        "time": "Temps et absences",
+        "engagement": "Performance et bien-être",
+        "admin": "Administration"
+      }
     },
     "features": {
       "cvAnalysis": {
@@ -1951,7 +1957,8 @@
       "packTitle": "{{count}} Crédits IA",
       "packDescription": "Parfait pour générer des résultats ou insights supplémentaires.",
       "buyButton": "Acheter {{count}} Crédits"
-    }
+    },
+    "plansTitle": "Formules"
   },
   "companyUsers": {
     "header": {

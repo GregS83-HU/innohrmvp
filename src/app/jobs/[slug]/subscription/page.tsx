@@ -5,11 +5,12 @@ import { createClient } from '@supabase/supabase-js'
 import { useSession } from '@supabase/auth-helpers-react'
 import { useSearchParams } from 'next/navigation'
 import { v4 as uuidv4 } from 'uuid'
-import { Check, Star, Zap, Shield, Crown, Phone } from 'lucide-react'
+import { Check, Zap, Phone, CreditCard, Loader2 } from 'lucide-react'
 import { loadStripe } from "@stripe/stripe-js"
 import { useLocale } from '../../../../i18n/LocaleProvider'
 import { safeErrorInfo } from '../../../../../lib/logSafe';
 import { ASSISTED_ONBOARDING_FEE_HUF } from '../../../../config/onboarding';
+import { buttonClass, cardClass, eyebrowClass, iconTileClass, pageClass } from '../../../../../components/ui/styles';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -459,15 +460,6 @@ const fetchCompanyDetails = useCallback(async (companyId: string) => {
     }
   }
 
-  const getPlanIcon = (planName: string) => {
-    switch (planName.toLowerCase()) {
-      case 'starter': return <Zap className="w-8 h-8 text-blue-600" />
-      case 'professional': return <Star className="w-8 h-8 text-purple-600" />
-      case 'enterprise': return <Crown className="w-8 h-8 text-yellow-600" />
-      default: return <Shield className="w-8 h-8 text-gray-600" />
-    }
-  }
-
   const formatPrice = (price: number) => price === 0 ? t('subscription.pricing.free') : price.toLocaleString()
 
   // Cached forfait amounts (base_fee_huf, per_seat_fee_huf) are always the
@@ -527,270 +519,264 @@ const fetchCompanyDetails = useCallback(async (companyId: string) => {
 const remainingAICredits = (includedAICredits ?? 0) - (currentAICredits ?? 0)
 
 
+  const perLabel = billingInterval === 'year' ? t('subscription.pricing.perYear') : t('subscription.pricing.perMonth')
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className={pageClass}>
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">{t('subscription.header.title')}</h1>
-          <p className="text-gray-600 mt-2">{t('subscription.header.subtitle')}</p>
+      <div className="bg-white border-b border-slate-200">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <h1 className="font-heading text-2xl md:text-3xl font-semibold text-slate-900">{t('subscription.header.title')}</h1>
+          <p className="text-slate-500 mt-1">{t('subscription.header.subtitle')}</p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Processing Payment Overlay */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+        {/* Processing payment */}
         {isProcessingPayment && (
-          <div className="bg-blue-100 border-l-4 border-blue-500 rounded-lg p-6 mb-12">
-            <div className="flex items-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mr-4"></div>
-              <div>
-                <h3 className="text-lg font-semibold text-blue-900">{t('subscription.processing.title')}</h3>
-                <p className="text-blue-700">{t('subscription.processing.message')}</p>
-              </div>
+          <div className={`${cardClass} p-5 flex items-center gap-4`} role="status">
+            <Loader2 className="w-6 h-6 text-brand-600 animate-spin flex-shrink-0" />
+            <div>
+              <h3 className="font-semibold text-slate-900">{t('subscription.processing.title')}</h3>
+              <p className="text-sm text-slate-500">{t('subscription.processing.message')}</p>
             </div>
           </div>
         )}
 
-        {/* Current Subscription with AI Credits */}
+        {/* Current subscription + AI credits */}
         {loadingSubscription ? (
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-12 animate-pulse h-32" />
-        ) : currentPlan ? (
-          <div className="bg-gradient-to-r from-green-400 to-blue-500 rounded-xl shadow-lg p-6 mb-12 text-white">
-            <div className="flex flex-col md:flex-row items-center justify-between">
-              <div>
-                <h2 className="text-xl font-semibold mb-2">{t('subscription.current.title')}</h2>
-                <p className="text-lg mb-2">
-                  <span className="font-bold">{currentPlan}</span> {t('subscription.current.plan')}
-                  <span className="ml-4 px-3 py-1 bg-white/20 rounded-full text-sm">{t('subscription.current.active')}</span>
-                </p>
-                {subscription?.hasStripeSubscription && (() => {
-                  const plan = plans.find(p => p.name.toLowerCase() === currentPlan?.toLowerCase())
-                  if (!plan || plan.baseFeeHuf === null || plan.perSeatFeeHuf === null) return null
-                  const total = plan.baseFeeHuf + plan.perSeatFeeHuf * subscription.employeeCount
-                  return (
-                    <p className="text-lg mb-2">
-                      {t('subscription.current.costBreakdown', {
-                        base: plan.baseFeeHuf.toLocaleString(),
-                        count: subscription.employeeCount,
-                        perSeat: plan.perSeatFeeHuf.toLocaleString(),
-                        total: total.toLocaleString(),
-                        interval: subscription.billingInterval === 'year' ? t('subscription.pricing.perYear') : t('subscription.pricing.perMonth'),
-                      })}
-                    </p>
-                  )
-                })()}
-                {remainingAICredits !== null && (
-                  <p className="text-lg">
-                    <span className="font-bold">{remainingAICredits}</span> {t('subscription.current.creditsRemaining')}
-                  </p>
-                )}
-              </div>
-              <div className="flex flex-col items-center gap-3 mt-4 md:mt-0">
-                <Shield className="w-12 h-12 text-white/80" />
-                {subscription?.hasStripeSubscription && (
-                  <button
-                    onClick={handleManageBilling}
-                    disabled={isManagingBilling}
-                    className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
-                  >
-                    {t('subscription.buttons.manageBilling')}
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
+          <div className={`${cardClass} p-6 animate-pulse h-32`} />
         ) : (
-          <div className="bg-gradient-to-r from-gray-400 to-gray-600 rounded-xl shadow-lg p-6 mb-12 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-semibold mb-2">{t('subscription.noSubscription.title')}</h2>
-                <p className="text-lg">{t('subscription.noSubscription.message')}</p>
-              </div>
-              <Shield className="w-12 h-12 text-white/80" />
+          <section className={`${cardClass} p-6`} aria-labelledby="current-plan-title">
+            <p id="current-plan-title" className={`${eyebrowClass} mb-3`}>
+              {currentPlan ? t('subscription.current.title') : t('subscription.noSubscription.title')}
+            </p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              {currentPlan ? (
+                <div className="flex flex-col sm:flex-row sm:items-center gap-x-10 gap-y-4">
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <span className="font-heading text-2xl font-semibold text-slate-900">{currentPlan}</span>
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
+                        {t('subscription.current.active')}
+                      </span>
+                    </div>
+                    {subscription?.hasStripeSubscription && (() => {
+                      const plan = plans.find(p => p.name.toLowerCase() === currentPlan?.toLowerCase())
+                      if (!plan || plan.baseFeeHuf === null || plan.perSeatFeeHuf === null) return null
+                      const total = plan.baseFeeHuf + plan.perSeatFeeHuf * subscription.employeeCount
+                      return (
+                        <p className="text-sm text-slate-500 mt-1">
+                          {t('subscription.current.costBreakdown', {
+                            base: plan.baseFeeHuf.toLocaleString(),
+                            count: subscription.employeeCount,
+                            perSeat: plan.perSeatFeeHuf.toLocaleString(),
+                            total: total.toLocaleString(),
+                            interval: subscription.billingInterval === 'year' ? t('subscription.pricing.perYear') : t('subscription.pricing.perMonth'),
+                          })}
+                        </p>
+                      )
+                    })()}
+                  </div>
+                  {remainingAICredits !== null && (
+                    <div className="sm:border-l sm:border-slate-200 sm:pl-10">
+                      <p className="font-heading text-2xl font-semibold text-slate-900 tabular-nums">{remainingAICredits}</p>
+                      <p className="text-sm text-slate-500">{t('subscription.current.creditsRemaining')}</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-slate-600">{t('subscription.noSubscription.message')}</p>
+              )}
+              {subscription?.hasStripeSubscription && (
+                <button
+                  onClick={handleManageBilling}
+                  disabled={isManagingBilling}
+                  className={buttonClass('secondary', 'md', 'self-start md:self-auto')}
+                >
+                  <CreditCard className="w-4 h-4" />
+                  {t('subscription.buttons.manageBilling')}
+                </button>
+              )}
             </div>
-          </div>
+          </section>
         )}
 
-        {/* Billing interval toggle */}
-        <div className="flex justify-center mb-8">
-          <div className="bg-white rounded-full shadow-sm p-1 inline-flex">
-            <button
-              onClick={() => setBillingInterval('month')}
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${billingInterval === 'month' ? 'bg-blue-600 text-white' : 'text-gray-600'}`}
-            >
-              {t('subscription.toggle.monthly')}
-            </button>
-            <button
-              onClick={() => setBillingInterval('year')}
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${billingInterval === 'year' ? 'bg-blue-600 text-white' : 'text-gray-600'}`}
-            >
-              {t('subscription.toggle.annual')}
-            </button>
+        {/* Plans */}
+        <section aria-labelledby="plans-title" className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <h2 id="plans-title" className={eyebrowClass}>{t('subscription.plansTitle')}</h2>
+            <div className="inline-flex rounded-lg border border-slate-200 bg-white p-1" role="group">
+              {(['month', 'year'] as const).map((value) => (
+                <button
+                  key={value}
+                  onClick={() => setBillingInterval(value)}
+                  aria-pressed={billingInterval === value}
+                  className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                    billingInterval === value ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  {value === 'month' ? t('subscription.toggle.monthly') : t('subscription.toggle.annual')}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {subscription && !subscription.hasStripeSubscription && !subscription.onboardingFeePaid && (
-          <div className="flex justify-center mb-8">
-            <label className="flex items-start gap-3 bg-white border border-gray-200 rounded-xl p-4 max-w-xl cursor-pointer hover:bg-gray-50">
+          {subscription && !subscription.hasStripeSubscription && !subscription.onboardingFeePaid && (
+            <label className={`${cardClass} flex items-start gap-3 p-4 cursor-pointer hover:border-slate-300`}>
               <input
                 type="checkbox"
                 checked={assistedOnboarding}
                 onChange={(e) => setAssistedOnboarding(e.target.checked)}
-                className="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                className="mt-0.5 h-4 w-4 rounded border-slate-300 accent-brand-600"
               />
               <span className="text-sm">
-                <span className="font-medium text-gray-900 flex items-center gap-1.5">
-                  <Phone className="w-4 h-4" />
+                <span className="font-medium text-slate-900 flex items-center gap-1.5">
+                  <Phone className="w-4 h-4 text-slate-500" />
                   {t('onboardingWizard.plan.assistedTitle', { fee: ASSISTED_ONBOARDING_FEE_HUF.toLocaleString() })}
                 </span>
-                <span className="text-gray-500 block mt-0.5">{t('onboardingWizard.plan.assistedBody')}</span>
+                <span className="text-slate-500 block mt-0.5">{t('onboardingWizard.plan.assistedBody')}</span>
               </span>
             </label>
-          </div>
-        )}
+          )}
 
-        {/* Plans Grid */}
-        {loadingPlans ? (
-          <div className="grid md:grid-cols-3 gap-8">
-            {[...Array(3)].map((_, i) => <div key={i} className="bg-white rounded-xl shadow-sm p-6 animate-pulse h-64" />)}
-          </div>
-        ) : plans.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="bg-white rounded-xl shadow-sm p-8">
-              <Shield className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('subscription.noPlans.title')}</h3>
-              <p className="text-gray-600">{t('subscription.noPlans.message')}</p>
+          {loadingPlans ? (
+            <div className="grid md:grid-cols-3 gap-6">
+              {[...Array(3)].map((_, i) => <div key={i} className={`${cardClass} p-6 animate-pulse h-64`} />)}
             </div>
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-3 gap-8">
-            {plans.map(plan => (
-              <div key={plan.id} className={`relative bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 ${plan.name.toLowerCase() === currentPlan?.toLowerCase() ? 'ring-2 ring-green-500 scale-105 bg-green-50' : ''}`}>
-                {plan.name.toLowerCase() === currentPlan?.toLowerCase() && (
-                  <div className="absolute top-0 right-0 bg-gradient-to-l from-green-600 to-green-500 text-white px-4 py-1 text-sm font-semibold">{t('subscription.badges.currentPlan')}</div>
-                )}
-                <div className="p-8">
-                  <div className="flex items-center mb-4">{getPlanIcon(plan.name)}<h3 className="text-2xl font-bold text-gray-900 ml-3">{plan.name}</h3></div>
-                  <p className="text-gray-600 mb-6">{plan.description}</p>
-                  <div className="mb-2">
-                    {plan.isFree || plan.baseFeeHuf === null ? (
-                      <span className="text-4xl font-bold text-green-600">{t('subscription.pricing.free')}</span>
-                    ) : (
-                      <>
-                        <span className="text-4xl font-bold text-gray-900">{formatPrice(annualizedIfNeeded(plan.baseFeeHuf, billingInterval))}</span>
-                        <span className="text-gray-600"> {t('subscription.pricing.baseFee')} {billingInterval === 'year' ? t('subscription.pricing.perYear') : t('subscription.pricing.perMonth')}</span>
-                      </>
+          ) : plans.length === 0 ? (
+            <div className={`${cardClass} p-8 text-center`}>
+              <h3 className="text-lg font-semibold text-slate-900 mb-1">{t('subscription.noPlans.title')}</h3>
+              <p className="text-slate-500">{t('subscription.noPlans.message')}</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-3 gap-6">
+              {plans.map(plan => {
+                const isCurrent = plan.name.toLowerCase() === currentPlan?.toLowerCase()
+                const blockedByExistingSubscription = !plan.isFree && !isCurrent && !!subscription?.hasStripeSubscription
+                // Core's per-seat formula crosses over to cost more than
+                // Growth's past a certain headcount despite Growth
+                // including strictly more features - self-serve
+                // subscribing into that zone is blocked here (mirrors
+                // the hard check in create-subscription/route.ts).
+                const ineligibleByHeadcount =
+                  !plan.isFree &&
+                  !isCurrent &&
+                  !blockedByExistingSubscription &&
+                  subscription != null &&
+                  ((plan.maxEmployees !== null && subscription.employeeCount > plan.maxEmployees) ||
+                    (plan.minEmployees !== null && subscription.employeeCount < plan.minEmployees))
+                const canSubscribe = !(plan.isFree || isCurrent || blockedByExistingSubscription || ineligibleByHeadcount)
+                return (
+                  <div
+                    key={plan.id}
+                    className={`${cardClass} flex flex-col p-6 ${isCurrent ? 'border-brand-600 ring-1 ring-brand-600' : ''}`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="font-heading text-lg font-semibold text-slate-900">{plan.name}</h3>
+                      {isCurrent && (
+                        <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-medium text-brand-700">
+                          {t('subscription.badges.currentPlan')}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-slate-500 mb-5">{plan.description}</p>
+
+                    <div className="mb-1">
+                      {plan.isFree || plan.baseFeeHuf === null ? (
+                        <span className="font-heading text-3xl font-semibold text-slate-900">{t('subscription.pricing.free')}</span>
+                      ) : (
+                        <>
+                          <span className="font-heading text-3xl font-semibold text-slate-900 tabular-nums">{formatPrice(annualizedIfNeeded(plan.baseFeeHuf, billingInterval))}</span>
+                          <span className="text-sm text-slate-500"> {t('subscription.pricing.baseFee')} {perLabel}</span>
+                        </>
+                      )}
+                    </div>
+                    {!plan.isFree && plan.perSeatFeeHuf !== null && (
+                      <p className="text-sm text-slate-500">
+                        {t('subscription.pricing.perSeat', {
+                          price: formatPrice(annualizedIfNeeded(plan.perSeatFeeHuf, billingInterval)),
+                          interval: perLabel,
+                        })}
+                      </p>
                     )}
+                    {plan.maxEmployees !== null && (
+                      <p className="text-xs text-slate-400 mt-1">{t('subscription.employeeRangeMax', { count: plan.maxEmployees })}</p>
+                    )}
+                    {plan.minEmployees !== null && (
+                      <p className="text-xs text-slate-400 mt-1">{t('subscription.employeeRangeMin', { count: plan.minEmployees })}</p>
+                    )}
+
+                    <ul className="space-y-2.5 my-6 border-t border-slate-100 pt-5 flex-1">
+                      {plan.features.map((feature, idx) => (
+                        <li key={idx} className="flex items-start gap-2.5 text-sm text-slate-700">
+                          <Check className="w-4 h-4 text-brand-600 mt-0.5 flex-shrink-0" />
+                          {feature}
+                        </li>
+                      ))}
+                      {plan.includedAICredits !== undefined && (
+                        <li className="flex items-start gap-2.5 text-sm text-slate-700">
+                          <Check className="w-4 h-4 text-brand-600 mt-0.5 flex-shrink-0" />
+                          {t('subscription.features.aiCreditsIncluded', { count: plan.includedAICredits })}
+                        </li>
+                      )}
+                    </ul>
+
+                    <button
+                      onClick={() => handleSubscribe(plan)}
+                      disabled={!canSubscribe}
+                      className={buttonClass(canSubscribe ? 'primary' : 'secondary', 'md', 'w-full')}
+                    >
+                      {plan.isFree
+                        ? t('subscription.buttons.freePlan')
+                        : isCurrent
+                        ? t('subscription.buttons.currentPlan')
+                        : blockedByExistingSubscription
+                        ? t('subscription.buttons.manageBillingToChange')
+                        : ineligibleByHeadcount
+                        ? t('subscription.buttons.notEligible')
+                        : t('subscription.buttons.subscribe', { plan: plan.name })}
+                    </button>
                   </div>
-                  {!plan.isFree && plan.perSeatFeeHuf !== null && (
-                    <p className="text-sm text-gray-500 mb-1">
-                      {t('subscription.pricing.perSeat', {
-                        price: formatPrice(annualizedIfNeeded(plan.perSeatFeeHuf, billingInterval)),
-                        interval: billingInterval === 'year' ? t('subscription.pricing.perYear') : t('subscription.pricing.perMonth'),
-                      })}
-                    </p>
-                  )}
-                  {plan.maxEmployees !== null && (
-                    <p className="text-xs text-gray-400 mb-8">{t('subscription.employeeRangeMax', { count: plan.maxEmployees })}</p>
-                  )}
-                  {plan.minEmployees !== null && (
-                    <p className="text-xs text-gray-400 mb-8">{t('subscription.employeeRangeMin', { count: plan.minEmployees })}</p>
-                  )}
-                  {(plan.isFree || plan.perSeatFeeHuf === null) && plan.minEmployees === null && plan.maxEmployees === null && <div className="mb-8" />}
-                  <ul className="space-y-3 mb-8">
-                    {plan.features.map((feature, idx) => <li key={idx} className="flex items-center text-gray-700"><Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />{feature}</li>)}
-                    {plan.includedAICredits !== undefined && (
-                    <li className="flex items-center text-gray-700">
-                      <Zap className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
-                      {t('subscription.features.aiCreditsIncluded', { count: plan.includedAICredits })}
-                    </li>
-                  )}
-                  </ul>
-                  {(() => {
-                    const isCurrent = plan.name.toLowerCase() === currentPlan?.toLowerCase()
-                    const blockedByExistingSubscription = !plan.isFree && !isCurrent && !!subscription?.hasStripeSubscription
-                    // Core's per-seat formula crosses over to cost more than
-                    // Growth's past a certain headcount despite Growth
-                    // including strictly more features - self-serve
-                    // subscribing into that zone is blocked here (mirrors
-                    // the hard check in create-subscription/route.ts).
-                    const ineligibleByHeadcount =
-                      !plan.isFree &&
-                      !isCurrent &&
-                      !blockedByExistingSubscription &&
-                      subscription != null &&
-                      ((plan.maxEmployees !== null && subscription.employeeCount > plan.maxEmployees) ||
-                        (plan.minEmployees !== null && subscription.employeeCount < plan.minEmployees))
-                    const disabled = plan.isFree || isCurrent || blockedByExistingSubscription || ineligibleByHeadcount
-                    return (
-                      <button
-                        onClick={() => handleSubscribe(plan)}
-                        className={`w-full py-3 px-4 rounded-lg font-semibold transition-all ${
-                          plan.isFree
-                            ? 'bg-green-100 text-green-800 cursor-default'
-                            : isCurrent
-                            ? 'bg-blue-100 text-blue-800 cursor-default'
-                            : blockedByExistingSubscription || ineligibleByHeadcount
-                            ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-                            : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl'
-                        }`}
-                        disabled={disabled}
-                      >
-                        {plan.isFree
-                          ? t('subscription.buttons.freePlan')
-                          : isCurrent
-                          ? t('subscription.buttons.currentPlan')
-                          : blockedByExistingSubscription
-                          ? t('subscription.buttons.manageBillingToChange')
-                          : ineligibleByHeadcount
-                          ? t('subscription.buttons.notEligible')
-                          : t('subscription.buttons.subscribe', { plan: plan.name })}
-                      </button>
-                    )
-                  })()}
-                </div>
-              </div>
-            ))}
+                )
+              })}
+            </div>
+          )}
+        </section>
+
+        {/* AI credit packs */}
+        <section aria-labelledby="credits-title" className="space-y-4">
+          <div>
+            <h2 id="credits-title" className="font-heading text-xl font-semibold text-slate-900">{t('subscription.credits.title')}</h2>
+            <p className="text-sm text-slate-500 mt-1">{t('subscription.credits.subtitle')}</p>
           </div>
-        )}
-
-        {/* --- Buy AI Credits Section --- */}
-        <div className="mt-16">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('subscription.credits.title')}</h2>
-          <p className="text-gray-600 mb-10">{t('subscription.credits.subtitle')}</p>
-
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
             {aiCreditPacks.map((pack) => (
-              <div key={pack.id} className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-2xl hover:-translate-y-2 transition-all">
-                <div className="flex items-center mb-4">
-                  <Zap className="w-8 h-8 text-blue-600" />
-                  <h3 className="text-2xl font-bold text-gray-900 ml-3">
-                    {t('subscription.credits.packTitle', { count: pack.credits })}
-                  </h3>
+              <div key={pack.id} className={`${cardClass} p-5 flex flex-col gap-4`}>
+                <div className="flex items-center gap-3">
+                  <span className={iconTileClass}><Zap className="w-5 h-5" /></span>
+                  <div>
+                    <h3 className="font-semibold text-slate-900">{t('subscription.credits.packTitle', { count: pack.credits })}</h3>
+                    <p className="text-sm text-slate-500 tabular-nums">{(pack.price / 100).toLocaleString()} {pack.currency}</p>
+                  </div>
                 </div>
-                <p className="text-gray-600 mb-6">
-                  {t('subscription.credits.packDescription')}
-                </p>
-                <div className="mb-8">
-                  <span className="text-4xl font-bold text-gray-900">
-                    {(pack.price / 100).toLocaleString()} {pack.currency} 
-                  </span>
-                </div>
+                <p className="text-sm text-slate-500 flex-1">{t('subscription.credits.packDescription')}</p>
                 <button
                   onClick={() => handleBuyCredits(pack.credits, pack.stripe_price_id)}
-                  className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold hover:from-purple-700 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all"
+                  className={buttonClass('secondary', 'md', 'w-full')}
                 >
                   {t('subscription.credits.buyButton', { count: pack.credits })}
                 </button>
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* Toast Notifications */}
-        <div className="fixed top-5 right-5 flex flex-col gap-2 z-40">
+        {/* Toast notifications */}
+        <div className="fixed top-5 right-5 flex flex-col gap-2 z-40" aria-live="polite">
           {toasts.map(t => (
-            <div key={t.id} className={`px-6 py-3 rounded-lg shadow-lg text-white font-medium transform transition-all ${t.type === 'error' ? 'bg-red-500' : 'bg-green-500'} animate-in slide-in-from-right`}>
+            <div key={t.id} className={`px-4 py-3 rounded-lg shadow-lg text-sm text-white font-medium ${t.type === 'error' ? 'bg-red-600' : 'bg-emerald-600'}`}>
               {t.message}
             </div>
           ))}

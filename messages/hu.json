@@ -20,7 +20,13 @@
       "subtitle": "A vállalatod HR eszközei, egy helyen.",
       "subtitleCompany": "A(z) {{company}} HR eszközei, egy helyen.",
       "defaultTitle": "Üdvözlünk",
-      "loginPrompt": "Jelentkezz be a vállalatod HR portáljának eléréséhez."
+      "loginPrompt": "Jelentkezz be a vállalatod HR portáljának eléréséhez.",
+      "groups": {
+        "recruitment": "Toborzás",
+        "time": "Munkaidő és távollétek",
+        "engagement": "Teljesítmény és jóllét",
+        "admin": "Adminisztráció"
+      }
     },
     "features": {
       "cvAnalysis": {
@@ -1951,7 +1957,8 @@
       "packTitle": "{{count}} AI kredit",
       "packDescription": "Tökéletes extra eredmények vagy elemzések generálásához.",
       "buyButton": "{{count}} kredit vásárlása"
-    }
+    },
+    "plansTitle": "Csomagok"
   },
   "companyUsers": {
     "header": {

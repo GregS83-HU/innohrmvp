@@ -20,7 +20,13 @@
       "subtitle": "Your company's HR tools, all in one place.",
       "subtitleCompany": "{{company}}'s HR tools, all in one place.",
       "defaultTitle": "Welcome",
-      "loginPrompt": "Log in to access your company's HR portal."
+      "loginPrompt": "Log in to access your company's HR portal.",
+      "groups": {
+        "recruitment": "Recruitment",
+        "time": "Time & absences",
+        "engagement": "Performance & wellbeing",
+        "admin": "Administration"
+      }
     },
     "features": {
       "cvAnalysis": {
@@ -1949,7 +1955,8 @@
       "packTitle": "{{count}} AI Credits",
       "packDescription": "Perfect for generating extra results or insights.",
       "buyButton": "Buy {{count}} Credits"
-    }
+    },
+    "plansTitle": "Plans"
   },
   "companyUsers": {
     "header": {
