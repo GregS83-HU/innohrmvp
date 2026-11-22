@@ -289,7 +289,7 @@ export default function TimeClockModal({
                 <button
                   onClick={handleClockIn}
                   disabled={actionLoading}
-                  className="w-full bg-emerald-600 hover:bg-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-sm hover:shadow-md transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-xl font-bold text-lg shadow-sm hover:shadow-md transition-all transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <div className="flex items-center justify-center gap-2">
                     {actionLoading ? (
@@ -332,7 +332,7 @@ export default function TimeClockModal({
                   <button
                     onClick={handleClockOut}
                     disabled={actionLoading}
-                    className="w-full bg-red-600 hover:bg-red-600 text-white py-4 rounded-xl font-bold text-lg shadow-sm hover:shadow-md transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-xl font-bold text-lg shadow-sm hover:shadow-md transition-all transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <div className="flex items-center justify-center gap-2">
                       {actionLoading ? (

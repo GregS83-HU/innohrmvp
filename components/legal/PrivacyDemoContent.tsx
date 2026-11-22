@@ -134,7 +134,7 @@ const ThirdPartyServices = () => {
       </div>
 
       <p className="text-sm text-slate-600 mt-4 bg-yellow-50 p-3 rounded">
-        ⚠️ <strong>{t('privacyDemo.sections.thirdParty.noticeTitle')}</strong>{' '}
+        <strong>{t('privacyDemo.sections.thirdParty.noticeTitle')}</strong>{' '}
         {t('privacyDemo.sections.thirdParty.noticeText')}
       </p>
     </div>

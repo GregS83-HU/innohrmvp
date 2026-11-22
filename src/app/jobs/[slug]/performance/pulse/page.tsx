@@ -7,6 +7,7 @@ import { Calendar, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { useLocale } from 'i18n/LocaleProvider'
 import { safeErrorInfo } from '../../../../../../lib/logSafe';
+import StatusDot from '../../../../../../components/ui/StatusDot';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -285,21 +286,21 @@ export default function WeeklyPulsePage() {
                       onClick={() => updatePulse(goal.id, 'status', 'green')}
                       className={getStatusButtonClass(goal.id, 'green')}
                     >
-                      {t('weeklyPulsePage.form.statusButtons.onTrack')}
+                      <span className="inline-flex items-center gap-2"><StatusDot status="green" />{t('weeklyPulsePage.form.statusButtons.onTrack')}</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => updatePulse(goal.id, 'status', 'yellow')}
                       className={getStatusButtonClass(goal.id, 'yellow')}
                     >
-                      {t('weeklyPulsePage.form.statusButtons.someIssues')}
+                      <span className="inline-flex items-center gap-2"><StatusDot status="yellow" />{t('weeklyPulsePage.form.statusButtons.someIssues')}</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => updatePulse(goal.id, 'status', 'red')}
                       className={getStatusButtonClass(goal.id, 'red')}
                     >
-                      {t('weeklyPulsePage.form.statusButtons.blocked')}
+                      <span className="inline-flex items-center gap-2"><StatusDot status="red" />{t('weeklyPulsePage.form.statusButtons.blocked')}</span>
                     </button>
                   </div>
                 </div>
@@ -342,7 +343,7 @@ export default function WeeklyPulsePage() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-4 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-4 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             {submitting ? (
               <>

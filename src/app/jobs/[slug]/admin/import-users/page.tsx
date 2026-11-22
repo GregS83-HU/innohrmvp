@@ -210,9 +210,9 @@ export default function AdminImportUsersPage() {
               {results.map((r, i) => (
                 <div key={i} className="p-2 border-b border-slate-300">
                   {r.success ? (
-                    <span className="text-green-600 font-medium">✔ {r.email} imported</span>
+                    <span className="text-green-600 font-medium">✓ {r.email} imported</span>
                   ) : (
-                    <span className="text-red-600 font-medium">✖ {r.email} — {r.error}</span>
+                    <span className="text-red-600 font-medium">✗ {r.email} — {r.error}</span>
                   )}
                 </div>
               ))}

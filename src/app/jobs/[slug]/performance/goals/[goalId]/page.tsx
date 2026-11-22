@@ -8,6 +8,7 @@ import { ArrowLeft, Target, Calendar, TrendingUp, CheckCircle, AlertCircle, Tras
 import { createClient } from '@supabase/supabase-js'
 import { useLocale } from 'i18n/LocaleProvider'
 import { safeErrorInfo } from '../../../../../../../lib/logSafe';
+import StatusDot from '../../../../../../../components/ui/StatusDot';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -165,14 +166,7 @@ export default function GoalDetailPage() {
     }
   }
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'green': return '🟢'
-      case 'yellow': return '🟡'
-      case 'red': return '🔴'
-      default: return '⚪'
-    }
-  }
+  const getStatusIcon = (status: string) => <StatusDot status={status} size="lg" />
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString()

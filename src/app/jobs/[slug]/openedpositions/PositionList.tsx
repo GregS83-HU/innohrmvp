@@ -276,7 +276,7 @@ export default function PositionsList({ initialPositions = [], companySlug }: Pr
             return (
               <div
                 key={position.id}
-                className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 transform hover:scale-[1.01] sm:hover:scale-[1.02]"
+                className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 transform "
               >
                 
                 <div className="p-4 sm:p-6">

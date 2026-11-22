@@ -300,7 +300,7 @@ export default function CVAnalyseClient({
               <a
                 href="https://drive.google.com/uc?export=download&id=1-pMKT5dp-8PjJI2RbaVbUNuxt_rxXLFG"
                 download
-                className="flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-3 px-4 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+                className="flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-3 px-4 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform "
               >
                 <Download className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden />
                 <span className="text-sm sm:text-base">{t('cvAnalyse.sections.demoDownload.software')}</span>
@@ -309,7 +309,7 @@ export default function CVAnalyseClient({
               <a
                 href="https://drive.google.com/uc?export=download&id=15kzhUQFvizgx1Zhx9MG-CJAhTvHc3gJS"
                 download
-                className="flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-3 px-4 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+                className="flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-3 px-4 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform "
               >
                 <Download className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden />
                 <span className="text-sm sm:text-base">{t('cvAnalyse.sections.demoDownload.marketing')}</span>
@@ -414,7 +414,7 @@ export default function CVAnalyseClient({
                     disabled={analysisCompleted}
                   />
                   <label htmlFor="ai-consent" className="text-xs sm:text-sm text-slate-700 flex-1">
-                    🤖 {t('cvAnalyse.messages.aiConsent')}
+                    {t('cvAnalyse.messages.aiConsent')}
                   </label>
                 </div>
               </div>

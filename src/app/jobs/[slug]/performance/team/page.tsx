@@ -10,6 +10,7 @@ import { useLocale } from 'i18n/LocaleProvider'
 import { useModuleAccess } from '../../../../../../hooks/useModuleAccess'
 import LockedModuleNotice from '../../../../../../components/entitlements/LockedModuleNotice'
 import { safeErrorInfo } from '../../../../../../lib/logSafe';
+import StatusDot from '../../../../../../components/ui/StatusDot';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -303,17 +304,17 @@ export default function ManagerDashboard() {
                       <div className="flex gap-2">
                         {employee.red_flags > 0 && (
                           <div className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
-                            🔴 {employee.red_flags}
+                            <StatusDot status="red" size="sm" /> {employee.red_flags}
                           </div>
                         )}
                         {employee.yellow_flags > 0 && (
                           <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
-                            🟡 {employee.yellow_flags}
+                            <StatusDot status="yellow" size="sm" /> {employee.yellow_flags}
                           </div>
                         )}
                         {employee.green_flags > 0 && (
                           <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
-                            🟢 {employee.green_flags}
+                            <StatusDot status="green" size="sm" /> {employee.green_flags}
                           </div>
                         )}
                       </div>
@@ -393,7 +394,7 @@ export default function ManagerDashboard() {
                     onClick={() => router.push(`/jobs/${companySlug}/performance/goals/${goal.id}`)}
                   >
                     <div className="flex items-start gap-4">
-                      <div className="text-3xl flex-shrink-0">🔴</div>
+                      <div className="pt-1.5 flex-shrink-0"><StatusDot status="red" size="lg" /></div>
                       <div className="flex-1">
                         <div className="flex items-start justify-between mb-2">
                           <div>

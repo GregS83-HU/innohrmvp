@@ -421,7 +421,7 @@
       "errorCompanyId": "Cégazonosító nem található. Kérjük, frissítse az oldalt.",
       "noCredits": "Nincs több AI kreditje ebben a hónapban. Kérjük, frissítse csomagját.",
       "aiGenerationFailed": "A leírások generálása sikertelen. Kérjük, próbálja újra.",
-      "aiGenerationSuccess": "✨ Leírások sikeresen generálva! Ellenőrizze őket alább, és végezze el a szükséges módosításokat.",
+      "aiGenerationSuccess": "Leírások sikeresen generálva! Ellenőrizze őket alább, és végezze el a szükséges módosításokat.",
       "positionNameRequired": "Kérjük, adjon meg egy pozíciónevet a leírások generálása előtt.",
       "selectManager": "Kérjük, válasszon vezetőt.",
       "selectEmploymentType": "Kérjük, válassza ki a foglalkoztatás típusát.",
@@ -450,7 +450,7 @@
     "aiSection": {
       "title": "AI-Alapú Pozícióleírás Generátor",
       "description": "Hagyja, hogy az AI professzionális állásleírásokat készítsen Önnek. Adjon meg egy vázlatot, és kapjon egy marketing verziót a hirdetésekhez és egy részletes verziót a jelölt elemzéshez.",
-      "generateButton": "Generálás AI-val ✨"
+      "generateButton": "Generálás AI-val"
     },
     "aiModal": {
       "title": "Pozícióleírások Generálása AI-val",
@@ -550,9 +550,9 @@
       "cta": "Beállítás befejezése"
     },
     "loading": "Felmérés betöltése...",
-    "header": "Boldogság Ellenőrzés 😊",
+    "header": "Boldogság Ellenőrzés",
     "inputPlaceholder": "Írd be a válaszodat...",
-    "confidentiality": "💬 Bizalmas és névtelen beszélgetés • Az adataidat nem tároljuk személyesen",
+    "confidentiality": "Bizalmas és névtelen beszélgetés • Az adataidat nem tároljuk személyesen",
     "aggregate": "• Az összesített adatok segítik a(z) {{companyName}} munkahelyi jóllétének fejlesztését"
   },
   "features": {
@@ -565,8 +565,8 @@
     "quickSub": "mindössze 12 kérdésben"
   },
   "welcome": {
-    "default": "Szia! 😊 Azért vagyok itt, hogy segítsek felmérni a munkahelyi jóllétedet. Ez a felmérés teljesen névtelen és bizalmas. Néhány perc alatt átbeszéljük a munkáddal kapcsolatos különböző területeket. Készen állsz?",
-    "company": "Szia! 😊 Azért vagyok itt, hogy segítsek felmérni a munkahelyi jóllétedet a(z) {{companyName}} cégnél. Ez a felmérés teljesen névtelen és bizalmas. Néhány perc alatt átbeszéljük a munkáddal kapcsolatos különböző területeket. Készen állsz?"
+    "default": "Szia! Azért vagyok itt, hogy segítsek felmérni a munkahelyi jóllétedet. Ez a felmérés teljesen névtelen és bizalmas. Néhány perc alatt átbeszéljük a munkáddal kapcsolatos különböző területeket. Készen állsz?",
+    "company": "Szia! Azért vagyok itt, hogy segítsek felmérni a munkahelyi jóllétedet a(z) {{companyName}} cégnél. Ez a felmérés teljesen névtelen és bizalmas. Néhány perc alatt átbeszéljük a munkáddal kapcsolatos különböző területeket. Készen állsz?"
   },
   "progress": {
     "title": "Boldogság Ellenőrzés Folyamatban",
@@ -582,20 +582,20 @@
     "work_life_balance": "Munka–magánélet egyensúly"
   },
   "completion": {
-    "thankYou": "Köszönjük a részvételedet! 🎉",
+    "thankYou": "Köszönjük a részvételedet!",
     "complete": "A munkahelyi jóllét felmérésed befejeződött.",
     "recordedFor": "Eredmények rögzítve a(z) {{companyName}} számára",
     "summaryTitle": "Jólléti Összefoglalód",
-    "excellent": "Fantasztikus! A munkahelyi jólléted ragyogóan pozitív. Tartsd fenn ezt a remek energiát! 🌟",
-    "good": "Nagyon jó! Szilárd alapjaid vannak a szakmai jóllétedhez. Néhány apró fejlesztéssel még tovább javíthatod! ✨",
-    "improvable": "A helyzetedben nagy lehetőség van a fejlődésre. Az alábbi tippek segítenek új szintre lépni! 🚀",
-    "poor": "Köszönjük az őszinteségedet. A válaszaid valódi kihívásokat mutatnak, de ne feledd: minden javítható megfelelő stratégiákkal és támogatással. 💙",
+    "excellent": "Fantasztikus! A munkahelyi jólléted ragyogóan pozitív. Tartsd fenn ezt a remek energiát!",
+    "good": "Nagyon jó! Szilárd alapjaid vannak a szakmai jóllétedhez. Néhány apró fejlesztéssel még tovább javíthatod!",
+    "improvable": "A helyzetedben nagy lehetőség van a fejlődésre. Az alábbi tippek segítenek új szintre lépni!",
+    "poor": "Köszönjük az őszinteségedet. A válaszaid valódi kihívásokat mutatnak, de ne feledd: minden javítható megfelelő stratégiákkal és támogatással.",
     "overallScore": "Összesített pontszám",
     "happinessLevel": "Munkahelyi boldogságod szintje",
     "scoreByDomain": "Pontszám területenként",
     "adviceTitle": "Személyre szabott tanácsaid",
     "adviceIntro": "A jólléti profilod alapján íme 3 tipp, hogy még jobban boldogulj:",
-    "aiTips": "✨ AI által generált személyes tippek",
+    "aiTips": "AI által generált személyes tippek",
     "privacyNote": "Adatvédelem: a válaszaid teljesen névtelenek és a munkahelyi jóllét fejlesztését szolgálják.",
     "newAssessment": "Új felmérés indítása",
     "backTo": "Vissza ide: {{companyName}}",
@@ -1010,10 +1010,10 @@
   "calendarDay": {
     "holidayIndicator": "M",
     "tooltip": {
-      "publicHoliday": "🎉 Munkaszüneti nap",
-      "overlappingLeaves": "⚠️ Átfedő szabadságok!",
-      "statusPending": "⏳ Függőben",
-      "statusApproved": "✓ Jóváhagyva"
+      "publicHoliday": "Munkaszüneti nap",
+      "overlappingLeaves": "Átfedő szabadságok!",
+      "statusPending": "Függőben",
+      "statusApproved": "Jóváhagyva"
     }
   },
   "managerHeatmapCell": {
@@ -1402,15 +1402,15 @@
     },
     "infoBox": {
       "title": "Gyors, 2 perces ellenőrzés a céljaival kapcsolatban",
-      "statusLegend": "🟢 Zöld = A terv szerint | 🟡 Sárga = Néhány probléma | 🔴 Piros = Akadályozott / Segítségre van szükség"
+      "statusLegend": "Zöld = A terv szerint | Sárga = Néhány probléma | Piros = Akadályozott / Segítségre van szükség"
     },
     "form": {
       "goalLabel": "Cél {{number}}: {{title}}",
       "statusQuestion": "Hogyan halad ez a cél?",
       "statusButtons": {
-        "onTrack": "🟢 A terv szerint",
-        "someIssues": "🟡 Néhány probléma",
-        "blocked": "🔴 Akadályozott"
+        "onTrack": "A terv szerint",
+        "someIssues": "Néhány probléma",
+        "blocked": "Akadályozott"
       },
       "progressUpdate": {
         "label": "Haladási frissítés (nem kötelező)",
@@ -2555,7 +2555,7 @@
     }
   },
   "interview": {
-    "closing": "Köszönjük ezt a virtuális interjút! HR toborzónk gondosan átnézi válaszait, és értesíti Önt a lehetséges következő lépésekről. Nagyra értékeljük az időt, amelyet megosztott velünk tapasztalatairól. 🙏",
+    "closing": "Köszönjük ezt a virtuális interjút! HR toborzónk gondosan átnézi válaszait, és értesíti Önt a lehetséges következő lépésekről. Nagyra értékeljük az időt, amelyet megosztott velünk tapasztalatairól.",
     "cta": {
       "title": "Virtuális Interjú Elérhető",
       "subtitle": "10 személyre szabott kérdés • ~10 perc",
@@ -2648,7 +2648,7 @@
       "scoringButton": "Pontozás...",
       "showHint": "Tipp Mutatása",
       "hideHint": "Tipp Elrejtése",
-      "hintLabel": "💡 Javasolt Válasz (Csak Inspiráció)",
+      "hintLabel": "Javasolt Válasz (Csak Inspiráció)",
       "strengthsLabel": "✓ Erősségek",
       "improveLabel": "↗ Fejlesztendő",
       "betterPhrasing": "Jobb megfogalmazás:",

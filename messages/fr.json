@@ -421,7 +421,7 @@
       "errorCompanyId": "ID de l'entreprise introuvable. Veuillez actualiser la page.",
       "noCredits": "Vous n'avez plus de crédits IA ce mois-ci. Veuillez mettre à niveau votre forfait.",
       "aiGenerationFailed": "Échec de la génération des descriptions. Veuillez réessayer.",
-      "aiGenerationSuccess": "✨ Descriptions générées avec succès ! Relisez-les ci-dessous et apportez les ajustements nécessaires.",
+      "aiGenerationSuccess": "Descriptions générées avec succès ! Relisez-les ci-dessous et apportez les ajustements nécessaires.",
       "positionNameRequired": "Veuillez entrer un nom de poste avant de générer les descriptions.",
       "selectManager": "Veuillez sélectionner un manager.",
       "selectEmploymentType": "Veuillez sélectionner un type d'emploi.",
@@ -450,7 +450,7 @@
     "aiSection": {
       "title": "Générateur de Description IA",
       "description": "Laissez l'IA créer des descriptions de poste professionnelles pour vous. Fournissez un brouillon et obtenez une version marketing pour les annonces et une version détaillée pour l'analyse des candidats.",
-      "generateButton": "Générer avec l'IA ✨"
+      "generateButton": "Générer avec l'IA"
     },
     "aiModal": {
       "title": "Générer les Descriptions avec l'IA",
@@ -550,9 +550,9 @@
       "cta": "Terminer la configuration"
     },
     "loading": "Chargement de l'évaluation...",
-    "header": "Happy Check 😊",
+    "header": "Happy Check",
     "inputPlaceholder": "Tapez votre réponse...",
-    "confidentiality": "💬 Conversation confidentielle et anonyme • Vos données ne sont pas stockées personnellement",
+    "confidentiality": "Conversation confidentielle et anonyme • Vos données ne sont pas stockées personnellement",
     "aggregate": "• Les insights agrégés aident à améliorer le bien-être au travail de {{companyName}}"
   },
   "features": {
@@ -565,8 +565,8 @@
     "quickSub": "en seulement 12 questions"
   },
   "welcome": {
-    "default": "Bonjour ! 😊 Je suis là pour vous aider à évaluer votre bien-être au travail. Cette évaluation est complètement anonyme et confidentielle. Nous allons discuter de différents aspects de votre vie professionnelle pendant quelques minutes. Êtes-vous prêt(e) à commencer ?",
-    "company": "Bonjour ! 😊 Je suis là pour vous aider à évaluer votre bien-être au travail chez {{companyName}}. Cette évaluation est complètement anonyme et confidentielle. Nous allons discuter de différents aspects de votre vie professionnelle pendant quelques minutes. Êtes-vous prêt(e) à commencer ?"
+    "default": "Bonjour ! Je suis là pour vous aider à évaluer votre bien-être au travail. Cette évaluation est complètement anonyme et confidentielle. Nous allons discuter de différents aspects de votre vie professionnelle pendant quelques minutes. Êtes-vous prêt(e) à commencer ?",
+    "company": "Bonjour ! Je suis là pour vous aider à évaluer votre bien-être au travail chez {{companyName}}. Cette évaluation est complètement anonyme et confidentielle. Nous allons discuter de différents aspects de votre vie professionnelle pendant quelques minutes. Êtes-vous prêt(e) à commencer ?"
   },
   "progress": {
     "title": "Progression Happy Check",
@@ -582,20 +582,20 @@
     "work_life_balance": "Équilibre Vie-Travail"
   },
   "completion": {
-    "thankYou": "Merci pour votre participation ! 🎉",
+    "thankYou": "Merci pour votre participation !",
     "complete": "Votre évaluation du bien-être au travail est maintenant terminée.",
     "recordedFor": "Résultats enregistrés pour {{companyName}}",
     "summaryTitle": "Votre Résumé Bien-être",
-    "excellent": "Fantastique ! Votre bien-être au travail brille positivement. Continuez à cultiver cette belle énergie ! 🌟",
-    "good": "Très bien ! Vous avez de solides fondations pour votre bien-être professionnel. Quelques ajustements peuvent vous faire briller encore plus ! ✨",
-    "improvable": "Votre situation a un bon potentiel d'amélioration. Les conseils ci-dessous vous aideront à atteindre de nouveaux sommets ! 🚀",
-    "poor": "Merci pour votre honnêteté. Vos réponses montrent de vrais défis, mais rappelez-vous que tout peut s'améliorer avec les bonnes stratégies et le bon soutien. 💙",
+    "excellent": "Fantastique ! Votre bien-être au travail brille positivement. Continuez à cultiver cette belle énergie !",
+    "good": "Très bien ! Vous avez de solides fondations pour votre bien-être professionnel. Quelques ajustements peuvent vous faire briller encore plus !",
+    "improvable": "Votre situation a un bon potentiel d'amélioration. Les conseils ci-dessous vous aideront à atteindre de nouveaux sommets !",
+    "poor": "Merci pour votre honnêteté. Vos réponses montrent de vrais défis, mais rappelez-vous que tout peut s'améliorer avec les bonnes stratégies et le bon soutien.",
     "overallScore": "Score Global",
     "happinessLevel": "Votre niveau de bonheur au travail",
     "scoreByDomain": "Score par domaine",
     "adviceTitle": "Vos Conseils Personnalisés",
     "adviceIntro": "Basé sur votre profil de bien-être, voici 3 conseils adaptés pour vous aider à vous épanouir :",
-    "aiTips": "✨ Conseils générés par IA adaptés pour vous",
+    "aiTips": "Conseils générés par IA adaptés pour vous",
     "privacyNote": "Confidentialité : Vos réponses sont totalement anonymes et aident à améliorer le bien-être général au travail.",
     "newAssessment": "Commencer une Nouvelle Évaluation",
     "backTo": "Retour à {{companyName}}",
@@ -1010,10 +1010,10 @@
   "calendarDay": {
     "holidayIndicator": "F",
     "tooltip": {
-      "publicHoliday": "🎉 Jour Férié",
-      "overlappingLeaves": "⚠️ Congés Chevauchants !",
-      "statusPending": "⏳ En attente",
-      "statusApproved": "✓ Approuvé"
+      "publicHoliday": "Jour Férié",
+      "overlappingLeaves": "Congés Chevauchants !",
+      "statusPending": "En attente",
+      "statusApproved": "Approuvé"
     }
   },
   "managerHeatmapCell": {
@@ -1402,15 +1402,15 @@
     },
     "infoBox": {
       "title": "Contrôle rapide de 2 minutes sur vos objectifs",
-      "statusLegend": "🟢 Vert = Sur la bonne voie | 🟡 Jaune = Quelques problèmes | 🔴 Rouge = Bloqué/Besoin d'aide"
+      "statusLegend": "Vert = Sur la bonne voie | Jaune = Quelques problèmes | Rouge = Bloqué/Besoin d'aide"
     },
     "form": {
       "goalLabel": "Objectif {{number}} : {{title}}",
       "statusQuestion": "Comment cet objectif progresse-t-il ?",
       "statusButtons": {
-        "onTrack": "🟢 Sur la Bonne Voie",
-        "someIssues": "🟡 Quelques Problèmes",
-        "blocked": "🔴 Bloqué"
+        "onTrack": "Sur la Bonne Voie",
+        "someIssues": "Quelques Problèmes",
+        "blocked": "Bloqué"
       },
       "progressUpdate": {
         "label": "Mise à Jour de la Progression (optionnel)",
@@ -2863,7 +2863,7 @@
     }
   },
   "interview": {
-    "closing": "Merci pour cet entretien virtuel ! Notre recruteur RH examinera attentivement vos réponses et vous contactera pour les éventuelles prochaines étapes. Nous apprécions vraiment le temps que vous avez pris pour partager votre expérience avec nous. 🙏",
+    "closing": "Merci pour cet entretien virtuel ! Notre recruteur RH examinera attentivement vos réponses et vous contactera pour les éventuelles prochaines étapes. Nous apprécions vraiment le temps que vous avez pris pour partager votre expérience avec nous.",
     "cta": {
       "title": "Entretien Virtuel Disponible",
       "subtitle": "10 questions personnalisées • ~10 minutes",
@@ -2956,7 +2956,7 @@
       "scoringButton": "Notation...",
       "showHint": "Voir un Indice",
       "hideHint": "Masquer l'Indice",
-      "hintLabel": "💡 Réponse Suggérée (Inspiration Seulement)",
+      "hintLabel": "Réponse Suggérée (Inspiration Seulement)",
       "strengthsLabel": "✓ Points Forts",
       "improveLabel": "↗ À Améliorer",
       "betterPhrasing": "Meilleure formulation :",

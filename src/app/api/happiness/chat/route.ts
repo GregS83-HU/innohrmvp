@@ -351,14 +351,14 @@ async function generatePersonalizedAdvice(
     // Fallback advice by language
     const fallbackAdvice: Record<SupportedLanguage, string[]> = {
       en: [
-        "🚀 Keep up the great work! Share your best practices with colleagues",
-        "💡 Identify one small thing to improve this week and go for it",
-        "🌱 Remember that every small step counts; you're not alone in this journey"
+        "Keep up the great work! Share your best practices with colleagues",
+        "Identify one small thing to improve this week and go for it",
+        "Remember that every small step counts; you're not alone in this journey"
       ],
       hu: [
-        "🚀 Folytasd a nagyszerű munkát! Oszd meg a legjobb gyakorlataidat a kollégáiddal",
-        "💡 Találj ki egy apró dolgot, amit ezen a héten fejleszthetsz, és próbáld ki",
-        "🌱 Ne feledd, minden kis lépés számít; nem vagy egyedül ezen az úton"
+        "Folytasd a nagyszerű munkát! Oszd meg a legjobb gyakorlataidat a kollégáiddal",
+        "Találj ki egy apró dolgot, amit ezen a héten fejleszthetsz, és próbáld ki",
+        "Ne feledd, minden kis lépés számít; nem vagy egyedül ezen az úton"
       ]
     };
 
@@ -391,36 +391,36 @@ async function generatePersonalizedAdvice(
     const fallbackMessages: Record<SupportedLanguage, string[][]> = {
       en: [
         [
-          "🎯 You're on the right track! Keep nurturing what makes you happy at work",
-          "🤝 Share your positive energy with colleagues—it can do wonders",
-          "📈 Use this momentum to set a new stimulating challenge"
+          "You're on the right track! Keep nurturing what makes you happy at work",
+          "Share your positive energy with colleagues—it can do wonders",
+          "Use this momentum to set a new stimulating challenge"
         ],
         [
-          "🌱 Pick one aspect of your work to improve and start small",
-          "☕ Take time to chat with colleagues; relationships often make the difference",
-          "⏸️ Give yourself real breaks during the day; your brain needs to rest"
+          "Pick one aspect of your work to improve and start small",
+          "Take time to chat with colleagues; relationships often make the difference",
+          "Give yourself real breaks during the day; your brain needs to rest"
         ],
         [
-          "🫂 Remember, you are not alone—feel free to share your struggles",
-          "🎯 Set very simple goals to gradually regain confidence",
-          "🌅 Each new day is a chance to see things differently"
+          "Remember, you are not alone—feel free to share your struggles",
+          "Set very simple goals to gradually regain confidence",
+          "Each new day is a chance to see things differently"
         ]
       ],
       hu: [
         [
-          "🎯 Jó úton jársz! Folytasd azt, ami boldoggá tesz a munkahelyeden",
-          "🤝 Oszd meg a pozitív energiádat a kollégáiddal—csodákat tehet",
-          "📈 Használd ezt a lendületet egy új, ösztönző kihívás kitűzésére"
+          "Jó úton jársz! Folytasd azt, ami boldoggá tesz a munkahelyeden",
+          "Oszd meg a pozitív energiádat a kollégáiddal—csodákat tehet",
+          "Használd ezt a lendületet egy új, ösztönző kihívás kitűzésére"
         ],
         [
-          "🌱 Válassz egy területet a munkádból, amit fejleszthetsz, és kezdj kicsiben",
-          "☕ Szánj időt a beszélgetésre a kollégáiddal; a kapcsolatok gyakran mindent megváltoztatnak",
-          "⏸️ Adj magadnak valódi szüneteket a nap folyamán; az agyadnak pihenésre van szüksége"
+          "Válassz egy területet a munkádból, amit fejleszthetsz, és kezdj kicsiben",
+          "Szánj időt a beszélgetésre a kollégáiddal; a kapcsolatok gyakran mindent megváltoztatnak",
+          "Adj magadnak valódi szüneteket a nap folyamán; az agyadnak pihenésre van szüksége"
         ],
         [
-          "🫂 Ne feledd, nem vagy egyedül—bátran oszd meg a nehézségeidet",
-          "🎯 Tűzz ki nagyon egyszerű célokat, hogy fokozatosan visszanyerd az önbizalmadat",
-          "🌅 Minden új nap lehetőség arra, hogy másképp lásd a dolgokat"
+          "Ne feledd, nem vagy egyedül—bátran oszd meg a nehézségeidet",
+          "Tűzz ki nagyon egyszerű célokat, hogy fokozatosan visszanyerd az önbizalmadat",
+          "Minden új nap lehetőség arra, hogy másképp lásd a dolgokat"
         ]
       ]
     };
@@ -440,21 +440,21 @@ async function generatePersonalizedAdvice(
 // End messages by language
 const endMessages: Record<SupportedLanguage, EndMessageSet> = {
   en: {
-    excellent: "Fantastic! Your workplace well-being is shining positively. Keep cultivating this great energy! 🌟",
-    good: "Very good! You have solid foundations for your professional well-being. A few tweaks can make you shine even more! ✨",
-    improvable: "Your situation has good potential for improvement. The tips below will help you reach new heights! 🚀",
-    poor: "Thank you for your honesty. Your answers show real challenges, but remember that everything can improve with the right strategies and support. 💙"
+    excellent: "Fantastic! Your workplace well-being is shining positively. Keep cultivating this great energy! ",
+    good: "Very good! You have solid foundations for your professional well-being. A few tweaks can make you shine even more! ",
+    improvable: "Your situation has good potential for improvement. The tips below will help you reach new heights! ",
+    poor: "Thank you for your honesty. Your answers show real challenges, but remember that everything can improve with the right strategies and support. "
   },
   hu: {
-    excellent: "Fantasztikus! A munkahelyi jólléted pozitívan ragyog. Folytasd ezt a nagyszerű energiát! 🌟",
-    good: "Nagyon jó! Szilárd alapokkal rendelkezel a szakmai jóllétedhez. Néhány apró változtatással még jobban ragyoghatsz! ✨",
-    improvable: "A helyzetednek jó fejlődési potenciálja van. Az alábbi tippek segítenek új magasságokat elérni! 🚀",
-    poor: "Köszönöm az őszinteségedet. A válaszaid valódi kihívásokat mutatnak, de ne feledd, hogy minden javítható a megfelelő stratégiákkal és támogatással. 💙"
+    excellent: "Fantasztikus! A munkahelyi jólléted pozitívan ragyog. Folytasd ezt a nagyszerű energiát! ",
+    good: "Nagyon jó! Szilárd alapokkal rendelkezel a szakmai jóllétedhez. Néhány apró változtatással még jobban ragyoghatsz! ",
+    improvable: "A helyzetednek jó fejlődési potenciálja van. Az alábbi tippek segítenek új magasságokat elérni! ",
+    poor: "Köszönöm az őszinteségedet. A válaszaid valódi kihívásokat mutatnak, de ne feledd, hogy minden javítható a megfelelő stratégiákkal és támogatással. "
   }
 };
 
 const completionMessages: Record<SupportedLanguage, string> = {
-  en: `Thank you for sharing your sincere thoughts! 🎉
+  en: `Thank you for sharing your sincere thoughts!
 
 Your well-being assessment is now complete. Here's a summary of your results:
 
@@ -463,7 +463,7 @@ Your well-being assessment is now complete. Here's a summary of your results:
 {endMessage}
 
 This assessment is completely anonymous and designed to support overall employee well-being within the company.`,
-  hu: `Köszönöm, hogy megosztottad őszinte gondolataidat! 🎉
+  hu: `Köszönöm, hogy megosztottad őszinte gondolataidat!
 
 A jólléti felmérésed most befejeződött. Itt van az eredmények összefoglalója:
 

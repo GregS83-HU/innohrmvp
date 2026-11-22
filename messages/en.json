@@ -419,7 +419,7 @@
       "serverError": "Unexpected server error during analysis",
       "createdRunLater": "Position created successfully. You can run the analysis later.",
       "aiGenerationFailed": "Failed to generate descriptions. Please try again.",
-      "aiGenerationSuccess": "✨ Descriptions generated successfully! Review them below and make any necessary adjustments.",
+      "aiGenerationSuccess": "Descriptions generated successfully! Review them below and make any necessary adjustments.",
       "positionNameRequired": "Please enter a position name before generating descriptions.",
       "selectManager": "Please select a manager.",
       "selectEmploymentType": "Please select an employment type.",
@@ -448,7 +448,7 @@
     "aiSection": {
       "title": "AI-Powered Description Generator",
       "description": "Let AI create professional job descriptions for you. Provide a rough draft and get both a marketing version for ads and a detailed version for candidate analysis.",
-      "generateButton": "Generate with AI ✨"
+      "generateButton": "Generate with AI"
     },
     "aiModal": {
       "title": "Generate Position Descriptions with AI",
@@ -548,9 +548,9 @@
       "cta": "Finish setup"
     },
     "loading": "Loading assessment...",
-    "header": "Happy Check 😊",
+    "header": "Happy Check",
     "inputPlaceholder": "Type your response...",
-    "confidentiality": "💬 Confidential and anonymous conversation • Your data is not stored personally",
+    "confidentiality": "Confidential and anonymous conversation • Your data is not stored personally",
     "aggregate": "• Aggregate insights help improve {{companyName}}'s workplace wellness"
   },
   "features": {
@@ -563,8 +563,8 @@
     "quickSub": "in only 12 questions"
   },
   "welcome": {
-    "default": "Hello! 😊 I'm here to help you assess your workplace well-being. This evaluation is completely anonymous and confidential. We'll discuss various aspects of your work life for a few minutes. Are you ready to start?",
-    "company": "Hello! 😊 I'm here to help you assess your workplace well-being at {{companyName}}. This evaluation is completely anonymous and confidential. We'll discuss various aspects of your work life for a few minutes. Are you ready to start?"
+    "default": "Hello! I'm here to help you assess your workplace well-being. This evaluation is completely anonymous and confidential. We'll discuss various aspects of your work life for a few minutes. Are you ready to start?",
+    "company": "Hello! I'm here to help you assess your workplace well-being at {{companyName}}. This evaluation is completely anonymous and confidential. We'll discuss various aspects of your work life for a few minutes. Are you ready to start?"
   },
   "progress": {
     "title": "Happy Check Progress",
@@ -580,20 +580,20 @@
     "work_life_balance": "Work-Life Balance"
   },
   "completion": {
-    "thankYou": "Thank you for your participation! 🎉",
+    "thankYou": "Thank you for your participation!",
     "complete": "Your workplace well-being assessment is now complete.",
     "recordedFor": "Results recorded for {{companyName}}",
     "summaryTitle": "Your Well-being Summary",
-    "excellent": "Fantastic! Your workplace well-being is shining positively. Keep cultivating this great energy! 🌟",
-    "good": "Very good! You have solid foundations for your professional well-being. A few tweaks can make you shine even more! ✨",
-    "improvable": "Your situation has good potential for improvement. The tips below will help you reach new heights! 🚀",
-    "poor": "Thank you for your honesty. Your answers show real challenges, but remember that everything can improve with the right strategies and support. 💙",
+    "excellent": "Fantastic! Your workplace well-being is shining positively. Keep cultivating this great energy!",
+    "good": "Very good! You have solid foundations for your professional well-being. A few tweaks can make you shine even more!",
+    "improvable": "Your situation has good potential for improvement. The tips below will help you reach new heights!",
+    "poor": "Thank you for your honesty. Your answers show real challenges, but remember that everything can improve with the right strategies and support.",
     "overallScore": "Overall Score",
     "happinessLevel": "Your workplace happiness level",
     "scoreByDomain": "Score by domain",
     "adviceTitle": "Your Personalized Advice",
     "adviceIntro": "Based on your well-being profile, here are 3 tailored tips to help you thrive:",
-    "aiTips": "✨ AI-generated tips tailored for you",
+    "aiTips": "AI-generated tips tailored for you",
     "privacyNote": "Privacy: Your responses are fully anonymous and help improve overall workplace well-being.",
     "newAssessment": "Start a New Assessment",
     "backTo": "Back to {{companyName}}",
@@ -1008,10 +1008,10 @@
   "calendarDay": {
     "holidayIndicator": "H",
     "tooltip": {
-      "publicHoliday": "🎉 Public Holiday",
-      "overlappingLeaves": "⚠️ Overlapping Leaves!",
-      "statusPending": "⏳ Pending",
-      "statusApproved": "✓ Approved"
+      "publicHoliday": "Public Holiday",
+      "overlappingLeaves": "Overlapping Leaves!",
+      "statusPending": "Pending",
+      "statusApproved": "Approved"
     }
   },
   "managerHeatmapCell": {
@@ -1400,15 +1400,15 @@
     },
     "infoBox": {
       "title": "Quick 2-minute check-in on your goals",
-      "statusLegend": "🟢 Green = On track | 🟡 Yellow = Some issues | 🔴 Red = Blocked/Need help"
+      "statusLegend": "Green = On track | Yellow = Some issues | Red = Blocked/Need help"
     },
     "form": {
       "goalLabel": "Goal {{number}}: {{title}}",
       "statusQuestion": "How is this goal progressing?",
       "statusButtons": {
-        "onTrack": "🟢 On Track",
-        "someIssues": "🟡 Some Issues",
-        "blocked": "🔴 Blocked"
+        "onTrack": "On Track",
+        "someIssues": "Some Issues",
+        "blocked": "Blocked"
       },
       "progressUpdate": {
         "label": "Progress Update (optional)",
@@ -2553,7 +2553,7 @@
     }
   },
   "interview": {
-    "closing": "Thank you for this virtual interview! Our HR recruiter will carefully review your responses and contact you about potential next steps. We truly appreciate the time you've taken to share your experience with us. 🙏",
+    "closing": "Thank you for this virtual interview! Our HR recruiter will carefully review your responses and contact you about potential next steps. We truly appreciate the time you've taken to share your experience with us.",
     "cta": {
       "title": "Virtual Interview Available",
       "subtitle": "10 personalised questions • ~10 minutes",
@@ -2646,7 +2646,7 @@
       "scoringButton": "Scoring...",
       "showHint": "See Hint",
       "hideHint": "Hide Hint",
-      "hintLabel": "💡 Suggested Answer (Inspiration Only)",
+      "hintLabel": "Suggested Answer (Inspiration Only)",
       "strengthsLabel": "✓ Strengths",
       "improveLabel": "↗ Improve",
       "betterPhrasing": "Better phrasing:",

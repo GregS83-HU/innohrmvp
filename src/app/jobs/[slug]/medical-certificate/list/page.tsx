@@ -329,7 +329,7 @@ export default function MedicalCertificatesPage() {
             
             <button
               onClick={() => setShowAll((prev) => !prev)}
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] ${
+              className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform ${
                 showAll 
                   ? 'bg-brand-600 hover:bg-brand-700 text-white ' 
                   : 'bg-slate-100 hover:bg-slate-200 text-slate-700'

@@ -104,7 +104,7 @@ export default function UploadCertificateClient() {
             </div>
             <button
               onClick={() => setSuccessMessage('')}
-              className="inline-flex items-center justify-center gap-2 mt-3 bg-brand-600 hover:bg-brand-700 text-white py-2 px-5 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+              className="inline-flex items-center justify-center gap-2 mt-3 bg-brand-600 hover:bg-brand-700 text-white py-2 px-5 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform "
             >
               <Upload className="w-5 h-5" />
               {t('buttons.uploadAnother')}
@@ -129,7 +129,7 @@ export default function UploadCertificateClient() {
               <a
                 href="https://drive.google.com/uc?export=download&id=1ASXxoxYw4hq28BSTNm54fKKZEv4NOjcG"
                 download
-                className="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+                className="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform "
               >
                 <FileText className="w-5 h-5" />
                 {t('uploadCertificate.demo.downloadButton')}
@@ -248,7 +248,7 @@ export default function UploadCertificateClient() {
               <button
                 onClick={handleConfirm}
                 disabled={saving}
-                className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-3 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-3 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {saving ? (
                   <>

@@ -10,6 +10,7 @@ import { useLocale } from 'i18n/LocaleProvider'
 import { useModuleAccess } from '../../../../../hooks/useModuleAccess'
 import LockedModuleNotice from '../../../../../components/entitlements/LockedModuleNotice'
 import { safeErrorInfo } from '../../../../../lib/logSafe';
+import StatusDot from '../../../../../components/ui/StatusDot';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -108,14 +109,7 @@ export default function PerformanceDashboard() {
     }
   }
 
-  const getStatusIcon = (status: string | null) => {
-    switch (status) {
-      case 'green': return '🟢'
-      case 'yellow': return '🟡'
-      case 'red': return '🔴'
-      default: return '⚪'
-    }
-  }
+  const getStatusIcon = (status: string | null) => <StatusDot status={status} size="lg" />
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString()

@@ -53,7 +53,7 @@ export async function parsePdfBuffer(buffer: Buffer): Promise<string> {
     // Final fallback message
     return `CV téléchargé avec succès (${Math.round(buffer.length / 1024)} Ko)
 
-⚠️ Extraction automatique du texte indisponible
+Extraction automatique du texte indisponible
 
 Le fichier PDF a été sauvegardé et est accessible à l'équipe de recrutement.
 

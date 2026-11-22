@@ -3,7 +3,7 @@
 import React, { Suspense, useState, useEffect, useRef } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
-import { Send, MessageCircle, Heart, BarChart3, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Send, MessageCircle, Heart, BarChart3, CheckCircle, ArrowLeft, Smile, Meh, Frown, Lightbulb } from 'lucide-react';
 import { useLocale } from 'i18n/LocaleProvider';
 
 const supabase = createClient(
@@ -265,9 +265,9 @@ const HappinessCheckInner: React.FC = () => {
   };
 
   const getScoreEmoji = (score: number) => {
-    if (score >= 8) return '😊';
-    if (score >= 6) return '😐';
-    return '😔';
+    if (score >= 8) return <Smile className="w-4 h-4" aria-hidden="true" />;
+    if (score >= 6) return <Meh className="w-4 h-4" aria-hidden="true" />;
+    return <Frown className="w-4 h-4" aria-hidden="true" />;
   };
 
   const permaLabels = {
@@ -432,7 +432,7 @@ const HappinessCheckInner: React.FC = () => {
             {personalizedAdvice && personalizedAdvice.length > 0 ? (
               <div className="bg-slate-50 border border-brand-200 rounded-lg p-6 mb-8">
                 <h3 className="text-xl font-semibold text-brand-800 mb-4 flex items-center gap-2">
-                  <span className="text-2xl">💡</span>
+                  <Lightbulb className="w-5 h-5" aria-hidden="true" />
                   {t('completion.adviceTitle')}
                 </h3>
                 <p className="text-brand-700 text-sm mb-4">{t('completion.adviceIntro')}</p>

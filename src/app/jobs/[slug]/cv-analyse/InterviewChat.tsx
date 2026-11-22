@@ -12,6 +12,8 @@ import {
   Mic,
   Square,
   PenLine,
+  Target,
+  Zap,
 } from 'lucide-react'
 import { useLocale } from 'i18n/LocaleProvider'
 import { safeErrorInfo } from '../../../../../lib/logSafe';
@@ -228,7 +230,7 @@ export default function InterviewChat({
       setError('')
 
       const closing = t('interview.closing') ||
-        "Thank you for this virtual interview! Our HR recruiter will carefully review your responses and contact you about potential next steps. We truly appreciate the time you've taken. 🙏"
+        "Thank you for this virtual interview! Our HR recruiter will carefully review your responses and contact you about potential next steps. We truly appreciate the time you've taken. "
 
       setClosingMessage(closing)
 
@@ -311,12 +313,12 @@ export default function InterviewChat({
 
           <div className="grid grid-cols-3 gap-3 mb-6 text-center">
             {[
-              { icon: '🎯', label: t('interview.cta.feature1') || 'Personalised questions' },
-              { icon: '🤖', label: t('interview.cta.feature2') || 'AI-powered' },
-              { icon: '⚡', label: t('interview.cta.feature3') || 'Instant results' },
+              { icon: Target, label: t('interview.cta.feature1') || 'Personalised questions' },
+              { icon: Bot, label: t('interview.cta.feature2') || 'AI-powered' },
+              { icon: Zap, label: t('interview.cta.feature3') || 'Instant results' },
             ].map((f, i) => (
               <div key={i} className="bg-white rounded-lg p-3 border border-slate-100 shadow-sm">
-                <div className="text-xl mb-1">{f.icon}</div>
+                <f.icon className="w-5 h-5 text-brand-600 mx-auto mb-1" aria-hidden="true" />
                 <p className="text-xs text-slate-600 font-medium">{f.label}</p>
               </div>
             ))}
@@ -325,7 +327,7 @@ export default function InterviewChat({
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={handleStart}
-              className="flex-1 flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-3 px-6 rounded-xl font-semibold text-sm sm:text-base transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+              className="flex-1 flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white py-3 px-6 rounded-xl font-semibold text-sm sm:text-base transition-all shadow-md hover:shadow-lg transform "
             >
               <MessageSquare className="w-4 h-4" />
               {t('interview.cta.startButton') || 'Start Virtual Interview'}
